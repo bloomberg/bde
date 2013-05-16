@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_hashtablebucket.h                                           -*-C++-*-
@@ -41,8 +41,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                              // MyList_Iterator
 //                              // ===============
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  class MyList_Iterator {
+//      // &#39;Iterator&#39; type for class &#39;MyList&#39;.  This class will be typedef&#39;ed
+//      // to be a nested class within &#39;MyList&#39;.
+//
 //      // PRIVATE TYPES
 //      typedef bslalg::BidirectionalNode&lt;PAYLOAD&gt; Node;
 //
@@ -50,7 +53,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      Node *d_node;
 //
 //      // FRIENDS
-//      template &lt;typename PL&gt;
+//      template &lt;class PL&gt;
 //      friend bool operator==(MyList_Iterator&lt;PL&gt;,
 //                             MyList_Iterator&lt;PL&gt;);
 //
@@ -74,15 +77,18 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Then, we define our &#39;MyList&#39; class, which will inherit from
 // &#39;bslalg::HashTableBucket&#39;.  &#39;MyList::Iterator&#39; will be a public typedef of
 // &#39;MyList_Iterator&#39;.  For brevity, we will omit a lot of functionality that a
-// full, general-purpose list class would have, implementing only what we will
+// full, general-purpose list class would have, implmenting only what we will
 // need for this example.
 //..
 //                                  // ======
 //                                  // MyList
 //                                  // ======
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  class MyList : public bslalg::HashTableBucket {
+//      // This class stores a doubly-linked list containing objects of type
+//      // &#39;PAYLOAD&#39;.
+//
 //      // PRIVATE TYPES
 //      typedef bslalg::BidirectionalNode&lt;PAYLOAD&gt; Node;
 //
@@ -97,8 +103,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //    public:
 //      // CREATORS
 //      explicit
-//      MyList(bslma::Allocator *basicAllocator)
-//      : d_allocator_p(basicAllocator)
+//      MyList(bslma::Allocator *basicAllocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
 //          reset();
 //      }
@@ -111,21 +117,21 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      void popBack();
 //  };
 //..
-// Next, we implement the functions for the iterator type.
+// Next, we implment the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator
 //                              // ---------------
 //
 //  // MANIPULATORS
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  MyList_Iterator&lt;PAYLOAD&gt; MyList_Iterator&lt;PAYLOAD&gt;::operator++()
 //  {
 //      d_node = (Node *) d_node-&gt;nextLink();
 //      return *this;
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  inline
 //  bool operator==(MyList_Iterator&lt;PAYLOAD&gt; lhs,
 //                  MyList_Iterator&lt;PAYLOAD&gt; rhs)
@@ -133,7 +139,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      return lhs.d_node == rhs.d_node;
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  inline
 //  bool operator!=(MyList_Iterator&lt;PAYLOAD&gt; lhs,
 //                  MyList_Iterator&lt;PAYLOAD&gt; rhs)
@@ -148,30 +154,32 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                  // ------
 //
 //  // CREATORS
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  MyList&lt;PAYLOAD&gt;::~MyList()
 //  {
 //      typedef bslalg::BidirectionalLink BDL;
 //
 //      for (Node *p = (Node *) first(); p; ) {
-//          Node *condemned = p;
+//          Node *toDelete = p;
 //          p = (Node *) p-&gt;nextLink();
 //
-//          condemned-&gt;value().~ValueType();
-//          d_allocator_p-&gt;deleteObjectRaw(static_cast&lt;BDL *&gt;(condemned));
+//          toDelete-&gt;value().~ValueType();
+//          d_allocator_p-&gt;deleteObjectRaw(static_cast&lt;BDL *&gt;(toDelete));
 //      }
 //
 //      reset();
 //  }
 //
 //  // MANIPULATORS
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  void MyList&lt;PAYLOAD&gt;::pushBack(const PAYLOAD&amp; value)
 //  {
 //      Node *node = (Node *) d_allocator_p-&gt;allocate(sizeof(Node));
 //      node-&gt;setNextLink(0);
 //      node-&gt;setPreviousLink(last());
-//      new (&amp;node-&gt;value()) ValueType(value);
+//      bslalg::ScalarPrimitives::copyConstruct(&amp;node-&gt;value(),
+//                                              value,
+//                                              d_allocator_p);
 //
 //      if (0 == last()) {
 //          BSLS_ASSERT_SAFE(0 == first());
@@ -184,14 +192,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      }
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  void MyList&lt;PAYLOAD&gt;::popBack()
 //  {
 //      BSLS_ASSERT_SAFE(first() &amp;&amp; last());
 //
-//      Node *condemned = (Node *) last();
+//      Node *toDelete = (Node *) last();
 //
-//      if (first() != condemned) {
+//      if (first() != toDelete) {
 //          BSLS_ASSERT_SAFE(0 != last());
 //          setLast(last()-&gt;previousLink());
 //          last()-&gt;setNextLink(0);
@@ -200,70 +208,43 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          reset();
 //      }
 //
-//      condemned-&gt;value().~ValueType();
-//      d_allocator_p-&gt;deallocate(condemned);
+//      d_allocator_p-&gt;deleteObject(toDelete);
 //  }
 //..
-// Next, in our &#39;main&#39;, we have finished implementing our &#39;MyList&#39; class and
-// its &#39;Iterator&#39; type, we will use one to store a fibonacci sequence of ints.
-// We declare the memory allocator that we will use:
+// Next, in &#39;main&#39;, we use our &#39;MyList&#39; class to store a list of ints:
 //..
-//          bslma::TestAllocator oa(&quot;oa&quot;);
+//  MyList&lt;int&gt; intList;
 //..
-// Then, we enter a block and declare our list &#39;fibonacciList&#39; to contain the
-// sequence:
+// Then, we declare an array of ints to populate it with:
 //..
-//          {
-//              MyList&lt;int&gt; fibonacciList(&amp;oa);
-//              typedef MyList&lt;int&gt;::Iterator Iterator;
-//
-//              {
+//  int intArray[] = { 8, 2, 3, 5, 7, 2 };
+//  enum { NUM_INTS = sizeof intArray / sizeof *intArray };
 //..
-// Next, we initialize the list to containing the first 2 values, &#39;0&#39; and &#39;1&#39;:
+// Now, we iterate, pushing ints to the list:
 //..
-//                  fibonacciList.pushBack(0);
-//                  fibonacciList.pushBack(1);
+//  for (const int *pInt = intArray; pInt &lt; intArray + NUM_INTS; ++pInt) {
+//      intList.pushBack(*pInt);
+//  }
 //..
-// Then, we create iterators &#39;first&#39; and &#39;second&#39; and point them to those first
-// two elements:
+// Finally, we use our &#39;Iterator&#39; type to traverse the list and observe its
+// values:
 //..
-//                  Iterator first  = fibonacciList.begin();
-//                  Iterator second = first;
-//                  ++second;
-//
-//                  assert(0 == *first);
-//                  assert(1 == *second);
-//..
-// Next, we iterate a dozen times, each time adding a new element to the end of
-// the list containing a value that is the sum of the values of the previous
-// two elements:
-//..
-//                  for (int i = 0; i &lt; 12; ++i, ++first, ++second) {
-//                      fibonacciList.pushBack(*first + *second);
-//                  }
-//              }
-//..
-// Now, we traverse the list and print out its elements:
-//..
-//              if (verbose) printf(&quot;Fibonacci Numbers: &quot;);
-//
-//              const Iterator begin = fibonacciList.begin();
-//              const Iterator end   = fibonacciList.end();
-//              for (Iterator it = begin; end != it; ++it) {
-//                  if (verbose) printf(&quot;%s%d&quot;, begin == it ? &quot;&quot; : &quot;, &quot;, *it);
-//              }
-//              if (verbose) printf(&quot;\n&quot;);
-//          }
-//..
-// Finally, we check the allocator and verify that it&#39;s been used, and that
-// the destruction of &#39;fibonacciList&#39; freed all the memory allocated:
-//..
-//          assert(oa.numBlocksTotal() &gt; 0);
-//          assert(0 == oa.numBlocksInUse());
+//  MyList&lt;int&gt;::Iterator it = intList.begin();
+//  assert(8 == *it);
+//  assert(2 == *++it);
+//  assert(3 == *++it);
+//  assert(5 == *++it);
+//  assert(7 == *++it);
+//  assert(2 == *++it);
+//  assert(intList.end() == ++it);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include &lt;bslalg_bidirectionallink.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
@@ -289,8 +270,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 namespace BloombergLP {
 namespace bslalg {
-
-class BidirectionalLink;
 
                           // =====================
                           // class HashTableBucket
@@ -336,6 +315,12 @@ struct HashTableBucket {
         // Set &#39;first&#39; and &#39;last&#39; to a null pointer value.
 
     // ACCESSORS
+    BidirectionalLink *end() const;
+        // Return the next node after the end of this bucket, or 0 if
+        // &#39;0 == last()&#39;, so the range to traverse to traverse all nodes in the
+        // bucket is always &#39;[ first(), end() )&#39; regardless of whether the
+        // bucket is empty.
+
     BidirectionalLink *first() const;
         // Return the address of the first element in this hash bucket, or a
         // null pointer value if the bucket is empty.
@@ -403,6 +388,12 @@ void HashTableBucket::reset()
 
 // ACCESSORS
 inline
+BidirectionalLink *HashTableBucket::end() const
+{
+    return d_last_p ? d_last_p-&gt;nextLink() : 0;
+}
+
+inline
 BidirectionalLink *HashTableBucket::first() const
 {
     return d_first_p;
@@ -437,7 +428,7 @@ bool bslalg::operator!=(const bslalg::HashTableBucket&amp; lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_protocoltest.h                                                -*-C++-*-
@@ -596,9 +596,10 @@ ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::operator-&gt;()
 
 template &lt;class BSLS_PROTOCOL&gt;
 inline
-void ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::setTestStatus(ProtocolTest_Status *status)
+void
+ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::setTestStatus(ProtocolTest_Status *testStatus)
 {
-    d_status = status;
+    d_status = testStatus;
 }
 
 template &lt;class BSLS_PROTOCOL&gt;
@@ -763,7 +764,7 @@ bool ProtocolTest&lt;BSLS_TESTIMP&gt;::lastStatus() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls_bsltestutil Component</title>
+<title>BDE 2.17 Oss1: bsls_bsltestutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -85,6 +85,8 @@ Namespaces</h2></td></tr>
 <a href="#4.1.1">Example 1: Writing a test driver</a> </li>
 <li>
 <a href="#4.1.2">Example 2: Adding Support For A New User-Defined Type</a> </li>
+<li>
+<a href="#4.1.3">Example 3: Printing Unusual Types with <code>printf</code></a> </li>
 </ul>
 </li>
 </ul>
@@ -108,33 +110,25 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Macros: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#a33ccbde339f78db66d2b902188146160">BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X)</a> </td><td>print args if <code>!X</code>  </td></tr>
+<td><a class="el" href="bsls__bsltestutil_8h.html#a33ccbde339f78db66d2b902188146160">BSLS_BSLTESTUTIL_LOOP_ASSERT( I, X)</a>  </td><td>print args if <code>!X</code>  </td></tr>
 <tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#a30282f699747101080f1961272ef1deb">BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X)</a> </td><td>print args if <code>!X</code>  </td></tr>
+<td><a class="el" href="bsls__bsltestutil_8h.html#a30282f699747101080f1961272ef1deb">BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X)</a>  </td><td>print args if <code>!X</code>  </td></tr>
 <tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#ab052d940009f3bc6a6bc353cac0f280e">BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X)</a> </td><td>print args if <code>!X</code>  </td></tr>
+<td><a class="el" href="bsls__bsltestutil_8h.html#ab052d940009f3bc6a6bc353cac0f280e">BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X)</a>  </td><td>print args if <code>!X</code>  </td></tr>
 <tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#afd71602f0a1bda2921accdc478d7e91b">BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X)</a> </td><td>print args if <code>!X</code>  </td></tr>
+<td><a class="el" href="bsls__bsltestutil_8h.html#afd71602f0a1bda2921accdc478d7e91b">BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X)</a>  </td><td>print args if <code>!X</code>  </td></tr>
 <tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#a0a9aa70669830bad6ddead3912e66bdf">BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X)</a> </td><td>print args if <code>!X</code>  </td></tr>
+<td><a class="el" href="bsls__bsltestutil_8h.html#a0a9aa70669830bad6ddead3912e66bdf">BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X)</a>  </td><td>print args if <code>!X</code>  </td></tr>
 <tr>
 <td><a class="el" href="bsls__bsltestutil_8h.html#ac1373ac87e57a0112d80630efcd8ab92">BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X)</a> </td><td>print args if <code>!X</code>  </td></tr>
-<tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#a03d4c472006a6b9571611d95896759dd">BSLS_BSLTESTUTIL_Q(X)</a> </td><td>quote identifier literally  </td></tr>
-<tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#aaf057216ba98f4a8ccee31220862aed7">BSLS_BSLTESTUTIL_P(X)</a> </td><td>print identifier and value  </td></tr>
-<tr>
-<td><a class="el" href="bsls__bsltestutil_8h.html#a150ba17c509fd88418789854d60d0c29">BSLS_BSLTESTUTIL_P_(X)</a> </td><td>print identifier and value without <code>\n</code>  </td></tr>
-<tr>
-<td>BSLS_BSLTESTUTIL_L_ </td><td>current line number  </td></tr>
-<tr>
-<td>BSLS_BSLTESTUTIL_T_ </td><td>print tab without <code>\n</code>  </td></tr>
 </table>
 </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="el" href="bsls__bsltestutil_8h.html#a03d4c472006a6b9571611d95896759dd">BSLS_BSLTESTUTIL_Q(X)</a> : quote identifier literally <a class="el" href="bsls__bsltestutil_8h.html#aaf057216ba98f4a8ccee31220862aed7">BSLS_BSLTESTUTIL_P(X)</a> : print identifier and value <a class="el" href="bsls__bsltestutil_8h.html#a150ba17c509fd88418789854d60d0c29">BSLS_BSLTESTUTIL_P_(X)</a>: print identifier and value without <code>\n</code> BSLS_BSLTESTUTIL_L_ : current line number BSLS_BSLTESTUTIL_T_ : print tab without <code>\n</code> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>BSLS_BSLTESTUTIL_FORMAT_ZU : <code>printf</code> format for <code>size_t</code> BSLS_BSLTESTUTIL_FORMAT_TD : <code>printf</code> format for <code>ptrdiff_t</code> BSLS_BSLTESTUTIL_FORMAT_I64: <code>printf</code> format for unsigned 64-bit integers BSLS_BSLTESTUTIL_FORMAT_U64: <code>printf</code> format for signed 64-bit integers </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="4"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides the standard printing macros used in BDE-style test drivers (<code>ASSERT</code>, <code>LOOP_ASSERT</code>, <code>ASSERTV</code>, <code>P</code>, <code>Q</code>, <code>L</code>, and <code>T</code>) for components in the <code>bsl</code> package group. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides standard facilities for for components in the <code>bsl</code> package group to produce test driver output, including the standard printing macros used in BDE-style test drivers (<code>ASSERT</code>, <code>LOOP_ASSERT</code>, <code>ASSERTV</code>, <code>P</code>, <code>Q</code>, <code>L</code>, and <code>T</code>), and a suite of cross-platform format strings for printing C++ or BDE-specific types with <code>printf</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Many components in the <code>bsl</code> package group reside below the standard library; therefore, hierarchical design dictates that the test driver for these components shall not use <code>iostream</code> (which is part of the standard library), and instead they shall only rely on the <code>printf</code> function to print objects' values. Using <code>printf</code> over <code>iostream</code> has the following disadvantages: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
@@ -143,7 +137,7 @@ The <code>printf</code> function requires a format string to specify the way to 
 While the format strings for built-in types can be included as part of the standard boiler plate code of the test driver, printing a user-defined type often requires additional code that is not part of the standard boilerplate.  </li>
 </ul>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides solutions to the these issues by (1) encapsulating all the standard printing macros in a single place and (2) providing a way to extend the supplied macros to support user-defined types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides solutions to the these issues by (1) encapsulating all the standard printing macros in a single place, (2) providing a way to extend the supplied macros to support user-defined types, and (3) providing macros that resolve the correct <code>printf</code> format strings for types that do not have standard, cross-platform format strings of their own. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The macros in this component use a class method template, <code>BslTestUtil::callDebugprint</code>, to print the value of an object of the parameterized type, along with an optional leading string and an optional trailing string, to the console. The value of the object of the parameterized type will be printed using a free function named <code>debugprint</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The macros defined in this component natively support built-in type through the <code>debugprint</code> function overloads for these types defined in this component. The macros can be extended support additional user-defined types by defining function overloads for <code>debugprint</code> that takes a single parameter of each user-defined type, in the same namespace in which the user-defined type is defined. See the second usage example for more details. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -151,7 +145,7 @@ While the format strings for built-in types can be included as part of the stand
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_writing_a_test_driver"></a> <a class="anchor" id="usage.example_1~3A_writing_a_test_driver"></a> <a class="anchor" id="description.usage.example_1~3A_writing_a_test_driver"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Writing a test driver: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we write a component to test, which provides a utility class: <br/>
 <br/>
@@ -176,9 +170,9 @@ While the format strings for built-in types can be included as part of the stand
 <br/>
  Then, we can write a test driver for this component. We start by providing the standard BDE assert test macro: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">//=========================================================================</span>
+<div class="fragment"><pre class="fragment">  <span class="comment">// ========================================================================</span>
   <span class="comment">//                       STANDARD BDE ASSERT TEST MACRO</span>
-  <span class="comment">//-------------------------------------------------------------------------</span>
+  <span class="comment">// ------------------------------------------------------------------------</span>
   <span class="keyword">static</span> <span class="keywordtype">int</span> testStatus = 0;
 
   <span class="keyword">static</span> <span class="keywordtype">void</span> aSsErT(<span class="keywordtype">bool</span> b, <span class="keyword">const</span> <span class="keywordtype">char</span> *s, <span class="keywordtype">int</span> i)
@@ -194,9 +188,9 @@ While the format strings for built-in types can be included as part of the stand
 <br/>
  Next, we define the standard print and <code>LOOP_ASSERT</code> macros, as aliases to the macros defined by this component: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">//=========================================================================</span>
+<div class="fragment"><pre class="fragment">  <span class="comment">// ========================================================================</span>
   <span class="comment">//                       STANDARD BDE TEST DRIVER MACROS</span>
-  <span class="comment">//-------------------------------------------------------------------------</span>
+  <span class="comment">// ------------------------------------------------------------------------</span>
 <span class="preprocessor">  #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT</span>
@@ -227,7 +221,7 @@ While the format strings for built-in types can be included as part of the stand
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.1.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_adding_support_for_a_new_user-defined_type"></a> <a class="anchor" id="usage.example_2~3A_adding_support_for_a_new_user-defined_type"></a> <a class="anchor" id="description.usage.example_2~3A_adding_support_for_a_new_user-defined_type"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.1.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Adding Support For A New User-Defined Type: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a new user-defined type, <code>MyType</code>: <br/>
 <br/>
@@ -305,8 +299,154 @@ While the format strings for built-in types can be included as part of the stand
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_printing_unusual_types_with_printf"></a> <a class="anchor" id="usage.example_3~3A_printing_unusual_types_with_printf"></a> <a class="anchor" id="description.usage.example_3~3A_printing_unusual_types_with_printf"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="4.1.3"></a> </dd></dl>
+<dl class="user"><dt><b>Example 3: Printing Unusual Types with printf: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose we are writing a test driver that needs to print out the contents of a complex data structure in <code>veryVeryVerbose</code> mode. The complex data structure contains, among other values, an array of block sizes, expressed as <code>size_t</code>. It would be very cumbersome, and visually confusing, to print each member of the array with either the <code>P_</code> or <code>Q_</code> standard output macros, so we elect to print out the array as a single string, following the pattern of <code>[ A, B, C, D, E, ... ]</code>. This could be easily accomplished with multiple calls to <code>printf</code>, except that <code>printf</code> has no cross-platform standard formatting string for <code>size_t</code>. We can use the <code>BSLS_BSLTESTUTIL_FORMAT_ZU</code> macro to resolve the appropriate format string for us on each platform. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we write a component to test, which provides an a utility that operates on a list of memory blocks. Each block is a structure containing a base address, a block size, and a pointer to the next block in the list. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>xyza {
+  <span class="keyword">struct </span>Block {
+      <span class="comment">// DATA</span>
+      <span class="keywordtype">char</span>   *d_address;
+      <span class="keywordtype">size_t</span>  d_size;
+      Block  *d_next;
+
+      <span class="comment">// ...</span>
+  };
+
+  <span class="keyword">class </span>BlockList {
+      <span class="comment">// ...</span>
+
+      <span class="comment">// DATA</span>
+      Block *d_head;
+
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      BlockList();
+      ~BlockList();
+
+      <span class="comment">// MANIPULATORS</span>
+
+      Block *begin();
+      Block *end();
+
+      <span class="keywordtype">void</span> addBlock(<span class="keywordtype">size_t</span> size);
+
+      <span class="comment">// ...</span>
+
+      <span class="comment">// ACCESSORS</span>
+      <span class="keywordtype">int</span> length();
+
+      <span class="comment">// ...</span>
+  };
+
+  }  <span class="comment">// close namespace xyza</span>
+</pre></div><br/>
+<br/>
+ Then, we write a test driver for this component. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="comment">// ...</span>
+
+  <span class="comment">// ========================================================================</span>
+  <span class="comment">//                       STANDARD BDE TEST DRIVER MACROS</span>
+  <span class="comment">// ------------------------------------------------------------------------</span>
+
+  <span class="comment">// ...</span>
+</pre></div><br/>
+<br/>
+ Here, after defining the standard BDE test macros, we define a macro, <code>ZU</code> for the platform-specific <code>printf</code> format string for <code>size_t</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="comment">// ========================================================================</span>
+  <span class="comment">//                          PRINTF FORMAT MACROS</span>
+  <span class="comment">// ------------------------------------------------------------------------</span>
+<span class="preprocessor">  #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU</span>
+</pre></div><br/>
+<br/>
+ Note that, we could use <code>BSLS_BSLTESTUTIL_FORMAT_ZU</code> as is, but it is more convenient to define <code>ZU</code> locally as an abbreviation. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Next, we write the test apparatus for the test driver, which includes a support function that prints the list of blocks in a <code>BlockList</code> in a visually succinct form: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> printBlockList(xyza::BlockList &amp;list)
+  {
+      xyza::Block *blockPtr = list.begin();
+
+      printf(<span class="stringliteral">&quot;{\n&quot;</span>);
+      <span class="keywordflow">while</span> (blockPtr != list.end()) {
+</pre></div><br/>
+<br/>
+ Here, we use <code>ZU</code> as the format specifier for the <code>size_t</code> in the <code>printf</code> invocation. <code>ZU</code> is the appropriate format specifier for <code>size_t</code> on each supported platform. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">          printf(<span class="stringliteral">&quot;\t{ address: %p,\tsize: &quot;</span> ZU <span class="stringliteral">&quot; }&quot;</span>,
+                 blockPtr-&gt;d_address,
+                 blockPtr-&gt;d_size);
+          blockPtr = blockPtr-&gt;d_next;
+
+          <span class="keywordflow">if</span> (blockPtr) {
+              printf(<span class="stringliteral">&quot;,\n&quot;</span>);
+          } <span class="keywordflow">else</span> {
+              printf(<span class="stringliteral">&quot;\n&quot;</span>);
+          }
+      }
+      printf(<span class="stringliteral">&quot;}\n&quot;</span>);
+  }
+</pre></div><br/>
+<br/>
+ Note that because we are looping through a number of blocks, formatting the output directly with <code>printf</code> produces more readable output than we would get from callling the standard output macros. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Calling <code>printf</code> directly will yield output similar to: <br/>
+<br/>
+<div class="fragment"><pre class="fragment"> {
+     { address: 0x012345600,    size: 32 },
+     ...
+ }
+</pre></div><br/>
+<br/>
+ while the standard output macros would have produced: <br/>
+<br/>
+<div class="fragment"><pre class="fragment"> {
+     { blockPtr-&gt;d_address = 0x012345600,    blockPtr-&gt;d_size: 32 },
+     ...
+ }
+</pre></div><br/>
+<br/>
+ Now, we write a test function for one of our test cases, which provides a detailed trace of <code>BlockList</code> contents: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> testBlockListConstruction(<span class="keywordtype">bool</span> veryVeryVerbose)
+  {
+      <span class="comment">// ...</span>
+
+      {
+          xyza::BlockList bl;
+
+          bl.addBlock(42);
+          bl.addBlock(19);
+          bl.addBlock(1024);
+
+          <span class="keywordflow">if</span> (veryVeryVerbose) {
+              printBlockList(bl);
+          }
+
+          ASSERT(3 == bl.length());
+
+          <span class="comment">// ...</span>
+      }
+
+      <span class="comment">// ...</span>
+  }
+</pre></div><br/>
+<br/>
+ Finally, when <code>testBlockListConstruction</code> is called from a test case in <code>veryVeryVerbose</code> mode, we observe console output similar to: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  {
+      { address: 0x012345600,    size: 42 },
+      { address: 0x012345610,    size: 19 },
+      { address: 0x012345620,    size: 1024 }
+  }
+</pre></div><br/>
+<br/>
+ </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

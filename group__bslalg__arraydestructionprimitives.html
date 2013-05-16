@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslalg_arraydestructionprimitives Component</title>
+<title>BDE 2.17 Oss1: bslalg_arraydestructionprimitives Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -122,7 +122,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. Note that this component is for use by the <code>bslstl</code> package. Other clients should use the STL algorithms (in header <code>&lt;algorithm&gt;</code> and <code>&lt;memory&gt;</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_destroy_arrays_of_int_and_integer_wrapper_objects"></a> <a class="anchor" id="usage.example_1~3A_destroy_arrays_of_int_and_integer_wrapper_objects"></a> <a class="anchor" id="description.usage.example_1~3A_destroy_arrays_of_int_and_integer_wrapper_objects"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Destroy Arrays of int and Integer Wrapper Objects: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example, we will use <code><a class="el" href="structbslalg_1_1ArrayDestructionPrimitives.html">bslalg::ArrayDestructionPrimitives</a></code> to destroy both an array of integer scalars and an array of <code>MyInteger</code> objects. Calling the <code>destroy</code> method on an array of integers is a no-op while calling the <code>destroy</code> method on an array of objects of <code>MyInteger</code> class invokes the destructor of each of the objects in the array. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a <code>MyInteger</code> class that contains an integer value: <br/>
@@ -172,7 +172,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

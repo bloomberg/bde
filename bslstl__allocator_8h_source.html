@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_allocator.h                                                 -*-C++-*-
@@ -16,7 +16,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@CLASSES:
 //  bsl::allocator: STL-compatible allocator template
-//  bsl::Allocator_BslalgTypeTraits: type traits for &#39;bsl::allocator&#39;
 //
 //@SEE_ALSO: bslma_allocator
 //
@@ -165,8 +164,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  // CREATORS
 //  template&lt;class T, class ALLOC&gt;
 //  my_FixedSizeArray&lt;T,ALLOC&gt;::my_FixedSizeArray(int          length,
-//                                                const ALLOC&amp; alloc)
-//  : d_allocator(alloc), d_length(length)
+//                                                const ALLOC&amp; allocator)
+//  : d_allocator(allocator), d_length(length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
@@ -178,15 +177,15 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  template&lt;class T, class ALLOC&gt;
 //  my_FixedSizeArray&lt;T,ALLOC&gt;::my_FixedSizeArray(
-//                                              const my_FixedSizeArray&amp; rhs,
-//                                              const ALLOC&amp;             alloc)
-//  : d_allocator(alloc), d_length(rhs.d_length)
+//                                          const my_FixedSizeArray&amp; original,
+//                                          const ALLOC&amp;             allocator)
+//  : d_allocator(allocator), d_length(original.d_length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
 //      // copy construct each element of the array:
 //      for (int i = 0; i &lt; d_length; ++i) {
-//          d_allocator.construct(&amp;d_array[i], rhs.d_array[i]);
+//          d_allocator.construct(&amp;d_array[i], original.d_array[i]);
 //      }
 //  }
 //
@@ -365,20 +364,32 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslma_default.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include &lt;bslmf_istriviallycopyable.h&gt;
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include &lt;bslmf_isbitwiseequalitycomparable.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include &lt;bslmf_isbitwisemoveable.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
-#include &lt;bslmf_isbitwiseequalitycomparable.h&gt;
+#ifndef INCLUDED_BSLMF_ISSAME
+#include &lt;bslmf_issame.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -462,15 +473,16 @@ class allocator {
         //  this-&gt;mechanism() == bslma::Default::defaultAllocator();
         //..
 
-    allocator(BloombergLP::bslma::Allocator *mechanism);
+    allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
         // Convert a &#39;bslma::Allocator&#39; pointer to a &#39;allocator&#39; object which
         // forwards allocation calls to the object pointed to by the specified
         // &#39;mechanism&#39;.  If &#39;mechanism&#39; is 0, then the currently installed
         // default allocator is used instead.  Postcondition:
         // &#39;0 == mechanism || this-&gt;mechanism() == mechanism&#39;.
 
-    allocator(const allocator&amp; rhs);
-        // Copy construct a proxy object using the same mechanism as rhs.
+    allocator(const allocator&amp; original);
+        // Create a proxy object using the same mechanism as the specified
+        // &#39;original&#39;.
         // Postcondition: &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.
 
     template &lt;class U&gt;
@@ -505,8 +517,8 @@ class allocator {
 
     void construct(pointer p, const T&amp; val);
         // Copy-construct a &#39;T&#39; object at the memory address specified by &#39;p&#39;.
-        // Do not directly allocate memory.  Undefined if &#39;p&#39; is not properly
-        // aligned for &#39;T&#39;.
+        // Do not directly allocate memory.  The behavior is undefined unless
+        // &#39;p&#39; is not properly aligned for objects of type &#39;T&#39;.
 
     void destroy(pointer p);
         // Call the &#39;T&#39; destructor for the object pointed to by &#39;p&#39;.  Do not
@@ -567,15 +579,16 @@ class allocator&lt;void&gt; {
         // Construct a proxy object which will forward allocation calls to the
         // object pointed to by &#39;bslma::Default::defaultAllocator()&#39;.
 
-    allocator(BloombergLP::bslma::Allocator *mechanism);
+    allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
         // Convert a &#39;bslma::Allocator&#39; pointer to a &#39;allocator&#39; object which
         // forwards allocation calls to the object pointed to by the specified
         // &#39;mechanism&#39;.  If &#39;mechanism&#39; is 0, then the current default
         // allocator is used instead.  Postcondition:
         // &#39;0 == mechanism || this-&gt;mechanism() == mechanism&#39;.
 
-    allocator(const allocator&amp; rhs);
-        // Copy construct a proxy object using the same mechanism as rhs.
+    allocator(const allocator&amp; original);
+        // Create a proxy object using the same mechanism as the specified
+        // &#39;original&#39;.
         // Postcondition: &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.
 
     template &lt;class U&gt;
@@ -677,8 +690,8 @@ allocator&lt;T&gt;::allocator(BloombergLP::bslma::Allocator *mechanism)
 
 template &lt;class T&gt;
 inline
-allocator&lt;T&gt;::allocator(const allocator&amp; rhs)
-: d_mechanism(rhs.mechanism())
+allocator&lt;T&gt;::allocator(const allocator&amp; original)
+: d_mechanism(original.mechanism())
 {
 }
 
@@ -697,6 +710,8 @@ typename allocator&lt;T&gt;::pointer
 allocator&lt;T&gt;::allocate(typename allocator::size_type  n,
                        const void                    *hint)
 {
+    BSLS_ASSERT_SAFE(n &lt;= this-&gt;max_size());
+
     // Both &#39;bslma::Allocator::size_type&#39; and &#39;allocator&lt;T&gt;::size_type&#39; have
     // the same width; however, the former is signed, but the latter is not.
     // Hence the cast in the argument of &#39;allocate&#39; below.
@@ -738,12 +753,15 @@ typename allocator&lt;T&gt;::size_type allocator&lt;T&gt;::max_size() const
     // Return the largest value, &#39;v&#39;, such that &#39;v * sizeof(T)&#39; fits in a
     // &#39;size_type&#39;.
 
-    // TBD Should these &#39;const&#39; variables be declared &#39;static&#39;?
-    static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma::Allocator::size_type(0) &lt; 0;
-    static const std::size_t MAX_NUM_BYTES        =
-                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
-    static const std::size_t MAX_NUM_ELEMENTS     =
+    // We will calculate MAX_NUM_BYTES based on our knowledge that
+    // &#39;bslma::Allocator::size_type&#39; is just an alias for &#39;std::size_t&#39;.  First
+    // demonstrate that is true:
+
+    BSLMF_ASSERT((bsl::is_same&lt;BloombergLP::bslma::Allocator::size_type,
+                                                         std::size_t&gt;::value));
+
+    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
+    static const std::size_t MAX_NUM_ELEMENTS =
                               std::size_t(MAX_NUM_BYTES) / sizeof(T);
 
     return MAX_NUM_ELEMENTS;
@@ -793,8 +811,8 @@ allocator&lt;void&gt;::allocator(BloombergLP::bslma::Allocator *mechanism)
 template &lt;&gt;
 #endif
 inline
-allocator&lt;void&gt;::allocator(const allocator&lt;void&gt;&amp; rhs)
-: d_mechanism(rhs.mechanism())
+allocator&lt;void&gt;::allocator(const allocator&lt;void&gt;&amp; original)
+: d_mechanism(original.mechanism())
 {
 }
 
@@ -857,7 +875,7 @@ bool operator!=(const BloombergLP::bslma::Allocator *lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

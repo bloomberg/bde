@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
  bslstl.txt
@@ -22,10 +22,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslstl&#39; package currently has 46 components having 7 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ The &#39;bslstl&#39; package currently has 47 components having 7 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   7. bslstl_queue
      bslstl_stack
@@ -36,21 +36,22 @@
      bslstl_multiset
      bslstl_set
      bslstl_sstream
+     bslstl_unorderedmap
+     bslstl_unorderedmultimap
+     bslstl_unorderedmultiset
+     bslstl_unorderedset
 
-  5. bslstl_istringstream
+  5. bslstl_hashtable
+     bslstl_istringstream
      bslstl_mapcomparator
      bslstl_ostringstream
      bslstl_randomaccessiterator
      bslstl_setcomparator
      bslstl_stringstream
      bslstl_treenodepool
-     bslstl_unorderedmap
-     bslstl_unorderedmultimap
-     bslstl_unorderedmultiset
-     bslstl_unorderedset
 
   4. bslstl_bidirectionaliterator
-     bslstl_hashtable
+     bslstl_bitset
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
      bslstl_priorityqueue
@@ -93,7 +94,10 @@
 :      Provide a template to create STL-compliant bidirectional iterators.
 :
 : &#39;bslstl_bidirectionalnodepool&#39;:
-:      Provide efficient creation of nodes used in node-based container.
+:      Provide efficient creation of nodes used in a node-based container.
+:
+: &#39;bslstl_bitset&#39;:
+:      Provide an STL-compliant bitset class.
 :
 : &#39;bslstl_deque&#39;:
 :      Provide an STL-compliant deque class.
@@ -201,19 +205,19 @@
 :      Provide efficient creation of nodes used in tree-based container.
 :
 : &#39;bslstl_unorderedmap&#39;:
-:      Provide an STL-compliant unordered_map class.
+:      Provide an STL-compliant &#39;unordered_map&#39; container.
 :
 : &#39;bslstl_unorderedmapkeyconfiguration&#39;:
 :      Provide a class template to extract keys as the &#39;first&#39; attribute.
 :
 : &#39;bslstl_unorderedmultimap&#39;:
-:      Provide an STL-compliant unordered_multimap class.
+:      Provide an STL-compliant &#39;unordered_multimap&#39; container.
 :
 : &#39;bslstl_unorderedmultiset&#39;:
-:      Provide an STL-compliant unordered_multiset class.
+:      Provide an STL-compliant &#39;unordered_multiset&#39; container.
 :
 : &#39;bslstl_unorderedset&#39;:
-:      Provide an STL-compliant unordered_set class.
+:      Provide an STL-compliant &#39;unordered_set&#39; container.
 :
 : &#39;bslstl_unorderedsetkeyconfiguration&#39;:
 :      Provide a configuration class to use a whole object as its own key.

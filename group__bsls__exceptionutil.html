@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls_exceptionutil Component</title>
+<title>BDE 2.17 Oss1: bsls_exceptionutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -120,7 +120,7 @@
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_bsls_exceptionutil_to_implement_vector"></a> <a class="anchor" id="usage.example_1~3A_using_bsls_exceptionutil_to_implement_vector"></a> <a class="anchor" id="description.usage.example_1~3A_using_bsls_exceptionutil_to_implement_vector"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Using bsls_exceptionutil to Implement vector: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we wanted to define an implementation of a standard-defined <code>vector</code> template. Unfortunately, the C++ standard requires that <code>vector</code> provide an <code>at</code> method that throws an <code>out_of_range</code> exception if the supplied index is not in the valid range of elements in the vector. In this example we show using <code>BSLS_THROW</code> so that such an implementation will compile in both exception enabled and non-exception enabled builds. Note that apart from memory allocation, and where required by the C++ standard, types defined in the BDE libraries do not throw exceptions, and are typically <a href="group__bsldoc__glossary.html#exception_neutral" class="glossary">exception neutral</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>), meaning they behave reasonably in the presence of injected exceptions, but do not themselves throw any exceptions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First we open a namespace <code>myStd</code> and define an <code>out_of_range</code> exception that the <code>at</code> method will throw (note that in practice, <code>out_of_range</code> would inherit from <code>logic_error</code>)': <br/>
@@ -135,7 +135,7 @@
 <br/>
  Next, we declare the <code>vector</code> template and its template parameters (note that the majority of the implementation is elided, for clarity): <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> VALUE, <span class="keyword">typename</span> ALLOCATOR <span class="comment">/* ... */</span>&gt;
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class </span>VALUE, <span class="keyword">class </span>ALLOCATOR <span class="comment">/* ... */</span>&gt;
   <span class="keyword">class </span>vector {
       <span class="comment">// DATA</span>
       VALUE *d_begin_p;
@@ -175,7 +175,7 @@
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.1.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_using_bsls_exceptionutil_to_throw_and_catch_exceptions"></a> <a class="anchor" id="usage.example_2~3A_using_bsls_exceptionutil_to_throw_and_catch_exceptions"></a> <a class="anchor" id="description.usage.example_2~3A_using_bsls_exceptionutil_to_throw_and_catch_exceptions"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.1.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Using bsls_exceptionutil to Throw and Catch Exceptions: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following example demonstrates the macros defined in the <code>bsls_exceptionutil</code> component to both throw and catch exceptions in a way that will allow the code to compile in non-exception enabled builds. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a couple of example exception classes (note that we cannot use <code>bsl::exception</code> in this example, as this component is defined below <code>bsl_exception.h</code>): <br/>
@@ -281,7 +281,7 @@
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Class bslstl::SimplePool</title>
+<title>BDE 2.17 Oss1: Class bslstl::SimplePool</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -87,6 +87,7 @@ Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef VALUE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#a834681f9ae83fc6c82cd63530716ce64">ValueType</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbslstl_1_1SimplePool__Type.html#a91b9fb720dfab83f4342ab033035dbcd">Types::AllocatorType</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#a0942034bd664d85601a4f06ee0d7e8d0">AllocatorType</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbslstl_1_1SimplePool__Type.html#abe0828557357348a4a842a6e655b56d4">Types::AllocatorTraits</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#af97b6494fd74dc03e563bd98effb2918">AllocatorTraits</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef AllocatorTraits::size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#a8f93e79b5d8e55b8c7a8d8d06b102eaa">size_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#aa85f5df07099c174c24a8a2dd3318014">SimplePool</a> (const ALLOCATOR &amp;allocator)</td></tr>
@@ -94,9 +95,11 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1SimplePool.html#a0942034bd664d85601a4f06ee0d7e8d0">AllocatorType</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#afce39766484db308baf08ea4cddbf9a7">allocator</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">VALUE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#ad99897a231d4919c70b1ef80bb9d2345">allocate</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#a8556d9c0107c051899fac94bd717fdf0">deallocate</a> (void *address)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#a57dcaa566014ac3cfa556fb5a5ab3c54">reserve</a> (std::size_t numBlocks)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#ad48aba869791608ff5b9f5707afcf9e1">reserve</a> (<a class="el" href="classbslstl_1_1SimplePool.html#a8f93e79b5d8e55b8c7a8d8d06b102eaa">size_type</a> numBlocks)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#a0696b04f999f4623de572ebdc63335e1">release</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#aa70e8e8ce563d81654ce6925d4c517a7">swap</a> (<a class="el" href="classbslstl_1_1SimplePool.html">SimplePool</a>&lt; VALUE, ALLOCATOR &gt; &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#ad85df87dba0f22ca2c1796cbbec9f225">swap</a> (<a class="el" href="classbslstl_1_1SimplePool.html">SimplePool</a> &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#ab372f36790ad43b9622abc4393911e21">quickSwapRetainAllocators</a> (<a class="el" href="classbslstl_1_1SimplePool.html">SimplePool</a> &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#a75ab04c9065b236297bdc83a61cdf266">quickSwapExchangeAllocators</a> (<a class="el" href="classbslstl_1_1SimplePool.html">SimplePool</a> &amp;other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbslstl_1_1SimplePool.html#a0942034bd664d85601a4f06ee0d7e8d0">AllocatorType</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SimplePool.html#ab75573f38c596a87369cb6c72c31ebe6">allocator</a> () const </td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
@@ -143,6 +146,21 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef <a class="el" href="structbslstl_1_1SimplePool__Type.html#abe0828557357348a4a842a6e655b56d4">Types::AllocatorTraits</a> <a class="el" href="classbslstl_1_1SimplePool.html">bslstl::SimplePool</a>&lt; VALUE, ALLOCATOR &gt;::<a class="el" href="classbslstl_1_1SimplePool.html#af97b6494fd74dc03e563bd98effb2918">AllocatorTraits</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a8f93e79b5d8e55b8c7a8d8d06b102eaa"></a><!-- doxytag: member="bslstl::SimplePool::size_type" ref="a8f93e79b5d8e55b8c7a8d8d06b102eaa" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef AllocatorTraits::size_type <a class="el" href="classbslstl_1_1SimplePool.html">bslstl::SimplePool</a>&lt; VALUE, ALLOCATOR &gt;::<a class="el" href="classbslstl_1_1SimplePool.html#a8f93e79b5d8e55b8c7a8d8d06b102eaa">size_type</a></td>
         </tr>
       </table>
 </div>
@@ -254,7 +272,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a57dcaa566014ac3cfa556fb5a5ab3c54"></a><!-- doxytag: member="bslstl::SimplePool::reserve" ref="a57dcaa566014ac3cfa556fb5a5ab3c54" args="(std::size_t numBlocks)" -->
+<a class="anchor" id="ad48aba869791608ff5b9f5707afcf9e1"></a><!-- doxytag: member="bslstl::SimplePool::reserve" ref="ad48aba869791608ff5b9f5707afcf9e1" args="(size_type numBlocks)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -263,7 +281,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1SimplePool.html">bslstl::SimplePool</a>&lt; VALUE, ALLOCATOR &gt;::reserve </td>
           <td>(</td>
-          <td class="paramtype">std::size_t&nbsp;</td>
+          <td class="paramtype"><a class="el" href="classbslstl_1_1SimplePool.html#a8f93e79b5d8e55b8c7a8d8d06b102eaa">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numBlocks</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td></td>
@@ -293,9 +311,11 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
 <div class="memdoc">
 <p>Relinquish all memory currently allocated via this pool object. </p>
 
+<p>Referenced by <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a09036a2f2eb9c668ae3fd47782f4aba6">bslstl::BidirectionalNodePool&lt; typename HashTableType::ValueType, NodeAllocator &gt;::release()</a>.</p>
+
 </div>
 </div>
-<a class="anchor" id="aa70e8e8ce563d81654ce6925d4c517a7"></a><!-- doxytag: member="bslstl::SimplePool::swap" ref="aa70e8e8ce563d81654ce6925d4c517a7" args="(SimplePool&lt; VALUE, ALLOCATOR &gt; &amp;other)" -->
+<a class="anchor" id="ad85df87dba0f22ca2c1796cbbec9f225"></a><!-- doxytag: member="bslstl::SimplePool::swap" ref="ad85df87dba0f22ca2c1796cbbec9f225" args="(SimplePool &amp;other)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -312,7 +332,49 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Efficiently exchange the memory chunks and blocks of this object and the specified <code>other</code> object. The behavior is undefined unless the underlying mechanisms of <code><a class="el" href="classbslstl_1_1SimplePool.html#afce39766484db308baf08ea4cddbf9a7">allocator()</a></code> refers to the same allocator. </p>
+<p>Efficiently exchange the memory blocks of this object with those of the specified <code>other</code> object. This method provides the no-throw exception-safety guarantee. The behavior is undefined unless <code><a class="el" href="classbslstl_1_1SimplePool.html#afce39766484db308baf08ea4cddbf9a7">allocator()</a> == other.allocator()</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab372f36790ad43b9622abc4393911e21"></a><!-- doxytag: member="bslstl::SimplePool::quickSwapRetainAllocators" ref="ab372f36790ad43b9622abc4393911e21" args="(SimplePool &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbslstl_1_1SimplePool.html">bslstl::SimplePool</a>&lt; VALUE, ALLOCATOR &gt;::quickSwapRetainAllocators </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbslstl_1_1SimplePool.html">SimplePool</a>&lt; VALUE, ALLOCATOR &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Efficiently exchange the memory blocks of this object with those of the specified <code>other</code> object. This method provides the no-throw exception-safety guarantee. The behavior is undefined unless <code><a class="el" href="classbslstl_1_1SimplePool.html#afce39766484db308baf08ea4cddbf9a7">allocator()</a> == other.allocator()</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a75ab04c9065b236297bdc83a61cdf266"></a><!-- doxytag: member="bslstl::SimplePool::quickSwapExchangeAllocators" ref="a75ab04c9065b236297bdc83a61cdf266" args="(SimplePool &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbslstl_1_1SimplePool.html">bslstl::SimplePool</a>&lt; VALUE, ALLOCATOR &gt;::quickSwapExchangeAllocators </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbslstl_1_1SimplePool.html">SimplePool</a>&lt; VALUE, ALLOCATOR &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Efficiently exchange the memory blocks and the allocator of this object with those of the specified <code>other</code> object. This method provides the no-throw exception-safety guarantee. </p>
 
 </div>
 </div>
@@ -340,7 +402,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
 <li><a class="el" href="bslstl__simplepool_8h_source.html">bslstl_simplepool.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:20:06 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:23 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

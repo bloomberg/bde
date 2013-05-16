@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsltf_uniontesttype.h                                              -*-C++-*-
@@ -56,7 +56,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // assert(Z == X);
 //..
 
-#include &lt;string.h&gt;
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
 
 namespace BloombergLP {
 namespace bsltf {
@@ -161,7 +163,7 @@ bool operator!=(const bsltf::UnionTestType&amp; lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

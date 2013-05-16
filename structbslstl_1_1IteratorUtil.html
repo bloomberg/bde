@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bslstl::IteratorUtil</title>
+<title>BDE 2.17 Oss1: Struct bslstl::IteratorUtil</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -79,19 +79,21 @@
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class InputIterator &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static native_std::size_t&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1IteratorUtil.html#a11fb377664e08045aaddbbb882014ff1">insertDistance</a> (InputIterator first, InputIterator last)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static bsl::iterator_traits<br class="typebreak"/>
+&lt; InputIterator &gt;<br class="typebreak"/>
+::difference_type&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1IteratorUtil.html#a933d6e68b6bb275af3c3837bf8f5b3ea">insertDistance</a> (InputIterator first, InputIterator last)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This utility struct provides a namespace for functions on iterators and iterator ranges. </p>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a11fb377664e08045aaddbbb882014ff1"></a><!-- doxytag: member="bslstl::IteratorUtil::insertDistance" ref="a11fb377664e08045aaddbbb882014ff1" args="(InputIterator first, InputIterator last)" -->
+<a class="anchor" id="a933d6e68b6bb275af3c3837bf8f5b3ea"></a><!-- doxytag: member="bslstl::IteratorUtil::insertDistance" ref="a933d6e68b6bb275af3c3837bf8f5b3ea" args="(InputIterator first, InputIterator last)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class InputIterator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static native_std::size_t bslstl::IteratorUtil::insertDistance </td>
+          <td class="memname">static bsl::iterator_traits&lt;InputIterator&gt;::difference_type bslstl::IteratorUtil::insertDistance </td>
           <td>(</td>
           <td class="paramtype">InputIterator&nbsp;</td>
           <td class="paramname"> <em>first</em>, </td>
@@ -110,7 +112,7 @@ template&lt;class InputIterator &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return 0 if InputIterator really is limited to the standard input-iterator category, otherwise return the distance from first to last. </p>
+<p>Return 0 if the (template parameter) type <code>InputIterator</code> is limited to the standard input-iterator category, otherwise return the number of elements that is reachable from the specified <code>first</code> to (but not including) the specified <code>last</code>. The behavior is undefined unless <code>last</code> is reachable from <code>first</code>. This function has a constant-time complexity if the iterator category of <code>InputIterator</code> is a strictly a standard input iterator, or is a random access iterator, otherwise it is linear in the length of the range ['first', <code>last</code>). Note that this function always returns 0 when compiled with the Sun compiler, while we work around issues in the Sun standard library. </p>
 
 </div>
 </div>
@@ -118,7 +120,7 @@ template&lt;class InputIterator &gt; </div>
 <li><a class="el" href="bslstl__iteratorutil_8h_source.html">bslstl_iteratorutil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:20:06 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:23 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

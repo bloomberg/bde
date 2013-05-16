@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslma_mallocfreeallocator.h                                        -*-C++-*-
@@ -148,6 +148,7 @@ class MallocFreeAllocator : public Allocator {
     // from the time the method is called until after the program (not just
     // &#39;main&#39;) exits.
 
+  private:
     // NOT IMPLEMENTED
     MallocFreeAllocator(const MallocFreeAllocator&amp;);
     MallocFreeAllocator&amp; operator=(const MallocFreeAllocator&amp;);
@@ -165,7 +166,7 @@ class MallocFreeAllocator : public Allocator {
         // supply memory.  Note that all objects of this class share the same
         // underlying resource.
 
-    ~MallocFreeAllocator();
+    virtual ~MallocFreeAllocator();
         // Destroy this allocator.  Note that the behavior of destroying an
         // allocator while memory is allocated from it is not specified.
         // (Unless you *know* that it is valid to do so, don&#39;t!)
@@ -244,7 +245,7 @@ void MallocFreeAllocator::deallocate(void *address)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

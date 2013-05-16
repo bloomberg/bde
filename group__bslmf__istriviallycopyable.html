@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_istriviallycopyable Component</title>
+<title>BDE 2.17 Oss1: bslmf_istriviallycopyable Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -84,7 +84,7 @@
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for determining trivially copyable types </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for determining trivially copyable types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -94,28 +94,28 @@
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd></dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__integralconstant.html" title="Provide a mapping from integral constants to unique types.">Component bslmf_integralconstant</a>, <a class="el" href="group__bslmf__nestedtraitdeclaration.html" title="Provide a way within a class to associate the class with traits.">Component bslmf_nestedtraitdeclaration</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code>, which may be used to query whether a type is trivially copyable as defined in section 3.9.3 of the C++11 standard [basic.types]. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> has the same syntax as the <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">is_trivially_copyable</a></code> template from the C++11 standard [meta.unary.prop]. However, unlike the template defined in the C++11 standard, which can determine the correct value for all types without requiring specialization, <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> can only by default determine the value for the following type categories: <br/>
+<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code>, that may be used to query whether a type is trivially copyable as defined in section 3.9.3 of the C++11 standard [basic.types]. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> has the same syntax as the <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">is_trivially_copyable</a></code> template from the C++11 standard [meta.unary.prop]. However, unlike the template defined in the C++11 standard, which can determine the correct value for all types without requiring specialization, <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> can, by default, determine the value for the following type categories only: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  Type Category        Is Trivially Copyable
   -------------        ---------------------
   reference types      <span class="keyword">false</span>
   fundamental types    <span class="keyword">true</span>
-  enums                <span class="keyword">true</span>
+  enumerated types     <span class="keyword">true</span>
   pointers             <span class="keyword">true</span>
   pointers to members  <span class="keyword">true</span>
 </pre></div><br/>
 <br/>
- For all other types, <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> returns false, unless the type is explicitly specified to be trivially copyable, which can be done in two ways: </dd></dl>
+ For all other types, <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> returns <code>false</code>, unless the type is explicitly specified to be trivially copyable. This can be done in 2 ways: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ol>
 <li>
 Define a template specialization for <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> having the type as the template parameter that inherits directly from <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code>.  </li>
 <li>
-Use the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to define <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> as the trait in the class definition of the type.  </li>
+Use the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to define <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code> as a trait in the class definition of the type.  </li>
 </ol>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -123,12 +123,12 @@ Use the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to define <code><a cla
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_verify_whether_types_are_trivially_copyable"></a> <a class="anchor" id="usage.example_1~3A_verify_whether_types_are_trivially_copyable"></a> <a class="anchor" id="description.usage.example_1~3A_verify_whether_types_are_trivially_copyable"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Verify Whether Types are Trivially Copyable: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose that we want to assert whether a type is trivially copyable. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, we define a set types to evaluate: <br/>
+<dl class="user"><dt><b></b></dt><dd>First, we define a set of types to evaluate: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">int</span> MyFundamentalType;
+<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">int</span>  MyFundamentalType;
   <span class="keyword">typedef</span> <span class="keywordtype">int</span>&amp; MyFundamentalTypeReference;
 
   <span class="keyword">class </span>MyTriviallyCopyableType {
@@ -139,14 +139,14 @@ Use the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to define <code><a cla
   };
 </pre></div><br/>
 <br/>
- Then, since user-defined types can not be automatically evaluated by <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">is_trivially_copyable</a></code>, we define a template specialization to specify that <code>MyTriviallyCopyableType</code> is trivially copyable: <br/>
+ Then, since user-defined types cannot be automatically evaluated by <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">is_trivially_copyable</a></code>, we define a template specialization to specify that <code>MyTriviallyCopyableType</code> is trivially copyable: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>bsl {
 
   <span class="keyword">template</span> &lt;&gt;
   <span class="keyword">struct </span>is_trivially_copyable&lt;MyTriviallyCopyableType&gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {
       <span class="comment">// This template specialization for &#39;is_trivially_copyable&#39; indicates</span>
-      <span class="comment">// that &#39;MyTriviallyCopyableType&#39; is a trivially copyable.</span>
+      <span class="comment">// that &#39;MyTriviallyCopyableType&#39; is a trivially copyable type.</span>
   };
 
   }  <span class="comment">// close namespace bsl</span>
@@ -154,17 +154,18 @@ Use the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to define <code><a cla
 <br/>
  Now, we verify whether each type is trivially copyable using <code><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a></code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  assert(<span class="keyword">true</span> == <a class="code" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable&lt;MyFundamentalType&gt;::value</a>);
+<div class="fragment"><pre class="fragment">  assert(<span class="keyword">true</span>  == <a class="code" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable&lt;MyFundamentalType&gt;::value</a>);
   assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a>&lt;
                                          MyFundamentalTypeReference&gt;::value);
-  assert(<span class="keyword">true</span> == <a class="code" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable&lt;MyTriviallyCopyableType&gt;::value</a>);
+  assert(<span class="keyword">true</span>  == <a class="code" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a>&lt;
+                                            MyTriviallyCopyableType&gt;::value);
   assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a>&lt;
                                          MyNonTriviallyCopyableType&gt;::value);
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

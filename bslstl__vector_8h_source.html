@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_vector.h                                                    -*-C++-*-
@@ -1493,49 +1493,6 @@ class vector&lt; VALUE_TYPE *, ALLOCATOR &gt;
         { return (VALUE_TYPE *const *)Base::data(); }
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
-//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
-struct HasStlIterators&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt; : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
-struct IsBitwiseMoveable&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
-    : IsBitwiseMoveable&lt;ALLOCATOR&gt;
-{};
-
-}
-
-namespace bslma {
-
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
-struct UsesBslmaAllocator&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
-    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 // FREE OPERATORS
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 bool operator==(const vector&lt;VALUE_TYPE *,ALLOCATOR&gt;&amp; lhs,
@@ -1803,7 +1760,7 @@ void swap(vector&lt;const VALUE_TYPE *, ALLOCATOR&gt;&amp; a,
                           // =======================
 
 template&lt;class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
-                   = BloombergLP::bslmf::IsFundamental&lt;BSLSTL_ITERATOR&gt;::VALUE&gt;
+                   = BloombergLP::bslmf::IsFundamental&lt;BSLSTL_ITERATOR&gt;::value&gt;
 struct Vector_DeduceIteratorCategory {
     typedef typename bsl::iterator_traits&lt;BSLSTL_ITERATOR&gt;::iterator_category
                                                                           type;
@@ -3184,6 +3141,47 @@ void swap(vector&lt;const VALUE_TYPE *, ALLOCATOR&gt;&amp; a,
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt; : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct IsBitwiseMoveable&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
+    : IsBitwiseMoveable&lt;ALLOCATOR&gt;
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 extern template class bsl::Vector_ImpBase&lt;bool&gt;;
 extern template class bsl::Vector_ImpBase&lt;char&gt;;
@@ -3240,7 +3238,7 @@ extern template class bsl::vector&lt;void *&gt;;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

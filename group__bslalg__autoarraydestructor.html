@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslalg_autoarraydestructor Component</title>
+<title>BDE 2.17 Oss1: bslalg_autoarraydestructor Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -78,7 +78,11 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> </li>
+<a href="#3.1">Usage</a> <ul>
+<li>
+<a href="#3.1.1">Example 1: Managing an Array Under Construction</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -101,66 +105,143 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a proctor object to manage a contiguous (in-place) sequence of otherwise-unmanaged instances of a user-defined type. If not explicitly released, all objects managed by the proctor object are automatically destroyed by the proctor's destructor, using the <code>bslalg_arraydestructionprimitives</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In most instances, <code><a class="el" href="classbslma_1_1AutoDestructor.html">bslma::AutoDestructor</a></code> can also be used, but this component is more useful in cases where it is simpler to think in terms of two pointers at the ends of the array being managed, rather than an origin and offset. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The usage example is nearly identical to that of <code>bslma_autodestructor</code>, so we will only quote and adapt a small portion of that usage example. Namely, we will focus on an array that supports arbitrary user-defined types, and suppose that we want to implement insertion of an arbitrary number of elements at some (intermediate) position in the array, taking care that if an element copy constructor or assignment operator throws, the whole array is left in a valid (but unspecified) state. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Consider the implementation of the <code>insert</code> method for a templatized array below. The proctor's <em>origin</em> is set (at construction) to refer to the <code>numItems</code> position past <code>array[length]</code>. Initially, the proctor manages no objects (i.e., its end is the same as its beginning). <br/>
+<dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_managing_an_array_under_construction"></a> <a class="anchor" id="usage.example_1~3A_managing_an_array_under_construction"></a> <a class="anchor" id="description.usage.example_1~3A_managing_an_array_under_construction"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Managing an Array Under Construction: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In most instances, the use of a <code><a class="el" href="classbslalg_1_1AutoArrayDestructor.html">bslalg::AutoArrayDestructor</a></code> could be handled by a <code><a class="el" href="classbslma_1_1AutoDeallocator.html">bslma::AutoDeallocator</a></code>, but sometimes it is conceptually clearer to frame the problem in terms of a pair of pointers rather than a pointer and an offset. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose we have a class, <code>UsageType</code> that allocates a block of memory upon construction, and whose constructor takes a <code>char</code>. Suppose we want to create an array of elements of such objects in an exception-safe manner. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we create the type <code>UsageType</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">     0     1     2     3     4     5     6     7
-   _____ _____ _____ _____ _____ _____ _____ _____
-  | <span class="stringliteral">&quot;A&quot;</span> | <span class="stringliteral">&quot;B&quot;</span> | <span class="stringliteral">&quot;C&quot;</span> | <span class="stringliteral">&quot;D&quot;</span> | <span class="stringliteral">&quot;E&quot;</span> |xxxxx|xxxxx|xxxxx|
-  `=====^=====^=====^=====^=====^=====^=====^=====<span class="stringliteral">&#39;</span>
-<span class="stringliteral">  my_Array                                  ^----- AutoArrayDestructor</span>
-<span class="stringliteral">  (length = 5)</span>
-<span class="stringliteral"></span>
-<span class="stringliteral">              Figure: Use of proctor for my_Array::insert</span>
-</pre></div><br/>
-<br/>
- As each of the elements at index positions beyond the insertion position is shifted up by two index positions, the proctor's begin address is <em>decremented</em>. At the same time, the array's length is <em>decremented</em> to ensure that each array element is always being managed (during an allocation attempt) either by the proctor or the array itself, but not both. <br/>
-<br/>
-<div class="fragment"><pre class="fragment">     0     1     2     3     4     5     6     7
-   _____ _____ _____ _____ _____ _____ _____ _____
-  | <span class="stringliteral">&quot;A&quot;</span> | <span class="stringliteral">&quot;B&quot;</span> | <span class="stringliteral">&quot;C&quot;</span> | <span class="stringliteral">&quot;D&quot;</span> |xxxxx|xxxxx| <span class="stringliteral">&quot;E&quot;</span> |xxxxx|
-  `=====^=====^=====^=====^=====^=====^=====^=====<span class="stringliteral">&#39;</span>
-<span class="stringliteral">  my_Array                            ^     ^ AutoArrayDestructor::end</span>
-<span class="stringliteral">  (length = 4)                        `---- AutoArrayDestructor::begin</span>
-<span class="stringliteral"></span>
-<span class="stringliteral">              Figure: Configuration after shifting up one element</span>
-</pre></div><br/>
-<br/>
- After the required number of elements have been shifted, the hole is filled (backwards) by copies of the element to be inserted. The code for the templatized <code>insert</code> method is as follows: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">// Assume no aliasing.</span>
-  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt; <span class="keyword">inline</span>
-  <span class="keywordtype">void</span> my_Array&lt;TYPE&gt;::insert(<span class="keywordtype">int</span> dstIndex, <span class="keyword">const</span> TYPE&amp; item, <span class="keywordtype">int</span> numItems)
-  {
-      <span class="keywordflow">if</span> (d_length &gt;= d_size) {
-          this-&gt;increaseSize(numItems);
+<div class="fragment"><pre class="fragment">                               <span class="comment">// ===============</span>
+                               <span class="comment">// class UsageType</span>
+                               <span class="comment">// ===============</span>
+
+  <span class="keyword">class </span>UsageType {
+      <span class="comment">// This test type contains a &#39;char&#39; in some allocated storage.  It has</span>
+      <span class="comment">// no traits other than using a &#39;bslma&#39; allocator.</span>
+
+      <span class="keywordtype">char</span>             *d_data_p;         <span class="comment">// managed single char</span>
+      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator_p;    <span class="comment">// allocator (held, not owned)</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      <span class="keyword">explicit</span> UsageType(<span class="keywordtype">char</span> c, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0)
+      : d_data_p(0)
+      , d_allocator_p(bslma::Default::allocator(basicAllocator))
+      {
+          d_data_p  = (<span class="keywordtype">char</span> *)d_allocator_p-&gt;allocate(<span class="keyword">sizeof</span>(<span class="keywordtype">char</span>));
+          *d_data_p = c;
       }
 
-      <span class="keywordtype">int</span>   origLen = d_length;
-      TYPE *src     = &amp;d_array_p[d_length];
-      TYPE *src     = &amp;d_array_p[d_length + numItems];
-      <a class="code" href="classbslalg_1_1AutoArrayDestructor.html">bslalg::AutoArrayDestructor&lt;TYPE&gt;</a> autoDtor(dest, dest);
+      ~UsageType()
+      {
+          *d_data_p = <span class="charliteral">&#39;_&#39;</span>;
+          d_allocator_p-&gt;deallocate(d_data_p);
+          d_data_p = 0;
+      }
 
-      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = d_length; i &gt; dstIndex; --i, --d_length) {
-          dest = autoDtor.moveBegin(-1);  <span class="comment">// decrement destination</span>
-          <span class="keyword">new</span>(dest) TYPE(--src);          <span class="comment">// copy to new index</span>
-          src-&gt;~TYPE();                   <span class="comment">// destroy original</span>
+      <span class="comment">// ACCESSORS</span>
+      <span class="keywordtype">char</span> datum()<span class="keyword"> const</span>
+<span class="keyword">      </span>{
+          <span class="keywordflow">return</span> *d_data_p;
       }
-      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = numItems; i &gt; 0; --i) {
-          dest = autoDtor.moveBegin(-1);  <span class="comment">// decrement destination</span>
-          <span class="keyword">new</span>(dest) TYPE(item);           <span class="comment">// copy new value into hole</span>
-      }
-      autoDtor.release();
-      d_length = origLen + numItems;
+  };
+
+  <span class="keyword">namespace </span>BloombergLP {
+  <span class="keyword">namespace </span>bslma {
+
+  <span class="keyword">template</span> &lt;&gt;
+  <span class="keyword">struct </span>UsesBslmaAllocator&lt;UsageType&gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {};
+
+  }  <span class="comment">// close package namespace</span>
+  }  <span class="comment">// close enterprise namespace</span>
+</pre></div><br/>
+<br/>
+ Then, in <code>main</code>, we create a <code>TestAllocator</code> to supply memory (and to verify that no memory is leaked): <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> ta;
+</pre></div><br/>
+<br/>
+ Next, we create the pointer for our array: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  UsageType *array;
+</pre></div><br/>
+<br/>
+ Then, we declare a string of characterss we will use to initialize the <code>UsageType</code> objects in our array. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">char</span> *DATA = <span class="stringliteral">&quot;Hello&quot;</span>;
+  <span class="keyword">const</span> <span class="keywordtype">int</span>   DATA_LEN = std::strlen(DATA);
+</pre></div><br/>
+<br/>
+ Next, we verify that even right after exceptions have been thrown and caught, no memory is outstanding: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  assert(0 == ta.<a class="code" href="classbslma_1_1TestAllocator.html#af33e8b7b63178f9f1c62f55cd9da1273">numBlocksInUse</a>());
+</pre></div><br/>
+<br/>
+ Then, we allocate our array and create a guard to free it if a subsequent allocation throws an exception: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  array = (UsageType *) ta.<a class="code" href="classbslma_1_1TestAllocator.html#adadeba443e1ea37730a9cf936a600e56">allocate</a>(DATA_LEN * <span class="keyword">sizeof</span>(UsageType));
+  <a class="code" href="classbslma_1_1DeallocatorProctor.html">bslma::DeallocatorProctor&lt;bslma::Allocator&gt;</a> arrayProctor(array, &amp;ta);
+</pre></div><br/>
+<br/>
+ Next, we establish an <code>AutoArrayDestructor</code> on <code>array</code> to destroy any valid elements in <code>array</code> if an exception is thrown: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <a class="code" href="classbslalg_1_1AutoArrayDestructor.html">bslalg::AutoArrayDestructor&lt;UsageType&gt;</a> arrayElementProctor(array, array);
+</pre></div><br/>
+<br/>
+ Notice that we pass <code>arrayElementProctor</code> pointers to the beginning and end of the range to be guarded (we start with an empty range since no elements have been constructed yet). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Then, we iterate through the valid chars in <code>DATA</code> and use them to construct the elements of the array: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  UsageType *resultElement = array;
+  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keywordtype">char</span> *nextChar = DATA; *nextChar; ++nextChar) {
+</pre></div><br/>
+<br/>
+ Next, construct the next element of <code>array</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">      <span class="keyword">new</span> (resultElement++) UsageType(*nextChar, &amp;ta);
+</pre></div><br/>
+<br/>
+ Now, move the end of <code>arrayElementProctor</code> to cover the most recently constructed element: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">      arrayElementProctor.moveEnd(1);
   }
 </pre></div><br/>
 <br/>
- Note that in the <code>insert</code> example above, we illustrate exception neutrality, but not alias safety (i.e., in the case when <code>item</code> is a reference into the portion of the array at <code>dstIndex</code> or beyond). </dd></dl>
+ At this point, we have successfully created our array. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Then, release the guards so they won't destroy our work when they go out of scope: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  arrayProctor.release();
+  arrayElementProctor.release();
+</pre></div><br/>
+<br/>
+ Next, exit the exception testing block: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Then, verify that the array we have created is as expected: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  assert(<span class="charliteral">&#39;H&#39;</span> == array[0].datum());
+  assert(<span class="charliteral">&#39;e&#39;</span> == array[1].datum());
+  assert(<span class="charliteral">&#39;l&#39;</span> == array[2].datum());
+  assert(<span class="charliteral">&#39;l&#39;</span> == array[3].datum());
+  assert(<span class="charliteral">&#39;o&#39;</span> == array[4].datum());
+</pre></div><br/>
+<br/>
+ Finally, destroy &amp; free our work and verify that no memory is leaked: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; DATA_LEN; ++i) {
+      array[i].~UsageType();
+  }
+  ta.<a class="code" href="classbslma_1_1TestAllocator.html#aa3d86f105cc1a797cfa5ad9e2bbf6825">deallocate</a>(array);
+
+  assert(0 == ta.<a class="code" href="classbslma_1_1TestAllocator.html#af33e8b7b63178f9f1c62f55cd9da1273">numBlocksInUse</a>());
+</pre></div><br/>
+<br/>
+ </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

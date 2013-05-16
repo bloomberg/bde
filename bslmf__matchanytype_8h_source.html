@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_matchanytype.h                                               -*-C++-*-
@@ -107,12 +107,12 @@ namespace bslmf {
 struct MatchAnyType {
     // Any type can be converted into this type.
 
-    template &lt;typename TYPE&gt; MatchAnyType(const TYPE&amp;) { }
+    template &lt;class TYPE&gt; MatchAnyType(const TYPE&amp;) { }             // IMPLICIT
         // This constructor will match any rvalue or any non-volatile lvalue.
         // A non-const version of this constructor is not necessary and will
         // cause some compilers to complain of ambiguities.
 
-    template &lt;typename TYPE&gt; MatchAnyType(const volatile TYPE&amp;) { }
+    template &lt;class TYPE&gt; MatchAnyType(const volatile TYPE&amp;) { }    // IMPLICIT
         // This constructor will match any volatile lvalue.  According to the
         // standard, it should NOT match an rvalue.  A non-const version of
         // this constructor is not necessary and will cause some compilers to
@@ -123,7 +123,7 @@ struct MatchAnyType {
                         // class TypeRep
                         // =============
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct TypeRep {
     // Generate a reference to &#39;TYPE&#39; for use in meta-functions.
 
@@ -133,7 +133,7 @@ struct TypeRep {
         // &#39;TYPE&#39; has a default constructor or not.
 };
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct TypeRep&lt;TYPE&amp;&gt; {
     // Generate a reference to &#39;TYPE&#39; for use in meta-functions.  This is a
     // partial specialization of &#39;TypeRep&#39; instantiated with a reference.
@@ -144,14 +144,6 @@ struct TypeRep&lt;TYPE&amp;&gt; {
         // &#39;TYPE&#39; has a default constructor or not.
 };
 
-struct DummyType {
-};
-
-template &lt;&gt;
-struct TypeRep&lt;void&gt; {
-    static DummyType&amp; rep();
-};
-
 }  // close package namespace
 
 
@@ -160,7 +152,7 @@ struct TypeRep&lt;void&gt; {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

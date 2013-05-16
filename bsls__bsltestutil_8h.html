@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls_bsltestutil.h Reference</title>
+<title>BDE 2.17 Oss1: bsls_bsltestutil.h Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -102,6 +102,10 @@ Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__bsltestutil_8h.html#a150ba17c509fd88418789854d60d0c29">BSLS_BSLTESTUTIL_P_</a>(X)&nbsp;&nbsp;&nbsp;bsls::BslTestUtil::callDebugprint(X, #X &quot; = &quot;, &quot;, &quot;);</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__bsltestutil_8h.html#a7fcd455ad23ce585bd3546b49aa363de">BSLS_BSLTESTUTIL_L_</a>&nbsp;&nbsp;&nbsp;__LINE__</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__bsltestutil_8h.html#afca9183cb0a6cdeea39d2448b62dd712">BSLS_BSLTESTUTIL_T_</a>&nbsp;&nbsp;&nbsp;bsls::BslTestUtil::printTab();</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__bsltestutil_8h.html#aa835fce88dfa59f6090ac1fb7a423dae">BSLS_BSLTESTUTIL_FORMAT_ZU</a>&nbsp;&nbsp;&nbsp;&quot;%zu&quot;</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__bsltestutil_8h.html#ab8e43e107470c0c30ffca107301bc801">BSLS_BSLTESTUTIL_FORMAT_TD</a>&nbsp;&nbsp;&nbsp;&quot;%td&quot;</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__bsltestutil_8h.html#a2e4c0ca126228d85fc4447abc518954d">BSLS_BSLTESTUTIL_FORMAT_I64</a>&nbsp;&nbsp;&nbsp;&quot;%lld&quot;</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__bsltestutil_8h.html#a284ea68e93c7e5f85ea54bb4b23c0f20">BSLS_BSLTESTUTIL_FORMAT_U64</a>&nbsp;&nbsp;&nbsp;&quot;%llu&quot;</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#adaddaf11e612254a0f2f50ef0ddf76fb">bsls::debugprint</a> (bool v)</td></tr>
@@ -127,7 +131,7 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a6c6322415250879cd8ae234d72157720">bsls::debugprint</a> (volatile void *v)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a9d92101069e395de5bafda5f4c63aeab">bsls::debugprint</a> (const void *v)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#abbb43e1378e60ed40ebd9bfefebeb209">bsls::debugprint</a> (const volatile void *v)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;typename RESULT &gt; </td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class RESULT &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebsls.html#afe90d31ef6153bd7a6bc6f3abcc1f4f1">bsls::debugprint</a> (RESULT(*v)())</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
@@ -201,7 +205,7 @@ Functions</h2></td></tr>
 </div>
 <div class="memdoc">
 <b>Value:</b><div class="fragment"><pre class="fragment">{                                   \
-    <span class="keywordflow">if</span> (!(X)) { <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(I, #I <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);         \
+    <span class="keywordflow">if</span> (!(X)) { <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(I, #I <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);          \
                 aSsErT(!(X), #X, __LINE__); } }
 </pre></div>
 </div>
@@ -251,7 +255,7 @@ Functions</h2></td></tr>
 <div class="memdoc">
 <b>Value:</b><div class="fragment"><pre class="fragment">{                                \
     <span class="keywordflow">if</span> (!(X)) { <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(I, #I <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
-                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(J, #J <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);         \
+                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(J, #J <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);          \
                 aSsErT(!(X), #X, __LINE__); } }
 </pre></div>
 </div>
@@ -295,7 +299,7 @@ Functions</h2></td></tr>
 <b>Value:</b><div class="fragment"><pre class="fragment">{                              \
     <span class="keywordflow">if</span> (!(X)) { <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(I, #I <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(J, #J <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
-                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(K, #K <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);         \
+                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(K, #K <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);          \
                 aSsErT(!(X), #X, __LINE__); } }
 </pre></div>
 </div>
@@ -346,7 +350,7 @@ Functions</h2></td></tr>
     <span class="keywordflow">if</span> (!(X)) { <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(I, #I <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(J, #J <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(K, #K <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
-                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(L, #L <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);         \
+                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(L, #L <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);          \
                 aSsErT(!(X), #X, __LINE__); } }
 </pre></div>
 </div>
@@ -404,7 +408,7 @@ Functions</h2></td></tr>
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(J, #J <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(K, #K <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(L, #L <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
-                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(M, #M <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);         \
+                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(M, #M <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);          \
                 aSsErT(!(X), #X, __LINE__); } }
 </pre></div>
 </div>
@@ -469,7 +473,7 @@ Functions</h2></td></tr>
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(K, #K <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(L, #L <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
                 <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(M, #M <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\t&quot;</span>);          \
-                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(N, #N <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);         \
+                <a class="code" href="structbsls_1_1BslTestUtil.html#a0ceddf4d5aff045b58e8fc5f6b7dcbe2">bsls::BslTestUtil::callDebugprint</a>(N, #N <span class="stringliteral">&quot;: &quot;</span>, <span class="stringliteral">&quot;\n&quot;</span>);          \
                 aSsErT(!(X), #X, __LINE__); } }
 </pre></div>
 </div>
@@ -729,8 +733,64 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aa835fce88dfa59f6090ac1fb7a423dae"></a><!-- doxytag: member="bsls_bsltestutil.h::BSLS_BSLTESTUTIL_FORMAT_ZU" ref="aa835fce88dfa59f6090ac1fb7a423dae" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BSLTESTUTIL_FORMAT_ZU&nbsp;&nbsp;&nbsp;&quot;%zu&quot;</td>
+        </tr>
+      </table>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:39 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<div class="memdoc">
+<p>Provide a platform-independent way to specify a <code>size_t</code> format for printf </p>
+
+</div>
+</div>
+<a class="anchor" id="ab8e43e107470c0c30ffca107301bc801"></a><!-- doxytag: member="bsls_bsltestutil.h::BSLS_BSLTESTUTIL_FORMAT_TD" ref="ab8e43e107470c0c30ffca107301bc801" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BSLTESTUTIL_FORMAT_TD&nbsp;&nbsp;&nbsp;&quot;%td&quot;</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Provide a platform-independent way to specify a <code>ptrdiff_t</code> format for printf </p>
+
+</div>
+</div>
+<a class="anchor" id="a2e4c0ca126228d85fc4447abc518954d"></a><!-- doxytag: member="bsls_bsltestutil.h::BSLS_BSLTESTUTIL_FORMAT_I64" ref="a2e4c0ca126228d85fc4447abc518954d" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BSLTESTUTIL_FORMAT_I64&nbsp;&nbsp;&nbsp;&quot;%lld&quot;</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Provide a platform-independent way to specify a signed 64-bit integer format for printf </p>
+
+</div>
+</div>
+<a class="anchor" id="a284ea68e93c7e5f85ea54bb4b23c0f20"></a><!-- doxytag: member="bsls_bsltestutil.h::BSLS_BSLTESTUTIL_FORMAT_U64" ref="a284ea68e93c7e5f85ea54bb4b23c0f20" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BSLTESTUTIL_FORMAT_U64&nbsp;&nbsp;&nbsp;&quot;%llu&quot;</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Provide a platform-independent way to specify an unsigned 64-bit integer format for printf </p>
+
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:03 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

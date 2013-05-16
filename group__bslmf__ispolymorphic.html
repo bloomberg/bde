@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_ispolymorphic Component</title>
+<title>BDE 2.17 Oss1: bslmf_ispolymorphic Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a compile-time check for polymorphic types.  
+<p>Provide a compile-time check for determining polymorphic types.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="namespaces"></a>
@@ -91,7 +91,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a compile-time check for polymorphic types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a compile-time check for determining polymorphic types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -105,29 +105,38 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> and <code>BloombergLP::bslmf::IsPolymorphic</code>, both of which may be used to query whether a type is a polymorphic class as defined in the C++11 standard [class.virtual]. A class is polymorphic if it has virtual functions. Note that the destructor of such a class should <em>always</em> be declared <code>virtual</code>. Therefore, another definition of polymorphic is whether a class has a virtual destructor. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> meets the requirements of the <code>is_polymorphic</code> template defined in the C++11 standard [meta.unary.prop] with some exceptions (see the two <code>note that</code> below), while <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code> was devised before <code>is_polymorphic</code> was standardized. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The two meta-functions are functionally equivalent. The major difference between them is that the result for <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> is indicated by the class member <code>value</code>, while the result for <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code> is indicated by the class member <code>VALUE</code>. <code><a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer</a></code> should be preferred over <code><a class="el" href="structbslmf_1_1IsPointer.html">bslmf::IsPointer</a></code>, and in general, should be used by new components. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Note that if either of the two meta-functions is applied to a <code>union</code> type, then the compilation will fail, unless the complier provides an intrinsic operation to detect this specific trait. The compilers known to support this trait natively are: <ul>
+<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> and <code>BloombergLP::bslmf::IsPolymorphic</code>, both of which may be used to query whether a type is a polymorphic class as defined in the C++11 standard [class.virtual]. A class is polymorphic if it has at least one virtual function. Note that the destructor of such a class should <em>always</em> be declared <code>virtual</code>. Therefore, another definition of polymorphic is whether a class has a virtual destructor. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> has the same syntax as the <code>is_polymorphic</code> template defined in the C++11 standard [meta.unary.prop], while <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code> was devised before <code>is_polymorphic</code> was standardized. <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> meets the requirements of the C++11 standard with two exceptions: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ol>
+<li>
+<p class="startli">The compilation will fail if the meta-function is used to evaluate a <code>union</code> type, unless one of the following compilers, which provide an intrinsic operation to detect this specific trait, is used:</p>
+<ul>
 <li>
 gcc 4.3 or later  </li>
 <li>
-Visual C++ 2008 or later  </li>
+Visual C++ 2008 or later </li>
 </ul>
-</dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Further note that for some compilers this trait will yield a false positive, claiming that a non-polymorphic type <em>is</em> polymorphic, if using virtual inheritance. This case is known to be handled <em>correctly</em> only for: <ul>
+<p class="endli"></p>
+</li>
+<li>
+<p class="startli">The meta-function will yield false positives, claiming non-polymorphic types <em>are</em> polymorphic, for types using virtual inheritance. This case is known to be handled <em>correctly</em> for the following compilers only:</p>
+<ul>
 <li>
 Compilers with intrinsic support, listed above  </li>
 <li>
 IBM XLC  </li>
 </ul>
+<p class="endli"></p>
+</li>
+</ol>
 </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The two meta-functions are functionally equivalent. The major difference between them is that the result for <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> is indicated by the class member <code>value</code>, while the result for <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code> is indicated by the class member <code>VALUE</code>. <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code> should be preferred over <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code>, and in general, should be used by new components. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_verify_polymorphic_types"></a> <a class="anchor" id="usage.example_1~3A_verify_polymorphic_types"></a> <a class="anchor" id="description.usage.example_1~3A_verify_polymorphic_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Verify Polymorphic Types: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose that we want to assert whether a particular type is a polymorphic type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define two types in a non-polymorphic hierarchy, <code>MyStruct</code> and <code>MyDerivedStruct</code>: <br/>
@@ -142,46 +151,35 @@ IBM XLC  </li>
  Then, we define two types in a polymorphic hierarchy, <code>MyClass</code> and <code>MyDerivedClass</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MyClass {
+    <span class="keyword">public</span>:
       MyClass();
       <span class="keyword">virtual</span> ~MyClass();  <span class="comment">// makes &#39;MyClass&#39; polymorphic</span>
   };
 
   <span class="keyword">class </span>MyDerivedClass : <span class="keyword">public</span> MyClass {
+    <span class="keyword">public</span>:
       MyDerivedClass();
-      ~MyDerivedClass();
+      <span class="keyword">virtual</span> ~MyDerivedClass();
   };
 </pre></div><br/>
 <br/>
- Now, assert that the two types in the non-polymorphic hierarchy are not polymorphic, and the two types in the polymorphic hierarchy are polymorphic using <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code>: <br/>
+ Now, assert that the two types in the non-polymorphic hierarchy are not polymorphic, and that the two types in the polymorphic hierarchy are polymorphic using <code><a class="el" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic</a></code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;MyStruct          &gt;::value</a>);
   assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;MyStruct         *&gt;::value</a>);
   assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;MyDerivedStruct&amp;  &gt;::value</a>);
   assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;MyDerivedStruct  *&gt;::value</a>);
 
-  assert(<span class="keyword">true</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;      MyClass    &gt;::value</a>);
-  assert(<span class="keyword">true</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;const MyClass&amp;   &gt;::value</a>);
+  assert(<span class="keyword">true</span>  == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;      MyClass    &gt;::value</a>);
+  assert(<span class="keyword">true</span>  == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;const MyClass&amp;   &gt;::value</a>);
   assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;      MyClass   *&gt;::value</a>);
-  assert(<span class="keyword">true</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;MyDerivedClass&amp;  &gt;::value</a>);
+  assert(<span class="keyword">true</span>  == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;MyDerivedClass&amp;  &gt;::value</a>);
   assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;MyDerivedClass  *&gt;::value</a>);
-</pre></div><br/>
-<br/>
- Finally, note that the following class is detected as polymorphic by this component, but should really have a virtual destructor. <code>gcc</code> issues a warning for such infractions. <br/>
-<br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MyIncorrectPolymorphicClass {
-
-      MyIncorrectPolymorphicClass();
-      ~MyIncorrectPolymorphicClass();
-      <span class="keyword">virtual</span> <span class="keywordtype">void</span> virtualMethod();
-  };
-
-  assert(1 == <a class="code" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic&lt;MyIncorrectPolymorphicClass&amp;  &gt;::value</a>);
-  assert(0 == <a class="code" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic&lt;MyIncorrectPolymorphicClass  *&gt;::value</a>);
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

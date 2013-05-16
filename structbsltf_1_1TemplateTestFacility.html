@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bsltf::TemplateTestFacility</title>
+<title>BDE 2.17 Oss1: Struct bsltf::TemplateTestFacility</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -87,6 +87,10 @@ Public Types</h2></td></tr>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static TYPE&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#a25bdbb625d95655860cda3626e35e29a">create</a> (int identifier)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#a11339f1fd51b30025d395fe5dd68be89">emplace</a> (TYPE *address, int identifier, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#ab4fde0c1f9a41c55617c5428414fedbc">emplace</a> (TYPE **address, int identifier, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#a91f486a0d3f8dcc79998da28c32ccbed">getIdentifier</a> (const TYPE &amp;object)</td></tr>
 </table>
@@ -156,6 +160,78 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a11339f1fd51b30025d395fe5dd68be89"></a><!-- doxytag: member="bsltf::TemplateTestFacility::emplace" ref="a11339f1fd51b30025d395fe5dd68be89" args="(TYPE *address, int identifier, bslma::Allocator *allocator)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bsltf::TemplateTestFacility::emplace </td>
+          <td>(</td>
+          <td class="paramtype">TYPE *&nbsp;</td>
+          <td class="paramname"> <em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>identifier</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create an object of the parameterized <code>TYPE</code> at the specified <code>address</code> whose state is unique for the specified <code>identifier</code>. The behavior is undefined unless <code>0 &lt;= value &lt; 128</code> and <code>TYPE</code> is contained in the macro <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab4fde0c1f9a41c55617c5428414fedbc"></a><!-- doxytag: member="bsltf::TemplateTestFacility::emplace" ref="ab4fde0c1f9a41c55617c5428414fedbc" args="(TYPE **address, int identifier, bslma::Allocator *allocator)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bsltf::TemplateTestFacility::emplace </td>
+          <td>(</td>
+          <td class="paramtype">TYPE **&nbsp;</td>
+          <td class="paramname"> <em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>identifier</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a pointer to the parameterized <code>TYPE</code> at the specified <code>address</code> whose value is unique for the specified <code>identifier</code>. The behavior is undefined unless <code>0 &lt;= value &lt; 128</code>. </p>
+
+</div>
+</div>
 <a class="anchor" id="a91f486a0d3f8dcc79998da28c32ccbed"></a><!-- doxytag: member="bsltf::TemplateTestFacility::getIdentifier" ref="a91f486a0d3f8dcc79998da28c32ccbed" args="(const TYPE &amp;object)" -->
 <div class="memitem">
 <div class="memproto">
@@ -181,7 +257,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bsltf__templatetestfacility_8h_source.html">bsltf_templatetestfacility.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:20:07 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:24 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

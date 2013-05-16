@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Class bslstl::TreeNodePool</title>
+<title>BDE 2.17 Oss1: Class bslstl::TreeNodePool</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -80,6 +80,7 @@
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classbslstl_1_1SimplePool.html#a0942034bd664d85601a4f06ee0d7e8d0">Pool::AllocatorType</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#a9cb27349f1eac33f4f7586553905f81e">AllocatorType</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef AllocatorTraits::size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#a844480d29a3cc408bb6eb45afc2065cf">size_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#a862e22a200e0534cd34d930405f4d618">TreeNodePool</a> (const ALLOCATOR &amp;allocator)</td></tr>
@@ -88,7 +89,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslalg_1_1RbTreeNode.html">bslalg::RbTreeNode</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#a7ea5b8f6a3f65ffeae49d55e3443e3e9">createNode</a> (const <a class="el" href="classbslalg_1_1RbTreeNode.html">bslalg::RbTreeNode</a> &amp;original)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslalg_1_1RbTreeNode.html">bslalg::RbTreeNode</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#a996b5728b63c9ce222623e214803fb69">createNode</a> (const VALUE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#ac7258136268df964103b31952712cc1a">deleteNode</a> (<a class="el" href="classbslalg_1_1RbTreeNode.html">bslalg::RbTreeNode</a> *node)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#ae2c3cf5d039463fa5e5bce20994cc3a2">reserveNodes</a> (std::size_t numNodes)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#a04392a833dba5d802f5de25d390796d0">reserveNodes</a> (<a class="el" href="classbslstl_1_1TreeNodePool.html#a844480d29a3cc408bb6eb45afc2065cf">size_type</a> numNodes)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#a05069ecd2d1ed6b1617b69cfc56e6de8">swap</a> (<a class="el" href="classbslstl_1_1TreeNodePool.html">TreeNodePool</a>&lt; VALUE, ALLOCATOR &gt; &amp;other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbslstl_1_1TreeNodePool.html#a9cb27349f1eac33f4f7586553905f81e">AllocatorType</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1TreeNodePool.html#ab36bbacf0034ee9277aad13c36486938">allocator</a> () const </td></tr>
 </table>
@@ -106,6 +107,21 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef <a class="el" href="classbslstl_1_1SimplePool.html#a0942034bd664d85601a4f06ee0d7e8d0">Pool::AllocatorType</a> <a class="el" href="classbslstl_1_1TreeNodePool.html">bslstl::TreeNodePool</a>&lt; VALUE, ALLOCATOR &gt;::<a class="el" href="classbslstl_1_1TreeNodePool.html#a9cb27349f1eac33f4f7586553905f81e">AllocatorType</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a844480d29a3cc408bb6eb45afc2065cf"></a><!-- doxytag: member="bslstl::TreeNodePool::size_type" ref="a844480d29a3cc408bb6eb45afc2065cf" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef AllocatorTraits::size_type <a class="el" href="classbslstl_1_1TreeNodePool.html">bslstl::TreeNodePool</a>&lt; VALUE, ALLOCATOR &gt;::<a class="el" href="classbslstl_1_1TreeNodePool.html#a844480d29a3cc408bb6eb45afc2065cf">size_type</a></td>
         </tr>
       </table>
 </div>
@@ -239,7 +255,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ae2c3cf5d039463fa5e5bce20994cc3a2"></a><!-- doxytag: member="bslstl::TreeNodePool::reserveNodes" ref="ae2c3cf5d039463fa5e5bce20994cc3a2" args="(std::size_t numNodes)" -->
+<a class="anchor" id="a04392a833dba5d802f5de25d390796d0"></a><!-- doxytag: member="bslstl::TreeNodePool::reserveNodes" ref="a04392a833dba5d802f5de25d390796d0" args="(size_type numNodes)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -248,7 +264,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1TreeNodePool.html">bslstl::TreeNodePool</a>&lt; VALUE, ALLOCATOR &gt;::reserveNodes </td>
           <td>(</td>
-          <td class="paramtype">std::size_t&nbsp;</td>
+          <td class="paramtype"><a class="el" href="classbslstl_1_1TreeNodePool.html#a844480d29a3cc408bb6eb45afc2065cf">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numNodes</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td></td>
@@ -256,7 +272,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Reserve memory from this pool to satisfy memory requests for at least the specified <code>numBlocks</code> before the pool replenishes. The behavior is undefined unless <code>0 &lt; numBlocks</code>. </p>
+<p>Reserve memory from this pool to satisfy memory requests for at least the specified <code>numNodes</code> before the pool replenishes. The behavior is undefined unless <code>0 &lt; numNodes</code>. </p>
 
 </div>
 </div>
@@ -305,7 +321,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
 <li><a class="el" href="bslstl__treenodepool_8h_source.html">bslstl_treenodepool.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:20:07 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:23 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

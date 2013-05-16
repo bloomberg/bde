@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_arrayprimitives.h                                           -*-C++-*-
@@ -342,6 +342,10 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include &lt;bslmf_removecvq.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEPOINTER
+#include &lt;bslmf_removepointer.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
@@ -1093,47 +1097,6 @@ struct ArrayPrimitives_Imp {
         // *prove* that the passed range is invalid.
 };
 
-                        // ================================
-                        // bslalg_ArrayPrimitives_RemovePtr
-                        // ================================
-
-//TBD #ifndef BDE_OMIT_DEPRECATED
-template &lt;typename NON_PTR_TYPE&gt;
-struct ArrayPrimitives_RemovePtr {
-    // Given a template parameter &#39;T*&#39;, yield &#39;Type == T&#39;.  Given a template
-    // parameter &#39;T&#39; that is not a pointer, yield &#39;T&#39;.
-    //
-    // DEPRECATED: In a future release, the class will be phased out and
-    // replaced by a new component in bslmf.
-
-    typedef NON_PTR_TYPE Type;
-};
-
-template &lt;typename TARGET_TYPE&gt;
-struct ArrayPrimitives_RemovePtr&lt;TARGET_TYPE *&gt; {
-
-    typedef TARGET_TYPE Type;
-};
-
-template &lt;typename TARGET_TYPE&gt;
-struct ArrayPrimitives_RemovePtr&lt;const TARGET_TYPE *&gt; {
-
-    typedef TARGET_TYPE Type;
-};
-
-template &lt;typename TARGET_TYPE&gt;
-struct ArrayPrimitives_RemovePtr&lt;volatile TARGET_TYPE *&gt; {
-
-    typedef TARGET_TYPE Type;
-};
-
-template &lt;typename TARGET_TYPE&gt;
-struct ArrayPrimitives_RemovePtr&lt;const volatile TARGET_TYPE *&gt; {
-
-    typedef TARGET_TYPE Type;
-};
-//TBD #endif  // BDE_OMIT_DEPRECATED
-
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1184,9 +1147,9 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
          // pointer template function overload in &#39;Imp&#39;, so we resort to the
          // general case for those.
 
-         IS_FUNCTION_POINTER = bslmf::IsFunctionPointer&lt;TARGET_TYPE&gt;::VALUE,
-         IS_FUNDAMENTAL      = bslmf::IsFundamental&lt;TARGET_TYPE&gt;::VALUE,
-         IS_POINTER          = bslmf::IsPointer&lt;TARGET_TYPE&gt;::VALUE,
+         IS_FUNCTION_POINTER = bslmf::IsFunctionPointer&lt;TARGET_TYPE&gt;::value,
+         IS_FUNDAMENTAL      = bslmf::IsFundamental&lt;TARGET_TYPE&gt;::value,
+         IS_POINTER          = bslmf::IsPointer&lt;TARGET_TYPE&gt;::value,
 
          IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                      (IS_POINTER &amp;&amp; !IS_FUNCTION_POINTER),
@@ -1213,14 +1176,14 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
-    typedef typename ArrayPrimitives_RemovePtr&lt;FWD_ITER&gt;::Type FwdTarget;
+    typedef typename bsl::remove_pointer&lt;FWD_ITER&gt;::type FwdTarget;
     enum {
-        ARE_PTRS_TO_PTRS = bslmf::IsPointer&lt;TARGET_TYPE&gt;::VALUE &amp;&amp;
-                           bslmf::IsPointer&lt;FWD_ITER   &gt;::VALUE &amp;&amp;
-                           bslmf::IsPointer&lt;FwdTarget  &gt;::VALUE,
+        ARE_PTRS_TO_PTRS = bslmf::IsPointer&lt;TARGET_TYPE&gt;::value &amp;&amp;
+                           bslmf::IsPointer&lt;FWD_ITER   &gt;::value &amp;&amp;
+                           bslmf::IsPointer&lt;FwdTarget  &gt;::value,
         IS_BITWISECOPYABLE = bsl::is_trivially_copyable&lt;TARGET_TYPE&gt;::value &amp;&amp;
                              bslmf::IsConvertible&lt;FWD_ITER,
-                                                   const TARGET_TYPE *&gt;::VALUE,
+                                                   const TARGET_TYPE *&gt;::value,
         VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
               : IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
               : Imp::NIL_TRAITS
@@ -1497,14 +1460,14 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         return;                                                       // RETURN
     }
 
-    typedef typename ArrayPrimitives_RemovePtr&lt;FWD_ITER&gt;::Type FwdTarget;
+    typedef typename bsl::remove_pointer&lt;FWD_ITER&gt;::type FwdTarget;
     enum {
-        ARE_PTRS_TO_PTRS = bslmf::IsPointer&lt;TARGET_TYPE&gt;::VALUE &amp;&amp;
-                           bslmf::IsPointer&lt;FWD_ITER   &gt;::VALUE &amp;&amp;
-                           bslmf::IsPointer&lt;FwdTarget  &gt;::VALUE,
+        ARE_PTRS_TO_PTRS = bslmf::IsPointer&lt;TARGET_TYPE&gt;::value &amp;&amp;
+                           bslmf::IsPointer&lt;FWD_ITER   &gt;::value &amp;&amp;
+                           bslmf::IsPointer&lt;FwdTarget  &gt;::value,
         IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable&lt;TARGET_TYPE&gt;::value,
         IS_BITWISECOPYABLE  = bslmf::IsConvertible&lt;FWD_ITER,
-                                                   const TARGET_TYPE *&gt;::VALUE
+                                                   const TARGET_TYPE *&gt;::value
                             &amp;&amp; bsl::is_trivially_copyable&lt;TARGET_TYPE&gt;::value,
         VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
               : IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
@@ -1951,16 +1914,10 @@ void ArrayPrimitives_Imp::copyConstruct(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    typedef typename bslmf::RemovePtrCvq&lt;TARGET_TYPE&gt;::Type NoConstTargetType;
-    typedef typename bslmf::RemovePtrCvq&lt;FWD_ITER&gt;::ValueType
-                                                           NoConstFwdIterValue;
-    typedef typename bslmf::RemovePtrCvq&lt;NoConstFwdIterValue&gt;::ValueType
-                                                      NoConstFwdIterValueValue;
-
     copyConstruct(
-           (void *       *) const_cast&lt;NoConstTargetType *&gt;(toBegin),
-           (void * const *) const_cast&lt;NoConstFwdIterValueValue **&gt;(fromBegin),
-           (void * const *) const_cast&lt;NoConstFwdIterValueValue **&gt;(fromEnd),
+           (void *       *) toBegin,
+           (void * const *) fromBegin,
+           (void * const *) fromEnd,
            allocator,
            (bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *) 0);
 }
@@ -2322,16 +2279,10 @@ void ArrayPrimitives_Imp::insert(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    typedef typename bslmf::RemovePtrCvq&lt;TARGET_TYPE&gt;::Type NoConstTargetType;
-    typedef typename bslmf::RemovePtrCvq&lt;FWD_ITER&gt;::ValueType
-                                                           NoConstFwdIterValue;
-    typedef typename bslmf::RemovePtrCvq&lt;NoConstFwdIterValue&gt;::ValueType
-                                                      NoConstFwdIterValueValue;
-
-    insert((void *       *) const_cast&lt;NoConstTargetType *&gt;(toBegin),
-           (void *       *) const_cast&lt;NoConstTargetType *&gt;(toEnd),
-           (void * const *) const_cast&lt;NoConstFwdIterValueValue **&gt;(fromBegin),
-           (void * const *) const_cast&lt;NoConstFwdIterValueValue **&gt;(fromEnd),
+    insert((void *       *) toBegin,
+           (void *       *) toEnd,
+           (void * const *) fromBegin,
+           (void * const *) fromEnd,
            numElements,
            allocator,
            (bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *) 0);
@@ -2458,7 +2409,7 @@ void ArrayPrimitives_Imp::insert(
         AutoArrayDestructor&lt;TARGET_TYPE&gt; endGuard2(destBegin, destEnd);
 
         //..
-        //  Transformation: tuvwx__[ABCDE] =&gt; tuvwx[yzABCDE].
+        //  Transformation: tuvwx[]__[ABCDE] =&gt; tuvwx[yz][ABCDE].
         //..
 
         for (; toEnd != destBegin; ++fromBegin) {
@@ -2882,7 +2833,7 @@ bool ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

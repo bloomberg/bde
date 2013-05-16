@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_dequeiterator.h                                             -*-C++-*-
@@ -373,28 +373,6 @@ class DequeIterator&lt;VALUE_TYPE, 1&gt; {
     std::size_t remainingInBlock() const;
     VALUE_TYPE *valuePtr() const;
 };
-
-}  // close package namespace
-
-}  // close enterprise namespace
-
-// ===========================================================================
-//                                TYPE TRAITS
-// ===========================================================================
-
-namespace bsl {
-
-template &lt;typename VALUE_TYPE, int BLOCK_LENGTH&gt;
-struct is_trivially_copyable&lt;BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
-                                                                BLOCK_LENGTH&gt; &gt;
-    : true_type
-{};
-
-}  // close namespace bsl
-
-namespace BloombergLP {
-
-namespace bslalg {
 
 // ===========================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -861,10 +839,24 @@ bool bslalg::operator&lt;(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
 
 }  // close enterprise namespace
 
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace bsl {
+
+template &lt;typename VALUE_TYPE, int BLOCK_LENGTH&gt;
+struct is_trivially_copyable&lt;BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
+                                                                BLOCK_LENGTH&gt; &gt;
+    : true_type
+{};
+
+}  // close namespace bsl
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

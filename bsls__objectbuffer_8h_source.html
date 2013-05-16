@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_objectbuffer.h                                                -*-C++-*-
@@ -118,10 +118,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      };
 //
 //    public:
-//      my_Union(int i = 0) : d_type(INT) { d_int = i; }
-//      my_Union(const my_String&amp; s) : d_type(STRING) {
+//      my_Union(int i = 0) : d_type(INT) { d_int = i; }            // IMLPICIT
+//      my_Union(const my_String&amp; s) : d_type(STRING) {             // IMLPICIT
 //          new (d_string.buffer()) my_String(s); }
-//      my_Union(const char *s) : d_type(STRING) {
+//      my_Union(const char *s) : d_type(STRING) {                  // IMLPICIT
 //          new (d_string.buffer()) my_String(s); }
 //      my_Union(const my_Union&amp; rhs) : d_type(rhs.d_type) {
 //          if (INT == d_type) {
@@ -225,7 +225,7 @@ namespace bsls {
                         // union ObjectBuffer
                         // ==================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 union ObjectBuffer {
     // An instance of this union is a raw block of memory suitable for storing
     // an object of type &#39;TYPE&#39;.  Specifically, the size and alignment of this
@@ -281,14 +281,14 @@ union ObjectBuffer {
 // ===========================================================================
 
 // MANIPULATORS
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 inline
 TYPE&amp; ObjectBuffer&lt;TYPE&gt;::object()
 {
     return *reinterpret_cast&lt;TYPE*&gt;(this);
 }
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 inline
 char *ObjectBuffer&lt;TYPE&gt;::buffer()
 {
@@ -296,14 +296,14 @@ char *ObjectBuffer&lt;TYPE&gt;::buffer()
 }
 
 // ACCESSORS
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 inline
 const TYPE&amp; ObjectBuffer&lt;TYPE&gt;::object() const
 {
     return *reinterpret_cast&lt;const TYPE*&gt;(this);
 }
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 inline
 const char *ObjectBuffer&lt;TYPE&gt;::buffer() const
 {
@@ -323,7 +323,7 @@ const char *ObjectBuffer&lt;TYPE&gt;::buffer() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

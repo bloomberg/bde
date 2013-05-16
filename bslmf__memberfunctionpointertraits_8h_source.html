@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_memberfunctionpointertraits.h                                -*-C++-*-
@@ -61,8 +61,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          ResultType;
 //      typedef typename bslmf::MemberFunctionPointerTraits&lt;TYPE&gt;::ArgumentList
 //          ArgumentList;
-//      assert(1 == (bslmf::IsSame&lt;ResultType, BSLMF_RETURN&gt;::value));
-//      assert(1 == (bslmf::IsSame&lt;ArgumentList, ARGS&gt;::value));
+//      assert(1 == (bsl::is_same&lt;ResultType, BSLMF_RETURN&gt;::value));
+//      assert(1 == (bsl::is_same&lt;ArgumentList, ARGS&gt;::value));
 //  }
 //..
 // The following program should compile and run without errors:
@@ -84,12 +84,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include &lt;bslmf_integralconstant.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLMF_IF
 #include &lt;bslmf_if.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -793,7 +793,7 @@ struct MemberFunctionPointerTraitsImp&lt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

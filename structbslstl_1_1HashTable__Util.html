@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bslstl::HashTable_Util</title>
+<title>BDE 2.17 Oss1: Struct bslstl::HashTable_Util</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -60,16 +60,15 @@
   <div class="navpath">
     <ul>
       <li><a class="el" href="namespacebslstl.html">bslstl</a>      </li>
-      <li><a class="el" href="structbslstl_1_1HashTable__Util.html">bslstl::HashTable_Util&lt; ALLOCATOR &gt;</a>      </li>
+      <li><a class="el" href="structbslstl_1_1HashTable__Util.html">bslstl::HashTable_Util</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a>  </div>
   <div class="headertitle">
-<h1>bslstl::HashTable_Util&lt; ALLOCATOR &gt; Struct Template Reference</h1>  </div>
+<h1>bslstl::HashTable_Util Struct Reference</h1>  </div>
 </div>
 <div class="contents">
 <!-- doxytag: class="bslstl::HashTable_Util" -->
@@ -77,29 +76,35 @@
 
 <p><a href="structbslstl_1_1HashTable__Util-members.html">List of all members.</a></p>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef <br class="typebreak"/>
-<a class="el" href="group__bslstl__allocatortraits.html#gae5fea114d04c6a2615a8c75e820f9364">ArrayAllocatorTraits::size_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#abfc1634d63e2b5fe542d92b92857b1de">SizeType</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#a0c3a2136a332ad4043e6eecc5493447b">initAnchor</a> (<a class="el" href="classbslalg_1_1HashTableAnchor.html">bslalg::HashTableAnchor</a> *anchor, <a class="el" href="structbslstl_1_1HashTable__Util.html#abfc1634d63e2b5fe542d92b92857b1de">SizeType</a> bucketArraySize, const ALLOCATOR &amp;allocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#abfe144db7b4aa7e1d06005071aee6394">destroyBucketArray</a> (<a class="el" href="structbslalg_1_1HashTableBucket.html">bslalg::HashTableBucket</a> *data, <a class="el" href="structbslstl_1_1HashTable__Util.html#abfc1634d63e2b5fe542d92b92857b1de">SizeType</a> bucketArraySize, const ALLOCATOR &amp;allocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#abb01f6a12c81d905659efbe7de819ae7">assertNotNullPointer</a> (TYPE &amp;)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#aeb4c6b5059a767a77caae0ca76522e1c">assertNotNullPointer</a> (TYPE *const &amp;ptr)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#ab4fda9b35c97f8a2c490a052bff28bb4">assertNotNullPointer</a> (TYPE *&amp;ptr)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#a7a27a27db42a389c11cf02319cc76c96">initAnchor</a> (<a class="el" href="classbslalg_1_1HashTableAnchor.html">bslalg::HashTableAnchor</a> *anchor, native_std::size_t bucketArraySize, const ALLOCATOR &amp;allocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1HashTable__Util.html#ae6bd4b50b967d1cfb37422fc016b8ae9">destroyBucketArray</a> (<a class="el" href="structbslalg_1_1HashTableBucket.html">bslalg::HashTableBucket</a> *data, native_std::size_t bucketArraySize, const ALLOCATOR &amp;allocator)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;class ALLOCATOR&gt;<br/>
- struct bslstl::HashTable_Util&lt; ALLOCATOR &gt;</h3>
-
-<p>This utility <code>struct</code> provide utilities for initializing and destroying bucket lists in anchors that will be managed by a <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code>. </p>
-<hr/><h2>Member Typedef Documentation</h2>
-<a class="anchor" id="abfc1634d63e2b5fe542d92b92857b1de"></a><!-- doxytag: member="bslstl::HashTable_Util::SizeType" ref="abfc1634d63e2b5fe542d92b92857b1de" args="" -->
+<p>This utility <code>struct</code> provide utilities for initializing and destroying bucket lists in anchors that will be managed by a <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code>. They cannot migrate down to <code><a class="el" href="structbslalg_1_1HashTableImpUtil.html">bslalg::HashTableImpUtil</a></code> as they rely on the standard library <code>bslstl_allocatortraits</code> for their implementation. </p>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="abb01f6a12c81d905659efbe7de819ae7"></a><!-- doxytag: member="bslstl::HashTable_Util::assertNotNullPointer" ref="abb01f6a12c81d905659efbe7de819ae7" args="(TYPE &amp;)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class ALLOCATOR &gt; </div>
+template&lt;class TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="group__bslstl__allocatortraits.html#gae5fea114d04c6a2615a8c75e820f9364">ArrayAllocatorTraits::size_type</a> <a class="el" href="structbslstl_1_1HashTable__Util.html">bslstl::HashTable_Util</a>&lt; ALLOCATOR &gt;::<a class="el" href="structbslstl_1_1HashTable__Util.html#abfc1634d63e2b5fe542d92b92857b1de">SizeType</a></td>
+          <td class="memname">static void bslstl::HashTable_Util::assertNotNullPointer </td>
+          <td>(</td>
+          <td class="paramtype">TYPE &amp;&nbsp;</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
         </tr>
       </table>
 </div>
@@ -107,15 +112,55 @@ template&lt;class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a0c3a2136a332ad4043e6eecc5493447b"></a><!-- doxytag: member="bslstl::HashTable_Util::initAnchor" ref="a0c3a2136a332ad4043e6eecc5493447b" args="(bslalg::HashTableAnchor *anchor, SizeType bucketArraySize, const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="aeb4c6b5059a767a77caae0ca76522e1c"></a><!-- doxytag: member="bslstl::HashTable_Util::assertNotNullPointer" ref="aeb4c6b5059a767a77caae0ca76522e1c" args="(TYPE *const &amp;ptr)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslstl::HashTable_Util::assertNotNullPointer </td>
+          <td>(</td>
+          <td class="paramtype">TYPE *const &amp;&nbsp;</td>
+          <td class="paramname"> <em>ptr</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab4fda9b35c97f8a2c490a052bff28bb4"></a><!-- doxytag: member="bslstl::HashTable_Util::assertNotNullPointer" ref="ab4fda9b35c97f8a2c490a052bff28bb4" args="(TYPE *&amp;ptr)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslstl::HashTable_Util::assertNotNullPointer </td>
+          <td>(</td>
+          <td class="paramtype">TYPE *&amp;&nbsp;</td>
+          <td class="paramname"> <em>ptr</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assert that the passed argument is not a null pointer value. Note that this utility is necessary as the <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code> class template may be instantiated with function pointers for the hasher or comparator policies, but there is no easy way to assert in general that the value of a generic type passed to a function is a null pointer value. </p>
+
+</div>
+</div>
+<a class="anchor" id="a7a27a27db42a389c11cf02319cc76c96"></a><!-- doxytag: member="bslstl::HashTable_Util::initAnchor" ref="a7a27a27db42a389c11cf02319cc76c96" args="(bslalg::HashTableAnchor *anchor, native_std::size_t bucketArraySize, const ALLOCATOR &amp;allocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class ALLOCATOR &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static void <a class="el" href="structbslstl_1_1HashTable__Util.html">bslstl::HashTable_Util</a>&lt; ALLOCATOR &gt;::initAnchor </td>
+          <td class="memname">static void bslstl::HashTable_Util::initAnchor </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classbslalg_1_1HashTableAnchor.html">bslalg::HashTableAnchor</a> *&nbsp;</td>
           <td class="paramname"> <em>anchor</em>, </td>
@@ -123,7 +168,7 @@ template&lt;class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslstl_1_1HashTable__Util.html#abfc1634d63e2b5fe542d92b92857b1de">SizeType</a>&nbsp;</td>
+          <td class="paramtype">native_std::size_t&nbsp;</td>
           <td class="paramname"> <em>bucketArraySize</em>, </td>
         </tr>
         <tr>
@@ -144,14 +189,14 @@ template&lt;class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="abfe144db7b4aa7e1d06005071aee6394"></a><!-- doxytag: member="bslstl::HashTable_Util::destroyBucketArray" ref="abfe144db7b4aa7e1d06005071aee6394" args="(bslalg::HashTableBucket *data, SizeType bucketArraySize, const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="ae6bd4b50b967d1cfb37422fc016b8ae9"></a><!-- doxytag: member="bslstl::HashTable_Util::destroyBucketArray" ref="ae6bd4b50b967d1cfb37422fc016b8ae9" args="(bslalg::HashTableBucket *data, native_std::size_t bucketArraySize, const ALLOCATOR &amp;allocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class ALLOCATOR &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static void <a class="el" href="structbslstl_1_1HashTable__Util.html">bslstl::HashTable_Util</a>&lt; ALLOCATOR &gt;::destroyBucketArray </td>
+          <td class="memname">static void bslstl::HashTable_Util::destroyBucketArray </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structbslalg_1_1HashTableBucket.html">bslalg::HashTableBucket</a> *&nbsp;</td>
           <td class="paramname"> <em>data</em>, </td>
@@ -159,7 +204,7 @@ template&lt;class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslstl_1_1HashTable__Util.html#abfc1634d63e2b5fe542d92b92857b1de">SizeType</a>&nbsp;</td>
+          <td class="paramtype">native_std::size_t&nbsp;</td>
           <td class="paramname"> <em>bucketArraySize</em>, </td>
         </tr>
         <tr>
@@ -176,6 +221,7 @@ template&lt;class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Destroy the specified <code>data</code> array of the specified length <code>bucketArraySize</code>, that was allocated by the specified <code>allocator</code>. </p>
 
 </div>
 </div>
@@ -183,7 +229,7 @@ template&lt;class ALLOCATOR &gt; </div>
 <li><a class="el" href="bslstl__hashtable_8h_source.html">bslstl_hashtable.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:20:06 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:23 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

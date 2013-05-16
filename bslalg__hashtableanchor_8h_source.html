@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_hashtableanchor.h                                           -*-C++-*-
@@ -62,8 +62,399 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: ...
-///- - - - - - -
+// Suppose we want to create a hash table that keeps track of pointers.
+// Pointers can be added (&#39;insert&#39;ed) or removed (&#39;erase&#39;d) from the table, and
+// the table will keep track, at any time, of whether a pointer is currently
+// stored in the table using the &#39;count&#39; method.  It will also be table to
+// return the total number of objects stored in the table (the &#39;size&#39; method).
+// Redundant &#39;insert&#39;s have no effect -- a given pointer may only be stored in
+// the table once.
+//
+// First, we create our class:
+//..
+//  class PtrHashSet : public bslalg::HashTableAnchor {
+//      // PRIVATE TYPES
+//      typedef bsls::Types::UintPtr              UintPtr;
+//      typedef bslalg::BidirectionalNode&lt;void *&gt; Node;
+//      typedef bslalg::HashTableBucket           Bucket;
+//      typedef bslalg::BidirectionalLinkListUtil Util;
+//
+//      // DATA
+//      double            d_maxLoadFactor;
+//      unsigned          d_numNodes;
+//      bslma::Allocator *d_allocator_p;
+//
+//      // PRIVATE MANIPULATORS
+//      void grow();
+//          // Roughly double the number of buckets, such that the number of
+//          // buckets shall always be &#39;2^N - 1&#39;.
+//
+//      // PRIVATE ACCESSORS
+//      bool checkInvariants() const;
+//          // Perform sanity checks on this table, returning &#39;true&#39; if all the
+//          // tests pass and &#39;false&#39; otherwise.  Note that many of the checks
+//          // are done with the &#39;ASSERTV&#39; macro and will cause messages to be
+//          // written to the console.
+//
+//      bool find(Node **node, Bucket **bucket, const void *ptr) const;
+//          // If the specified value &#39;ptr&#39; is stored in this table, return
+//          // pointers to its node and bucket in the specified &#39;node&#39; and
+//          // &#39;bucket&#39;.  If it is not in this table, return the bucket it
+//          // should be in, and a pointer to the first node, if any, in that
+//          // bucket.  If the bucket is empty, return with
+//          // &#39;*node == listRootAddress()&#39;.  Return &#39;true&#39; if &#39;ptr&#39; was found
+//          // in the table and &#39;false&#39; otherwise.  Note that it is permissible
+//          // to pass 0 to &#39;node&#39; and / or &#39;bucket&#39;, in which case these
+//          // arguments are ignored.
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      PtrHashSet(const PtrHashSet&amp;, bslma::Allocator *);
+//      PtrHashSet&amp; operator=(const PtrHashSet&amp;);
+//
+//    public:
+//      // CREATORS
+//      explicit
+//      PtrHashSet(bslma::Allocator *allocator = 0);
+//          // Create a &#39;PtrHashSet&#39;, using the specified &#39;allocator&#39;.  If no
+//          // allocator is specified, use the default allocator.
+//
+//      ~PtrHashSet();
+//          // Destroy this &#39;PtrHashSet&#39;, freeing all its memory.
+//
+//      // MANIPULATORS
+//      bool insert(void *ptr);
+//          // If the specfied &#39;ptr&#39; is not in this hash table, add it,
+//          // returning &#39;true&#39;.  If it is already in the table, return &#39;false&#39;
+//          // with no action taken.
+//
+//      bool erase(void *ptr);
+//          // If the specfied &#39;ptr&#39; is in this hash table, remove it,
+//          // returning &#39;true&#39;.  If it is not found in the table, return
+//          // &#39;false&#39; with no action taken.
+//
+//      // ACCESSORS
+//      native_std::size_t count(void *ptr) const;
+//          // Return 1 if the specified value &#39;ptr&#39; is in this table and 0
+//          // otherwise.
+//
+//      native_std::size_t size() const;
+//          // Return the number of discrete values that are stored in this
+//          // table.
+//  };
+//
+//  // PRIVATE MANIPULATORS
+//  void PtrHashSet::grow()
+//  {
+//      // &#39;bucketArraySize&#39; will always be &#39;2^N - 1&#39;, so that when pointers
+//      // are aligned by some 2^N they&#39;re likely to be relatively prime.
+//
+//      native_std::size_t newBucketArraySize = bucketArraySize() * 2 + 1;
+//      native_std::size_t newBucketArraySizeInBytes =
+//                                         newBucketArraySize * sizeof(Bucket);
+//      memset(bucketArrayAddress(), 0x5a, size() * sizeof(Bucket));
+//      d_allocator_p-&gt;deallocate(bucketArrayAddress());
+//      setBucketArrayAddressAndSize(
+//               (Bucket *) d_allocator_p-&gt;allocate(newBucketArraySizeInBytes),
+//               newBucketArraySize);
+//      memset(bucketArrayAddress(), 0, newBucketArraySizeInBytes);
+//      Node *newListRootAddress = 0;
+//
+//      unsigned numNodes = 0;
+//      for (Node *node = (Node *) listRootAddress(); node; ++numNodes) {
+//          Node *rippedOut = node;
+//          node = (Node *) node-&gt;nextLink();
+//
+//          native_std::size_t index =
+//                            (UintPtr) rippedOut-&gt;value() % bucketArraySize();
+//          Bucket&amp; bucket = bucketArrayAddress()[index];
+//          if (bucket.first()) {
+//              if (0 == bucket.first()-&gt;previousLink()) {
+//                  newListRootAddress = rippedOut;
+//              }
+//              Util::insertLinkBeforeTarget(rippedOut, bucket.first());
+//              bucket.setFirst(rippedOut);
+//          }
+//          else {
+//              Util::insertLinkBeforeTarget(rippedOut,
+//                                           newListRootAddress);
+//              newListRootAddress = rippedOut;
+//              bucket.setFirstAndLast(rippedOut, rippedOut);
+//          }
+//      }
+//      assert(size() == numNodes);
+//
+//      setListRootAddress(newListRootAddress);
+//
+//      checkInvariants();
+//  }
+//
+//  // PRIVATE ACCESSORS
+//  bool PtrHashSet::checkInvariants() const
+//  {
+//      bool ok;
+//
+//      unsigned numNodes = 0;
+//      Node *prev = 0;
+//      for (Node *node = (Node *) listRootAddress(); node;
+//                             prev = node, node = (Node *) node-&gt;nextLink()) {
+//          ok = node-&gt;previousLink() == prev;
+//          assert(ok &amp;&amp; &quot;node-&gt;previousLink() == prev&quot;);
+//          if (!ok) return false;                                    // RETURN
+//          ++numNodes;
+//      }
+//      ok = size() == numNodes;
+//      assert(ok &amp;&amp; &quot;size() == numNodes&quot;);
+//      if (!ok) return false;                                        // RETURN
+//
+//      numNodes = 0;
+//      for (unsigned i = 0; i &lt; bucketArraySize(); ++i) {
+//          Bucket&amp; bucket = bucketArrayAddress()[i];
+//          if (bucket.first()) {
+//              ++numNodes;
+//              for (Node *node = (Node *) bucket.first();
+//                                bucket.last() != node;
+//                                          node = (Node *) node-&gt;nextLink()) {
+//                  ++numNodes;
+//              }
+//          }
+//          else {
+//              ok = !bucket.last();
+//              assert(ok &amp;&amp; &quot;!bucket.last()&quot;);
+//              if (!ok) return false;                                // RETURN
+//          }
+//      }
+//      ok = size() == numNodes;
+//      assert(ok &amp;&amp; &quot;size() == numNodes&quot;);
+//
+//      return ok;
+//  }
+//
+//  bool PtrHashSet::find(Node **node, Bucket **bucket, const void *ptr) const
+//  {
+//      Node   *dummyNodePtr;
+//      Bucket *dummyBucketPtr;
+//      if (!node  ) node   = &amp;dummyNodePtr;
+//      if (!bucket) bucket = &amp;dummyBucketPtr;
+//
+//      Node *&amp; nodePtrRef = *node;
+//      unsigned index = (UintPtr) ptr % bucketArraySize();
+//      Bucket&amp; bucketRef = bucketArrayAddress()[index];
+//      *bucket = &amp;bucketRef;
+//      if (bucketRef.first()) {
+//          Node *begin      = (Node *) bucketRef.first();
+//          Node * const end = (Node *) bucketRef.last()-&gt;nextLink();
+//          for (Node *n = begin; end != n; n = (Node *) n-&gt;nextLink()) {
+//              if (n-&gt;value() == ptr) {
+//                  // found
+//
+//                  nodePtrRef = n;
+//                  return true;                                      // RETURN
+//              }
+//          }
+//          // not found
+//
+//          nodePtrRef = begin;
+//          return false;                                             // RETURN
+//      }
+//      // empty bucket
+//
+//      nodePtrRef = (Node *) listRootAddress();
+//      return false;
+//  }
+//
+//  // CREATORS
+//  PtrHashSet::PtrHashSet(bslma::Allocator *allocator)
+//  : HashTableAnchor(0, 0, 0)
+//  , d_maxLoadFactor(0.4)
+//  , d_numNodes(0)
+//  {
+//      enum { NUM_BUCKETS = 3 };
+//
+//      d_allocator_p = bslma::Default::allocator(allocator);
+//      native_std::size_t bucketArraySizeInBytes =
+//                                                NUM_BUCKETS * sizeof(Bucket);
+//      setBucketArrayAddressAndSize(
+//                  (Bucket *) d_allocator_p-&gt;allocate(bucketArraySizeInBytes),
+//                  NUM_BUCKETS);
+//      memset(bucketArrayAddress(), 0, bucketArraySizeInBytes);
+//  }
+//
+//  PtrHashSet::~PtrHashSet()
+//  {
+//      BSLS_ASSERT_SAFE(checkInvariants());
+//
+//      for (Node *node = (Node *) listRootAddress(); node; ) {
+//          Node *toDelete = node;
+//          node = (Node *) node-&gt;nextLink();
+//
+//          memset(toDelete, 0x5a, sizeof(*toDelete));
+//          d_allocator_p-&gt;deallocate(toDelete);
+//      }
+//
+//      d_allocator_p-&gt;deallocate(bucketArrayAddress());
+//  }
+//
+//  // MANIPULATORS
+//  bool PtrHashSet::erase(void *ptr)
+//  {
+//      Bucket *bucket;
+//      Node   *node;
+//
+//      if (!find(&amp;node, &amp;bucket, ptr)) {
+//          return false;                                             // RETURN
+//      }
+//
+//      if (bucket-&gt;first() == node) {
+//          if (bucket-&gt;last() == node) {
+//              bucket-&gt;reset();
+//          }
+//          else {
+//              bucket-&gt;setFirst(node-&gt;nextLink());
+//          }
+//      }
+//      else if (bucket-&gt;last() == node) {
+//          bucket-&gt;setLast(node-&gt;previousLink());
+//      }
+//
+//      --d_numNodes;
+//      Util::unlink(node);
+//
+//      d_allocator_p-&gt;deallocate(node);
+//
+//      checkInvariants();
+//
+//      return true;
+//  }
+//
+//  bool PtrHashSet::insert(void *ptr)
+//  {
+//      Bucket *bucket;
+//      Node *insertionPoint;
+//
+//      if (find(&amp;insertionPoint, &amp;bucket, ptr)) {
+//          // Already in set, do nothing.
+//
+//          return false;                                             // RETURN
+//      }
+//
+//      if (bucketArraySize() * d_maxLoadFactor &lt; d_numNodes + 1) {
+//          grow();
+//          bool found = find(&amp;insertionPoint, &amp;bucket, ptr);
+//          BSLS_ASSERT_SAFE(!found);
+//      }
+//
+//      ++d_numNodes;
+//      Node *node = (Node *) d_allocator_p-&gt;allocate(sizeof(Node));
+//
+//      Util::insertLinkBeforeTarget(node, insertionPoint);
+//      node-&gt;value() = ptr;
+//      if (listRootAddress() == insertionPoint) {
+//          BSLS_ASSERT_SAFE(0 == node-&gt;previousLink());
+//          setListRootAddress(node);
+//      }
+//
+//      if (bucket-&gt;first()) {
+//          BSLS_ASSERT_SAFE(bucket-&gt;first() == insertionPoint);
+//
+//          bucket-&gt;setFirst(node);
+//      }
+//      else {
+//          BSLS_ASSERT_SAFE(!bucket-&gt;last());
+//
+//          bucket-&gt;setFirstAndLast(node, node);
+//      }
+//
+//      assert(count(ptr));
+//
+//      checkInvariants();
+//
+//      return true;
+//  }
+//
+//  // ACCESSORS
+//  native_std::size_t PtrHashSet::count(void *ptr) const
+//  {
+//      return find(0, 0, ptr);
+//  }
+//
+//  native_std::size_t PtrHashSet::size() const
+//  {
+//      return d_numNodes;
+//  }
+//..
+// Then, in &#39;main&#39;, we create a test allocator for use in this example to
+// ensure that no memory is leaked:
+//..
+//  bslma::TestAllocator ta(&quot;test&quot;, veryVeryVeryVerbose);
+//..
+// Next, we declare our table using that allocator:
+//..
+//  PtrHashSet phs(&amp;ta);
+//..
+// Then, we create an area of memory from which our pointers will come:
+//..
+//  enum { SEGMENT_LENGTH = 1000 };
+//  char *pc = (char *) ta.allocate(SEGMENT_LENGTH);
+//..
+// Next, we iterate through the length of the segment, insert those pointers
+// for which &#39;ptr - pc == N * 7&#39; is true.  We keep a count of the number of
+// items we insert into the table in the variable &#39;sevens&#39;:
+//..
+//  unsigned sevens = 0;
+//  for (int i = 0; i &lt; SEGMENT_LENGTH; i += 7) {
+//      ++sevens;
+//      bool status = phs.insert(&amp;pc[i]);
+//      assert(status);
+//  }
+//..
+// Then, we verify the number of objects we&#39;ve placed in the table:
+//..
+//  assert(phs.size() == sevens);
+//..
+// Next, we iterate through ALL pointers in the &#39;pc&#39; array, using the &#39;count&#39;
+// method to verify that the ones we expect are in the table:
+//..
+//  for (int i = 0; i &lt; SEGMENT_LENGTH; ++i) {
+//      assert(phs.count(&amp;pc[i]) == (0 == i % 7));
+//  }
+//..
+// Then, we iterate, deleting all elements from the table for which
+// &#39;ptr - pc == 3 * N&#39; is true.  We keep a count of the number of elements
+// which were in the table which we delete in the variable &#39;killed&#39;:
+//..
+//  unsigned killed = 0;
+//  for (int i = 0; i &lt; SEGMENT_LENGTH; i += 3) {
+//      const bool deleted = phs.erase(&amp;pc[i]);
+//      assert(deleted == (0 == i % 7));
+//      killed += deleted;
+//  }
+//..
+// Next, we verify the number of remaining elements in the table:
+//..
+//  assert(killed &lt; sevens);
+//  assert(phs.size() == sevens - killed);
+//..
+// Then, in verbose mode we print our tallies:
+//..
+//  if (verbose) {
+//      printf(&quot;sevens = %u, killed = %u, phs.size() = %u\n&quot;, sevens,
+//                                          killed, (unsigned) phs.size());
+//  }
+//..
+// Now, we iterate through every element of the &#39;pc&#39; array, verifying that the
+// surviving elements are exactly those for which &#39;ptr - pc&#39; was divisible by 7
+// and not by 3:
+//..
+//  for (int i = 0; i &lt; SEGMENT_LENGTH; ++i) {
+//      const bool present = phs.count(&amp;pc[i]);
+//      assert(present == ((0 == i % 7) &amp;&amp; (0 != i % 3)));
+//  }
+//..
+// Finally, we clean up our &#39;pc&#39; array:
+//..
+//  ta.deallocate(pc);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
@@ -170,6 +561,7 @@ class HashTableAnchor {
     void setListRootAddress(BidirectionalLink *value);
         // Set the &#39;listRootAddress&#39; attribute of this object to the
         // specified &#39;value&#39;.
+
                                   // Aspects
 
     void swap(HashTableAnchor&amp; other);
@@ -330,7 +722,7 @@ bool bslalg::operator!=(const bslalg::HashTableAnchor&amp; lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

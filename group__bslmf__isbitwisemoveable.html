@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_isbitwisemoveable Component</title>
+<title>BDE 2.17 Oss1: bslmf_isbitwisemoveable Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a primitive type trait for bit-wise moveable classes.  
+<p>Provide a primitive type trait for bitwise moveable classes.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="namespaces"></a>
@@ -78,7 +78,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">What classes are not bit-wise moveable?</a> </li>
+<a href="#3.1">What classes are not bitwise moveable?</a> </li>
 <li>
 <a href="#3.2">Usage</a> </li>
 </ul>
@@ -88,13 +88,13 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a primitive type trait for bit-wise moveable classes. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a primitive type trait for bitwise moveable classes. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>bslmf::IsBitwiseMoveable&lt;TYPE&gt; </td><td>bit-wise moveable trait metafunction  </td></tr>
+<td>bslmf::IsBitwiseMoveable&lt;TYPE&gt; </td><td>bitwise moveable trait metafunction  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -108,36 +108,36 @@ Namespaces</h2></td></tr>
   p1-&gt;~TYPE();
 </pre></div><br/>
 <br/>
- An object of a <code>TYPE</code> is <em>bit-wise</em> <em>moveable</em>, if the above operation can be replaced by the following operation without affecting correctness: <br/>
+ An object of a <code>TYPE</code> is <em>bitwise</em> <em>moveable</em>, if the above operation can be replaced by the following operation without affecting correctness: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  std::memcpy(p2, p1, <span class="keyword">sizeof</span>(TYPE));
 </pre></div><br/>
 <br/>
- If <code>IsBitwiseMoveable&lt;TYPE&gt;value</code> inherits from <code>true_type</code> for a given <code>TYPE</code>, then a generic algorithm can infer that <code>TYPE</code> is bit-wise moveable. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This trait is used by various components for providing optimizations for types that can be bit-wise moved. The major benefit of this trait is not for a single object but for an array of such types, as a loop of copy/destroy operations can be replaced by a single call to <code>memcpy</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>IsBitwiseMoveable&lt;TYPE&gt;</code> will inherit from <code>true_type</code> if <code>TYPE</code> is a fundamental type, enumeration type, or pointer type. Most user-defined classes are are bit-wise moveable, but generic code must assume that an arbrary <code>TYPE</code> is not bitwise-moveable, as bit-wise moving a type that is not bit-wise moveable is likely to result in a dangling pointer. Thus, it is necessary to explicitly associate the bit-wise moveable trait with a class (via template specialization or by use of the <code>BSLMF_DECLARE_NESTED_TRAIT</code> macro) in order to generic algorithms to recognize that class as bit-wise moveable. </dd></dl>
+ If <code>IsBitwiseMoveable&lt;TYPE&gt;value</code> inherits from <code>true_type</code> for a given <code>TYPE</code>, then a generic algorithm can infer that <code>TYPE</code> is bitwise moveable. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This trait is used by various components for providing optimizations for types that can be bitwise moved. The major benefit of this trait is not for a single object but for an array of such types, as a loop of copy/destroy operations can be replaced by a single call to <code>memcpy</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>IsBitwiseMoveable&lt;TYPE&gt;</code> will inherit from <code>true_type</code> if <code>TYPE</code> is a fundamental type, enumeration type, or pointer type. Most user-defined classes are are bitwise moveable, but generic code must assume that an arbitrary <code>TYPE</code> is not bitwise-moveable, as bitwise moving a type that is not bitwise moveable is likely to result in a dangling pointer. Thus, it is necessary to explicitly associate the bitwise moveable trait with a class (via template specialization or by use of the <code>BSLMF_DECLARE_NESTED_TRAIT</code> macro) in order to generic algorithms to recognize that class as bitwise moveable. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="what_classes_are_not_bit-wise_moveable~3F"></a> <a class="anchor" id="description.what_classes_are_not_bit-wise_moveable~3F"></a> <a class="anchor" id="3.1"></a> </dd></dl>
-<dl class="user"><dt><b>What classes are not bit-wise moveable?: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A class that has any of the following attributes is <b>not</b> bit-wise moveable: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="what_classes_are_not_bitwise_moveable~3F"></a> <a class="anchor" id="description.what_classes_are_not_bitwise_moveable~3F"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>What classes are not bitwise moveable?: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A class that has any of the following attributes is <b>not</b> bitwise moveable: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
 Its address is one of the salient attributes that comprise its value.  </li>
 <li>
-It contains a pointer that might (directly or indirectly) point to itself or to one of its own members. For example, a list implementation that includes an embedded sentinal node such that the last node in the list points back to the sentinal node within the list class object is not bit-wise moveable.  </li>
+It contains a pointer that might (directly or indirectly) point to itself or to one of its own members. For example, a list implementation that includes an embedded sentinel node such that the last node in the list points back to the sentinel node within the list class object is not bitwise moveable.  </li>
 <li>
 Its constructor registers a pointer to itself in some static registry.  </li>
 <li>
-It contains a data member that is not bit-wise moveable.  </li>
+It contains a data member that is not bitwise moveable.  </li>
 </ul>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Because of the destructive nature of a bit-wise move (the original object must be treated as uninitialized storage after the move), a class can be bit-wise moveable but not also bit-wise copiable. For example, a class that contains a pointer to heap-allocated storage is generally bit-wise moveable. The moved object simply refers to the same storage as the (defunct) original. However a bit-wise copy of the same object would incorrectly cause the original and the copy to share the same heap-allocated storage. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Because of the destructive nature of a bitwise move (the original object must be treated as uninitialized storage after the move), a class can be bitwise moveable but not also bitwise copiable. For example, a class that contains a pointer to heap-allocated storage is generally bitwise moveable. The moved object simply refers to the same storage as the (defunct) original. However a bitwise copy of the same object would incorrectly cause the original and the copy to share the same heap-allocated storage. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

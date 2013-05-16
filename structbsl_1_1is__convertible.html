@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bsl::is_convertible</title>
+<title>BDE 2.17 Oss1: Struct bsl::is_convertible</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -73,14 +73,16 @@
 <p><code>#include &lt;<a class="el" href="bslmf__isconvertible_8h_source.html">bslmf_isconvertible.h</a>&gt;</code></p>
 <table class="memberdecls">
 </table>
-<h3>template&lt;typename FROM_TYPE, typename TO_TYPE&gt;<br/>
+<hr/><a name="_details"></a><h2>Detailed Description</h2>
+<h3>template&lt;class FROM_TYPE, class TO_TYPE&gt;<br/>
  struct bsl::is_convertible&lt; FROM_TYPE, TO_TYPE &gt;</h3>
 
+<p>This <code>struct</code> template implements the <code><a class="el" href="structbsl_1_1is__convertible.html">is_convertible</a></code> meta-function defined in the C++11 standard [meta.rel] to determine if the (template parameter) <code>FROM_TYPE</code> is convertible to the (template parameter) <code>TO_TYPE</code>. This <code>struct</code> derives from <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code> if the <code>FROM_TYPE</code> is convertible to <code>TO_TYPE</code>, and from <code><a class="el" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">bsl::false_type</a></code> otherwise. Note that both <code>FROM_TYPE</code> and <code>TO_TYPE</code> should be complete types, arrays of unknown bound, or (possibly cv-qualified) <code>void</code> types. </p>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="bslmf__isconvertible_8h_source.html">bslmf_isconvertible.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:48 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:10 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_removereference Component</title>
+<title>BDE 2.17 Oss1: bslmf_removereference Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a meta-function for removing reference-ness from types.  
+<p>Provide a meta-function for stripping reference-ness from types.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
@@ -81,7 +81,7 @@ Classes</h2></td></tr>
 <li>
 <a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.1.1">Example 1: Verify Pointer Types</a> </li>
+<a href="#3.1.1">Example 1: Remove Reference-ness of Types</a> </li>
 </ul>
 </li>
 </ul>
@@ -91,7 +91,7 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for removing reference-ness from types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for stripping reference-ness from types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -103,9 +103,11 @@ Classes</h2></td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__addreference.html" title="Provide a meta-function for adding &quot;reference-ness&quot; to a type.">Component bslmf_addreference</a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1remove__reference.html">bsl::remove_reference</a></code> and <code>BloombergLP::bslmf::RemoveReference</code>, both of which may be used to strip reference-ness from a type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1remove__reference.html">bsl::remove_reference</a></code> and <code>BloombergLP::bslmf::RemoveReference</code>, both of which may be used to strip reference-ness (including both lvalue and rvalue reference-ness, if the latter is supported by the compiler) from a type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1remove__reference.html">bsl::remove_reference</a></code> meets the requirements of the <code><a class="el" href="structbsl_1_1remove__reference.html">remove_reference</a></code> template defined in the C++11 standard [meta.trans.ref], while <code><a class="el" href="structbslmf_1_1RemoveReference.html">bslmf::RemoveReference</a></code> was devised before <code><a class="el" href="structbsl_1_1remove__reference.html">remove_reference</a></code> was standardized. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The two meta-functions are functionally equivalent. The major difference between them is that the result for <code><a class="el" href="structbsl_1_1remove__reference.html">bsl::remove_reference</a></code> is indicated by the class member <code>type</code>, while the result for <code><a class="el" href="structbslmf_1_1RemoveReference.html">bslmf::RemoveReference</a></code> is indicated by the class member <code>Type</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that <code><a class="el" href="structbsl_1_1remove__reference.html">bsl::remove_reference</a></code> should be preferred over <code><a class="el" href="structbslmf_1_1RemoveReference.html">bslmf::RemoveReference</a></code>, and in general, should be used by new components. </dd></dl>
@@ -114,22 +116,26 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Verify Pointer Types: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to remove reference-ness on a couple of types. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Now, we instantiate the <code><a class="el" href="structbsl_1_1remove__reference.html">bsl::remove_reference</a></code> template for each of these types, and use <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> meta-function to assert the <code>type</code> static data member of each instantiation: <br/>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_remove_reference-ness_of_types"></a> <a class="anchor" id="usage.example_1~3A_remove_reference-ness_of_types"></a> <a class="anchor" id="description.usage.example_1~3A_remove_reference-ness_of_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Remove Reference-ness of Types: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to remove the reference-ness of a set of types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Now, remove the reference-ness of a set of types using <code><a class="el" href="structbsl_1_1remove__reference.html">bsl::remove_reference</a></code> and verify that the returned type has any reference-ness removed: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  assert(<span class="keyword">true</span>  ==
-             (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__reference.html#a31a6bc17613419496bb06e035f9f18e0">bsl::remove_reference&lt;int&amp;&gt;::type</a>, <span class="keywordtype">int</span> &gt;::value));
+            (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__reference.html#a31a6bc17613419496bb06e035f9f18e0">bsl::remove_reference&lt;int&amp; &gt;::type</a>, <span class="keywordtype">int</span> &gt;::value));
   assert(<span class="keyword">false</span> ==
-             (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__reference.html#a31a6bc17613419496bb06e035f9f18e0">bsl::remove_reference&lt;int&amp;&gt;::type</a>, <span class="keywordtype">int</span>&amp;&gt;::value));
+            (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__reference.html#a31a6bc17613419496bb06e035f9f18e0">bsl::remove_reference&lt;int&amp; &gt;::type</a>, <span class="keywordtype">int</span>&amp;&gt;::value));
   assert(<span class="keyword">true</span>  ==
-             (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__reference.html#a31a6bc17613419496bb06e035f9f18e0">bsl::remove_reference&lt;int &gt;::type</a>, <span class="keywordtype">int</span> &gt;::value));
+            (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__reference.html#a31a6bc17613419496bb06e035f9f18e0">bsl::remove_reference&lt;int  &gt;::type</a>, <span class="keywordtype">int</span> &gt;::value));
+<span class="preprocessor">#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)</span>
+<span class="preprocessor"></span>  assert(<span class="keyword">true</span> ==
+            (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__reference.html#a31a6bc17613419496bb06e035f9f18e0">bsl::remove_reference&lt;int&amp;&amp;&gt;::type</a>, <span class="keywordtype">int</span> &gt;::value));
+<span class="preprocessor">#endif</span>
 </pre></div><br/>
 <br/>
- </dd></dl>
+ Note that rvalue reference is a feature introduced in the C++11 standard and may not be supported by all compilers. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

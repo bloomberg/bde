@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Class bslstl::HashTable Members</title>
+<title>BDE 2.17 Oss1: Class bslstl::HashTable Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -77,12 +77,14 @@ This is the complete list of members for <a class="el" href="classbslstl_1_1Hash
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a2d96732e4f144e3bae3ed98ae88e5737">findRange</a>(bslalg::BidirectionalLink **first, bslalg::BidirectionalLink **last, const KeyType &amp;key) const </td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#abb50661b1e2479fb6d078871e9455954">hasher</a>() const </td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#ac9f1d7328021a279c4df5fc955cba4b0">HashTable</a>(const ALLOCATOR &amp;basicAllocator=ALLOCATOR())</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td><code> [explicit]</code></td></tr>
-  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#af3dd64dd570f78ee25977edf31c56048">HashTable</a>(const HASHER &amp;hash, const COMPARATOR &amp;compare, SizeType initialNumBuckets, const ALLOCATOR &amp;allocator=ALLOCATOR())</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#acb552b426f4a018fb225df0feb71bcd2">HashTable</a>(const HASHER &amp;hash, const COMPARATOR &amp;compare, SizeType initialNumBuckets, float initialMaxLoadFactor, const ALLOCATOR &amp;allocator=ALLOCATOR())</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#afb3d75d57c8bb990c2e4c73406ea32c0">HashTable</a>(const HashTable &amp;original)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#affbe891c4d69ac8b74800ce8cf8ab38d">HashTable</a>(const HashTable &amp;original, const ALLOCATOR &amp;allocator)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a81f2db5f7b1d834ae2b0a00dcda3342b">hasSameValue</a>(const HashTable &amp;other) const </td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a4b2d0837f045d05cf4c6fa165ce734f8">insert</a>(const SOURCE_TYPE &amp;value)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a2388bb4460b76912a71daab2e0e8050a">insert</a>(const SOURCE_TYPE &amp;value, bslalg::BidirectionalLink *hint)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a55ed694c2a21d05367dee017c0500bf4">insertIfMissing</a>(bool *isInsertedFlag, const SOURCE_TYPE &amp;value)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a3e4f6cdb2135640784a69d6dd3061d85">insertIfMissing</a>(bool *isInsertedFlag, const ValueType &amp;value)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#ae3c56e3ea3fc0017e85703ae6b99a43e">insertIfMissing</a>(const KeyType &amp;key)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a18d98e658d7de9f649ddbe490ee24738">KeyType</a> typedef</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a4a0fdbf6fa943b2a16d8122103b9aeed">loadFactor</a>() const </td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
@@ -93,17 +95,18 @@ This is the complete list of members for <a class="el" href="classbslstl_1_1Hash
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a23af09936478ee2a3c49b957952b310e">numBuckets</a>() const </td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a9273aac7e35b9164447ee4bd06fb9905">operator=</a>(const HashTable &amp;rhs)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a1ce78c8168d956298f1a25a104f998d3">rehashForNumBuckets</a>(SizeType newNumBuckets)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a1be5c153b36484457546db3573099fc4">rehashForNumElements</a>(SizeType numElements)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#af319d605a8ccfefd1a5dc194bf1de14a">rehashThreshold</a>() const </td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#aa685fb6a44c04fb6ae62cf9ab58b0fe7">remove</a>(bslalg::BidirectionalLink *node)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#afffb07f59df454ee2b4c5e1715f20a33">removeAll</a>()</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a09209c451d0c232a9e74ba23fd38047f">setMaxLoadFactor</a>(float loadFactor)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#aa036505276fa2bba893faed0b91ec468">reserveForNumElements</a>(SizeType numElements)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a21d2beaab71042fc239f982acce58e60">setMaxLoadFactor</a>(float newMaxLoadFactor)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a7ac0e7f04be89ec149a35bc128d22dc9">size</a>() const </td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a9d5e7243cc034a19673909ac19ac6e7f">SizeType</a> typedef</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#a2266a7d27b3062f662954969eadccf4b">swap</a>(HashTable &amp;other)</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#aead7dae40f7e52cb760cbd9c68d33e42">ValueType</a> typedef</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classbslstl_1_1HashTable.html#adaad010e62109e9b9ad58ef3d9d1c147">~HashTable</a>()</td><td><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a></td><td></td></tr>
 </table></div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:20:06 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:23 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

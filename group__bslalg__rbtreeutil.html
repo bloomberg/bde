@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslalg_rbtreeutil Component</title>
+<title>BDE 2.17 Oss1: bslalg_rbtreeutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -232,7 +232,7 @@ The root node is either 0 or is colored black.  </li>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_and_using_a_tree_with_rbtreeutil"></a> <a class="anchor" id="usage.example_1~3A_creating_and_using_a_tree_with_rbtreeutil"></a> <a class="anchor" id="description.usage.example_1~3A_creating_and_using_a_tree_with_rbtreeutil"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Creating and Using a Tree with RbTreeUtil: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example demonstrates how to create a tree of integers using <code>RbTreeUtil</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a type <code>SimpleIntNode</code> that will represent a nodes in our tree of integer values. <code>SimpleIntNode</code> contains an <code>int</code> payload, and inherits from <code>RbTreeNode</code>, allowing it to be operated on by <code>RbTreeUtil</code>. <br/>
@@ -288,10 +288,11 @@ The root node is either 0 or is colored black.  </li>
 <br/>
 <div class="fragment"><pre class="fragment">      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; NUM_NODES; ++i) {
           <span class="keywordtype">int</span> comparisonResult;
+          SimpleIntNodeValueComparator comparator;
           RbTreeNode *insertLocation = RbTreeUtil::findUniqueInsertLocation(
                                               &amp;comparisonResult,
                                               &amp;tree,
-                                              SimpleIntNodeValueComparator(),
+                                              comparator,
                                               nodes[i].d_value);
           <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(comparisonResult);
           RbTreeUtil::insertAt(&amp;tree,
@@ -301,11 +302,10 @@ The root node is either 0 or is colored black.  </li>
       }
 </pre></div><br/>
 <br/>
- And verify the resulting <code>tree</code> holds 5 nodes, the first node has the value 0, and the last node has the value 4: <br/>
+ And verify the resulting <code>tree</code> holds 5 nodes, and the first node has the value 0: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      assert(5 == tree.numNodes());
       assert(0 == static_cast&lt;SimpleIntNode *&gt;(tree.firstNode())-&gt;d_value);
-      assert(4 == static_cast&lt;SimpleIntNode *&gt;(tree.lastNode())-&gt;d_value);
 </pre></div><br/>
 <br/>
  Finally, we use <code>RbTreeUtil</code> to iterate through the nodes of <code>tree</code>, and write the value of each node to the console: <br/>
@@ -331,7 +331,7 @@ The root node is either 0 or is colored black.  </li>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_implementing_a_set_of_integers"></a> <a class="anchor" id="usage.example_2~3A_implementing_a_set_of_integers"></a> <a class="anchor" id="description.usage.example_2~3A_implementing_a_set_of_integers"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Implementing a Set of Integers: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example demonstrates how to use <code>RbTreeUtil</code> to implement a simple container holding a set of (unique) integer values as a red-black binary search tree. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Before defining the <code>IntSet</code> class, we need to define a series of associated helper types: <ol>
@@ -629,7 +629,7 @@ A factory for creating and destroying nodes.  </li>
   IntSet&amp; IntSet::operator=(<span class="keyword">const</span> IntSet&amp; rhs)
   {
       IntSet temp(rhs, d_nodeFactory.allocator());
-      <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">swap</a>(temp);
+      <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">swap</a>(temp);
       <span class="keywordflow">return</span> *<span class="keyword">this</span>;
   }
 </pre></div><br/>
@@ -688,10 +688,10 @@ A factory for creating and destroying nodes.  </li>
       }
   }
 
-  <span class="keywordtype">void</span> <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">IntSet::swap</a>(IntSet&amp; other) {
+  <span class="keywordtype">void</span> <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">IntSet::swap</a>(IntSet&amp; other) {
       <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(d_nodeFactory.allocator() ==
                   other.d_nodeFactory.allocator());
-      <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">RbTreeUtil::swap</a>(&amp;d_tree, &amp;other.d_tree);
+      <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">RbTreeUtil::swap</a>(&amp;d_tree, &amp;other.d_tree);
   }
 
   <span class="comment">// ACCESSORS</span>
@@ -737,7 +737,7 @@ A factory for creating and destroying nodes.  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

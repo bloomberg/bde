@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_atomicoperations_sparc_sun_cc_default.h                       -*-C++-*-
@@ -90,6 +90,9 @@ struct AtomicOperations_SPARC_SUN_CC_DefaultInt
     : AtomicOperations_DefaultInt&lt;IMP&gt;
 {
     typedef Atomic_TypeTraits&lt;IMP&gt; AtomicTypes;
+
+    using AtomicOperations_DefaultInt&lt;IMP&gt;::getIntRelaxed;
+    using AtomicOperations_DefaultInt&lt;IMP&gt;::setIntRelaxed;
 
         // *** atomic functions for int ***
 
@@ -260,7 +263,7 @@ int AtomicOperations_SPARC_SUN_CC_DefaultInt&lt;IMP&gt;::
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

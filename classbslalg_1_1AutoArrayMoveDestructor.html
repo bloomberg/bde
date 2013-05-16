@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Class bslalg::AutoArrayMoveDestructor</title>
+<title>BDE 2.17 Oss1: Class bslalg::AutoArrayMoveDestructor</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -96,7 +96,7 @@ Public Member Functions</h2></td></tr>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class OBJECT_TYPE &gt; </div>
+template&lt;class OBJECT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">bslalg::AutoArrayMoveDestructor</a>&lt; OBJECT_TYPE &gt;::<a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">AutoArrayMoveDestructor</a> </td>
@@ -130,7 +130,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a proctor for the sequence of elements of the parameterized <code>OBJECT_TYPE</code> in the specified range <code>[ begin, end )</code> which, upon destruction, moves the range <code>[ begin, middle )</code> to the specified <code>destination</code> and destroys the <code>[ middle, end )</code> range. The behavior is undefined unless <code>begin &lt;= middle &lt;= end</code>, either <code>destination &lt; begin</code> or <code>end &lt;= destination</code>, and each element in the range <code>[ begin, end )</code> has been initialized. </p>
+<p>Create a proctor for the sequence of elements of the parameterized <code>OBJECT_TYPE</code> in the specified range <code>[ begin, end )</code> which, upon destruction, moves the range <code>[ begin, middle )</code> to the specified <code>destination</code> and destroys the <code>[ middle, end )</code> range. The behavior is undefined unless <code>begin</code>, <code>middle</code>, and <code>end</code> refer to a contiguous sequence of initialized <code>OBJECT_TYPE</code> objects, where <code>begin &lt;= middle &lt;= end</code>, and <code>destination</code> refers to a contiguous sequence of (uninitialized) memory of sufficent size to hold <code>end - begin</code> <code>OBJECT_TYPE</code> objects (which must not overlap <code>[begin, end)</code>). </p>
 
 </div>
 </div>
@@ -138,7 +138,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class OBJECT_TYPE &gt; </div>
+template&lt;class OBJECT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">bslalg::AutoArrayMoveDestructor</a>&lt; OBJECT_TYPE &gt;::~<a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">AutoArrayMoveDestructor</a> </td>
@@ -159,7 +159,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class OBJECT_TYPE &gt; </div>
+template&lt;class OBJECT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">bslalg::AutoArrayMoveDestructor</a>&lt; OBJECT_TYPE &gt;::advance </td>
@@ -179,7 +179,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class OBJECT_TYPE &gt; </div>
+template&lt;class OBJECT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">OBJECT_TYPE* <a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">bslalg::AutoArrayMoveDestructor</a>&lt; OBJECT_TYPE &gt;::begin </td>
@@ -199,7 +199,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class OBJECT_TYPE &gt; </div>
+template&lt;class OBJECT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">OBJECT_TYPE* <a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">bslalg::AutoArrayMoveDestructor</a>&lt; OBJECT_TYPE &gt;::destination </td>
@@ -219,7 +219,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class OBJECT_TYPE &gt; </div>
+template&lt;class OBJECT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">OBJECT_TYPE* <a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">bslalg::AutoArrayMoveDestructor</a>&lt; OBJECT_TYPE &gt;::end </td>
@@ -239,7 +239,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class OBJECT_TYPE &gt; </div>
+template&lt;class OBJECT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">OBJECT_TYPE* <a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html">bslalg::AutoArrayMoveDestructor</a>&lt; OBJECT_TYPE &gt;::middle </td>
@@ -259,7 +259,7 @@ template&lt;class OBJECT_TYPE &gt; </div>
 <li><a class="el" href="bslalg__autoarraymovedestructor_8h_source.html">bslalg_autoarraymovedestructor.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:51 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:13 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

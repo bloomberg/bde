@@ -1,11 +1,11 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsltf_nontypicaloverloadstesttype.h                                -*-C++-*-
-#ifndef INCLUDED_BSLSTL_NONTYPICALOVERLOADSTESTTYPE
-#define INCLUDED_BSLSTL_NONTYPICALOVERLOADSTESTTYPE
+#ifndef INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
+#define INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include &lt;bsls_ident.h&gt;
@@ -54,6 +54,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include &lt;bsls_assert.h&gt;
 #endif
@@ -81,8 +85,22 @@ class NonTypicalOverloadsTestType {
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
+  private:
     // DATA
     int d_data;
+
+  private:
+    // PRIVATE MANIPULATORS
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    NonTypicalOverloadsTestType* operator&amp;();
+        // Overload &#39;operator&amp;&#39; and assert this method is not called.  This is
+        // defined only on the Microsoft platform, because we in general do not
+        // support types that overrides &#39;operator&amp;&#39; in our standard containers
+        // implementation except on Windows.  See the component-level
+        // documentation of bsls_util for more information.  Note that this
+        // method is deliverable *not* declared as &#39;const&#39; in order to increase
+        // the opportunities to provoke issues at the time of compilation.
+#endif
 
   public:
     // CLASS METHODS
@@ -96,14 +114,14 @@ class NonTypicalOverloadsTestType {
         // Overload &#39;operator delete&#39; and assert this method is not called.
 
     // CREATORS
-    explicit NonTypicalOverloadsTestType();
+    NonTypicalOverloadsTestType();
         // Create a &#39;NonTypicalOverloadsTestType&#39; object having the (default)
         // attribute values:
         //..
         //  data() == 0
         //..
 
-    NonTypicalOverloadsTestType(int data);
+    explicit NonTypicalOverloadsTestType(int data);
         // Create a &#39;NonTypicalOverloadsTestType&#39; object having the specified
         // &#39;data&#39; attribute value.
 
@@ -120,21 +138,10 @@ class NonTypicalOverloadsTestType {
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.
 
-
     void setData(int value);
         // Set the &#39;data&#39; attribute of this object to the specified &#39;value&#39;.
 
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
     // ACCESSORS
-    NonTypicalOverloadsTestType* operator&amp;();
-        // Overload &#39;operator&amp;&#39; and assert this method is not called.  This is
-        // defined only on the Microsoft platform, because we in general do not
-        // support types that overrides &#39;operator&amp;&#39; in our standard containers
-        // implementation except on Windows.  See the component-level
-        // documentation of bsls_util for more information.
-#endif
-
     int data() const;
         // Return the value of the &#39;data&#39; attribute of this object.
 };
@@ -166,6 +173,7 @@ inline
 void* NonTypicalOverloadsTestType::operator new(std::size_t size)
 {
     BSLS_ASSERT_OPT(0);
+
     return ::operator new(size);
 }
 
@@ -173,6 +181,7 @@ inline
 void* NonTypicalOverloadsTestType::operator new(std::size_t, void *ptr)
 {
     BSLS_ASSERT_OPT(0);
+
     return ptr;
 }
 
@@ -218,15 +227,16 @@ void NonTypicalOverloadsTestType::setData(int value)
 }
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
-// ACCESSORS
 inline
 NonTypicalOverloadsTestType* NonTypicalOverloadsTestType::operator&amp;()
 {
     BSLS_ASSERT_OPT(0);
+
     return 0;
 }
 #endif
 
+// ACCESSORS
 inline
 int NonTypicalOverloadsTestType::data() const
 {
@@ -254,7 +264,7 @@ bool operator!=(const NonTypicalOverloadsTestType&amp; lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

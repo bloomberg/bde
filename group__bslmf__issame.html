@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_issame Component</title>
+<title>BDE 2.17 Oss1: bslmf_issame Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a meta-function for checking if two types are the same.  
+<p>Provide a meta-function for testing if two types are the same.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
@@ -91,21 +91,21 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for checking if two types are the same. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for testing if two types are the same. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a> </td><td>standard meta-function for checking two same types  </td></tr>
+<td><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a> </td><td>standard meta-function for testing if two types are the same  </td></tr>
 <tr>
-<td><a class="el" href="structbslmf_1_1IsSame.html">bslmf::IsSame</a> </td><td>meta-function evaluating whether two types are the same  </td></tr>
+<td><a class="el" href="structbslmf_1_1IsSame.html">bslmf::IsSame</a> </td><td>meta-function for testing if two types are the same  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> and <code>BloombergLP::bslmf::IsSame</code>, both of which may be used to query whether two types are same. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> and <code>BloombergLP::bslmf::IsSame</code>, both of which may be used to query whether two types are the same. Two types are the same if they name the same type having the same cv-qualifications. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> meets the requirements of the <code><a class="el" href="structbsl_1_1is__same.html">is_same</a></code> template defined in the C++11 standard [meta.rel], while <code><a class="el" href="structbslmf_1_1IsSame.html">bslmf::IsSame</a></code> was devised before <code><a class="el" href="structbsl_1_1is__same.html">is_same</a></code> was standardized. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The two meta-functions are functionally equivalent. The major difference between them is that the result for <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> is indicated by the class member <code>value</code>, while the result for <code><a class="el" href="structbslmf_1_1IsSame.html">bslmf::IsSame</a></code> is indicated by the class member <code>VALUE</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> should be preferred over <code><a class="el" href="structbslmf_1_1IsSame.html">bslmf::IsSame</a></code>, and in general, should be used by new components. </dd></dl>
@@ -114,38 +114,38 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_determine_same_types"></a> <a class="anchor" id="usage.example_1~3A_determine_same_types"></a> <a class="anchor" id="description.usage.example_1~3A_determine_same_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Determine Same Types: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we have a couple of pairs of types and want to assert whether the types in each pair are same. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, we create some <code>typedef</code>s to define some types: <br/>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we have several pairs of types and want to assert whether the types in each pair are the same. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we define several <code>typedef</code>s: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span>       <span class="keywordtype">int</span>    INT;
+<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span>       <span class="keywordtype">int</span>    INT1;
   <span class="keyword">typedef</span>       <span class="keywordtype">double</span> DOUBLE;
   <span class="keyword">typedef</span>       <span class="keywordtype">short</span>  SHORT;
   <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">short</span>  CONST_SHORT;
-  <span class="keyword">typedef</span>       <span class="keywordtype">int</span>    INT;
+  <span class="keyword">typedef</span>       <span class="keywordtype">int</span>    INT2;
   <span class="keyword">typedef</span>       <span class="keywordtype">int</span>&amp;   INT_REF;
 </pre></div><br/>
 <br/>
- Now, we instantiate the <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> template for each pair of the <code>typedef</code>s and assert the <code>value</code> static data member of each instantiation: <br/>
+ Now, we instantiate the <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> template for certain pairs of the <code>typedef</code>s and assert the <code>value</code> static data member of each instantiation: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;INT, INT&gt;::value</a>));
-  assert(0 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;INT, DOUBLE&gt;::value</a>));
+<div class="fragment"><pre class="fragment">  assert(<span class="keyword">true</span>  == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;INT1, INT2&gt;::value</a>));
+  assert(<span class="keyword">false</span> == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;INT, DOUBLE&gt;::value</a>));
 </pre></div><br/>
 <br/>
  Note that a <code>const</code>-qualified type is considered distinct from the non-'const' (but otherwise identical) type: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  assert(0 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;SHORT, CONST_SHORT&gt;::value</a>));
+<div class="fragment"><pre class="fragment">  assert(<span class="keyword">false</span> == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;SHORT, CONST_SHORT&gt;::value</a>));
 </pre></div><br/>
 <br/>
  Similarly, a <code>TYPE</code> and a reference to <code>TYPE</code> (<code>TYPE&amp;</code>) are distinct: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  assert(0 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;INT, INT_REF&gt;::value</a>));
+<div class="fragment"><pre class="fragment">  assert(<span class="keyword">false</span> == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same&lt;INT, INT_REF&gt;::value</a>));
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

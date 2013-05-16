@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls_timeutil Component</title>
+<title>BDE 2.17 Oss1: bsls_timeutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -89,6 +89,8 @@ Namespaces</h2></td></tr>
 </li>
 <li>
 <a href="#3.1.2">Ensuring Accurate Timers on Windows</a> </li>
+<li>
+<a href="#3.1.3">Precision on Windows</a> </li>
 </ul>
 </li>
 <li>
@@ -141,6 +143,10 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  Note that unless the machine has a High Performance Event Timer (HPET) and it has been enabled in the BIOS, these steps might reduce the resolution of the <code><a class="el" href="structbsls_1_1TimeUtil.html">bsls::TimeUtil</a></code> high-resolution functions from the nanosecond range to the microsecond range (or worse). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="precision_on_windows"></a> <a class="anchor" id="accuracy_and_precision.precision_on_windows"></a> <a class="anchor" id="description.accuracy_and_precision.precision_on_windows"></a> <a class="anchor" id="3.1.3"></a> </dd></dl>
+<dl class="user"><dt><b>Precision on Windows: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Providing that the underlying timer is capable of reporting the <code>QueryPerformanceCounter</code> interface, the nanosecond values reported by <code>getTimer</code> or <code>convertRawTime</code> will be in the range (t - 2, t], where t is the real (infinitely precise floating point) number of nanoseconds expressed by the current raw timer count. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -239,7 +245,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:43 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

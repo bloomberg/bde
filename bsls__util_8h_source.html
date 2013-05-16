@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_util.h                                                        -*-C++-*-
@@ -47,7 +47,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //    public:
 //      // CREATORS
-//      BitReference(char *byteptr = 0, int bitpos = 0)
+//      BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
 //      : d_byte_p(byteptr)
 //      , d_bitpos(bitpos)
 //      {
@@ -70,7 +70,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //    public:
 //      // CREATORS
-//      BitPointer(char *byteptr = 0, int bitpos = 0)
+//      BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
 //      : d_byte_p(byteptr)
 //      , d_bitpos(bitpos)
 //      {
@@ -124,6 +124,19 @@ namespace BloombergLP {
 
 namespace bsls {
 
+template &lt;class TYPE&gt;
+struct Util_Identity {
+    // This class template provides an easy way to alias a function pointer
+    // type when used as the return type of a function.  The syntax for a
+    // function returning a function pointer is otherwise quite obscure, and
+    // difficult to read.  As we want to return function pointers taking
+    // parameters and returning a result specified by template parameters
+    // below, it is not possible to define a simple typedef to the function
+    // type outside the function template itself.
+
+    typedef TYPE type;  // alias of the template parameter &#39;TYPE&#39;.
+};
+
                                  // ===========
                                  // struct Util
                                  // ===========
@@ -143,6 +156,18 @@ struct Util {
         // section [specialized.addressof] (20.6.12.1) of the C++11 standard,
         // except that function types, which are not object types, are
         // supported by &#39;std::addressof&#39; in C++11.
+
+    template &lt;class RESULT&gt;
+    static
+    typename Util_Identity&lt;RESULT()&gt;::type *addressOf(RESULT (&amp;fn)());
+    template &lt;class RESULT, class ARG&gt;
+    static
+    typename Util_Identity&lt;RESULT(ARG)&gt;::type *addressOf(RESULT (&amp;fn)(ARG));
+    template &lt;class RESULT, class ARG1, class ARG2&gt;
+    static
+    typename Util_Identity&lt;RESULT(ARG1, ARG2)&gt;::type *addressOf(
+                                                     RESULT (&amp;fn)(ARG1, ARG2));
+        // Return the address of the specified function &#39;fn&#39;.
 };
 
 }  // close package namespace
@@ -189,6 +214,30 @@ BSLS_TYPE *Util::addressOf(BSLS_TYPE&amp; obj)
             const_cast&lt;char *&gt;(&amp;reinterpret_cast&lt;const volatile char&amp;&gt;(obj))));
 }
 
+template &lt;class RESULT&gt;
+inline
+typename Util_Identity&lt;RESULT()&gt;::type *
+Util::addressOf(RESULT (&amp;fn)())
+{
+    return fn;
+}
+
+template &lt;class RESULT, class ARG&gt;
+inline
+typename Util_Identity&lt;RESULT(ARG)&gt;::type *
+Util::addressOf(RESULT (&amp;fn)(ARG))
+{
+    return fn;
+}
+
+template &lt;class RESULT, class ARG1, class ARG2&gt;
+inline
+typename Util_Identity&lt;RESULT(ARG1, ARG2)&gt;::type *
+Util::addressOf(RESULT (&amp;fn)(ARG1, ARG2))
+{
+    return fn;
+}
+
 }  // close package namespace
 
 
@@ -197,7 +246,7 @@ BSLS_TYPE *Util::addressOf(BSLS_TYPE&amp; obj)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

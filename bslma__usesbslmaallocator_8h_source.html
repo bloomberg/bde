@@ -1,9 +1,9 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
-// bslma_usesbslmaallocator.h                  -*-C++-*-
+// bslma_usesbslmaallocator.h                                         -*-C++-*-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #define INCLUDED_BSLMA_USESBSLMAALLOCATOR
 
@@ -14,9 +14,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 //@PURPOSE: Provide a metafunction that indicates the use of bslma allocators
 //
-//@CLASSES: bslma::UsesBslmaAllocator&lt;TYPE&gt;
+//@CLASSES: 
+//  bslma::UsesBslmaAllocator&lt;TYPE&gt; : trait detection metafunction 
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
 //@DESCRIPTION:
 //
@@ -35,12 +36,20 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_isconvertible.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
-#include &lt;bslmf_assert.h&gt;
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include &lt;bsls_platform.h&gt;
+#ifndef INCLUDED_BSLMF_REMOVEPOINTER
+#include &lt;bslmf_removepointer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include &lt;bslmf_issame.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -51,116 +60,90 @@ namespace bslma {
                         // class UsesBslmaAllocator
                         // ========================
 
-template &lt;class TYPE, bool IS_NESTED&gt;
-struct UsesBslmaAllocator_Imp : bsl::integral_constant&lt;bool, IS_NESTED&gt;
+template &lt;typename TYPE, bool IS_NESTED&gt;
+struct UsesBslmaAllocator_Imp
 {
+    typedef bsl::integral_constant&lt;bool, IS_NESTED&gt; Type;
 };
 
-template &lt;class TYPE&gt;
-struct UsesBslmaAllocator_Imp&lt;TYPE, false&gt; : bsl::false_type
+template &lt;typename TYPE&gt;
+struct UsesBslmaAllocator_Imp&lt;TYPE, false&gt;
 {
 private:
-    typedef struct UniqueType {
+    struct UniqueType {
         // A class convertible from this type must have a templated
         // constructor or a &#39;void*&#39; which makes it convertible from EVERY
         // pointer type.
-    } *UniquePtrType;
-
-#ifndef BSLS_PLATFORM_OS_AIX
-    // The following test, which is intended to catch older code relying on
-    // a deprecated idiom for testing whether a type accepts an allocator,
-    // causes compilation failures on AIX for several components. 
+    };
 
     enum {
+        // Detect if &#39;TYPE&#39; is &#39;Allocator*&#39; type.
+        IS_BSLMA_POINTER
+            = bsl::is_same&lt;
+                Allocator,
+                typename bsl::remove_cv&lt;
+                    typename bsl::remove_pointer&lt;TYPE&gt;::type&gt;::type&gt;::value,
+
         // If a pointer to &#39;Allocator&#39; is convertible to &#39;T&#39;, then &#39;T&#39; has a
         // non-explcit constructor taking an allocator.
-        BSLMA_POINTER_CTOR = bslmf::IsConvertible&lt;Allocator*, TYPE&gt;::value,
+        BSLMA_POINTER_CTOR = bsl::is_convertible&lt;Allocator *, TYPE&gt;::value,
 
         // If a pointer to &#39;UniqueType&#39; is convertible to &#39;T&#39;, it can only mean
         // that ANY POINTER is convertible to &#39;T&#39;.
-        ANY_POINTER_CTOR = bslmf::IsConvertible&lt;UniqueType*, TYPE&gt;::VALUE,
-
-        // &#39;SNIFFED_BSLMA_IDIOM&#39; will be true if the old traits mechanism
-        // would have detected an idiomatic type through trait sniffing.
-        SNIFFED_BSLMA_IDIOM = BSLMA_POINTER_CTOR &amp;&amp; ! ANY_POINTER_CTOR
+        ANY_POINTER_CTOR = bsl::is_convertible&lt;UniqueType *, TYPE&gt;::value
     };
 
 public:
-    // If &#39;UsesBslmaAllocator&#39; is not specialized for &#39;TYPE&#39; and is not
-    // declared as a nested trait within &#39;TYPE&#39;, then return &#39;false_type&#39;.
-    // However, the following static assertion will fire if the user makes the
-    // dangerous assumption that having a conversion from &#39;Allocator*&#39; to
-    // &#39;TYPE&#39; will result in the &#39;UsesBslmaAllocator&#39; trait being
-    // automatically associated with &#39;TYPE&#39;; such sniffing is no longer
-    // supported.
-    BSLMF_ASSERT(! SNIFFED_BSLMA_IDIOM);
-#endif
+    typedef bsl::integral_constant&lt;bool,
+                                   !IS_BSLMA_POINTER
+                                   &amp;&amp; BSLMA_POINTER_CTOR
+                                   &amp;&amp; !ANY_POINTER_CTOR&gt;
+        Type;
 };
 
-template &lt;class TYPE&gt;
-struct UsesBslmaAllocator : UsesBslmaAllocator_Imp&lt;TYPE,
-    bslmf::DetectNestedTrait&lt;TYPE, UsesBslmaAllocator&gt;::VALUE&gt;::type
+template &lt;typename TYPE&gt;
+struct UsesBslmaAllocator
+    : UsesBslmaAllocator_Imp&lt;
+        TYPE,
+        bslmf::DetectNestedTrait&lt;TYPE, UsesBslmaAllocator&gt;::value&gt;::Type::type
 {
     // This metafunction is derived from &#39;true_type&#39; if &#39;TYPE&#39; adheres to the
     // &#39;bslma&#39; allocator usage idiom and &#39;false_type&#39; otherwise.  Note that
     // this trait must be explicitly associated with a type in order for this
-    // metafunction to return true; simply havng a constructor that implicitly
+    // metafunction to return true; simply having a constructor that implicitly
     // converts &#39;bslma::Allocator*&#39; to &#39;TYPE&#39; is no longer sufficient for
     // considering a type follow the idiom.
 };
 
-template &lt;class TYPE&gt;
+template &lt;typename TYPE&gt;
 struct UsesBslmaAllocator&lt;const TYPE&gt; : UsesBslmaAllocator&lt;TYPE&gt;::type
 {
     // Specialization that associates the same trait with &#39;const TYPE&#39; as with
     // unqualified &#39;TYPE&#39;.
 };
 
-template &lt;class TYPE&gt;
+template &lt;typename TYPE&gt;
 struct UsesBslmaAllocator&lt;volatile TYPE&gt; : UsesBslmaAllocator&lt;TYPE&gt;::type
 {
     // Specialization that associates the same trait with &#39;volatile TYPE&#39; as
     // with unqualified &#39;TYPE&#39;.
 };
 
-template &lt;class TYPE&gt;
+template &lt;typename TYPE&gt;
 struct UsesBslmaAllocator&lt;const volatile TYPE&gt; : UsesBslmaAllocator&lt;TYPE&gt;::type
 {
     // Specialization that associates the same trait with &#39;const volatile
     // TYPE&#39; as with unqualified &#39;TYPE&#39;.
 };
 
-template &lt;&gt;
-struct UsesBslmaAllocator&lt;Allocator *&gt; : bsl::false_type
-{
-    // Specialization that defines the &#39;Allocator&#39; pointer as not adhering
-    // to the allocator protocol, because it&#39;s the allocator type itself.
-};
-
-// FREE OPERATORS
-
 }  // close package namespace
-
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-// CLASS METHODS
-
-// CREATORS
-
-// MANIPULATORS
-
-// ACCESSORS
-
-// FREE OPERATORS
 
 }  // close enterprise namespace
 
-#endif // ! defined(INCLUDED_BSLMA_USESBSLMAALLOCATOR)
+#endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

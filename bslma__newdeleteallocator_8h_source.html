@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslma_newdeleteallocator.h                                         -*-C++-*-
@@ -267,6 +267,7 @@ class NewDeleteAllocator : public Allocator {
     // should generally not be used directly by typical clients (see
     // &#39;bslma_default&#39; for more information).
 
+  private:
     // NOT IMPLEMENTED
     NewDeleteAllocator(const NewDeleteAllocator&amp;);
     NewDeleteAllocator&amp; operator=(const NewDeleteAllocator&amp;);
@@ -374,7 +375,7 @@ void NewDeleteAllocator::deallocate(void *address)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

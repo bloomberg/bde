@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_unorderedsetkeyconfiguration.h                              -*-C++-*-
@@ -15,8 +15,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@PURPOSE: Provide a configuration class to use a whole object as its own key.
 //
 //@CLASSES:
+//   bslstl::UnorderedSetKeyConfiguration: trivial identity tranformation
 //
-//@SEE_ALSO: bslalg_hashtableimputil
+//@SEE_ALSO: bslstl_unorderedmapkeyconfiguration, bslalg_hashtableimputil
 //
 //@DESCRIPTION: This component provides an identity transformation.
 // &#39;bslalg::HashTableImpUtil&#39; has a static &#39;extractKey&#39; function template
@@ -28,6 +29,196 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using Multiple Extractors to Sort an Array on Different Keys
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to define a &#39;sort&#39; function which will work on a variety
+// of different object types.  The object has to have a &#39;key&#39; within it,
+// possibly the whole object, which will compare with the &#39;key&#39; of other
+// objects with a transitive &#39;&lt;&#39; operator.
+//
+// First, we define our function &#39;mySort&#39;, which takes two template args:
+// &#39;VALUE_TYPE&#39;, the type of object being sorted, and &#39;KEY_EXTRACTOR&#39;, the
+// utility class that will extra which part of the objects to be sorted is the
+// key which will drive the sort:
+//..
+//  template &lt;class VALUE_TYPE, class KEY_EXTRACTOR&gt;
+//  void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&amp;)
+//      // This function provides an order-preserving sort of the items in the
+//      // range &#39;[ begin, end )&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the
+//      // key being sorted over.  We require that &#39;VALUE_TYPE&#39; support copy
+//      // construction and assignment.
+//  {
+//      while (begin &lt; --end) {
+//          for (VALUE_TYPE *it = begin; it &lt; end; ++it) {
+//              if (KEY_EXTRACTOR::extractKey(it[1]) &lt;
+//                                          KEY_EXTRACTOR::extractKey(it[0])) {
+//                  // they&#39;re in the wrong order -- swap them
+//
+//                  VALUE_TYPE tmp(it[0]);
+//                  it[0] = it[1];
+//                  it[1] = tmp;
+//              }
+//          }
+//
+//          // &#39;*end&#39; is now the highest element in the range &#39;[ begin, end ]&#39;,
+//          // so we only have to sort the elements before it in the next pass.
+//      }
+//  }
+//..
+// Then, we define &#39;StudentRecord&#39;, which keeps some vital statistics on
+// students:
+//..
+//  struct StudentRecord {
+//      const char *d_name;
+//      double      d_gpa;
+//      int         d_age;
+//  };
+//..
+// Next, we define two extractors for &#39;StudentRecord&#39;, which will yield the
+// &#39;GPA&#39; or &#39;Age&#39; fields:
+//..
+//  struct StudentRecordGPAExtractor {
+//      static
+//      const double&amp; extractKey(const StudentRecord&amp; record)
+//      {
+//          return record.d_gpa;
+//      }
+//  };
+//
+//  struct StudentRecordAgeExtractor {
+//      static
+//      const int&amp; extractKey(const StudentRecord&amp; record)
+//      {
+//          return record.d_age;
+//      }
+//  };
+//..
+// Then, in &#39;main&#39;, we create an array of &#39;StudentRecord&#39;s describing a set of
+// students, with their names, GPA&#39;s, and ages.
+//..
+//  StudentRecord studentArray[] = {
+//      { &quot;Phil&quot;,  3.4, 19 },
+//      { &quot;Bob&quot;,   2.7, 20 },
+//      { &quot;Bill&quot;,  4.2, 21 },
+//      { &quot;Stan&quot;,  1.9, 18 },
+//      { &quot;Ann&quot;,   2.3, 21 },
+//      { &quot;Julie&quot;, 2.3, 20 } };
+//  const int NUM_STUDENTS = sizeof studentArray / sizeof *studentArray;
+//..
+// Next, using our GPA extractor and our &#39;mySort&#39; function, we sort the
+// students by GPA:
+//..
+//  StudentRecordGPAExtractor gpaExtractor;
+//
+//  mySort(studentArray + 0,
+//         studentArray + NUM_STUDENTS,
+//         gpaExtractor);
+//..
+// Then, we print out the sorted array of students:
+//..
+//  if (verbose) {
+//      printf(&quot;\nList of students, lowest GPA first:\n&quot;);
+//      printf(  &quot;===================================\n&quot;);
+//
+//      printf(&quot;Name   GPA  AGE\n&quot;
+//             &quot;-----  ---  ---\n&quot;);
+//      for (int i = 0; i &lt; NUM_STUDENTS; ++i) {
+//          const StudentRecord&amp; record = studentArray[i];
+//
+//          printf(&quot;%-5s  %g  %3d\n&quot;, record.d_name,
+//                                    record.d_gpa,
+//                                    record.d_age);
+//      }
+//  }
+//..
+// The output produced is:
+//..
+//  List of students, lowest GPA first:
+//  ===================================
+//  Name   GPA  AGE
+//  -----  ---  ---
+//  Stan   1.9   18
+//  Ann    2.3   21
+//  Julie  2.3   20
+//  Bob    2.7   20
+//  Phil   3.4   19
+//  Bill   4.2   21
+//..
+// Note that Ann and Julie, who have the same GPA, are still in the same order
+// as they were before the sort, as &#39;mySort&#39; was an order-preserving sort:
+//
+// Next, we sort by age with our age extractor, and print out the results:
+//..
+//  StudentRecordAgeExtractor ageExtractor;
+//
+//  mySort(studentArray + 0,
+//         studentArray + NUM_STUDENTS,
+//         ageExtractor);
+//
+//  if (verbose) {
+//      printf(&quot;\nList of students, youngest first:\n&quot;);
+//      printf(  &quot;================================\n&quot;);
+//
+//      printf(&quot;Name   GPA  AGE\n&quot;
+//             &quot;-----  ---  ---\n&quot;);
+//      for (int i = 0; i &lt; NUM_STUDENTS; ++i) {
+//          const StudentRecord&amp; record = studentArray[i];
+//
+//          printf(&quot;%-5s  %g  %3d\n&quot;, record.d_name,
+//                                    record.d_gpa,
+//                                    record.d_age);
+//      }
+//  }
+//..
+// The output is:
+//..
+//  List of students, youngest first:
+//  ================================
+//  Name   GPA  AGE
+//  -----  ---  ---
+//  Stan   1.9   18
+//  Phil   3.4   19
+//  Julie  2.3   20
+//  Bob    2.7   20
+//  Ann    2.3   21
+//  Bill   4.2   21
+//..
+// Note again, the ordering of students with identical ages is preserved.
+//
+// Then, we define an array full of integers to be sorted.
+//..
+//  int intArray[] = { 8, 3728, 2919, 27438, -2837, 18282, 34, -3 };
+//  const int NUM_INTS = sizeof intArray / sizeof *intArray;
+//..
+// Next, we want to sort the integers.  In this case, the key being sorted on
+// is the whole &#39;int&#39;, so we use &#39;bslstl::UnorderedSetKeyConfiguration&lt;int&gt;&#39; as
+// our extractor:
+//..
+//  bslstl::UnorderedSetKeyConfiguration&lt;int&gt; intExtractor;
+//..
+// Now, we sort the array using our &#39;sort&#39; function and the extractor, and
+// printout out the sorted array:
+//..
+//  mySort(intArray + 0, intArray + NUM_INTS, intExtractor);
+//
+//  if (verbose) {
+//      printf(&quot;\nSorted integer array:\n&quot;
+//               &quot;====================\n&quot;);
+//
+//      for (int i = 0; i &lt; NUM_INTS; ++i) {
+//          printf(&quot;%s%d&quot;, (i ? &quot;, &quot; : &quot;&quot;), intArray[i]);
+//      }
+//      printf(&quot;\n&quot;);
+//  }
+//..
+// Finally, we observe that the output produced is:
+//..
+//  Sorted integer array:
+//  ====================
+//  -2837, -3, 8, 34, 2919, 3728, 18282, 27438
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
@@ -82,7 +273,7 @@ UnorderedSetKeyConfiguration&lt;VALUE_TYPE&gt;::extractKey(const VALUE_TYPE&amp;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

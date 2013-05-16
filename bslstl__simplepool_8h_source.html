@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_simplepool.h                                                -*-C++-*-
@@ -214,6 +214,10 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslstl_allocatortraits.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include &lt;bsls_alignmentfromtype.h&gt;
 #endif
@@ -299,6 +303,21 @@ class SimplePool : public SimplePool_Type&lt;ALLOCATOR&gt;::AllocatorType {
                           // ensure each block is correctly aligned
     };
 
+  public:
+    // TYPES
+    typedef VALUE ValueType;
+        // Alias for the parameterized type &#39;VALUE&#39;.
+
+    typedef typename Types::AllocatorType AllocatorType;
+        // Alias for the allocator type for a
+        // &#39;bsls::AlignmentUtil::MaxAlignedType&#39;.
+
+    typedef typename Types::AllocatorTraits AllocatorTraits;
+        // Alias for the allocator traits for the parameterized
+        // &#39;ALLOCATOR&#39;.
+
+    typedef typename AllocatorTraits::size_type size_type;
+
   private:
     // DATA
     Chunk *d_chunkList_p;     // linked list of &quot;chunks&quot; of memory
@@ -314,7 +333,7 @@ class SimplePool : public SimplePool_Type&lt;ALLOCATOR&gt;::AllocatorType {
 
   private:
     // PRIVATE MANIPULATORS
-    Block *allocateChunk(std::size_t size);
+    Block *allocateChunk(size_type size);
         // Allocate a chunk of memory with at least the specified &#39;size&#39; number
         // of usable bytes and add the chunk to the chunk list.  Return the
         // address of the usable portion of the memory.
@@ -323,19 +342,6 @@ class SimplePool : public SimplePool_Type&lt;ALLOCATOR&gt;::AllocatorType {
         // Dynamically allocate a new chunk using the pool&#39;s underlying growth
         // strategy, and use the chunk to replenish the free memory list of
         // this pool.
-
-  public:
-    // TYPES
-    typedef VALUE ValueType;
-        // Alias for the parameterized type &#39;VALUE&#39;.
-
-    typedef typename Types::AllocatorType AllocatorType;
-        // Alias for the allocator type for a
-        // &#39;bsls::AlignmentUtil::MaxAlignedType&#39;.
-
-    typedef typename Types::AllocatorTraits AllocatorTraits;
-        // Alias for the allocator traits for the parameterized
-        // &#39;ALLOCATOR&#39;.
 
   public:
     // CREATORS
@@ -366,7 +372,7 @@ class SimplePool : public SimplePool_Type&lt;ALLOCATOR&gt;::AllocatorType {
         // is non-zero, was allocated by this pool, and has not already been
         // deallocated.
 
-    void reserve(std::size_t numBlocks);
+    void reserve(size_type numBlocks);
         // Dynamically allocate a new chunk containing the specified
         // &#39;numBlocks&#39; number of blocks, and use the chunk to replenish the
         // free memory list of this pool.  The behavior is undefined unless
@@ -375,10 +381,22 @@ class SimplePool : public SimplePool_Type&lt;ALLOCATOR&gt;::AllocatorType {
     void release();
         // Relinquish all memory currently allocated via this pool object.
 
-    void swap(SimplePool&lt;VALUE, ALLOCATOR&gt;&amp; other);
-        // Efficiently exchange the memory chunks and blocks of this object and
-        // the specified &#39;other&#39; object.  The behavior is undefined unless the
-        // underlying mechanisms of &#39;allocator()&#39; refers to the same allocator.
+    void swap(SimplePool&amp; other);
+        // Efficiently exchange the memory blocks of this object with those of
+        // the specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // &#39;allocator() == other.allocator()&#39;.
+
+    void quickSwapRetainAllocators(SimplePool&amp; other);
+        // Efficiently exchange the memory blocks of this object with those of
+        // the specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // &#39;allocator() == other.allocator()&#39;.
+
+    void quickSwapExchangeAllocators(SimplePool&amp; other);
+        // Efficiently exchange the memory blocks and the allocator of this
+        // object with those of the specified &#39;other&#39; object.  This method
+        // provides the no-throw exception-safety guarantee.
 
     // ACCESSORS
     const AllocatorType&amp; allocator() const;
@@ -396,13 +414,13 @@ class SimplePool : public SimplePool_Type&lt;ALLOCATOR&gt;::AllocatorType {
 // PRIVATE MANIPULATORS
 template &lt;class VALUE, class ALLOCATOR&gt;
 typename SimplePool&lt;VALUE, ALLOCATOR&gt;::Block *
-SimplePool&lt;VALUE, ALLOCATOR&gt;::allocateChunk(std::size_t size)
+SimplePool&lt;VALUE, ALLOCATOR&gt;::allocateChunk(size_type size)
 {
     // Determine the number of bytes we want to allocate and compute the number
     // of &#39;MaxAlignedType&#39; needed to contain those bytes.
 
-    std::size_t numBytes = sizeof (Chunk) + size;
-    std::size_t numMaxAlignedType =
+    size_type numBytes = static_cast&lt;size_type&gt;(sizeof(Chunk)) + size;
+    size_type numMaxAlignedType =
                        (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
                      / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
@@ -492,11 +510,31 @@ void SimplePool&lt;VALUE, ALLOCATOR&gt;::swap(SimplePool&lt;VALUE, ALLOCATOR&gt;
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
-void SimplePool&lt;VALUE, ALLOCATOR&gt;::reserve(std::size_t numBlocks)
+inline
+void SimplePool&lt;VALUE, ALLOCATOR&gt;::quickSwapRetainAllocators(
+                                           SimplePool&lt;VALUE, ALLOCATOR&gt;&amp; other)
+{
+    swap(other);
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+void SimplePool&lt;VALUE, ALLOCATOR&gt;::quickSwapExchangeAllocators(
+                                           SimplePool&lt;VALUE, ALLOCATOR&gt;&amp; other)
+{
+    bslalg::SwapUtil::swap(&amp;this-&gt;allocator(), &amp;other.allocator());
+    std::swap(d_blocksPerChunk, other.d_blocksPerChunk);
+    std::swap(d_freeList_p, other.d_freeList_p);
+    std::swap(d_chunkList_p, other.d_chunkList_p);
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+void SimplePool&lt;VALUE, ALLOCATOR&gt;::reserve(size_type numBlocks)
 {
     BSLS_ASSERT(0 &lt; numBlocks);
 
-    Block *begin = allocateChunk(numBlocks * sizeof(Block));
+    Block *begin = allocateChunk(
+                            numBlocks * static_cast&lt;size_type&gt;(sizeof(Block)));
     Block *end   = begin + numBlocks - 1;
 
     for (Block *p = begin; p &lt; end; ++p) {
@@ -534,7 +572,7 @@ void SimplePool&lt;VALUE, ALLOCATOR&gt;::release()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

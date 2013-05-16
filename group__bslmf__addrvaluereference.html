@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_addrvaluereference Component</title>
+<title>BDE 2.17 Oss1: bslmf_addrvaluereference Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -90,25 +90,25 @@
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>bsl::add_rvalue_reference </td><td>standard meta-function for transforming type  </td></tr>
+<td>bsl::add_rvalue_reference </td><td>standard meta-function for transforming types  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__integralconstant.html" title="Provide a mapping from integral constants to unique types.">Component bslmf_integralconstant</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__integralconstant.html" title="Provide a mapping from integral constants to unique types.">Component bslmf_integralconstant</a>, <a class="el" href="group__bslmf__addlvaluereference.html" title="Provide a compile-time type transformation to lvalue reference.">Component bslmf_addlvaluereference</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code>bsl::add_rvalue_reference</code>, which may be used to transform a type to its rvalue reference type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code>bsl::add_rvalue_reference</code>, that may be used to transform a type to its rvalue reference type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bsl::add_rvalue_reference</code> meets the requirements of the <code>add_rvalue_reference</code> template defined in the C++11 standard [meta.trans.ref]. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_transform_to_rvalue_reference_types"></a> <a class="anchor" id="usage.example_1~3A_transform_to_rvalue_reference_types"></a> <a class="anchor" id="description.usage.example_1~3A_transform_to_rvalue_reference_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Transform to Rvalue Reference Types: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to transform a couple of types to rvalue reference types. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Now, we instantiate the <code>bsl::add_rvalue_reference</code> template for these types, and use the <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> meta-function to assert the <code>type</code> static data member of each instantiation: <br/>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to transform some types to rvalue reference types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Now, for a set of types, we transform each type to the corresponding rvalue reference of that type using <code>bsl::add_rvalue_reference</code> and verify the result: <br/>
 <br/>
 <div class="fragment"><pre class="fragment"><span class="preprocessor">#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)</span>
 <span class="preprocessor"></span>  assert(<span class="keyword">true</span>  ==
@@ -122,9 +122,9 @@
 <span class="preprocessor">#endif</span>
 </pre></div><br/>
 <br/>
- Note that rvalue is introduced in C++11 and may not be supported by all compilers. </dd></dl>
+ Note that rvalue reference was introduced in C++11 and may not be supported by all compilers. Note also that according to <code>reference collapsing</code> semantics [8.3.2], <code>add_rvalue_reference</code> does not transform <code>TYPE</code> to rvalue reference type if <code>TYPE</code> is an lvalue reference type. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

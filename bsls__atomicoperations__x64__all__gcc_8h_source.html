@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_atomicoperations_x64_all_gcc.h                                -*-C++-*-
@@ -42,7 +42,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_types.h&gt;
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_X86_64) &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86_64) \
+    &amp;&amp; (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 
 namespace BloombergLP {
 
@@ -212,36 +213,16 @@ int AtomicOperations_X64_ALL_GCC::
                    int compareValue,
                    int swapValue)
 {
-    asm volatile (
-        &quot;       lock cmpxchgl %[val], %[obj]    \n\t&quot;
-
-                : [cmp] &quot;+a&quot; (compareValue)
-                : [val] &quot;r&quot;  (swapValue),
-                  [obj] &quot;m&quot;  (*atomicInt)
-                : &quot;memory&quot;, &quot;cc&quot;);
-
-    return compareValue;
+    return __sync_val_compare_and_swap(&amp;atomicInt-&gt;d_value,
+                                       compareValue,
+                                       swapValue);
 }
 
 inline
 int AtomicOperations_X64_ALL_GCC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40100 // gcc &gt;= 4.1
     return __sync_add_and_fetch(&amp;atomicInt-&gt;d_value, value);
-#else
-    int orig = value;
-
-    asm volatile (
-        &quot;       lock xaddl %[val], %[obj]   \n\t&quot;
-
-                : [val] &quot;=r&quot; (value),
-                  [obj] &quot;=m&quot; (*atomicInt)
-                : &quot;0&quot; (value), &quot;m&quot; (*atomicInt)
-                : &quot;memory&quot;, &quot;cc&quot;);
-
-    return orig + value;
-#endif
 }
 
 inline
@@ -325,15 +306,9 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
                      Types::Int64 compareValue,
                      Types::Int64 swapValue)
 {
-    asm volatile (
-        &quot;       lock cmpxchgq %[val], %[obj]    \n\t&quot;
-
-                : [cmp] &quot;+a&quot; (compareValue),
-                  [obj] &quot;+m&quot; (*atomicInt)
-                : [val] &quot;r&quot;  (swapValue)
-                : &quot;memory&quot;, &quot;cc&quot;);
-
-    return compareValue;
+    return __sync_val_compare_and_swap(&amp;atomicInt-&gt;d_value,
+                                       compareValue,
+                                       swapValue);
 }
 
 inline
@@ -341,33 +316,19 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40100 // gcc &gt;= 4.1
     return __sync_add_and_fetch(&amp;atomicInt-&gt;d_value, value);
-#else
-    Types::Int64 operand = value;
-
-    asm volatile (
-        &quot;       lock xaddq %[val], %[obj]   \n\t&quot;
-
-                : [val] &quot;+r&quot; (value),
-                  [obj] &quot;+m&quot; (*atomicInt)
-                :
-                : &quot;memory&quot;, &quot;cc&quot;);
-
-    return operand + value;
-#endif
 }
 
 }  // close package namespace
 
 }  // close enterprise namespace
 
-#endif // defined(BSLS_PLATFORM_CPU_X86_64) &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU)
+#endif // defined(BSLS_PLATFORM_CPU_X86_64) &amp;&amp; (CMP_GNU || CMP_CLANG)
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

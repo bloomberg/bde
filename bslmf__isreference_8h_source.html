@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_isreference.h                                                -*-C++-*-
@@ -12,15 +12,15 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide a compile-time check for reference types.
+//@PURPOSE: Provide a meta-function to test reference types.
 //
 //@CLASSES:
-//  bsl::is_reference: standard meta-function for reference types
+//  bsl::is_reference: standard meta-function for testing reference types
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a meta-function, &#39;bsl::is_reference&#39;,
-// which may be used to query whether a type is a (lvalue or rvalue) reference
+// that may be used to query whether a type is an (lvalue or rvalue) reference
 // type.
 //
 // &#39;bsl::is_reference&#39; meets the requirements of the &#39;is_reference&#39; template
@@ -32,11 +32,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Example 1: Verify Reference Types
 ///- - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a (lvalue or
-// rvalue) reference type.
+// Suppose that we want to assert whether a set of types are (lvalue or rvalue)
+// reference types.
 //
 // Now, we instantiate the &#39;bsl::is_reference&#39; template for a non-reference
-// type, a lvalue reference type, and a rvalue reference type, and assert the
+// type, an lvalue reference type, and an rvalue reference type, and assert the
 // &#39;value&#39; static data member of each instantiation:
 //..
 //  assert(false == bsl::is_reference&lt;int&gt;::value);
@@ -45,15 +45,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(true  == bsl::is_reference&lt;int&amp;&amp;&gt;::value);
 //#endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.
+// Note that rvalue reference is a feature introduced in the C++11 standand,
+// and may not be supported by all compilers.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include &lt;bsls_compilerfeatures.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -70,18 +66,27 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 namespace bsl {
 
-template &lt;typename TYPE&gt;
+                         // ===================
+                         // struct is_reference
+                         // ===================
+
+template &lt;class TYPE&gt;
 struct is_reference : integral_constant&lt;bool,
                                         is_lvalue_reference&lt;TYPE&gt;::value
-                                        || is_rvalue_reference&lt;TYPE&gt;::value&gt;
-{};
+                                     || is_rvalue_reference&lt;TYPE&gt;::value&gt; {
+    // This &#39;struct&#39; template implements the &#39;is_reference&#39; meta-function
+    // defined in the C++11 standard [meta.unary.comp] to determine if the
+    // (template parameter) &#39;TYPE&#39; is a (lvalue or rvalue) reference type.
+    // This &#39;struct&#39; derives from &#39;bsl::true_type&#39; if the &#39;TYPE&#39; is a reference
+    // type, and from &#39;bsl::false_type&#39; otherwise.
+};
 
 }  // close namespace bsl
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

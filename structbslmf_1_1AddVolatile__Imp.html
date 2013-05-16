@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bslmf::AddVolatile_Imp</title>
+<title>BDE 2.17 Oss1: Struct bslmf::AddVolatile_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -60,7 +60,7 @@
   <div class="navpath">
     <ul>
       <li><a class="el" href="namespacebslmf.html">bslmf</a>      </li>
-      <li><a class="el" href="structbslmf_1_1AddVolatile__Imp.html">bslmf::AddVolatile_Imp&lt; TYPE, ADD_VOLATILE &gt;</a>      </li>
+      <li><a class="el" href="structbslmf_1_1AddVolatile__Imp.html">bslmf::AddVolatile_Imp&lt; TYPE, ADD_VOLATILE_FLAG &gt;</a>      </li>
     </ul>
   </div>
 </div>
@@ -68,7 +68,7 @@
   <div class="summary">
 <a href="#pub-types">Public Types</a>  </div>
   <div class="headertitle">
-<h1>bslmf::AddVolatile_Imp&lt; TYPE, ADD_VOLATILE &gt; Struct Template Reference</h1>  </div>
+<h1>bslmf::AddVolatile_Imp&lt; TYPE, ADD_VOLATILE_FLAG &gt; Struct Template Reference</h1>  </div>
 </div>
 <div class="contents">
 <!-- doxytag: class="bslmf::AddVolatile_Imp" -->
@@ -78,22 +78,22 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef TYPE volatile&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslmf_1_1AddVolatile__Imp.html#a433525193044e07c571d3f6a2df120f9">Type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef TYPE volatile&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslmf_1_1AddVolatile__Imp.html#a6d706003b2a907abed581d0346a167ba">Type</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename TYPE, bool ADD_VOLATILE&gt;<br/>
- struct bslmf::AddVolatile_Imp&lt; TYPE, ADD_VOLATILE &gt;</h3>
+<h3>template&lt;class TYPE, bool ADD_VOLATILE_FLAG&gt;<br/>
+ struct bslmf::AddVolatile_Imp&lt; TYPE, ADD_VOLATILE_FLAG &gt;</h3>
 
-<p>This <code>struct</code> template provides a <code>typedef</code> <code>Type</code> that is an alias to a the (template parameter) <code>TYPE</code> with the top-level <code>volatile</code>-qualifier added if the (template parameter) <code>ADD_VOLATILE</code> is <code>true</code>; otherwise, <code>Type</code> is an alias to <code>TYPE</code>. This generic default template adds the <code>volatile</code>-qualifier to <code>TYPE</code>. A template specialization (below) does not modify <code>TYPE</code>. </p>
+<p>This <code>struct</code> template provides an alias, <code>Type</code>, that adds a <code>volatile</code>-qualifier to the (template parameter) <code>TYPE</code> if the (template parameter) <code>ADD_VOLATILE_FLAG</code> is <code>true</code>. This generic default template adds the <code>volatile</code>-qualifier to <code>TYPE</code>. A template specialization (below) leaves <code>TYPE</code> as-is in its <code>Type</code> alias. </p>
 <hr/><h2>Member Typedef Documentation</h2>
-<a class="anchor" id="a433525193044e07c571d3f6a2df120f9"></a><!-- doxytag: member="bslmf::AddVolatile_Imp::Type" ref="a433525193044e07c571d3f6a2df120f9" args="" -->
+<a class="anchor" id="a6d706003b2a907abed581d0346a167ba"></a><!-- doxytag: member="bslmf::AddVolatile_Imp::Type" ref="a6d706003b2a907abed581d0346a167ba" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename TYPE , bool ADD_VOLATILE&gt; </div>
+template&lt;class TYPE , bool ADD_VOLATILE_FLAG&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef TYPE volatile <a class="el" href="structbslmf_1_1AddVolatile__Imp.html">bslmf::AddVolatile_Imp</a>&lt; TYPE, ADD_VOLATILE &gt;::<a class="el" href="structbslmf_1_1AddVolatile__Imp.html#a433525193044e07c571d3f6a2df120f9">Type</a></td>
+          <td class="memname">typedef TYPE volatile <a class="el" href="structbslmf_1_1AddVolatile__Imp.html">bslmf::AddVolatile_Imp</a>&lt; TYPE, ADD_VOLATILE_FLAG &gt;::<a class="el" href="structbslmf_1_1AddVolatile__Imp.html#a6d706003b2a907abed581d0346a167ba">Type</a></td>
         </tr>
       </table>
 </div>
@@ -105,7 +105,7 @@ template&lt;typename TYPE , bool ADD_VOLATILE&gt; </div>
 <li><a class="el" href="bslmf__addvolatile_8h_source.html">bslmf_addvolatile.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:54 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:15 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

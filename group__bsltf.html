@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsltf Package</title>
+<title>BDE 2.17 Oss1: bsltf Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -82,9 +82,24 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide a bitwise-moveable test class. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__convertiblevaluewrapper.html">Component bsltf_convertiblevaluewrapper</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide a wrapper class, convertible to a supplied value. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__degeneratefunctor.html">Component bsltf_degeneratefunctor</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide an awkward type to adapt a user-supplied functor. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__enumeratedtesttype.html">Component bsltf_enumeratedtesttype</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide an enumerated test type. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__evilbooleantype.html">Component bsltf_evilbooleantype</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide the most awkward type that is convertible to <code>bool</code>. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__nonassignabletesttype.html">Component bsltf_nonassignabletesttype</a></td></tr>
@@ -94,7 +109,7 @@ Components</h2></td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__noncopyconstructibletesttype.html">Component bsltf_noncopyconstructibletesttype</a></td></tr>
 
-<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide an attribute class that is not copy constructable. </p>
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide an attribute class that is not copy constructible. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__nondefaultconstructibletesttype.html">Component bsltf_nondefaultconstructibletesttype</a></td></tr>
@@ -115,6 +130,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__simpletesttype.html">Component bsltf_simpletesttype</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide a non-allocating test class without type traits. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__stdstatefulallocator.html">Component bsltf_stdstatefulallocator</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide a minimal standard compliant allocator. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsltf__stdtestallocator.html">Component bsltf_stdtestallocator</a></td></tr>
@@ -159,7 +179,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Provide a set of utilities and types to help with testing. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic~3A_basic_standard_library_test_facility_(bsltf)"></a> <a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>MNEMONIC: Basic Standard Library Test Facility (bsltf): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -171,22 +191,26 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bsltf</code> package currently has 14 components having 3 levels of physical dependency. The table below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bsltf</code> package currently has 18 components having 3 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  3. bsltf_testvaluesarray
+<div class="fragment"><pre class="fragment">  3. bsltf_convertiblevaluewrapper
+     bsltf_testvaluesarray
 
   2. bsltf_templatetestfacility
 
   1. bsltf_allocbitwisemoveabletesttype
      bsltf_alloctesttype
      bsltf_bitwisemoveabletesttype
+     bsltf_degeneratefunctor
      bsltf_enumeratedtesttype
+     bsltf_evilbooleantype
      bsltf_nonassignabletesttype
      bsltf_noncopyconstructibletesttype
      bsltf_nondefaultconstructibletesttype
      bsltf_nonequalcomparabletesttype
      bsltf_nontypicaloverloadstesttype
      bsltf_simpletesttype
+     bsltf_stdstatefulallocator
      bsltf_stdtestallocator
      bsltf_uniontesttype
 </pre></div><br/>
@@ -202,12 +226,18 @@ Components</h2></td></tr>
  Provide a class for testing that allocates with <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_bitwisemoveabletesttype</code>: <br/>
  Provide a bitwise-moveable test class.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_convertiblevaluewrapper</code>: <br/>
+ Provide a wrapper class, convertible to a supplied value.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_degeneratefunctor</code>: <br/>
+ Provide an awkward type to adapt a user-supplied functor.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_enumeratedtesttype</code>: <br/>
  Provide an enumerated test type.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_evilbooleantype</code>: <br/>
+ Provide the most awkward type that is convertible to <code>bool</code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_nonassignabletesttype</code>: <br/>
  Provide an attribute class to which can not be assigned.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_noncopyconstructibletesttype</code>: <br/>
- Provide an attribute class that is not copy constructable.</div></dd></dl>
+ Provide an attribute class that is not copy constructible.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_nondefaultconstructibletesttype</code>: <br/>
  Provide an attribute class that is not default constructible.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_nonequalcomparabletesttype</code>: <br/>
@@ -216,6 +246,8 @@ Components</h2></td></tr>
  Provide a class that overloads the non-typical operators.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_simpletesttype</code>: <br/>
  Provide a non-allocating test class without type traits.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_stdstatefulallocator</code>: <br/>
+ Provide a minimal standard compliant allocator.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_stdtestallocator</code>: <br/>
  Provide a minimal standard compliant allocator.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf_templatetestfacility</code>: <br/>
@@ -227,7 +259,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:44 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

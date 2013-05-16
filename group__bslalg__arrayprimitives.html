@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslalg_arrayprimitives Component</title>
+<title>BDE 2.17 Oss1: bslalg_arrayprimitives Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -118,12 +118,12 @@ Namespaces</h2></td></tr>
   uninitializedFillN            <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from value <span class="keywordflow">for each</span>
                                 element in the target range, or <span class="stringliteral">&#39;std::memset&#39;</span>
                                 <span class="keywordflow">if</span> value is all 0s or 1s bits, and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is
-                                bit-wise copyable
+                                bit-wise <a class="code" href="bslstl__equalto_8h.html#a098bbfa1c439339b08af8398c3379b5d">copyable</a>
 
   copyConstruct                 <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from each element in the
                                 original range to the corresponding element
                                 in the target range, or <span class="stringliteral">&#39;std::memcpy&#39;</span> <span class="keywordflow">if</span>
-                                value is null and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise copyable
+                                value is null and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise <a class="code" href="bslstl__equalto_8h.html#a098bbfa1c439339b08af8398c3379b5d">copyable</a>
 
   destructiveMove               <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> from each element in
                                 the original range to the corresponding
@@ -190,7 +190,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_defining_a_vector-like_type"></a> <a class="anchor" id="usage.example_1~3A_defining_a_vector-like_type"></a> <a class="anchor" id="description.usage.example_1~3A_defining_a_vector-like_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Defining a Vector-Like Type: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we want to define a STL-vector-like type. One requirement is that an object of this vector should forward its allocator to its contained elements when appropriate. Another requirement is that the vector should take advantage of the optimizations available for certain traits of the contained element type. For example, if the contained element type has the <code><a class="el" href="structbslalg_1_1TypeTraitBitwiseMoveable.html">bslalg::TypeTraitBitwiseMoveable</a></code> trait, moving an element in a vector can be done using <code>memcpy</code> instead of copy construction. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We can utilize the class methods provided by <code><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></code> to satisfy the above requirements. Unlike <code><a class="el" href="structbslalg_1_1ScalarPrimitives.html">bslalg::ScalarPrimitives</a></code>, which operates on a single element, <code><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></code> operates on arrays, which will further help simplify our implementation. </dd></dl>
@@ -317,7 +317,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_stringstream.h                                              -*-C++-*-
@@ -262,7 +262,7 @@ inline
 basic_stringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_stringstream(const allocator_type&amp; allocator)
 : BaseType(ios_base::in | ios_base::out, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -272,7 +272,7 @@ basic_stringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
     basic_stringstream(ios_base::openmode    modeBitMask,
                        const allocator_type&amp; allocator)
 : BaseType(modeBitMask, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -282,7 +282,7 @@ basic_stringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_stringstream(const StringType&amp;     initialString,
                    const allocator_type&amp; allocator)
 : BaseType(initialString, ios_base::in | ios_base::out, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -293,7 +293,7 @@ basic_stringstream(const StringType&amp;     initialString,
                    ios_base::openmode    modeBitMask,
                    const allocator_type&amp; allocator)
 : BaseType(initialString, modeBitMask, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -328,7 +328,7 @@ basic_stringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::rdbuf() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

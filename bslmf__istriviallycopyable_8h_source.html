@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_istriviallycopyable.h                                        -*-C++-*-
@@ -12,15 +12,15 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide a meta-function for determining trivially copyable types
+//@PURPOSE: Provide a meta-function for determining trivially copyable types.
 //
 //@CLASSES:
 //  bsl::is_trivially_copyable: type-traits meta-function
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmf_integralconstant, bslmf_nestedtraitdeclaration
 //
 //@DESCRIPTION: This component defines a meta-function,
-// &#39;bsl::is_trivially_copyable&#39;, which may be used to query whether a type is
+// &#39;bsl::is_trivially_copyable&#39;, that may be used to query whether a type is
 // trivially copyable as defined in section 3.9.3 of the C++11 standard
 // [basic.types].
 //
@@ -28,27 +28,27 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;is_trivially_copyable&#39; template from the C++11 standard [meta.unary.prop].
 // However, unlike the template defined in the C++11 standard, which can
 // determine the correct value for all types without requiring specialization,
-// &#39;bsl::is_trivially_copyable&#39; can only by default determine the value for the
-// following type categories:
+// &#39;bsl::is_trivially_copyable&#39; can, by default, determine the value for the
+// following type categories only:
 //..
 //  Type Category        Is Trivially Copyable
 //  -------------        ---------------------
 //  reference types      false
 //  fundamental types    true
-//  enums                true
+//  enumerated types     true
 //  pointers             true
 //  pointers to members  true
 //..
-// For all other types, &#39;bsl::is_trivially_copyable&#39; returns false, unless the
-// type is explicitly specified to be trivially copyable, which can be done in
-// two ways:
+// For all other types, &#39;bsl::is_trivially_copyable&#39; returns &#39;false&#39;, unless
+// the type is explicitly specified to be trivially copyable.  This can be done
+// in 2 ways:
 //
 //: 1 Define a template specialization for &#39;bsl::is_trivially_copyable&#39; having
 //:   the type as the template parameter that inherits directly from
 //:   &#39;bsl::true_type&#39;.
 //:
 //: 2 Use the &#39;BSLMF_NESTED_TRAIT_DECLARATION&#39; macro to define
-//:   &#39;bsl::is_trivially_copyable&#39; as the trait in the class definition of the
+//:   &#39;bsl::is_trivially_copyable&#39; as a trait in the class definition of the
 //:   type.
 //
 ///Usage
@@ -59,9 +59,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a type is trivially copyable.
 //
-// First, we define a set types to evaluate:
+// First, we define a set of types to evaluate:
 //..
-//  typedef int MyFundamentalType;
+//  typedef int  MyFundamentalType;
 //  typedef int&amp; MyFundamentalTypeReference;
 //
 //  class MyTriviallyCopyableType {
@@ -71,7 +71,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      //...
 //  };
 //..
-// Then, since user-defined types can not be automatically evaluated by
+// Then, since user-defined types cannot be automatically evaluated by
 // &#39;is_trivially_copyable&#39;, we define a template specialization to specify that
 // &#39;MyTriviallyCopyableType&#39; is trivially copyable:
 //..
@@ -80,7 +80,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  template &lt;&gt;
 //  struct is_trivially_copyable&lt;MyTriviallyCopyableType&gt; : bsl::true_type {
 //      // This template specialization for &#39;is_trivially_copyable&#39; indicates
-//      // that &#39;MyTriviallyCopyableType&#39; is a trivially copyable.
+//      // that &#39;MyTriviallyCopyableType&#39; is a trivially copyable type.
 //  };
 //
 //  }  // close namespace bsl
@@ -88,24 +88,36 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Now, we verify whether each type is trivially copyable using
 // &#39;bsl::is_trivially_copyable&#39;:
 //..
-//  assert(true == bsl::is_trivially_copyable&lt;MyFundamentalType&gt;::value);
+//  assert(true  == bsl::is_trivially_copyable&lt;MyFundamentalType&gt;::value);
 //  assert(false == bsl::is_trivially_copyable&lt;
 //                                         MyFundamentalTypeReference&gt;::value);
-//  assert(true == bsl::is_trivially_copyable&lt;MyTriviallyCopyableType&gt;::value);
+//  assert(true  == bsl::is_trivially_copyable&lt;
+//                                            MyTriviallyCopyableType&gt;::value);
 //  assert(false == bsl::is_trivially_copyable&lt;
 //                                         MyNonTriviallyCopyableType&gt;::value);
 //..
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
-#include &lt;bslmf_isfundamental.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLMF_ISENUM
 #include &lt;bslmf_isenum.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include &lt;bslmf_isfundamental.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -116,21 +128,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_ispointertomember.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
-#include &lt;bslmf_detectnestedtrait.h&gt;
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include &lt;bslmf_removecv.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ISREFERENCE
-#include &lt;bslmf_isreference.h&gt;
-#endif
-
 namespace bsl {
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct is_trivially_copyable;
 
 }  // close namespace bsl
@@ -142,7 +150,7 @@ namespace bslmf {
                          // struct IsTriviallyCopyable_Imp
                          // ==============================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsTriviallyCopyable_Imp
     : bsl::integral_constant&lt;
           bool,
@@ -150,10 +158,11 @@ struct IsTriviallyCopyable_Imp
           &amp;&amp; (  IsFundamental&lt;TYPE&gt;::value
              || IsEnum&lt;TYPE&gt;::value
              || bsl::is_pointer&lt;TYPE&gt;::value
-             || bslmf::IsPointerToMember&lt;TYPE&gt;::value
+             || IsPointerToMember&lt;TYPE&gt;::value
              || DetectNestedTrait&lt;TYPE, bsl::is_trivially_copyable&gt;::value)&gt; {
-    // This &#39;struct&#39; template implement a meta-function to determine whether
-    // the (non-cv-qualified) template parameter &#39;TYPE&#39; is trivially copyable.
+    // This &#39;struct&#39; template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) &#39;TYPE&#39; is trivially
+    // copyable.
 };
 
 }  // close package namespace
@@ -165,29 +174,30 @@ namespace bsl {
                          // struct is_trivially_copyable
                          // ============================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct is_trivially_copyable
 : BloombergLP::bslmf::IsTriviallyCopyable_Imp&lt;typename remove_cv&lt;TYPE&gt;::type&gt; {
     // This &#39;struct&#39; template implements a meta-function to determine whether
     // the (template parameter) &#39;TYPE&#39; is trivially copyable.  This &#39;struct&#39;
-    // derives from &#39;bsl::true_type&#39;, if the &#39;TYPE&#39; is trivially copyable, and
-    // &#39;bsl::false_type&#39; otherwise.  This meta-function has the same syntax as
-    // the &#39;is_trivially_copyable&#39; meta-function defined in the C++11 standard
-    // [meta.unary.prop]; however, this meta-function can only automatically
-    // determine the value for the following types: reference types,
-    // fundamental types, enums, pointers to members, and types declared to
-    // have the &#39;bsl::is_trivially_copyable&#39; trait using the
-    // &#39;BSLMF_NESTED_TRAIT_DECLARATION&#39; macro (and the value for other types
-    // defaults to &#39;false&#39;).  To support other trivially copyable types, this
-    // template must be specialized to inherit from &#39;bsl::true_type&#39; for them.
+    // derives from &#39;bsl::true_type&#39; if the &#39;TYPE&#39; is trivially copyable, and
+    // from &#39;bsl::false_type&#39; otherwise.  This meta-function has the same
+    // syntax as the &#39;is_trivially_copyable&#39; meta-function defined in the C++11
+    // standard [meta.unary.prop]; however, this meta-function can
+    // automatically determine the value for the following types only:
+    // reference types, fundamental types, enumerated types, pointers to
+    // members, and types declared to have the &#39;bsl::is_trivially_copyable&#39;
+    // trait using the &#39;BSLMF_NESTED_TRAIT_DECLARATION&#39; macro (the value for
+    // other types defaults to &#39;false&#39;).  To support other trivially copyable
+    // types, this template must be specialized to inherit from
+    // &#39;bsl::true_type&#39; for them.
 };
 
 }  // close namespace bsl
 
-#endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
+#endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

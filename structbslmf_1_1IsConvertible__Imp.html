@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bslmf::IsConvertible_Imp</title>
+<title>BDE 2.17 Oss1: Struct bslmf::IsConvertible_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -88,16 +88,17 @@ Public Types</h2></td></tr>
 &lt; bool, value &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslmf_1_1IsConvertible__Imp.html#a8d231a7eaa88a32c248e1dcb218b0c00">type</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename FROM_TYPE, typename TO_TYPE&gt;<br/>
+<h3>template&lt;class FROM_TYPE, class TO_TYPE&gt;<br/>
  struct bslmf::IsConvertible_Imp&lt; FROM_TYPE, TO_TYPE &gt;</h3>
 
-<p>Private class. </p>
+<p>This <code>struct</code> template implements the meta-function to determine type conversion between the (template parameter) <code>FROM_TYPE</code> and the (template parameter) <code>TO_TYPE</code> where the conversion to the <code>TO_TYPE</code> is not necessarily the same as conversion to <code>const TO_TYPE&amp;</code>.</p>
+<p>Note that significant documentation about the details of this implementation can be found in <code>bslmf_isconvertible.cpp</code>. </p>
 <hr/><h2>Member Typedef Documentation</h2>
 <a class="anchor" id="a8d231a7eaa88a32c248e1dcb218b0c00"></a><!-- doxytag: member="bslmf::IsConvertible_Imp::type" ref="a8d231a7eaa88a32c248e1dcb218b0c00" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename FROM_TYPE , typename TO_TYPE &gt; </div>
+template&lt;class FROM_TYPE , class TO_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt;bool, value&gt; <a class="el" href="structbslmf_1_1IsConvertible__Imp.html">bslmf::IsConvertible_Imp</a>&lt; FROM_TYPE, TO_TYPE &gt;::<a class="el" href="structbsl_1_1integral__constant.html">type</a></td>
@@ -113,7 +114,7 @@ template&lt;typename FROM_TYPE , typename TO_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename FROM_TYPE , typename TO_TYPE &gt; </div>
+template&lt;class FROM_TYPE , class TO_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">anonymous enum</td>
@@ -121,10 +122,9 @@ template&lt;typename FROM_TYPE , typename TO_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoke the comma operator with <code>Test&amp;</code> on the left and <code>FROM_TYPE</code> on the right. <a class="el" href="structbslmf_1_1If.html">If</a> <code>FROM_TYPE</code> is convertible to <code>TO_TYPE</code>, the comma will return <code><a class="el" href="structbslmf_1_1IsConvertible__Match.html">IsConvertible_Match</a></code> and cause a match, otherwise it will return <code>FROM_TYPE</code>, which does not match. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" id="ab8eb9b4ca6e511686beb0bb5d3daf152a340c5c9ef2ba43c9b9a339b5fe122108"></a><!-- doxytag: member="value" ref="ab8eb9b4ca6e511686beb0bb5d3daf152a340c5c9ef2ba43c9b9a339b5fe122108" args="" -->value</em>&nbsp;</td><td>
-<p><code>value</code> will be true if <code>FROM_TYPE</code> is convertible to <code>TO_TYPE</code>. </p>
+<p>Return the convertibility between <code>FROM_TYPE</code> and <code>TO_TYPE</code>. This is set by invoking the <code>operator,</code> method having <code>Test&amp;</code> on the left and <code>FROM_TYPE</code> on the right. The <code>value</code> is <code>true</code> if <code>FROM_TYPE</code> is convertible to <code>TO_TYPE</code>, and <code>false</code> otherwise. </p>
 </td></tr>
 </table>
 </dd>
@@ -136,7 +136,7 @@ template&lt;typename FROM_TYPE , typename TO_TYPE &gt; </div>
 <li><a class="el" href="bslmf__isconvertible_8h_source.html">bslmf_isconvertible.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:56 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:16 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

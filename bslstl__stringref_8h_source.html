@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_stringref.h                                                 -*-C++-*-
@@ -70,7 +70,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 // The &#39;bsl::hash&#39; template class is specialized for &#39;bslstl::StringRef&#39; to
 // enable the use of &#39;bslstl::StringRef&#39; with STL hash containers (e.g.,
-// &#39;bsl::hash_set&#39; and &#39;bsl::hash_map&#39;).
+// &#39;bsl::unordered_set&#39; and &#39;bsl::unordered_map&#39;).
 //
 ///Efficiency and Usage Considerations
 ///-----------------------------------
@@ -1352,8 +1352,8 @@ template &lt;typename CHAR_TYPE&gt;
 struct hash&lt;BloombergLP::bslstl::StringRefImp&lt;CHAR_TYPE&gt; &gt; {
     // This template specialization enables use of &#39;bslstl::StringRefImp&#39;
     // within STL hash containers, for example,
-    // &#39;bsl::hash_set&lt;bslstl::StringRefImp&gt;&#39; and
-    // &#39;bsl::hash_map&lt;bslstl::StringRefImp, Type&gt;&#39; for some type &#39;Type&#39;.
+    // &#39;bsl::unordered_set&lt;bslstl::StringRefImp&gt;&#39; and
+    // &#39;bsl::unordered_map&lt;bslstl::StringRefImp, Type&gt;&#39; for some type &#39;Type&#39;.
 
     // ACCESSORS
     std::size_t
@@ -1398,7 +1398,7 @@ operator()(const BloombergLP::bslstl::StringRefImp&lt;CHAR_TYPE&gt;&amp; stringR
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

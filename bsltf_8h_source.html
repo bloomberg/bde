@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
  bsltf.txt
@@ -18,25 +18,29 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsltf&#39; package currently has 14 components having 3 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ The &#39;bsltf&#39; package currently has 18 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  3. bsltf_testvaluesarray
+  3. bsltf_convertiblevaluewrapper
+     bsltf_testvaluesarray
 
   2. bsltf_templatetestfacility
 
   1. bsltf_allocbitwisemoveabletesttype
      bsltf_alloctesttype
      bsltf_bitwisemoveabletesttype
+     bsltf_degeneratefunctor
      bsltf_enumeratedtesttype
+     bsltf_evilbooleantype
      bsltf_nonassignabletesttype
      bsltf_noncopyconstructibletesttype
      bsltf_nondefaultconstructibletesttype
      bsltf_nonequalcomparabletesttype
      bsltf_nontypicaloverloadstesttype
      bsltf_simpletesttype
+     bsltf_stdstatefulallocator
      bsltf_stdtestallocator
      bsltf_uniontesttype
 ..
@@ -52,14 +56,23 @@
 : &#39;bsltf_bitwisemoveabletesttype&#39;:
 :      Provide a bitwise-moveable test class.
 :
+: &#39;bsltf_convertiblevaluewrapper&#39;:
+:      Provide a wrapper class, convertible to a supplied value.
+:
+: &#39;bsltf_degeneratefunctor&#39;:
+:      Provide an awkward type to adapt a user-supplied functor.
+:
 : &#39;bsltf_enumeratedtesttype&#39;:
 :      Provide an enumerated test type.
+:
+: &#39;bsltf_evilbooleantype&#39;:
+:      Provide the most awkward type that is convertible to &#39;bool&#39;.
 :
 : &#39;bsltf_nonassignabletesttype&#39;:
 :      Provide an attribute class to which can not be assigned.
 :
 : &#39;bsltf_noncopyconstructibletesttype&#39;:
-:      Provide an attribute class that is not copy constructable.
+:      Provide an attribute class that is not copy constructible.
 :
 : &#39;bsltf_nondefaultconstructibletesttype&#39;:
 :      Provide an attribute class that is not default constructible.
@@ -72,6 +85,9 @@
 :
 : &#39;bsltf_simpletesttype&#39;:
 :      Provide a non-allocating test class without type traits.
+:
+: &#39;bsltf_stdstatefulallocator&#39;:
+:      Provide a minimal standard compliant allocator.
 :
 : &#39;bsltf_stdtestallocator&#39;:
 :      Provide a minimal standard compliant allocator.

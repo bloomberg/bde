@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_rbtreeutil.h                                                -*-C++-*-
@@ -217,10 +217,11 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //..
 //      for (int i = 0; i &lt; NUM_NODES; ++i) {
 //          int comparisonResult;
+//          SimpleIntNodeValueComparator comparator;
 //          RbTreeNode *insertLocation = RbTreeUtil::findUniqueInsertLocation(
 //                                              &amp;comparisonResult,
 //                                              &amp;tree,
-//                                              SimpleIntNodeValueComparator(),
+//                                              comparator,
 //                                              nodes[i].d_value);
 //          BSLS_ASSERT(comparisonResult);
 //          RbTreeUtil::insertAt(&amp;tree,
@@ -229,12 +230,11 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //                               &amp;nodes[i]);
 //      }
 //..
-// And verify the resulting &#39;tree&#39; holds 5 nodes, the first node has
-// the value 0, and the last node has the value 4:
+// And verify the resulting &#39;tree&#39; holds 5 nodes, and the first node has
+// the value 0:
 //..
 //      assert(5 == tree.numNodes());
 //      assert(0 == static_cast&lt;SimpleIntNode *&gt;(tree.firstNode())-&gt;d_value);
-//      assert(4 == static_cast&lt;SimpleIntNode *&gt;(tree.lastNode())-&gt;d_value);
 //..
 // Finally, we use &#39;RbTreeUtil&#39; to iterate through the nodes of &#39;tree&#39;, and
 // write the value of each node to the console:
@@ -1880,7 +1880,7 @@ void RbTreeUtilTreeProctor&lt;DELETER&gt;::release()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

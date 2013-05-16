@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bsl::equal_to</title>
+<title>BDE 2.17 Oss1: Struct bsl::equal_to</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -85,12 +85,11 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef VALUE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__equalto.html#ga042dcaf36549de16988da3191359410a">first_argument_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef VALUE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1equal__to.html#a042dcaf36549de16988da3191359410a">first_argument_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef VALUE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__equalto.html#ga1a23c579a9fef24aa5e688b79cbb6098">second_argument_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__equalto.html#ga3114697ee28ca2e02e53219e70a34856">result_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1equal__to.html#a2437db948c21c4be2ba4ab3f650b5d95">BSLMF_NESTED_TRAIT_DECLARATION</a> (<a class="el" href="structbsl_1_1equal__to.html">equal_to</a>, <a class="el" href="structbsl_1_1is__trivially__copyable.html">is_trivially_copyable</a>)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__equalto.html#ga61e05db944cf8deba25c061a828ea025">equal_to</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__equalto.html#ga114b39b4476357949d03fa6ecc326c0b">equal_to</a> (const <a class="el" href="structbsl_1_1equal__to.html">equal_to</a> &amp;original)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__equalto.html#ga7b894fb5bdb14aadbb3f0ebfbde4ae8b">~equal_to</a> ()</td></tr>
@@ -102,29 +101,15 @@ Public Member Functions</h2></td></tr>
  struct bsl::equal_to&lt; VALUE_TYPE &gt;</h3>
 
 <p>This <code>struct</code> defines a binary comparison functor applying <code>operator==</code> to two <code>VALUE_TYPE</code> objects. This class conforms to the C++11 standard specification of <code>std::equal_to</code> that does not require inheriting from <code>std::binary_function</code>. Note that this class is an empty POD type. </p>
-<hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a2437db948c21c4be2ba4ab3f650b5d95"></a><!-- doxytag: member="bsl::equal_to::BSLMF_NESTED_TRAIT_DECLARATION" ref="a2437db948c21c4be2ba4ab3f650b5d95" args="(equal_to, is_trivially_copyable)" -->
+<hr/><h2>Member Typedef Documentation</h2>
+<a class="anchor" id="a042dcaf36549de16988da3191359410a"></a><!-- doxytag: member="bsl::equal_to::first_argument_type" ref="a042dcaf36549de16988da3191359410a" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structbsl_1_1equal__to.html">bsl::equal_to</a>&lt; VALUE_TYPE &gt;::BSLMF_NESTED_TRAIT_DECLARATION </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structbsl_1_1equal__to.html">equal_to</a>&lt; VALUE_TYPE &gt;&nbsp;</td>
-          <td class="paramname">, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbsl_1_1is__trivially__copyable.html">is_trivially_copyable</a>&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td></td>
+          <td class="memname">typedef VALUE_TYPE <a class="el" href="structbsl_1_1equal__to.html">bsl::equal_to</a>&lt; VALUE_TYPE &gt;::<a class="el" href="structbsl_1_1equal__to.html#a042dcaf36549de16988da3191359410a">first_argument_type</a></td>
         </tr>
       </table>
 </div>
@@ -136,7 +121,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <li><a class="el" href="bslstl__equalto_8h_source.html">bslstl_equalto.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:49 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:12 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

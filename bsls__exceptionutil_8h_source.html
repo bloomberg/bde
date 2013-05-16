@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_exceptionutil.h                                               -*-C++-*-
@@ -65,7 +65,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Next, we declare the &#39;vector&#39; template and its template parameters (note
 // that the majority of the implementation is elided, for clarity):
 //..
-//  template &lt;typename VALUE, typename ALLOCATOR /* ... */&gt;
+//  template &lt;class VALUE, class ALLOCATOR /* ... */&gt;
 //  class vector {
 //      // DATA
 //      VALUE *d_begin_p;
@@ -312,7 +312,7 @@ namespace BloombergLP
 #endif // ! defined(INCLUDED_BSLS_EXCEPTIONUTIL)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

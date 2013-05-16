@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_isarray Component</title>
+<title>BDE 2.17 Oss1: bslmf_isarray Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -70,7 +70,6 @@ Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1is__array.html">bsl::is_array&lt; TYPE &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1is__array_3_01TYPE[NUM__ELEMENTS]_4.html">bsl::is_array&lt; TYPE[NUM_ELEMENTS]&gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1is__array_3_01TYPE[]_4.html">bsl::is_array&lt; TYPE[]&gt;</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1is__array_3_01TYPE_01_6_01_4.html">bsl::is_array&lt; TYPE &amp; &gt;</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
@@ -99,6 +98,8 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
+<td><a class="el" href="structbsl_1_1is__array.html">bsl::is_array</a> </td><td>standard meta-function for detecting array types  </td></tr>
+<tr>
 <td><a class="el" href="structbslmf_1_1IsArray.html">bslmf::IsArray</a> </td><td>meta-function for detecting array types  </td></tr>
 </table>
 </dd></dl>
@@ -114,24 +115,24 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_verify_array_types"></a> <a class="anchor" id="usage.example_1~3A_verify_array_types"></a> <a class="anchor" id="description.usage.example_1~3A_verify_array_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Verify Array Types: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to assert whether a particular type is an Array type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to assert whether a particular type is an array type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we create two <code>typedef</code>s -- an array type and a non-array type: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">int</span>   MyType;
-  <span class="keyword">typedef</span> <span class="keywordtype">int</span>[] MyArrayType;
+<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">int</span> MyType;
+  <span class="keyword">typedef</span> <span class="keywordtype">int</span> MyArrayType[]
 </pre></div><br/>
 <br/>
  Now, we instantiate the <code><a class="el" href="structbsl_1_1is__array.html">bsl::is_array</a></code> template for each of the <code>typedef</code>s and assert the <code>value</code> static data member of each instantiation: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  assert(<span class="keyword">false</span> == <a class="code" href="structbsl_1_1is__array.html">bsl::is_array&lt;MyType&gt;::value</a>);
-  assert(<span class="keyword">true</span> == <a class="code" href="structbsl_1_1is__array.html">bsl::is_array&lt;MyArrayType&gt;::value</a>);
+  assert(<span class="keyword">true</span>  == <a class="code" href="structbsl_1_1is__array.html">bsl::is_array&lt;MyArrayType&gt;::value</a>);
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

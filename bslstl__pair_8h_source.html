@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_pair.h                                                      -*-C++-*-
@@ -444,7 +444,7 @@ struct Pair_Imp&lt;T1, T2, 1, 1&gt; {
                         // ==========
 
 template &lt;typename T1, typename T2&gt;
-class pair : private Pair_Imp&lt;T1, T2,
+class pair : public Pair_Imp&lt;T1, T2,
                              BloombergLP::bslma::UsesBslmaAllocator&lt;T1&gt;::value,
                              BloombergLP::bslma::UsesBslmaAllocator&lt;T2&gt;::value&gt;
 {
@@ -684,8 +684,8 @@ namespace bslma {
 
 template &lt;typename T1, typename T2&gt;
 struct UsesBslmaAllocator&lt;bsl::pair&lt;T1, T2&gt; &gt;
-    : bsl::integral_constant&lt;bool, bslma::UsesBslmaAllocator&lt;T1&gt;::value
-                                  || bslma::UsesBslmaAllocator&lt;T2&gt;::value&gt;
+    : bsl::integral_constant&lt;bool, UsesBslmaAllocator&lt;T1&gt;::value
+                                   || UsesBslmaAllocator&lt;T2&gt;::value&gt;
 {};
 
 }  // bslma
@@ -1030,7 +1030,7 @@ void swap(pair&lt;T1, T2&gt;&amp; a, pair&lt;T1, T2&gt;&amp; b)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

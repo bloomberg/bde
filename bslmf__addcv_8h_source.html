@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_addcv.h                                                      -*-C++-*-
@@ -12,17 +12,18 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide a meta-function for adding a top-level cv-qualifier
+//@PURPOSE: Provide a meta-function for adding top-level cv-qualifiers.
 //
 //@CLASSES:
-//  bsl::add_const: meta-function for adding a top-level cv-qualifier
+//  bsl::add_cv: meta-function for adding top-level cv-qualifiers
 //
-//@SEE_ALSO: bslmf_removeconst
+//@SEE_ALSO: bslmf_removecv
 //
 //@DESCRIPTION: This component defines a meta-function, &#39;bsl::add_cv&#39;, that may
-// be used to add a top-level &#39;const&#39;-qualifier and a &#39;volatile&#39;-qualifier to a
-// type if it is not a reference, a function or already &#39;const&#39;-qualified and
-// &#39;volatile&#39;-qualified at the top-level.
+// be used to add a top-level &#39;const&#39;-qualifier and a top-level
+// &#39;volatile&#39;-qualifier to a type if it is not a reference type, nor a function
+// type, nor already &#39;const&#39;-qualified and &#39;volatile&#39;-qualified at the
+// top-level.
 //
 // &#39;bsl::add_cv&#39; meets the requirements of the &#39;add_cv&#39; template defined in the
 // C++11 standard [meta.trans.cv].
@@ -31,9 +32,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding The &#39;const&#39;-qualifier and &#39;volatile&#39;-qualifier to A Type
+///Example 1: Adding a &#39;const&#39;-Qualifier and a &#39;volatile&#39;-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the &#39;const&#39;-qualifier and &#39;volatile&#39;-qualifier
+// Suppose that we want to add a &#39;const&#39;-qualifier and a &#39;volatile&#39;-qualifier
 // to a particular type.
 //
 // First, we create two &#39;typedef&#39;s -- a &#39;const&#39;-qualified and
@@ -43,12 +44,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  typedef int                MyType;
 //  typedef const volatile int MyCvType;
 //..
-// Now, we add the the &#39;const&#39;-qualifier and the &#39;volatile&#39;-qualifier to
-// &#39;MyType&#39; using &#39;bsl::add_cv&#39; and verify that the resulting type is the
-// same as &#39;MyCvType&#39;:
+// Now, we add a &#39;const&#39;-qualifier and a &#39;volatile&#39;-qualifier to &#39;MyType&#39; using
+// &#39;bsl::add_cv&#39; and verify that the resulting type is the same as &#39;MyCvType&#39;:
 //..
-//  assert(true ==
-//                 (bsl::is_same&lt;bsl::add_cv&lt;MyType&gt;::type, MyCvType&gt;::value));
+//  assert(true == (bsl::is_same&lt;bsl::add_cv&lt;MyType&gt;::type, MyCvType&gt;::value));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -69,23 +68,23 @@ namespace bsl {
                          // struct add_cv
                          // =============
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct add_cv {
     // This &#39;struct&#39; template implements the &#39;add_cv&#39; meta-function defined in
-    // the C++11 standard [meta.trans.cv] to provide a &#39;typedef&#39; &#39;type&#39;.  If
-    // the (template parameter) &#39;TYPE&#39; is not a reference, nor a function, nor
-    // already &#39;const&#39;-qualified and &#39;volatile&#39;-qualified, then &#39;type&#39; is an
-    // alias to the same type as &#39;TYPE&#39; except that the top-level
-    // &#39;const&#39;-qualifier and &#39;volatile&#39;-qualifier has been added; otherwise,
-    // &#39;type&#39; is an alias to &#39;TYPE&#39;.
+    // the C++11 standard [meta.trans.cv], providing an alias, &#39;type&#39;, that
+    // returns the result.  If the (template parameter) &#39;TYPE&#39; is not a
+    // reference type, nor a function type, nor already &#39;const&#39;-qualified and
+    // &#39;volatile&#39;-qualified at the top-level, then &#39;type&#39; is an alias to &#39;TYPE&#39;
+    // with a top-level &#39;const&#39;-qualifier and a &#39;volatile&#39;-qualifier added;
+    // otherwise, &#39;type&#39; is an alias to &#39;TYPE&#39;.
 
+    // PUBLIC TYPES
     typedef typename add_const&lt;typename add_volatile&lt;TYPE&gt;::type&gt;::type type;
-        // This &#39;typedef&#39; is an alias alias to the same type as the (template
-        // parameter) &#39;TYPE&#39; except that the top-level &#39;const&#39;-qualifier and
-        // &#39;volatile&#39;-qualifier has been added if &#39;TYPE&#39; is not a reference,
-        // nor a function, nor already &#39;const&#39;-qualified and
-        // &#39;volatile&#39;-qualified; otherwise, &#39;type&#39; is an alias to &#39;TYPE&#39;.
-
+        // This &#39;typedef&#39; is an alias to the (template parameter) &#39;TYPE&#39; with a
+        // top-level &#39;const&#39;-qualifier and &#39;volatile&#39;-qualifier added if &#39;TYPE&#39;
+        // is not a reference type, nor a function type, nor already
+        // &#39;const&#39;-qualified and &#39;volatile&#39;-qualified at the top-level;
+        // otherwise, &#39;type&#39; is an alias to &#39;TYPE&#39;.
 };
 
 }  // close namespace bsl
@@ -93,7 +92,7 @@ struct add_cv {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Class bslstl::BidirectionalNodePool</title>
+<title>BDE 2.17 Oss1: Class bslstl::BidirectionalNodePool</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -80,6 +80,7 @@
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classbslstl_1_1SimplePool.html#a0942034bd664d85601a4f06ee0d7e8d0">Pool::AllocatorType</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#abb295a3569c12aea953f2f37f78a93de">AllocatorType</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef AllocatorTraits::size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a86718bca9aec0dd2b820fb1b16c63db1">size_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a88d9e32275c2c22bc5bd759a09ffe8c2">BidirectionalNodePool</a> (const ALLOCATOR &amp;allocator)</td></tr>
@@ -91,15 +92,17 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbslalg_1_1BidirectionalLink.html">bslalg::BidirectionalLink</a> *&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a6c3d73300caa6115d5fa13968e253e8e">createNode</a> (const FIRST_ARG &amp;first, const SECOND_ARG &amp;second)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslalg_1_1BidirectionalLink.html">bslalg::BidirectionalLink</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#addbbd1eaf60f637ff303aaf2cc774e99">cloneNode</a> (const <a class="el" href="classbslalg_1_1BidirectionalLink.html">bslalg::BidirectionalLink</a> &amp;original)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#abd045b73dae98b346bc5454ed3e31c4a">deleteNode</a> (<a class="el" href="classbslalg_1_1BidirectionalLink.html">bslalg::BidirectionalLink</a> *linkNode)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a6fec12e8a827254fcef5365c8568569f">reserveNodes</a> (native_std::size_t numNodes)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a5827b688bcb93ff220cdfb6cea646154">swap</a> (<a class="el" href="classbslstl_1_1BidirectionalNodePool.html">BidirectionalNodePool</a> &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#afc857cf4749719dc6b62f8af48fb457b">reserveNodes</a> (<a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a86718bca9aec0dd2b820fb1b16c63db1">size_type</a> numNodes)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a2e346a6110a652da1098456c6903cd85">swapRetainAllocators</a> (<a class="el" href="classbslstl_1_1BidirectionalNodePool.html">BidirectionalNodePool</a> &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a98e5e8315662d88020dc3a71707c0224">swapExchangeAllocators</a> (<a class="el" href="classbslstl_1_1BidirectionalNodePool.html">BidirectionalNodePool</a> &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a09036a2f2eb9c668ae3fd47782f4aba6">release</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#abb295a3569c12aea953f2f37f78a93de">AllocatorType</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a2e3ce4c906c0a66c069031d1ce479998">allocator</a> () const </td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <h3>template&lt;class VALUE, class ALLOCATOR&gt;<br/>
  class bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt;</h3>
 
-<p>This class provides methods for creating and deleting nodes using the appropriate allocator-traits of the parameterized <code>ALLOCATOR</code>. This type is intended to be used as a private base-class for a node-based container, in order to take advantage of the empty-base-class optimization in the case where the base-class has 0 size (as may the case if the parameterized <code>ALLOCATOR</code> is not a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>). </p>
+<p>This class provides methods for creating and destroying nodes using the appropriate allocator-traits of the (template parameter) type <code>ALLOCATOR</code>. </p>
 <hr/><h2>Member Typedef Documentation</h2>
 <a class="anchor" id="abb295a3569c12aea953f2f37f78a93de"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::AllocatorType" ref="abb295a3569c12aea953f2f37f78a93de" args="" -->
 <div class="memitem">
@@ -109,6 +112,21 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef <a class="el" href="classbslstl_1_1SimplePool.html#a0942034bd664d85601a4f06ee0d7e8d0">Pool::AllocatorType</a> <a class="el" href="classbslstl_1_1BidirectionalNodePool.html">bslstl::BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt;::<a class="el" href="classbslstl_1_1BidirectionalNodePool.html#abb295a3569c12aea953f2f37f78a93de">AllocatorType</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a86718bca9aec0dd2b820fb1b16c63db1"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::size_type" ref="a86718bca9aec0dd2b820fb1b16c63db1" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef AllocatorTraits::size_type <a class="el" href="classbslstl_1_1BidirectionalNodePool.html">bslstl::BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt;::<a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a86718bca9aec0dd2b820fb1b16c63db1">size_type</a></td>
         </tr>
       </table>
 </div>
@@ -134,7 +152,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a node-allocator that will use the specified <code>allocator</code> to supply memory for allocated node objects. </p>
+<p>Create a <code><a class="el" href="classbslstl_1_1BidirectionalNodePool.html">BidirectionalNodePool</a></code> object that will use the specified <code>allocator</code> to supply memory for allocated node objects. If the (template parameter) <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
 
 </div>
 </div>
@@ -155,7 +173,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference providing modifiable access to the rebound allocator traits for the node-type. Note that this operation returns a base-class (<code>NodeAlloc</code>) reference to this object. </p>
+<p>Return a reference providing modifiable access to the allocator supplying memory for the memory pool maintained by this object. The behavior is undefined if the allocator used by this object is changed with this method. Note that this method provides modifiable access to enable a client to call non-'const' methods on the allocator. </p>
 
 </div>
 </div>
@@ -175,7 +193,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Allocate a node object having a default constructed <code>VALUE</code>, and return its address. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
+<p>Allocate a node of the type <code>BidirectionalNode&lt;VALUE&gt;</code>, and default construct an object of the (template parameter) type <code>VALUE</code> at the <code>value</code> attribute of the node. Return the address of the Node. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
 
 </div>
 </div>
@@ -198,7 +216,7 @@ template&lt;class SOURCE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Allocate a node object and return its address. This operation will construct a <code>VALUE</code> into the returned node passing the specified <code>value</code> to the constructor call. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
+<p>Allocate a node of the type <code>BidirectionalNode&lt;VALUE&gt;</code>, and construct an object of the (template parameter) type <code>VALUE</code>, using its single-argument constructor passing the specified <code>value</code> as the argument, at the <code>value</code> attribute of the node. Return the address of the node. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
 
 </div>
 </div>
@@ -230,7 +248,7 @@ template&lt;class FIRST_ARG , class SECOND_ARG &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Allocate a node object and return its address. This operation will construct a <code>VALUE</code> into the returned node passing the specified <code>first</code> and <code>second</code> arguments to the constructor call. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
+<p>Allocate a node of the type <code>BidirectionalNode&lt;VALUE&gt;</code>, and construct an object of the (template parameter) type <code>VALUE</code>, using its two-arguments constructor passing the specified <code>first</code> as the first argument and the specified <code>second</code> as the second argument, at the <code>value</code> attribute of the node. Return the address of the node. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
 
 </div>
 </div>
@@ -251,7 +269,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Allocate a node object having a copy-constructed <code>VALUE</code> of <code>value()</code> of the specified <code>original</code>, and return its address. The behavior is undefined unless <code>original</code> refers to a <code><a class="el" href="classbslalg_1_1BidirectionalNode.html">bslalg::BidirectionalNode</a>&lt;VALUE&gt;</code>. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
+<p>Allocate a node of the type <code>BidirectionalNode&lt;VALUE&gt;</code>, and copy-construct an object of the (template parameter) type <code>VALUE</code> having the same value as the specified <code>original</code> at the <code>value</code> attribute of the node. Return the address of the node. Note that the <code>next</code> and <code>prev</code> attributes of the returned node will be uninitialized. </p>
 
 </div>
 </div>
@@ -272,11 +290,11 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Destroy the <code>VALUE</code> value of the specified <code>node</code> and return the memory footprint of <code>node</code> to this pool for potential reuse. The behavior is undefined unless <code>node</code> refers to a <code><a class="el" href="classbslalg_1_1BidirectionalNode.html">bslalg::BidirectionalNode</a>&lt;VALUE&gt;</code> that was allocated by this pool. </p>
+<p>Destroy the <code>VALUE</code> attribute of the specified <code>linkNode</code> and return the memory footprint of <code>linkNode</code> to this pool for potential reuse. The behavior is undefined unless <code>node</code> refers to a <code><a class="el" href="classbslalg_1_1BidirectionalNode.html">bslalg::BidirectionalNode</a>&lt;VALUE&gt;</code> that was allocated by this pool. </p>
 
 </div>
 </div>
-<a class="anchor" id="a6fec12e8a827254fcef5365c8568569f"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::reserveNodes" ref="a6fec12e8a827254fcef5365c8568569f" args="(native_std::size_t numNodes)" -->
+<a class="anchor" id="afc857cf4749719dc6b62f8af48fb457b"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::reserveNodes" ref="afc857cf4749719dc6b62f8af48fb457b" args="(size_type numNodes)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -285,7 +303,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1BidirectionalNodePool.html">bslstl::BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt;::reserveNodes </td>
           <td>(</td>
-          <td class="paramtype">native_std::size_t&nbsp;</td>
+          <td class="paramtype"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a86718bca9aec0dd2b820fb1b16c63db1">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numNodes</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td></td>
@@ -293,18 +311,18 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Reserve memory from this pool to satisfy memory requests for at least the specified <code>numNodes</code> before the pool replenishes. The behavior is undefined unless <code>0 &lt; numBlocks</code>. </p>
+<p>Reserve memory from this pool to satisfy memory requests for at least the specified <code>numNodes</code> before the pool replenishes. The behavior is undefined unless <code>0 &lt; numNodes</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="a5827b688bcb93ff220cdfb6cea646154"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::swap" ref="a5827b688bcb93ff220cdfb6cea646154" args="(BidirectionalNodePool &amp;other)" -->
+<a class="anchor" id="a2e346a6110a652da1098456c6903cd85"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::swapRetainAllocators" ref="a2e346a6110a652da1098456c6903cd85" args="(BidirectionalNodePool &amp;other)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class VALUE, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classbslstl_1_1BidirectionalNodePool.html">bslstl::BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt;::swap </td>
+          <td class="memname">void <a class="el" href="classbslstl_1_1BidirectionalNodePool.html">bslstl::BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt;::swapRetainAllocators </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html">BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt; &amp;&nbsp;</td>
           <td class="paramname"> <em>other</em></td>
@@ -314,7 +332,47 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Efficiently exchange the management of nodes of this object and the specified <code>other</code> object. The behavior is undefined unless the underlying mechanisms of <code><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a4ec281896cf13af1997ce2220bf8609f">allocator()</a></code> unless <code><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a4ec281896cf13af1997ce2220bf8609f">allocator()</a> == other.allocator()</code>. </p>
+<p>Efficiently exchange the nodes of this object with those of the specified <code>other</code> object. This method provides the no-throw exception-safety guarantee. The behavior is undefined unless <code><a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a4ec281896cf13af1997ce2220bf8609f">allocator()</a> == other.allocator()</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a98e5e8315662d88020dc3a71707c0224"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::swapExchangeAllocators" ref="a98e5e8315662d88020dc3a71707c0224" args="(BidirectionalNodePool &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbslstl_1_1BidirectionalNodePool.html">bslstl::BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt;::swapExchangeAllocators </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbslstl_1_1BidirectionalNodePool.html">BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Efficiently exchange the nodes and the allocator of this object with those of the specified <code>other</code> object. This method provides the no-throw exception-safety guarantee. </p>
+
+</div>
+</div>
+<a class="anchor" id="a09036a2f2eb9c668ae3fd47782f4aba6"></a><!-- doxytag: member="bslstl::BidirectionalNodePool::release" ref="a09036a2f2eb9c668ae3fd47782f4aba6" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbslstl_1_1BidirectionalNodePool.html">bslstl::BidirectionalNodePool</a>&lt; VALUE, ALLOCATOR &gt;::release </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inline]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
 
 </div>
 </div>
@@ -334,7 +392,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference providing non-modifiable access to the rebound allocator for the node-type. Note that this operation returns a base-class (<code>NodeAlloc</code>) reference to this object. </p>
+<p>Return a reference providing non-modifiable access to the allocator supplying memory for the memory pool maintained by this object. </p>
 
 </div>
 </div>
@@ -342,7 +400,7 @@ template&lt;class VALUE, class ALLOCATOR&gt; </div>
 <li><a class="el" href="bslstl__bidirectionalnodepool_8h_source.html">bslstl_bidirectionalnodepool.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:20:06 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:23 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

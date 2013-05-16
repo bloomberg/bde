@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslalg_bidirectionallink Component</title>
+<title>BDE 2.17 Oss1: bslalg_bidirectionallink Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -104,19 +104,19 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a single POD-like class, <code>BidirectionalLink</code>, used to represent a node in a doubly-linked list. A <code>BidirectionalLink</code> provides the address to its preceding node, and the address of it successor node. A null-pointer value for either address signifies the end of the list. <code>BidirectionalLink</code> does not, however, contain "payload" data (e.g., a value), as it is intended to work with generalized list operations (see <code>bslalg_bidirectionallinklistutil</code>). Clients creating a doubly-linked list must define their own node type that incorporates <code>BidirectionalLink</code> (generally via inheritance), and that maintains the "value" stored in that node. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a single POD-like class, <code>BidirectionalLink</code>, used to represent a node in a doubly-linked list. A <code>BidirectionalLink</code> provides the address to its preceding node, and the address of its successor node. A null-pointer value for either address signifies the end of the list. <code>BidirectionalLink</code> does not, however, contain "payload" data (e.g., a value), as it is intended to work with generalized list operations (see <code>bslalg_bidirectionallinklistutil</code>). Clients creating a doubly-linked list must define their own node type that incorporates <code>BidirectionalLink</code> (generally via inheritance), and that maintains the "value" stored in that node. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>----------------------------------------------------------------------------- </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended usage of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_and_using_a_list_template_class"></a> <a class="anchor" id="usage.example_1~3A_creating_and_using_a_list_template_class"></a> <a class="anchor" id="description.usage.example_1~3A_creating_and_using_a_list_template_class"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Creating and Using a List Template Class: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we want to create a linked list template class, it will be called <code>MyList</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we create the <code>MyNode</code> class, which derives from the BidirectionalLink class to carry a <code>PAYLOAD</code> object. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keyword">class </span>MyNode : <span class="keyword">public</span> bslalg::BidirectionalLink {
     <span class="keyword">public</span>:
       <span class="comment">// PUBLIC TYPES</span>
@@ -154,7 +154,7 @@ Namespaces</h2></td></tr>
                               <span class="comment">// MyList_Iterator</span>
                               <span class="comment">// ===============</span>
 
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keyword">class </span>MyList_Iterator {
       <span class="comment">// PRIVATE TYPES</span>
       <span class="keyword">typedef</span> MyNode&lt;PAYLOAD&gt; Node;
@@ -163,7 +163,7 @@ Namespaces</h2></td></tr>
       Node *d_node;
 
       <span class="comment">// FRIENDS</span>
-      <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PL&gt;
+      <span class="keyword">template</span> &lt;<span class="keyword">class</span> PL&gt;
       <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(MyList_Iterator&lt;PL&gt;,
                              MyList_Iterator&lt;PL&gt;);
 
@@ -181,13 +181,13 @@ Namespaces</h2></td></tr>
   };
 </pre></div><br/>
 <br/>
- Then, we define our <code>MyList</code> class, with <code>MyList::Iterator</code> being a public typedef of <code>MyList_Iterator</code>. For brevity, we will omit a lot of functionality that a full, general-purpose list class would have, implementing only what we will need for this example. <br/>
+ Then, we define our <code>MyList</code> class, with <code>MyList::Iterator</code> being a public typedef of <code>MyList_Iterator</code>. For brevity, we will omit a lot of functionality that a full, general-purpose list class would have, implmenting only what we will need for this example. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">                                  <span class="comment">// ======</span>
                                   <span class="comment">// MyList</span>
                                   <span class="comment">// ======</span>
 
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keyword">class </span>MyList {
       <span class="comment">// PRIVATE TYPES</span>
       <span class="keyword">typedef</span> MyNode&lt;PAYLOAD&gt; Node;
@@ -206,10 +206,10 @@ Namespaces</h2></td></tr>
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
       <span class="keyword">explicit</span>
-      MyList(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
+      MyList(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0)
       : d_begin(0)
       , d_end(0)
-      , d_allocator_p(basicAllocator)
+      , d_allocator_p(bslma::Default::allocator(basicAllocator))
       {}
 
       ~MyList();
@@ -222,21 +222,21 @@ Namespaces</h2></td></tr>
   };
 </pre></div><br/>
 <br/>
- Next, we implement the functions for the iterator type. <br/>
+ Next, we implment the functions for the iterator type. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">                              <span class="comment">// ---------------</span>
                               <span class="comment">// MyList_Iterator</span>
                               <span class="comment">// ---------------</span>
 
   <span class="comment">// MANIPULATORS</span>
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   MyList_Iterator&lt;PAYLOAD&gt; <a class="code" href="namespacebslstl.html#a00890c2044ab22c5074a3d85283319d0">MyList_Iterator&lt;PAYLOAD&gt;::operator++</a>()
   {
       d_node = (Node *) d_node-&gt;nextLink();
       <span class="keywordflow">return</span> *<span class="keyword">this</span>;
   }
 
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keyword">inline</span>
   <span class="keywordtype">bool</span> <a class="code" href="namespacebsltf.html#ae361aa40f9f34fccfcbea9bcd670d50f">operator==</a>(MyList_Iterator&lt;PAYLOAD&gt; lhs,
                   MyList_Iterator&lt;PAYLOAD&gt; rhs)
@@ -244,52 +244,55 @@ Namespaces</h2></td></tr>
       <span class="keywordflow">return</span> lhs.d_node == rhs.d_node;
   }
 
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keyword">inline</span>
   <span class="keywordtype">bool</span> <a class="code" href="namespacebsltf.html#a015cecd70e1d7748279a93f06742841b">operator!=</a>(MyList_Iterator&lt;PAYLOAD&gt; lhs,
                   MyList_Iterator&lt;PAYLOAD&gt; rhs)
   {
       <span class="keywordflow">return</span> !(lhs == rhs);
   }
-
- Then, we implement the functions <span class="keywordflow">for</span> the <span class="stringliteral">&#39;MyList&#39;</span> <span class="keyword">class</span>:
-
-                                  <span class="comment">// ------</span>
+</pre></div><br/>
+<br/>
+ Then, we implement the functions for the <code>MyList</code> class: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">                                  <span class="comment">// ------</span>
                                   <span class="comment">// MyList</span>
                                   <span class="comment">// ------</span>
 
   <span class="comment">// CREATORS</span>
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   MyList&lt;PAYLOAD&gt;::~MyList()
   {
       <span class="keywordflow">for</span> (Node *p = d_begin; p; ) {
-          Node *condemned = p;
+          Node *toDelete = p;
           p = (Node *) p-&gt;nextLink();
 
-          d_allocator_p-&gt;deleteObjectRaw(condemned);
+          d_allocator_p-&gt;deleteObjectRaw(toDelete);
       }
   }
 
   <span class="comment">// MANIPULATORS</span>
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keyword">typename</span> MyList&lt;PAYLOAD&gt;::Iterator MyList&lt;PAYLOAD&gt;::begin()
   {
       <span class="keywordflow">return</span> Iterator(d_begin);
   }
 
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keyword">typename</span> MyList&lt;PAYLOAD&gt;::Iterator MyList&lt;PAYLOAD&gt;::end()
   {
       <span class="keywordflow">return</span> Iterator(0);
   }
 
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keywordtype">void</span> MyList&lt;PAYLOAD&gt;::pushBack(<span class="keyword">const</span> PAYLOAD&amp; value)
   {
       Node *node = (Node *) d_allocator_p-&gt;allocate(<span class="keyword">sizeof</span>(Node));
       node-&gt;setNextLink(0);
       node-&gt;setPreviousLink(d_end);
-      <span class="keyword">new</span> (&amp;node-&gt;value()) ValueType(value);
+      <a class="code" href="structbslalg_1_1ScalarPrimitives.html#a673fd4b551f4e1595cfb0b0da6b75c4f">bslalg::ScalarPrimitives::copyConstruct</a>(&amp;node-&gt;value(),
+                                              value,
+                                              d_allocator_p);
 
       <span class="keywordflow">if</span> (d_end) {
           <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(d_begin);
@@ -304,15 +307,15 @@ Namespaces</h2></td></tr>
       }
   }
 
-  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> PAYLOAD&gt;
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PAYLOAD&gt;
   <span class="keywordtype">void</span> MyList&lt;PAYLOAD&gt;::popBack()
   {
       <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(d_begin &amp;&amp; d_end);
 
-      Node *condemned = d_end;
+      Node *toDelete = d_end;
       d_end = (Node *) d_end-&gt;previousLink();
 
-      <span class="keywordflow">if</span> (d_begin != condemned) {
+      <span class="keywordflow">if</span> (d_begin != toDelete) {
           <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(0 != d_end);
           d_end-&gt;setNextLink(0);
       }
@@ -321,71 +324,43 @@ Namespaces</h2></td></tr>
           d_begin = 0;
       }
 
-      condemned-&gt;value().~ValueType();
-      d_allocator_p-&gt;deallocate(condemned);
+      d_allocator_p-&gt;deleteObject(toDelete);
   }
 </pre></div><br/>
 <br/>
- Next, we have finished implementing our <code>MyList</code> class and its <code>Iterator</code> type, we will use one to store a fibonacci sequence of ints. In <code>main</code>, We declare the memory allocator that we will use: <br/>
+ Next, in <code>main</code>, we use our <code>MyList</code> class to store a list of ints: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">          <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> oa(<span class="stringliteral">&quot;oa&quot;</span>);
+<div class="fragment"><pre class="fragment">  MyList&lt;int&gt; intList;
 </pre></div><br/>
 <br/>
- Then, we enter a block and declare our list <code>fibonacciList</code> to contain the sequence: <br/>
+ Then, we declare an array of ints to populate it with: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">          {
-              MyList&lt;int&gt; fibonacciList(&amp;oa);
-              <span class="keyword">typedef</span> MyList&lt;int&gt;::Iterator Iterator;
-
-              {
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> intArray[] = { 8, 2, 3, 5, 7, 2 };
+  <span class="keyword">enum</span> { NUM_INTS = <span class="keyword">sizeof</span> intArray / <span class="keyword">sizeof</span> *intArray };
 </pre></div><br/>
 <br/>
- Next, we initialize the list to containing the first 2 values, <code>0</code> and <code>1</code>: <br/>
+ Now, we iterate, pushing ints to the list: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">                  fibonacciList.pushBack(0);
-                  fibonacciList.pushBack(1);
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keywordtype">int</span> *pInt = intArray; pInt &lt; intArray + NUM_INTS; ++pInt) {
+      intList.pushBack(*pInt);
+  }
 </pre></div><br/>
 <br/>
- Then, we create iterators <code>first</code> and <code>second</code> and point them to those first two elements: <br/>
+ Finally, we use our <code>Iterator</code> type to traverse the list and observe its values: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">                  Iterator first  = fibonacciList.begin();
-                  Iterator second = first;
-                  ++second;
-
-                  assert(0 == *first);
-                  assert(1 == *second);
-</pre></div><br/>
-<br/>
- Next, we iterate a dozen times, each time adding a new element to the end of the list containing a value that is the sum of the values of the previous two elements: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">                  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 12; ++i, ++first, ++second) {
-                      fibonacciList.pushBack(*first + *second);
-                  }
-              }
-</pre></div><br/>
-<br/>
- Now, we traverse the list and print out its elements: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">              <span class="keywordflow">if</span> (verbose) printf(<span class="stringliteral">&quot;Fibonacci Numbers: &quot;</span>);
-
-              <span class="keyword">const</span> Iterator begin = fibonacciList.begin();
-              <span class="keyword">const</span> Iterator end   = fibonacciList.end();
-              <span class="keywordflow">for</span> (Iterator it = begin; end != it; ++it) {
-                  <span class="keywordflow">if</span> (verbose) printf(<span class="stringliteral">&quot;%s%d&quot;</span>, begin == it ? <span class="stringliteral">&quot;&quot;</span> : <span class="stringliteral">&quot;, &quot;</span>, *it);
-              }
-              <span class="keywordflow">if</span> (verbose) printf(<span class="stringliteral">&quot;\n&quot;</span>);
-          }
-</pre></div><br/>
-<br/>
- Finally, we check the allocator and verify that it's been used, and that the destruction of <code>fibonacciList</code> freed all the memory allocated: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">          assert(oa.numBlocksTotal() &gt; 0);
-          assert(0 == oa.numBlocksInUse());
+<div class="fragment"><pre class="fragment">  MyList&lt;int&gt;::Iterator it = intList.begin();
+  assert(8 == *it);
+  assert(2 == *++it);
+  assert(3 == *++it);
+  assert(5 == *++it);
+  assert(7 == *++it);
+  assert(2 == *++it);
+  assert(intList.end() == ++it);
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

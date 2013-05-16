@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -135,8 +135,8 @@ Here is a list of all class members with links to the classes they belong to:
 , <a class="el" href="structbsls_1_1AtomicOperations__DefaultInt64.html#a9bc217878c869633d2f9a099c6bbcba6">bsls::AtomicOperations_DefaultInt64&lt; IMP &gt;</a>
 </li>
 <li>getIntAcquire()
-: <a class="el" href="structbsls_1_1AtomicOperations__DefaultInt.html#a4eca2a1c2cdb1fe0124bb28aa534ab58">bsls::AtomicOperations_DefaultInt&lt; IMP &gt;</a>
-, <a class="el" href="structbsls_1_1AtomicOperations.html#a4f6509a1cf03352a6b7a93066f29a290">bsls::AtomicOperations</a>
+: <a class="el" href="structbsls_1_1AtomicOperations.html#a4f6509a1cf03352a6b7a93066f29a290">bsls::AtomicOperations</a>
+, <a class="el" href="structbsls_1_1AtomicOperations__DefaultInt.html#a4eca2a1c2cdb1fe0124bb28aa534ab58">bsls::AtomicOperations_DefaultInt&lt; IMP &gt;</a>
 </li>
 <li>getIntRelaxed()
 : <a class="el" href="structbsls_1_1AtomicOperations.html#a2b0b15ef799dae4e56d5854187e961e5">bsls::AtomicOperations</a>
@@ -152,19 +152,19 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="structbsls_1_1TimeUtil.html#a68e84421ebb3c39360d5fba883dfbf13">bsls::TimeUtil</a>
 </li>
 <li>getPtr()
-: <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer32.html#a94143d476127d7b1a82fba0935531124">bsls::AtomicOperations_DefaultPointer32&lt; IMP &gt;</a>
-, <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer64.html#a63cc34a1ad0dfd99326136ac7729b319">bsls::AtomicOperations_DefaultPointer64&lt; IMP &gt;</a>
+: <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer64.html#a63cc34a1ad0dfd99326136ac7729b319">bsls::AtomicOperations_DefaultPointer64&lt; IMP &gt;</a>
 , <a class="el" href="structbsls_1_1AtomicOperations.html#a787df526b06976e2037524e3886e6852">bsls::AtomicOperations</a>
+, <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer32.html#a94143d476127d7b1a82fba0935531124">bsls::AtomicOperations_DefaultPointer32&lt; IMP &gt;</a>
 </li>
 <li>getPtrAcquire()
-: <a class="el" href="structbsls_1_1AtomicOperations.html#ae53ae56247fd086cd54ce5b4c5e00cc2">bsls::AtomicOperations</a>
+: <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer64.html#a3c04ffc764ddc6e0d36c63a6ea2eee2c">bsls::AtomicOperations_DefaultPointer64&lt; IMP &gt;</a>
+, <a class="el" href="structbsls_1_1AtomicOperations.html#ae53ae56247fd086cd54ce5b4c5e00cc2">bsls::AtomicOperations</a>
 , <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer32.html#a4bc9ef3f2f0392091f1e626ee02e0281">bsls::AtomicOperations_DefaultPointer32&lt; IMP &gt;</a>
-, <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer64.html#a3c04ffc764ddc6e0d36c63a6ea2eee2c">bsls::AtomicOperations_DefaultPointer64&lt; IMP &gt;</a>
 </li>
 <li>getPtrRelaxed()
-: <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer32.html#a406f76464f3afe6573ae791bf709a200">bsls::AtomicOperations_DefaultPointer32&lt; IMP &gt;</a>
+: <a class="el" href="structbsls_1_1AtomicOperations.html#aaa69768e2e24b6668af4c946abab4113">bsls::AtomicOperations</a>
+, <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer32.html#a406f76464f3afe6573ae791bf709a200">bsls::AtomicOperations_DefaultPointer32&lt; IMP &gt;</a>
 , <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer64.html#aa02949d9f572310ed77bd9fed917f0a5">bsls::AtomicOperations_DefaultPointer64&lt; IMP &gt;</a>
-, <a class="el" href="structbsls_1_1AtomicOperations.html#aaa69768e2e24b6668af4c946abab4113">bsls::AtomicOperations</a>
 </li>
 <li>getTimer()
 : <a class="el" href="structbsls_1_1TimeUtil.html#a5a3f353e27dfd55ec23efbb8dfa21e80">bsls::TimeUtil</a>
@@ -175,12 +175,15 @@ Here is a list of all class members with links to the classes they belong to:
 <li>globalAllocator()
 : <a class="el" href="structbslma_1_1Default.html#af3987226527d8682872331e2b20d8004">bslma::Default</a>
 </li>
+<li>growBucketsForLoadFactor()
+: <a class="el" href="structbslstl_1_1HashTable__ImpDetails.html#a8124ea3d43f9f3125532a2af761e1598">bslstl::HashTable_ImpDetails</a>
+</li>
 <li>Guard
 : <a class="el" href="structbslalg_1_1DequePrimitives_3_01VALUE__TYPE_00_011_01_4.html#a8ea630c62dde1ec6a8f69bdc7f55a821">bslalg::DequePrimitives&lt; VALUE_TYPE, 1 &gt;</a>
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:44 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

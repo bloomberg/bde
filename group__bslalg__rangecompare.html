@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslalg_rangecompare Component</title>
+<title>BDE 2.17 Oss1: bslalg_rangecompare Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -132,7 +132,7 @@ The class has no virtual members.  </li>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_defining_equality_comparison_operators_on_a_container"></a> <a class="anchor" id="usage.example_1~3A_defining_equality_comparison_operators_on_a_container"></a> <a class="anchor" id="description.usage.example_1~3A_defining_equality_comparison_operators_on_a_container"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Defining Equality Comparison Operators on a Container: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example we will use the <code><a class="el" href="structbslalg_1_1RangeCompare.html#a7512bb3d99340d59d531bb7d0a5b4ae0">bslalg::RangeCompare::equal</a></code> class method to implement the equality comparison operators for an iterable container type residing in the <code>bslstl</code> package, and highlight the circumstances under which the optimization provided by the class method may be applied. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose that we have a new iterable container type that will be included in the <code>bslstl</code> package, and we wish to define comparison operators for the container. If the container has an iterator that provides access to the container's elements in a consistent order, and the elements themselves are equality-comparable, we can implement the container's equality comparison operators by pair-wise comparing each of the elements over the entire range of elements in both containers. In such cases the container can use the <code><a class="el" href="structbslalg_1_1RangeCompare.html#a7512bb3d99340d59d531bb7d0a5b4ae0">bslalg::RangeCompare::equal</a></code> class method to equal-compare the container's elements, taking advantage of the optimizations the class method provides for bit-wise equality-comparable objects. </dd></dl>
@@ -309,8 +309,8 @@ The class has no virtual members.  </li>
 
     <span class="keyword">public</span>:
       <span class="comment">// TRAITS</span>
-      <a class="code" href="group__bslalg__typetraits.html#gab7a247c93e0d83c005ceb01cc291937b">BSLALG_DECLARE_NESTED_TRAITS</a>(MyPoint,
-                    BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(MyPoint,
+                            BloombergLP::bslmf::IsBitwiseEqualityComparable);
 
       <span class="comment">// CREATORS</span>
       MyPoint(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);
@@ -326,7 +326,7 @@ The class has no virtual members.  </li>
   }
 </pre></div><br/>
 <br/>
- Notice that the value of a <code>MyPoint</code> object derives from the values of all of its data members, and that no padding is required for alignment. Furthermore, <code>MyPoint</code> has no virtual methods. Therefore, <code>MyPoint</code> objects are bit-wise comparable, and we can correctly declare the <code><a class="el" href="structbslalg_1_1TypeTraitBitwiseEqualityComparable.html">bslalg::TypeTraitBitwiseEqualityComparable</a></code> trait for the class, as shown above under the public <code>TRAITS</code> section. </dd></dl>
+ Notice that the value of a <code>MyPoint</code> object derives from the values of all of its data members, and that no padding is required for alignment. Furthermore, <code>MyPoint</code> has no virtual methods. Therefore, <code>MyPoint</code> objects are bit-wise comparable, and we can correctly declare the <code><a class="el" href="structbslmf_1_1IsBitwiseEqualityComparable.html">bslmf::IsBitwiseEqualityComparable</a></code> trait for the class, as shown above under the public <code>TRAITS</code> section. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Now, we create two <code>MyContainer&lt;MyPoint&gt;</code> objects and compare them using <code>operator==</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  MyContainer&lt;MyPoint&gt; c3;
@@ -341,7 +341,7 @@ The class has no virtual members.  </li>
   assert(c3 == c4);  <span class="comment">// potentially optimized</span>
 </pre></div><br/>
 <br/>
- Here, the call to <code><a class="el" href="structbslalg_1_1RangeCompare.html#a7512bb3d99340d59d531bb7d0a5b4ae0">bslalg::RangeCompare::equal</a></code> in <code>operator==</code> may take advantage of the fact that <code>MyPoint</code> is bit-wise comparable and perform the comparison by directly bit-wise comparing the entire range of elements contained in the <code>MyContainer&lt;MyPoint&gt;</code> objects. This comparison can provide a significant performance boost over the comparison between two <code>MyContainer&lt;MyPoint&gt;</code> objects in which the nested <code>TypeTraitBitwiseEqualityComparable</code> trait is not associated with the <code>MyPoint</code> class. </dd></dl>
+ Here, the call to <code><a class="el" href="structbslalg_1_1RangeCompare.html#a7512bb3d99340d59d531bb7d0a5b4ae0">bslalg::RangeCompare::equal</a></code> in <code>operator==</code> may take advantage of the fact that <code>MyPoint</code> is bit-wise comparable and perform the comparison by directly bit-wise comparing the entire range of elements contained in the <code>MyContainer&lt;MyPoint&gt;</code> objects. This comparison can provide a significant performance boost over the comparison between two <code>MyContainer&lt;MyPoint&gt;</code> objects in which the nested <code><a class="el" href="structbslmf_1_1IsBitwiseEqualityComparable.html">bslmf::IsBitwiseEqualityComparable</a></code> trait is not associated with the <code>MyPoint</code> class. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Finally, note that we can instantiate <code>MyContainer</code> with <code>int</code> or any other primitive type as the <code>VALUE_TYPE</code> and still benefit from the optimized comparison operators, because primitive (i.e.: fundamental, enumerated, and pointer) types are inherently bit-wise comparable: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  MyContainer&lt;int&gt; c5;
@@ -360,7 +360,7 @@ The class has no virtual members.  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_typelist.h                                                   -*-C++-*-
@@ -60,17 +60,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // predefined type members &#39;TypeN&#39; (where &#39;1 &lt;= N &lt;= 20&#39;), or another
 // meta-function &#39;bslmf::TypeListTypeOf&#39;:
 //..
-//  assert(1 == bslmf::IsSame&lt;int,    List::Type1&gt;::value)
-//  assert(1 == bslmf::IsSame&lt;double, List::Type2&gt;::value)
-//  assert(1 == bslmf::IsSame&lt;char,   List::Type3&gt;::value)
+//  assert(1 == bsl::is_same&lt;int,    List::Type1&gt;::value)
+//  assert(1 == bsl::is_same&lt;double, List::Type2&gt;::value)
+//  assert(1 == bsl::is_same&lt;char,   List::Type3&gt;::value)
 //
 //  typedef bslmf::TypeListTypeOf&lt;1, List&gt;::Type my_Type1;
 //  typedef bslmf::TypeListTypeOf&lt;2, List&gt;::Type my_Type2;
 //  typedef bslmf::TypeListTypeOf&lt;3, List&gt;::Type my_Type3;
 //
-//  assert(1 == bslmf::IsSame&lt;int,    my_Type1&gt;::value)
-//  assert(1 == bslmf::IsSame&lt;double, my_Type2&gt;::value)
-//  assert(1 == bslmf::IsSame&lt;char,   my_Type3&gt;::value)
+//  assert(1 == bsl::is_same&lt;int,    my_Type1&gt;::value)
+//  assert(1 == bsl::is_same&lt;double, my_Type2&gt;::value)
+//  assert(1 == bsl::is_same&lt;char,   my_Type3&gt;::value)
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -981,7 +981,7 @@ struct TypeListTypeOf&lt;20,LIST,DEFAULTTYPE,1&gt; {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

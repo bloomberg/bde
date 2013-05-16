@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_deque.h                                                     -*-C++-*-
@@ -566,9 +566,9 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
   private:
     // ASSERTIONS
 
-    BSLMF_ASSERT((is_same&lt;reference, typename Base::reference&gt;::VALUE));
+    BSLMF_ASSERT((is_same&lt;reference, typename Base::reference&gt;::value));
     BSLMF_ASSERT((is_same&lt;const_reference,
-                  typename Base::const_reference&gt;::VALUE));
+                  typename Base::const_reference&gt;::value));
         // This need not necessarily be true as per the C++ standard, but is a
         // safe assumption for this implementation and allows to implement the
         // element access within the &#39;Base&#39; type (that is parameterized by
@@ -887,49 +887,6 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
         // number of elements are guaranteed to raise a &#39;bsl::length_error&#39;
         // exception.
 };
-
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
-//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
-struct HasStlIterators&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt; : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
-struct IsBitwiseMoveable&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
-    : IsBitwiseMoveable&lt;ALLOCATOR&gt;
-{};
-
-}
-
-namespace bslma {
-
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
-struct UsesBslmaAllocator&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
-    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
 
 // FREE OPERATORS
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
@@ -3036,10 +2993,51 @@ Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::end() const
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt; : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct IsBitwiseMoveable&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
+    : IsBitwiseMoveable&lt;ALLOCATOR&gt;
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

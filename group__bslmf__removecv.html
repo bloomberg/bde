@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_removecv Component</title>
+<title>BDE 2.17 Oss1: bslmf_removecv Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a meta-function for removing top-level cv-qualifier.  
+<p>Provide a meta-function for removing top-level cv-qualifiers.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
@@ -80,7 +80,7 @@ Classes</h2></td></tr>
 <li>
 <a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.1.1">Example 1: Removing The CV-Qualifier of A Type</a> </li>
+<a href="#3.1.1">Example 1: Removing the CV-Qualifiers of a Type</a> </li>
 </ul>
 </li>
 </ul>
@@ -90,37 +90,37 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for removing top-level cv-qualifier </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a meta-function for removing top-level cv-qualifiers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="structbsl_1_1remove__const.html">bsl::remove_const</a> </td><td>meta-function for removing top-level cv-qualifier  </td></tr>
+<td><a class="el" href="structbsl_1_1remove__cv.html">bsl::remove_cv</a> </td><td>meta-function for removing top-level cv-qualifiers  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__addcv.html" title="Provide a meta-function for adding a top-level cv-qualifier.">Component bslmf_addcv</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__addcv.html" title="Provide a meta-function for adding top-level cv-qualifiers.">Component bslmf_addcv</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code><a class="el" href="structbsl_1_1remove__cv.html">bsl::remove_cv</a></code>, that may be used to remove the top-level cv-qualifier (<code>const</code>-qualifier and <code>volatile</code>-qualifier) from a type. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1remove__const.html">bsl::remove_const</a></code> meets the requirements of the <code><a class="el" href="structbsl_1_1remove__cv.html">remove_cv</a></code> template defined in the C++11 standard [meta.trans.cv]. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code><a class="el" href="structbsl_1_1remove__cv.html">bsl::remove_cv</a></code>, that may be used to remove any top-level cv-qualifiers (<code>const</code>-qualifier and <code>volatile</code>-qualifier) from a type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1remove__cv.html">bsl::remove_cv</a></code> meets the requirements of the <code><a class="el" href="structbsl_1_1remove__cv.html">remove_cv</a></code> template defined in the C++11 standard [meta.trans.cv]. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Removing The CV-Qualifier of A Type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to strip the cv-qualifier from a particular type. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, we create two <code>typedef</code>s -- a cv-qualified type (<code>MyCvType</code>) and the same type without the cv-qualifier (<code>MyType</code>): <br/>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_removing_the_cv-qualifiers_of_a_type"></a> <a class="anchor" id="usage.example_1~3A_removing_the_cv-qualifiers_of_a_type"></a> <a class="anchor" id="description.usage.example_1~3A_removing_the_cv-qualifiers_of_a_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Removing the CV-Qualifiers of a Type: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to remove the cv-qualifiers from a particular type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we create two <code>typedef</code>s -- a <code>const</code>-qualified and <code>volatile</code>-qualified type (<code>MyCvType</code>) and the same type without the cv-qualifiers (<code>MyType</code>): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">int</span>                MyType;
   <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keywordtype">int</span> MyCvType;
 </pre></div><br/>
 <br/>
- Now, we strip the the cv-qualifier from <code>MyCvType</code> using <code><a class="el" href="structbsl_1_1remove__cv.html">bsl::remove_cv</a></code> and verify that the resulting type is the same as <code>MyType</code>: <br/>
+ Now, we remove the cv-qualifiers from <code>MyCvType</code> using <code><a class="el" href="structbsl_1_1remove__cv.html">bsl::remove_cv</a></code> and verify that the resulting type is the same as <code>MyType</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  assert(<span class="keyword">true</span> == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1remove__cv.html#aca2bc35ebc29d92bb639ed68d334aae4">bsl::remove_cv&lt;MyCvType&gt;::type</a>,
                                                             MyType&gt;::value));
@@ -128,7 +128,7 @@ Classes</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

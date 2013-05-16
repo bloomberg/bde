@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_haspointersemantics.h                                        -*-C++-*-
@@ -15,20 +15,22 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@PURPOSE: Provide a type trait for pointer semantics.
 //
 //@CLASSES:
-//  bslmf::HasPointerSemantics: meta-function for determining pointer-like types
+//  bslmf::HasPointerSemantics: meta-function indicating pointer-like types
 //
 //@SEE_ALSO:
+//
+//@DESCRIPTION:
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include &lt;bslmf_integralconstant.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -38,7 +40,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 namespace BloombergLP {
 namespace bslmf {
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct HasPointerSemantics
     : bsl::integral_constant&lt;bool,
                              bsl::is_pointer&lt;TYPE&gt;::value
@@ -52,7 +54,7 @@ struct HasPointerSemantics
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_scalarprimitives.h                                          -*-C++-*-
@@ -1315,7 +1315,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
     enum {
         VALUE = bslma::UsesBslmaAllocator&lt;TARGET_TYPE&gt;::value
               ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
-              : bslmf::IsSame&lt;ARG1, TARGET_TYPE&gt;::value
+              : bsl::is_same&lt;ARG1, TARGET_TYPE&gt;::value
                 &amp;&amp; bsl::is_trivially_copyable&lt;TARGET_TYPE&gt;::value
                   ? Imp::BITWISE_COPYABLE_TRAITS
                   : bslmf::IsPair&lt;TARGET_TYPE&gt;::value
@@ -1989,7 +1989,7 @@ template &lt;typename LHS_TYPE, typename RHS_TYPE&gt;
 void ScalarPrimitives::swap(LHS_TYPE&amp; lhs, RHS_TYPE&amp; rhs)
 {
     enum {
-        VALUE = bslmf::IsSame&lt;LHS_TYPE, RHS_TYPE&gt;::value
+        VALUE = bsl::is_same&lt;LHS_TYPE, RHS_TYPE&gt;::value
                 &amp;&amp; bslmf::IsBitwiseMoveable&lt;LHS_TYPE&gt;::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
@@ -2860,7 +2860,7 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&amp;                                lhs
                                 RHS_TYPE&amp;                                rhs,
                                 bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *)
 {
-    if (bslmf::IsSame&lt;LHS_TYPE, RHS_TYPE&gt;::value
+    if (bsl::is_same&lt;LHS_TYPE, RHS_TYPE&gt;::value
      &amp;&amp; !bslmf::IsFundamental&lt;LHS_TYPE&gt;::value
      &amp;&amp; !bslmf::IsPointer&lt;LHS_TYPE&gt;::value
      &amp;&amp; !bslma::UsesBslmaAllocator&lt;LHS_TYPE&gt;::value) {
@@ -2901,7 +2901,7 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&amp;                   lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

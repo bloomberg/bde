@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslstl_unorderedmultimap Component</title>
+<title>BDE 2.17 Oss1: bslstl_unorderedmultimap Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -65,7 +65,7 @@
 </div>
 <div class="contents">
 
-<p>Provide an STL-compliant <a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a> class.  
+<p>Provide an STL-compliant <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> container.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
@@ -97,10 +97,10 @@ AllocatorTraits::const_pointer&nbsp;</td><td class="memItemRight" valign="bottom
 &lt; const value_type, <br class="typebreak"/>
 difference_type &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga4c131b08f030f55fe54593330765c028">bsl::unordered_multimap::const_iterator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <br class="typebreak"/>
-::<a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableBucketIterator.html">BloombergLP::bslstl::HashTableBucketIterator</a><br class="typebreak"/>
+::BloombergLP::bslstl::HashTableBucketIterator<br class="typebreak"/>
 &lt; value_type, difference_type &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gae813a58f8d7bd4c55e6a4598ac469eda">bsl::unordered_multimap::local_iterator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <br class="typebreak"/>
-::<a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableBucketIterator.html">BloombergLP::bslstl::HashTableBucketIterator</a><br class="typebreak"/>
+::BloombergLP::bslstl::HashTableBucketIterator<br class="typebreak"/>
 &lt; const value_type, <br class="typebreak"/>
 difference_type &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga1fe450965cd2e865814f04f08e6d4d0e">bsl::unordered_multimap::const_local_iterator</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
@@ -118,8 +118,10 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gaf9e1d466f0dc443794f725edcec940e1">bsl::unordered_multimap::end</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">local_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga8e748b022792a1de33d1716612366b84">bsl::unordered_multimap::begin</a> (size_type index)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">local_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga3bd74d50836fe749d5faa4a998a0bf02">bsl::unordered_multimap::end</a> (size_type index)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gaf72ab52c01d60855e9c398db59683d88">bsl::unordered_multimap::insert</a> (const value_type &amp;value)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gadb3a8e426d091a260ef40b17467a85d0">bsl::unordered_multimap::insert</a> (const_iterator hint, const value_type &amp;value)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class SOURCE_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gaf477dd97f3d770b873117db2a5b66cff">bsl::unordered_multimap::insert</a> (const SOURCE_TYPE &amp;value)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class SOURCE_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga1887c0e3041ebc64a3ffcdee5ecbaf34">bsl::unordered_multimap::insert</a> (const_iterator hint, const SOURCE_TYPE &amp;value)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class INPUT_ITERATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga120ccac5426c74bf808986b21347fb56">bsl::unordered_multimap::insert</a> (INPUT_ITERATOR first, INPUT_ITERATOR last)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga8b267bf512957aef7ad57f869f64d7d3">bsl::unordered_multimap::erase</a> (const_iterator position)</td></tr>
@@ -134,12 +136,12 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gae7adb7981d2b8ef8511ac105d6132a29">bsl::unordered_multimap::swap</a> (unordered_multimap &amp;other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">allocator_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gaf0e5cbd3ef44c21c7f6bf5e224a385d8">bsl::unordered_multimap::get_allocator</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gafeddcaf9562ba0f973de55418def6295">bsl::unordered_multimap::begin</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga2c4698aca5fde8b31514863defb05a1d">bsl::unordered_multimap::end</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga3b380567f2346058666ecf8c7b83cdc9">bsl::unordered_multimap::cbegin</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga2c4698aca5fde8b31514863defb05a1d">bsl::unordered_multimap::end</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga070ba9c33597017c6f43734a051caf28">bsl::unordered_multimap::cend</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_local_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#gaee79838527b2f66cf886b440d22f9129">bsl::unordered_multimap::begin</a> (size_type index) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">const_local_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga017c70e88e46f791239358d73713b5f3">bsl::unordered_multimap::end</a> (size_type index) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_local_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga528eb49256242b3ed01bafc99c55491c">bsl::unordered_multimap::cbegin</a> (size_type index) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const_local_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga017c70e88e46f791239358d73713b5f3">bsl::unordered_multimap::end</a> (size_type index) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_local_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga6be11681ad474d95be94ef5e1c658241">bsl::unordered_multimap::cend</a> (size_type index) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga44ee843e49906d46474eb2717809983d">bsl::unordered_multimap::bucket</a> (const key_type &amp;key) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultimap.html#ga466816021ed02f5acde57e4a59df1778">bsl::unordered_multimap::bucket_count</a> () const </td></tr>
@@ -178,15 +180,25 @@ Friends</h2></td></tr>
 <li>
 <a href="#3.1">Requirements on <code>KEY</code> and <code>VALUE</code></a> </li>
 <li>
-<a href="#3.2">Memory Allocation</a> <ul>
+<a href="#3.2">Requirements on <code>HASH</code> and <code>EQUAL</code></a> </li>
 <li>
-<a href="#3.2.1"><code>bslma</code>-Style Allocators</a> </li>
+<a href="#3.3">Memory Allocation</a> <ul>
+<li>
+<a href="#3.3.1"><code>bslma</code>-Style Allocators</a> </li>
 </ul>
 </li>
 <li>
-<a href="#3.3">Operations</a> </li>
+<a href="#3.4">Operations</a> </li>
 <li>
-<a href="#3.4">Usage</a> </li>
+<a href="#3.5">Unordered Multi-Map Configuration</a> </li>
+<li>
+<a href="#3.6">Practical Requirements on <code>HASH</code></a> </li>
+<li>
+<a href="#3.7">Usage</a> <ul>
+<li>
+<a href="#3.7.1">Example 1: Creating a Concordance</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -194,7 +206,7 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide an STL-compliant <a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a> class. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide an STL-compliant <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> container. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -208,28 +220,49 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a single class template <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code>, implementing the standard container holding a collection of (possibly repeated) keys, each mapped to an associated value (with no guarantees on ordering). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a single class template, <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code>, implementing the standard container holding a collection of (possibly repeated) keys, each mapped to an associated value (with minimal guarantees on ordering). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An instantiation of <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> is an allocator-aware, value-semantic type whose salient attributes are its size (number of keys) and the set of key-value pairs the <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> contains, without regard to their order. If <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> is instantiated with a key type or mapped value-type that is not itself value-semantic, then it will not retain all of its value-semantic qualities. In particular, if the key or value type cannot be tested for equality, then an <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> containing that type cannot be tested for equality. It is even possible to instantiate <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> with type that do not have an accessible copy-constructor, in which case the <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> will not be copyable. Note that the equality operator for each key-value pair is used to determine when two <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> objects have the same value, and not the instance of the <code>EQUAL</code> template parameter supplied at construction. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> meets the requirements of an unordered associative container with forward iterators in the C++11 standard [unord]. The <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> implemented here adheres to the C++11 standard, except that it does not have interfaces that take rvalue references, <code>initializer_list</code>, <code>emplace</code>, or operations taking a variadic number of template parameters. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> meets the requirements of an unordered associative container with forward iterators in the C++11 standard [unord]. The <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> implemented here adheres to the C++11 standard, except that it may rehash when setting the <code>max_load_factor</code> in order to preserve the property that the value is always respected (which is a potentially throwing operation) and it does not have interfaces that take rvalue references, <code>initializer_list</code>, <code>emplace</code>, or operations taking a variadic number of template parameters. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_on_key_and_value"></a> <a class="anchor" id="description.requirements_on_key_and_value"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Requirements on KEY and VALUE: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> instantiation is a fully <a href="group__bsldoc__glossary.html#value-semantic_type" class="glossary">Value-Semantic Type</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) only if the supplied <code>KEY</code> and <code>VALUE</code> template parameters are fully value-semantic. It is possible to instantiate an <code>unoredered_multimap</code> with <code>KEY</code> and <code>VALUE</code> parameter arguments that do not provide a full set of value-semantic operations, but then some methods of the container may not be instantiable. The following terminology, adopted from the C++11 standard, is used in the function documentation of <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> to describe a function's requirements for the <code>KEY</code> and <code>VALUE</code> template parameters. These terms are also defined in section [utility.arg.requirements] of the C++11 standard. Note that, in the context of an <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> instantiation, the requirements apply specifically to the <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code>s entry type, <code>value_type</code>, which is an alias for std::pair&lt;const KEY, VALUE&gt;'. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> instantiation is a fully <a href="group__bsldoc__glossary.html#value-semantic_type" class="glossary">Value-Semantic Type</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) only if the supplied <code>KEY</code> and <code>VALUE</code> template parameters are fully value-semantic. It is possible to instantiate an <code>unoredered_multimap</code> with <code>KEY</code> and <code>VALUE</code> parameter arguments that do not provide a full set of value-semantic operations, but then some methods of the container may not be instantiable. The following terminology, adopted from the C++11 standard, is used in the function documentation of <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> to describe a function's requirements for the <code>KEY</code> and <code>VALUE</code> template parameters. These terms are also defined in section [utility.arg.requirements] of the C++11 standard. Note that, in the context of an <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> instantiation, the requirements apply specifically to the <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code>s element type, <code>value_type</code>, which is an alias for std::pair&lt;const KEY, VALUE&gt;'. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="default-constructible"></a> <a class="anchor" id="requirements_on_key_and_value.default-constructible"></a> <a class="anchor" id="description.requirements_on_key_and_value.default-constructible"></a> <em>default-constructible</em>: The type provides an accessible default constructor.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="copy-constructible"></a> <a class="anchor" id="requirements_on_key_and_value.copy-constructible"></a> <a class="anchor" id="description.requirements_on_key_and_value.copy-constructible"></a> <em>copy-constructible</em>: The type provides an accessible copy constructor.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="equality-comparable"></a> <a class="anchor" id="requirements_on_key_and_value.equality-comparable"></a> <a class="anchor" id="description.requirements_on_key_and_value.equality-comparable"></a> <em>equality-comparable</em>: The type provides an equality-comparison operator that defines an equivalence relationship and is both reflexive and transitive.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="memory_allocation"></a> <a class="anchor" id="description.memory_allocation"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_on_hash_and_equal"></a> <a class="anchor" id="description.requirements_on_hash_and_equal"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Requirements on HASH and EQUAL: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The (template parameter) types <code>HASH</code> and <code>EQUAL</code> must be copy-constructible function-objects. Note that this requirement is somewhat stronger than the requirement currently in the standard; see the discussion for Issue 2215 (<a href="http://cplusplus.github.com/LWG/lwg-active.html">http://cplusplus.github.com/LWG/lwg-active.html</a>#2215); </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>HASH</code> shall support a function call operator compatible with the following statements: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  HASH        hash;
+  KEY         key;
+  std::size_t result = hash(key);
+</pre></div><br/>
+<br/>
+ where the definition of the called function meets the requirements of a hash function, as specified in <a href="group__bslstl__hash.html#standard_hash_function" class="el"><code>bslstl_hash</code>|Standard Hash Function</a>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>EQUAL</code> shall support the a function call operator compatible with the following statements: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  EQUAL equal;
+  KEY   key1, key2;
+  <span class="keywordtype">bool</span>  result = equal(key1, key2);
+</pre></div><br/>
+<br/>
+ where the definition of the called function defines an equivalence relationship on keys that is both reflexive and transitive. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>HASH</code> and <code>EQUAL</code> function-objects are further constrained, such for any two objects whose keys compare equal by the comparator, shall produce the same value from the hasher. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="memory_allocation"></a> <a class="anchor" id="description.memory_allocation"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Memory Allocation: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The type supplied as the <code>ALLOCATOR</code> template parameter determines how this container will allocate memory. The <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> template supports allocators meeting the requirements of the C++11 standard [allocator.requirements], and in addition it supports scoped-allocators derived from the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> memory allocation protocol. Clients intending to use <code>bslma</code> style allocators should use the template's default <code>ALLOCATOR</code> type: The default type for the <code>ALLOCATOR</code> template parameter, <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, provides a C++11 standard-compatible adapter for a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma-style_allocators"></a> <a class="anchor" id="memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="description.memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma-style_allocators"></a> <a class="anchor" id="memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="description.memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>bslma-Style Allocators: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>If the parameterized <code>ALLOCATOR</code> type of an <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> instantiation is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that set type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a type accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it will be used to supply memory for the <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> throughout its lifetime; otherwise, the <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> will use the default allocator installed at the time of the <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code>s construction (see <code>bslma_default</code>). In addition to directly allocating memory from the indicated <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, an <code><a class="el" href="classbsl_1_1unordered__multimap.html">unordered_multimap</a></code> supplies that allocator's address to the constructors of contained objects of the parameterized <code>KEY</code> types with the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> trait. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>----------------------------------------------------------------------------- </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="operations"></a> <a class="anchor" id="description.operations"></a> <a class="anchor" id="3.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="operations"></a> <a class="anchor" id="description.operations"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Operations: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section describes the run-time complexity of operations on instances of <code>unsupported_multimap</code>: <br/>
 <br/>
@@ -355,9 +388,202 @@ Friends</h2></td></tr>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.4"></a> </dd></dl>
-<dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="unordered_multi-map_configuration"></a> <a class="anchor" id="description.unordered_multi-map_configuration"></a> <a class="anchor" id="3.5"></a> </dd></dl>
+<dl class="user"><dt><b>Unordered Multi-Map Configuration: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The unordered multi-map has interfaces that can provide insight into and control of its inner workings. The syntax and semantics of these interfaces for <code>bslstl_unoroderedmultimap</code> are identical to those of <code>bslstl_unorderedmap</code>. See the discussion in <a href="group__bslstl__unorderedmap.html#unordered_map_configuration" class="el"><code>bslstl_unorderedmap</code>|Unordered Map Configuration</a> and the illustrative material in <a href="group__bslstl__unorderedmap.html#example_2" class="el"><code>bslstl_unorderedmap</code>|Example 2</a>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="practical_requirements_on_hash"></a> <a class="anchor" id="description.practical_requirements_on_hash"></a> <a class="anchor" id="3.6"></a> </dd></dl>
+<dl class="user"><dt><b>Practical Requirements on HASH: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An important factor in the performance an unordered multi-map (and any of the other unordered containers) is the choice of hash function. Please see the discussion in <a href="group__bslstl__unorderedmap.html#practical_requirements_on_hash" class="el"><code>bslstl_unorderedmap</code>|Practical Requirements on <code>HASH</code></a>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.7"></a> </dd></dl>
+<dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_a_concordance"></a> <a class="anchor" id="usage.example_1~3A_creating_a_concordance"></a> <a class="anchor" id="description.usage.example_1~3A_creating_a_concordance"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.7.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Creating a Concordance: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Unordered multimap are useful in situations when there is no meaningful way to compare key values, when the order of the keys is irrelevant to the problem domain, or (even if there is a meaningful ordering) the benefit of ordering the results is outweighed by the higher performance provided by unordered maps (compared to ordered maps). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>One uses a multi-map (ordered or unordered) when there may be more than one mapped value associated with a key value. In this example we will use <code>bslstl_unorderedmultimap</code> to create a concordance (an index of where each unique word appears in the set of documents). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Our source of documents is a set of statically initialized arrrays: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keywordtype">char</span> document0[] =
+  <span class="stringliteral">&quot; IN CONGRESS, July 4, 1776.\n&quot;</span>
+  <span class="stringliteral">&quot;\n&quot;</span>
+  <span class="stringliteral">&quot; The unanimous Declaration of the thirteen united States of America,\n&quot;</span>
+  <span class="stringliteral">&quot;\n&quot;</span>
+  <span class="stringliteral">&quot; When in the Course of human events, it becomes necessary for one\n&quot;</span>
+  <span class="stringliteral">&quot; people to dissolve the political bands which have connected them with\n&quot;</span>
+  <span class="stringliteral">&quot; another, and to assume among the powers of the earth, the separate\n&quot;</span>
+  <span class="stringliteral">&quot; and equal station to which the Laws of Nature and of Nature&#39;s God\n&quot;</span>
+  <span class="stringliteral">&quot; entitle them, a decent respect to the opinions of mankind requires\n&quot;</span>
+  <span class="stringliteral">&quot; that they should declare the causes which impel them to the\n&quot;</span>
+  <span class="stringliteral">&quot; separation.  We hold these truths to be self-evident, that all men\n&quot;</span>
+  <span class="stringliteral">&quot; are created equal, that they are endowed by their Creator with\n&quot;</span>
+  <span class="stringliteral">&quot; certain unalienable Rights, that among these are Life, Liberty and\n&quot;</span>
+  <span class="stringliteral">&quot; the pursuit of Happiness.--That to secure these rights, Governments\n&quot;</span>
+  <span class="stringliteral">&quot; are instituted among Men, deriving their just powers from the consent\n&quot;</span>
+  <span class="stringliteral">&quot; of the governed, --That whenever any Form of Government becomes\n&quot;</span>
+  ...
+  <span class="stringliteral">&quot; States may of right do.  And for the support of this Declaration,\n&quot;</span>
+  <span class="stringliteral">&quot; with a firm reliance on the protection of divine Providence, we\n&quot;</span>
+  <span class="stringliteral">&quot; mutually pledge to each other our Lives, our Fortunes and our sacred\n&quot;</span>
+  <span class="stringliteral">&quot; Honor.\n&quot;</span>;
+
+  <span class="keyword">static</span> <span class="keywordtype">char</span> document1[] =
+  <span class="stringliteral">&quot;/The Universal Declaration of Human Rights\n&quot;</span>
+  <span class="stringliteral">&quot;/-----------------------------------------\n&quot;</span>
+  <span class="stringliteral">&quot;/Preamble\n&quot;</span>
+  <span class="stringliteral">&quot;/ - - - -\n&quot;</span>
+  <span class="stringliteral">&quot; Whereas recognition of the inherent dignity and of the equal and\n&quot;</span>
+  <span class="stringliteral">&quot; inalienable rights of all members of the human family is the\n&quot;</span>
+  <span class="stringliteral">&quot; foundation of freedom, justice and peace in the world,\n&quot;</span>
+  ...
+  <span class="stringliteral">&quot;/Article 30\n&quot;</span>
+  <span class="stringliteral">&quot;/ - - - - -\n&quot;</span>
+  <span class="stringliteral">&quot; Nothing in this Declaration may be interpreted as implying for any\n&quot;</span>
+  <span class="stringliteral">&quot; State, group or person any right to engage in any activity or to\n&quot;</span>
+  <span class="stringliteral">&quot; perform any act aimed at the destruction of any of the rights and\n&quot;</span>
+  <span class="stringliteral">&quot; freedoms set forth herein.\n&quot;</span>;
+
+  <span class="keyword">static</span> <span class="keywordtype">char</span> document2[] =
+  <span class="stringliteral">&quot;/CHARTER OF FUNDAMENTAL RIGHTS OF THE EUROPEAN UNION\n&quot;</span>
+  <span class="stringliteral">&quot;/---------------------------------------------------\n&quot;</span>
+  <span class="stringliteral">&quot; PREAMBLE\n&quot;</span>
+  <span class="stringliteral">&quot;\n&quot;</span>
+  <span class="stringliteral">&quot; The peoples of Europe, in creating an ever closer union among them,\n&quot;</span>
+  <span class="stringliteral">&quot; are resolved to share a peaceful future based on common values.\n&quot;</span>
+  ...
+  <span class="stringliteral">&quot;/Article 54\n&quot;</span>
+  <span class="stringliteral">&quot;/-  -  -  -\n&quot;</span>
+  <span class="stringliteral">&quot; Prohibition of abuse of rights\n&quot;</span>
+  <span class="stringliteral">&quot;\n&quot;</span>
+  <span class="stringliteral">&quot; Nothing in this Charter shall be interpreted as implying any right to\n&quot;</span>
+  <span class="stringliteral">&quot; engage in any activity or to perform any act aimed at the destruction\n&quot;</span>
+  <span class="stringliteral">&quot; of any of the rights and freedoms recognised in this Charter or at\n&quot;</span>
+  <span class="stringliteral">&quot; their limitation to a greater extent than is provided for herein.\n&quot;</span>;
+
+  <span class="keyword">static</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> documents[]  = { document0,
+                                       document1,
+                                       document2
+                                     };
+  <span class="keyword">const</span> <span class="keywordtype">int</span>           numDocuments = <span class="keyword">sizeof</span> documents / <span class="keyword">sizeof</span> *documents;
+</pre></div><br/>
+<br/>
+ First, we define several aliases to make our code more comprehensible. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <a class="code" href="classbsl_1_1pair.html">bsl::pair&lt;int, int&gt;</a>                  WordLocation;
+      <span class="comment">// Document code number (&#39;first&#39;) and word offset (&#39;second&#39;) in that</span>
+      <span class="comment">// document specify a word location.  The first word in the document</span>
+      <span class="comment">// is at word offset 0.</span>
+
+  <span class="keyword">typedef</span> <a class="code" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap&lt;bsl::string, WordLocation&gt;</a>
+                                               Concordance;
+  <span class="keyword">typedef</span> Concordance::const_iterator          ConcordanceConstItr;
+</pre></div><br/>
+<br/>
+ Next, we create an (empty) unordered map to hold our word tallies. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  Concordance concordance;
+</pre></div><br/>
+<br/>
+ Then, we define the set of characters that define word boundaries: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">char</span> *delimiters = <span class="stringliteral">&quot; \n\t,:;.()[]?!/&quot;</span>;
+</pre></div><br/>
+<br/>
+ Next, we extract the words from our documents. Note that <code>strtok</code> modifies the document arrays (which were not made <code>const</code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>As each word is located, we create a map value -- a pair of the word converted to a <code>bsl::string</code> and a <code>WordLocation</code> object (itself a pair of document code and (word) offset of that word in the document) -- and insert the map value into the map. Note that (unlike maps and unordered maps) there is no status to check; the insertion succeeds even if the key is already present in the (multi) map. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx = 0; idx &lt; numDocuments; ++idx) {
+      <span class="keywordtype">int</span> wordOffset = 0;
+      <span class="keywordflow">for</span> (<span class="keywordtype">char</span> *cur = strtok(documents[idx], delimiters);
+                 cur;
+                 cur = strtok(NULL,           delimiters)) {
+          WordLocation            location(idx, wordOffset++);
+          Concordance::value_type value(<a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>(cur), location);
+          concordance.insert(value);
+      }
+  }
+</pre></div><br/>
+<br/>
+ Then, we can readily print a complete concordance by interating through the map. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (ConcordanceConstItr itr  = concordance.begin(),
+                           end  = concordance.end();
+                           end != itr; ++itr) {
+      printf(<span class="stringliteral">&quot;\&quot;%s\&quot;, %2d, %4d\n&quot;</span>,
+             itr-&gt;first.c_str(),
+             itr-&gt;second.first,
+             itr-&gt;second.second);
+  }
+</pre></div><br/>
+<br/>
+ Standard output shows: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="stringliteral">&quot;extent&quot;</span>,  2, 3837
+  <span class="stringliteral">&quot;greater&quot;</span>,  2, 3836
+  <span class="stringliteral">&quot;abuse&quot;</span>,  2, 3791
+  <span class="stringliteral">&quot;constitutions&quot;</span>,  2, 3782
+  <span class="stringliteral">&quot;affecting&quot;</span>,  2, 3727
+  ...
+  <span class="stringliteral">&quot;he&quot;</span>,  1, 1746
+  <span class="stringliteral">&quot;he&quot;</span>,  1,  714
+  <span class="stringliteral">&quot;he&quot;</span>,  0,  401
+  <span class="stringliteral">&quot;include&quot;</span>,  2,  847
+</pre></div><br/>
+<br/>
+ Next, if there are some particular words of interest, we seek them out using the <code>equal_range</code> method of the <code>concordance</code> object: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> wordsOfInterest[] = { <span class="stringliteral">&quot;human&quot;</span>,
+                                          <span class="stringliteral">&quot;rights&quot;</span>,
+                                          <span class="stringliteral">&quot;unalienable&quot;</span>,
+                                          <span class="stringliteral">&quot;inalienable&quot;</span>
+                                        };
+  <span class="keyword">const</span> <span class="keywordtype">int</span>   numWordsOfInterest = <span class="keyword">sizeof</span>  wordsOfInterest
+                                 / <span class="keyword">sizeof</span> *wordsOfInterest;
+
+  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx = 0; idx &lt; numWordsOfInterest; ++idx) {
+     <a class="code" href="classbsl_1_1pair.html">bsl::pair</a>&lt;ConcordanceConstItr,
+               ConcordanceConstItr&gt; found = concordance.equal_range(
+                                                       wordsOfInterest[idx]);
+     <span class="keywordflow">for</span> (ConcordanceConstItr itr  = found.<a class="code" href="group__bslstl__pair.html#gafff8113b0b2f4bbe5df93ce0ba30fad8">first</a>,
+                              end  = found.second;
+                              end != itr; ++itr) {
+         printf(<span class="stringliteral">&quot;\&quot;%s\&quot;, %2d, %4d\n&quot;</span>,
+                itr-&gt;first.c_str(),
+                itr-&gt;second.first,
+                itr-&gt;second.second);
+     }
+     printf(<span class="stringliteral">&quot;\n&quot;</span>);
+  }
+</pre></div><br/>
+<br/>
+ Finally, we see on standard output: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="stringliteral">&quot;human&quot;</span>,  2, 3492
+  <span class="stringliteral">&quot;human&quot;</span>,  2, 2192
+  <span class="stringliteral">&quot;human&quot;</span>,  2,  534
+  ...
+  <span class="stringliteral">&quot;human&quot;</span>,  1,   65
+  <span class="stringliteral">&quot;human&quot;</span>,  1,   43
+  <span class="stringliteral">&quot;human&quot;</span>,  1,   25
+  <span class="stringliteral">&quot;human&quot;</span>,  0,   20
+
+  <span class="stringliteral">&quot;rights&quot;</span>,  2, 3583
+  <span class="stringliteral">&quot;rights&quot;</span>,  2, 3553
+  <span class="stringliteral">&quot;rights&quot;</span>,  2, 3493
+  ...
+  <span class="stringliteral">&quot;rights&quot;</span>,  1,   44
+  <span class="stringliteral">&quot;rights&quot;</span>,  1,   19
+  <span class="stringliteral">&quot;rights&quot;</span>,  0,  496
+  <span class="stringliteral">&quot;rights&quot;</span>,  0,  126
+
+  <span class="stringliteral">&quot;unalienable&quot;</span>,  0,  109
+
+  <span class="stringliteral">&quot;inalienable&quot;</span>,  1,   18
+</pre></div><br/>
+<br/>
+ <a href="group__bslstl__unorderedmap.html#example_3" class="el"><code>bslstl_unorderedmap</code>|Example 3</a> shows how to use the concordance to create an inverse concordance, and how to use the inverse concordance to find the context (surrouding words) of a word of interest. </dd></dl>
 <hr/><h2>Typedef Documentation</h2>
 <a class="anchor" id="ga2f3c53d75684dcbbe20f3d1eb1372095"></a><!-- doxytag: member="bsl::unordered_multimap::key_type" ref="ga2f3c53d75684dcbbe20f3d1eb1372095" args="" -->
 <div class="memitem">
@@ -576,7 +802,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
 template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef ::<a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableBucketIterator.html">BloombergLP::bslstl::HashTableBucketIterator</a>&lt;value_type, difference_type&gt; <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::local_iterator<code> [inherited]</code></td>
+          <td class="memname">typedef ::BloombergLP::bslstl::HashTableBucketIterator&lt;value_type, difference_type&gt; <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::local_iterator<code> [inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -591,7 +817,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
 template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef ::<a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableBucketIterator.html">BloombergLP::bslstl::HashTableBucketIterator</a>&lt;const value_type, difference_type&gt; <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::const_local_iterator<code> [inherited]</code></td>
+          <td class="memname">typedef ::BloombergLP::bslstl::HashTableBucketIterator&lt;const value_type, difference_type&gt; <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::const_local_iterator<code> [inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -927,16 +1153,18 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
 
 </div>
 </div>
-<a class="anchor" id="gaf72ab52c01d60855e9c398db59683d88"></a><!-- doxytag: member="bsl::unordered_multimap::insert" ref="gaf72ab52c01d60855e9c398db59683d88" args="(const value_type &amp;value)" -->
+<a class="anchor" id="gaf477dd97f3d770b873117db2a5b66cff"></a><!-- doxytag: member="bsl::unordered_multimap::insert" ref="gaf477dd97f3d770b873117db2a5b66cff" args="(const SOURCE_TYPE &amp;value)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
+<div class="memtemplate">
+template&lt;class SOURCE_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::insert </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1pair.html">value_type</a> &amp;&nbsp;</td>
+          <td class="paramtype">const SOURCE_TYPE &amp;&nbsp;</td>
           <td class="paramname"> <em>value</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
@@ -944,15 +1172,17 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this multi-map, and return an iterator to the newly inserted element. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> types both be <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Insert the specified <code>value</code> into this multi-map, and return an iterator to the newly inserted element. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> types both be <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). Note that this one template stands in for two <code>insert</code> functions in the C++11 standard. </p>
 
 </div>
 </div>
-<a class="anchor" id="gadb3a8e426d091a260ef40b17467a85d0"></a><!-- doxytag: member="bsl::unordered_multimap::insert" ref="gadb3a8e426d091a260ef40b17467a85d0" args="(const_iterator hint, const value_type &amp;value)" -->
+<a class="anchor" id="ga1887c0e3041ebc64a3ffcdee5ecbaf34"></a><!-- doxytag: member="bsl::unordered_multimap::insert" ref="ga1887c0e3041ebc64a3ffcdee5ecbaf34" args="(const_iterator hint, const SOURCE_TYPE &amp;value)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
+<div class="memtemplate">
+template&lt;class SOURCE_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::insert </td>
@@ -963,7 +1193,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1pair.html">value_type</a> &amp;&nbsp;</td>
+          <td class="paramtype">const SOURCE_TYPE &amp;&nbsp;</td>
           <td class="paramname"> <em>value</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -974,7 +1204,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this multi-map (in constant time if the specified <code>hint</code> is a valid element in the bucket to which <code>value</code> belongs). Return an iterator referring to the newly inserted <code>value_type</code> object in this multi-map whose key is the same as that of <code>value</code>. If <code>hint</code> is not a position in the bucket of the key of <code>value</code>, this operation will have worst case O[N] and average case constant time complexity, where <code>N</code> is the size of this multi-map. The behavior is undefined unless <code>hint</code> is a valid iterator into this unordered multi map. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Insert the specified <code>value</code> into this multi-map (in constant time if the specified <code>hint</code> is a valid element in the bucket to which <code>value</code> belongs). Return an iterator referring to the newly inserted <code>value_type</code> object in this multi-map whose key is the same as that of <code>value</code>. If <code>hint</code> is not a position in the bucket of the key of <code>value</code>, this operation will have worst case O[N] and average case constant time complexity, where <code>N</code> is the size of this multi-map. The behavior is undefined unless <code>hint</code> is a valid iterator into this unordered multi map. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedmultimap.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). Note that this one template stands in for two <code>insert</code> functions in the C++11 standard. </p>
 
 </div>
 </div>
@@ -1203,7 +1433,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Increase the number of buckets of this multi-map to a quantity such that the ratio between the specified <code>numElements</code> and this quantity does not exceed <code>max_load_factor</code>. </p>
+<p>Increase the number of buckets of this set to a quantity such that the ratio between the specified <code>numElements</code> and this quantity does not exceed <code>max_load_factor</code>, and allocate footprint memory sufficient to grow the table to contain <code>numElements</code> elements. Note that this guarantees that, after the reserve, elements can be inserted to grow the container to <code>size() == numElements</code> without any further allocation, unless the <code>KEY</code> or <code>VALUE</code> types themselves or the hash function allocate memory. Also note that this operation has no effect if <code>numElements &lt;= size()</code>. </p>
 
 </div>
 </div>
@@ -1264,6 +1494,25 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga3b380567f2346058666ecf8c7b83cdc9"></a><!-- doxytag: member="bsl::unordered_multimap::cbegin" ref="ga3b380567f2346058666ecf8c7b83cdc9" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">const_iterator <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::cbegin </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
 <p>Return an iterator providing non-modifiable access to the first <code>value_type</code> object (in the sequence of <code>value_type</code> objects) maintained by this multi-map, or the <code>end</code> iterator if this multi-map is empty. </p>
 
 </div>
@@ -1284,27 +1533,6 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Return an iterator providing non-modifiable access to the past-the-end element (in the sequence of <code>value_type</code> objects) maintained by this multi-map. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga3b380567f2346058666ecf8c7b83cdc9"></a><!-- doxytag: member="bsl::unordered_multimap::cbegin" ref="ga3b380567f2346058666ecf8c7b83cdc9" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">const_iterator <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::cbegin </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return an iterator providing non-modifiable access to the first <code>value_type</code> object (in the sequence of <code>value_type</code> objects) maintained by this multi-map, or the <code>end</code> iterator if this container is empty. </p>
 
 </div>
 </div>
@@ -1324,7 +1552,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Return an iterator providing non-modifiable access to the past-the-end element (in the sequence of <code>value_type</code> objects) maintained by this container. </p>
+<p>Return an iterator providing non-modifiable access to the past-the-end element (in the sequence of <code>value_type</code> objects) maintained by this multi-map. </p>
 
 </div>
 </div>
@@ -1336,6 +1564,26 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       <table class="memname">
         <tr>
           <td class="memname">const_local_iterator <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::begin </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__unorderedmultimap.html#gadfb9cea5ec4f52cd0831b29044081b87">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>index</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga528eb49256242b3ed01bafc99c55491c"></a><!-- doxytag: member="bsl::unordered_multimap::cbegin" ref="ga528eb49256242b3ed01bafc99c55491c" args="(size_type index) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">const_local_iterator <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::cbegin </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__bslstl__unorderedmultimap.html#gadfb9cea5ec4f52cd0831b29044081b87">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>index</em></td>
@@ -1366,28 +1614,6 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Return a local iterator providing non-modifiable access to the past-the-end element (in the sequence of <code>value_type</code> objects) of the bucket having the specified <code>index</code> in the array of buckets maintained by this container. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga528eb49256242b3ed01bafc99c55491c"></a><!-- doxytag: member="bsl::unordered_multimap::cbegin" ref="ga528eb49256242b3ed01bafc99c55491c" args="(size_type index) const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equal_to&lt;KEY&gt;, class ALLOCATOR = bsl::allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">const_local_iterator <a class="el" href="classbsl_1_1unordered__multimap.html">bsl::unordered_multimap</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::cbegin </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__unorderedmultimap.html#gadfb9cea5ec4f52cd0831b29044081b87">size_type</a>&nbsp;</td>
-          <td class="paramname"> <em>index</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return a local iterator providing non-modifiable access to the first <code>value_type</code> object (in the sequence of <code>value_type</code> objects) of the bucket having the specified <code>index</code> in the array of buckets maintained by this container, or the <code>end(index)</code> otherwise. </p>
 
 </div>
 </div>
@@ -1820,7 +2046,7 @@ template&lt;class KEY2 , class VALUE2 , class HASH2 , class EQUAL2 , class ALLOC
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:44 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

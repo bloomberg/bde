@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslalg_swaputil Component</title>
+<title>BDE 2.17 Oss1: bslalg_swaputil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -110,7 +110,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_bslalg~3A~3Aswaputil~3A~3Aswap"></a> <a class="anchor" id="usage.example_1~3A_using_bslalg~3A~3Aswaputil~3A~3Aswap"></a> <a class="anchor" id="description.usage.example_1~3A_using_bslalg~3A~3Aswaputil~3A~3Aswap"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: using bslalg::SwapUtil::swap: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example we define a type <code>Container</code> and use <code><a class="el" href="classbslalg_1_1SwapUtil.html">bslalg::SwapUtil</a></code> to both implement a user-defined <code>swap</code> for <code>Container</code>, and swap two container objects. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We start by defining a class <code>Container</code> in the <code>xyz</code> namespace. Further we assume that <code>Container</code> has some expensive-to-copy data, so we provide a custom <code>swap</code> algorithm to efficiently swap the data between a two objects this class by defining a <code>swap</code> method and a <code>swap</code> free function. <br/>
@@ -139,7 +139,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keyword">inline</span>
   <span class="keywordtype">void</span> <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">Container::swap</a>(Container&amp; other)
   {
-      <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">bslalg::SwapUtil::swap</a>(&amp;d_expensiveData, &amp;other.d_expensiveData);
+      <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">bslalg::SwapUtil::swap</a>(&amp;d_expensiveData, &amp;other.d_expensiveData);
 
       <span class="comment">// Equivalent to:</span>
       <span class="comment">// using bsl::swap;</span>
@@ -168,7 +168,7 @@ Namespaces</h2></td></tr>
 <br/>
  The above code correctly calls the <code>xyz::swap</code> overload for the <code>Container</code> class. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

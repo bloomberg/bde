@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
  bslmf.txt
@@ -58,21 +58,25 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslmf&#39; package currently has 60 components having 10 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ The &#39;bslmf&#39; package currently has 61 components having 11 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  10. bslmf_isbitwisemoveable
+  11. bslmf_isbitwisemoveable
 
-   9. bslmf_forwardingtype
+  10. bslmf_forwardingtype
+      bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible
 
+   9. bslmf_detectnestedtrait
+      bslmf_isenum
+
    8. bslmf_addcv
       bslmf_enableif
-      bslmf_isenum
+      bslmf_isconvertibletoany
       bslmf_ispointertomember
       bslmf_matcharithmetictype
 
@@ -84,21 +88,23 @@
    6. bslmf_isfunction
       bslmf_isfundamental
       bslmf_ismemberobjectpointer
-      bslmf_ispolymorphic
-
-   5. bslmf_addpointer
-      bslmf_functionpointertraits
-      bslmf_haspointersemantics
-      bslmf_isarithmetic
-      bslmf_isclass
-      bslmf_ismemberfunctionpointer
       bslmf_memberfunctionpointertraits
       bslmf_removepointer
+
+   5. bslmf_addpointer
+      bslmf_addreference
+      bslmf_functionpointertraits
+      bslmf_if
+      bslmf_isarithmetic
+      bslmf_ismemberfunctionpointer
+      bslmf_ispolymorphic
       bslmf_selecttrait
 
-   4. bslmf_addreference
+   4. bslmf_addlvaluereference
+      bslmf_addrvaluereference
       bslmf_arraytopointer
-      bslmf_if
+      bslmf_conditional
+      bslmf_isclass
       bslmf_isfloatingpoint
       bslmf_isintegral
       bslmf_ispointer
@@ -109,8 +115,7 @@
       bslmf_switch
       bslmf_typelist
 
-   3. bslmf_detectnestedtrait
-      bslmf_isarray
+   3. bslmf_isarray
       bslmf_isconst
       bslmf_islvaluereference
       bslmf_ispair
@@ -121,10 +126,7 @@
       bslmf_removecv
       bslmf_tag
 
-   2. bslmf_addlvaluereference
-      bslmf_addrvaluereference
-      bslmf_assert
-      bslmf_conditional
+   2. bslmf_assert
       bslmf_integralconstant
       bslmf_matchanytype
       bslmf_nestedtraitdeclaration
@@ -137,16 +139,16 @@
 /Component Synopsis
 /------------------
 : &#39;bslmf_addconst&#39;:
-:      Provide a meta-function for adding a top-level &#39;const&#39;-qualifier
+:      Provide a meta-function for adding a top-level &#39;const&#39;-qualifier.
 :
 : &#39;bslmf_addcv&#39;:
-:      Provide a meta-function for adding a top-level cv-qualifier
+:      Provide a meta-function for adding top-level cv-qualifiers.
 :
 : &#39;bslmf_addlvaluereference&#39;:
 :      Provide a compile-time type transformation to lvalue reference.
 :
 : &#39;bslmf_addpointer&#39;:
-:      Transform a type to a pointer to that type
+:      Provide meta-function to transform a type to pointer to that type.
 :
 : &#39;bslmf_addreference&#39;:
 :      Provide a meta-function for adding &quot;reference-ness&quot; to a type.
@@ -155,7 +157,7 @@
 :      Provide a compile-time type transformation to rvalue reference.
 :
 : &#39;bslmf_addvolatile&#39;:
-:      Provide a meta-function for adding a top-level &#39;volatile&#39;-qualifier
+:      Provide a meta-function for adding a &#39;volatile&#39;-qualifier.
 :
 : &#39;bslmf_arraytopointer&#39;:
 :      Provide a meta-function to convert array types to pointer types.
@@ -164,7 +166,7 @@
 :      Provide a compile-time assertion facility.
 :
 : &#39;bslmf_conditional&#39;:
-:      Provide a compile-time conditional type selection
+:      Provide a compile-time conditional type selector.
 :
 : &#39;bslmf_detectnestedtrait&#39;:
 :      Provide meta-function to test for nested trait.
@@ -188,7 +190,7 @@
 :      Provide a mapping from integral constants to unique types.
 :
 : &#39;bslmf_isarithmetic&#39;:
-:      Provide a compile-time check for arithmetic types.
+:      Provide a compile-time check for determining arithmetic types.
 :
 : &#39;bslmf_isarray&#39;:
 :      Provide a compile-time check for array types.
@@ -197,28 +199,31 @@
 :      Provide a type trait for bitwise equality.
 :
 : &#39;bslmf_isbitwisemoveable&#39;:
-:      Provide a primitive type trait for bit-wise moveable classes.
+:      Provide a primitive type trait for bitwise moveable classes.
 :
 : &#39;bslmf_isclass&#39;:
-:      Provide a compile-time check for class types.
+:      Provide a compile-time check for determining class types.
 :
 : &#39;bslmf_isconst&#39;:
 :      Provide a compile-time check for &#39;const&#39;-qualified types.
 :
 : &#39;bslmf_isconvertible&#39;:
-:      Provide a compile-time type conversion checker.
+:      Provide a compile-time check for type conversion.
+:
+: &#39;bslmf_isconvertibletoany&#39;:
+:      Provide a compile-time check for types convertible to any type.
 :
 : &#39;bslmf_isenum&#39;:
-:      Provide compile-time detection of enumerated types.
+:      Provide compile-time check for determining enumerated types.
 :
 : &#39;bslmf_isfloatingpoint&#39;:
 :      Provide a compile-time check for floating-point types.
 :
 : &#39;bslmf_isfunction&#39;:
-:      Provide a compile-time check for function types.
+:      Provide a compile-time check for determining function types.
 :
 : &#39;bslmf_isfundamental&#39;:
-:      Provide a compile-time check for fundamental types.
+:      Provide a compile-time check for determining fundamental types.
 :
 : &#39;bslmf_isintegral&#39;:
 :      Provide a compile-time check for integral types.
@@ -245,22 +250,22 @@
 :      Provide a compile-time check for pointer-to-member types.
 :
 : &#39;bslmf_ispolymorphic&#39;:
-:      Provide a compile-time check for polymorphic types.
+:      Provide a compile-time check for determining polymorphic types.
 :
 : &#39;bslmf_isreference&#39;:
-:      Provide a compile-time check for reference types.
+:      Provide a meta-function to test reference types.
 :
 : &#39;bslmf_isrvaluereference&#39;:
 :      Provide a compile-time check for rvalue reference types.
 :
 : &#39;bslmf_issame&#39;:
-:      Provide a meta-function for checking if two types are the same.
+:      Provide a meta-function for testing if two types are the same.
 :
 : &#39;bslmf_istriviallycopyable&#39;:
-:      Provide a meta-function for determining trivially copyable types
+:      Provide a meta-function for determining trivially copyable types.
 :
 : &#39;bslmf_istriviallydefaultconstructible&#39;:
-:      Check for whether a type is trivially default-constructible.
+:      Provide a compile-time check for trivially default-constructible.
 :
 : &#39;bslmf_isvoid&#39;:
 :      Provide a compile-time check for &#39;void&#39; types.
@@ -284,25 +289,25 @@
 :      Provide a nil type.
 :
 : &#39;bslmf_removeconst&#39;:
-:      Provide a meta-function for removing top-level &#39;const&#39;-qualifier
+:      Provide a meta-function for removing top-level &#39;const&#39;-qualifier.
 :
 : &#39;bslmf_removecv&#39;:
-:      Provide a meta-function for removing top-level cv-qualifier
+:      Provide a meta-function for removing top-level cv-qualifiers.
 :
 : &#39;bslmf_removecvq&#39;:
 :      Provide a meta-function for removing &#39;const&#39;/&#39;volatile&#39; qualifiers.
 :
 : &#39;bslmf_removepointer&#39;:
-:      Transform a pointer type to type pointed by pointer type
+:      Provide a meta-function to transform pointer type to referent type.
 :
 : &#39;bslmf_removereference&#39;:
-:      Provide a meta-function for removing reference-ness from types.
+:      Provide a meta-function for stripping reference-ness from types.
 :
 : &#39;bslmf_removevolatile&#39;:
-:      Provide a meta-function for removing top-level &#39;volatile&#39;-qualifier
+:      Provide a meta-function for removing &#39;volatile&#39;-qualifier.
 :
 : &#39;bslmf_selecttrait&#39;:
-:      Provide a meta-function for overload dispatch per trait.
+:      Provide clean compile-time dispatch based on multiple traits
 :
 : &#39;bslmf_switch&#39;:
 :      Provide a compile-time &#39;switch&#39; meta-function.

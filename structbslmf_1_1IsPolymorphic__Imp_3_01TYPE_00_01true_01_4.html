@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bslmf::IsPolymorphic_Imp_3_01TYPE_00_01true_01_4</title>
+<title>BDE 2.17 Oss1: Struct bslmf::IsPolymorphic_Imp_3_01TYPE_00_01true_01_4</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -87,16 +87,16 @@ Public Types</h2></td></tr>
  }</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename TYPE&gt;<br/>
+<h3>template&lt;class TYPE&gt;<br/>
  struct bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;</h3>
 
-<p>This partial specialization of <code><a class="el" href="structbslmf_1_1IsPolymorphic__Imp.html">IsPolymorphic_Imp</a></code> derives from <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code> for when the (template parameter) <code>TYPE</code> is a polymorphic type. </p>
+<p>This partial specialization of <code><a class="el" href="structbslmf_1_1IsPolymorphic__Imp.html">IsPolymorphic_Imp</a></code>, for when the (template parameter) <code>TYPE</code> is a (non-cv-qualified) class type, provides a static data member, <code>Value</code>, that is set to <code>true</code> if <code>TYPE</code> is polymorphic and <code>false</code> otherwise. </p>
 <hr/><h2>Member Enumeration Documentation</h2>
 <a class="anchor" id="ae254b9f00a61043e2bdf1ac4d211acfa"></a><!-- doxytag: member="bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::@41" ref="ae254b9f00a61043e2bdf1ac4d211acfa" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename TYPE &gt; </div>
+template&lt;class TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">anonymous enum</td>
@@ -117,7 +117,7 @@ template&lt;typename TYPE &gt; </div>
 <li><a class="el" href="bslmf__ispolymorphic_8h_source.html">bslmf_ispolymorphic.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:59 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:18 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

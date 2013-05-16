@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls_assert Component</title>
+<title>BDE 2.17 Oss1: bsls_assert Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -275,7 +275,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>In addition to the three (BSLS) "ASSERT" macros, <code>BSLS_ASSERT</code>, <code>BSLS_ASSERT_SAFE</code>, and <code>BSLS_ASSERT_OPT</code>, this component provides (1) an <code>invokeHandler</code> method used (primarily) to implement these three "ASSERT" macros and enable their runtime configuration, (2) administration methods to configure, at runtime, the behavior resulting from an assertion failure (i.e., by installing an appropriate assertion-failure handler function), and (3) a suite of standard ("off-the-shelf") assertion-failure handler functions, to be installed via the administrative methods (if desired), and invoked by the <code>invokeHandler</code> method on an assertion failure. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>When an assertion fails, the currently installed <em>failure</em> <em>handler</em> ("callback") function is invoked. The default handler is the (<code>static</code>) <code><a class="el" href="classbsls_1_1Assert.html#a330f1589f484ad67d234454c1bc53966">bsls::Assert::failAbort</a></code> method; a user may replace this default handler by using the (<code>static</code>) <code><a class="el" href="classbsls_1_1Assert.html#a858135de85382a93ab42d8ef24b114cb">bsls::Assert::setFailureHandler</a></code> administrative method and passing it (the address of) a function whose signature conforms to the <code><a class="el" href="classbsls_1_1Assert.html#af88d17790bace0f850ae6f48faf63b02">bsls::Assert::Handler</a></code> <code>typedef</code>. This handler may be one of the other handler methods provided in <code><a class="el" href="classbsls_1_1Assert.html">bsls::Assert</a></code>, or a new "custom" function, written by the user (see "Usage Examples" below). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="description.runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="4.4.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="description.runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="exception-throwing_failure_handlers_and_bsls"></a> <a class="anchor" id="runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls"></a> <a class="anchor" id="description.runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls"></a> <a class="anchor" id="4.4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Exception-Throwing Failure Handlers and bsls::AssertFailureHandlerGuard: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Among the failure handlers provided is <code><a class="el" href="classbsls_1_1Assert.html#af7b3b9be1016c988537502f0b0a4e658">bsls::Assert::failThrow</a></code>, which throws an <code><a class="el" href="classbsls_1_1AssertTestException.html">bsls::AssertTestException</a></code> object. Throwing an exception, however, is not safe in all environments and deliberately aborting is more useful in a debugging context than throwing an unhandled exception. Hence, in order for an <code><a class="el" href="classbsls_1_1AssertTestException.html">bsls::AssertTestException</a></code> object to be thrown on an assertion failure, the user must first install the <code><a class="el" href="classbsls_1_1Assert.html#af7b3b9be1016c988537502f0b0a4e658">bsls::Assert::failThrow</a></code> handler (or another exception-throwing handler) explicitly. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that an object of type <code><a class="el" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a></code> can be used to temporarily set an exception-throwing handler within a <code>try</code> block, automatically restoring the previous handler when the <code>try</code> block exits (see "Usage Examples" below). </dd></dl>
@@ -326,7 +326,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The bottom line is that, unless clients of a library are compiled with (at least) the same level of assertion enabling as the library itself, not all of the library's defensive checking (for the assertion-level for which the library was compiled) will necessarily be incorporated into the client code. Similarly, compiling a client in a higher-level of defensive checking (e.g., "safe mode") than the library was compiled (e.g., "debug mode") may result in additional defensive checks beyond what the library author intended for the mode (e.g., "debug mode") in which the library was compiled. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that all build modes (except for when <code>BDE_BUILD_TARGET_SAFE_2</code> is defined, see below) are required to be binary compatible (e.g., fields cannot be added to the middle of a <code>struct</code>). Since a component's contract makes no explicit promise about what checking will occur, that contract is not violated when different parts of a program are compiled with different levels of assertion-enabling build options. The only consequence is that a smaller (or larger) number of defensive checks may be active than might otherwise be expected. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="conditional_compilation"></a> <a class="anchor" id="description.conditional_compilation"></a> <a class="anchor" id="4.6"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="conditional_compilation~3A_bde_build_target_safe_2_and_assertion_predicates"></a> <a class="anchor" id="description.conditional_compilation~3A_bde_build_target_safe_2_and_assertion_predicates"></a> <a class="anchor" id="conditional_compilation"></a> <a class="anchor" id="description.conditional_compilation"></a> <a class="anchor" id="4.6"></a> </dd></dl>
 <dl class="user"><dt><b>Conditional Compilation: BDE_BUILD_TARGET_SAFE_2 and Assertion Predicates: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>To recap, there are three (mutually compatible) general <em>build</em> <em>targets</em> <ul>
 <li>
@@ -525,7 +525,7 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="usage_examples.3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="description.usage_examples.3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="4.7.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="usage_examples.3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="description.usage_examples.3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="3._runtime_configuration_of_the_bsls"></a> <a class="anchor" id="usage_examples.3._runtime_configuration_of_the_bsls"></a> <a class="anchor" id="description.usage_examples.3._runtime_configuration_of_the_bsls"></a> <a class="anchor" id="4.7.3"></a> </dd></dl>
 <dl class="user"><dt><b>3. Runtime Configuration of the bsls::Assert Facility: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>By default, any assertion failure will result in the invocation of the <code><a class="el" href="classbsls_1_1Assert.html#a330f1589f484ad67d234454c1bc53966">bsls::Assert::failAbort</a></code> handler function. We can replace this behavior with that of one of the other static failure handler methods supplied in <code><a class="el" href="classbsls_1_1Assert.html">bsls::Assert</a></code> as follows. Let's assume we are at the top of our application called <code>myMain</code> (which would typically be <code>main</code>): <br/>
 <br/>
@@ -628,7 +628,7 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="usage_examples.5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="description.usage_examples.5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="4.7.5"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="usage_examples.5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="description.usage_examples.5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="5._using_the_bsls"></a> <a class="anchor" id="usage_examples.5._using_the_bsls"></a> <a class="anchor" id="description.usage_examples.5._using_the_bsls"></a> <a class="anchor" id="4.7.5"></a> </dd></dl>
 <dl class="user"><dt><b>5. Using the bsls::AssertFailureHandlerGuard: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Sometimes we may want to replace, temporarily (i.e., within some local lexical scope), the currently installed assertion-failure handler function. In particular, we sometimes use the <code><a class="el" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a></code> class to replace the current handler with one that throws an exception (because we know that such an exception is safe in the local context). Let's start with the simple factorial function below, which validates, in "debug mode" (or "safe mode"), that its input is non-negative: <br/>
 <br/>
@@ -1014,7 +1014,7 @@ For <code>BSLS_ASSERT_OPT</code>, use <code>BSLS_ASSERT_OPT_IS_ACTIVE</code>.  <
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

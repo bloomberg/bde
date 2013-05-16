@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_timeutil.h                                                    -*-C++-*-
@@ -80,6 +80,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // it has been enabled in the BIOS, these steps might reduce the resolution of
 // the &#39;bsls::TimeUtil&#39; high-resolution functions from the nanosecond range to
 // the microsecond range (or worse).
+//
+///Precision on Windows
+/// - - - - - - - - - -
+// Providing that the underlying timer is capable of reporting the
+// &#39;QueryPerformanceCounter&#39; interface, the nanosecond values reported by
+// &#39;getTimer&#39; or &#39;convertRawTime&#39; will be in the range (t - 2, t], where t is
+// the real (infinitely precise floating point) number of nanoseconds expressed
+// by the current raw timer count.
 //
 ///Usage
 ///-----
@@ -228,9 +236,9 @@ struct TimeUtil {
 #elif defined BSLS_PLATFORM_OS_AIX
     typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_HPUX
-    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM_OS_LINUX
-    typedef timespec                          OpaqueNativeTime;
+        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+        typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_UNIX
     typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_WINDOWS
@@ -293,7 +301,7 @@ struct TimeUtil {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

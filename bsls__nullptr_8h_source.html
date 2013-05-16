@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_nullptr.h                                                     -*-C++-*-
@@ -101,16 +101,18 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      TARGET_TYPE *d_target_p;    // wrapped pointer
 //      DeleterFn   *d_deleter_fn;  // deleter function
 //
-//      // Objects of this type cannot be copied.
-//      ScopedPointer(const ScopedPointer&amp;);
-//      ScopedPointer&amp; operator=(const ScopedPointer&amp;);
-//
 //      template&lt;class SOURCE_TYPE&gt;
 //      static void defaultDeleteFn(TARGET_TYPE *ptr);
 //          // Destroy the specified &#39;*ptr&#39; by calling &#39;delete&#39; on the pointer
 //          // cast to the parameterized &#39;SOURCE_TYPE*&#39;.  It is an error to
 //          // instantiate this template with a &#39;SOURCE_TYPE&#39; that is not
 //          // derived from (and cv-compatible with) &#39;TARGET_TYPE&#39;.
+//
+//     private:
+//      // NOT IMPLEMENTED
+//      ScopedPointer(const ScopedPointer&amp;);
+//      ScopedPointer&amp; operator=(const ScopedPointer&amp;);
+//          // Objects of this type cannot be copied.
 //
 //    public:
 //      template&lt;class SOURCE_TYPE&gt;
@@ -181,6 +183,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_compilerfeatures.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 #  if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     // We currently know of no platform that supports &#39;nullptr&#39; and does not
@@ -193,7 +199,16 @@ namespace bsl
 {
     // We must define this &#39;typedef&#39; appropriately for platforms that support
     // &#39;nullptr&#39; to avoid accidental clashes in &#39;BSL_OVERRIDES_STD&#39; mode.
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; defined(__cplusplus_cli)
+    // MSVC in /clr mode defines &#39;nullptr&#39; as the .NET null pointer type, which
+    // is different from C++11 &#39;nullptr&#39;.  To resolve this conflict MSVC
+    // provides &#39;__nullptr&#39; for C++11 &#39;nullptr&#39;.
+
+    typedef decltype(__nullptr) nullptr_t;
+#else
     typedef decltype(nullptr) nullptr_t;
+#endif
 }
 #  endif
 #else
@@ -233,7 +248,7 @@ namespace bsl
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

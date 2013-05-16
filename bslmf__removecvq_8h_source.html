@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_removecvq.h                                                  -*-C++-*-
@@ -43,16 +43,16 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // First, we create a template that will determine whether two objects are
 // EXACTLY the same type:
 //..
-//  template &lt;typename TYPE&gt;
+//  template &lt;class TYPE&gt;
 //  bool isSame(TYPE&amp; a, TYPE&amp; b) { return true; }
-//  template &lt;typename TYPEA, typename TYPEB&gt;
+//  template &lt;class TYPEA, class TYPEB&gt;
 //  bool isSame(TYPEA&amp; a, TYPEB&amp; b) { return false; }
 //..
 // Next, we combine that template function with the use of &#39;bslmf::RemoveCvq&#39;
 // to create a template that will determine whether two objects are the same
 // type, ignoring &#39;const&#39; and &#39;volatile&#39; qualifiers:
 //..
-//  template &lt;typename TYPEA, typename TYPEB&gt;
+//  template &lt;class TYPEA, class TYPEB&gt;
 //  bool isSortaSame(TYPEA&amp; a, TYPEB&amp; b)
 //  {
 //      typename bslmf::RemoveCvq&lt;TYPEA&gt;::Type aa = a;
@@ -106,44 +106,11 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template &lt;typename TYPE&gt;
-struct Remove_NonCvPointer
-{
-    typedef TYPE Type;
-};
-
-template &lt;typename TYPE&gt;
-struct Remove_NonCvPointer&lt;TYPE *&gt;
-{
-    typedef TYPE Type;
-};
-
-                              // ================
-                              // struct RemoveCvq
-                              // ================
-
-template &lt;typename TYPE&gt;
-struct RemovePtrCvq
-    // This class implements a meta-function for stripping &#39;const&#39; and
-    // &#39;volatile&#39; qualifiers from the type pointed to by it&#39;s parameter type.
-    // It also returns, in &#39;ValueType&#39;, the (non-cvq) type pointed to by its
-    // parameter.  This class has no body -- it is specialized below for
-    // pointers to const, volatile, and const volatile.  IMPLEMENTATION NOTE:
-    // The Sun Workshop 6 C++ 5.2 compiler works with these pointer
-    // specializations, but does not work with direct specialization on T, T
-    // const, and T volatile.  Thus, &#39;RemoveCvq&#39;, below, is implemented
-    // indirectly in terms of &#39;RemovePtrCvq&#39;.
-{
-    typedef typename bsl::remove_cv&lt;TYPE&gt;::type                      Type;
-    typedef typename Remove_NonCvPointer&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;::Type
-                                                                     ValueType;
-};
-
                            // ================
                            // struct RemoveCvq
                            // ================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct RemoveCvq
 {
     // This class implements a meta-function for stripping top-level
@@ -160,7 +127,7 @@ struct RemoveCvq
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

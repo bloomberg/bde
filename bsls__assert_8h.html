@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls_assert.h Reference</title>
+<title>BDE 2.17 Oss1: bsls_assert.h Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -89,7 +89,7 @@ Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__assert_8h.html#a7a7cd109b2052981d1e0cef6747a190b">BSLS_ASSERT_OPT_IS_ACTIVE</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__assert_8h.html#a68505741fd0625240b1fbd8c9f40643c">BSLS_ASSERT_OPT</a>(X)&nbsp;&nbsp;&nbsp;BSLS_ASSERT_ASSERT(X)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__assert_8h.html#a1d287944fb60ea0df341a570f1c471d9">BSLS_ASSERT_NORETURN</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__assert_8h.html#ac6385a114b755e5e66cdbfbe1f070970">INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__assert_8h.html#a842c33f4f814492b6821f35e93bd2040">RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__assert_8h.html#ab426254582518f3b9f1f08bec9a30667">BSLS_ASSERT_NORETURN_INVOKE_HANDLER</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
@@ -213,7 +213,7 @@ Defines</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>Referenced by <a class="el" href="structbslma_1_1DeleterHelper.html#a73d13e65b0bdc0021e7b0d331e1b64fe">bslma::DeleterHelper::deleteObject()</a>, and <a class="el" href="group__bslstl__stringbuf.html#ga0d846e2e9a94826c08dfa06c93f6e97e">bsl::basic_stringbuf&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::seekoff()</a>.</p>
+<p>Referenced by <a class="el" href="structbslma_1_1DeleterHelper.html#a73d13e65b0bdc0021e7b0d331e1b64fe">bslma::DeleterHelper::deleteObject()</a>, <a class="el" href="group__bslstl__stringbuf.html#ga0d846e2e9a94826c08dfa06c93f6e97e">bsl::basic_stringbuf&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::seekoff()</a>, and <a class="el" href="classbslma_1_1ExceptionGuard.html#a4bf1a6083709ef71eef0c3b6a1a0a413">bslma::ExceptionGuard&lt; OBJECT &gt;::~ExceptionGuard()</a>.</p>
 
 </div>
 </div>
@@ -230,12 +230,12 @@ Defines</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac6385a114b755e5e66cdbfbe1f070970"></a><!-- doxytag: member="bsls_assert.h::INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD" ref="ac6385a114b755e5e66cdbfbe1f070970" args="" -->
+<a class="anchor" id="a842c33f4f814492b6821f35e93bd2040"></a><!-- doxytag: member="bsls_assert.h::RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD" ref="a842c33f4f814492b6821f35e93bd2040" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD</td>
+          <td class="memname">#define RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD</td>
         </tr>
       </table>
 </div>
@@ -257,7 +257,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:39 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:03 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

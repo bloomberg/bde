@@ -1,9 +1,9 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
-// bslmf_detectnestedtrait.h                  -*-C++-*-
+// bslmf_detectnestedtrait.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #define INCLUDED_BSLMF_DETECTNESTEDTRAIT
 
@@ -24,16 +24,28 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///Usage
 ///-----
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include &lt;bslmf_isconvertible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
+#include &lt;bslmf_isconvertibletoany.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include &lt;bslmf_matchanytype.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include &lt;bslmf_nestedtraitdeclaration.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include &lt;bslmf_integralconstant.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -65,10 +77,16 @@ class DetectNestedTrait_Imp {
     DetectNestedTrait_Imp(const DetectNestedTrait_Imp&amp;);
     ~DetectNestedTrait_Imp();
 
+    enum {
+        CONVERTIBLE_TO_NESTED_TRAIT = sizeof(check(TypeRep&lt;TYPE&gt;::rep(), 0))
+                                      == sizeof(char),
+        CONVERTIBLE_TO_ANY_TYPE     = IsConvertibleToAny&lt;TYPE&gt;::value
+    };
+
   public:
     // PUBLIC CONSTANTS
 
-    enum { VALUE = (1 == sizeof(check(TypeRep&lt;TYPE&gt;::rep(), 0))) };
+    enum { VALUE = CONVERTIBLE_TO_NESTED_TRAIT &amp;&amp; !CONVERTIBLE_TO_ANY_TYPE };
         // Non-zero if &#39;TRAIT&#39; is associated with &#39;TYPE&#39; using the nested type
         // trait mechanism; otherwise zero.
 
@@ -76,6 +94,14 @@ class DetectNestedTrait_Imp {
         // Type representing the result of this metafunction.  Equivalent to
         // &#39;true_type&#39; if &#39;TRAIT&#39; is associated with &#39;TYPE&#39; using the nested
         // type trait mechanism; otherwise &#39;false_type&#39;.
+};
+
+template &lt;template &lt;class T&gt; class TRAIT&gt;
+struct DetectNestedTrait_Imp&lt;void, TRAIT&gt; {
+    // Implementation of &#39;DetectNestedTrait&#39; for &#39;void&#39; type.  Short-circuits
+    // to &#39;bsl::false_type&#39; because &#39;void&#39; can&#39;t have any nested traits.
+
+    typedef bsl::false_type Type;
 };
 
 template &lt;class TYPE, template &lt;class T&gt; class TRAIT&gt;
@@ -94,7 +120,7 @@ struct DetectNestedTrait : DetectNestedTrait_Imp&lt;TYPE, TRAIT&gt;::Type {
 #endif // ! defined(INCLUDED_BSLMF_DETECTNESTEDTRAIT)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

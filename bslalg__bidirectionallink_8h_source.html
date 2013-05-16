@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_bidirectionallink.h                                         -*-C++-*-
@@ -22,7 +22,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@DESCRIPTION: This component provides a single POD-like class,
 // &#39;BidirectionalLink&#39;, used to represent a node in a doubly-linked list.  A
 // &#39;BidirectionalLink&#39; provides the address to its preceding node, and the
-// address of it successor node.  A null-pointer value for either address
+// address of its successor node.  A null-pointer value for either address
 // signifies the end of the list.  &#39;BidirectionalLink&#39; does not, however,
 // contain &quot;payload&quot; data (e.g., a value), as it is intended to work with
 // generalized list operations (see &#39;bslalg_bidirectionallinklistutil&#39;).
@@ -44,7 +44,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // First, we create the &#39;MyNode&#39; class, which derives from the
 // BidirectionalLink class to carry a &#39;PAYLOAD&#39; object.
 //..
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  class MyNode : public bslalg::BidirectionalLink {
 //    public:
 //      // PUBLIC TYPES
@@ -82,7 +82,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                              // MyList_Iterator
 //                              // ===============
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  class MyList_Iterator {
 //      // PRIVATE TYPES
 //      typedef MyNode&lt;PAYLOAD&gt; Node;
@@ -91,7 +91,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      Node *d_node;
 //
 //      // FRIENDS
-//      template &lt;typename PL&gt;
+//      template &lt;class PL&gt;
 //      friend bool operator==(MyList_Iterator&lt;PL&gt;,
 //                             MyList_Iterator&lt;PL&gt;);
 //
@@ -114,13 +114,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Then, we define our &#39;MyList&#39; class, with &#39;MyList::Iterator&#39; being a public
 // typedef of &#39;MyList_Iterator&#39;.  For brevity, we will omit a lot of
 // functionality that a full, general-purpose list class would have,
-// implementing only what we will need for this example.
+// implmenting only what we will need for this example.
 //..
 //                                  // ======
 //                                  // MyList
 //                                  // ======
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  class MyList {
 //      // PRIVATE TYPES
 //      typedef MyNode&lt;PAYLOAD&gt; Node;
@@ -139,10 +139,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //    public:
 //      // CREATORS
 //      explicit
-//      MyList(bslma::Allocator *basicAllocator)
+//      MyList(bslma::Allocator *basicAllocator = 0)
 //      : d_begin(0)
 //      , d_end(0)
-//      , d_allocator_p(basicAllocator)
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {}
 //
 //      ~MyList();
@@ -154,21 +154,21 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      void popBack();
 //  };
 //..
-// Next, we implement the functions for the iterator type.
+// Next, we implment the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator
 //                              // ---------------
 //
 //  // MANIPULATORS
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  MyList_Iterator&lt;PAYLOAD&gt; MyList_Iterator&lt;PAYLOAD&gt;::operator++()
 //  {
 //      d_node = (Node *) d_node-&gt;nextLink();
 //      return *this;
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  inline
 //  bool operator==(MyList_Iterator&lt;PAYLOAD&gt; lhs,
 //                  MyList_Iterator&lt;PAYLOAD&gt; rhs)
@@ -176,52 +176,54 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      return lhs.d_node == rhs.d_node;
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  inline
 //  bool operator!=(MyList_Iterator&lt;PAYLOAD&gt; lhs,
 //                  MyList_Iterator&lt;PAYLOAD&gt; rhs)
 //  {
 //      return !(lhs == rhs);
 //  }
-//
+//..
 // Then, we implement the functions for the &#39;MyList&#39; class:
-//
+//..
 //                                  // ------
 //                                  // MyList
 //                                  // ------
 //
 //  // CREATORS
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  MyList&lt;PAYLOAD&gt;::~MyList()
 //  {
 //      for (Node *p = d_begin; p; ) {
-//          Node *condemned = p;
+//          Node *toDelete = p;
 //          p = (Node *) p-&gt;nextLink();
 //
-//          d_allocator_p-&gt;deleteObjectRaw(condemned);
+//          d_allocator_p-&gt;deleteObjectRaw(toDelete);
 //      }
 //  }
 //
 //  // MANIPULATORS
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  typename MyList&lt;PAYLOAD&gt;::Iterator MyList&lt;PAYLOAD&gt;::begin()
 //  {
 //      return Iterator(d_begin);
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  typename MyList&lt;PAYLOAD&gt;::Iterator MyList&lt;PAYLOAD&gt;::end()
 //  {
 //      return Iterator(0);
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  void MyList&lt;PAYLOAD&gt;::pushBack(const PAYLOAD&amp; value)
 //  {
 //      Node *node = (Node *) d_allocator_p-&gt;allocate(sizeof(Node));
 //      node-&gt;setNextLink(0);
 //      node-&gt;setPreviousLink(d_end);
-//      new (&amp;node-&gt;value()) ValueType(value);
+//      bslalg::ScalarPrimitives::copyConstruct(&amp;node-&gt;value(),
+//                                              value,
+//                                              d_allocator_p);
 //
 //      if (d_end) {
 //          BSLS_ASSERT_SAFE(d_begin);
@@ -236,15 +238,15 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      }
 //  }
 //
-//  template &lt;typename PAYLOAD&gt;
+//  template &lt;class PAYLOAD&gt;
 //  void MyList&lt;PAYLOAD&gt;::popBack()
 //  {
 //      BSLS_ASSERT_SAFE(d_begin &amp;&amp; d_end);
 //
-//      Node *condemned = d_end;
+//      Node *toDelete = d_end;
 //      d_end = (Node *) d_end-&gt;previousLink();
 //
-//      if (d_begin != condemned) {
+//      if (d_begin != toDelete) {
 //          BSLS_ASSERT_SAFE(0 != d_end);
 //          d_end-&gt;setNextLink(0);
 //      }
@@ -253,66 +255,35 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          d_begin = 0;
 //      }
 //
-//      condemned-&gt;value().~ValueType();
-//      d_allocator_p-&gt;deallocate(condemned);
+//      d_allocator_p-&gt;deleteObject(toDelete);
 //  }
 //..
-// Next, we have finished implementing our &#39;MyList&#39; class and its &#39;Iterator&#39;
-// type, we will use one to store a fibonacci sequence of ints.  In &#39;main&#39;,
-// We declare the memory allocator that we will use:
+// Next, in &#39;main&#39;, we use our &#39;MyList&#39; class to store a list of ints:
 //..
-//          bslma::TestAllocator oa(&quot;oa&quot;);
+//  MyList&lt;int&gt; intList;
 //..
-// Then, we enter a block and declare our list &#39;fibonacciList&#39; to contain the
-// sequence:
+// Then, we declare an array of ints to populate it with:
 //..
-//          {
-//              MyList&lt;int&gt; fibonacciList(&amp;oa);
-//              typedef MyList&lt;int&gt;::Iterator Iterator;
-//
-//              {
+//  int intArray[] = { 8, 2, 3, 5, 7, 2 };
+//  enum { NUM_INTS = sizeof intArray / sizeof *intArray };
 //..
-// Next, we initialize the list to containing the first 2 values, &#39;0&#39; and &#39;1&#39;:
+// Now, we iterate, pushing ints to the list:
 //..
-//                  fibonacciList.pushBack(0);
-//                  fibonacciList.pushBack(1);
+//  for (const int *pInt = intArray; pInt &lt; intArray + NUM_INTS; ++pInt) {
+//      intList.pushBack(*pInt);
+//  }
 //..
-// Then, we create iterators &#39;first&#39; and &#39;second&#39; and point them to those first
-// two elements:
+// Finally, we use our &#39;Iterator&#39; type to traverse the list and observe its
+// values:
 //..
-//                  Iterator first  = fibonacciList.begin();
-//                  Iterator second = first;
-//                  ++second;
-//
-//                  assert(0 == *first);
-//                  assert(1 == *second);
-//..
-// Next, we iterate a dozen times, each time adding a new element to the end of
-// the list containing a value that is the sum of the values of the previous
-// two elements:
-//..
-//                  for (int i = 0; i &lt; 12; ++i, ++first, ++second) {
-//                      fibonacciList.pushBack(*first + *second);
-//                  }
-//              }
-//..
-// Now, we traverse the list and print out its elements:
-//..
-//              if (verbose) printf(&quot;Fibonacci Numbers: &quot;);
-//
-//              const Iterator begin = fibonacciList.begin();
-//              const Iterator end   = fibonacciList.end();
-//              for (Iterator it = begin; end != it; ++it) {
-//                  if (verbose) printf(&quot;%s%d&quot;, begin == it ? &quot;&quot; : &quot;, &quot;, *it);
-//              }
-//              if (verbose) printf(&quot;\n&quot;);
-//          }
-//..
-// Finally, we check the allocator and verify that it&#39;s been used, and that
-// the destruction of &#39;fibonacciList&#39; freed all the memory allocated:
-//..
-//          assert(oa.numBlocksTotal() &gt; 0);
-//          assert(0 == oa.numBlocksInUse());
+//  MyList&lt;int&gt;::Iterator it = intList.begin();
+//  assert(8 == *it);
+//  assert(2 == *++it);
+//  assert(3 == *++it);
+//  assert(5 == *++it);
+//  assert(7 == *++it);
+//  assert(2 == *++it);
+//  assert(intList.end() == ++it);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -430,7 +401,7 @@ BidirectionalLink *BidirectionalLink::previousLink() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

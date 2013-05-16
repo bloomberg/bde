@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslstl_stack Component</title>
+<title>BDE 2.17 Oss1: bslstl_stack Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -83,7 +83,7 @@ Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef CONTAINER&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#ga349ea093959cdd009cf54d94a812a5f6">bsl::stack::container_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__bslstl__stack.html#gga3f880ef45e5d2dd496dac8d142b59f0ca0b5c74707a1b1c1f24870cd4db679d19">bsl::Stack_HasAllocatorType::VALUE</a> =  (1 == sizeof(match&lt;CONTAINER&gt;(0)))
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__bslstl__stack.html#gga5dc3af044e5f81c4edfcb855c61e2ff2a0b5c74707a1b1c1f24870cd4db679d19">bsl::Stack_HasAllocatorType::VALUE</a> =  (1 == sizeof(match&lt;CONTAINER&gt;(0)))
  }</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -227,7 +227,7 @@ std::swap(CONTAINER&amp;, CONTAINER&amp;) must work  </li>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma-style_allocators"></a> <a class="anchor" id="description.bslma-style_allocators"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>bslma-Style Allocators: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The constructors of this class take, as optional parameters, allocators of the object's parameterized <code>CONTAINER::allocator_type</code> type, and allocators of this type are propagated to all constructors of the underlying container. In the case of container types <code><a class="el" href="classbsl_1_1deque.html">bsl::deque</a></code> (the default type), <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code>, and <code><a class="el" href="classbsl_1_1list.html">bsl::list</a></code>, <code>CONTAINER::allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> which is implicitly convertible from <code>bslma_Allocator *</code>, and which can be converted to a <code>bslma_Allocator *</code> through the <code>mechanism</code> accessor. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Hence if the underlying container takes <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then the <code>stack</code> object can take <code>bslma_Allocator *</code>s to supply memory allocation. If no allocator is specified, <code>allocator()</code> is used, which winds up using <code>bslma_Default::allocator(0)</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Hence if the underlying container takes <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then the <code>stack</code> object can take <code>bslma_Allocator *</code>s to supply memory allocation. If no allocator is specified, <code>allocator()</code> is used, which winds up using <code>bslma::Default::allocator(0)</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="operations"></a> <a class="anchor" id="description.operations"></a> <a class="anchor" id="3.5"></a> </dd></dl>
 <dl class="user"><dt><b>Operations: </b></dt><dd></dd></dl>
@@ -295,7 +295,7 @@ std::swap(CONTAINER&amp;, CONTAINER&amp;) must work  </li>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.6.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_household_chores_to_do_list"></a> <a class="anchor" id="usage.example_1~3A_household_chores_to_do_list"></a> <a class="anchor" id="description.usage.example_1~3A_household_chores_to_do_list"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.6.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Household Chores To Do List: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose a husband wants to keep track of chores his wife has asked him to do. Over the years of being married, he has noticed that his wife generally wants the most recently requested task done first. If she has a new task in mind that is low-priority, she will avoid asking for it until higher priority tasks are finished. When he has finished all tasks, he is to report to his wife that he is ready for more. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define the class implementing the <code>to-do</code> list. <br/>
@@ -460,7 +460,7 @@ template&lt;class VALUE , class CONTAINER  = deque&lt;VALUE&gt;&gt; </div>
 </div>
 </div>
 <hr/><h2>Enumeration Type Documentation</h2>
-<a class="anchor" id="ga3f880ef45e5d2dd496dac8d142b59f0c"></a><!-- doxytag: member="bsl::Stack_HasAllocatorType::@111" ref="ga3f880ef45e5d2dd496dac8d142b59f0c" args="" -->
+<a class="anchor" id="ga5dc3af044e5f81c4edfcb855c61e2ff2"></a><!-- doxytag: member="bsl::Stack_HasAllocatorType::@112" ref="ga5dc3af044e5f81c4edfcb855c61e2ff2" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -473,7 +473,7 @@ template&lt;class CONTAINER &gt; </div>
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="gga3f880ef45e5d2dd496dac8d142b59f0ca0b5c74707a1b1c1f24870cd4db679d19"></a><!-- doxytag: member="VALUE" ref="gga3f880ef45e5d2dd496dac8d142b59f0ca0b5c74707a1b1c1f24870cd4db679d19" args="" -->VALUE</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="gga5dc3af044e5f81c4edfcb855c61e2ff2a0b5c74707a1b1c1f24870cd4db679d19"></a><!-- doxytag: member="VALUE" ref="gga5dc3af044e5f81c4edfcb855c61e2ff2a0b5c74707a1b1c1f24870cd4db679d19" args="" -->VALUE</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -1265,7 +1265,7 @@ template&lt;class VAL , class CONT &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:43 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

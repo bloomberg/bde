@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslalg_functoradapter.h                                            -*-C++-*-
@@ -211,7 +211,7 @@ class FunctorAdapter&lt;FUNCTION*&gt; {
     // functor that delegates to a function pointer matching the parameterized
     // &#39;FUNCTION&#39; type.
 
-    BSLMF_ASSERT(bslmf::IsFunctionPointer&lt;FUNCTION*&gt;::VALUE);
+    BSLMF_ASSERT(bslmf::IsFunctionPointer&lt;FUNCTION*&gt;::value);
         // This &#39;BSLMF_ASSERT&#39; statement ensures that the parameter &#39;FUNCTION&#39;
         // must be a function pointer.
 
@@ -266,7 +266,7 @@ FunctorAdapter_FunctionPointer&lt;FUNCTION_POINTER&gt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

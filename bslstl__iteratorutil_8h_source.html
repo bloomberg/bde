@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_iteratorutil.h                                              -*-C++-*-
@@ -20,21 +20,42 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@SEE_ALSO: bslstl_hashtable
 //
 //@DESCRIPTION: This component provides a namespace, &#39;bslstl::IteratorUtil&#39;,
-// containing utility functions for iterator types.  In particular this
-// component includes a function &#39;insertDistance&#39; that returns the the
-// number of elements that should be accounted for when range-inserting in a
+// containing utility functions for iterator types.  In particular, this
+// component includes a function &#39;insertDistance&#39; that returns the the number
+// of elements that should be accounted for when range-inserting in a
 // container, given a pair of iterator &#39;a&#39; and &#39;b&#39; describing a half-open range
 // &#39;[a,b)&#39;.
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Finding the Distance Between Two Random Access Iterators
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to find the number of elements between two random access
+// iterators.
+//
+// First, we create an array of integer values and two pointers (which are
+// considered random access iterators) referring to the beginning and end of a
+// range within that array:
+//..
+//  int values[] = { 1, 2, 3, 4, 5 };
+//  int *begin = &amp;values[0];
+//  int *end   = &amp;values[3];
+//..
+// Now, we use the &#39;IteratorUtil::insertDistance&#39; class method to calculate the
+// distance of the open range [&#39;begin&#39;, &#39;end&#39;):
+//..
+//  std::size_t distance = IteratorUtil::insertDistance(begin, end);
+//  assert(3 == distance);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
-#include &lt;bslstl_iterator.h&gt;  // iterator tags
+#include &lt;bslstl_iterator.h&gt;  // iterator tags, distance
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -43,11 +64,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include &lt;bsls_platform.h&gt;
-#endif
-
-#ifndef INCLUDED_ALGORITHM
-#include &lt;algorithm&gt;
-#define INCLUDED_ALGORITHM
 #endif
 
 namespace BloombergLP {
@@ -61,13 +77,19 @@ struct IteratorUtil {
     // This utility struct provides a namespace for functions on iterators and
     // iterator ranges.
 
-    // generic utility that needs a non-template hosted home
     template &lt;class InputIterator&gt;
-    static native_std::size_t insertDistance(InputIterator first,
-                                             InputIterator last);
-        // Return 0 if InputIterator really is limited to the standard
-        // input-iterator category, otherwise return the distance from first
-        // to last.
+    static typename bsl::iterator_traits&lt;InputIterator&gt;::difference_type
+    insertDistance(InputIterator first, InputIterator last);
+        // Return 0 if the (template parameter) type &#39;InputIterator&#39; is limited
+        // to the standard input-iterator category, otherwise return the number
+        // of elements that is reachable from the specified &#39;first&#39; to (but not
+        // including) the specified &#39;last&#39;.  The behavior is undefined unless
+        // &#39;last&#39; is reachable from &#39;first&#39;.  This function has a constant-time
+        // complexity if the iterator category of &#39;InputIterator&#39; is a strictly
+        // a standard input iterator, or is a random access iterator, otherwise
+        // it is linear in the length of the range [&#39;first&#39;, &#39;last&#39;).  Note
+        // that this function always returns 0 when compiled with the Sun
+        // compiler, while we work around issues in the Sun standard library.
 };
 
 // ============================================================================
@@ -79,39 +101,35 @@ struct IteratorUtil {
                     // ------------------
 
 template &lt;class InputIterator&gt;
-native_std::size_t IteratorUtil::insertDistance(InputIterator first,
-                                                InputIterator last)
+typename bsl::iterator_traits&lt;InputIterator&gt;::difference_type
+IteratorUtil::insertDistance(InputIterator first, InputIterator last)
 {
-#if defined(BSLS_PLATFORM__CMP_SUN)
-    // Need to work around Sun library broken treatment of iterator tag
-    // dispatch.
-    return 0;
-#else
     struct impl {
         // This local class provides a utility to estimate the maximum
         // number of elements that may be inserted by a range-insert
         // operation on a standard container, by performing tag dispatch
         // on the iterator&#39;s category type.
 
-        static native_std::size_t calc(InputIterator, // first
-                                       InputIterator, // last
-                                       native_std::input_iterator_tag)
+        static
+        typename bsl::iterator_traits&lt;InputIterator&gt;::difference_type
+        calc(InputIterator, InputIterator, native_std::input_iterator_tag)
         {
             return 0;
         }
 
-        static native_std::size_t calc(InputIterator first,
-                                       InputIterator last,
-                                       native_std::forward_iterator_tag)
+        static
+        typename bsl::iterator_traits&lt;InputIterator&gt;::difference_type
+        calc(InputIterator first,
+             InputIterator last,
+             native_std::forward_iterator_tag)
         {
-            return native_std::distance(first, last);
+            return bsl::distance(first, last);
         }
     };
 
     typedef typename bsl::iterator_traits&lt;InputIterator&gt;::iterator_category
                                                                   IterCategory;
     return impl::calc(first, last, IterCategory());
-#endif
 }
 
 }  // close package namespace
@@ -120,7 +138,7 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslstl_hash Component</title>
+<title>BDE 2.17 Oss1: bslstl_hash Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -69,8 +69,6 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01hash_3_01TYPE_01_4_01_4.html">bsl::is_trivially_default_constructible&lt; hash&lt; TYPE &gt; &gt;</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1is__trivially__copyable_3_01hash_3_01TYPE_01_4_01_4.html">bsl::is_trivially_copyable&lt; hash&lt; TYPE &gt; &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1hash_3_01const_01BSLSTL__KEY_01_4.html">bsl::hash&lt; const BSLSTL_KEY &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1hash_3_01TYPE_01_5_01_4.html">bsl::hash&lt; TYPE * &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1hash_3_01bool_01_4.html">bsl::hash&lt; bool &gt;</a></td></tr>
@@ -207,7 +205,13 @@ Functions</h2></td></tr>
 <li>
 <a href="#3.1">Standard Hash Function</a> </li>
 <li>
-<a href="#3.2">Usage</a> </li>
+<a href="#3.2">Usage</a> <ul>
+<li>
+<a href="#3.2.1">Example 1: Creating and Using a Hash Cross Reference</a> </li>
+<li>
+<a href="#3.2.2">Example 2: Using Our Hash Cross Reference For a Custom Class</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -246,7 +250,303 @@ The function should not modify it's argument.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component is for use by the <code>bsl+stdhdrs</code> package. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended usage of this component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_and_using_a_hash_cross_reference"></a> <a class="anchor" id="usage.example_1~3A_creating_and_using_a_hash_cross_reference"></a> <a class="anchor" id="description.usage.example_1~3A_creating_and_using_a_hash_cross_reference"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Creating and Using a Hash Cross Reference: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose we already have an array of unique values of type <code>TYPE</code>, for which <code>operator==</code> is defined, and we want to be able to quickly look up whether an element is in the array, without exhaustively applying <code>operator==</code> to all the elements in sequence. The array itself is guaranteed not to change for the duration of our interest in it. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The problem is much simpler than building a general-purpose hash table, because we know how many elements our cross reference will contain in advance, so we will never have to dynamically grow the number of <code>buckets</code>. We do not need to copy the values into our own area, so we don't have to create storage for them, or require that a copy constructor or destructor be available. We only require that they have a transitive, symmetric equivalence operation <code>bool operator==</code> and that a hash function be provided. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>We will need a hash function -- the hash function is a function that will take as input an object of the type stored in our array, and yield a <code>size_t</code> value which will be very randomized. Ideally, the slightest change in the value of the <code>TYPE</code> object will result in a large change in the value returned by the hash function. In a good hash function, typically half the bits of the return value will change for a 1-bit change in the hashed value. We then use the result of the hash function to index into our array of <code>buckets</code>. Each <code>bucket</code> is simply a pointer to a value in our original array of <code>TYPE</code> objects. We will resolve hash collisions in our array through <code>linear probing</code>, where we will search consecutive buckets following the bucket where the collision occurred, testing occupied buckets for equality with the value we are searching on, and concluding that the value is not in the table if we encounter an empty bucket before we encounter one referring to an equal element. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An important quality of the hash function is that if two values are equivalent, they must yield the same hash value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we define our <code>HashCrossReference</code> template class, with the two type parameters <code>TYPE" (the type being referenced</code> and <code>HASHER</code>, which defaults to <code>bsl::hash&lt;TYPE&gt;</code>. For common types of <code>TYPE</code> such as <code>int</code>, a specialization of <code>bsl::hash</code> is already defined: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE, <span class="keyword">class</span> HASHER = bsl::hash&lt;TYPE&gt; &gt;
+  <span class="keyword">class </span>HashCrossReference {
+      <span class="comment">// This table leverages a hash table to provide a fast lookup of an</span>
+      <span class="comment">// external, non-owned, array of values of configurable type.</span>
+      <span class="comment">//</span>
+      <span class="comment">// The only requirement for &#39;TYPE&#39; is that it have a transitive,</span>
+      <span class="comment">// symmetric &#39;operator==&#39; function.  There is no requirement that it</span>
+      <span class="comment">// have any kind of creator defined.</span>
+      <span class="comment">//</span>
+      <span class="comment">// The &#39;HASHER&#39; template parameter type must be a functor with a</span>
+      <span class="comment">// function of the following signature:</span>
+      <span class="comment">//..</span>
+      <span class="comment">//  size_t operator()(const TYPE)  const; or</span>
+      <span class="comment">//  size_t operator()(const TYPE&amp;) const; or</span>
+      <span class="comment">//..</span>
+      <span class="comment">// and &#39;HASHER&#39; must have a publicly available default constructor and</span>
+      <span class="comment">// destructor.</span>
+
+      <span class="comment">// DATA</span>
+      <span class="keyword">const</span> TYPE       *d_values;             <span class="comment">// Array of values table is to</span>
+                                              <span class="comment">// cross-reference.  Held, not</span>
+                                              <span class="comment">// owned.</span>
+      <span class="keywordtype">size_t</span>            d_numValues;          <span class="comment">// Length of &#39;d_values&#39;.</span>
+      <span class="keyword">const</span> TYPE      **d_bucketArray;        <span class="comment">// Contains ptrs into</span>
+                                              <span class="comment">// &#39;d_values&#39;</span>
+      <span class="keywordtype">unsigned</span>          d_bucketArrayMask;    <span class="comment">// Will always be &#39;2^N - 1&#39;.</span>
+      HASHER            d_hasher;
+      <span class="keywordtype">bool</span>              d_valid;              <span class="comment">// Object was properly</span>
+                                              <span class="comment">// initialized.</span>
+      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator_p;        <span class="comment">// held, not owned</span>
+
+    <span class="keyword">private</span>:
+      <span class="comment">// PRIVATE ACCESSORS</span>
+      <span class="keywordtype">bool</span> lookup(<span class="keywordtype">size_t</span>      *idx,
+                  <span class="keyword">const</span> TYPE&amp;  value,
+                  <span class="keywordtype">size_t</span>       hashValue) <span class="keyword">const</span>
+          <span class="comment">// Look up the specified &#39;value&#39;, having hash value &#39;hashValue&#39;,</span>
+          <span class="comment">// and return its index in &#39;d_bucketArray&#39;.  If not found, return</span>
+          <span class="comment">// the vacant entry in &#39;d_bucketArray&#39; where it should be inserted.</span>
+          <span class="comment">// Return &#39;true&#39; if &#39;value is found and &#39;false&#39; otherwise.</span>
+      {
+          <span class="keyword">const</span> TYPE *ptr;
+          <span class="keywordflow">for</span> (*idx = hashValue &amp; d_bucketArrayMask;
+                                (ptr = d_bucketArray[*idx]);
+                                     *idx = (*idx + 1) &amp; d_bucketArrayMask) {
+              <span class="keywordflow">if</span> (value == *ptr) {
+                  <span class="keywordflow">return</span> <span class="keyword">true</span>;                                      <span class="comment">// RETURN</span>
+              }
+          }
+          <span class="comment">// value was not found in table</span>
+
+          <span class="keywordflow">return</span> <span class="keyword">false</span>;
+      }
+
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      HashCrossReference(<span class="keyword">const</span> TYPE       *valuesArray,
+                         <span class="keywordtype">size_t</span>            numValues,
+                         <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator = 0)
+          <span class="comment">// Create a hash cross reference referring to the array of value.</span>
+      : d_values(valuesArray)
+      , d_numValues(numValues)
+      , d_hasher()
+      , d_valid(true)
+      , d_allocator_p(bslma::Default::allocator(allocator))
+      {
+          <span class="keywordtype">size_t</span> bucketArrayLength = 4;
+          <span class="keywordflow">while</span> (bucketArrayLength &lt; numValues * 4) {
+              bucketArrayLength *= 2;
+              <a class="code" href="bsls__assert_8h.html#a68505741fd0625240b1fbd8c9f40643c">BSLS_ASSERT_OPT</a>(bucketArrayLength);
+          }
+          d_bucketArrayMask = bucketArrayLength - 1;
+          d_bucketArray = (<span class="keyword">const</span> TYPE **) d_allocator_p-&gt;allocate(
+                                        bucketArrayLength * <span class="keyword">sizeof</span>(TYPE **));
+          memset(d_bucketArray,  0, bucketArrayLength * <span class="keyword">sizeof</span>(TYPE *));
+
+          <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; numValues; ++i) {
+              <span class="keyword">const</span> TYPE&amp; value = d_values[i];
+              <span class="keywordtype">size_t</span> idx;
+              <span class="keywordflow">if</span> (lookup(&amp;idx, value, d_hasher(value))) {
+                  <span class="comment">// Duplicate value.  Fail.</span>
+
+                  printf(<span class="stringliteral">&quot;Error: entries %u and %u have the same value\n&quot;</span>,
+                              i, (<span class="keywordtype">unsigned</span>) (d_bucketArray[idx] - d_values));
+                  d_valid = <span class="keyword">false</span>;
+
+                  <span class="comment">// don&#39;t return, continue reporting other redundant</span>
+                  <span class="comment">// entries.</span>
+              }
+              <span class="keywordflow">else</span> {
+                  d_bucketArray[idx] = &amp;d_values[i];
+              }
+          }
+      }
+
+      ~HashCrossReference()
+          <span class="comment">// Free up memory used by this cross-reference.</span>
+      {
+          d_allocator_p-&gt;deallocate(d_bucketArray);
+      }
+
+      <span class="comment">// ACCESSORS</span>
+      <span class="keywordtype">int</span> count(<span class="keyword">const</span> TYPE&amp; value) <span class="keyword">const</span>
+          <span class="comment">// Return 1 if the specified &#39;value&#39; is found in the cross</span>
+          <span class="comment">// reference and 0 otherwise.</span>
+      {
+          <a class="code" href="bsls__assert_8h.html#a68505741fd0625240b1fbd8c9f40643c">BSLS_ASSERT_OPT</a>(d_valid);
+
+          <span class="keywordtype">size_t</span> idx;
+          <span class="keywordflow">return</span> lookup(&amp;idx, value, d_hasher(value));
+      }
+
+      <span class="keywordtype">bool</span> isValid() const
+          <span class="comment">// Return &#39;true&#39; if this cross reference was successfully</span>
+          <span class="comment">// constructed and &#39;false&#39; otherwise.</span>
+      {
+          <span class="keywordflow">return</span> d_valid;
+      }
+  };
+</pre></div><br/>
+<br/>
+ Then, In <code>main</code>, we will first use our cross-reference to cross-reference a collection of integer values. We define our array and take its length: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">int</span> ints[] = { 23, 42, 47, 56, 57, 61, 62, 63, 70, 72, 79 };
+  <span class="keyword">enum</span> { NUM_INTS = <span class="keyword">sizeof</span> ints / <span class="keyword">sizeof</span> *ints };
+</pre></div><br/>
+<br/>
+ Now, we create our cross-reference <code>hcri</code> and verify it constructed properly. Note that we don't specify the second template parameter <code>HASHER</code> and let it default to <code>bsl::hash&lt;int&gt;</code>, which is already defined by bslstl_hash: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  HashCrossReference&lt;int&gt; hcri(ints, NUM_INTS);
+  assert(hcri.isValid());
+</pre></div><br/>
+<br/>
+ Finally, we use <code>hcri</code> to verify numbers that were and were not in the collection: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  assert(1 == hcri.count(23));
+  assert(1 == hcri.count(42));
+  assert(1 == hcri.count(47));
+  assert(1 == hcri.count(56));
+  assert(0 == hcri.count( 3));
+  assert(0 == hcri.count(31));
+  assert(0 == hcri.count(37));
+  assert(0 == hcri.count(58));
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_using_our_hash_cross_reference_for_a_custom_class"></a> <a class="anchor" id="usage.example_2~3A_using_our_hash_cross_reference_for_a_custom_class"></a> <a class="anchor" id="description.usage.example_2~3A_using_our_hash_cross_reference_for_a_custom_class"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.2.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Using Our Hash Cross Reference For a Custom Class: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In Example 1, we demonstrated a hash cross reference for integers, a trivial example. In Example 2, we want to demonstrate specializing <code>hash</code> for a custom class. We will re-use the <code>HashCrossReference</code> template class defined in Example 1. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we define a <code>StringThing</code> class, which is basically a <code>const char *</code> except that <code>operator==</code> will do the right thing on the strings and properly compare them: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>StringThing {
+      <span class="comment">// This class holds a pointer to zero-terminated string.  It is</span>
+      <span class="comment">// implicitly convertible to and from a &#39;const char *&#39;.  The difference</span>
+      <span class="comment">// between this type and a &#39;const char *&#39; is that &#39;operator==&#39; will</span>
+      <span class="comment">// properly compare two objects of this type for equality of strings</span>
+      <span class="comment">// rather than equality of pointers.</span>
+
+      <span class="comment">// DATA</span>
+      <span class="keyword">const</span> <span class="keywordtype">char</span> *d_string;    <span class="comment">// held, not owned</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATOR</span>
+      StringThing(<span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keywordtype">string</span>)                             <span class="comment">// IMPLICIT</span>
+      : d_string(string)
+          <span class="comment">// Create a &#39;StringThing&#39; object out of the specified &#39;string&#39;.</span>
+      {}
+
+      <span class="comment">// ACCESSOR</span>
+      operator const char *() const
+          <span class="comment">// Implicitly cast this &#39;StringThing&#39; object to a &#39;const char *&#39;</span>
+          <span class="comment">// that refers to the same buffer.</span>
+      {
+          <span class="keywordflow">return</span> d_string;
+      }
+  };
+
+  <span class="keyword">inline</span>
+  <span class="keywordtype">bool</span> <a class="code" href="group__bslstl__allocator.html#gad6d3f796409781b394c2140195a5b7d2">operator==</a>(<span class="keyword">const</span> StringThing&amp; lhs, <span class="keyword">const</span> StringThing&amp; rhs)
+  {
+      <span class="keywordflow">return</span> !strcmp(lhs, rhs);
+  }
+
+  <span class="keyword">inline</span>
+  <span class="keywordtype">bool</span> <a class="code" href="group__bslstl__allocator.html#gaf374c3c1f79238d64b145df26aa1845c">operator!=</a>(<span class="keyword">const</span> StringThing&amp; lhs, <span class="keyword">const</span> StringThing&amp; rhs)
+  {
+      <span class="keywordflow">return</span> !(lhs == rhs);
+  }
+</pre></div><br/>
+<br/>
+ Then, we need a hash function for <code>StringThing</code>. We can specialize <code>bsl::hash</code> for our <code>StringThing</code> type: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>bsl {
+
+  <span class="keyword">template</span> &lt;&gt;
+  <span class="keyword">struct </span>hash&lt;StringThing&gt; {
+      <span class="comment">// We need to specialize &#39;hash&#39; for our &#39;StringThing&#39; type.  If we just</span>
+      <span class="comment">// called &#39;hash&lt;const char *&gt;&#39;, it would just hash the pointer, so that</span>
+      <span class="comment">// pointers to two different buffers containing the same sequence of</span>
+      <span class="comment">// chars would hash to different values, which would not be the desired</span>
+      <span class="comment">// behavior.</span>
+
+      <span class="keywordtype">size_t</span> operator()(<span class="keyword">const</span> StringThing&amp; st) <span class="keyword">const</span>
+          <span class="comment">// Return the hash of the zero-terminated sequence of bytes</span>
+          <span class="comment">// referred to by the specified &#39;st&#39;.  Note that this is an ad-hoc</span>
+          <span class="comment">// hash function thrown together in a few minutes, it has not been</span>
+          <span class="comment">// exhaustively tested or mathematically analyzed.  Also note that</span>
+          <span class="comment">// even though most of the default specializations of &#39;hash&#39; have</span>
+          <span class="comment">// functions that take their arguments by value, there is nothing</span>
+          <span class="comment">// preventing us from chosing to pass it by reference in this case.</span>
+      {
+          <span class="keyword">enum</span> { SHIFT_DOWN = <span class="keyword">sizeof</span>(size_t) * 8 - 8 };
+
+<span class="preprocessor">  #ifdef BSLS_PLATFORM__CPU_64_BIT</span>
+<span class="preprocessor"></span>          <span class="keyword">const</span> <span class="keywordtype">size_t</span> MULTIPLIER = 0x5555555555555555ULL; <span class="comment">// 16 &#39;5&#39;s</span>
+<span class="preprocessor">  #else</span>
+<span class="preprocessor"></span>          <span class="keyword">const</span> <span class="keywordtype">size_t</span> MULTIPLIER = 0x55555555;            <span class="comment">//  8 &#39;5&#39;s</span>
+<span class="preprocessor">  #endif</span>
+<span class="preprocessor"></span>
+          <span class="keywordtype">size_t</span> ret = 0;
+          <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> c;
+          <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keywordtype">char</span> *pc = st; (c = *pc); ++pc) {
+              ret =  MULTIPLIER * (ret + c);
+              ret += ret &gt;&gt; SHIFT_DOWN;
+          }
+
+          <span class="keywordflow">return</span> ret;
+      }
+  };
+
+  }  <span class="comment">// close namespace bsl</span>
+</pre></div><br/>
+<br/>
+ Next, in <code>main</code>, we want to use our cross reference on a more complex type, so we'll use the <code>StringThing</code> type we created. We create an array of unique <code>StringThing</code>s and take its length: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  StringThing stringThings[] = { <span class="stringliteral">&quot;woof&quot;</span>,
+                                 <span class="stringliteral">&quot;meow&quot;</span>,
+                                 <span class="stringliteral">&quot;bark&quot;</span>,
+                                 <span class="stringliteral">&quot;arf&quot;</span>,
+                                 <span class="stringliteral">&quot;bite&quot;</span>,
+                                 <span class="stringliteral">&quot;chomp&quot;</span>,
+                                 <span class="stringliteral">&quot;gnaw&quot;</span> };
+  <span class="keyword">enum</span> { NUM_STRINGTHINGS = <span class="keyword">sizeof</span> stringThings / <span class="keyword">sizeof</span> *stringThings };
+</pre></div><br/>
+<br/>
+ Then, we create our cross-reference <code>hcrsts</code> and verify that it constructed properly. Note we don't pass a second parameter template argument and let <code>HASHER</code> will define to <code>bsl::hash&lt;StringThing&gt;</code>, which we have defined above: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  HashCrossReference&lt;StringThing&gt; hcrsts(stringThings,
+                                         NUM_STRINGTHINGS);
+  assert(hcrsts.isValid());
+</pre></div><br/>
+<br/>
+ Next, we verify that each element in our array registers with count: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  assert(1 == hcrsts.count(<span class="stringliteral">&quot;woof&quot;</span>));
+  assert(1 == hcrsts.count(<span class="stringliteral">&quot;meow&quot;</span>));
+  assert(1 == hcrsts.count(<span class="stringliteral">&quot;bark&quot;</span>));
+  assert(1 == hcrsts.count(<span class="stringliteral">&quot;arf&quot;</span>));
+  assert(1 == hcrsts.count(<span class="stringliteral">&quot;bite&quot;</span>));
+  assert(1 == hcrsts.count(<span class="stringliteral">&quot;chomp&quot;</span>));
+  assert(1 == hcrsts.count(<span class="stringliteral">&quot;gnaw&quot;</span>));
+</pre></div><br/>
+<br/>
+ Now, we verify that strings not in our original array are correctly identified as not being in the set: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  assert(0 == hcrsts.count(<span class="stringliteral">&quot;buy&quot;</span>));
+  assert(0 == hcrsts.count(<span class="stringliteral">&quot;beg&quot;</span>));
+  assert(0 == hcrsts.count(<span class="stringliteral">&quot;borrow&quot;</span>));
+  assert(0 == hcrsts.count(<span class="stringliteral">&quot;or&quot;</span>));
+  assert(0 == hcrsts.count(<span class="stringliteral">&quot;steal&quot;</span>));
+</pre></div><br/>
+<br/>
+ Finally, to make sure that our lookup is independent of string location, we copy some strings into a buffer and make sure that our results are as expected. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">char</span> buffer[10];
+  strcpy(buffer, <span class="stringliteral">&quot;woof&quot;</span>);
+  assert(1 == hcrsts.count(buffer));
+  strcpy(buffer, <span class="stringliteral">&quot;chomp&quot;</span>);
+  assert(1 == hcrsts.count(buffer));
+  strcpy(buffer, <span class="stringliteral">&quot;buy&quot;</span>);
+  assert(0 == hcrsts.count(buffer));
+  strcpy(buffer, <span class="stringliteral">&quot;steal&quot;</span>);
+  assert(0 == hcrsts.count(buffer));
+</pre></div><br/>
+<br/>
+ </dd></dl>
 <hr/><h2>Typedef Documentation</h2>
 <a class="anchor" id="ga1e3602423f6f842e759bc2917bfc9a90"></a><!-- doxytag: member="bsl::hash&lt; TYPE * &gt;::result_type" ref="ga1e3602423f6f842e759bc2917bfc9a90" args="" -->
 <div class="memitem">
@@ -2064,7 +2364,7 @@ template&lt;class TYPE &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:43 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

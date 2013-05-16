@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_treenodepool.h                                              -*-C++-*-
@@ -222,18 +222,6 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
-#include &lt;bslalg_rbtreenode.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
-#include &lt;bslma_deallocatorproctor.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
-#include &lt;bsls_util.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include &lt;bslstl_allocatortraits.h&gt;
 #endif
@@ -244,6 +232,18 @@ BSL_OVERRIDES_STD mode&quot;
 
 #ifndef INCLUDED_BSLSTL_TREENODE
 #include &lt;bslstl_treenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include &lt;bslalg_rbtreenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
+#include &lt;bslma_deallocatorproctor.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -281,6 +281,9 @@ class TreeNodePool {
     typedef typename Pool::AllocatorType AllocatorType;
         // Alias for the allocator type defined by &#39;SimplePool&#39;.
 
+    typedef typename AllocatorTraits::size_type size_type;
+        // Alias for the &#39;size_type&#39; of the allocator defined by &#39;SimplePool&#39;.
+
   public:
     // CREATORS
     explicit TreeNodePool(const ALLOCATOR&amp; allocator);
@@ -310,10 +313,10 @@ class TreeNodePool {
         // memory footprint of &#39;node&#39; to this pool for potential reuse.  The
         // behavior is undefined unless &#39;node&#39; refers to a &#39;TreeNode&lt;VALUE&gt;&#39;.
 
-    void reserveNodes(std::size_t numNodes);
+    void reserveNodes(size_type numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
-        // least the specified &#39;numBlocks&#39; before the pool replenishes.  The
-        // behavior is undefined unless &#39;0 &lt; numBlocks&#39;.
+        // least the specified &#39;numNodes&#39; before the pool replenishes.  The
+        // behavior is undefined unless &#39;0 &lt; numNodes&#39;.
 
     void swap(TreeNodePool&lt;VALUE, ALLOCATOR&gt;&amp; other);
         // Efficiently exchange the management of nodes of this object and
@@ -400,7 +403,7 @@ void TreeNodePool&lt;VALUE, ALLOCATOR&gt;::deleteNode(bslalg::RbTreeNode *node)
 
 template &lt;class VALUE, class ALLOCATOR&gt;
 inline
-void TreeNodePool&lt;VALUE, ALLOCATOR&gt;::reserveNodes(std::size_t numNodes)
+void TreeNodePool&lt;VALUE, ALLOCATOR&gt;::reserveNodes(size_type numNodes)
 {
     BSLS_ASSERT_SAFE(0 &lt; numNodes);
 
@@ -432,7 +435,7 @@ TreeNodePool&lt;VALUE, ALLOCATOR&gt;::allocator() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

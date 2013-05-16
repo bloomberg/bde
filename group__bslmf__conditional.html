@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_conditional Component</title>
+<title>BDE 2.17 Oss1: bslmf_conditional Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a compile-time conditional type selection.  
+<p>Provide a compile-time conditional type selector.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
@@ -81,7 +81,7 @@ Classes</h2></td></tr>
 <li>
 <a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.1.1">Example 1: Conditional Type Transformation Based on Boolean Value</a> </li>
+<a href="#3.1.1">Example 1: Conditionally Select From Two Types</a> </li>
 </ul>
 </li>
 </ul>
@@ -91,7 +91,7 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a compile-time conditional type selection </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a compile-time conditional type selector. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -101,21 +101,21 @@ Classes</h2></td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__integralconstant.html" title="Provide a mapping from integral constants to unique types.">Component bslmf_integralconstant</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__enableif.html" title="Provide a utility to set up SFINAE conditions in type deduction.">Component bslmf_enableif</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code><a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a></code>, which may be used to tranform into one of the two given types based on its (template parameter) <code>bool</code> type value. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a></code> meets the requirements of the <code>conditional</code> template defined in the C++11 standard [meta.trans.other]. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code><a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a></code>, that may be used to conditionally select one of its two (template parameter) types based on a <code>bool</code> (template parameter) value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a></code> meets the requirements of the <code>conditional</code> template defined in the C++11 standard [meta.trans.other], providing a <code>typedef</code> <code>type</code> that is an alias to the first (template parameter) type if the (template parameter) value is <code>true</code>; otherwise, <code>type</code> is an alias to the second (template parameter) type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Conditional Type Transformation Based on Boolean Value: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to select between two types, <code>int</code> and <code>char</code>, based on <code>bool</code> value. If value is <code>true</code>, type <code>int</code> is selected. Otherwise type <code>char</code> is selected. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Now, we instantiate the <code><a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a></code> template using <code>int</code>, <code>char</code>, and each of the two <code>bool</code> values. We use the <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code> meta-function to assert the <code>type</code> static data member of each instantiation: <br/>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_conditionally_select_from_two_types"></a> <a class="anchor" id="usage.example_1~3A_conditionally_select_from_two_types"></a> <a class="anchor" id="description.usage.example_1~3A_conditionally_select_from_two_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Conditionally Select From Two Types: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to select between two types based on a <code>bool</code> value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Now, we use <code><a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a></code> to select between two types, <code>int</code> and <code>char</code>, with a <code>bool</code> value. When the <code>bool</code> is <code>true</code>, we select <code>int</code>; otherwise, we select <code>char</code>. We verify that our code behaves correctly by asserting the result of <code><a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a></code> with the expected type using <code><a class="el" href="structbsl_1_1is__same.html">bsl::is_same</a></code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  assert(<span class="keyword">true</span> ==
       (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1conditional.html#ab1e080cde1e45db60f57ea9445a0c6d6">bsl::conditional&lt;true,  int, char&gt;::type</a>, <span class="keywordtype">int</span> &gt;::value));
@@ -125,7 +125,7 @@ Classes</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

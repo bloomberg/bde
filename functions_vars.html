@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -146,12 +146,6 @@
 <li>d_ident
 : <a class="el" href="structbslscm_1_1Version.html#ad39eccfbaaf0680294238ad897d533c1">bslscm::Version</a>
 </li>
-<li>d_isExcBuildTarget
-: <a class="el" href="structbsls_1_1YesExcBuildTarget.html#acfd1ea3f57f22b8ffbcbf433ae6971c9">bsls::YesExcBuildTarget</a>
-</li>
-<li>d_isMtBuildTarget
-: <a class="el" href="structbsls_1_1YesMtBuildTarget.html#abdb65c69f3cbb7323491f79d58e6670b">bsls::YesMtBuildTarget</a>
-</li>
 <li>d_last_p
 : <a class="el" href="structbslalg_1_1HashTableBucket.html#a26fb6d7d11bf6d40910ed6c14b098f5a">bslalg::HashTableBucket</a>
 </li>
@@ -195,8 +189,11 @@
 : <a class="el" href="structbslscm_1_1Version.html#af99f5cb36bf5216a3f441cfa2f613d6c">bslscm::Version</a>
 </li>
 <li>dummy
-: <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1IsPoly.html#acf40a6d5d07da8bb2d9e762a5915b430">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::IsPoly</a>
-, <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1MaybePoly.html#ac61496648578ae3b1f7037fbbf89afbd">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::MaybePoly</a>
+: <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1MaybePoly.html#ac61496648578ae3b1f7037fbbf89afbd">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::MaybePoly</a>
+, <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1ConstMatch.html#ab5944d40128162727f3cf5bdd2bd725e">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::ConstMatch</a>
+, <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1IsPoly.html#acf40a6d5d07da8bb2d9e762a5915b430">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::IsPoly</a>
+, <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1NonConstMatch.html#a4e3d196420168908744610e8460160a3">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::NonConstMatch</a>
+, <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1ConversionMatch.html#aa972caedc54d07fbbd13f54178919049">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::ConversionMatch</a>
 </li>
 </ul>
 
@@ -219,28 +216,32 @@
 
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
+<li>s_isBuildTargetExc
+: <a class="el" href="structbsls_1_1BuildTargetExcYes.html#a5133d6b224d5401723cc314715e5dadf">bsls::BuildTargetExcYes</a>
+</li>
+<li>s_isBuildTargetMt
+: <a class="el" href="structbsls_1_1BuildTargetMtYes.html#aa66b50e053fa0fe20d9cb4fb0e766218">bsls::BuildTargetMtYes</a>
+</li>
 <li>second
-: <a class="el" href="group__bslstl__pair.html#gaf89d2b38598dfb6fa42775f2e135f1d8">bsl::Pair_Imp&lt; T1, T2, T1_USES_BSLMA, T2_USES_BSLMA &gt;</a>
-, <a class="el" href="group__bslstl__pair.html#ga19e3aeb0d9cf5b2bff066c8906306e19">bsl::Pair_Imp&lt; T1, T2, 1, 1 &gt;</a>
-, <a class="el" href="group__bslstl__pair.html#ga4ebdfd6b26e36efe8252bc5fad30c690">bsl::Pair_Imp&lt; T1, T2, 0, 1 &gt;</a>
+: <a class="el" href="group__bslstl__pair.html#ga4ebdfd6b26e36efe8252bc5fad30c690">bsl::Pair_Imp&lt; T1, T2, 0, 1 &gt;</a>
 , <a class="el" href="group__bslstl__pair.html#ga38b70ca829c7b7faba853e1aff1698be">bsl::Pair_Imp&lt; T1, T2, 1, 0 &gt;</a>
+, <a class="el" href="group__bslstl__pair.html#gaf89d2b38598dfb6fa42775f2e135f1d8">bsl::Pair_Imp&lt; T1, T2, T1_USES_BSLMA, T2_USES_BSLMA &gt;</a>
+, <a class="el" href="group__bslstl__pair.html#ga19e3aeb0d9cf5b2bff066c8906306e19">bsl::Pair_Imp&lt; T1, T2, 1, 1 &gt;</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_v"></a>- v -</h3><ul>
-<li>value
-: <a class="el" href="structbsl_1_1integral__constant.html#ae8eee2a9fe60bc75aeefc45c9e4e5b94">bsl::integral_constant&lt; TYPE, VAL &gt;</a>
-</li>
 <li>VALUE
 : <a class="el" href="structbsl_1_1integral__constant_3_01bool_00_01VAL_01_4.html#a9e6d890b836bc757e2bd79ca087e71a9">bsl::integral_constant&lt; bool, VAL &gt;</a>
 </li>
 <li>value
 : <a class="el" href="structbsl_1_1integral__constant_3_01bool_00_01VAL_01_4.html#a50004aeb840754f909fcf58063141961">bsl::integral_constant&lt; bool, VAL &gt;</a>
+, <a class="el" href="structbsl_1_1integral__constant.html#ae8eee2a9fe60bc75aeefc45c9e4e5b94">bsl::integral_constant&lt; TYPE, VAL &gt;</a>
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:44 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:08 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

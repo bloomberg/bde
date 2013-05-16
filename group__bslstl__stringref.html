@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslstl_stringref Component</title>
+<title>BDE 2.17 Oss1: bslstl_stringref Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -117,7 +117,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The string value that is represented by a <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> object need not be null-terminated. Moreover, the string may contain embedded null characters. As such, the string referenced by <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code>, in general, is not a C-style string. Moreover, the notion of a null-string value is not supported. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The address and extent of the string referenced by <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> are indicated by the <code>data</code> and <code>length</code> accessors, respectively. The referenced string is also indicated by the <code>begin</code> and <code>end</code> accessors that return STL-compatible iterators to the beginning of the string and one character past the end of the string, respectively. An overloaded <code>operator[]</code> is also provided for direct by-index access to individual characters in the string. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Several overloaded free operators are provided for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> objects (as well as variants for all combinations involving <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> and <code>std::string</code>, and <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> and <code>char *</code>) for (1) lexicographic comparison of values, and (2) concatenation of values (producing an <code>std::string</code>); also provided is an overloaded free <code>operator&lt;&lt;</code> for writing the value of a <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> object to a specified output stream. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bsl::hash</code> template class is specialized for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> to enable the use of <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> with STL hash containers (e.g., <code>bsl::hash_set</code> and <code>bsl::hash_map</code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bsl::hash</code> template class is specialized for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> to enable the use of <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> with STL hash containers (e.g., <code><a class="el" href="classbsl_1_1unordered__set.html">bsl::unordered_set</a></code> and <code><a class="el" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a></code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="efficiency_and_usage_considerations"></a> <a class="anchor" id="description.efficiency_and_usage_considerations"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Efficiency and Usage Considerations: </b></dt><dd></dd></dl>
@@ -161,7 +161,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_basic_operations"></a> <a class="anchor" id="usage.example_1~3A_basic_operations"></a> <a class="anchor" id="description.usage.example_1~3A_basic_operations"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Basic Operations: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following snippets of code illustrate basic and varied use of the <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> class. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a function, <code>getNumBlanks</code>, that returns the number of blank (<code>'&nbsp;'</code>) characters contained in the string referenced by a specified <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code>: <br/>
@@ -272,7 +272,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:43 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

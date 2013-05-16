@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_ispointertomember.h                                          -*-C++-*-
@@ -64,10 +64,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include &lt;bslmf_metaint.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
 #include &lt;bslmf_ismemberfunctionpointer.h&gt;
 #endif
@@ -80,6 +76,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_ismemberpointer.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -87,7 +87,7 @@ namespace bslmf {
                       // struct IsPointerToMemberFunction
                       // ================================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsPointerToMemberFunction : bsl::is_member_function_pointer&lt;TYPE&gt;::type
 {
     // Metafunction to test if &#39;TYPE&#39; is a pointer to a member function.  Note
@@ -98,7 +98,7 @@ struct IsPointerToMemberFunction : bsl::is_member_function_pointer&lt;TYPE&gt;::
                       // struct IsPointerToMemberData
                       // ============================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsPointerToMemberData : bsl::is_member_object_pointer&lt;TYPE&gt;::type
 {
     // Metafunction to test if &#39;TYPE&#39; is a pointer to a member object.  Note
@@ -109,7 +109,7 @@ struct IsPointerToMemberData : bsl::is_member_object_pointer&lt;TYPE&gt;::type
                       // struct IsPointerToMember
                       // ========================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsPointerToMember : bsl::is_member_pointer&lt;TYPE&gt;::type
 {
     // Metafunction to test if &#39;TYPE&#39; is a pointer to member (function or
@@ -123,7 +123,7 @@ struct IsPointerToMember : bsl::is_member_pointer&lt;TYPE&gt;::type
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

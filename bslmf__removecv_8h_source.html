@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_removecv.h                                                   -*-C++-*-
@@ -12,36 +12,37 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide a meta-function for removing top-level cv-qualifier
+//@PURPOSE: Provide a meta-function for removing top-level cv-qualifiers.
 //
 //@CLASSES:
-//  bsl::remove_const: meta-function for removing top-level cv-qualifier
+//  bsl::remove_cv: meta-function for removing top-level cv-qualifiers
 //
 //@SEE_ALSO: bslmf_addcv
 //
 //@DESCRIPTION: This component defines a meta-function, &#39;bsl::remove_cv&#39;, that
-// may be used to remove the top-level cv-qualifier (&#39;const&#39;-qualifier and
+// may be used to remove any top-level cv-qualifiers (&#39;const&#39;-qualifier and
 // &#39;volatile&#39;-qualifier) from a type.
 //
-// &#39;bsl::remove_const&#39; meets the requirements of the &#39;remove_cv&#39; template
-// defined in the C++11 standard [meta.trans.cv].
+// &#39;bsl::remove_cv&#39; meets the requirements of the &#39;remove_cv&#39; template defined
+// in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing The CV-Qualifier of A Type
-/// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the cv-qualifier from a particular type.
+///Example 1: Removing the CV-Qualifiers of a Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove the cv-qualifiers from a particular type.
 //
-// First, we create two &#39;typedef&#39;s -- a cv-qualified type (&#39;MyCvType&#39;) and the
-// same type without the cv-qualifier (&#39;MyType&#39;):
+// First, we create two &#39;typedef&#39;s -- a &#39;const&#39;-qualified and
+// &#39;volatile&#39;-qualified type (&#39;MyCvType&#39;) and the same type without the
+// cv-qualifiers (&#39;MyType&#39;):
 //..
 //  typedef int                MyType;
 //  typedef const volatile int MyCvType;
 //..
-// Now, we strip the the cv-qualifier from &#39;MyCvType&#39; using &#39;bsl::remove_cv&#39;
-// and verify that the resulting type is the same as &#39;MyType&#39;:
+// Now, we remove the cv-qualifiers from &#39;MyCvType&#39; using &#39;bsl::remove_cv&#39; and
+// verify that the resulting type is the same as &#39;MyType&#39;:
 //..
 //  assert(true == (bsl::is_same&lt;bsl::remove_cv&lt;MyCvType&gt;::type,
 //                                                            MyType&gt;::value));
@@ -65,13 +66,15 @@ namespace bsl {
                          // struct remove_cv
                          // ================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct remove_cv {
     // This &#39;struct&#39; template implements the &#39;remove_cv&#39; meta-function defined
-    // in the C++11 standard [meta.trans.cv] to provide a &#39;typedef&#39; &#39;type&#39; that
-    // has the same type as the (template parameter) &#39;TYPE&#39; except that any
-    // top-level cv-qualifier has been removed.
+    // in the C++11 standard [meta.trans.cv], providing an alias, &#39;type&#39;, that
+    // returns the result.  &#39;type&#39; has the same type as the (template
+    // parameter) &#39;TYPE&#39; except that any top-level cv-qualifiers have been
+    // removed.
 
+    // PUBLIC TYPES
     typedef typename remove_const&lt;typename remove_volatile&lt;TYPE&gt;::type&gt;::type
                                                                           type;
         // This &#39;typedef&#39; is an alias to the same type as the (template
@@ -84,7 +87,7 @@ struct remove_cv {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

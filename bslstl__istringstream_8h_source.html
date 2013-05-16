@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_istringstream.h                                             -*-C++-*-
@@ -223,24 +223,7 @@ typedef basic_istringstream&lt;char, char_traits&lt;char&gt;, allocator&lt;char&
 typedef basic_istringstream&lt;wchar_t, char_traits&lt;wchar_t&gt;, allocator&lt;wchar_t&gt; &gt;
                                                                 wistringstream;
 
-}
-
-// TYPE TRAITS
-namespace BloombergLP {
-namespace bslma {
-
-template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR&gt;
-struct UsesBslmaAllocator&lt;
-        bsl::basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt; &gt;
-    : bsl::true_type
-{};
-
-}
-}
-
-namespace bsl {
-
-// ==========================================================================
+// ============================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
@@ -254,7 +237,7 @@ inline
 basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_istringstream(const allocator_type&amp; allocator)
 : BaseType(ios_base::in, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -264,7 +247,7 @@ basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_istringstream(ios_base::openmode    modeBitMask,
                     const allocator_type&amp; allocator)
 : BaseType(modeBitMask | ios_base::in, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -274,7 +257,7 @@ basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_istringstream(const StringType&amp;     initialString,
                     const allocator_type&amp; allocator)
 : BaseType(initialString, ios_base::in, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -285,7 +268,7 @@ basic_istringstream(const StringType&amp;     initialString,
                     ios_base::openmode    modeBitMask,
                     const allocator_type&amp; allocator)
 : BaseType(initialString, modeBitMask | ios_base::in, allocator)
-, BaseStream(this-&gt;rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -318,10 +301,26 @@ basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::rdbuf() const
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;
+        bsl::basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt; &gt;
+    : bsl::true_type
+{};
+
+}  // close package namespace
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

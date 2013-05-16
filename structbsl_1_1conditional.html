@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bsl::conditional</title>
+<title>BDE 2.17 Oss1: Struct bsl::conditional</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -83,15 +83,17 @@
 Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef TRUE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1conditional.html#ab1e080cde1e45db60f57ea9445a0c6d6">type</a></td></tr>
 </table>
-<h3>template&lt;bool COND, typename TRUE_TYPE, typename FALSE_TYPE&gt;<br/>
+<hr/><a name="_details"></a><h2>Detailed Description</h2>
+<h3>template&lt;bool COND, class TRUE_TYPE, class FALSE_TYPE&gt;<br/>
  struct bsl::conditional&lt; COND, TRUE_TYPE, FALSE_TYPE &gt;</h3>
 
+<p>This <code>struct</code> template implements the <code>conditional</code> meta-function defined in the C++ standard [meta.trans.other], providing an alias, <code>type</code>, that returns the result. If the (template parameter) value <code>COND</code> is <code>true</code>, then <code>type</code> has the same type as the (template parameter) type <code>TRUE_TYPE</code>; otherwise, <code>type</code> has the same type as the (template parameter) type <code>FALSE_TYPE</code>. Note that this generic default template defines <code>type</code> to be an alias to <code>TRUE_TYPE</code> for when <code>COND</code> is <code>true</code>. A template specialization is provided (below) handles the case for when <code>COND</code> is <code>false</code>. </p>
 <hr/><h2>Member Typedef Documentation</h2>
 <a class="anchor" id="ab1e080cde1e45db60f57ea9445a0c6d6"></a><!-- doxytag: member="bsl::conditional::type" ref="ab1e080cde1e45db60f57ea9445a0c6d6" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;bool COND, typename TRUE_TYPE, typename FALSE_TYPE &gt; </div>
+template&lt;bool COND, class TRUE_TYPE, class FALSE_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef TRUE_TYPE <a class="el" href="structbsl_1_1conditional.html">bsl::conditional</a>&lt; COND, TRUE_TYPE, FALSE_TYPE &gt;::<a class="el" href="structbsl_1_1conditional.html#ab1e080cde1e45db60f57ea9445a0c6d6">type</a></td>
@@ -106,7 +108,7 @@ template&lt;bool COND, typename TRUE_TYPE, typename FALSE_TYPE &gt; </div>
 <li><a class="el" href="bslmf__conditional_8h_source.html">bslmf_conditional.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:45 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:08 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

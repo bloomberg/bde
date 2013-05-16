@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_allocatortraits.h                                           -*-C++-*-
@@ -294,7 +294,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      bslma::TestAllocator testAlloc;
 //      MyContainer&lt;MyType&gt; C1(&amp;testAlloc);
 //      assert((bsl::is_same&lt;MyContainer&lt;MyType&gt;::allocator_type,
-//              bsl::allocator&lt;MyType&gt; &gt;::VALUE));
+//              bsl::allocator&lt;MyType&gt; &gt;::value));
 //      assert(C1.get_allocator() == bsl::allocator&lt;MyType&gt;(&amp;testAlloc));
 //      assert(C1.front().allocator() == &amp;testAlloc);
 //
@@ -373,7 +373,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      typedef MyCpp03Allocator&lt;MyType&gt; MyTypeAlloc;
 //      MyContainer&lt;MyType, MyTypeAlloc&gt; C1(MyTypeAlloc(1));
 //      assert((bsl::is_same&lt;MyContainer&lt;MyType, MyTypeAlloc&gt;::allocator_type,
-//                           MyTypeAlloc&gt;::VALUE));
+//                           MyTypeAlloc&gt;::value));
 //      assert(C1.get_allocator() == MyTypeAlloc(1));
 //      assert(C1.front().allocator() == bslma::Default::defaultAllocator());
 //
@@ -397,12 +397,12 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include &lt;bslalg_scalarprimitives.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include &lt;bslalg_scalardestructionprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include &lt;bslalg_scalarprimitives.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -417,9 +417,13 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bsls_nativestd.h&gt;
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 #ifndef INCLUDED_UTILITY
 #include &lt;utility&gt;         // &#39;std::forward&#39;
 #define INCLUDED_UTILITY
+#endif
+
 #endif
 
 
@@ -495,7 +499,7 @@ struct allocator_traits {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template &lt;class ELEMENT_TYPE&gt;
     using rebind_alloc =
-           typename ALLOCATOR_TYPE::template rebind&lt;Alloc,ELEMENT_TYPE&gt;::other;
+                 typename ALLOCATOR_TYPE::template rebind&lt;ELEMENT_TYPE&gt;::other;
 
     template &lt;class ELEMENT_TYPE&gt;
     using rebind_traits = allocator_traits&lt;rebind_alloc&lt;ELEMENT_TYPE&gt; &gt;;
@@ -765,7 +769,7 @@ typename allocator_traits&lt;ALLOCATOR_TYPE&gt;::pointer
 allocator_traits&lt;ALLOCATOR_TYPE&gt;::allocate(ALLOCATOR_TYPE&amp; allocator,
                                            size_type n)
 {
-    return allocator.allocate(n, 0);
+    return allocator.allocate(n);
 }
 
 template &lt;class ALLOCATOR_TYPE&gt;
@@ -978,7 +982,7 @@ allocator_traits&lt;ALLOCATOR_TYPE&gt;::select_on_container_copy_construction(
 #endif // ! defined(INCLUDED_BSLSTL_ALLOCATORTRAITS)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

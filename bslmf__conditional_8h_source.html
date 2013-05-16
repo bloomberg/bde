@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_conditional.h                                                -*-C++-*-
@@ -12,33 +12,36 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide a compile-time conditional type selection
+//@PURPOSE: Provide a compile-time conditional type selector.
 //
 //@CLASSES:
 //  bsl::conditional: standard meta-function for conditional type selection
 //
-//@SEE_ALSO: bslmf_integralconstant
+//@SEE_ALSO: bslmf_enableif
 //
 //@DESCRIPTION: This component defines a meta-function, &#39;bsl::conditional&#39;,
-// which may be used to tranform into one of the two given types based on its
-// (template parameter) &#39;bool&#39; type value.
+// that may be used to conditionally select one of its two (template parameter)
+// types based on a &#39;bool&#39; (template parameter) value.
 //
 // &#39;bsl::conditional&#39; meets the requirements of the &#39;conditional&#39; template
-// defined in the C++11 standard [meta.trans.other].
+// defined in the C++11 standard [meta.trans.other], providing a &#39;typedef&#39;
+// &#39;type&#39; that is an alias to the first (template parameter) type if the
+// (template parameter) value is &#39;true&#39;; otherwise, &#39;type&#39; is an alias to the
+// second (template parameter) type.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Conditional Type Transformation Based on Boolean Value
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to select between two types, &#39;int&#39; and &#39;char&#39;, based on
-// &#39;bool&#39; value.  If value is &#39;true&#39;, type &#39;int&#39; is selected.  Otherwise type
-// &#39;char&#39; is selected.
+///Example 1: Conditionally Select From Two Types
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to select between two types based on a &#39;bool&#39; value.
 //
-// Now, we instantiate the &#39;bsl::conditional&#39; template using &#39;int&#39;, &#39;char&#39;, and
-// each of the two &#39;bool&#39; values.  We use the &#39;bsl::is_same&#39; meta-function to
-// assert the &#39;type&#39; static data member of each instantiation:
+// Now, we use &#39;bsl::conditional&#39; to select between two types, &#39;int&#39; and
+// &#39;char&#39;, with a &#39;bool&#39; value.  When the &#39;bool&#39; is &#39;true&#39;, we select &#39;int&#39;;
+// otherwise, we select &#39;char&#39;.  We verify that our code behaves correctly by
+// asserting the result of &#39;bsl::conditional&#39; with the expected type using
+// &#39;bsl::is_same&#39;:
 //..
 //  assert(true ==
 //      (bsl::is_same&lt;bsl::conditional&lt;true,  int, char&gt;::type, int &gt;::value));
@@ -51,17 +54,36 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 namespace bsl {
+                           // ==================
+                           // struct conditional
+                           // ==================
 
-template &lt;bool COND, typename TRUE_TYPE, typename FALSE_TYPE&gt;
-struct conditional
-{
+template &lt;bool COND, class TRUE_TYPE, class FALSE_TYPE&gt;
+struct conditional {
+    // This &#39;struct&#39; template implements the &#39;conditional&#39; meta-function
+    // defined in the C++ standard [meta.trans.other], providing an alias,
+    // &#39;type&#39;, that returns the result.  If the (template parameter) value
+    // &#39;COND&#39; is &#39;true&#39;, then &#39;type&#39; has the same type as the (template
+    // parameter) type &#39;TRUE_TYPE&#39;; otherwise, &#39;type&#39; has the same type as the
+    // (template parameter) type &#39;FALSE_TYPE&#39;.  Note that this generic default
+    // template defines &#39;type&#39; to be an alias to &#39;TRUE_TYPE&#39; for when &#39;COND&#39; is
+    // &#39;true&#39;.  A template specialization is provided (below) handles the case
+    // for when &#39;COND&#39; is &#39;false&#39;.
+
     typedef TRUE_TYPE type;
+        // This &#39;typedef&#39; is an alias to the (template parameter) type
+        // &#39;TRUE_TYPE&#39;.
 };
 
-template &lt;typename TRUE_TYPE, typename FALSE_TYPE&gt;
-struct conditional&lt;false, TRUE_TYPE, FALSE_TYPE&gt;
-{
+template &lt;class TRUE_TYPE, class FALSE_TYPE&gt;
+struct conditional&lt;false, TRUE_TYPE, FALSE_TYPE&gt; {
+    // This partial specialization of &#39;bsl::conditional&#39;, for when the
+    // (template parameter) value &#39;COND&#39; is &#39;false&#39;, provides a &#39;typedef&#39;
+    // &#39;type&#39; that is an alias to the (template parameter) type &#39;FALSE_TYPE&#39;.
+
     typedef FALSE_TYPE type;
+        // This &#39;typedef&#39; is an alias to the (template parameter) type
+        // &#39;FALSE_TYPE&#39;.
 };
 
 }  // close namespace bsl
@@ -69,7 +91,7 @@ struct conditional&lt;false, TRUE_TYPE, FALSE_TYPE&gt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

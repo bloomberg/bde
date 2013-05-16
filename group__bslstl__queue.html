@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslstl_queue Component</title>
+<title>BDE 2.17 Oss1: bslstl_queue Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -125,7 +125,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_messages_queue"></a> <a class="anchor" id="usage.example_1~3A_messages_queue"></a> <a class="anchor" id="description.usage.example_1~3A_messages_queue"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Messages Queue: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example, we will use the <code><a class="el" href="classbsl_1_1queue.html">bsl::queue</a></code> container adapter to implement a message processor in a server program that receives and displays messages from clients. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we want to write a server program that has two threads: one thread (receiving thread) receives messages from clients, passing them to a message processor; the other thread (processing thread) runs the message processor, printing the messages to the console in the same order as they were received. To accomplish this task, we can use <code><a class="el" href="classbsl_1_1queue.html">bsl::queue</a></code> in the message processor to buffer received, but as yet unprinted, messages. The message processor pushes newly received messages onto the queue in the receiving thread, and pops them off the queue in the processing thread. </dd></dl>
@@ -209,7 +209,7 @@ Namespaces</h2></td></tr>
 <br/>
  Note that the sequence of messages popped from the queue will be in exactly the same order in which they were pushed, due to the first-in-first-out property of the queue. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:43 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslstl_allocator Component</title>
+<title>BDE 2.17 Oss1: bslstl_allocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -94,7 +94,7 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gad4f94f94652cc64597cbf9e5b5c0353e">bsl::allocator::BSLMF_NESTED_TRAIT_DECLARATION</a> (allocator, BloombergLP::bslmf::IsBitwiseEqualityComparable)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga406e9e1772e150de7e36aebfa3682612">bsl::allocator::allocator</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga11b43657c23f967d54fda0a14342f6bb">bsl::allocator::allocator</a> (BloombergLP::bslma::Allocator *mechanism)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga749b33d3550416991bc6b88d4e0326f0">bsl::allocator::allocator</a> (const allocator &amp;rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga7aa6fe014335c0ae9fa41f6cb5639bd6">bsl::allocator::allocator</a> (const allocator &amp;original)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class U &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga109d73e81427f7e1605c1934f110c325">bsl::allocator::allocator</a> (const allocator&lt; U &gt; &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gafd5ba6c32251e07c35d2443a62db70a3">bsl::allocator::~allocator</a> ()</td></tr>
@@ -112,7 +112,7 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga8fe9051795cbe8110becebb12152cebb">bsl::allocator&lt; void &gt;::BSLMF_NESTED_TRAIT_DECLARATION</a> (allocator, BloombergLP::bslmf::IsBitwiseEqualityComparable)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gab8b77c2e92a6c1b37cb9c21d0b0783c9">bsl::allocator&lt; void &gt;::allocator</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gac139021032aaa9ee9267696a94dbbc35">bsl::allocator&lt; void &gt;::allocator</a> (BloombergLP::bslma::Allocator *mechanism)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga8394ec6606c6455c75ba36b10a50b237">bsl::allocator&lt; void &gt;::allocator</a> (const allocator &amp;rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga288ec7e1127223f3ef4e56e9c6cc4ef5">bsl::allocator&lt; void &gt;::allocator</a> (const allocator &amp;original)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class U &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga8ea1dfcd3c9bc298b6a3731830738b02">bsl::allocator&lt; void &gt;::allocator</a> (const allocator&lt; U &gt; &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gaf98317ed19012db5bd9f1702f59bdaa1">bsl::allocator&lt; void &gt;::~allocator</a> ()</td></tr>
@@ -157,8 +157,6 @@ Functions</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
 <td><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a> </td><td>STL-compatible allocator template  </td></tr>
-<tr>
-<td>bsl::Allocator_BslalgTypeTraits </td><td>type traits for <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -262,8 +260,8 @@ Functions</h2></td></tr>
   <span class="comment">// CREATORS</span>
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> T, <span class="keyword">class</span> ALLOC&gt;
   my_FixedSizeArray&lt;T,ALLOC&gt;::my_FixedSizeArray(<span class="keywordtype">int</span>          length,
-                                                <span class="keyword">const</span> ALLOC&amp; alloc)
-  : d_allocator(alloc), d_length(length)
+                                                <span class="keyword">const</span> ALLOC&amp; allocator)
+  : d_allocator(allocator), d_length(length)
   {
       d_array = d_allocator.allocate(d_length);  <span class="comment">// sizeof(T)*d_length bytes</span>
 
@@ -275,15 +273,15 @@ Functions</h2></td></tr>
 
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> T, <span class="keyword">class</span> ALLOC&gt;
   my_FixedSizeArray&lt;T,ALLOC&gt;::my_FixedSizeArray(
-                                              <span class="keyword">const</span> my_FixedSizeArray&amp; rhs,
-                                              <span class="keyword">const</span> ALLOC&amp;             alloc)
-  : d_allocator(alloc), d_length(rhs.d_length)
+                                          <span class="keyword">const</span> my_FixedSizeArray&amp; original,
+                                          <span class="keyword">const</span> ALLOC&amp;             allocator)
+  : d_allocator(allocator), d_length(original.d_length)
   {
       d_array = d_allocator.allocate(d_length);  <span class="comment">// sizeof(T)*d_length bytes</span>
 
       <span class="comment">// copy construct each element of the array:</span>
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; d_length; ++i) {
-          d_allocator.construct(&amp;d_array[i], rhs.d_array[i]);
+          d_allocator.construct(&amp;d_array[i], original.d_array[i]);
       }
   }
 
@@ -743,11 +741,11 @@ template&lt;class T&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Convert a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> pointer to a <code>allocator</code> object which forwards allocation calls to the object pointed to by the specified <code>mechanism</code>. If <code>mechanism</code> is 0, then the currently installed default allocator is used instead. Postcondition: <code>0 == mechanism || this-&gt;mechanism() == mechanism</code>. </p>
+<p>IMPLICIT: Convert a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> pointer to a <code>allocator</code> object which forwards allocation calls to the object pointed to by the specified <code>mechanism</code>. If <code>mechanism</code> is 0, then the currently installed default allocator is used instead. Postcondition: <code>0 == mechanism || this-&gt;mechanism() == mechanism</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga749b33d3550416991bc6b88d4e0326f0"></a><!-- doxytag: member="bsl::allocator::allocator" ref="ga749b33d3550416991bc6b88d4e0326f0" args="(const allocator &amp;rhs)" -->
+<a class="anchor" id="ga7aa6fe014335c0ae9fa41f6cb5639bd6"></a><!-- doxytag: member="bsl::allocator::allocator" ref="ga7aa6fe014335c0ae9fa41f6cb5639bd6" args="(const allocator &amp;original)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -757,14 +755,14 @@ template&lt;class T&gt; </div>
           <td class="memname"><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a>&lt; T &gt;::allocator </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt; T &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em></td>
+          <td class="paramname"> <em>original</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Copy construct a proxy object using the same mechanism as rhs. Postcondition: <code>this-&gt;mechanism() == rhs.mechanism()</code>. </p>
+<p>Create a proxy object using the same mechanism as the specified <code>original</code>. Postcondition: <code>this-&gt;mechanism() == rhs.mechanism()</code>. </p>
 
 </div>
 </div>
@@ -918,7 +916,7 @@ template&lt;class T&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Copy-construct a <code>T</code> object at the memory address specified by <code>p</code>. Do not directly allocate memory. Undefined if <code>p</code> is not properly aligned for <code>T</code>. </p>
+<p>Copy-construct a <code>T</code> object at the memory address specified by <code>p</code>. Do not directly allocate memory. The behavior is undefined unless <code>p</code> is not properly aligned for objects of type <code>T</code>. </p>
 
 </div>
 </div>
@@ -1140,11 +1138,11 @@ template&lt;class T&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Convert a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> pointer to a <code>allocator</code> object which forwards allocation calls to the object pointed to by the specified <code>mechanism</code>. If <code>mechanism</code> is 0, then the current default allocator is used instead. Postcondition: <code>0 == mechanism || this-&gt;mechanism() == mechanism</code>. </p>
+<p>IMPLICIT: Convert a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> pointer to a <code>allocator</code> object which forwards allocation calls to the object pointed to by the specified <code>mechanism</code>. If <code>mechanism</code> is 0, then the current default allocator is used instead. Postcondition: <code>0 == mechanism || this-&gt;mechanism() == mechanism</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga8394ec6606c6455c75ba36b10a50b237"></a><!-- doxytag: member="bsl::allocator&lt; void &gt;::allocator" ref="ga8394ec6606c6455c75ba36b10a50b237" args="(const allocator &amp;rhs)" -->
+<a class="anchor" id="ga288ec7e1127223f3ef4e56e9c6cc4ef5"></a><!-- doxytag: member="bsl::allocator&lt; void &gt;::allocator" ref="ga288ec7e1127223f3ef4e56e9c6cc4ef5" args="(const allocator &amp;original)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1152,14 +1150,14 @@ template&lt;class T&gt; </div>
           <td class="memname"><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a>&lt; void &gt;::allocator </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt; void &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em></td>
+          <td class="paramname"> <em>original</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Copy construct a proxy object using the same mechanism as rhs. Postcondition: <code>this-&gt;mechanism() == rhs.mechanism()</code>. </p>
+<p>Create a proxy object using the same mechanism as the specified <code>original</code>. Postcondition: <code>this-&gt;mechanism() == rhs.mechanism()</code>. </p>
 
 </div>
 </div>
@@ -1420,7 +1418,7 @@ template&lt;class T &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:43 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

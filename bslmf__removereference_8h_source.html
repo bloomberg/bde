@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_removereference.h                                            -*-C++-*-
@@ -12,15 +12,18 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide a meta-function for removing reference-ness from types.
+//@PURPOSE: Provide a meta-function for stripping reference-ness from types.
 //
 //@CLASSES:
 //  bsl::remove_reference: standard meta-function for stripping reference-ness
 //  bslmf::RemoveReference: meta-function for stripping reference-ness
 //
+//@SEE_ALSO: bslmf_addreference
+//
 //@DESCRIPTION: This component defines two meta-functions,
 // &#39;bsl::remove_reference&#39; and &#39;BloombergLP::bslmf::RemoveReference&#39;, both of
-// which may be used to strip reference-ness from a type.
+// which may be used to strip reference-ness (including both lvalue and rvalue
+// reference-ness, if the latter is supported by the compiler) from a type.
 //
 // &#39;bsl::remove_reference&#39; meets the requirements of the &#39;remove_reference&#39;
 // template defined in the C++11 standard [meta.trans.ref], while
@@ -39,21 +42,27 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify Pointer Types
-///- - - - - - - - - - - - - - - -
-// Suppose that we want to remove reference-ness on a couple of types.
+///Example 1: Remove Reference-ness of Types
+///- - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove the reference-ness of a set of types.
 //
-// Now, we instantiate the &#39;bsl::remove_reference&#39; template for each of these
-// types, and use &#39;bsl::is_same&#39; meta-function to assert the &#39;type&#39; static data
-// member of each instantiation:
+// Now, remove the reference-ness of a set of types using
+// &#39;bsl::remove_reference&#39; and verify that the returned type has any
+// reference-ness removed:
 //..
 //  assert(true  ==
-//             (bsl::is_same&lt;bsl::remove_reference&lt;int&amp;&gt;::type, int &gt;::value));
+//            (bsl::is_same&lt;bsl::remove_reference&lt;int&amp; &gt;::type, int &gt;::value));
 //  assert(false ==
-//             (bsl::is_same&lt;bsl::remove_reference&lt;int&amp;&gt;::type, int&amp;&gt;::value));
+//            (bsl::is_same&lt;bsl::remove_reference&lt;int&amp; &gt;::type, int&amp;&gt;::value));
 //  assert(true  ==
-//             (bsl::is_same&lt;bsl::remove_reference&lt;int &gt;::type, int &gt;::value));
+//            (bsl::is_same&lt;bsl::remove_reference&lt;int  &gt;::type, int &gt;::value));
+//#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+//  assert(true ==
+//            (bsl::is_same&lt;bsl::remove_reference&lt;int&amp;&amp;&gt;::type, int &gt;::value));
+//#endif
 //..
+// Note that rvalue reference is a feature introduced in the C++11 standard and
+// may not be supported by all compilers.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
@@ -63,81 +72,72 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_compilerfeatures.h&gt;
 #endif
 
+                         // =======================
+                         // struct remove_reference
+                         // =======================
+
+namespace bsl {
+
+template &lt;class TYPE&gt;
+struct remove_reference {
+    // This &#39;struct&#39; template implements the &#39;remove_reference&#39; meta-function
+    // defined in the C++11 standard [meta.trans.ref], providing an alias,
+    // &#39;type&#39;, that returns the result.  &#39;type&#39; has the same type as the
+    // (template parameter) &#39;TYPE&#39; except with reference-ness removed.  Note
+    // that this generic default template provides a &#39;type&#39; that is an alias to
+    // &#39;TYPE&#39; for when &#39;TYPE&#39; is not a reference.  A template specialization is
+    // provided (below) that removes reference-ness for when &#39;TYPE&#39; is a
+    // reference.
+
+    typedef TYPE type;
+        // This &#39;typedef&#39; is an alias to the (template parameter) &#39;TYPE&#39;.
+};
+
+template &lt;class TYPE&gt;
+struct remove_reference&lt;TYPE&amp;&gt; {
+    // This partial specialization of &#39;bsl::remove_reference&#39;, for when the
+    // (template parameter) &#39;TYPE&#39; is an rvalue reference, provides a
+    // &#39;typedef&#39;, &#39;type&#39;, that has reference-ness of &#39;TYPE&#39; removed.
+
+    typedef TYPE type;
+        // This &#39;typedef&#39; is an alias to the same type as the (template
+        // parameter) &#39;TYPE&#39; except with the reference-ness removed.
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+template &lt;class TYPE&gt;
+struct remove_reference&lt;TYPE&amp;&amp;&gt; {
+    // This partial specialization of &#39;bsl::remove_reference&#39;, for when the
+    // (template parameter) &#39;TYPE&#39; is a reference, provides a &#39;typedef&#39;,
+    // &#39;type&#39;, that has reference-ness of &#39;TYPE&#39; removed.
+
+    typedef TYPE type;
+        // This &#39;typedef&#39; is an alias to the same type as the (template
+        // parameter) &#39;TYPE&#39; except with the reference-ness removed.
+};
+
+#endif
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslmf {
+
                          // ======================
                          // struct RemoveReference
                          // ======================
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template &lt;class TYPE&gt;
+struct RemoveReference {
+    // This &#39;struct&#39; template implements a meta-function to remove the
+    // reference-ness from the (template parameter) &#39;TYPE&#39;.  Note that although
+    // this &#39;struct&#39; is functionally equivalent to &#39;bsl::remove_reference&#39;, the
+    // use of &#39;bsl::remove_reference&#39; should be preferred.
 
-namespace bsl {
-
-template &lt;typename TYPE&gt;
-struct remove_reference
-{
-    typedef TYPE type;
-};
-
-template &lt;typename TYPE&gt;
-struct remove_reference&lt;TYPE &amp;&gt;
-{
-    typedef TYPE type;
-};
-
-}  // close namespace bsl
-
-#else  // !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
-namespace BloombergLP {
-namespace bslmf {
-
-template &lt;typename TYPE&gt;
-struct RemoveRvalueRef_Imp
-{
-    typedef TYPE Type;
-};
-
-template &lt;typename TYPE&gt;
-struct RemoveRvalueRef_Imp&lt;TYPE &amp;&amp;&gt;
-{
-    typedef TYPE Type;
-};
-
-template &lt;typename TYPE&gt;
-struct RemoveLvalueRef_Imp
-{
-    typedef TYPE Type;
-};
-
-template &lt;typename TYPE&gt;
-struct RemoveLvalueRef_Imp&lt;TYPE &amp;&gt;
-{
-    typedef TYPE Type;
-};
-
-}
-}
-
-namespace bsl {
-
-template &lt;typename TYPE&gt;
-struct remove_reference
-{
-    typedef typename BloombergLP::bslmf::RemoveLvalueRef_Imp&lt;
-                typename BloombergLP::bslmf::RemoveRvalueRef_Imp&lt;TYPE&gt;::Type
-            &gt;::Type type;
-};
-
-}  // close namespace bsl
-
-#endif
-
-namespace BloombergLP {
-namespace bslmf {
-
-template &lt;typename TYPE&gt;
-struct RemoveReference
-{
     typedef typename bsl::remove_reference&lt;TYPE&gt;::type Type;
+        // This &#39;typedef&#39; is an alias to the same type as the (template
+        // parameter) &#39;TYPE&#39; except with any reference-ness removed.
 };
 
 }  // close package namespace
@@ -147,7 +147,7 @@ struct RemoveReference
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

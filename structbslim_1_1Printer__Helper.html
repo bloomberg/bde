@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Struct bslim::Printer_Helper</title>
+<title>BDE 2.17 Oss1: Struct bslim::Printer_Helper</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -82,27 +82,30 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a0d9774ad4ed88a19ad48a65938a611fc">print</a> (bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ITERATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#adf59398dc760f413ded2091b4a997b02">print</a> (bsl::ostream &amp;stream, const ITERATOR &amp;begin, const ITERATOR &amp;end, int level, int spacesPerLevel)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a521493ee268c5187b6764d1f8cd8fb42">printRaw</a> (bsl::ostream &amp;stream, char data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Fundamental</a> *)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#ab1bcc5c016f2e4cf407211185e6890c0">printRaw</a> (bsl::ostream &amp;stream, bool data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Fundamental</a> *)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a54c70ac3412c4f9d45ff34a80df367ae">printRaw</a> (bsl::ostream &amp;stream, char data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental</a> &gt;)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#ab74e898121ba8d9370be85fda2390e03">printRaw</a> (bsl::ostream &amp;stream, bool data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental</a> &gt;)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a5d378d2706a103756a0da2952ce5a2c5">printRaw</a> (bsl::ostream &amp;stream, const TYPE data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Fundamental</a> *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#aee7d0f8c2daf46b8a28a13dcfe04f4b1">printRaw</a> (bsl::ostream &amp;stream, TYPE data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental</a> &gt;)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#ab43ed0902d13c3a594fcdc7778e57fe1">printRaw</a> (bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::FunctionPointer</a> *)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a8f45a8a1b834f26e4e197cdff8e136a8">printRaw</a> (bsl::ostream &amp;stream, const char *data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Pointer</a> *)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a0b185c3c2a7b0eaf6866a7ba6563f317">printRaw</a> (bsl::ostream &amp;stream, const void *data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Pointer</a> *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a2077943a1a10763d3cd5901462d83751">printRaw</a> (bsl::ostream &amp;stream, TYPE data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__enum.html">bsl::is_enum</a> &gt;)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a4056081b4c77378249e7cf8b9e93d74d">printRaw</a> (bsl::ostream &amp;stream, const TYPE *data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Pointer</a> *)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a9facc554042697fbbfa155b503120579">printRaw</a> (bsl::ostream &amp;stream, const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::HasStlIterators</a> *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#ac8c4c02182bd367b2c5775ff49e1f4cd">printRaw</a> (bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbslmf_1_1IsFunctionPointer.html">bslmf::IsFunctionPointer</a> &gt;)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a3b4c6de9be8853bd1e857a386bb07544">printRaw</a> (bsl::ostream &amp;stream, const char *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer</a> &gt;)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a29a530a15fc6ad547e93e6c605c943c9">printRaw</a> (bsl::ostream &amp;stream, const void *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer</a> &gt;)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#af160033ac100cc4536f9f0a6efc743e3">printRaw</a> (bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::HasStlIterators</a> *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a4d635d4d778b17137fd18f212248b429">printRaw</a> (bsl::ostream &amp;stream, const TYPE *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer</a> &gt;)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#af9dad45375876e839773a85834dbf8b0">printRaw</a> (bsl::ostream &amp;stream, const TYPE *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__array.html">bsl::is_array</a> &gt;)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a49ed4b8b54d15373f78dec53753dc2bd">printRaw</a> (bsl::ostream &amp;stream, const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbslalg_1_1HasStlIterators.html">bslalg::HasStlIterators</a> &gt;)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a58bd7b3b073491fa863d8bb5f751fca5">printRaw</a> (bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; <a class="el" href="structbslalg_1_1HasStlIterators.html">bslalg::HasStlIterators</a> &gt;)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class T1 , class T2 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a71839e35c9613c2a81049d419fab6eee">printRaw</a> (bsl::ostream &amp;stream, const <a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; T1, T2 &gt; &amp;data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Default</a> *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a886b6af55dbb37bedb2be3c92a3f99c3">printRaw</a> (bsl::ostream &amp;stream, const <a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; T1, T2 &gt; &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt;&gt;)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#afd80be389907e180aea18c8adee117e0">printRaw</a> (bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, <a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Default</a> *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslim_1_1Printer__Helper.html#a7d64797eab735073a5621e9a0c905ad3">printRaw</a> (bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt;&gt;)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>This struct is an aid to the implementation of the accessors of the <code><a class="el" href="classbslim_1_1Printer.html">Printer</a></code> mechanism. It provides a method template, <code>print</code>, that adheres to the BDE <code>print</code> method contract. It is not to be accessed directly by clients of <code>bslim</code>.</p>
-<p>See <code><a class="el" href="classbslim_1_1Printer__DetectType.html">Printer_DetectType</a></code> for an overview of how this class handles categories of objects. </p>
+<p>This struct is an aid to the implementation of the accessors of the <code><a class="el" href="classbslim_1_1Printer.html">Printer</a></code> mechanism. It provides a method template, <code>print</code>, that adheres to the BDE <code>print</code> method contract. It is not to be accessed directly by clients of <code>bslim</code>. </p>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="a0d9774ad4ed88a19ad48a65938a611fc"></a><!-- doxytag: member="bslim::Printer_Helper::print" ref="a0d9774ad4ed88a19ad48a65938a611fc" args="(bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel)" -->
 <div class="memitem">
@@ -142,7 +145,7 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Format the specified <code>data</code> to the specified output `stream' at the (absolute value of) the specified indentation `level', using the specified <code>spacesPerLevel</code>, the number of spaces per indentation level for this and all of its nested objects. Note that this function dispatches to <code>printRaw</code> based on the type of <code>data</code>, as determined by <code><a class="el" href="classbslim_1_1Printer__DetectType.html">Printer_DetectType</a></code>. </p>
+<p>Format the specified <code>data</code> to the specified output `stream' at the (absolute value of) the specified indentation `level', using the specified <code>spacesPerLevel</code>, the number of spaces per indentation level for this and all of its nested objects. Note that this function dispatches to <code>printRaw</code> based on the type traits of the deduced (template parameter) <code>TYPE</code>. </p>
 
 </div>
 </div>
@@ -194,7 +197,7 @@ template&lt;class ITERATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a521493ee268c5187b6764d1f8cd8fb42"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a521493ee268c5187b6764d1f8cd8fb42" args="(bsl::ostream &amp;stream, char data, int level, int spacesPerLevel, Printer_Selector::Fundamental *)" -->
+<a class="anchor" id="a54c70ac3412c4f9d45ff34a80df367ae"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a54c70ac3412c4f9d45ff34a80df367ae" args="(bsl::ostream &amp;stream, char data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_fundamental &gt;)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -225,7 +228,7 @@ template&lt;class ITERATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Fundamental</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -239,7 +242,7 @@ template&lt;class ITERATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ab1bcc5c016f2e4cf407211185e6890c0"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="ab1bcc5c016f2e4cf407211185e6890c0" args="(bsl::ostream &amp;stream, bool data, int level, int spacesPerLevel, Printer_Selector::Fundamental *)" -->
+<a class="anchor" id="ab74e898121ba8d9370be85fda2390e03"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="ab74e898121ba8d9370be85fda2390e03" args="(bsl::ostream &amp;stream, bool data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_fundamental &gt;)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -270,7 +273,7 @@ template&lt;class ITERATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Fundamental</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -284,7 +287,7 @@ template&lt;class ITERATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a5d378d2706a103756a0da2952ce5a2c5"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a5d378d2706a103756a0da2952ce5a2c5" args="(bsl::ostream &amp;stream, const TYPE data, int level, int spacesPerLevel, Printer_Selector::Fundamental *)" -->
+<a class="anchor" id="aee7d0f8c2daf46b8a28a13dcfe04f4b1"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="aee7d0f8c2daf46b8a28a13dcfe04f4b1" args="(bsl::ostream &amp;stream, TYPE data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_fundamental &gt;)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -299,7 +302,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const TYPE&nbsp;</td>
+          <td class="paramtype">TYPE&nbsp;</td>
           <td class="paramname"> <em>data</em>, </td>
         </tr>
         <tr>
@@ -317,7 +320,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Fundamental</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -331,7 +334,54 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ab43ed0902d13c3a594fcdc7778e57fe1"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="ab43ed0902d13c3a594fcdc7778e57fe1" args="(bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, Printer_Selector::FunctionPointer *)" -->
+<a class="anchor" id="a2077943a1a10763d3cd5901462d83751"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a2077943a1a10763d3cd5901462d83751" args="(bsl::ostream &amp;stream, TYPE data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_enum &gt;)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslim::Printer_Helper::printRaw </td>
+          <td>(</td>
+          <td class="paramtype">bsl::ostream &amp;&nbsp;</td>
+          <td class="paramname"> <em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TYPE&nbsp;</td>
+          <td class="paramname"> <em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>level</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>spacesPerLevel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__enum.html">bsl::is_enum</a> &gt;&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac8c4c02182bd367b2c5775ff49e1f4cd"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="ac8c4c02182bd367b2c5775ff49e1f4cd" args="(bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bslmf::IsFunctionPointer &gt;)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -364,7 +414,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::FunctionPointer</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbslmf_1_1IsFunctionPointer.html">bslmf::IsFunctionPointer</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -378,7 +428,7 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a8f45a8a1b834f26e4e197cdff8e136a8"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a8f45a8a1b834f26e4e197cdff8e136a8" args="(bsl::ostream &amp;stream, const char *data, int level, int spacesPerLevel, Printer_Selector::Pointer *)" -->
+<a class="anchor" id="a3b4c6de9be8853bd1e857a386bb07544"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a3b4c6de9be8853bd1e857a386bb07544" args="(bsl::ostream &amp;stream, const char *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_pointer &gt;)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -409,7 +459,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Pointer</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -423,7 +473,7 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a0b185c3c2a7b0eaf6866a7ba6563f317"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a0b185c3c2a7b0eaf6866a7ba6563f317" args="(bsl::ostream &amp;stream, const void *data, int level, int spacesPerLevel, Printer_Selector::Pointer *)" -->
+<a class="anchor" id="a29a530a15fc6ad547e93e6c605c943c9"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a29a530a15fc6ad547e93e6c605c943c9" args="(bsl::ostream &amp;stream, const void *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_pointer &gt;)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -454,7 +504,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Pointer</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -468,7 +518,7 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a4056081b4c77378249e7cf8b9e93d74d"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a4056081b4c77378249e7cf8b9e93d74d" args="(bsl::ostream &amp;stream, const TYPE *data, int level, int spacesPerLevel, Printer_Selector::Pointer *)" -->
+<a class="anchor" id="a4d635d4d778b17137fd18f212248b429"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a4d635d4d778b17137fd18f212248b429" args="(bsl::ostream &amp;stream, const TYPE *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_pointer &gt;)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -501,7 +551,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Pointer</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -515,7 +565,54 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a9facc554042697fbbfa155b503120579"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a9facc554042697fbbfa155b503120579" args="(bsl::ostream &amp;stream, const bsl::string &amp;data, int level, int spacesPerLevel, Printer_Selector::HasStlIterators *)" -->
+<a class="anchor" id="af9dad45375876e839773a85834dbf8b0"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="af9dad45375876e839773a85834dbf8b0" args="(bsl::ostream &amp;stream, const TYPE *data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bsl::is_array &gt;)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslim::Printer_Helper::printRaw </td>
+          <td>(</td>
+          <td class="paramtype">bsl::ostream &amp;&nbsp;</td>
+          <td class="paramname"> <em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const TYPE *&nbsp;</td>
+          <td class="paramname"> <em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>level</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>spacesPerLevel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbsl_1_1is__array.html">bsl::is_array</a> &gt;&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a49ed4b8b54d15373f78dec53753dc2bd"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a49ed4b8b54d15373f78dec53753dc2bd" args="(bsl::ostream &amp;stream, const bsl::string &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bslalg::HasStlIterators &gt;)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -546,7 +643,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::HasStlIterators</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbslalg_1_1HasStlIterators.html">bslalg::HasStlIterators</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -560,7 +657,7 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="af160033ac100cc4536f9f0a6efc743e3"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="af160033ac100cc4536f9f0a6efc743e3" args="(bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, Printer_Selector::HasStlIterators *)" -->
+<a class="anchor" id="a58bd7b3b073491fa863d8bb5f751fca5"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a58bd7b3b073491fa863d8bb5f751fca5" args="(bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt; bslalg::HasStlIterators &gt;)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -593,7 +690,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::HasStlIterators</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt; <a class="el" href="structbslalg_1_1HasStlIterators.html">bslalg::HasStlIterators</a> &gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -607,7 +704,7 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a71839e35c9613c2a81049d419fab6eee"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a71839e35c9613c2a81049d419fab6eee" args="(bsl::ostream &amp;stream, const bsl::pair&lt; T1, T2 &gt; &amp;data, int level, int spacesPerLevel, Printer_Selector::Default *)" -->
+<a class="anchor" id="a886b6af55dbb37bedb2be3c92a3f99c3"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a886b6af55dbb37bedb2be3c92a3f99c3" args="(bsl::ostream &amp;stream, const bsl::pair&lt; T1, T2 &gt; &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt;&gt;)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -640,7 +737,7 @@ template&lt;class T1 , class T2 &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Default</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt;&gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -654,7 +751,7 @@ template&lt;class T1 , class T2 &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="afd80be389907e180aea18c8adee117e0"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="afd80be389907e180aea18c8adee117e0" args="(bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, Printer_Selector::Default *)" -->
+<a class="anchor" id="a7d64797eab735073a5621e9a0c905ad3"></a><!-- doxytag: member="bslim::Printer_Helper::printRaw" ref="a7d64797eab735073a5621e9a0c905ad3" args="(bsl::ostream &amp;stream, const TYPE &amp;data, int level, int spacesPerLevel, bslmf::SelectTraitCase&lt;&gt;)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -687,7 +784,7 @@ template&lt;class TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">Printer_Selector::Default</a> *&nbsp;</td>
+          <td class="paramtype">bslmf::SelectTraitCase&lt;&gt;&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -706,7 +803,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bslim__printer_8h_source.html">bslim_printer.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:53 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:14 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

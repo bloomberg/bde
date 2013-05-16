@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_atomicoperations.h                                            -*-C++-*-
@@ -694,7 +694,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #if defined(BSLS_PLATFORM_CPU_X86)
 
-#   if defined(BSLS_PLATFORM_CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include &lt;bsls_atomicoperations_x86_all_gcc.h&gt;
 #   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include &lt;bsls_atomicoperations_x86_win_msvc.h&gt;
@@ -704,7 +704,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #elif defined(BSLS_PLATFORM_CPU_X86_64)
 
-#   if defined(BSLS_PLATFORM_CMP_GNU)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include &lt;bsls_atomicoperations_x64_all_gcc.h&gt;
 #   elif defined(BSLS_PLATFORM_CMP_MSVC)
 #       include &lt;bsls_atomicoperations_x64_win_msvc.h&gt;
@@ -1511,7 +1511,7 @@ void *AtomicOperations::testAndSwapPtrAcqRel(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

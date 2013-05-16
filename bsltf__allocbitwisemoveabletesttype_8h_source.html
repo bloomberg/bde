@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsltf_allocbitwisemoveabletesttype.h                               -*-C++-*-
@@ -75,6 +75,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  Type defines bslma::UsesBslmaAllocator.
 //  Type defines bslmf::IsBitwiseMoveable.
 //..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include &lt;bslma_allocator.h&gt;
@@ -166,23 +170,6 @@ class AllocBitwiseMoveableTestType {
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
 };
-
-}
-
-// TRAITS
-namespace bslma {
-template &lt;&gt;
-struct UsesBslmaAllocator&lt;bsltf::AllocBitwiseMoveableTestType&gt;
-    : bsl::true_type {};
-}
-
-namespace bslmf {
-template &lt;&gt;
-struct IsBitwiseMoveable&lt;bsltf::AllocBitwiseMoveableTestType&gt;
-    : bsl::true_type {};
-}
-
-namespace bsltf {
 
 // FREE OPERATORS
 bool operator==(const AllocBitwiseMoveableTestType&amp; lhs,
@@ -279,28 +266,43 @@ bslma::Allocator *AllocBitwiseMoveableTestType::allocator() const
     return d_allocator_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const AllocBitwiseMoveableTestType&amp; lhs,
-                const AllocBitwiseMoveableTestType&amp; rhs)
+bool bsltf::operator==(const AllocBitwiseMoveableTestType&amp; lhs,
+                       const AllocBitwiseMoveableTestType&amp; rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const AllocBitwiseMoveableTestType&amp; lhs,
-                const AllocBitwiseMoveableTestType&amp; rhs)
+bool bsltf::operator!=(const AllocBitwiseMoveableTestType&amp; lhs,
+                       const AllocBitwiseMoveableTestType&amp; rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+
+// TRAITS
+namespace bslma {
+template &lt;&gt;
+struct UsesBslmaAllocator&lt;bsltf::AllocBitwiseMoveableTestType&gt;
+    : bsl::true_type {};
+}  // close namespace bslma
+
+namespace bslmf {
+template &lt;&gt;
+struct IsBitwiseMoveable&lt;bsltf::AllocBitwiseMoveableTestType&gt;
+    : bsl::true_type {};
+}  // close namespace bslmf
+
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

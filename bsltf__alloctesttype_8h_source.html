@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsltf_alloctesttype.h                                              -*-C++-*-
@@ -78,24 +78,21 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include &lt;bslma_allocator.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include &lt;bslma_default.h&gt;
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include &lt;bslma_usesbslmaallocator.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
-#include &lt;bslmf_isbitwisemoveable.h&gt;
-#endif
+namespace BloombergLP
+{
 
-namespace BloombergLP {
-namespace bsltf {
+namespace bslma { class Allocator; }
+
+namespace bsltf
+{
 
                         // ===================
                         // class AllocTestType
@@ -167,17 +164,6 @@ class AllocTestType {
         // installed default allocator is used.
 };
 
-}
-
-// TRAITS
-namespace bslma {
-template &lt;&gt;
-struct UsesBslmaAllocator&lt;bsltf::AllocTestType&gt;
-    : bsl::true_type {};
-}
-
-namespace bsltf {
-
 // FREE OPERATORS
 bool operator==(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
@@ -197,60 +183,7 @@ bool operator!=(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs);
                         // class AllocTestType
                         // -------------------
 
-// CREATORS
-inline
-AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast&lt;int *&gt;(d_allocator_p-&gt;allocate(sizeof(int)));
-    *d_data_p = 0;
-}
-
-inline
-AllocTestType::AllocTestType(int data, bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast&lt;int *&gt;(d_allocator_p-&gt;allocate(sizeof(int)));
-    *d_data_p = data;
-}
-
-inline
-AllocTestType::AllocTestType(const AllocTestType&amp; original,
-                             bslma::Allocator     *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = reinterpret_cast&lt;int *&gt;(d_allocator_p-&gt;allocate(sizeof(int)));
-    *d_data_p = *original.d_data_p;
-}
-
-inline
-AllocTestType::~AllocTestType()
-{
-    d_allocator_p-&gt;deallocate(d_data_p);
-
-    // Ensure that this objects has not been bitwise moved.
-
-    BSLS_ASSERT_OPT(this == d_self_p);
-}
-
 // MANIPULATORS
-inline
-AllocTestType&amp; AllocTestType::operator=(const AllocTestType&amp; rhs)
-{
-    if (&amp;rhs != this)
-    {
-        int *newData = reinterpret_cast&lt;int *&gt;(
-                                         d_allocator_p-&gt;allocate(sizeof(int)));
-        d_allocator_p-&gt;deallocate(d_data_p);
-        d_data_p = newData;
-        *d_data_p = *rhs.d_data_p;
-    }
-    return *this;
-}
-
 inline
 void AllocTestType::setData(int value)
 {
@@ -272,26 +205,34 @@ bslma::Allocator *AllocTestType::allocator() const
     return d_allocator_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs)
+bool bsltf::operator==(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs)
 {
     return lhs.data() == rhs.data();
 }
 
 inline
-bool operator!=(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs)
+bool bsltf::operator!=(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs)
 {
     return lhs.data() != rhs.data();
 }
 
-}  // close package namespace
+// TRAITS
+namespace bslma {
+template &lt;&gt;
+struct UsesBslmaAllocator&lt;bsltf::AllocTestType&gt;
+    : bsl::true_type {};
+}  // close namespace bslma
+
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

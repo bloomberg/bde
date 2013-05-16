@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslma_destructorproctor.h                                          -*-C++-*-
@@ -112,7 +112,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      static void copyConstruct(TYPE             *address,
 //                                const TYPE&amp;       original,
 //                                bslma::Allocator *basicAllocator,
-//                                bslmf::MetaInt&lt;PAIR_TRAIT&gt; *);
+//                                bsl::integral_constant&lt;bool, PAIR_TRAIT&gt; *);
 //          // Copy construct the specified &#39;original&#39; into the specified
 //          // &#39;address&#39; using the specified &#39;basicAllocator&#39; (if the
 //          // copy constructor of &#39;TYPE&#39; takes an allocator).  Note that
@@ -122,7 +122,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      static void copyConstruct(TYPE             *address,
 //                                const TYPE&amp;       original,
 //                                bslma::Allocator *basicAllocator,
-//                                bslmf::MetaInt&lt;NIL_TRAIT&gt; *);
+//                                bsl::integral_constant&lt;bool, NIL_TRAIT&gt; *);
 //          // Copy construct the specified &#39;original&#39; into the specified
 //          // &#39;address&#39; using the specified &#39;basicAllocator&#39; (if the
 //          // copy constructor of &#39;TYPE&#39; takes an allocator).  Note that
@@ -138,7 +138,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      copyConstruct(address,
 //                    original,
 //                    basicAllocator,
-//                    (bslmf::MetaInt&lt;my_HasPairTrait&lt;TYPE&gt;::VALUE&gt; *)0);
+//                    (typename my_HasPairTrait&lt;TYPE&gt;::type *)0);
 //  }
 //..
 // The implementation of &#39;copyConstruct&#39; constructs the pair object in two
@@ -152,7 +152,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  void my_Primitives::copyConstruct(TYPE             *address,
 //                                    const TYPE&amp;       original,
 //                                    bslma::Allocator *basicAllocator,
-//                                    bslmf::MetaInt&lt;PAIR_TRAIT&gt; *)
+//                                    bsl::integral_constant&lt;int, PAIR_TRAIT&gt; *)
 //  {
 //      copyConstruct(&amp;address-&gt;first, original.first, basicAllocator);
 //
@@ -177,7 +177,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  void my_Primitives::copyConstruct(TYPE             *address,
 //                                    const TYPE&amp;       original,
 //                                    bslma::Allocator *basicAllocator,
-//                                    bslmf::MetaInt&lt;NIL_TRAIT&gt; *)
+//                                    bsl::integral_constant&lt;int, NIL_TRAIT&gt; *)
 //  {
 //      new(address)TYPE(original, basicAllocator);
 //  }
@@ -310,7 +310,7 @@ void DestructorProctor&lt;TYPE&gt;::reset(TYPE *object)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

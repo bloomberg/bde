@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_metaint.h                                                    -*-C++-*-
@@ -14,7 +14,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 //@PURPOSE: Provide a meta-function to map integral constants to unique types.
 //
-//@DEPRECATED: Use &#39;bslstt_integral_constant&#39; instead.
+//@DEPRECATED: Use &#39;bslmf_integralconstant&#39; instead.
 //
 //@CLASSES:
 //  bslmf::MetaInt: meta-function mapping integral constants to C++ types
@@ -28,7 +28,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Usage
 ///-----
-// This section illustates intended usage of this component
+// This section illustrates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -106,12 +106,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_TAG
-#include &lt;bslmf_tag.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_TAG
+#include &lt;bslmf_tag.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -142,7 +142,7 @@ struct MetaInt : public bsl::integral_constant&lt;int, INT_VALUE&gt; {
     MetaInt();
         // Does nothing (&#39;MetaInt&#39; is stateless).
 
-    MetaInt(bsl::integral_constant&lt;int, INT_VALUE&gt;);
+    MetaInt(bsl::integral_constant&lt;int, INT_VALUE&gt;);                // IMPLICIT
         // Convert from a &#39;bsl::integral_constant&lt;int, INT_VALUE&gt;&#39;.
 
     //! MetaInt(const MetaInt&amp;) = default;
@@ -176,7 +176,7 @@ struct MetaInt&lt;0&gt; : public bsl::false_type {
     MetaInt();
         // Does nothing (&#39;MetaInt&#39; is stateless).
 
-    MetaInt(bsl::false_type);
+    MetaInt(bsl::false_type);                                       // IMPLICIT
         // Convert from a &#39;bsl::false_type&#39;.
 
     //! MetaInt(const MetaInt&amp;) = default;
@@ -214,7 +214,7 @@ struct MetaInt&lt;1&gt; : public bsl::true_type {
     MetaInt();
         // Does nothing (&#39;MetaInt&#39; is stateless).
 
-    MetaInt(bsl::true_type);
+    MetaInt(bsl::true_type);                                        // IMPLICIT
         // Convert from a &#39;bsl::true_type&#39;.
 
     //! MetaInt(const MetaInt&amp;) = default;
@@ -306,7 +306,7 @@ MetaInt&lt;1&gt;::operator bool() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

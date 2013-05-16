@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_ispair.h                                                     -*-C++-*-
@@ -31,15 +31,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_integralconstant.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include &lt;bslmf_metaint.h&gt;
-#endif
-
 namespace BloombergLP {
 
 namespace bslmf {
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsPair : bsl::false_type {};
 
 }  // close package namespace
@@ -48,7 +44,7 @@ struct IsPair : bsl::false_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_unorderedmultimap.h                                         -*-C++-*-
@@ -12,17 +12,17 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide an STL-compliant unordered_multimap class.
+//@PURPOSE: Provide an STL-compliant &#39;unordered_multimap&#39; container.
 //
 //@CLASSES:
 //   bsl::unordered_multimap : hashed-map container
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@DESCRIPTION: This component defines a single class template
+//@DESCRIPTION: This component defines a single class template,
 // &#39;unordered_multimap&#39;, implementing the standard container holding a
 // collection of (possibly repeated) keys, each mapped to an associated value
-// (with no guarantees on ordering).
+// (with minimal guarantees on ordering).
 //
 // An instantiation of &#39;unordered_multimap&#39; is an allocator-aware,
 // value-semantic type whose salient attributes are its size (number of keys)
@@ -41,10 +41,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // An &#39;unordered_multimap&#39; meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [unord].  The
 // &#39;unordered_multimap&#39; implemented here adheres to the C++11 standard, except
-// that it does not have interfaces that take rvalue references,
-// &#39;initializer_list&#39;, &#39;emplace&#39;, or operations taking a variadic number of
-// template parameters.  Note that excluded C++11 features are those that
-// require (or are greatly simplified by) C++11 compiler support.
+// that it may rehash when setting the &#39;max_load_factor&#39; in order to preserve
+// the property that the value is always respected (which is a potentially
+// throwing operation) and it does not have interfaces that take rvalue
+// references, &#39;initializer_list&#39;, &#39;emplace&#39;, or operations taking a variadic
+// number of template parameters.  Note that excluded C++11 features are those
+// that require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on &#39;KEY&#39; and &#39;VALUE&#39;
 ///---------------------------------
@@ -59,8 +61,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;VALUE&#39; template parameters.  These terms are also defined in section
 // [utility.arg.requirements] of the C++11 standard.  Note that, in the context
 // of an &#39;unordered_multimap&#39; instantiation, the requirements apply
-// specifically to the &#39;unordered_multimap&#39;s entry type, &#39;value_type&#39;, which is
-// an alias for std::pair&lt;const KEY, VALUE&gt;&#39;.
+// specifically to the &#39;unordered_multimap&#39;s element type, &#39;value_type&#39;, which
+// is an alias for std::pair&lt;const KEY, VALUE&gt;&#39;.
 //
 //: &quot;default-constructible&quot;: The type provides an accessible default
 //:                          constructor.
@@ -70,6 +72,37 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //: &quot;equality-comparable&quot;: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
+//
+///Requirements on &#39;HASH&#39; and &#39;EQUAL&#39;
+///----------------------------------
+// The (template parameter) types &#39;HASH&#39; and &#39;EQUAL&#39; must be copy-constructible
+// function-objects.  Note that this requirement is somewhat stronger than the
+// requirement currently in the standard; see the discussion for Issue 2215
+// (http://cplusplus.github.com/LWG/lwg-active.html#2215);
+//
+// &#39;HASH&#39; shall support a function call operator compatible with the following
+// statements:
+//..
+//  HASH        hash;
+//  KEY         key;
+//  std::size_t result = hash(key);
+//..
+// where the definition of the called function meets the requirements of a
+// hash function, as specified in {&#39;bslstl_hash&#39;|Standard Hash Function}.
+//
+// &#39;EQUAL&#39; shall support the a function call operator compatible with the
+//  following statements:
+//..
+//  EQUAL equal;
+//  KEY   key1, key2;
+//  bool  result = equal(key1, key2);
+//..
+// where the definition of the called function defines an equivalence
+// relationship on keys that is both reflexive and transitive.
+//
+// &#39;HASH&#39; and &#39;EQUAL&#39; function-objects are further constrained, such for any
+// two objects whose keys compare equal by the comparator, shall produce the
+// same value from the hasher.
 //
 ///Memory Allocation
 ///-----------------
@@ -99,7 +132,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // of the parameterized &#39;KEY&#39; types with the
 // &#39;bslalg::TypeTraitUsesBslmaAllocator&#39; trait.
 //
-//-----------------------------------------------------------------------------
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
@@ -225,10 +257,221 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  +----------------------------------------------------+--------------------+
 //..
 //
+///Unordered Multi-Map Configuration
+///---------------------------------
+// The unordered multi-map has interfaces that can provide insight into and
+// control of its inner workings.  The syntax and semantics of these interfaces
+// for &#39;bslstl_unoroderedmultimap&#39; are identical to those of
+// &#39;bslstl_unorderedmap&#39;.  See the discussion in
+// {&#39;bslstl_unorderedmap&#39;|Unordered Map Configuration} and the illustrative
+// material in {&#39;bslstl_unorderedmap&#39;|Example 2}.
+//
+///Practical Requirements on &#39;HASH&#39;
+///--------------------------------
+// An important factor in the performance an unordered multi-map (and any of
+// the other unordered containers) is the choice of hash function.  Please see
+// the discussion in {&#39;bslstl_unorderedmap&#39;|Practical Requirements on &#39;HASH&#39;}.
+//
 ///Usage
 ///-----
-
-
+// In this section we show intended use of this component.
+//
+///Example 1: Creating a Concordance
+///- - - - - - - - - - - - - - - - -
+// Unordered multimap are useful in situations when there is no meaningful
+// way to compare key values, when the order of the keys is irrelevant to the
+// problem domain, or (even if there is a meaningful ordering) the benefit of
+// ordering the results is outweighed by the higher performance provided by
+// unordered maps (compared to ordered maps).
+//
+// One uses a multi-map (ordered or unordered) when there may be more than one
+// mapped value associated with a key value.  In this example we will use
+// &#39;bslstl_unorderedmultimap&#39; to create a concordance (an index of where each
+// unique word appears in the set of documents).
+//
+// Our source of documents is a set of statically initialized arrrays:
+//..
+//  static char document0[] =
+//  &quot; IN CONGRESS, July 4, 1776.\n&quot;
+//  &quot;\n&quot;
+//  &quot; The unanimous Declaration of the thirteen united States of America,\n&quot;
+//  &quot;\n&quot;
+//  &quot; When in the Course of human events, it becomes necessary for one\n&quot;
+//  &quot; people to dissolve the political bands which have connected them with\n&quot;
+//  &quot; another, and to assume among the powers of the earth, the separate\n&quot;
+//  &quot; and equal station to which the Laws of Nature and of Nature&#39;s God\n&quot;
+//  &quot; entitle them, a decent respect to the opinions of mankind requires\n&quot;
+//  &quot; that they should declare the causes which impel them to the\n&quot;
+//  &quot; separation.  We hold these truths to be self-evident, that all men\n&quot;
+//  &quot; are created equal, that they are endowed by their Creator with\n&quot;
+//  &quot; certain unalienable Rights, that among these are Life, Liberty and\n&quot;
+//  &quot; the pursuit of Happiness.--That to secure these rights, Governments\n&quot;
+//  &quot; are instituted among Men, deriving their just powers from the consent\n&quot;
+//  &quot; of the governed, --That whenever any Form of Government becomes\n&quot;
+//  ...
+//  &quot; States may of right do.  And for the support of this Declaration,\n&quot;
+//  &quot; with a firm reliance on the protection of divine Providence, we\n&quot;
+//  &quot; mutually pledge to each other our Lives, our Fortunes and our sacred\n&quot;
+//  &quot; Honor.\n&quot;;
+//
+//  static char document1[] =
+//  &quot;/The Universal Declaration of Human Rights\n&quot;
+//  &quot;/-----------------------------------------\n&quot;
+//  &quot;/Preamble\n&quot;
+//  &quot;/ - - - -\n&quot;
+//  &quot; Whereas recognition of the inherent dignity and of the equal and\n&quot;
+//  &quot; inalienable rights of all members of the human family is the\n&quot;
+//  &quot; foundation of freedom, justice and peace in the world,\n&quot;
+//  ...
+//  &quot;/Article 30\n&quot;
+//  &quot;/ - - - - -\n&quot;
+//  &quot; Nothing in this Declaration may be interpreted as implying for any\n&quot;
+//  &quot; State, group or person any right to engage in any activity or to\n&quot;
+//  &quot; perform any act aimed at the destruction of any of the rights and\n&quot;
+//  &quot; freedoms set forth herein.\n&quot;;
+//
+//  static char document2[] =
+//  &quot;/CHARTER OF FUNDAMENTAL RIGHTS OF THE EUROPEAN UNION\n&quot;
+//  &quot;/---------------------------------------------------\n&quot;
+//  &quot; PREAMBLE\n&quot;
+//  &quot;\n&quot;
+//  &quot; The peoples of Europe, in creating an ever closer union among them,\n&quot;
+//  &quot; are resolved to share a peaceful future based on common values.\n&quot;
+//  ...
+//  &quot;/Article 54\n&quot;
+//  &quot;/-  -  -  -\n&quot;
+//  &quot; Prohibition of abuse of rights\n&quot;
+//  &quot;\n&quot;
+//  &quot; Nothing in this Charter shall be interpreted as implying any right to\n&quot;
+//  &quot; engage in any activity or to perform any act aimed at the destruction\n&quot;
+//  &quot; of any of the rights and freedoms recognised in this Charter or at\n&quot;
+//  &quot; their limitation to a greater extent than is provided for herein.\n&quot;;
+//
+//  static char * const documents[]  = { document0,
+//                                       document1,
+//                                       document2
+//                                     };
+//  const int           numDocuments = sizeof documents / sizeof *documents;
+//..
+// First, we define several aliases to make our code more comprehensible.
+//..
+//  typedef bsl::pair&lt;int, int&gt;                  WordLocation;
+//      // Document code number (&#39;first&#39;) and word offset (&#39;second&#39;) in that
+//      // document specify a word location.  The first word in the document
+//      // is at word offset 0.
+//
+//  typedef bsl::unordered_multimap&lt;bsl::string, WordLocation&gt;
+//                                               Concordance;
+//  typedef Concordance::const_iterator          ConcordanceConstItr;
+//..
+// Next, we create an (empty) unordered map to hold our word tallies.
+//..
+//  Concordance concordance;
+//..
+// Then, we define the set of characters that define word boundaries:
+//..
+//  const char *delimiters = &quot; \n\t,:;.()[]?!/&quot;;
+//..
+// Next, we extract the words from our documents.  Note that &#39;strtok&#39; modifies
+// the document arrays (which were not made &#39;const&#39;).
+//
+// As each word is located, we create a map value -- a pair of the word
+// converted to a &#39;bsl::string&#39; and a &#39;WordLocation&#39; object (itself a pair of
+// document code and (word) offset of that word in the document) -- and insert
+// the map value into the map.  Note that (unlike maps and unordered maps)
+// there is no status to check; the insertion succeeds even if the key is
+// already present in the (multi) map.
+//..
+//  for (int idx = 0; idx &lt; numDocuments; ++idx) {
+//      int wordOffset = 0;
+//      for (char *cur = strtok(documents[idx], delimiters);
+//                 cur;
+//                 cur = strtok(NULL,           delimiters)) {
+//          WordLocation            location(idx, wordOffset++);
+//          Concordance::value_type value(bsl::string(cur), location);
+//          concordance.insert(value);
+//      }
+//  }
+//..
+// Then, we can readily print a complete concordance by interating through the
+// map.
+//..
+//  for (ConcordanceConstItr itr  = concordance.begin(),
+//                           end  = concordance.end();
+//                           end != itr; ++itr) {
+//      printf(&quot;\&quot;%s\&quot;, %2d, %4d\n&quot;,
+//             itr-&gt;first.c_str(),
+//             itr-&gt;second.first,
+//             itr-&gt;second.second);
+//  }
+//..
+// Standard output shows:
+//..
+//  &quot;extent&quot;,  2, 3837
+//  &quot;greater&quot;,  2, 3836
+//  &quot;abuse&quot;,  2, 3791
+//  &quot;constitutions&quot;,  2, 3782
+//  &quot;affecting&quot;,  2, 3727
+//  ...
+//  &quot;he&quot;,  1, 1746
+//  &quot;he&quot;,  1,  714
+//  &quot;he&quot;,  0,  401
+//  &quot;include&quot;,  2,  847
+//..
+// Next, if there are some particular words of interest, we seek them out using
+// the &#39;equal_range&#39; method of the &#39;concordance&#39; object:
+//..
+//  const bsl::string wordsOfInterest[] = { &quot;human&quot;,
+//                                          &quot;rights&quot;,
+//                                          &quot;unalienable&quot;,
+//                                          &quot;inalienable&quot;
+//                                        };
+//  const int   numWordsOfInterest = sizeof  wordsOfInterest
+//                                 / sizeof *wordsOfInterest;
+//
+//  for (int idx = 0; idx &lt; numWordsOfInterest; ++idx) {
+//     bsl::pair&lt;ConcordanceConstItr,
+//               ConcordanceConstItr&gt; found = concordance.equal_range(
+//                                                       wordsOfInterest[idx]);
+//     for (ConcordanceConstItr itr  = found.first,
+//                              end  = found.second;
+//                              end != itr; ++itr) {
+//         printf(&quot;\&quot;%s\&quot;, %2d, %4d\n&quot;,
+//                itr-&gt;first.c_str(),
+//                itr-&gt;second.first,
+//                itr-&gt;second.second);
+//     }
+//     printf(&quot;\n&quot;);
+//  }
+//..
+// Finally, we see on standard output:
+//..
+//  &quot;human&quot;,  2, 3492
+//  &quot;human&quot;,  2, 2192
+//  &quot;human&quot;,  2,  534
+//  ...
+//  &quot;human&quot;,  1,   65
+//  &quot;human&quot;,  1,   43
+//  &quot;human&quot;,  1,   25
+//  &quot;human&quot;,  0,   20
+//
+//  &quot;rights&quot;,  2, 3583
+//  &quot;rights&quot;,  2, 3553
+//  &quot;rights&quot;,  2, 3493
+//  ...
+//  &quot;rights&quot;,  1,   44
+//  &quot;rights&quot;,  1,   19
+//  &quot;rights&quot;,  0,  496
+//  &quot;rights&quot;,  0,  126
+//
+//  &quot;unalienable&quot;,  0,  109
+//
+//  &quot;inalienable&quot;,  1,   18
+//
+//..
+// {&#39;bslstl_unorderedmap&#39;|Example 3} shows how to use the concordance to create
+// an inverse concordance, and how to use the inverse concordance to find the
+// context (surrouding words) of a word of interest.
 
 #if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
 // Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
@@ -303,6 +546,10 @@ BSL_OVERRIDES_STD mode&quot;
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -438,7 +685,7 @@ class unordered_multimap
 
     unordered_multimap(const unordered_multimap&amp; original);
     unordered_multimap(const unordered_multimap&amp; original,
-                        const allocator_type&amp;    allocator);
+                       const allocator_type&amp;     allocator);
         // Construct an unordered multi map having the same value as that of
         // the specified &#39;original&#39;.  Use a default-constructed object of type
         // &#39;hasher&#39; to generate hash values for the key-value pairs contained
@@ -521,13 +768,17 @@ class unordered_multimap
         // bucket having the specified &#39;index&#39;s , in the array of buckets
         // maintained by this multi-map.
 
-    iterator insert(const value_type&amp; value);
+    template &lt;class SOURCE_TYPE&gt;
+    iterator insert(const SOURCE_TYPE&amp; value);
         // Insert the specified &#39;value&#39; into this multi-map, and return an
         // iterator to the newly inserted element.  This method requires that
         // the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; types both be
         // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+        // Note that this one template stands in for two &#39;insert&#39; functions in
+        // the C++11 standard.
 
-    iterator insert(const_iterator hint, const value_type&amp; value);
+    template &lt;class SOURCE_TYPE&gt;
+    iterator insert(const_iterator hint, const SOURCE_TYPE&amp; value);
         // Insert the specified &#39;value&#39; into this multi-map (in
         // constant time if the specified &#39;hint&#39; is a valid element in the
         // bucket to which &#39;value&#39; belongs).  Return an iterator referring to
@@ -539,7 +790,8 @@ class unordered_multimap
         // undefined unless &#39;hint&#39; is a valid iterator into this unordered
         // multi map.  This method requires that the (template parameter) types
         // &#39;KEY&#39; and &#39;VALUE&#39; both be &quot;copy-constructible&quot; (see {Requirements on
-        // &#39;KEY&#39; and &#39;VALUE&#39;}).
+        // &#39;KEY&#39; and &#39;VALUE&#39;}).  Note that this one template stands in for two
+        // &#39;insert&#39; functions in the C++11 standard.
 
     template &lt;class INPUT_ITERATOR&gt;
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -610,9 +862,15 @@ class unordered_multimap
         // exceed its &#39;max_load_factor&#39;.
 
     void reserve(size_type numElements);
-        // Increase the number of buckets of this multi-map to a
-        // quantity such that the ratio between the specified &#39;numElements&#39; and
-        // this quantity does not exceed &#39;max_load_factor&#39;.
+        // Increase the number of buckets of this set to a quantity such that
+        // the ratio between the specified &#39;numElements&#39; and this quantity does
+        // not exceed &#39;max_load_factor&#39;, and allocate footprint memory
+        // sufficient to grow the table to contain &#39;numElements&#39; elements.
+        // Note that this guarantees that, after the reserve, elements can be
+        // inserted to grow the container to &#39;size() == numElements&#39; without
+        // any further allocation, unless the &#39;KEY&#39; or &#39;VALUE&#39; types themselves
+        // or the hash function allocate memory.  Also note that this operation
+        // has no effect if &#39;numElements &lt;= size()&#39;.
 
     void swap(unordered_multimap&amp; other);
         // Exchange the value of this object as well as its hasher and
@@ -626,52 +884,32 @@ class unordered_multimap
         // either this object was created with the same allocator as &#39;other&#39; or
         // &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
 
-
     // ACCESSORS
     allocator_type get_allocator() const;
         // Return (a copy of) the allocator used for memory allocation by this
         // multi-map.
 
     const_iterator begin() const;
+    const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
         // maintained by this multi-map, or the &#39;end&#39; iterator if
         // this multi-map is empty.
 
     const_iterator end() const;
+    const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of &#39;value_type&#39; objects)
         // maintained by this multi-map.
 
-    const_iterator cbegin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
-        // maintained by this multi-map, or the &#39;end&#39; iterator if
-        // this container is empty.
-
-    const_iterator cend() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of &#39;value_type&#39; objects)
-        // maintained by this container.
-
     const_local_iterator begin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects) of the
-        // bucket having the specified &#39;index&#39; in the array of buckets
-        // maintained by this container, or the &#39;end(index)&#39; otherwise.
-
-    const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of &#39;value_type&#39; objects) of
-        // the bucket having the specified &#39;index&#39; in the array of buckets
-        // maintained by this container.
-
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects) of the
         // bucket having the specified &#39;index&#39; in the array of buckets
         // maintained by this container, or the &#39;end(index)&#39; otherwise.
 
+    const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of &#39;value_type&#39; objects) of
@@ -797,53 +1035,9 @@ void swap(unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
     // behavior is undefined is unless either this object was created with the
     // same allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
 
-}  // close namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *unordered* *associative* containers:
-//: o An unordered associative container defines STL iterators.
-//: o An unordered associative container is bitwise moveable if the both
-//:      functors and the allocator are bitwise moveable.
-//: o An unordered associative container uses &#39;bslma&#39; allocators if the
-//:      parameterized &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
-struct HasStlIterators&lt;bsl::unordered_multimap&lt;KEY,
-                                               VALUE,
-                                               HASH,
-                                               EQUAL,
-                                               ALLOCATOR&gt; &gt;
-: bsl::true_type
-{};
-
-}  // close namespace bslalg
-
-namespace bslma {
-
-template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
-struct UsesBslmaAllocator&lt;bsl::unordered_multimap&lt;KEY,
-                                                  VALUE,
-                                                  HASH,
-                                                  EQUAL,
-                                                  ALLOCATOR&gt; &gt;
-: bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
-{};
-
-}  // close namespace bslma
-}  // close namespace BloombergLP
-
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
-
-namespace bsl
-{
 
                         //-------------------------
                         // class unordered_multimap
@@ -856,7 +1050,7 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_multimap
                                        const hasher&amp;         hash,
                                        const key_equal&amp;      keyEqual,
                                        const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -869,7 +1063,7 @@ unordered_multimap(INPUT_ITERATOR        first,
                    const hasher&amp;         hash,
                    const key_equal&amp;      keyEqual,
                    const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this-&gt;insert(first, last);
 }
@@ -887,7 +1081,7 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_multimap
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_multimap(
                                                const allocator_type&amp; allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(allocator)
 {
 }
 
@@ -994,7 +1188,7 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::erase(
                                                          const_iterator first,
                                                          const_iterator last)
 {
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this-&gt;begin();
         const iterator end = this-&gt;end();
@@ -1016,19 +1210,21 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::erase(
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
+template &lt;class SOURCE_TYPE&gt;
 inline
 typename unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::iterator
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::insert(
-                                                       const value_type&amp; value)
+                                                      const SOURCE_TYPE&amp; value)
 {
     return iterator(d_impl.insert(value));
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
+template &lt;class SOURCE_TYPE&gt;
 typename unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::iterator
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::insert(
-                                                       const_iterator    hint,
-                                                       const value_type&amp; value)
+                                                      const_iterator     hint,
+                                                      const SOURCE_TYPE&amp; value)
 {
     return iterator(d_impl.insert(value, hint.node()));
 }
@@ -1036,19 +1232,17 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::insert(
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 template &lt;class INPUT_ITERATOR&gt;
 void unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::insert(
-                                                         INPUT_ITERATOR first,
-                                                         INPUT_ITERATOR last)
+                                                          INPUT_ITERATOR first,
+                                                          INPUT_ITERATOR last)
 {
-    if (size_t maxInsertions =
+    if (size_type maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
         this-&gt;reserve(this-&gt;size() + maxInsertions);
     }
 
-    // Typically will create an un-necessary temporary dereferencing each
-    // iterator and casting to a reference of &#39;const value_type&amp;&#39;.
-
     while (first != last) {
-        this-&gt;insert(*first++);
+        d_impl.insert(*first);
+        ++first;
     }
 }
 
@@ -1057,7 +1251,7 @@ inline
 void unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::max_load_factor(
                                                            float newLoadFactor)
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    d_impl.setMaxLoadFactor(newLoadFactor);
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
@@ -1065,7 +1259,7 @@ inline
 void unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::rehash(
                                                           size_type numBuckets)
 {
-    return d_impl.rehash(numBuckets);
+    d_impl.rehashForNumBuckets(numBuckets);
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
@@ -1073,7 +1267,7 @@ inline
 void unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::reserve(
                                                          size_type numElements)
 {
-    return d_impl.rehashForNumElements(numElements);
+    d_impl.reserveForNumElements(numElements);
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
@@ -1325,7 +1519,7 @@ typename unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::size_type
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;:: max_bucket_count()
                                                                           const
 {
-    return d_impl.maxNumOfBuckets();
+    return d_impl.maxNumBuckets();
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
@@ -1365,10 +1559,51 @@ void bsl::swap(bsl::unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;
     x.swap(y);
 }
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses &#39;bslma&#39; allocators if the
+//:      parameterized &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::unordered_multimap&lt;KEY,
+                                               VALUE,
+                                               HASH,
+                                               EQUAL,
+                                               ALLOCATOR&gt; &gt;
+: bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::unordered_multimap&lt;KEY,
+                                                  VALUE,
+                                                  HASH,
+                                                  EQUAL,
+                                                  ALLOCATOR&gt; &gt;
+: bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

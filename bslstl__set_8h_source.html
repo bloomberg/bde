@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_set.h                                                       -*-C++-*-
@@ -1016,43 +1016,6 @@ class set {
 
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *ordered* containers:
-//: o An ordered container defines STL iterators.
-//: o An ordered container uses &#39;bslma&#39; allocators if the parameterized
-//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template &lt;typename KEY,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
-struct HasStlIterators&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
-    : bsl::true_type
-{};
-
-}
-
-namespace bslma {
-
-template &lt;typename KEY,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
-struct UsesBslmaAllocator&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
-    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
 bool operator==(const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
                 const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
@@ -1308,7 +1271,7 @@ set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::operator=(const set&amp; rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &amp;rhs)) {
 
-        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             set other(rhs, rhs.nodeFactory().allocator());
             BloombergLP::bslalg::SwapUtil::swap(
                                              &amp;nodeFactory().allocator(),
@@ -1464,7 +1427,7 @@ template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
 inline
 void set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::swap(set&amp; other)
 {
-    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+    if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&amp;nodeFactory().allocator(),
                                            &amp;other.nodeFactory().allocator());
         quickSwap(other);
@@ -1787,10 +1750,45 @@ void bsl::swap(bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; a,
     a.swap(b);
 }
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template &lt;typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template &lt;typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

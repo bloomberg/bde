@@ -1,9 +1,9 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
-// bslmf_isbitwiseequalitycomparable.h                  -*-C++-*-
+// bslmf_isbitwiseequalitycomparable.h                                -*-C++-*-
 #ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #define INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 
@@ -19,16 +19,24 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@DESCRIPTION:
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
-#include &lt;bslmf_isfundamental.h&gt;
-#endif
-
 #ifndef INCLUDED_BSLMF_ISENUM
 #include &lt;bslmf_isenum.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include &lt;bslmf_isfundamental.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -39,26 +47,23 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_ispointertomember.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
-#include &lt;bslmf_detectnestedtrait.h&gt;
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include &lt;bslmf_removecv.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_ISREFERENCE
-#include &lt;bslmf_isreference.h&gt;
-#endif
 
 namespace BloombergLP {
 
 namespace bslmf {
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsBitwiseEqualityComparable;
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsBitwiseEqualityComparable_Imp
     : bsl::integral_constant&lt;bool,
                              !bsl::is_reference&lt;TYPE&gt;::value
@@ -74,7 +79,7 @@ struct IsBitwiseEqualityComparable_Imp
                      // struct IsBitwiseEqualityComparable
                      // ==================================
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct IsBitwiseEqualityComparable
     : IsBitwiseEqualityComparable_Imp&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;
 {
@@ -94,7 +99,7 @@ struct IsBitwiseEqualityComparable
 #endif // ! defined(INCLUDED_BSLMF_ISBITWISECOPYABLE)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

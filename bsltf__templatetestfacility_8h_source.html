@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsltf_templatetestfacility.h                                       -*-C++-*-
@@ -97,7 +97,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //: o &#39;TEST_TYPES_ALL&#39;:           list of all of the types
 //
 // The &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE&#39; macro refers to a
-// representative set of primivite types that are useful for testing:
+// representative set of primitive types that are useful for testing:
 //..
 //  Type                                Description
 //  ----                                -----------
@@ -156,7 +156,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // designed to work within the regular operating conditions of a typical
 // template.  Typically, a test driver for a template instantiates its tests
 // (using the &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro) for all of the
-// types refered by &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR&#39;.
+// types referred by &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR&#39;.
 //
 // The &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD&#39; macro refers to a set of
 // types that have certain attributes that make them unlikely to work for all
@@ -354,7 +354,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      //:   has the same value.  (C-2, 4)
 //      //:
 //      //: 3 Using the loop-based approach, for each identifier in a range of
-//      //:   integer identifieres:
+//      //:   integer identifiers:
 //      //:
 //      //:   1 Default-construct a modifiable object, &#39;mL&#39;, and use the (as
 //      //:     yet unproven) salient attribute accessors to verify the value
@@ -389,12 +389,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      if (verbose) printf(&quot;\nTesting default constructor.\n&quot;);
 //
 //      Obj mW; const Obj&amp; W = mW;
-//      ASSERT(true == W.isNull());
+//      assert(true == W.isNull());
 //
 //      Obj mX; const Obj&amp; X = mX;
 //      const TYPE XV = TemplateTestFacility::create&lt;TYPE&gt;(1);
 //      mX.makeValue(XV);
-//      ASSERT(1 == TemplateTestFacility::getIdentifier&lt;TYPE&gt;(X.value()));
+//      assert(1 == TemplateTestFacility::getIdentifier&lt;TYPE&gt;(X.value()));
 //
 //      if (verbose) printf(&quot;\nTesting primary manipulators.\n&quot;);
 //
@@ -403,16 +403,16 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          if (veryVerbose) { T_ P(ti) }
 //
 //          Obj mL; const Obj&amp; L = mL;
-//          ASSERT(true == L.isNull());
+//          assert(true == L.isNull());
 //
 //          const TYPE LV = TemplateTestFacility::create&lt;TYPE&gt;(ti);
 //
 //          mL.makeValue(LV);
-//          ASSERT(false == L.isNull());
-//          ASSERT(LV == L.value());
+//          assert(false == L.isNull());
+//          assert(LV == L.value());
 //
 //          mL.makeNull();
-//          ASSERT(true == L.isNull());
+//          assert(true == L.isNull());
 //      }
 //
 //      if (verbose) printf(&quot;\nTesting destructor.\n&quot;);
@@ -420,8 +420,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          Obj Z;
 //      }
 //
-//      ASSERT(true == W.isNull());
-//      ASSERT(XV == X.value());
+//      assert(true == W.isNull());
+//      assert(XV == X.value());
 //  }
 //..
 // Notice that, we create objects of the parameterized &#39;TYPE&#39; using the
@@ -458,6 +458,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //    RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
 //  } break;
 //..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
 
 #ifndef INCLUDED_BSLTF_ALLOCBITWISEMOVEABLETESTTYPE
 #include &lt;bsltf_allocbitwisemoveabletesttype.h&gt;
@@ -499,18 +503,38 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsltf_uniontesttype.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include &lt;bslalg_scalarprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
+#include &lt;bslma_mallocfreeallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include &lt;bsls_objectbuffer.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include &lt;bsls_types.h&gt;
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include &lt;stddef.h&gt;  // for &#39;size_t&#39;
-#define INCLUDED_CSTDDEF
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
 #endif
 
-#ifndef INCLUDED_CSTDIO
+#ifndef INCLUDED_STDDEF_H
+#include &lt;stddef.h&gt;  // for &#39;size_t&#39;
+#define INCLUDED_STDDEF_H
+#endif
+
+#ifndef INCLUDED_STDIO_H
 #include &lt;stdio.h&gt;  // for &#39;printf&#39;
-#define INCLUDED_CSTDIO
+#define INCLUDED_STDIO_H
 #endif
 
 namespace BloombergLP {
@@ -528,9 +552,30 @@ class TemplateTestFacility_StubClass {
     // respectively.
 
   public:
+    // MANIPULATORS
     template &lt;int IDENTIFIER&gt;
     int method();
         // Return the parameterized &#39;IDENTIFIER&#39;.
+};
+
+                        // ========================================
+                        // class TemplateTestFacility_CompareHelper
+                        // ========================================
+
+class TemplateTestFacility_CompareHelper {
+  public:
+    // CLASS METHODS
+    template &lt;class TYPE&gt;
+    static bool areEqual(const TYPE&amp; lhs, const TYPE&amp; rhs);
+
+    static bool areEqual(const NonEqualComparableTestType&amp; lhs,
+                         const NonEqualComparableTestType&amp; rhs);
+
+    template &lt;class TYPE&gt;
+    static bool areNotEqual(const TYPE&amp; lhs, const TYPE&amp; rhs);
+
+    static bool areNotEqual(const NonEqualComparableTestType&amp; lhs,
+                            const NonEqualComparableTestType&amp; rhs);
 };
 
                         // ===========================
@@ -570,6 +615,23 @@ struct TemplateTestFacility {
         // &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL&#39;.
 
     template &lt;class TYPE&gt;
+    static void emplace(TYPE             *address,
+                        int               identifier,
+                        bslma::Allocator *allocator);
+        // Create an object of the parameterized &#39;TYPE&#39; at the specified
+        // &#39;address&#39; whose state is unique for the specified &#39;identifier&#39;.  The
+        // behavior is undefined unless &#39;0 &lt;= value &lt; 128&#39; and &#39;TYPE&#39; is
+        // contained in the macro &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL&#39;.
+
+    template &lt;class TYPE&gt;
+    static void emplace(TYPE             **address,
+                        int                identifier,
+                        bslma::Allocator  *allocator);
+        // Create a pointer to the parameterized &#39;TYPE&#39; at the specified
+        // &#39;address&#39; whose value is unique for the specified &#39;identifier&#39;.  The
+        // behavior is undefined unless &#39;0 &lt;= value &lt; 128&#39;.
+
+    template &lt;class TYPE&gt;
     static int getIdentifier(const TYPE&amp; object);
         // Return the integer identifier that uniquely identifies the specified
         // &#39;object&#39;.  The behavior is undefined unless &#39;object&#39; could be
@@ -585,7 +647,9 @@ void debugprint(const AllocTestType&amp; obj);
 void debugprint(const BitwiseMoveableTestType&amp; obj);
 void debugprint(const AllocBitwiseMoveableTestType&amp; obj);
 void debugprint(const NonTypicalOverloadsTestType&amp; obj);
+void debugprint(const NonAssignableTestType&amp; obj);
 void debugprint(const NonDefaultConstructibleTestType&amp; obj);
+void debugprint(const NonEqualComparableTestType&amp; obj);
     // Print the value of the specified &#39;obj&#39; to the console.  Note that this
     // free function is provided to allow &#39;bsls_bsltestutil&#39; to support these
     // types intended for testing.  See the component-level documentation for
@@ -648,7 +712,7 @@ void debugprint(const NonDefaultConstructibleTestType&amp; obj);
         N
 
 // The &#39;BSLTF_TEMPLATETESTFACILITY_EXPAND&#39; macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
 // the definition of some macros.
 #define BSLTF_TEMPLATETESTFACILITY_EXPAND(X)                                  \
         X
@@ -838,6 +902,16 @@ void debugprint(const NonDefaultConstructibleTestType&amp; obj);
     // FIXME: Change this to integrate with Alisdair&#39;s test driver print
     // facility once its ready.
 
+#define BSLTF_TEMPLATETESTFACILITY_COMPARE_EQUAL(FIRST_ARGUMENT,              \
+                                                 SECOND_ARGUMENT)             \
+        ::BloombergLP::bsltf::TemplateTestFacility_CompareHelper::            \
+                                    areEqual(FIRST_ARGUMENT, SECOND_ARGUMENT)
+
+#define BSLTF_TEMPLATETESTFACILITY_COMPARE_NOT_EQUAL(FIRST_ARGUMENT,          \
+                                                 SECOND_ARGUMENT)             \
+        ::BloombergLP::bsltf::TemplateTestFacility_CompareHelper::            \
+                                 areNotEqual(FIRST_ARGUMENT, SECOND_ARGUMENT)
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -852,6 +926,42 @@ int TemplateTestFacility_StubClass::method()
     return IDENTIFIER;
 }
 
+                        // ----------------------------------------
+                        // class TemplateTestFacility_CompareHelper
+                        // ----------------------------------------
+
+template &lt;class TYPE&gt;
+inline
+bool TemplateTestFacility_CompareHelper::areEqual(const TYPE&amp; lhs,
+                                                  const TYPE&amp; rhs)
+{
+    return lhs == rhs;
+}
+
+template &lt;class TYPE&gt;
+inline
+bool TemplateTestFacility_CompareHelper::areNotEqual(const TYPE&amp; lhs,
+                                                     const TYPE&amp; rhs)
+{
+    return lhs != rhs;
+}
+
+inline
+bool TemplateTestFacility_CompareHelper::areEqual(
+                                         const NonEqualComparableTestType&amp; lhs,
+                                         const NonEqualComparableTestType&amp; rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool TemplateTestFacility_CompareHelper::areNotEqual(
+                                         const NonEqualComparableTestType&amp; lhs,
+                                         const NonEqualComparableTestType&amp; rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
                         // ---------------------------
                         // struct TemplateTestFacility
                         // ---------------------------
@@ -861,155 +971,196 @@ template &lt;class TYPE&gt;
 inline
 TYPE TemplateTestFacility::create(int identifier)
 {
-    return TYPE(identifier);
+    bsls::ObjectBuffer&lt;TYPE&gt; obj;
+    emplace(bsls::Util::addressOf(obj.object()),
+            identifier,
+            &amp;bslma::MallocFreeAllocator::singleton());
+    return obj.object();
+}
+
+template &lt;class TYPE&gt;
+inline
+void TemplateTestFacility::emplace(TYPE             *address,
+                                   int               identifier,
+                                   bslma::Allocator *allocator)
+{
+    bslalg::ScalarPrimitives::construct(address, identifier, allocator);
+}
+
+template &lt;class TYPE&gt;
+inline
+void TemplateTestFacility::emplace(TYPE             **address,
+                                   int                identifier,
+                                   bslma::Allocator  *allocator)
+{
+    bslalg::ScalarPrimitives::construct(
+                     address,
+                     reinterpret_cast&lt;TYPE *&gt;(bsls::Types::IntPtr(identifier)),
+                     allocator);
 }
 
 template &lt;&gt;
 inline
-EnumeratedTestType::Enum TemplateTestFacility::create&lt;
-                                      EnumeratedTestType::Enum&gt;(int identifier)
+void TemplateTestFacility::emplace&lt;EnumeratedTestType::Enum&gt;(
+                                          EnumeratedTestType::Enum *address,
+                                          int                       identifier,
+                                          bslma::Allocator         *allocator)
 {
-    return static_cast&lt;EnumeratedTestType::Enum&gt;(identifier);
+    bslalg::ScalarPrimitives::construct(
+                             address,
+                             static_cast&lt;EnumeratedTestType::Enum&gt;(identifier),
+                             allocator);
 }
 
 template &lt;&gt;
 inline
-TemplateTestFacility::MethodPtr TemplateTestFacility::create&lt;
-                               TemplateTestFacility::MethodPtr&gt;(int identifier)
+void TemplateTestFacility::emplace&lt;TemplateTestFacility::MethodPtr&gt;(
+                                   TemplateTestFacility::MethodPtr *address,
+                                   int                              identifier,
+                                   bslma::Allocator                *)
 {
-    BSLS_ASSERT(0 &lt;= identifier);  BSLS_ASSERT(identifier &lt; 128);
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 &lt;= identifier);  BSLS_ASSERT_SAFE(identifier &lt; 128);
+
+    // Note that we initialize the pointer-to-member with a simple assignment,
+    // rather than using &#39;bslalg::ScalarPrimitives&#39; like most of the other
+    // &#39;emplace&#39; implementations, as it fails to compile with Microsoft Visual
+    // C++.  This implementation may also be more efficient, and there is no
+    // risk of actually needing to use the &#39;allocator&#39; argument for this type,
+    // so we use this as the only implementation, rather than using platform
+    // detection macros to make it Microsoft-only.
 
     switch (identifier) {
-      case 0:   return &amp;TemplateTestFacility_StubClass::method&lt;0&gt;;
-      case 1:   return &amp;TemplateTestFacility_StubClass::method&lt;1&gt;;
-      case 2:   return &amp;TemplateTestFacility_StubClass::method&lt;2&gt;;
-      case 3:   return &amp;TemplateTestFacility_StubClass::method&lt;3&gt;;
-      case 4:   return &amp;TemplateTestFacility_StubClass::method&lt;4&gt;;
-      case 5:   return &amp;TemplateTestFacility_StubClass::method&lt;5&gt;;
-      case 6:   return &amp;TemplateTestFacility_StubClass::method&lt;6&gt;;
-      case 7:   return &amp;TemplateTestFacility_StubClass::method&lt;7&gt;;
-      case 8:   return &amp;TemplateTestFacility_StubClass::method&lt;8&gt;;
-      case 9:   return &amp;TemplateTestFacility_StubClass::method&lt;9&gt;;
-      case 10:  return &amp;TemplateTestFacility_StubClass::method&lt;10&gt;;
-      case 11:  return &amp;TemplateTestFacility_StubClass::method&lt;11&gt;;
-      case 12:  return &amp;TemplateTestFacility_StubClass::method&lt;12&gt;;
-      case 13:  return &amp;TemplateTestFacility_StubClass::method&lt;13&gt;;
-      case 14:  return &amp;TemplateTestFacility_StubClass::method&lt;14&gt;;
-      case 15:  return &amp;TemplateTestFacility_StubClass::method&lt;15&gt;;
-      case 16:  return &amp;TemplateTestFacility_StubClass::method&lt;16&gt;;
-      case 17:  return &amp;TemplateTestFacility_StubClass::method&lt;17&gt;;
-      case 18:  return &amp;TemplateTestFacility_StubClass::method&lt;18&gt;;
-      case 19:  return &amp;TemplateTestFacility_StubClass::method&lt;19&gt;;
-      case 20:  return &amp;TemplateTestFacility_StubClass::method&lt;20&gt;;
-      case 21:  return &amp;TemplateTestFacility_StubClass::method&lt;21&gt;;
-      case 22:  return &amp;TemplateTestFacility_StubClass::method&lt;22&gt;;
-      case 23:  return &amp;TemplateTestFacility_StubClass::method&lt;23&gt;;
-      case 24:  return &amp;TemplateTestFacility_StubClass::method&lt;24&gt;;
-      case 25:  return &amp;TemplateTestFacility_StubClass::method&lt;25&gt;;
-      case 26:  return &amp;TemplateTestFacility_StubClass::method&lt;26&gt;;
-      case 27:  return &amp;TemplateTestFacility_StubClass::method&lt;27&gt;;
-      case 28:  return &amp;TemplateTestFacility_StubClass::method&lt;28&gt;;
-      case 29:  return &amp;TemplateTestFacility_StubClass::method&lt;29&gt;;
-      case 30:  return &amp;TemplateTestFacility_StubClass::method&lt;30&gt;;
-      case 31:  return &amp;TemplateTestFacility_StubClass::method&lt;31&gt;;
-      case 32:  return &amp;TemplateTestFacility_StubClass::method&lt;32&gt;;
-      case 33:  return &amp;TemplateTestFacility_StubClass::method&lt;33&gt;;
-      case 34:  return &amp;TemplateTestFacility_StubClass::method&lt;34&gt;;
-      case 35:  return &amp;TemplateTestFacility_StubClass::method&lt;35&gt;;
-      case 36:  return &amp;TemplateTestFacility_StubClass::method&lt;36&gt;;
-      case 37:  return &amp;TemplateTestFacility_StubClass::method&lt;37&gt;;
-      case 38:  return &amp;TemplateTestFacility_StubClass::method&lt;38&gt;;
-      case 39:  return &amp;TemplateTestFacility_StubClass::method&lt;39&gt;;
-      case 40:  return &amp;TemplateTestFacility_StubClass::method&lt;40&gt;;
-      case 41:  return &amp;TemplateTestFacility_StubClass::method&lt;41&gt;;
-      case 42:  return &amp;TemplateTestFacility_StubClass::method&lt;42&gt;;
-      case 43:  return &amp;TemplateTestFacility_StubClass::method&lt;43&gt;;
-      case 44:  return &amp;TemplateTestFacility_StubClass::method&lt;44&gt;;
-      case 45:  return &amp;TemplateTestFacility_StubClass::method&lt;45&gt;;
-      case 46:  return &amp;TemplateTestFacility_StubClass::method&lt;46&gt;;
-      case 47:  return &amp;TemplateTestFacility_StubClass::method&lt;47&gt;;
-      case 48:  return &amp;TemplateTestFacility_StubClass::method&lt;48&gt;;
-      case 49:  return &amp;TemplateTestFacility_StubClass::method&lt;49&gt;;
-      case 50:  return &amp;TemplateTestFacility_StubClass::method&lt;50&gt;;
-      case 51:  return &amp;TemplateTestFacility_StubClass::method&lt;51&gt;;
-      case 52:  return &amp;TemplateTestFacility_StubClass::method&lt;52&gt;;
-      case 53:  return &amp;TemplateTestFacility_StubClass::method&lt;53&gt;;
-      case 54:  return &amp;TemplateTestFacility_StubClass::method&lt;54&gt;;
-      case 55:  return &amp;TemplateTestFacility_StubClass::method&lt;55&gt;;
-      case 56:  return &amp;TemplateTestFacility_StubClass::method&lt;56&gt;;
-      case 57:  return &amp;TemplateTestFacility_StubClass::method&lt;57&gt;;
-      case 58:  return &amp;TemplateTestFacility_StubClass::method&lt;58&gt;;
-      case 59:  return &amp;TemplateTestFacility_StubClass::method&lt;59&gt;;
-      case 60:  return &amp;TemplateTestFacility_StubClass::method&lt;60&gt;;
-      case 61:  return &amp;TemplateTestFacility_StubClass::method&lt;61&gt;;
-      case 62:  return &amp;TemplateTestFacility_StubClass::method&lt;62&gt;;
-      case 63:  return &amp;TemplateTestFacility_StubClass::method&lt;63&gt;;
-      case 64:  return &amp;TemplateTestFacility_StubClass::method&lt;64&gt;;
-      case 65:  return &amp;TemplateTestFacility_StubClass::method&lt;65&gt;;
-      case 66:  return &amp;TemplateTestFacility_StubClass::method&lt;66&gt;;
-      case 67:  return &amp;TemplateTestFacility_StubClass::method&lt;67&gt;;
-      case 68:  return &amp;TemplateTestFacility_StubClass::method&lt;68&gt;;
-      case 69:  return &amp;TemplateTestFacility_StubClass::method&lt;69&gt;;
-      case 70:  return &amp;TemplateTestFacility_StubClass::method&lt;70&gt;;
-      case 71:  return &amp;TemplateTestFacility_StubClass::method&lt;71&gt;;
-      case 72:  return &amp;TemplateTestFacility_StubClass::method&lt;72&gt;;
-      case 73:  return &amp;TemplateTestFacility_StubClass::method&lt;73&gt;;
-      case 74:  return &amp;TemplateTestFacility_StubClass::method&lt;74&gt;;
-      case 75:  return &amp;TemplateTestFacility_StubClass::method&lt;75&gt;;
-      case 76:  return &amp;TemplateTestFacility_StubClass::method&lt;76&gt;;
-      case 77:  return &amp;TemplateTestFacility_StubClass::method&lt;77&gt;;
-      case 78:  return &amp;TemplateTestFacility_StubClass::method&lt;78&gt;;
-      case 79:  return &amp;TemplateTestFacility_StubClass::method&lt;79&gt;;
-      case 80:  return &amp;TemplateTestFacility_StubClass::method&lt;80&gt;;
-      case 81:  return &amp;TemplateTestFacility_StubClass::method&lt;81&gt;;
-      case 82:  return &amp;TemplateTestFacility_StubClass::method&lt;82&gt;;
-      case 83:  return &amp;TemplateTestFacility_StubClass::method&lt;83&gt;;
-      case 84:  return &amp;TemplateTestFacility_StubClass::method&lt;84&gt;;
-      case 85:  return &amp;TemplateTestFacility_StubClass::method&lt;85&gt;;
-      case 86:  return &amp;TemplateTestFacility_StubClass::method&lt;86&gt;;
-      case 87:  return &amp;TemplateTestFacility_StubClass::method&lt;87&gt;;
-      case 88:  return &amp;TemplateTestFacility_StubClass::method&lt;88&gt;;
-      case 89:  return &amp;TemplateTestFacility_StubClass::method&lt;89&gt;;
-      case 90:  return &amp;TemplateTestFacility_StubClass::method&lt;90&gt;;
-      case 91:  return &amp;TemplateTestFacility_StubClass::method&lt;91&gt;;
-      case 92:  return &amp;TemplateTestFacility_StubClass::method&lt;92&gt;;
-      case 93:  return &amp;TemplateTestFacility_StubClass::method&lt;93&gt;;
-      case 94:  return &amp;TemplateTestFacility_StubClass::method&lt;94&gt;;
-      case 95:  return &amp;TemplateTestFacility_StubClass::method&lt;95&gt;;
-      case 96:  return &amp;TemplateTestFacility_StubClass::method&lt;96&gt;;
-      case 97:  return &amp;TemplateTestFacility_StubClass::method&lt;97&gt;;
-      case 98:  return &amp;TemplateTestFacility_StubClass::method&lt;98&gt;;
-      case 99:  return &amp;TemplateTestFacility_StubClass::method&lt;99&gt;;
-      case 100: return &amp;TemplateTestFacility_StubClass::method&lt;100&gt;;
-      case 101: return &amp;TemplateTestFacility_StubClass::method&lt;101&gt;;
-      case 102: return &amp;TemplateTestFacility_StubClass::method&lt;102&gt;;
-      case 103: return &amp;TemplateTestFacility_StubClass::method&lt;103&gt;;
-      case 104: return &amp;TemplateTestFacility_StubClass::method&lt;104&gt;;
-      case 105: return &amp;TemplateTestFacility_StubClass::method&lt;105&gt;;
-      case 106: return &amp;TemplateTestFacility_StubClass::method&lt;106&gt;;
-      case 107: return &amp;TemplateTestFacility_StubClass::method&lt;107&gt;;
-      case 108: return &amp;TemplateTestFacility_StubClass::method&lt;108&gt;;
-      case 109: return &amp;TemplateTestFacility_StubClass::method&lt;109&gt;;
-      case 110: return &amp;TemplateTestFacility_StubClass::method&lt;110&gt;;
-      case 111: return &amp;TemplateTestFacility_StubClass::method&lt;111&gt;;
-      case 112: return &amp;TemplateTestFacility_StubClass::method&lt;112&gt;;
-      case 113: return &amp;TemplateTestFacility_StubClass::method&lt;113&gt;;
-      case 114: return &amp;TemplateTestFacility_StubClass::method&lt;114&gt;;
-      case 115: return &amp;TemplateTestFacility_StubClass::method&lt;115&gt;;
-      case 116: return &amp;TemplateTestFacility_StubClass::method&lt;116&gt;;
-      case 117: return &amp;TemplateTestFacility_StubClass::method&lt;117&gt;;
-      case 118: return &amp;TemplateTestFacility_StubClass::method&lt;118&gt;;
-      case 119: return &amp;TemplateTestFacility_StubClass::method&lt;119&gt;;
-      case 120: return &amp;TemplateTestFacility_StubClass::method&lt;120&gt;;
-      case 121: return &amp;TemplateTestFacility_StubClass::method&lt;121&gt;;
-      case 122: return &amp;TemplateTestFacility_StubClass::method&lt;122&gt;;
-      case 123: return &amp;TemplateTestFacility_StubClass::method&lt;123&gt;;
-      case 124: return &amp;TemplateTestFacility_StubClass::method&lt;124&gt;;
-      case 125: return &amp;TemplateTestFacility_StubClass::method&lt;125&gt;;
-      case 126: return &amp;TemplateTestFacility_StubClass::method&lt;126&gt;;
-      case 127: return &amp;TemplateTestFacility_StubClass::method&lt;127&gt;;
+      case   0: *address = &amp;TemplateTestFacility_StubClass::method&lt;  0&gt;; break;
+      case   1: *address = &amp;TemplateTestFacility_StubClass::method&lt;  1&gt;; break;
+      case   2: *address = &amp;TemplateTestFacility_StubClass::method&lt;  2&gt;; break;
+      case   3: *address = &amp;TemplateTestFacility_StubClass::method&lt;  3&gt;; break;
+      case   4: *address = &amp;TemplateTestFacility_StubClass::method&lt;  4&gt;; break;
+      case   5: *address = &amp;TemplateTestFacility_StubClass::method&lt;  5&gt;; break;
+      case   6: *address = &amp;TemplateTestFacility_StubClass::method&lt;  6&gt;; break;
+      case   7: *address = &amp;TemplateTestFacility_StubClass::method&lt;  7&gt;; break;
+      case   8: *address = &amp;TemplateTestFacility_StubClass::method&lt;  8&gt;; break;
+      case   9: *address = &amp;TemplateTestFacility_StubClass::method&lt;  9&gt;; break;
+      case  10: *address = &amp;TemplateTestFacility_StubClass::method&lt; 10&gt;; break;
+      case  11: *address = &amp;TemplateTestFacility_StubClass::method&lt; 11&gt;; break;
+      case  12: *address = &amp;TemplateTestFacility_StubClass::method&lt; 12&gt;; break;
+      case  13: *address = &amp;TemplateTestFacility_StubClass::method&lt; 13&gt;; break;
+      case  14: *address = &amp;TemplateTestFacility_StubClass::method&lt; 14&gt;; break;
+      case  15: *address = &amp;TemplateTestFacility_StubClass::method&lt; 15&gt;; break;
+      case  16: *address = &amp;TemplateTestFacility_StubClass::method&lt; 16&gt;; break;
+      case  17: *address = &amp;TemplateTestFacility_StubClass::method&lt; 17&gt;; break;
+      case  18: *address = &amp;TemplateTestFacility_StubClass::method&lt; 18&gt;; break;
+      case  19: *address = &amp;TemplateTestFacility_StubClass::method&lt; 19&gt;; break;
+      case  20: *address = &amp;TemplateTestFacility_StubClass::method&lt; 20&gt;; break;
+      case  21: *address = &amp;TemplateTestFacility_StubClass::method&lt; 21&gt;; break;
+      case  22: *address = &amp;TemplateTestFacility_StubClass::method&lt; 22&gt;; break;
+      case  23: *address = &amp;TemplateTestFacility_StubClass::method&lt; 23&gt;; break;
+      case  24: *address = &amp;TemplateTestFacility_StubClass::method&lt; 24&gt;; break;
+      case  25: *address = &amp;TemplateTestFacility_StubClass::method&lt; 25&gt;; break;
+      case  26: *address = &amp;TemplateTestFacility_StubClass::method&lt; 26&gt;; break;
+      case  27: *address = &amp;TemplateTestFacility_StubClass::method&lt; 27&gt;; break;
+      case  28: *address = &amp;TemplateTestFacility_StubClass::method&lt; 28&gt;; break;
+      case  29: *address = &amp;TemplateTestFacility_StubClass::method&lt; 29&gt;; break;
+      case  30: *address = &amp;TemplateTestFacility_StubClass::method&lt; 30&gt;; break;
+      case  31: *address = &amp;TemplateTestFacility_StubClass::method&lt; 31&gt;; break;
+      case  32: *address = &amp;TemplateTestFacility_StubClass::method&lt; 32&gt;; break;
+      case  33: *address = &amp;TemplateTestFacility_StubClass::method&lt; 33&gt;; break;
+      case  34: *address = &amp;TemplateTestFacility_StubClass::method&lt; 34&gt;; break;
+      case  35: *address = &amp;TemplateTestFacility_StubClass::method&lt; 35&gt;; break;
+      case  36: *address = &amp;TemplateTestFacility_StubClass::method&lt; 36&gt;; break;
+      case  37: *address = &amp;TemplateTestFacility_StubClass::method&lt; 37&gt;; break;
+      case  38: *address = &amp;TemplateTestFacility_StubClass::method&lt; 38&gt;; break;
+      case  39: *address = &amp;TemplateTestFacility_StubClass::method&lt; 39&gt;; break;
+      case  40: *address = &amp;TemplateTestFacility_StubClass::method&lt; 40&gt;; break;
+      case  41: *address = &amp;TemplateTestFacility_StubClass::method&lt; 41&gt;; break;
+      case  42: *address = &amp;TemplateTestFacility_StubClass::method&lt; 42&gt;; break;
+      case  43: *address = &amp;TemplateTestFacility_StubClass::method&lt; 43&gt;; break;
+      case  44: *address = &amp;TemplateTestFacility_StubClass::method&lt; 44&gt;; break;
+      case  45: *address = &amp;TemplateTestFacility_StubClass::method&lt; 45&gt;; break;
+      case  46: *address = &amp;TemplateTestFacility_StubClass::method&lt; 46&gt;; break;
+      case  47: *address = &amp;TemplateTestFacility_StubClass::method&lt; 47&gt;; break;
+      case  48: *address = &amp;TemplateTestFacility_StubClass::method&lt; 48&gt;; break;
+      case  49: *address = &amp;TemplateTestFacility_StubClass::method&lt; 49&gt;; break;
+      case  50: *address = &amp;TemplateTestFacility_StubClass::method&lt; 50&gt;; break;
+      case  51: *address = &amp;TemplateTestFacility_StubClass::method&lt; 51&gt;; break;
+      case  52: *address = &amp;TemplateTestFacility_StubClass::method&lt; 52&gt;; break;
+      case  53: *address = &amp;TemplateTestFacility_StubClass::method&lt; 53&gt;; break;
+      case  54: *address = &amp;TemplateTestFacility_StubClass::method&lt; 54&gt;; break;
+      case  55: *address = &amp;TemplateTestFacility_StubClass::method&lt; 55&gt;; break;
+      case  56: *address = &amp;TemplateTestFacility_StubClass::method&lt; 56&gt;; break;
+      case  57: *address = &amp;TemplateTestFacility_StubClass::method&lt; 57&gt;; break;
+      case  58: *address = &amp;TemplateTestFacility_StubClass::method&lt; 58&gt;; break;
+      case  59: *address = &amp;TemplateTestFacility_StubClass::method&lt; 59&gt;; break;
+      case  60: *address = &amp;TemplateTestFacility_StubClass::method&lt; 60&gt;; break;
+      case  61: *address = &amp;TemplateTestFacility_StubClass::method&lt; 61&gt;; break;
+      case  62: *address = &amp;TemplateTestFacility_StubClass::method&lt; 62&gt;; break;
+      case  63: *address = &amp;TemplateTestFacility_StubClass::method&lt; 63&gt;; break;
+      case  64: *address = &amp;TemplateTestFacility_StubClass::method&lt; 64&gt;; break;
+      case  65: *address = &amp;TemplateTestFacility_StubClass::method&lt; 65&gt;; break;
+      case  66: *address = &amp;TemplateTestFacility_StubClass::method&lt; 66&gt;; break;
+      case  67: *address = &amp;TemplateTestFacility_StubClass::method&lt; 67&gt;; break;
+      case  68: *address = &amp;TemplateTestFacility_StubClass::method&lt; 68&gt;; break;
+      case  69: *address = &amp;TemplateTestFacility_StubClass::method&lt; 69&gt;; break;
+      case  70: *address = &amp;TemplateTestFacility_StubClass::method&lt; 70&gt;; break;
+      case  71: *address = &amp;TemplateTestFacility_StubClass::method&lt; 71&gt;; break;
+      case  72: *address = &amp;TemplateTestFacility_StubClass::method&lt; 72&gt;; break;
+      case  73: *address = &amp;TemplateTestFacility_StubClass::method&lt; 73&gt;; break;
+      case  74: *address = &amp;TemplateTestFacility_StubClass::method&lt; 74&gt;; break;
+      case  75: *address = &amp;TemplateTestFacility_StubClass::method&lt; 75&gt;; break;
+      case  76: *address = &amp;TemplateTestFacility_StubClass::method&lt; 76&gt;; break;
+      case  77: *address = &amp;TemplateTestFacility_StubClass::method&lt; 77&gt;; break;
+      case  78: *address = &amp;TemplateTestFacility_StubClass::method&lt; 78&gt;; break;
+      case  79: *address = &amp;TemplateTestFacility_StubClass::method&lt; 79&gt;; break;
+      case  80: *address = &amp;TemplateTestFacility_StubClass::method&lt; 80&gt;; break;
+      case  81: *address = &amp;TemplateTestFacility_StubClass::method&lt; 81&gt;; break;
+      case  82: *address = &amp;TemplateTestFacility_StubClass::method&lt; 82&gt;; break;
+      case  83: *address = &amp;TemplateTestFacility_StubClass::method&lt; 83&gt;; break;
+      case  84: *address = &amp;TemplateTestFacility_StubClass::method&lt; 84&gt;; break;
+      case  85: *address = &amp;TemplateTestFacility_StubClass::method&lt; 85&gt;; break;
+      case  86: *address = &amp;TemplateTestFacility_StubClass::method&lt; 86&gt;; break;
+      case  87: *address = &amp;TemplateTestFacility_StubClass::method&lt; 87&gt;; break;
+      case  88: *address = &amp;TemplateTestFacility_StubClass::method&lt; 88&gt;; break;
+      case  89: *address = &amp;TemplateTestFacility_StubClass::method&lt; 89&gt;; break;
+      case  90: *address = &amp;TemplateTestFacility_StubClass::method&lt; 90&gt;; break;
+      case  91: *address = &amp;TemplateTestFacility_StubClass::method&lt; 91&gt;; break;
+      case  92: *address = &amp;TemplateTestFacility_StubClass::method&lt; 92&gt;; break;
+      case  93: *address = &amp;TemplateTestFacility_StubClass::method&lt; 93&gt;; break;
+      case  94: *address = &amp;TemplateTestFacility_StubClass::method&lt; 94&gt;; break;
+      case  95: *address = &amp;TemplateTestFacility_StubClass::method&lt; 95&gt;; break;
+      case  96: *address = &amp;TemplateTestFacility_StubClass::method&lt; 96&gt;; break;
+      case  97: *address = &amp;TemplateTestFacility_StubClass::method&lt; 97&gt;; break;
+      case  98: *address = &amp;TemplateTestFacility_StubClass::method&lt; 98&gt;; break;
+      case  99: *address = &amp;TemplateTestFacility_StubClass::method&lt; 99&gt;; break;
+      case 100: *address = &amp;TemplateTestFacility_StubClass::method&lt;100&gt;; break;
+      case 101: *address = &amp;TemplateTestFacility_StubClass::method&lt;101&gt;; break;
+      case 102: *address = &amp;TemplateTestFacility_StubClass::method&lt;102&gt;; break;
+      case 103: *address = &amp;TemplateTestFacility_StubClass::method&lt;103&gt;; break;
+      case 104: *address = &amp;TemplateTestFacility_StubClass::method&lt;104&gt;; break;
+      case 105: *address = &amp;TemplateTestFacility_StubClass::method&lt;105&gt;; break;
+      case 106: *address = &amp;TemplateTestFacility_StubClass::method&lt;106&gt;; break;
+      case 107: *address = &amp;TemplateTestFacility_StubClass::method&lt;107&gt;; break;
+      case 108: *address = &amp;TemplateTestFacility_StubClass::method&lt;108&gt;; break;
+      case 109: *address = &amp;TemplateTestFacility_StubClass::method&lt;109&gt;; break;
+      case 110: *address = &amp;TemplateTestFacility_StubClass::method&lt;110&gt;; break;
+      case 111: *address = &amp;TemplateTestFacility_StubClass::method&lt;111&gt;; break;
+      case 112: *address = &amp;TemplateTestFacility_StubClass::method&lt;112&gt;; break;
+      case 113: *address = &amp;TemplateTestFacility_StubClass::method&lt;113&gt;; break;
+      case 114: *address = &amp;TemplateTestFacility_StubClass::method&lt;114&gt;; break;
+      case 115: *address = &amp;TemplateTestFacility_StubClass::method&lt;115&gt;; break;
+      case 116: *address = &amp;TemplateTestFacility_StubClass::method&lt;116&gt;; break;
+      case 117: *address = &amp;TemplateTestFacility_StubClass::method&lt;117&gt;; break;
+      case 118: *address = &amp;TemplateTestFacility_StubClass::method&lt;118&gt;; break;
+      case 119: *address = &amp;TemplateTestFacility_StubClass::method&lt;119&gt;; break;
+      case 120: *address = &amp;TemplateTestFacility_StubClass::method&lt;120&gt;; break;
+      case 121: *address = &amp;TemplateTestFacility_StubClass::method&lt;121&gt;; break;
+      case 122: *address = &amp;TemplateTestFacility_StubClass::method&lt;122&gt;; break;
+      case 123: *address = &amp;TemplateTestFacility_StubClass::method&lt;123&gt;; break;
+      case 124: *address = &amp;TemplateTestFacility_StubClass::method&lt;124&gt;; break;
+      case 125: *address = &amp;TemplateTestFacility_StubClass::method&lt;125&gt;; break;
+      case 126: *address = &amp;TemplateTestFacility_StubClass::method&lt;126&gt;; break;
+      case 127: *address = &amp;TemplateTestFacility_StubClass::method&lt;127&gt;; break;
+      default : BSLS_ASSERT_OPT(false);
     }
-    return 0;
 }
 
 template &lt;class TYPE&gt;
@@ -1054,7 +1205,9 @@ int TemplateTestFacility::getIdentifier&lt;
     bsltf::TemplateTestFacility::MethodPtr&gt;(
                              const bsltf::TemplateTestFacility::MethodPtr&amp; ptr)
 {
-    TemplateTestFacility_StubClass object;
+    BSLS_ASSERT_OPT(ptr);
+
+    TemplateTestFacility_StubClass object = TemplateTestFacility_StubClass();
     return (object.*ptr)();
 }
 
@@ -1109,7 +1262,7 @@ int TemplateTestFacility::getIdentifier&lt;bsltf::NonTypicalOverloadsTestType&gt
 template &lt;&gt;
 inline
 int TemplateTestFacility::getIdentifier&lt;bsltf::NonAssignableTestType&gt;(
-                             const bsltf::NonAssignableTestType&amp; object)
+                                    const bsltf::NonAssignableTestType&amp; object)
 {
     return object.data();
 }
@@ -1175,7 +1328,19 @@ void debugprint(const NonTypicalOverloadsTestType&amp; obj)
 }
 
 inline
+void debugprint(const NonAssignableTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
 void debugprint(const NonDefaultConstructibleTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const NonEqualComparableTestType&amp; obj)
 {
     printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
 }
@@ -1186,7 +1351,7 @@ void debugprint(const NonDefaultConstructibleTestType&amp; obj)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_list.h                                                      -*-C++-*-
@@ -2098,7 +2098,7 @@ list&lt;VALUE, ALLOCATOR&gt;&amp; list&lt;VALUE, ALLOCATOR&gt;::operator=(const 
         return *this;                                                 // RETURN
     }
 
-    if (AllocTraits::propagate_on_container_copy_assignment::VALUE &amp;&amp;
+    if (AllocTraits::propagate_on_container_copy_assignment::value &amp;&amp;
         allocator() != original.allocator()) {
         // Completely destroy and rebuild list using new allocator.
 
@@ -2137,7 +2137,7 @@ list&lt;VALUE, ALLOCATOR&gt;&amp; list&lt;VALUE, ALLOCATOR&gt;::operator=(list&a
 
         quick_swap(original);
     }
-    else if (AllocTraits::propagate_on_container_move_assignment::VALUE) {
+    else if (AllocTraits::propagate_on_container_move_assignment::value) {
         // Completely destroy and rebuild list using new allocator.
 
         // Create a new list with the new allocator and new contents.  This
@@ -2187,18 +2187,21 @@ void list&lt;VALUE, ALLOCATOR&gt;::assign(size_type n, const VALUE&amp; value)
 
 // iterators:
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::iterator list&lt;VALUE, ALLOCATOR&gt;::begin()
 {
     return iterator(head());
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::iterator list&lt;VALUE, ALLOCATOR&gt;::end()
 {
     return iterator(d_sentinel);
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::reverse_iterator
 list&lt;VALUE, ALLOCATOR&gt;::rbegin()
 {
@@ -2206,6 +2209,7 @@ list&lt;VALUE, ALLOCATOR&gt;::rbegin()
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::reverse_iterator
 list&lt;VALUE, ALLOCATOR&gt;::rend()
 {
@@ -2244,6 +2248,7 @@ void list&lt;VALUE, ALLOCATOR&gt;::resize(size_type sz, const VALUE&amp; c)
 
 // element access:
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 VALUE&amp; list&lt;VALUE, ALLOCATOR&gt;::front()
 {
     BSLS_ASSERT_SAFE(size_ref() &gt; 0);
@@ -2252,6 +2257,7 @@ VALUE&amp; list&lt;VALUE, ALLOCATOR&gt;::front()
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 VALUE&amp; list&lt;VALUE, ALLOCATOR&gt;::back()
 {
     BSLS_ASSERT_SAFE(size_ref() &gt; 0);
@@ -2265,6 +2271,7 @@ VALUE&amp; list&lt;VALUE, ALLOCATOR&gt;::back()
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template &lt;class VALUE, class ALLOCATOR&gt;
 template &lt;class... Args&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::emplace_front(Args&amp;&amp;... args)
 {
     emplace(begin(), std::forward&lt;Args&gt;(args)...);
@@ -2328,6 +2335,7 @@ void list&lt;VALUE, ALLOCATOR&gt;::emplace_front(const ARG1&amp; a1,
 #endif
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::pop_front()
 {
     BSLS_ASSERT_SAFE(size_ref() &gt; 0);
@@ -2339,6 +2347,7 @@ void list&lt;VALUE, ALLOCATOR&gt;::pop_front()
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template &lt;class VALUE, class ALLOCATOR&gt;
 template &lt;class... Args&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::emplace_back(Args&amp;&amp;... args)
 {
     emplace(end(), std::forward&lt;Args&gt;(args)...);
@@ -2402,6 +2411,7 @@ void list&lt;VALUE, ALLOCATOR&gt;::emplace_back(const ARG1&amp; a1,
 #endif
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::pop_back()
 {
     BSLS_ASSERT_SAFE(size_ref() &gt; 0);
@@ -2410,12 +2420,14 @@ void list&lt;VALUE, ALLOCATOR&gt;::pop_back()
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::push_front(const VALUE&amp; value)
 {
     emplace(begin(), value);
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::push_back(const VALUE&amp; value)
 {
     emplace(end(), value);
@@ -2423,12 +2435,14 @@ void list&lt;VALUE, ALLOCATOR&gt;::push_back(const VALUE&amp; value)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::push_front(VALUE&amp;&amp; value)
 {
     emplace(begin(), std::move(value));
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::push_back(VALUE&amp;&amp; value)
 {
     emplace(end(), std::move(value));
@@ -2628,7 +2642,7 @@ void list&lt;VALUE, ALLOCATOR&gt;::swap(list&amp; other)
 {
     using std::swap;
 
-    if (AllocTraits::propagate_on_container_swap::VALUE) {
+    if (AllocTraits::propagate_on_container_swap::value) {
         swap(allocator(), other.allocator());
         quick_swap(other);
     }
@@ -2652,6 +2666,7 @@ void list&lt;VALUE, ALLOCATOR&gt;::swap(list&amp; other)
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 void list&lt;VALUE, ALLOCATOR&gt;::clear()
 {
     erase(begin(), end());
@@ -2874,6 +2889,7 @@ void list&lt;VALUE, ALLOCATOR&gt;::reverse()
 
 // 23.3.5.2 construct/copy/destroy:
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 ALLOCATOR list&lt;VALUE, ALLOCATOR&gt;::get_allocator() const
 {
     return allocator();
@@ -2881,6 +2897,7 @@ ALLOCATOR list&lt;VALUE, ALLOCATOR&gt;::get_allocator() const
 
 // iterators:
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_iterator
 list&lt;VALUE, ALLOCATOR&gt;::begin() const
 {
@@ -2888,6 +2905,7 @@ list&lt;VALUE, ALLOCATOR&gt;::begin() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_iterator
 list&lt;VALUE, ALLOCATOR&gt;::end() const
 {
@@ -2895,6 +2913,7 @@ list&lt;VALUE, ALLOCATOR&gt;::end() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_reverse_iterator
 list&lt;VALUE, ALLOCATOR&gt;::rbegin() const
 {
@@ -2902,6 +2921,7 @@ list&lt;VALUE, ALLOCATOR&gt;::rbegin() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_reverse_iterator
 list&lt;VALUE, ALLOCATOR&gt;::rend() const
 {
@@ -2909,6 +2929,7 @@ list&lt;VALUE, ALLOCATOR&gt;::rend() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_iterator
 list&lt;VALUE, ALLOCATOR&gt;::cbegin() const
 {
@@ -2916,6 +2937,7 @@ list&lt;VALUE, ALLOCATOR&gt;::cbegin() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_iterator
 list&lt;VALUE, ALLOCATOR&gt;::cend() const
 {
@@ -2923,6 +2945,7 @@ list&lt;VALUE, ALLOCATOR&gt;::cend() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_reverse_iterator
 list&lt;VALUE, ALLOCATOR&gt;::crbegin() const
 {
@@ -2930,6 +2953,7 @@ list&lt;VALUE, ALLOCATOR&gt;::crbegin() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::const_reverse_iterator
 list&lt;VALUE, ALLOCATOR&gt;::crend() const
 {
@@ -2938,18 +2962,21 @@ list&lt;VALUE, ALLOCATOR&gt;::crend() const
 
 // 23.3.5.3 capacity:
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 bool list&lt;VALUE, ALLOCATOR&gt;::empty() const
 {
     return 0 == size_ref();
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::size_type list&lt;VALUE, ALLOCATOR&gt;::size() const
 {
     return size_ref();
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 typename list&lt;VALUE, ALLOCATOR&gt;::size_type
 list&lt;VALUE, ALLOCATOR&gt;::max_size() const
 {
@@ -2958,6 +2985,7 @@ list&lt;VALUE, ALLOCATOR&gt;::max_size() const
 
 // element access:
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 const VALUE&amp; list&lt;VALUE, ALLOCATOR&gt;::front() const
 {
     BSLS_ASSERT_SAFE(size_ref() &gt; 0);
@@ -2966,6 +2994,7 @@ const VALUE&amp; list&lt;VALUE, ALLOCATOR&gt;::front() const
 }
 
 template &lt;class VALUE, class ALLOCATOR&gt;
+inline
 const VALUE&amp; list&lt;VALUE, ALLOCATOR&gt;::back() const
 {
     BSLS_ASSERT_SAFE(size_ref() &gt; 0);
@@ -3047,7 +3076,7 @@ void bsl::swap(list&lt;VALUE, ALLOCATOR&gt;&amp; lhs, list&lt;VALUE, ALLOCATOR&g
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

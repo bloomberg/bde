@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_buildtarget.h                                                 -*-C++-*-
@@ -15,8 +15,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@PURPOSE: Provide build-target information in the object file.
 //
 //@CLASSES:
-//  bsls::ExcBuildTarget: type name for identifying exception builds
-//  bsls::MtBuildTarget: type name for identifying multi-threaded builds
+//  bsls::BuildTargetExc: type name for identifying exception builds
+//  bsls::BuildTargetMt: type name for identifying multi-threaded builds
 //
 //@MACROS:
 //  BDE_BUILD_TARGET_EXC: flag for exception-enabled builds
@@ -30,6 +30,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // and whether it was multi-threaded or not (it is enabled unless overridden by
 // defining the &#39;BDE_BUILD_TARGET_NO_MT&#39; macro).  The types defined by this
 // component should not be used directly.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include &lt;bsls_platform.h&gt;
@@ -47,10 +51,10 @@ namespace BloombergLP {
 
 namespace bsls {
 
-struct YesExcBuildTarget {
-    static const int d_isExcBuildTarget;
+struct BuildTargetExcYes {
+    static const int s_isBuildTargetExc;
 };
-typedef YesExcBuildTarget ExcBuildTarget;
+typedef BuildTargetExcYes BuildTargetExc;
 
 }  // close package namespace
 
@@ -63,10 +67,10 @@ typedef YesExcBuildTarget ExcBuildTarget;
 
 namespace bsls {
 
-struct NoExcBuildTarget {
-    static const int d_isExcBuildTarget;
+struct BuildTargetExcNo {
+    static const int s_isBuildTargetExc;
 };
-typedef NoExcBuildTarget ExcBuildTarget;
+typedef BuildTargetExcNo BuildTargetExc;
 
 }  // close package namespace
 
@@ -82,10 +86,10 @@ typedef NoExcBuildTarget ExcBuildTarget;
 
 namespace bsls {
 
-struct YesMtBuildTarget {
-    static const int d_isMtBuildTarget;
+struct BuildTargetMtYes {
+    static const int s_isBuildTargetMt;
 };
-typedef YesMtBuildTarget MtBuildTarget;
+typedef BuildTargetMtYes BuildTargetMt;
 
 }  // close package namespace
 
@@ -98,10 +102,10 @@ typedef YesMtBuildTarget MtBuildTarget;
 
 namespace bsls {
 
-struct NoMtBuildTarget {
-    static const int d_isMtBuildTarget;
+struct BuildTargetMtNo {
+    static const int s_isBuildTargetMt;
 };
-typedef NoMtBuildTarget MtBuildTarget;
+typedef BuildTargetMtNo BuildTargetMt;
 
 }  // close package namespace
 
@@ -112,15 +116,15 @@ typedef NoMtBuildTarget MtBuildTarget;
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 static const int *bsls_buildtarget_assertion1 =
-                                     &amp;bsls::ExcBuildTarget::d_isExcBuildTarget;
+                                     &amp;bsls::BuildTargetExc::s_isBuildTargetExc;
 static const int *bsls_buildtarget_assertion2 =
-                                       &amp;bsls::MtBuildTarget::d_isMtBuildTarget;
+                                       &amp;bsls::BuildTargetMt::s_isBuildTargetMt;
 #else
 namespace {
     extern const int *const bsls_buildtarget_assertion1 =
-                                     &amp;bsls::ExcBuildTarget::d_isExcBuildTarget;
+                                     &amp;bsls::BuildTargetExc::s_isBuildTargetExc;
     extern const int *const bsls_buildtarget_assertion2 =
-                                       &amp;bsls::MtBuildTarget::d_isMtBuildTarget;
+                                       &amp;bsls::BuildTargetMt::s_isBuildTargetMt;
 }
 #endif
 
@@ -130,7 +134,7 @@ namespace {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

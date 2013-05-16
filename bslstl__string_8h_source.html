@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_string.h                                                    -*-C++-*-
@@ -2092,49 +2092,9 @@ class basic_string
         // &quot;Lexicographical Comparisons&quot; for definitions.
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
-//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC&gt;
-struct HasStlIterators&lt;bsl::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOC&gt; &gt;
-    : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC&gt;
-struct IsBitwiseMoveable&lt;bsl::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOC&gt; &gt;
-    : IsBitwiseMoveable&lt;ALLOC&gt;
-{};
-
-}
-
-namespace bslma {
-
-template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC&gt;
-struct UsesBslmaAllocator&lt;bsl::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOC&gt; &gt;
-    : bsl::is_convertible&lt;Allocator*, ALLOC&gt;
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
+// TYPEDEFS
+typedef basic_string&lt;char&gt;    string;
+typedef basic_string&lt;wchar_t&gt; wstring;
 
 // FREE OPERATORS
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOC&gt;
@@ -2359,10 +2319,6 @@ getline(std::basic_istream&lt;CHAR_TYPE, CHAR_TRAITS&gt;&amp;     is,
     // entry, then do nothing, otherwise if no characters are extracted (e.g.,
     // because because the stream is at eof), &#39;str&#39; will become empty and
     // &#39;is.fail()&#39; will become true.
-
-// TYPEDEFS
-typedef basic_string&lt;char&gt;    string;
-typedef basic_string&lt;wchar_t&gt; wstring;
 
 // HASH SPECIALIZATIONS
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
@@ -5489,6 +5445,48 @@ hashBasicString(const basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;&amp;
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC&gt;
+struct HasStlIterators&lt;bsl::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOC&gt; &gt;
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC&gt;
+struct IsBitwiseMoveable&lt;bsl::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOC&gt; &gt;
+    : IsBitwiseMoveable&lt;ALLOC&gt;
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC&gt;
+struct UsesBslmaAllocator&lt;bsl::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOC&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOC&gt;
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 #undef BSLSTL_CHAR_TRAITS
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
@@ -5501,7 +5499,7 @@ extern template class bsl::basic_string&lt;wchar_t&gt;;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_addpointer Component</title>
+<title>BDE 2.17 Oss1: bslmf_addpointer Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Transform a type to a pointer to that type.  
+<p>Provide meta-function to transform a type to pointer to that type.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
@@ -80,7 +80,7 @@ Classes</h2></td></tr>
 <li>
 <a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.1.1">Example 1: Transform Type to Pointer to the Type</a> </li>
+<a href="#3.1.1">Example 1: Transform Type to Pointer Type to that Type</a> </li>
 </ul>
 </li>
 </ul>
@@ -90,17 +90,17 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Transform a type to a pointer to that type </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide meta-function to transform a type to pointer to that type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="structbsl_1_1add__pointer.html">bsl::add_pointer</a> </td><td>transform a type to a pointer to that type  </td></tr>
+<td><a class="el" href="structbsl_1_1add__pointer.html">bsl::add_pointer</a> </td><td>meta-function to transform a type to a pointer type  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__removepointer.html" title="Transform a pointer type to type pointed by pointer type.">Component bslmf_removepointer</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__removepointer.html" title="Provide a meta-function to transform pointer type to referent type.">Component bslmf_removepointer</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
@@ -111,16 +111,16 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Transform Type to Pointer to the Type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to transform a type to a pointer to that type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_transform_type_to_pointer_type_to_that_type"></a> <a class="anchor" id="usage.example_1~3A_transform_type_to_pointer_type_to_that_type"></a> <a class="anchor" id="description.usage.example_1~3A_transform_type_to_pointer_type_to_that_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Transform Type to Pointer Type to that Type: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to transform a type to a pointer type to that type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we create two <code>typedef</code>s -- a pointer type (<code>MyPtrType</code>) and the type pointed to by the pointer type (<code>MyType</code>): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">int</span>   MyType;
   <span class="keyword">typedef</span> <span class="keywordtype">int</span> * MyPtrType;
 </pre></div><br/>
 <br/>
- Now, we transform <code>MyType</code> to a pointer to <code>MyType</code> using <code><a class="el" href="structbsl_1_1add__pointer.html">bsl::add_pointer</a></code> and verify that the resulting type is the same as <code>MyPtrType</code>. and verify that the resulting type is the same as <code>MyType</code>: <br/>
+ Now, we transform <code>MyType</code> to a pointer type to <code>MyType</code> using <code><a class="el" href="structbsl_1_1add__pointer.html">bsl::add_pointer</a></code> and verify that the resulting type is the same as <code>MyPtrType</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbsl_1_1add__pointer.html#af875714fc4c4a371a869fccf1258523b">bsl::add_pointer&lt;MyType&gt;::type</a>,
                        MyPtrType&gt;::value));
@@ -128,7 +128,7 @@ Classes</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

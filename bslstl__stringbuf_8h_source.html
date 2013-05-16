@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslstl_stringbuf.h                                                 -*-C++-*-
@@ -479,23 +479,6 @@ typedef basic_stringbuf&lt;char, char_traits&lt;char&gt;, allocator&lt;char&gt; 
 typedef basic_stringbuf&lt;wchar_t, char_traits&lt;wchar_t&gt;, allocator&lt;wchar_t&gt; &gt;
                                                                     wstringbuf;
 
-}
-
-// TYPE TRAITS
-namespace BloombergLP {
-namespace bslma {
-
-template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR&gt;
-struct UsesBslmaAllocator&lt;
-        bsl::basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt; &gt;
-    : bsl::true_type
-{};
-
-}
-}
-
-namespace bsl {
-
                       // =========================
                       // struct StringBufContainer
                       // =========================
@@ -583,11 +566,11 @@ basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 {
     BSLS_ASSERT(d_mode &amp; ios_base::in);
     BSLS_ASSERT(&amp;d_str[0] &lt;= currentInputPosition);
-    BSLS_ASSERT(currentInputPosition &lt;= &amp;d_str[0] + d_lastWrittenChar);
+    BSLS_ASSERT(currentInputPosition &lt;= &amp;d_str[0] + streamSize());
 
     char_type *dataPtr = &amp;d_str[0];
 
-    this-&gt;setg(dataPtr, currentInputPosition, dataPtr + d_lastWrittenChar);
+    this-&gt;setg(dataPtr, currentInputPosition, dataPtr + streamSize());
     return pos_type(currentInputPosition - dataPtr);
 }
 
@@ -598,14 +581,14 @@ basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 {
     BSLS_ASSERT(d_mode &amp; ios_base::out);
     BSLS_ASSERT(&amp;d_str[0] &lt;= currentOutputPosition);
-    BSLS_ASSERT(currentOutputPosition &lt; &amp;d_str[0] + d_str.size());
+    BSLS_ASSERT(currentOutputPosition &lt;= &amp;d_str[0] + d_str.size());
 
     char_type          *dataPtr  = &amp;d_str[0];
     native_std::size_t  dataSize =  d_str.size();
 
     pos_type outputPos = currentOutputPosition - dataPtr;
     this-&gt;setp(dataPtr, dataPtr + dataSize);
-    this-&gt;pbump(outputPos);
+    this-&gt;pbump(int(outputPos));
     return outputPos;
 }
 
@@ -624,7 +607,7 @@ void basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 
         this-&gt;setg(dataPtr,
                    dataPtr + inputOffset,
-                   dataPtr + d_lastWrittenChar);
+                   dataPtr + streamSize());
     }
 
     if (d_mode &amp; ios_base::out) {
@@ -633,7 +616,7 @@ void basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
         native_std::size_t dataSize = d_str.size();
         this-&gt;setp(dataPtr, dataPtr + dataSize);
         if (outputOffset) {
-            this-&gt;pbump(outputOffset);
+            this-&gt;pbump(int(outputOffset));
         }
     }
 }
@@ -644,10 +627,7 @@ bool basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::extendInputArea()
     // Try to extend into written buffer.
 
     if (d_mode &amp; ios_base::out &amp;&amp; this-&gt;pptr() &gt; this-&gt;egptr()) {
-        off_type currentOutputCharacter = this-&gt;pptr() - this-&gt;pbase();
-        d_lastWrittenChar = native_std::max(d_lastWrittenChar,
-                                            currentOutputCharacter);
-
+        d_lastWrittenChar = streamSize();
         updateInputPointers(this-&gt;gptr());
         return true;                                                  // RETURN
     }
@@ -663,7 +643,7 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::pos_type
     pos_type size = native_std::max&lt;off_type&gt;(d_lastWrittenChar,
                                               this-&gt;pptr() - this-&gt;pbase());
 
-    BSLS_ASSERT(size &lt;= d_str.size());
+    BSLS_ASSERT(size &lt;= off_type(d_str.size()));
 
     return size;
 }
@@ -771,6 +751,11 @@ native_std::streamsize
         return 0;                                                     // RETURN
     }
 
+    // Additional characters may become available for reading when the
+    // input area is extended to account for any characters newly written
+    // to the output sequence.
+    extendInputArea();
+
     if (this-&gt;gptr() != this-&gt;egptr()) {
         // There are characters available in this buffer.
 
@@ -779,17 +764,9 @@ native_std::streamsize
                                                            numCharacters);
 
         traits_type::copy(result, this-&gt;gptr(), readChars);
-        this-&gt;gbump(readChars);
+        this-&gt;gbump(int(readChars));
 
         return readChars;                                             // RETURN
-    }
-
-    if (extendInputArea()) {
-        // Additional characters may become available for reading when the
-        // input area is extended to account for any characters newly written
-        // to the output sequence.
-
-        return this-&gt;basic_stringbuf::xsgetn(result, numCharacters);  // RETURN
     }
 
     return 0;
@@ -952,8 +929,7 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::int_type
         *this-&gt;pptr() = c;
         this-&gt;pbump(1);
 
-        d_lastWrittenChar = native_std::max&lt;off_type&gt;(
-                              d_lastWrittenChar, this-&gt;pptr() - this-&gt;pbase());
+        d_lastWrittenChar = streamSize();
     }
     else {
         // Store the input offset so it can be used to restore the input and
@@ -1066,10 +1042,26 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::StringType
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;
+        bsl::basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt; &gt;
+    : bsl::true_type
+{};
+
+}  // close package namespace
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

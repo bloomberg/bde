@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_addreference Component</title>
+<title>BDE 2.17 Oss1: bslmf_addreference Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -110,7 +110,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_a_simple_wrapper_class"></a> <a class="anchor" id="usage.example_1~3A_a_simple_wrapper_class"></a> <a class="anchor" id="description.usage.example_1~3A_a_simple_wrapper_class"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: A Simple Wrapper Class: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, let us write a simple class that can wrap any other type: <br/>
 <br/>
@@ -125,7 +125,7 @@ Namespaces</h2></td></tr>
       <span class="keyword">typedef</span> <span class="keyword">typename</span> <a class="code" href="structbslmf_1_1AddReference.html#a2949996554486b6ee9b6db548d973e87">bslmf::AddReference&lt;TYPE&gt;::Type</a> WrappedType;
 
       <span class="comment">// CREATORS</span>
-      Wrapper(TYPE value) : d_data(value) {}
+      Wrapper(TYPE value) : d_data(value) {}                      <span class="comment">// IMPLICIT</span>
           <span class="comment">// Create a &#39;Wrapper&#39; object having the specified &#39;value&#39;.</span>
 
           <span class="comment">// Destroy this object.</span>
@@ -182,7 +182,7 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_expected_results"></a> <a class="anchor" id="usage.example_2~3A_expected_results"></a> <a class="anchor" id="description.usage.example_2~3A_expected_results"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Expected Results: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>For this example, the associated comments below indicate the expected type of <code><a class="el" href="structbslmf_1_1AddReference.html#a2949996554486b6ee9b6db548d973e87">bslmf::AddReference::Type</a></code> for a broad range of parameterized types: <br/>
 <br/>
@@ -208,7 +208,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:41 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

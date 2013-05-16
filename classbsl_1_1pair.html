@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: Class bsl::pair</title>
+<title>BDE 2.17 Oss1: Class bsl::pair</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -68,7 +68,7 @@
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a>  </div>
+<a href="#pub-attribs">Public Attributes</a>  </div>
   <div class="headertitle">
 <h1>bsl::pair&lt; T1, T2 &gt; Class Template Reference<br/>
 <small>
@@ -115,8 +115,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1pair.html">pair</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga87ead47d7766b5e4f64a3940340e66aa">operator=</a> (const native_std::pair&lt; U1, U2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga7c1cf552d0d745d92dfaa76dd8ba4576">swap</a> (<a class="el" href="classbsl_1_1pair.html">pair</a> &amp;other)</td></tr>
-<tr><td colspan="2"><h2><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
+<tr><td colspan="2"><h2><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">T1&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gafff8113b0b2f4bbe5df93ce0ba30fad8">first</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">T2&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gaf89d2b38598dfb6fa42775f2e135f1d8">second</a></td></tr>
 </table>
@@ -125,11 +125,38 @@ Private Attributes</h2></td></tr>
  class bsl::pair&lt; T1, T2 &gt;</h3>
 
 <p>Provide a pair of public data members, <code>first</code> and <code>second</code>, of type <code>T1</code> and <code>T2</code> respectively. If either <code>T1</code> or <code>T2</code> uses <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> for memory management, then provide an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument for each constructor, to be passed through to the constructors of <code>first</code> and/or <code>second</code> as appropriate. The interface to this class is identical to the standard <code>std::pair</code> except for the addition of the allocators. </p>
+<hr/><h2>Member Data Documentation</h2>
+<a class="anchor" id="gafff8113b0b2f4bbe5df93ce0ba30fad8"></a><!-- doxytag: member="bsl::pair::first" ref="gafff8113b0b2f4bbe5df93ce0ba30fad8" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">T1 <a class="el" href="structbsl_1_1Pair__Imp.html">bsl::Pair_Imp</a>&lt; T1, T2, T1_USES_BSLMA, T2_USES_BSLMA &gt;::<a class="el" href="group__bslstl__pair.html#gafff8113b0b2f4bbe5df93ce0ba30fad8">first</a><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="gaf89d2b38598dfb6fa42775f2e135f1d8"></a><!-- doxytag: member="bsl::pair::second" ref="gaf89d2b38598dfb6fa42775f2e135f1d8" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">T2 <a class="el" href="structbsl_1_1Pair__Imp.html">bsl::Pair_Imp</a>&lt; T1, T2, T1_USES_BSLMA, T2_USES_BSLMA &gt;::<a class="el" href="group__bslstl__pair.html#gaf89d2b38598dfb6fa42775f2e135f1d8">second</a><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslstl__pair_8h_source.html">bslstl_pair.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:50 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:12 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

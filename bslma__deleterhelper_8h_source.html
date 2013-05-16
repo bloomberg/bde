@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslma_deleterhelper.h                                              -*-C++-*-
@@ -29,7 +29,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // originally dispensed by &#39;ALLOCATOR&#39;.  The non-&quot;raw&quot; &#39;deleteObject&#39; has no
 // such restriction.  Note that this component will fail to compile when
 // instantiated for a class that gives a false-positive for the type trait
-// &#39;bslmf::IsPolymorphic&#39;.  See the &#39;bslmf_ispolymporphic&#39; component for more
+// &#39;bsl::is_polymorphic&#39;.  See the &#39;bslmf_ispolymporphic&#39; component for more
 // details.
 //
 ///Usage
@@ -176,7 +176,7 @@ void DeleterHelper::deleteObject(const TYPE *object,
 
     if (0 != object) {
         void *address = DeleterHelper_Helper&lt;
-                            bslmf::IsPolymorphic&lt;TYPE&gt;::value&gt;::caster(object);
+                            bsl::is_polymorphic&lt;TYPE&gt;::value&gt;::caster(object);
         BSLS_ASSERT_OPT(address);
 
 #ifndef BSLS_PLATFORM_CMP_SUN
@@ -217,7 +217,7 @@ void DeleterHelper::deleteObjectRaw(const TYPE *object,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

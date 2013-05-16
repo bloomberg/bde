@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_switch.h                                                     -*-C++-*-
@@ -225,17 +225,17 @@ namespace bslmf {
                         // struct Switch
                         // =============
 
-template &lt;int      SELECTOR,
-          typename T0,
-          typename T1 = Nil,
-          typename T2 = Nil,
-          typename T3 = Nil,
-          typename T4 = Nil,
-          typename T5 = Nil,
-          typename T6 = Nil,
-          typename T7 = Nil,
-          typename T8 = Nil,
-          typename T9 = Nil&gt;
+template &lt;int   SELECTOR,
+          class T0,
+          class T1 = Nil,
+          class T2 = Nil,
+          class T3 = Nil,
+          class T4 = Nil,
+          class T5 = Nil,
+          class T6 = Nil,
+          class T7 = Nil,
+          class T8 = Nil,
+          class T9 = Nil&gt;
 struct Switch {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and types
     // &#39;T0&#39; up to &#39;T9&#39;, provides a single type alias, &#39;Type&#39;, which resolves,
@@ -250,8 +250,8 @@ struct Switch {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -259,8 +259,8 @@ struct Switch&lt;0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;1, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -268,8 +268,8 @@ struct Switch&lt;1, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;2, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -277,8 +277,8 @@ struct Switch&lt;2, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T2 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;3, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 3 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T3&#39; as &#39;Type&#39;.
@@ -286,8 +286,8 @@ struct Switch&lt;3, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T3 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;4, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 4 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T4&#39; as &#39;Type&#39;.
@@ -295,8 +295,8 @@ struct Switch&lt;4, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T4 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;5, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 5 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T5&#39; as &#39;Type&#39;.
@@ -304,8 +304,8 @@ struct Switch&lt;5, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T5 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;6, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 6 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T6&#39; as &#39;Type&#39;.
@@ -313,8 +313,8 @@ struct Switch&lt;6, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T6 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;7, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 7 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T7&#39; as &#39;Type&#39;.
@@ -322,8 +322,8 @@ struct Switch&lt;7, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T7 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;8, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 8 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T8&#39; as &#39;Type&#39;.
@@ -331,8 +331,8 @@ struct Switch&lt;8, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     typedef T8 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8, typename T9&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9&gt;
 struct Switch&lt;9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
     // This specialization of &#39;Switch&#39; for a value of 9 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T9&#39; as &#39;Type&#39;.
@@ -344,7 +344,7 @@ struct Switch&lt;9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9&gt; {
                         // struct Switch2
                         // ==============
 
-template &lt;int SELECTOR, typename T0, typename T1&gt;
+template &lt;int SELECTOR, class T0, class T1&gt;
 struct Switch2 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // two types &#39;T0&#39; and &#39;T1&#39;, offers functionality identical to
@@ -354,7 +354,7 @@ struct Switch2 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1&gt;
+template &lt;class T0, class T1&gt;
 struct Switch2&lt;0, T0, T1&gt; {
     // This specialization of &#39;Switch2&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -362,7 +362,7 @@ struct Switch2&lt;0, T0, T1&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1&gt;
+template &lt;class T0, class T1&gt;
 struct Switch2&lt;1, T0, T1&gt; {
     // This specialization of &#39;Switch2&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -374,7 +374,7 @@ struct Switch2&lt;1, T0, T1&gt; {
                         // struct Switch3
                         // ==============
 
-template &lt;int SELECTOR, typename T0, typename T1, typename T2&gt;
+template &lt;int SELECTOR, class T0, class T1, class T2&gt;
 struct Switch3 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // three types &#39;T0&#39; up to &#39;T2&#39;, offers functionality identical to
@@ -384,7 +384,7 @@ struct Switch3 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2&gt;
+template &lt;class T0, class T1, class T2&gt;
 struct Switch3&lt;0, T0, T1, T2&gt; {
     // This specialization of &#39;Switch3&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -392,7 +392,7 @@ struct Switch3&lt;0, T0, T1, T2&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2&gt;
+template &lt;class T0, class T1, class T2&gt;
 struct Switch3&lt;1, T0, T1, T2&gt; {
     // This specialization of &#39;Switch3&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -400,7 +400,7 @@ struct Switch3&lt;1, T0, T1, T2&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2&gt;
+template &lt;class T0, class T1, class T2&gt;
 struct Switch3&lt;2, T0, T1, T2&gt; {
     // This specialization of &#39;Switch3&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -412,7 +412,7 @@ struct Switch3&lt;2, T0, T1, T2&gt; {
                         // struct Switch4
                         // ==============
 
-template &lt;int SELECTOR, typename T0, typename T1, typename T2, typename T3&gt;
+template &lt;int SELECTOR, class T0, class T1, class T2, class T3&gt;
 struct Switch4 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // four types &#39;T0&#39; up to &#39;T3&#39;, offers functionality identical to
@@ -422,7 +422,7 @@ struct Switch4 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2, typename T3&gt;
+template &lt;class T0, class T1, class T2, class T3&gt;
 struct Switch4&lt;0, T0, T1, T2, T3&gt; {
     // This specialization of &#39;Switch4&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -430,7 +430,7 @@ struct Switch4&lt;0, T0, T1, T2, T3&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3&gt;
+template &lt;class T0, class T1, class T2, class T3&gt;
 struct Switch4&lt;1, T0, T1, T2, T3&gt; {
     // This specialization of &#39;Switch4&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -438,7 +438,7 @@ struct Switch4&lt;1, T0, T1, T2, T3&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3&gt;
+template &lt;class T0, class T1, class T2, class T3&gt;
 struct Switch4&lt;2, T0, T1, T2, T3&gt; {
     // This specialization of &#39;Switch4&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -446,7 +446,7 @@ struct Switch4&lt;2, T0, T1, T2, T3&gt; {
     typedef T2 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3&gt;
+template &lt;class T0, class T1, class T2, class T3&gt;
 struct Switch4&lt;3, T0, T1, T2, T3&gt; {
     // This specialization of &#39;Switch4&#39; for a value of 3 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T3&#39; as &#39;Type&#39;.
@@ -458,12 +458,7 @@ struct Switch4&lt;3, T0, T1, T2, T3&gt; {
                         // struct Switch5
                         // ==============
 
-template &lt;int      SELECTOR,
-          typename T0,
-          typename T1,
-          typename T2,
-          typename T3,
-          typename T4&gt;
+template &lt;int SELECTOR, class T0, class T1, class T2, class T3, class T4&gt;
 struct Switch5 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // five types &#39;T0&#39; up to &#39;T4&#39;, offers functionality identical to
@@ -473,7 +468,7 @@ struct Switch5 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4&gt;
 struct Switch5&lt;0, T0, T1, T2, T3, T4&gt; {
     // This specialization of &#39;Switch5&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -481,7 +476,7 @@ struct Switch5&lt;0, T0, T1, T2, T3, T4&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4&gt;
 struct Switch5&lt;1, T0, T1, T2, T3, T4&gt; {
     // This specialization of &#39;Switch5&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -489,7 +484,7 @@ struct Switch5&lt;1, T0, T1, T2, T3, T4&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4&gt;
 struct Switch5&lt;2, T0, T1, T2, T3, T4&gt; {
     // This specialization of &#39;Switch5&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -497,7 +492,7 @@ struct Switch5&lt;2, T0, T1, T2, T3, T4&gt; {
     typedef T2 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4&gt;
 struct Switch5&lt;3, T0, T1, T2, T3, T4&gt; {
     // This specialization of &#39;Switch5&#39; for a value of 3 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T3&#39; as &#39;Type&#39;.
@@ -505,7 +500,7 @@ struct Switch5&lt;3, T0, T1, T2, T3, T4&gt; {
     typedef T3 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4&gt;
 struct Switch5&lt;4, T0, T1, T2, T3, T4&gt; {
     // This specialization of &#39;Switch5&#39; for a value of 4 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T4&#39; as &#39;Type&#39;.
@@ -517,13 +512,13 @@ struct Switch5&lt;4, T0, T1, T2, T3, T4&gt; {
                         // struct Switch6
                         // ==============
 
-template &lt;int      SELECTOR,
-          typename T0,
-          typename T1,
-          typename T2,
-          typename T3,
-          typename T4,
-          typename T5&gt;
+template &lt;int   SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5&gt;
 struct Switch6 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // six types &#39;T0&#39; up to &#39;T5&#39;, offers functionality identical to
@@ -533,8 +528,8 @@ struct Switch6 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5&gt;
 struct Switch6&lt;0, T0, T1, T2, T3, T4, T5&gt; {
     // This specialization of &#39;Switch6&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -542,8 +537,8 @@ struct Switch6&lt;0, T0, T1, T2, T3, T4, T5&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5&gt;
 struct Switch6&lt;1, T0, T1, T2, T3, T4, T5&gt; {
     // This specialization of &#39;Switch6&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -551,8 +546,8 @@ struct Switch6&lt;1, T0, T1, T2, T3, T4, T5&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5&gt;
 struct Switch6&lt;2, T0, T1, T2, T3, T4, T5&gt; {
     // This specialization of &#39;Switch6&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -560,8 +555,8 @@ struct Switch6&lt;2, T0, T1, T2, T3, T4, T5&gt; {
     typedef T2 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5&gt;
 struct Switch6&lt;3, T0, T1, T2, T3, T4, T5&gt; {
     // This specialization of &#39;Switch6&#39; for a value of 3 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T3&#39; as &#39;Type&#39;.
@@ -569,8 +564,8 @@ struct Switch6&lt;3, T0, T1, T2, T3, T4, T5&gt; {
     typedef T3 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5&gt;
 struct Switch6&lt;4, T0, T1, T2, T3, T4, T5&gt; {
     // This specialization of &#39;Switch6&#39; for a value of 4 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T4&#39; as &#39;Type&#39;.
@@ -578,8 +573,8 @@ struct Switch6&lt;4, T0, T1, T2, T3, T4, T5&gt; {
     typedef T4 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5&gt;
 struct Switch6&lt;5, T0, T1, T2, T3, T4, T5&gt; {
     // This specialization of &#39;Switch6&#39; for a value of 5 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T5&#39; as &#39;Type&#39;.
@@ -591,14 +586,14 @@ struct Switch6&lt;5, T0, T1, T2, T3, T4, T5&gt; {
                         // struct Switch7
                         // ==============
 
-template &lt;int      SELECTOR,
-          typename T0,
-          typename T1,
-          typename T2,
-          typename T3,
-          typename T4,
-          typename T5,
-          typename T6&gt;
+template &lt;int   SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5,
+          class T6&gt;
 struct Switch7 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // seven types &#39;T0&#39; up to &#39;T6&#39;, offers functionality identical to
@@ -608,8 +603,8 @@ struct Switch7 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6&gt;
 struct Switch7&lt;0, T0, T1, T2, T3, T4, T5, T6&gt; {
     // This specialization of &#39;Switch7&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -617,8 +612,8 @@ struct Switch7&lt;0, T0, T1, T2, T3, T4, T5, T6&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6&gt;
 struct Switch7&lt;1, T0, T1, T2, T3, T4, T5, T6&gt; {
     // This specialization of &#39;Switch7&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -626,8 +621,8 @@ struct Switch7&lt;1, T0, T1, T2, T3, T4, T5, T6&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6&gt;
 struct Switch7&lt;2, T0, T1, T2, T3, T4, T5, T6&gt; {
     // This specialization of &#39;Switch7&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -635,8 +630,8 @@ struct Switch7&lt;2, T0, T1, T2, T3, T4, T5, T6&gt; {
     typedef T2 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6&gt;
 struct Switch7&lt;3, T0, T1, T2, T3, T4, T5, T6&gt; {
     // This specialization of &#39;Switch7&#39; for a value of 3 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T3&#39; as &#39;Type&#39;.
@@ -644,8 +639,8 @@ struct Switch7&lt;3, T0, T1, T2, T3, T4, T5, T6&gt; {
     typedef T3 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6&gt;
 struct Switch7&lt;4, T0, T1, T2, T3, T4, T5, T6&gt; {
     // This specialization of &#39;Switch7&#39; for a value of 4 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T4&#39; as &#39;Type&#39;.
@@ -653,8 +648,8 @@ struct Switch7&lt;4, T0, T1, T2, T3, T4, T5, T6&gt; {
     typedef T4 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6&gt;
 struct Switch7&lt;5, T0, T1, T2, T3, T4, T5, T6&gt; {
     // This specialization of &#39;Switch7&#39; for a value of 5 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T5&#39; as &#39;Type&#39;.
@@ -662,8 +657,8 @@ struct Switch7&lt;5, T0, T1, T2, T3, T4, T5, T6&gt; {
     typedef T5 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6&gt;
 struct Switch7&lt;6, T0, T1, T2, T3, T4, T5, T6&gt; {
     // This specialization of &#39;Switch7&#39; for a value of 6 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T6&#39; as &#39;Type&#39;.
@@ -675,15 +670,15 @@ struct Switch7&lt;6, T0, T1, T2, T3, T4, T5, T6&gt; {
                         // struct Switch8
                         // ==============
 
-template &lt;int      SELECTOR,
-          typename T0,
-          typename T1,
-          typename T2,
-          typename T3,
-          typename T4,
-          typename T5,
-          typename T6,
-          typename T7&gt;
+template &lt;int   SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5,
+          class T6,
+          class T7&gt;
 struct Switch8 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // eight types &#39;T0&#39; up to &#39;T7&#39;, offers functionality identical to
@@ -693,8 +688,8 @@ struct Switch8 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;0, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -702,8 +697,8 @@ struct Switch8&lt;0, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;1, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -711,8 +706,8 @@ struct Switch8&lt;1, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;2, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -720,8 +715,8 @@ struct Switch8&lt;2, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     typedef T2 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;3, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 3 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T3&#39; as &#39;Type&#39;.
@@ -729,8 +724,8 @@ struct Switch8&lt;3, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     typedef T3 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;4, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 4 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T4&#39; as &#39;Type&#39;.
@@ -738,8 +733,8 @@ struct Switch8&lt;4, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     typedef T4 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;5, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 5 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T5&#39; as &#39;Type&#39;.
@@ -747,8 +742,8 @@ struct Switch8&lt;5, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     typedef T5 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;6, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 6 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T6&#39; as &#39;Type&#39;.
@@ -756,8 +751,8 @@ struct Switch8&lt;6, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     typedef T6 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7&gt;
 struct Switch8&lt;7, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
     // This specialization of &#39;Switch8&#39; for a value of 7 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T7&#39; as &#39;Type&#39;.
@@ -769,16 +764,16 @@ struct Switch8&lt;7, T0, T1, T2, T3, T4, T5, T6, T7&gt; {
                         // struct Switch9
                         // ==============
 
-template &lt;int      SELECTOR,
-          typename T0,
-          typename T1,
-          typename T2,
-          typename T3,
-          typename T4,
-          typename T5,
-          typename T6,
-          typename T7,
-          typename T8&gt;
+template &lt;int   SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5,
+          class T6,
+          class T7,
+          class T8&gt;
 struct Switch9 {
     // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and exactly
     // nine types &#39;T0&#39; up to &#39;T8&#39;, offers functionality identical to
@@ -788,8 +783,8 @@ struct Switch9 {
 };
 
 // SPECIALIZATIONS
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;0, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 0 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T0&#39; as &#39;Type&#39;.
@@ -797,8 +792,8 @@ struct Switch9&lt;0, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T0 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;1, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 1 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T1&#39; as &#39;Type&#39;.
@@ -806,8 +801,8 @@ struct Switch9&lt;1, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T1 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;2, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 2 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T2&#39; as &#39;Type&#39;.
@@ -815,8 +810,8 @@ struct Switch9&lt;2, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T2 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;3, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 3 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T3&#39; as &#39;Type&#39;.
@@ -824,8 +819,8 @@ struct Switch9&lt;3, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T3 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;4, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 4 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T4&#39; as &#39;Type&#39;.
@@ -833,8 +828,8 @@ struct Switch9&lt;4, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T4 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;5, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 5 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T5&#39; as &#39;Type&#39;.
@@ -842,8 +837,8 @@ struct Switch9&lt;5, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T5 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;6, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 6 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T6&#39; as &#39;Type&#39;.
@@ -851,8 +846,8 @@ struct Switch9&lt;6, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T6 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;7, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 7 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T7&#39; as &#39;Type&#39;.
@@ -860,8 +855,8 @@ struct Switch9&lt;7, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     typedef T7 Type;
 };
 
-template &lt;typename T0, typename T1, typename T2, typename T3, typename T4,
-          typename T5, typename T6, typename T7, typename T8&gt;
+template &lt;class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8&gt;
 struct Switch9&lt;8, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
     // This specialization of &#39;Switch9&#39; for a value of 8 of the parameterized
     // &#39;SELECTOR&#39; selects the parameterized &#39;T8&#39; as &#39;Type&#39;.
@@ -877,7 +872,7 @@ struct Switch9&lt;8, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

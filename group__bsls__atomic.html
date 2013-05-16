@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls_atomic Component</title>
+<title>BDE 2.17 Oss1: bsls_atomic Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -189,7 +189,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_usage_statistics_on_a_thread_pool"></a> <a class="anchor" id="usage.example_1~3A_usage_statistics_on_a_thread_pool"></a> <a class="anchor" id="description.usage.example_1~3A_usage_statistics_on_a_thread_pool"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Usage Statistics on a Thread Pool: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example demonstrates a common use of atomic integer types for statistics counters. The program creates a series of threads to process transactions. As each thread completes a transaction, it atomically increments the transaction counters. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>For this example, we assume the existence of the functions <code>processNextTransaction</code>, <code>createWorkerThread</code>, and <code>waitAllThreads</code>. The function <code>createWorkerThread</code> spawns a new thread, which executes the <code>workerThread</code> function. <code>waitAllThreads</code> blocks until all the worker thread complete. </dd></dl>
@@ -229,7 +229,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  Note that functions <code>createWorkerThread</code> and <code>waitAllThreads</code> can be implemented using any thread-support package. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.2.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_thread-safe_counted_handle"></a> <a class="anchor" id="usage.example_2~3A_thread-safe_counted_handle"></a> <a class="anchor" id="description.usage.example_2~3A_thread-safe_counted_handle"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.2.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Thread-safe Counted Handle: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following example demonstrates the use of atomic integer operations to implement a thread-safe ref-counted handle similar to a shared pointer. Each handle (of type <code>my_CountedHandle</code>) maintains a pointer to a representation object, <code>my_CountedHandleRep</code>, which in turn, stores both a pointer to the managed object and a reference counter. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Both the handle class and the representation class are template classes with two template parameters. The template parameter, <code>INSTANCE</code>, represents the type of the "instance", or managed object. </dd></dl>
@@ -252,8 +252,8 @@ sequential consistency - the operation has both acquire and release guarantees, 
   <span class="keyword">class </span>my_CountedHandleRep {
 
       <span class="comment">// DATA</span>
-      <a class="code" href="classbsls_1_1AtomicInt.html">bsls::AtomicInt</a>  d_count;        <span class="comment">// number of active references</span>
       INSTANCE        *d_instance_p;   <span class="comment">// address of managed instance</span>
+      <a class="code" href="classbsls_1_1AtomicInt.html">bsls::AtomicInt</a>  d_count;        <span class="comment">// number of active references</span>
 
       <span class="comment">// FRIENDS</span>
       <span class="keyword">friend</span> <span class="keyword">class </span>my_CountedHandle&lt;INSTANCE&gt;;
@@ -434,7 +434,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  Note that, while class <code>my_CountedHandleRep</code> is itself fully thread-safe, it does not guarantee thread safety for the <code>INSTANCE</code> object. In order to provide thread safety for the <code>INSTANCE</code> in the general case, the "rep" would need to use a more general concurrency mechanism such as a mutex. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="usage.example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="description.usage.example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3: Thread-Safe Lock-Free Singly-Linked List: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example demonstrates the use of atomic pointers to implement a fast and thread-aware, singly-linked list. The example class, <code>my_PtrStack</code>, is a templatized pointer stack, supporting <code>push</code> and <code>pop</code> methods. The class is implemented using a single-linked list. Nodes in the list are linked together using atomic operations. Instance of this structure are allocated using the provided allocator. When nodes are freed, they are cached on a free list. This free list is also implemented as a single-linked list, using atomic pointer operations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example parallels the third usage example given for component <code>bsls_atomicoperations</code>, presenting a different implementation of <code>my_PtrStack&lt;T&gt;</code>, with an identical public interface. Note that, where the <code>bsls_atomicoperations</code> example uses the basic data type <code>bsls::AtomicOperations::AtomicTypes::Pointer</code> for members <code>d_list</code> and <code>d_freeList</code>, this implementation uses instead the higher-level type <code><a class="el" href="classbsls_1_1AtomicPointer.html">bsls::AtomicPointer</a>&lt;T&gt;</code>. </dd></dl>
@@ -620,7 +620,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  Notice that if the stack was empty, a NULL pointer is returned. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

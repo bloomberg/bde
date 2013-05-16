@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsltf_templatetestfacility Component</title>
+<title>BDE 2.17 Oss1: bsltf_templatetestfacility Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -176,7 +176,7 @@ The names of the types for which the class template will be instantiated (up 20)
 <code>TEST_TYPES_ALL</code>: list of all of the types  </li>
 </ul>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE</code> macro refers to a representative set of primivite types that are useful for testing: <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE</code> macro refers to a representative set of primitive types that are useful for testing: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  Type                                Description
   ----                                -----------
@@ -227,7 +227,7 @@ The names of the types for which the class template will be instantiated (up 20)
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR</code> macro refers to the union of the types provided by <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE</code> and <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED</code>. These types are designed to work within the regular operating conditions of a typical template. Typically, a test driver for a template instantiates its tests (using the <code>BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE</code> macro) for all of the types refered by <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR</code> macro refers to the union of the types provided by <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE</code> and <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED</code>. These types are designed to work within the regular operating conditions of a typical template. Typically, a test driver for a template instantiates its tests (using the <code>BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE</code> macro) for all of the types referred by <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD</code> macro refers to a set of types that have certain attributes that make them unlikely to work for all of the operations of a template. Typically, not all methods of a template are instantiable with these types, so these types are most often used independently in tests explicitly designed for a (single) type. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  Type                                Description
@@ -252,7 +252,7 @@ The names of the types for which the class template will be instantiated (up 20)
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_the_bsltf_templatetestfacility_run_each_type_macro"></a> <a class="anchor" id="usage.example_1~3A_using_the_bsltf_templatetestfacility_run_each_type_macro"></a> <a class="anchor" id="description.usage.example_1~3A_using_the_bsltf_templatetestfacility_run_each_type_macro"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Using the BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE Macro: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example, we demonstrate how to use <code>BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE</code> to call a class method of a template for a list of types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a <code>struct</code> template <code>TestTemplate</code> taking in a parameterized <code>TYPE</code> that has a class method, <code>printTypeName</code>: <br/>
@@ -301,7 +301,7 @@ The names of the types for which the class template will be instantiated (up 20)
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.3.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_writing_a_type_independent_test_driver"></a> <a class="anchor" id="usage.example_2~3A_writing_a_type_independent_test_driver"></a> <a class="anchor" id="description.usage.example_2~3A_writing_a_type_independent_test_driver"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Writing a Type Independent Test Driver: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example, we demonstrate using the <code>TemplateTestFacility</code> <code>struct</code> and the macros provided by this component to test the default constructor and primary manipulator of a class template in the context of a typical BDE-style test driver. Note that a goal of the demonstrated test is to validate the class template with a broad range of types emulating those with which the template might be instantiated. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a simple class template, <code>MyNullableValue</code>, that we will later need to test: <br/>
@@ -410,7 +410,7 @@ The names of the types for which the class template will be instantiated (up 20)
       <span class="comment">//:   has the same value.  (C-2, 4)</span>
       <span class="comment">//:</span>
       <span class="comment">//: 3 Using the loop-based approach, for each identifier in a range of</span>
-      <span class="comment">//:   integer identifieres:</span>
+      <span class="comment">//:   integer identifiers:</span>
       <span class="comment">//:</span>
       <span class="comment">//:   1 Default-construct a modifiable object, &#39;mL&#39;, and use the (as</span>
       <span class="comment">//:     yet unproven) salient attribute accessors to verify the value</span>
@@ -444,12 +444,12 @@ The names of the types for which the class template will be instantiated (up 20)
       <span class="keywordflow">if</span> (verbose) printf(<span class="stringliteral">&quot;\nTesting default constructor.\n&quot;</span>);
 
       Obj mW; <span class="keyword">const</span> Obj&amp; W = mW;
-      ASSERT(<span class="keyword">true</span> == W.isNull());
+      assert(<span class="keyword">true</span> == W.isNull());
 
       Obj mX; <span class="keyword">const</span> Obj&amp; X = mX;
       <span class="keyword">const</span> TYPE XV = TemplateTestFacility::create&lt;TYPE&gt;(1);
       mX.makeValue(XV);
-      ASSERT(1 == TemplateTestFacility::getIdentifier&lt;TYPE&gt;(X.value()));
+      assert(1 == TemplateTestFacility::getIdentifier&lt;TYPE&gt;(X.value()));
 
       <span class="keywordflow">if</span> (verbose) printf(<span class="stringliteral">&quot;\nTesting primary manipulators.\n&quot;</span>);
 
@@ -458,16 +458,16 @@ The names of the types for which the class template will be instantiated (up 20)
           <span class="keywordflow">if</span> (veryVerbose) { T_ P(ti) }
 
           Obj mL; <span class="keyword">const</span> Obj&amp; L = mL;
-          ASSERT(<span class="keyword">true</span> == L.isNull());
+          assert(<span class="keyword">true</span> == L.isNull());
 
           <span class="keyword">const</span> TYPE LV = TemplateTestFacility::create&lt;TYPE&gt;(ti);
 
           mL.makeValue(LV);
-          ASSERT(<span class="keyword">false</span> == L.isNull());
-          ASSERT(LV == L.value());
+          assert(<span class="keyword">false</span> == L.isNull());
+          assert(LV == L.value());
 
           mL.makeNull();
-          ASSERT(<span class="keyword">true</span> == L.isNull());
+          assert(<span class="keyword">true</span> == L.isNull());
       }
 
       <span class="keywordflow">if</span> (verbose) printf(<span class="stringliteral">&quot;\nTesting destructor.\n&quot;</span>);
@@ -475,8 +475,8 @@ The names of the types for which the class template will be instantiated (up 20)
           Obj Z;
       }
 
-      ASSERT(<span class="keyword">true</span> == W.isNull());
-      ASSERT(XV == X.value());
+      assert(<span class="keyword">true</span> == W.isNull());
+      assert(XV == X.value());
   }
 </pre></div><br/>
 <br/>
@@ -505,7 +505,7 @@ By directly using the equality comparison operator for the parameterized <code>T
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:44 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

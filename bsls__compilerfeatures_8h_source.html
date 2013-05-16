@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_compilerfeatures.h                                            -*-C++-*-
@@ -12,20 +12,26 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide macros to identify compiler support for C++0x features.
+//@PURPOSE: Provide macros to identify compiler support for C++11 features.
 //
 //@CLASSES:
 //
 //@MACROS
+//  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
+//  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for &#39;decltype&#39;
 //  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for &#39;extern template&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: flag for &#39;include_next&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for &#39;nullptr&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for &#39;static_assert&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
 //
 //@SEE_ALSO: bsls_platform
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros to
 // identify compiler-specific support of language features that may not be
 // available on all compilers in use across an organization.  For example, as
-// new C++0x language facilities become more broadly available, such as
+// new C++11 language facilities become more broadly available, such as
 // &#39;extern template&#39;, macros will be defined here to indicate whether the
 // current platform/compiler combination supports the corresponding language
 // features.  Note that in some cases, support for a given feature may need to
@@ -36,13 +42,37 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // The following are the macros provided by this component.  Note that they are
 // not defined for all platform/compiler combinations.
 //
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES&#39;
+//:    This macro is defined if alias templates are supported by the current
+//:    compiler settings for this platform.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE&#39;
+//:    This macro is defined if &#39;decltype&#39; is supported by the current compiler
+//:    settings for this platform.
+//:
 //: &#39;BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE&#39;
 //:     This macro is defined if &#39;extern template&#39; is supported by the current
 //:     compiler settings for this platform.
 //:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT&#39;
+//:    This macro is defined if &#39;include_next&#39; is supported by the current
+//:    compiler settings for this platform.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_NULLPTR&#39;
+//:    This macro is defined if &#39;nullptr&#39; is supported by the current compiler
+//:    settings for this platform.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES&#39;
+//:    This macro is defined if rvalue references are supported by the current
+//:    compiler settings for this platform.
+//:
 //: &#39;BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT&#39;
 //:    This macro is defined if &#39;static_assert&#39; is supported by the current
 //:    compiler settings for this platform.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES&#39;
+//:    This macro is defined if variadic template parameters are supported by
+//:    the current compiler settings for this platform.
 //
 ///Usage
 ///-----
@@ -106,16 +136,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #endif
 
-             // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+             // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
-// Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 1600
-#   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
-// GCC 4.5 has support with &#39;-std=c++0x&#39; (earlier versions are broken)
-#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40500\
-   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// GCC and CLANG compilers have support
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
@@ -128,6 +153,18 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40600\
    &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 1600
+#   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// GCC 4.5 has support with &#39;-std=c++0x&#39; (earlier versions are broken)
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40500\
+   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
@@ -170,7 +207,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

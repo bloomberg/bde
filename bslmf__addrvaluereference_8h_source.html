@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bslmf_addrvaluereference.h                                         -*-C++-*-
@@ -15,12 +15,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@PURPOSE: Provide a compile-time type transformation to rvalue reference.
 //
 //@CLASSES:
-//  bsl::add_rvalue_reference: standard meta-function for transforming type
+//  bsl::add_rvalue_reference: standard meta-function for transforming types
 //
-//@SEE_ALSO: bslmf_integralconstant
+//@SEE_ALSO: bslmf_integralconstant, bslmf_addlvaluereference
 //
 //@DESCRIPTION: This component defines a meta-function,
-// &#39;bsl::add_rvalue_reference&#39;, which may be used to transform a type to its
+// &#39;bsl::add_rvalue_reference&#39;, that may be used to transform a type to its
 // rvalue reference type.
 //
 // &#39;bsl::add_rvalue_reference&#39; meets the requirements of the
@@ -33,12 +33,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Example 1: Transform to Rvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a couple of types to rvalue reference
-// types.
+// Suppose that we want to transform some types to rvalue reference types.
 //
-// Now, we instantiate the &#39;bsl::add_rvalue_reference&#39; template for these
-// types, and use the &#39;bsl::is_same&#39; meta-function to assert the &#39;type&#39; static
-// data member of each instantiation:
+// Now, for a set of types, we transform each type to the corresponding rvalue
+// reference of that type using &#39;bsl::add_rvalue_reference&#39; and verify the
+// result:
 //..
 //#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 //  assert(true  ==
@@ -51,8 +50,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //       (bsl::is_same&lt;bsl::add_rvalue_reference&lt;int&amp;&amp;&gt;::type, int&amp;&amp;&gt;::value));
 //#endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.
+// Note that rvalue reference was introduced in C++11 and may not be supported
+// by all compilers.  Note also that according to &#39;reference collapsing&#39;
+// semantics [8.3.2], &#39;add_rvalue_reference&#39; does not transform &#39;TYPE&#39; to
+// rvalue reference type if &#39;TYPE&#39; is an lvalue reference type.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
@@ -66,33 +67,60 @@ namespace bsl {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template &lt;typename TYPE&gt;
-struct add_rvalue_reference
-{
+template &lt;class TYPE&gt;
+struct add_rvalue_reference {
+    // This &#39;struct&#39; template implements a meta-function to transform the
+    // (template parameter) &#39;TYPE&#39; to its rvalue reference type.
+
+    // PUBLIC TYPES
     typedef TYPE&amp;&amp; type;
+        // This &#39;typedef&#39; is an alias to the return value of this
+        // meta-function.
 };
 
-#if 0
-template &lt;typename TYPE&gt;
-struct add_rvalue_reference&lt;TYPE&amp;&gt;
-{
-    typedef TYPE&amp;&amp; type;
+template &lt;&gt;
+struct add_rvalue_reference&lt;void&gt; {
+    // This partial specialization of &#39;add_rvalue_reference&#39; defines the return
+    // type when it is instantiated with the &#39;void&#39; type.
+
+    // PUBLIC TYPES
+    typedef void type;
+        // This &#39;typedef&#39; is an alias to the return value of this
+        // meta-function.
 };
-#endif
 
-#define BSL_DEFINE_ADD_RVALUE_REFERENCE(TYPE, REF_TYPE) \
-template &lt;&gt;                                             \
-struct add_rvalue_reference&lt;TYPE&gt;                       \
-{                                                       \
-    typedef REF_TYPE type;                              \
-}                                                       \
+template &lt;&gt;
+struct add_rvalue_reference&lt;void const&gt; {
+    // This partial specialization of &#39;add_rvalue_reference&#39; defines the return
+    // type when it is instantiated with the &#39;void const&#39; type.
 
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void, void);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void const, void const);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void volatile, void volatile);
-BSL_DEFINE_ADD_RVALUE_REFERENCE(void const volatile, void const volatile);
+    // PUBLIC TYPES
+    typedef void const type;
+        // This &#39;typedef&#39; is an alias to the return value of this
+        // meta-function.
+};
 
-#undef BSL_DEFINE_ADD_RVALUE_REFERENCE
+template &lt;&gt;
+struct add_rvalue_reference&lt;void volatile&gt; {
+    // This partial specialization of &#39;add_rvalue_reference&#39; defines the return
+    // type when it is instantiated with the &#39;void volatile&#39; type.
+
+    // PUBLIC TYPES
+    typedef void volatile type;
+        // This &#39;typedef&#39; is an alias to the return value of this
+        // meta-function.
+};
+
+template &lt;&gt;
+struct add_rvalue_reference&lt;void const volatile&gt; {
+    // This partial specialization of &#39;add_rvalue_reference&#39; defines the return
+    // type when it is instantiated with the &#39;void const volatile&#39; type.
+
+    // PUBLIC TYPES
+    typedef void const volatile type;
+        // This &#39;typedef&#39; is an alias to the return value of this
+        // meta-function.
+};
 
 #endif
 
@@ -101,7 +129,7 @@ BSL_DEFINE_ADD_RVALUE_REFERENCE(void const volatile, void const volatile);
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

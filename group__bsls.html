@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bsls Package</title>
+<title>BDE 2.17 Oss1: bsls Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -214,7 +214,7 @@ Components</h2></td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__compilerfeatures.html">Component bsls_compilerfeatures</a></td></tr>
 
-<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide macros to identify compiler support for C++0x features. </p>
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide macros to identify compiler support for C++11 features. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__exceptionutil.html">Component bsls_exceptionutil</a></td></tr>
@@ -379,7 +379,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Provide system-level utilities for <code>bsl</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic~3A_basic_standard_library_system_utilities_(bsls)"></a> <a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>MNEMONIC: Basic Standard Library System utilities (bsls): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -404,7 +404,7 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bsls</code> package currently has 31 components having 11 levels of physical dependency. The table below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bsls</code> package currently has 31 components having 11 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  11. bsls_alignedbuffer
 
@@ -426,22 +426,22 @@ A timer component, and access to system time facilities.  </li>
 
    4. bsls_alignmenttotype
       bsls_atomicoperations
+      bsls_buildtarget
       bsls_byteorder
       bsls_nullptr
+      bsls_unspecifiedbool
+      bsls_util
 
    3. bsls_alignmentimp
       bsls_annotation
-      bsls_buildtarget
+      bsls_bsltestutil
       bsls_compilerfeatures
       bsls_nativestd
       bsls_types
-      bsls_unspecifiedbool
-      bsls_util
 
    2. bsls_alignment
       bsls_asserttestexception
       bsls_blockgrowth
-      bsls_bsltestutil
       bsls_macroincrement
       bsls_platform
       bsls_protocoltest
@@ -487,7 +487,7 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_byteorder</code>: <br/>
  Provide byte-order manipulation macros.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_compilerfeatures</code>: <br/>
- Provide macros to identify compiler support for C++0x features.</div></dd></dl>
+ Provide macros to identify compiler support for C++11 features.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_exceptionutil</code>: <br/>
  Provide simplified exception constructs for non-exception builds.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_ident</code>: <br/>
@@ -524,137 +524,137 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_alignedbuffer"></a> <a class="anchor" id="component_overview.bsls_alignedbuffer"></a> <a class="anchor" id="description.component_overview.bsls_alignedbuffer"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_alignedbuffer: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a templated buffer type with a user-specified compile-time size and user-specified alignment. Typically, such a type is used in situations where it is desirable to allocate a block of properly-aligned raw memory from somewhere other than the heap, e.g., on the stack or within an aggregate object, including within a union. It is a convenient way to create a small heap from which one or more objects are allocated at run-time. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__alignedbuffer.html" class="el"><code>bsls_alignedbuffer</code></a> component provides a templated buffer type with a user-specified compile-time size and user-specified alignment. Typically, such a type is used in situations where it is desirable to allocate a block of properly-aligned raw memory from somewhere other than the heap, e.g., on the stack or within an aggregate object, including within a union. It is a convenient way to create a small heap from which one or more objects are allocated at run-time. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_alignment"></a> <a class="anchor" id="component_overview.bsls_alignment"></a> <a class="anchor" id="description.component_overview.bsls_alignment"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_alignment: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component computes (at compile-time) platform-dependent alignment information. This component also provides a namespace for a suite of compile-time constants and pure procedures that yield platform-dependent alignment information for primitive and user-defined types, including the maximum alignment for any type and the smallest fundamental type requiring maximum alignment. These functions, used in conjunction, are especially useful for creating pools and allocators that rely on efficient alignment. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__alignment.html" class="el"><code>bsls_alignment</code></a> component computes (at compile-time) platform-dependent alignment information. This component also provides a namespace for a suite of compile-time constants and pure procedures that yield platform-dependent alignment information for primitive and user-defined types, including the maximum alignment for any type and the smallest fundamental type requiring maximum alignment. These functions, used in conjunction, are especially useful for creating pools and allocators that rely on efficient alignment. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_alignmentfromtype"></a> <a class="anchor" id="component_overview.bsls_alignmentfromtype"></a> <a class="anchor" id="description.component_overview.bsls_alignmentfromtype"></a> <a class="anchor" id="3.3.3"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_alignmentfromtype: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a meta-function that provides the alignment for the parameterized <code>TYPE</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__alignmentfromtype.html" class="el"><code>bsls_alignmentfromtype</code></a> component provides a meta-function that provides the alignment for the parameterized <code>TYPE</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_alignmentimp"></a> <a class="anchor" id="component_overview.bsls_alignmentimp"></a> <a class="anchor" id="description.component_overview.bsls_alignmentimp"></a> <a class="anchor" id="3.3.4"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_alignmentimp: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a suite of template meta-functions that can be used to compute (at compile-time) various platform-dependent alignment information. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__alignmentimp.html" class="el"><code>bsls_alignmentimp</code></a> component provides a suite of template meta-functions that can be used to compute (at compile-time) various platform-dependent alignment information. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_alignmenttotype"></a> <a class="anchor" id="component_overview.bsls_alignmenttotype"></a> <a class="anchor" id="description.component_overview.bsls_alignmenttotype"></a> <a class="anchor" id="3.3.5"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_alignmenttotype: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a meta-function that provides a primitive type with an alignment matching the parameterized <code>ALLIGNMENT</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__alignmenttotype.html" class="el"><code>bsls_alignmenttotype</code></a> component provides a meta-function that provides a primitive type with an alignment matching the parameterized <code>ALLIGNMENT</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_alignmentutil"></a> <a class="anchor" id="component_overview.bsls_alignmentutil"></a> <a class="anchor" id="description.component_overview.bsls_alignmentutil"></a> <a class="anchor" id="3.3.6"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_alignmentutil: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a suite of template meta-functions that can be used to compute (at compile-time) various platform-dependent alignment information. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__alignmentutil.html" class="el"><code>bsls_alignmentutil</code></a> component provides a suite of template meta-functions that can be used to compute (at compile-time) various platform-dependent alignment information. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_annotation"></a> <a class="anchor" id="component_overview.bsls_annotation"></a> <a class="anchor" id="description.component_overview.bsls_annotation"></a> <a class="anchor" id="3.3.7"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_annotation: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a suite of preprocessor macros that define compiler-specific compile-time annotations. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__annotation.html" class="el"><code>bsls_annotation</code></a> component provides a suite of preprocessor macros that define compiler-specific compile-time annotations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_assert"></a> <a class="anchor" id="component_overview.bsls_assert"></a> <a class="anchor" id="description.component_overview.bsls_assert"></a> <a class="anchor" id="3.3.8"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_assert: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a pair of "assert-like" macros to implement a compile-time-selectable and run-time-configurable "defensive" or "safe" mode. It also provides a suite of "assert-failure handler" methods suitable for runtime loading into the macros, via also provided methods. Users may supply their own handler methods matching the proper signature. To allow the user more flexibility in changing handlers during program execution, this component also provides a scoped guard that allows safe, temporary changing of the failure handler in a limited scope. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__assert.html" class="el"><code>bsls_assert</code></a> component provides a set of "assert-like" macros to implement a compile-time-selectable and run-time-configurable "defensive" or "safe" mode. It also provides a suite of "assert-failure handler" methods suitable for runtime loading into the macros, via also provided methods. Users may supply their own handler methods matching the proper signature. To allow the user more flexibility in changing handlers during program execution, this component also provides a scoped guard that allows safe, temporary changing of the failure handler in a limited scope. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_asserttest"></a> <a class="anchor" id="component_overview.bsls_asserttest"></a> <a class="anchor" id="description.component_overview.bsls_asserttest"></a> <a class="anchor" id="3.3.9"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_asserttest: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a facility to test that <code>BSLS_ASSERT_*</code> macros are used as intended, in the appropriate build modes, and have the expected effects. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__asserttest.html" class="el"><code>bsls_asserttest</code></a> component provides a facility to test that <code>BSLS_ASSERT_*</code> macros are used as intended, in the appropriate build modes, and have the expected effects. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_asserttestexception"></a> <a class="anchor" id="component_overview.bsls_asserttestexception"></a> <a class="anchor" id="description.component_overview.bsls_asserttestexception"></a> <a class="anchor" id="3.3.10"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_asserttestexception: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component implements an exception class, <code><a class="el" href="classbsls_1_1AssertTestException.html">bsls::AssertTestException</a></code>, that provides a mechanism to convey context information from a failing assertion to a test handler. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__asserttestexception.html" class="el"><code>bsls_asserttestexception</code></a> component implements an exception class, <code><a class="el" href="classbsls_1_1AssertTestException.html">bsls::AssertTestException</a></code>, that provides a mechanism to convey context information from a failing assertion to a test handler. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_atomic"></a> <a class="anchor" id="component_overview.bsls_atomic"></a> <a class="anchor" id="description.component_overview.bsls_atomic"></a> <a class="anchor" id="3.3.11"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_atomic: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides classes with atomic operations for <code>int</code>, <code>Int64</code>, and pointer types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__atomic.html" class="el"><code>bsls_atomic</code></a> component provides classes with atomic operations for <code>int</code>, <code>Int64</code>, and pointer types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_atomicoperations"></a> <a class="anchor" id="component_overview.bsls_atomicoperations"></a> <a class="anchor" id="description.component_overview.bsls_atomicoperations"></a> <a class="anchor" id="3.3.12"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_atomicoperations: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This utility provides a set of platform-independent atomic operations for fundamental data types, such as 32-bit and 64-bit integer and pointer. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__atomicoperations.html" class="el"><code>bsls_atomicoperations</code></a> component provides a set of platform-independent atomic operations for fundamental data types, such as 32-bit and 64-bit integer and pointer. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_blockgrowth"></a> <a class="anchor" id="component_overview.bsls_blockgrowth"></a> <a class="anchor" id="description.component_overview.bsls_blockgrowth"></a> <a class="anchor" id="3.3.13"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_blockgrowth: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component enumerates the supported block growth strategies. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__blockgrowth.html" class="el"><code>bsls_blockgrowth</code></a> component enumerates the supported block growth strategies. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_bsltestutil"></a> <a class="anchor" id="component_overview.bsls_bsltestutil"></a> <a class="anchor" id="description.component_overview.bsls_bsltestutil"></a> <a class="anchor" id="3.3.14"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_bsltestutil: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides the standard printing macros used in BDE-style test drivers. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__bsltestutil.html" class="el"><code>bsls_bsltestutil</code></a> component provides the standard printing macros used in BDE-style test drivers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_buildtarget"></a> <a class="anchor" id="component_overview.bsls_buildtarget"></a> <a class="anchor" id="description.component_overview.bsls_buildtarget"></a> <a class="anchor" id="3.3.15"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_buildtarget: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines types and runtime constants for identifying the build target information (usually specified to the compiler via a set of <code>BDE_BUILD_*</code> macros). This is mostly useful for retrieving such information from a linkable or executable binary. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__buildtarget.html" class="el"><code>bsls_buildtarget</code></a> component defines types and runtime constants for identifying the build target information (usually specified to the compiler via a set of <code>BDE_BUILD_*</code> macros). This is mostly useful for retrieving such information from a linkable or executable binary. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_byteorder"></a> <a class="anchor" id="component_overview.bsls_byteorder"></a> <a class="anchor" id="description.component_overview.bsls_byteorder"></a> <a class="anchor" id="3.3.16"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_byteorder: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a set host-to-network and network-to-host byte-order manipulation macros. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__byteorder.html" class="el"><code>bsls_byteorder</code></a> component provides a set host-to-network and network-to-host byte-order manipulation macros. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures"></a> <a class="anchor" id="component_overview.bsls_compilerfeatures"></a> <a class="anchor" id="description.component_overview.bsls_compilerfeatures"></a> <a class="anchor" id="3.3.17"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_compilerfeatures: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a suite of preprocessor macros to identify compiler-specific support of language features that may not be available on all compilers in use across an organization. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__compilerfeatures.html" class="el"><code>bsls_compilerfeatures</code></a> component provides a suite of preprocessor macros to identify compiler-specific support of language features that may not be available on all compilers in use across an organization. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_exceptionutil"></a> <a class="anchor" id="component_overview.bsls_exceptionutil"></a> <a class="anchor" id="description.component_overview.bsls_exceptionutil"></a> <a class="anchor" id="3.3.18"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_exceptionutil: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides macros to replace <code>try</code>, <code>throw</code> and <code>catch</code>. These macros expand to normal exception constructs when exceptions are enabled and to reasonable alternatives (usually no-ops) when exceptions are disabled, allowing code that uses <code>try</code>, <code>throw</code> and <code>catch</code> constructs to compile even if exceptions are disabled using a compiler switch. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__exceptionutil.html" class="el"><code>bsls_exceptionutil</code></a> component provides macros to replace <code>try</code>, <code>throw</code> and <code>catch</code>. These macros expand to normal exception constructs when exceptions are enabled and to reasonable alternatives (usually no-ops) when exceptions are disabled, allowing code that uses <code>try</code>, <code>throw</code> and <code>catch</code> constructs to compile even if exceptions are disabled using a compiler switch. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_ident"></a> <a class="anchor" id="component_overview.bsls_ident"></a> <a class="anchor" id="description.component_overview.bsls_ident"></a> <a class="anchor" id="3.3.19"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_ident: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides macros for inserting SCM (Source Control Management) Ids into source files. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__ident.html" class="el"><code>bsls_ident</code></a> component provides macros for inserting SCM (Source Control Management) Ids into source files. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_int64"></a> <a class="anchor" id="component_overview.bsls_int64"></a> <a class="anchor" id="description.component_overview.bsls_int64"></a> <a class="anchor" id="3.3.20"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_int64: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides platform-independent type names for both signed and unsigned 64-bit integers. For healthy platforms, the component simply provides a BDE-standard <code>typedef</code> for the non-standard native type name. All platforms currently supported are healthy regarding 64-bit integers. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__int64.html" class="el"><code>bsls_int64</code></a> component provides platform-independent type names for both signed and unsigned 64-bit integers. For healthy platforms, the component simply provides a BDE-standard <code>typedef</code> for the non-standard native type name. All platforms currently supported are healthy regarding 64-bit integers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_macroincrement"></a> <a class="anchor" id="component_overview.bsls_macroincrement"></a> <a class="anchor" id="description.component_overview.bsls_macroincrement"></a> <a class="anchor" id="3.3.21"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_macroincrement: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a macro, <code><a class="el" href="bsls__macroincrement_8h.html#acc6a17c88aba3a15d9f5ee2eba01cf3d">BSLS_MACROINCREMENT(NUMBER)</a></code>, that produces the preprocessor number equal to the number succeeding the supplied argument. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__macroincrement.html" class="el"><code>bsls_macroincrement</code></a> component provides a macro, <code><a class="el" href="bsls__macroincrement_8h.html#acc6a17c88aba3a15d9f5ee2eba01cf3d">BSLS_MACROINCREMENT(NUMBER)</a></code>, that produces the preprocessor number equal to the number succeeding the supplied argument. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_nativestd"></a> <a class="anchor" id="component_overview.bsls_nativestd"></a> <a class="anchor" id="description.component_overview.bsls_nativestd"></a> <a class="anchor" id="3.3.22"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_nativestd: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a namespace alias, <code>native_std</code>, that serves as an alias for the <code>std</code> namespace. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__nativestd.html" class="el"><code>bsls_nativestd</code></a> component defines a namespace alias, <code>native_std</code>, that serves as an alias for the <code>std</code> namespace. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_nullptr"></a> <a class="anchor" id="component_overview.bsls_nullptr"></a> <a class="anchor" id="description.component_overview.bsls_nullptr"></a> <a class="anchor" id="3.3.23"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_nullptr: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a limited emulation of the C++11 type, <code>std::nullptr_t</code>, which can be used as a function parameter type to create an overload set where null pointer literals are handled specially. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__nullptr.html" class="el"><code>bsls_nullptr</code></a> component provides a limited emulation of the C++11 type, <code>std::nullptr_t</code>, which can be used as a function parameter type to create an overload set where null pointer literals are handled specially. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_objectbuffer"></a> <a class="anchor" id="component_overview.bsls_objectbuffer"></a> <a class="anchor" id="description.component_overview.bsls_objectbuffer"></a> <a class="anchor" id="3.3.24"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_objectbuffer: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a templated buffer type, <code>bsls_ObjectBuffer</code>, which is compile-time sized and aligned to hold a specified object type. Defining a <code>bsls_ObjectBuffer&lt;T&gt;</code> object does not cause the constructor for <code>T</code> to be called. Similarly, destroying the object buffer does not call the destructor for <code>T</code>. Typically, a <code>bsls_ObjectBuffer</code> is used in situations where efficient (e.g., stack-based) storage is required but where straightforward initialization or destruction of an object is not possible. It can also be used to create a <code>union</code> containing non-POD element types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__objectbuffer.html" class="el"><code>bsls_objectbuffer</code></a> component provides a templated buffer type, <code>bsls_ObjectBuffer</code>, which is compile-time sized and aligned to hold a specified object type. Defining a <code>bsls_ObjectBuffer&lt;T&gt;</code> object does not cause the constructor for <code>T</code> to be called. Similarly, destroying the object buffer does not call the destructor for <code>T</code>. Typically, a <code>bsls_ObjectBuffer</code> is used in situations where efficient (e.g., stack-based) storage is required but where straightforward initialization or destruction of an object is not possible. It can also be used to create a <code>union</code> containing non-POD element types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_performancehint"></a> <a class="anchor" id="component_overview.bsls_performancehint"></a> <a class="anchor" id="description.component_overview.bsls_performancehint"></a> <a class="anchor" id="3.3.25"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_performancehint: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides performance hints for the compiler or hardware. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__performancehint.html" class="el"><code>bsls_performancehint</code></a> component provides performance hints for the compiler or hardware. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_platform"></a> <a class="anchor" id="component_overview.bsls_platform"></a> <a class="anchor" id="description.component_overview.bsls_platform"></a> <a class="anchor" id="3.3.26"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_platform: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines preprocessor macros that identify and describe platform-specific attributes (at compile time). These attributes consist of the types and versions of operating system, processor(s), and compiler that comprise the platform. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__platform.html" class="el"><code>bsls_platform</code></a> component defines preprocessor macros that identify and describe platform-specific attributes (at compile time). These attributes consist of the types and versions of operating system, processor(s), and compiler that comprise the platform. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_platformutil"></a> <a class="anchor" id="component_overview.bsls_platformutil"></a> <a class="anchor" id="description.component_overview.bsls_platformutil"></a> <a class="anchor" id="3.3.27"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_platformutil: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a namespace for a collection of <code>typedef</code>s and pure procedures that would otherwise have platform-dependent interfaces. For example, it defines the preferred fundamental types denoting signed and unsigned 64-bit integers, the preferred integral type denoting a number of elements in allocators and containers, provides the capability of determining whether a machine is big or little endian across all supported platforms, and defines a set of macros replacing the standard <code>htonl</code>, <code>htons</code>, <code>ntohl</code>, and <code>ntohs</code> which do not require including any system header. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__platformutil.html" class="el"><code>bsls_platformutil</code></a> component provides a namespace for a collection of <code>typedef</code>s and pure procedures that would otherwise have platform-dependent interfaces. For example, it defines the preferred fundamental types denoting signed and unsigned 64-bit integers, the preferred integral type denoting a number of elements in allocators and containers, provides the capability of determining whether a machine is big or little endian across all supported platforms, and defines a set of macros replacing the standard <code>htonl</code>, <code>htons</code>, <code>ntohl</code>, and <code>ntohs</code> which do not require including any system header. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_protocoltest"></a> <a class="anchor" id="component_overview.bsls_protocoltest"></a> <a class="anchor" id="description.component_overview.bsls_protocoltest"></a> <a class="anchor" id="3.3.28"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_protocoltest: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides classes and macros for testing abstract protocols. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__protocoltest.html" class="el"><code>bsls_protocoltest</code></a> component provides classes and macros for testing abstract protocols. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_stopwatch"></a> <a class="anchor" id="component_overview.bsls_stopwatch"></a> <a class="anchor" id="description.component_overview.bsls_stopwatch"></a> <a class="anchor" id="3.3.29"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_stopwatch: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component implements a real-time (system clock) interval timer. A <code>bsls_Stopwatch</code> object can accumulate and return only one interval at a time, but may be started and stopped repeatedly without being reset, so the elapsed time "interval" accumulated by a single object may be from multiple, discontinuous segments of time. The non-negative total accumulated time (in seconds) is available as a <code>double</code> value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__stopwatch.html" class="el"><code>bsls_stopwatch</code></a> component implements a real-time (system clock) interval timer. A <code>bsls_Stopwatch</code> object can accumulate and return only one interval at a time, but may be started and stopped repeatedly without being reset, so the elapsed time "interval" accumulated by a single object may be from multiple, discontinuous segments of time. The non-negative total accumulated time (in seconds) is available as a <code>double</code> value. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_timeutil"></a> <a class="anchor" id="component_overview.bsls_timeutil"></a> <a class="anchor" id="description.component_overview.bsls_timeutil"></a> <a class="anchor" id="3.3.30"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_timeutil: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a set of platform-neutral pure procedures to access real-time system clock functionality. High-resolution time functions intended for interval-timing return an interval in nanoseconds (1 nsec = 1E-9 sec) as a 64-bit integer. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__timeutil.html" class="el"><code>bsls_timeutil</code></a> component provides a set of platform-neutral pure procedures to access real-time system clock functionality. High-resolution time functions intended for interval-timing return an interval in nanoseconds (1 nsec = 1E-9 sec) as a 64-bit integer. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_types"></a> <a class="anchor" id="component_overview.bsls_types"></a> <a class="anchor" id="description.component_overview.bsls_types"></a> <a class="anchor" id="3.3.31"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_types: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a namespace for a set of <code>typedef</code>s that provide a stable, portable interface to platform-dependent types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__types.html" class="el"><code>bsls_types</code></a> component provides a namespace for a set of <code>typedef</code>s that provide a stable, portable interface to platform-dependent types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_unspecifiedbool"></a> <a class="anchor" id="component_overview.bsls_unspecifiedbool"></a> <a class="anchor" id="description.component_overview.bsls_unspecifiedbool"></a> <a class="anchor" id="3.3.32"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_unspecifiedbool: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a class template that can be used to manufacture an "unspecified boolean type" that is distinct for each class that instantiates it. <em>Not</em> for use outside the <code>bsl</code> package. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__unspecifiedbool.html" class="el"><code>bsls_unspecifiedbool</code></a> component provides a class template that can be used to manufacture an "unspecified boolean type" that is distinct for each class that instantiates it. <em>Not</em> for use outside the <code>bsl</code> package. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_util"></a> <a class="anchor" id="component_overview.bsls_util"></a> <a class="anchor" id="description.component_overview.bsls_util"></a> <a class="anchor" id="3.3.33"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_util: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides pure functions that supply essential low-level support for implementing portable generic facilities such as might be found the the C++ standard library. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__util.html" class="el"><code>bsls_util</code></a> component provides pure functions that supply essential low-level support for implementing portable generic facilities such as might be found the the C++ standard library. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

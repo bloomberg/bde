@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.16 BETA: bslmf_isclass Component</title>
+<title>BDE 2.17 Oss1: bslmf_isclass Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -26,7 +26,7 @@
 -->
 <body>
 
-<table border=0 cellspacing=0 cellpadding=0 align=center>
+<table border=2 cellspacing=0 cellpadding=0 align=center>
 <tr>
  <td valign=top align=center>
  <p align=center><b><i>Quick Links:</i></b></p>
@@ -62,7 +62,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a compile-time check for class types.  
+<p>Provide a compile-time check for determining class types.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="namespaces"></a>
@@ -91,7 +91,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a compile-time check for class types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a compile-time check for determining class types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -105,7 +105,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1is__class.html">bsl::is_class</a></code> and <code>BloombergLP::bslmf::IsClass</code>, both of which may be used to query whether a type is a <code>class</code>, <code>struct</code>, or <code>union</code>, optionally qualified with <code>const</code> or volatile'. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines two meta-functions, <code><a class="el" href="structbsl_1_1is__class.html">bsl::is_class</a></code> and <code>BloombergLP::bslmf::IsClass</code>, both of which may be used to query whether a type is a <code>class</code>, <code>struct</code>, or <code>union</code>, optionally qualified with <code>const</code> or <code>volatile</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbsl_1_1is__class.html">bsl::is_class</a></code> meets the requirements of the <code>is_class</code> template defined in the C++11 standard [meta.unary.cat], while <code><a class="el" href="structbslmf_1_1IsClass.html">bslmf::IsClass</a></code> was devised before <code>is_class</code> was standardized. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The two meta-functions are functionally equivalent. The major difference between them is that the result for <code><a class="el" href="structbsl_1_1is__class.html">bsl::is_class</a></code> is indicated by the class member <code>value</code>, while the result for <code><a class="el" href="structbslmf_1_1IsClass.html">bslmf::IsClass</a></code> is indicated by the class member <code>VALUE</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that <code><a class="el" href="structbsl_1_1is__class.html">bsl::is_class</a></code> should be preferred over <code><a class="el" href="structbslmf_1_1IsClass.html">bslmf::IsClass</a></code>, and in general, should be used by new components. </dd></dl>
@@ -114,9 +114,9 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_verify_class_types"></a> <a class="anchor" id="usage.example_1~3A_verify_class_types"></a> <a class="anchor" id="description.usage.example_1~3A_verify_class_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Verify Class Types: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to assert whether a particular type is a class type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to assert whether a set of types are class types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we create a class type <code>MyClass</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MyClass
@@ -132,7 +132,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:42 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

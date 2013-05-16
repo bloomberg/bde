@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.16 BETA</title>
+<title>BDE 2.17 Oss1</title>
 <html>
 <pre>
 // bsls_annotation.h                                                  -*-C++-*-
@@ -191,10 +191,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
+    #define BSLS_ANNOTATION_USED       __attribute__((__used__))
     #define BSLS_ANNOTATION_UNUSED     __attribute__((__unused__))
     #define BSLS_ANNOTATION_ERROR(x)   __attribute__((__error__(x)))
     #define BSLS_ANNOTATION_WARNING(x) __attribute__((__warning__(x)))
 #else
+    #define BSLS_ANNOTATION_USED
     #define BSLS_ANNOTATION_UNUSED
     #define BSLS_ANNOTATION_ERROR(x)
     #define BSLS_ANNOTATION_WARNING(x)
@@ -262,7 +264,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to
