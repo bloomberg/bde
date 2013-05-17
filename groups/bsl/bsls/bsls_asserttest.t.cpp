@@ -2944,18 +2944,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -3046,18 +3043,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -3227,18 +3221,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -3354,18 +3345,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -4007,18 +3995,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -4109,18 +4094,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -4289,18 +4271,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -4416,18 +4395,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -4622,18 +4598,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -4771,18 +4744,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -5153,18 +5123,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -5252,18 +5219,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -5430,18 +5394,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -5554,18 +5515,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -6202,18 +6160,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -6301,18 +6256,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -6478,18 +6430,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -6602,18 +6551,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -6804,18 +6750,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
@@ -6955,18 +6898,15 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(bool pass)
-            {
+            static void callAssertOpt(bool pass) {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool pass)
-            {
+            static void callAssert(bool pass) {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(bool pass)
-            {
+            static void callAssertSafe(bool pass) {
                 BSLS_ASSERT_SAFE(pass);
             }
         };
