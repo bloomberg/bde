@@ -353,6 +353,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
     {
         ABC object;
         ABC *pABC = &object;
+        A   *pA   = &object;
         B   *pB   = &object;
         C   *pC   = &object;
 
