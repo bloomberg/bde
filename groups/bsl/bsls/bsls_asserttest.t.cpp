@@ -173,8 +173,7 @@ bool globalVeryVeryVerbose = false;
 // significant (> ~20%) compared to simply returning a reference to the result.
 //..
     template <class T>
-    const T& AssertTestVector<T>::operator[](
-        int BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(index)) const
+    const T& AssertTestVector<T>::operator[](int index) const
     {
         BSLS_ASSERT_SAFE(0 <= index);
         BSLS_ASSERT_SAFE(     index < d_size);
@@ -290,12 +289,10 @@ bool globalVeryVeryVerbose = false;
     }
     #endif
 
-    void MyUtil::f(int BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(a),
-                   int BSLS_USED_ONLY_IN_BSLS_ASSERT(b),
-                   int BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(c),
+    void MyUtil::f(int a, int b, int c,
                    void *
     #ifdef BDE_BUILD_TARGET_SAFE_2
-                   BSLS_USED_ONLY_IN_BSLS_ASSERT(d)
+                   d
     #endif
                    )
     {
@@ -2947,20 +2944,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass))
+            static void callAssert(bool pass)
             {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -2970,7 +2964,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertOpt(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -2981,7 +2975,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssert(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -2992,7 +2986,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertSafe(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3052,18 +3046,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -3072,7 +3065,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3082,7 +3075,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3092,7 +3085,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3234,20 +3227,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass))
+            static void callAssert(bool pass)
             {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -3257,7 +3247,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertOpt(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3268,7 +3258,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssert(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3279,7 +3269,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertSafe(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3364,18 +3354,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -3384,7 +3373,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3394,7 +3383,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -3404,7 +3393,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4018,20 +4007,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass))
+            static void callAssert(bool pass)
             {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -4041,7 +4027,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertOpt(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4052,7 +4038,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssert(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4063,7 +4049,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertSafe(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4123,18 +4109,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -4143,7 +4128,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4153,7 +4138,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4163,7 +4148,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4304,20 +4289,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass))
+            static void callAssert(bool pass)
             {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -4327,7 +4309,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertOpt(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4338,7 +4320,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssert(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4349,7 +4331,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             static void callAssertSafe(
                 bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4434,18 +4416,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -4454,7 +4435,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4464,7 +4445,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4474,7 +4455,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4641,18 +4622,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -4661,7 +4641,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4671,7 +4651,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4681,7 +4661,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4791,18 +4771,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -4811,7 +4790,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4821,7 +4800,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -4831,7 +4810,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5174,18 +5153,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -5194,7 +5172,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5204,7 +5182,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5214,7 +5192,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5274,18 +5252,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -5294,7 +5271,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5304,7 +5281,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5314,7 +5291,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5453,18 +5430,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -5473,7 +5449,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5483,7 +5459,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5493,7 +5469,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5578,18 +5554,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -5598,7 +5573,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5608,7 +5583,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -5618,7 +5593,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6227,18 +6202,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -6247,7 +6221,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6257,7 +6231,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6267,7 +6241,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6327,18 +6301,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -6347,7 +6320,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6357,7 +6330,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6367,7 +6340,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6505,18 +6478,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -6525,7 +6497,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6535,7 +6507,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6545,7 +6517,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6630,18 +6602,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -6650,7 +6621,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6660,7 +6631,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6670,7 +6641,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6833,18 +6804,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -6853,7 +6823,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6863,7 +6833,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6873,7 +6843,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -6985,18 +6955,17 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     {
         struct Production {
-            static void callAssertOpt(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass))
+            static void callAssertOpt(bool pass)
             {
                 BSLS_ASSERT_OPT(pass);
             }
 
-            static void callAssert(bool BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)) {
+            static void callAssert(bool pass)
+            {
                 BSLS_ASSERT(pass);
             }
 
-            static void callAssertSafe(
-                bool BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass))
+            static void callAssertSafe(bool pass)
             {
                 BSLS_ASSERT_SAFE(pass);
             }
@@ -7005,7 +6974,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         struct Safe2 {
             static void callAssertOpt(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_OPT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -7015,7 +6984,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssert(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
@@ -7025,7 +6994,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callAssertSafe(bool
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-                BSLS_USED_ONLY_IN_BSLS_ASSERT_SAFE(pass)
+                pass
 #endif
             ) {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
