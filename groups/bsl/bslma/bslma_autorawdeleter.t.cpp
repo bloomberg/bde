@@ -1247,24 +1247,24 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'TestAllocator'.\n");
 
-        const int DATA[] = { 1, 10, 100, -1, -100 };
+        const bsls::Types::IntPtr DATA[] = { 1, 10, 100, -1, -100 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         TestAllocator mX;    const TestAllocator &X = mX;
         ASSERT(0 == X.numDeallocated());
         for (int di = 0; di < NUM_DATA; ++di) {
             const int NUM_DEALLOCATED = di + 1;
-            void *mem = (void *)(bsls::Types::IntPtr) DATA[di];
+            void *mem = (void *) DATA[di];
             mX.deallocate(mem);
 
             if (veryVerbose) { T_ P(mem); }
             LOOP_ASSERT(di, NUM_DEALLOCATED == X.numDeallocated());
             for (int j = 0; j < NUM_DEALLOCATED; ++j) {
-                const void *MEM = (void *)(bsls::Types::IntPtr) DATA[j];
+                const void *MEM = (void *) DATA[j];
                 LOOP2_ASSERT(di, j, X.isMemoryDeallocated(MEM));
             }
             for (int k = NUM_DEALLOCATED; k < NUM_DATA; ++k) {
-                const void *MEM = (void *)(bsls::Types::IntPtr) DATA[k];
+                const void *MEM = (void *) DATA[k];
                 LOOP2_ASSERT(di, k, !X.isMemoryDeallocated(MEM));
             }
         }
