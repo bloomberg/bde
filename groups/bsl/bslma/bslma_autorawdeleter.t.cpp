@@ -12,10 +12,6 @@
 
 #include <new>
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
-#include <stdint.h> // for 'intptr_t'
-#endif
-
 using namespace BloombergLP;
 
 //=============================================================================
@@ -1258,29 +1254,17 @@ int main(int argc, char *argv[])
         ASSERT(0 == X.numDeallocated());
         for (int di = 0; di < NUM_DATA; ++di) {
             const int NUM_DEALLOCATED = di + 1;
-#if defined(BSLS_PLATFORM_CMP_GNU)
-            void *mem = (void *)(intptr_t) DATA[di];
-#else
-            void *mem = (void *) DATA[di];
-#endif
+            void *mem = (void *)(bsls::Types::IntPtr) DATA[di];
             mX.deallocate(mem);
 
             if (veryVerbose) { T_ P(mem); }
             LOOP_ASSERT(di, NUM_DEALLOCATED == X.numDeallocated());
             for (int j = 0; j < NUM_DEALLOCATED; ++j) {
-#if defined(BSLS_PLATFORM_CMP_GNU)
-                const void *MEM = (void *)(intptr_t) DATA[j];
-#else
-                const void *MEM = (void *) DATA[j];
-#endif
+                const void *MEM = (void *)(bsls::Types::IntPtr) DATA[j];
                 LOOP2_ASSERT(di, j, X.isMemoryDeallocated(MEM));
             }
             for (int k = NUM_DEALLOCATED; k < NUM_DATA; ++k) {
-#if defined(BSLS_PLATFORM_CMP_GNU)
-                const void *MEM = (void *)(intptr_t) DATA[k];
-#else
-                const void *MEM = (void *) DATA[k];
-#endif
+                const void *MEM = (void *)(bsls::Types::IntPtr) DATA[k];
                 LOOP2_ASSERT(di, k, !X.isMemoryDeallocated(MEM));
             }
         }

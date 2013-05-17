@@ -29,10 +29,6 @@
 #include <unistd.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
-#include <stdint.h> // for 'intptr_t'
-#endif
-
 using namespace BloombergLP;
 using namespace std;
 using namespace bslalg;
@@ -1172,11 +1168,7 @@ struct TestTypeValue<PrimitiveTestTypes::ObjectPtr>
     PrimitiveTestTypes::ObjectPtr create(int value) const {
         BSLS_ASSERT(0 <= value);
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
-        return (PrimitiveTestTypes::ObjectPtr)(intptr_t)(value);
-#else
-        return (PrimitiveTestTypes::ObjectPtr)(value);
-#endif
+        return (PrimitiveTestTypes::ObjectPtr)(bsls::Types::IntPtr)(value);
     }
 
     int getValue(const PrimitiveTestTypes::ObjectPtr& value) const {
@@ -1192,11 +1184,7 @@ struct TestTypeValue<PrimitiveTestTypes::FunctionPtr>
     PrimitiveTestTypes::FunctionPtr create(int value) const {
         BSLS_ASSERT(0 <= value);
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
-        return (PrimitiveTestTypes::FunctionPtr)(intptr_t)(value);
-#else
-        return (PrimitiveTestTypes::FunctionPtr)(value);
-#endif
+        return (PrimitiveTestTypes::FunctionPtr)(bsls::Types::IntPtr)(value);
     }
 
     int getValue(const PrimitiveTestTypes::FunctionPtr& value) const {
