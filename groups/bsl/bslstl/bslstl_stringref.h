@@ -269,14 +269,14 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_IOSFWD
 #endif
 
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>
+#define INCLUDED_ALGORITHM
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>              // for 'std::size_t'
 #define INCLUDED_CSTDDEF
-#endif
-
-#ifndef INCLUDED_CSTRING
-#include <cstring>              // for 'std::strlen', 'std::memcmp'
-#define INCLUDED_CSTRING
 #endif
 
 namespace BloombergLP {
@@ -370,10 +370,10 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     StringRefImp(const CHAR_TYPE *data);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'data' address
-        // and extends for 'std::strlen(data)' characters.  The external
-        // representation must remain valid as long as it is bound to this
-        // string reference.  The behavior is undefined unless 'data' is
-        // null-terminated.
+        // and extends for 'std::char_traits<CHAR_TYPE>::length(data)'
+        // characters.  The external representation must remain valid as long
+        // as it is bound to this string reference.  The behavior is undefined
+        // unless 'data' is null-terminated.
 
     StringRefImp(const native_std::basic_string<CHAR_TYPE>& str);
     StringRefImp(const bsl::basic_string<CHAR_TYPE>& str);
@@ -419,10 +419,11 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
 
     void assign(const CHAR_TYPE *data);
         // Bind this string reference to the string at the specified 'data'
-        // address and extending for 'std::strlen(data)' characters.  The
-        // string at the 'data' address must remain valid as long as it is
-        // bound to this string reference.  The behavior is undefined unless
-        // 'data' is null-terminated.
+        // address and extending for
+        // 'std::char_traits<CHAR_TYPE>::length(data)' characters.  The string
+        // at the 'data' address must remain valid as long as it is bound to
+        // this string reference.  The behavior is undefined unless 'data' is
+        // null-terminated.
 
     void assign(const bsl::basic_string<CHAR_TYPE>& str);
         // Bind this string reference to the specified 'str' string.  The
@@ -482,6 +483,12 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     size_type length() const;
         // Return the length of the string referred to by this object.  Note
         // that this call is equivalent to 'end() - begin()'.
+
+    int compare(const StringRefImp& other) const;
+        // Compare this and 'other' string objects using a lexicographical
+        // comparison and return a negative value if this string is less than
+        // 'other' string, a positive value if this string is greater than
+        // 'other' string, and 0 if this string is equal to 'other' string.
 };
 
 // FREE OPERATORS
@@ -735,7 +742,7 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const_iterator begin,
 template <typename CHAR_TYPE>
 inline
 StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data)
-: Base(data, data + std::strlen(data))
+: Base(data, data + native_std::char_traits<CHAR_TYPE>::length(data))
 {
 }
 
@@ -779,7 +786,7 @@ void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data,
     BSLS_ASSERT_SAFE(0 <= length);
     BSLS_ASSERT_SAFE(data || 0 == length);
 
-    *this = StringRef(data, data + length);
+    *this = StringRefImp(data, data + length);
 }
 
 template <typename CHAR_TYPE>
@@ -787,7 +794,7 @@ inline
 void StringRefImp<CHAR_TYPE>::assign(const_iterator begin,
                                      const_iterator end)
 {
-    *this = StringRef(begin, end);
+    *this = StringRefImp(begin, end);
 }
 
 template <typename CHAR_TYPE>
@@ -796,14 +803,16 @@ void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data)
 {
     BSLS_ASSERT_SAFE(data);
 
-    *this = StringRef(data, data + std::strlen(data));
+    *this = StringRefImp(
+                data,
+                data + native_std::char_traits<CHAR_TYPE>::length(data));
 }
 
 template <typename CHAR_TYPE>
 inline
 void StringRefImp<CHAR_TYPE>::assign(const bsl::basic_string<CHAR_TYPE>& str)
 {
-    *this = StringRef(str.data(), str.data() + str.length());
+    *this = StringRefImp(str.data(), str.data() + str.length());
 }
 
 template <typename CHAR_TYPE>
@@ -817,7 +826,7 @@ template <typename CHAR_TYPE>
 inline
 void StringRefImp<CHAR_TYPE>::reset()
 {
-    *this = StringRef(0, 0);
+    *this = StringRefImp(0, 0);
 }
 
 // ACCESSORS
@@ -882,6 +891,19 @@ typename StringRefImp<CHAR_TYPE>::size_type
     return static_cast<size_type>(end() - begin());
 }
 
+template <typename CHAR_TYPE>
+inline
+int StringRefImp<CHAR_TYPE>::compare(
+        const StringRefImp<CHAR_TYPE>& other) const
+{
+    int result = native_std::char_traits<CHAR_TYPE>::compare(
+                    this->data(),
+                    other.data(),
+                    native_std::min(this->length(), other.length()));
+
+    return result != 0 ? result : this->length() - other.length();
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -890,13 +912,7 @@ inline
 bool bslstl::operator==(const StringRefImp<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>& rhs)
 {
-    std::size_t len = lhs.length();
-
-    if (len != rhs.length()) {
-        return false;                                                 // RETURN
-    }
-
-    return 0 == len || 0 == std::memcmp(lhs.data(), rhs.data(), len);
+    return lhs.compare(rhs) == 0;
 }
 
 template <typename CHAR_TYPE>
@@ -1008,8 +1024,7 @@ inline
 bool bslstl::operator<(const StringRefImp<CHAR_TYPE>& lhs,
                        const StringRefImp<CHAR_TYPE>& rhs)
 {
-    return std::lexicographical_compare(lhs.begin(), lhs.end(),
-                                        rhs.begin(), rhs.end());
+    return lhs.compare(rhs) < 0;
 }
 
 template <typename CHAR_TYPE>
@@ -1065,8 +1080,7 @@ inline
 bool bslstl::operator>(const StringRefImp<CHAR_TYPE>& lhs,
                        const StringRefImp<CHAR_TYPE>& rhs)
 {
-    return std::lexicographical_compare(rhs.begin(), rhs.end(),
-                                        lhs.begin(), lhs.end());
+    return lhs.compare(rhs) > 0;
 }
 
 template <typename CHAR_TYPE>
