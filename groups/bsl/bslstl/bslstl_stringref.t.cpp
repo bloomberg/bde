@@ -153,8 +153,42 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 typedef bslstl::StringRef Obj;
 
-static const char *EMPTY_STRING     = "";
-static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
+template <typename CHAR>
+struct TestData
+{
+    static CHAR const * emptyString;
+    static CHAR const * nonEmptyString;
+    static CHAR const * stringValue1;
+    static CHAR const * stringValue2;
+};
+
+template <>
+char const * TestData<char>::emptyString = "";
+
+template <>
+char const * TestData<char>::nonEmptyString = "Tangled Up in Blue - Bob Dylan";
+
+template <>
+char const * TestData<char>::stringValue1 = "abcde";
+
+template <>
+char const * TestData<char>::stringValue2 = "abcfg";
+
+template <>
+wchar_t const * TestData<wchar_t>::emptyString = L"";
+
+template <>
+wchar_t const * TestData<wchar_t>::nonEmptyString
+    = L"Tangled Up in Blue - Bob Dylan";
+
+template <>
+wchar_t const * TestData<wchar_t>::stringValue1 = L"abcde";
+
+template <>
+wchar_t const * TestData<wchar_t>::stringValue2 = L"abcfg";
+
+char const * EMPTY_STRING     = TestData<char>::emptyString;
+char const * NON_EMPTY_STRING = TestData<char>::nonEmptyString;
 
 //=============================================================================
 //                 HELPER FUNCTIONS FOR TESTING USAGE EXAMPLE
@@ -191,6 +225,98 @@ static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
 // Notice that the function delegates the work to the 'std::count' STL
 // algorithm.  This delegation is made possible by the STL-compatible iterators
 // provided by the 'begin' and 'end' accessors.
+
+template <typename CHAR>
+void testBasicAccessors(bool verbose)
+{
+    if (verbose) std::cout << "\nTESTING BASIC ACCESSORS"
+                           << "\n======================="
+                           << std::endl;
+
+    if (verbose) std::cout << "\nTesting:\n\t'begin'\n\t'data'"
+                              "\n\t'end'\n\t'length'\n\t'empty'"
+                              "\n\t'operator bsl::string'"
+                              "\n\t'operator native_std::string'"
+                           << "\n= = = = = = = = = = = = = = = = = = = ="
+                           << std::endl;
+
+    {
+        // EMPTY STRING
+        bslstl::StringRefImp<CHAR> es(TestData<CHAR>::emptyString);
+        const bslstl::StringRefImp<CHAR>& ES = es;
+  
+        ASSERT(ES.begin()   == TestData<CHAR>::emptyString);
+        ASSERT(ES.data()    == TestData<CHAR>::emptyString);
+        ASSERT(ES.data()    == ES.begin());
+        ASSERT(ES.end()     == TestData<CHAR>::emptyString);
+        ASSERT(ES.length()  ==
+           native_std::char_traits<CHAR>::length(TestData<CHAR>::emptyString));
+        ASSERT(ES.isEmpty());
+  
+        bsl::basic_string<CHAR> EString(TestData<CHAR>::emptyString);
+        ASSERT(EString  == static_cast<bsl::basic_string<CHAR> >(ES));
+  
+        native_std::basic_string<CHAR> EString2(TestData<CHAR>::emptyString);
+        ASSERT(EString2 == static_cast<native_std::basic_string<CHAR> >(ES));
+  
+        // NON-EMPTY STRING
+        bslstl::StringRefImp<CHAR> nes(TestData<CHAR>::nonEmptyString);  
+        const bslstl::StringRefImp<CHAR>& NES = nes;
+        std::size_t LEN = native_std::char_traits<CHAR>::length(
+                                               TestData<CHAR>::nonEmptyString);
+  
+        ASSERT(NES.begin()   == TestData<CHAR>::nonEmptyString);
+        ASSERT(NES.data()    == TestData<CHAR>::nonEmptyString);
+        ASSERT(NES.data()    == NES.begin());
+        ASSERT(NES.end()     == TestData<CHAR>::nonEmptyString + LEN);
+        ASSERT(NES.length()  == LEN);
+        ASSERT(!NES.isEmpty());
+  
+        bsl::basic_string<CHAR> NEString(TestData<CHAR>::nonEmptyString);
+        ASSERT(NEString  == static_cast<bsl::basic_string<CHAR> >(NES));
+  
+        native_std::basic_string<CHAR>
+            NEString2(TestData<CHAR>::nonEmptyString);
+        ASSERT(NEString2 == static_cast<native_std::basic_string<CHAR> >(NES));
+    }
+
+    if (verbose) std::cout << "\nTesting: 'compare'"
+                           << "\n= = = = = = = = = "
+                           << std::endl;
+
+    {
+        bslstl::StringRefImp<CHAR> s1(TestData<CHAR>::stringValue1);
+        bslstl::StringRefImp<CHAR> s2(TestData<CHAR>::stringValue2);
+        ASSERT(s1.compare(s1) == 0);
+        ASSERT(s1.compare(s2) < 0);
+
+        bslstl::StringRefImp<CHAR> s3(TestData<CHAR>::stringValue2, 3);
+        ASSERT(s1.compare(s3) > 0);
+
+        bslstl::StringRefImp<CHAR> s4(TestData<CHAR>::stringValue1, 3);
+        ASSERT(s3.compare(s4) == 0);
+
+        bslstl::StringRefImp<CHAR> s5;
+        ASSERT(s1.compare(s5) > 0);
+        ASSERT(s5.compare(s5) == 0);
+    }
+
+    if (verbose) std::cout << "\nTesting: 'operator[]()'"
+                           << "\n= = = = = = = = = = = ="
+                           << std::endl;
+
+    {
+        bslstl::StringRefImp<CHAR> x2(TestData<CHAR>::nonEmptyString);
+        const bslstl::StringRefImp<CHAR>& X2 = x2;
+  
+        // NON-EMPTY STRING
+        int Len = native_std::char_traits<CHAR>::length(
+                                               TestData<CHAR>::nonEmptyString);
+        for (int idx = 0; idx < Len; ++idx) {
+            LOOP_ASSERT(idx, X2[idx] == TestData<CHAR>::nonEmptyString[idx]);
+        }
+    }
+}
 
 //=============================================================================
 //                             MAIN PROGRAM
@@ -2325,7 +2451,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING DIRECT ACCESSORS:
+        // TESTING BASIC ACCESSORS:
         //
         // Concerns:
         //   Each individual 'stringRef' field must be correctly forwarded from
@@ -2341,73 +2467,13 @@ int main(int argc, char *argv[])
         //      const_iterator end() const;
         //      int            length() const;
         //      int            isEmpty() const;
+        //      int            compare(other) const;
         //                     operator bsl::string() const;
         //      const char&    operator[](int index) const;
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTESTING BASIC ACCESSORS"
-                          << "\n=======================" << std::endl;
-
-        if (verbose) std::cout << "\nTesting:\n\t'begin'\n\t'data'"
-                             "\n\t'end'\n\t'length'\n\t'empty'"
-                             "\n\t'operator bsl::string'"
-                             "\n\t'operator native_std::string'"
-                          << "\n= = = = = = = = = = = = = = = = = = = ="
-                          << std::endl;
-        {
-          // EMPTY STRING
-          Obj es(EMPTY_STRING);  const Obj& ES = es;
-
-          ASSERT(ES.begin()   == EMPTY_STRING);
-          ASSERT(ES.data()    == EMPTY_STRING);
-          ASSERT(ES.data()    == ES.begin());
-          ASSERT(ES.end()     == EMPTY_STRING);
-          ASSERT(ES.length()  == (int)std::strlen(EMPTY_STRING));
-          ASSERT(ES.isEmpty());
-
-          bsl::string EString(EMPTY_STRING);
-          ASSERT(EString  == static_cast<bsl::string>(ES));
-
-          native_std::string EString2(EMPTY_STRING);
-          ASSERT(EString2 == static_cast<native_std::string>(ES));
-
-          // NON-EMPTY STRING
-          Obj nes(NON_EMPTY_STRING);  const Obj& NES = nes;
-          std::size_t LEN = std::strlen(NON_EMPTY_STRING);
-
-          ASSERT(NES.begin()   == NON_EMPTY_STRING);
-          ASSERT(NES.data()    == NON_EMPTY_STRING);
-          ASSERT(NES.data()    == NES.begin());
-          ASSERT(NES.end()     == NON_EMPTY_STRING + LEN);
-          ASSERT(NES.length()  == LEN);
-          ASSERT(!NES.isEmpty());
-
-          bsl::string NEString(NON_EMPTY_STRING);
-          ASSERT(NEString  == static_cast<bsl::string>(NES));
-
-          native_std::string NEString2(NON_EMPTY_STRING);
-          ASSERT(NEString2 == static_cast<native_std::string>(NES));
-        }
-
-        if (verbose) std::cout << "\nTesting: 'operator[]()'"
-                          << "\n= = = = = = = = = = = ="
-                          << std::endl;
-        {
-// TBD negative test
-#if 0
-          // EMPTY STRING
-          Obj x1(EMPTY_STRING);  const Obj& X1 = x1;
-          ASSERT(X1[0] == '\0');
-#endif
-
-          Obj x2(NON_EMPTY_STRING);  const Obj& X2 = x2;
-
-          // NON-EMPTY STRING
-          int Len = std::strlen(NON_EMPTY_STRING);
-          for (int idx = 0; idx < Len; ++idx) {
-            LOOP_ASSERT(idx, X2[idx] == NON_EMPTY_STRING[idx]);
-          }
-        }
+        testBasicAccessors<char>(verbose);
+        testBasicAccessors<wchar_t>(verbose);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2433,10 +2499,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Primary Manipulator"
-                          << "\n===========================" << std::endl;
+                               << "\n===========================" << std::endl;
 
         if (verbose) std::cout << "\nTesting default constructor"
-                          << "\n= = = = = = = = = = = = = =" << std::endl;
+                               << "\n= = = = = = = = = = = = = =" << std::endl;
         if (veryVerbose)
             std::cout << "\nbslstl_StringRef()"
                  << "\n=  =  =  =  =  = "
@@ -2451,7 +2517,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) std::cout << "\nTesting other constructors"
-                          << "\n= = = = = = = = = = = = = " << std::endl;
+                               << "\n= = = = = = = = = = = = = " << std::endl;
         if (veryVerbose)
             std::cout
                << "\nbslstl_StringRef(const char *begin, const char *end)"
@@ -2592,7 +2658,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) std::cout << "\nTesting copy constructor"
-                          << "\n= = = = = = = = = = = = " << std::endl;
+                               << "\n= = = = = = = = = = = = " << std::endl;
         if (veryVerbose)
             std::cout
                 << "\nbslstl_StringRef(const bslstl::StringRef&)"
@@ -2638,7 +2704,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nBREATHING TEST"
-                          << "\n==============" << std::endl;
+                               << "\n==============" << std::endl;
 
         bsl::string  s1  = "hello";
         bsl::string  s2  = "Hello";
