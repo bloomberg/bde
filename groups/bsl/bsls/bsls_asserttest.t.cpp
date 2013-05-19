@@ -175,6 +175,7 @@ bool globalVeryVeryVerbose = false;
     template <class T>
     const T& AssertTestVector<T>::operator[](int index) const
     {
+        (void) index;  // suppress 'unused parameter' compiler warning
         BSLS_ASSERT_SAFE(0 <= index);
         BSLS_ASSERT_SAFE(     index < d_size);
 
@@ -289,13 +290,12 @@ bool globalVeryVeryVerbose = false;
     }
     #endif
 
-    void MyUtil::f(int a, int b, int c,
-                   void *
-    #ifdef BDE_BUILD_TARGET_SAFE_2
-                   d
-    #endif
-                   )
+    void MyUtil::f(int a, int b, int c, void *d)
     {
+        (void) a;  // suppress 'unused parameter' compiler warning
+        (void) b;  // suppress 'unused parameter' compiler warning
+        (void) c;  // suppress 'unused parameter' compiler warning
+        (void) d;  // suppress 'unused parameter' compiler warning
         BSLS_ASSERT_SAFE(0 <= a);  BSLS_ASSERT_SAFE(a <= 5);
         BSLS_ASSERT     (0 <= b);  BSLS_ASSERT     (b <= 4);
         BSLS_ASSERT_OPT (0 <= c);  BSLS_ASSERT_OPT (c <= 3);
@@ -2945,47 +2945,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3044,44 +3035,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3222,47 +3207,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3346,44 +3322,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3550,32 +3520,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3684,32 +3660,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3996,47 +3978,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4095,44 +4068,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4272,47 +4239,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(
-                bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4396,44 +4354,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4599,44 +4551,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4745,44 +4691,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5124,44 +5064,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5220,44 +5154,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5395,44 +5323,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5516,44 +5438,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5716,32 +5632,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5852,32 +5774,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6161,44 +6089,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6257,44 +6179,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6431,44 +6347,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6552,44 +6462,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6751,44 +6655,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6899,44 +6797,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
-            static void callAssertOpt(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertOpt(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
-            static void callAssert(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssert(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
-            static void callAssertSafe(bool
-#if defined(BDE_BUILD_TARGET_SAFE_2)
-                pass
-#endif
-            ) {
+            static void callAssertSafe(bool pass) {
+                (void) pass;  // suppress 'unused parameter' compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
