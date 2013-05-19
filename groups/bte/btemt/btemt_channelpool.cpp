@@ -158,7 +158,7 @@ class btemt_Channel {
     // calls, when data is available for reading, calling 'readCb' that uses
     // either 'bcema_PooledBufferChain's or 'bcema_Blob's.  Both methods
     // simply extract the data from the socket, append it into a either a
-    // 'btemt_DataMsg' or a 'bcema_Blob' and invoke the the registered data
+    // 'btemt_DataMsg' or a 'bcema_Blob' and invoke the registered data
     // callback as needed.
     //
     // Writing is done first in the calling thread, and if no more space is
@@ -580,18 +580,18 @@ class btemt_Channel {
         // during the entirety of this call.
 
     int setWriteCacheHiWatermark(int numBytes);
-        // Set the write-cache high-watermark for this channel to the specified
-        // 'numBytes'.
+        // Set the write-cache high-water mark for this channel to the
+        // specified 'numBytes'.
 
     int setWriteCacheLowWatermark(int numBytes);
-        // Set the write-cache low-watermark for this channel to the specified
+        // Set the write-cache low-water mark for this channel to the specified
         // 'numBytes'.  The behavior is undefined unless '0 <= numBytes'.
 
     void resetRecordedMaxWriteCacheSize();
         // Reset the recorded max write cache size for this channel to the
         // current write cache size.  Note that this function resets the
         // recorded max write cache size and does not change the write cache
-        // high watermark for this channel.
+        // high-water mark for this channel.
 
     // ACCESSORS
     int channelId() const;
@@ -642,6 +642,12 @@ class btemt_Channel {
 
     int sourceId() const;
         // Return the source identifier of this channel.
+
+    int writeCacheHiWatermark() const;
+        // Return the write-cache high-water mark for this channel.
+
+    int writeCacheLowWatermark() const;
+        // Return the write-cache low-water mark for this channel.
 
     void *userData() const;
         // Return the opaque user data associated to this channel.
@@ -749,6 +755,18 @@ inline
 int btemt_Channel::sourceId() const
 {
     return d_sourceId;
+}
+
+inline
+int btemt_Channel::writeCacheHiWatermark() const
+{
+    return d_writeCacheHiWat;
+}
+
+inline
+int btemt_Channel::writeCacheLowWatermark() const
+{
+    return d_writeCacheLowWat;
 }
 
 inline
@@ -2146,8 +2164,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
             // executed.  Otherwise, another thread can come in between and
             // 'BTEMT_WRITE_CACHE_LOWWAT' can be generated and the flag reset
             // to false BEFORE the callback is delivered.  This way, the user
-            // will see the following sequence: LOWWAT, HIWAT, HIWAT (maybe)
-            // LOWAT, which is wrong, especially if no messages are queued
+            // will see the following sequence: LOWWAT, HIWAT, HIWAT (maybe),
+            // LOWWAT, which is wrong, especially if no messages are queued
             // after HIWAT.
         }
         return HIT_CACHE_HIWAT;
@@ -2307,7 +2325,7 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
     }
     else if (writeCacheSize < numBytes) {
         // Otherwise, if the write cache size limit is now greater than the
-        // current cache size, clear the hi-watermark hit flag so additional
+        // current cache size, clear the hi-water mark hit flag so additional
         // alerts will be generated.
 
         d_hiWatermarkHitFlag = false;
@@ -3956,7 +3974,8 @@ int btemt_ChannelPool::shutdown(int                      channelId,
 
 int btemt_ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
 {
-    BSLS_ASSERT(numBytes >= 0);
+    BSLS_ASSERT(0 <= numBytes);
+
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
         return -1;
@@ -3969,6 +3988,7 @@ int btemt_ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
 int btemt_ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
+
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
         return -1;
@@ -3976,6 +3996,34 @@ int btemt_ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
     BSLS_ASSERT(channelHandle);
 
     return channelHandle->setWriteCacheLowWatermark(numBytes);
+}
+
+int btemt_ChannelPool::setWriteCacheWatermarks(int channelId,
+                                               int lowWatermark,
+                                               int hiWatermark)
+{
+    BSLS_ASSERT(0 <= lowWatermark);
+    BSLS_ASSERT(0 <= hiWatermark);
+    BSLS_ASSERT(lowWatermark <= hiWatermark);
+
+    ChannelHandle channelHandle;
+    if (0 != findChannelHandle(&channelHandle, channelId)) {
+        return -1;
+    }
+    BSLS_ASSERT(channelHandle);
+
+    btemt_Channel *channel = channelHandle.ptr();
+
+    if (hiWatermark < channel->writeCacheLowWatermark()) {
+        channel->setWriteCacheLowWatermark(lowWatermark);
+        channel->setWriteCacheHiWatermark(hiWatermark);
+    }
+    else {
+        channel->setWriteCacheHiWatermark(hiWatermark);
+        channel->setWriteCacheLowWatermark(lowWatermark);
+    }
+
+    return 0;
 }
 
 int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)

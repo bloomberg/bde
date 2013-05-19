@@ -5729,7 +5729,7 @@ void case10ChannelStateCallback(int                  channelId,
                                 int                  veryVerbose)
 {
     ASSERT(channelId1 && threadId1);
-    ASSERT(channelId2 && threadId1);
+    ASSERT(channelId2 && threadId2);
 
     switch (state) {
       case btemt_ChannelPool::BTEMT_CHANNEL_DOWN: {
@@ -8326,7 +8326,7 @@ class TestDriver {
 void TestDriver::testCase42()
 {
         // --------------------------------------------------------------------
-        // Testing LOWAT called when 'enqueueWatermark' exceeded
+        // Testing LOWWAT called when 'enqueueWatermark' exceeded
         //
         // Concerns:
         //: 1 The low watermark is invoked after the enqueue watermark is
@@ -8343,8 +8343,8 @@ void TestDriver::testCase42()
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING LOWAT called when 'enqueueWatermark' exceeded"
-                 << "\n====================================================="
+            cout << "\nTESTING LOWWAT called when 'enqueueWatermark' exceeded"
+                 << "\n===========-=========================================="
                  << endl;
 
         using namespace CASE42;
@@ -13877,7 +13877,7 @@ void TestDriver::testCase12()
         // TESTING FLOW CONTROL
         //
         // Concerns:
-        //   o WRITE_CACHE_HIWAT and WRITE_CACHE_LOWAT are generated
+        //   o WRITE_CACHE_HIWAT and WRITE_CACHE_LOWWAT are generated
         //     appropriately
         //
         // Plan:
