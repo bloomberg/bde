@@ -110,9 +110,11 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         std::cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -317,6 +319,8 @@ void testBasicAccessors(bool verbose)
         }
     }
 }
+
+}  // close anonymous namespace
 
 //=============================================================================
 //                             MAIN PROGRAM
