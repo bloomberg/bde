@@ -1,83 +1,133 @@
-bsl-internal (2.16.0.0) unstable; urgency=low
+bsl-internal (2.18.0.0) unstable; urgency=low
 
-  * Update version info for 2.16.0 rs_suite build
+  * Bump changelog
+  * 5a87563 [APPROVAL] OSS bump-version-to-2.18-drqs-41339858 to master
+  * 8285cf6 [APPROVAL] bump-version-to-2.18-drqs-41339858 to master
+  * 66ea7d6 [APPROVAL] pending/master/move-default.opts-metadata-to-bde-tools-drqs-40974008 to master
+  * 85116d4 [APPROVAL] OSS pending/master/const-cast-qual-drqs40473559 to master
+  * ea47c05 [APPROVAL] pending/master/const-cast-qual-drqs40473559 to master
+  * 10c4a5c [APPROVAL] OSS pending/master/variadic-arg-drqs27568484 to master
+  * 71b8a85 [APPROVAL] pending/master/variadic-arg-drqs27568484 to master
+  * 3424489 [APPROVAL] pending/master/variadic-arg-drqs27568484 to master
+  * 328a29a [APPROVAL] OSS pending/master/size_type-cleanup-drqs-41128786 to master
+  * 6cab4cf [APPROVAL] pending/master/size_type-cleanup-drqs-41128786 to master
+  * e427149 [APPROVAL] OSS pending/master/bslalg-doc-fix-drqs-40276480 to master
+  * 502a45f [APPROVAL] pending/master/bslalg-doc-fix-drqs-40276480 to master
+  * 2c1aeca [APPROVAL] OSS pending/master/bsltf_stdstatefulallocator-fix-warnings-drqs-40234657 to master
+  * d4a41a2 [APPROVAL] pending/master/bsltf_stdstatefulallocator-fix-warnings-drqs-40234657 to master
+  * 08880a2 [APPROVAL] OSS fix-nightly-build-drqs41179688 to master
+  * 88db159 [APPROVAL] fix-nightly-build-drqs41179688 to master
+  * ef9fae5 [APPROVAL] OSS pending/master/bslstl-traits-to-bottom-drqs-39302717 to master
+  * a6bc86e [APPROVAL] pending/master/bslstl-traits-to-bottom-drqs-39302717 to master
+  * 53252dd [APPROVAL] OSS pending/master/fix-rbtreeutil-cpp11-drqs39482124 to master
+  * 2708e5f [APPROVAL] pending/master/fix-rbtreeutil-cpp11-drqs39482124 to master
+  * 1decce2 [APPROVAL] OSS pending/master/fix-package-prefix-use-bsls_exceptionutil-drqs40786629 to master
+  * 81e9fab [APPROVAL] pending/master/fix-package-prefix-use-bsls_exceptionutil-drqs40786629 to master
+  * e07ebd0 [APPROVAL] pending/master/bsl-endianness-drqs39774236 to master
+  * e6a7d54 [APPROVAL] INTERNAL sun-algorithm-extensions-drqs40798754 to master
+  * 64ae05b [APPROVAL] sun-algorithm-extensions-drqs40798754 to master
+  * 663207c [APPROVAL] OSS review/update-gyp-files to master
+  * a4a9310 [APPROVAL] review/update-gyp-files to master
 
- -- Mike Giroux <rmgiroux@bloomberg.net>  Fri, 07 Dec 2012 08:13:33 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 May 2013 13:16:40 -0400
 
-bsl-internal (2.15.0.1) unstable; urgency=low
+bsl-internal (BSL_INTERNAL_BASE) git; urgency=low
 
-  * Remove reference to 00deployed
+  * c8e9575 [APPROVAL] INTERNAL review/fix-omit-macro-use-in-bslstl_hash-drqs-40636011 to master
+  * d6bdff8 [APPROVAL] review/fix-omit-macro-use-in-bslstl_hash-drqs-40636011 to master
+  * c2d67d8 [APPROVAL] OSS review/add-internal-build-tool-support-revised to master
+  * a5ab136 [APPROVAL] review/add-internal-build-tool-support-revised to master
+  * 114f796 [APPROVAL] INTERNAL review/repair-stdhdrs_epilogue_recursive-drqs-40635891 to master
+  * 32cd08b [APPROVAL] review/repair-stdhdrs_epilogue_recursive-drqs-40635891 to master
+  * 8a4d89a [APPROVAL] INTERNAL review/bslint-add-internal-build-tool-support-drqs-40575735 to master
+  * a60b8ee [APPROVAL] review/bslint-add-internal-build-tool-support-drqs-40575735 to master
+  * f8eb0de [APPROVAL] add-internal-build-tool-support-revised to master
+  * b0edd54 [APPROVAL] OSS review/remove-bslma-size-is-signed-from-bslstl-allocator-drqs-40228902 to master
 
- -- Daniel Ruoso <druoso@bloomberg.net>  Tue, 06 Nov 2012 17:21:41 -0500
+ -- Alexander Beels <abeels@bloomberg.net>  Mon, 22 Apr 2013 13:39:11 -0400
 
-bsl-internal (2.15.0.0) unstable; urgency=low
+bsl-internal (BSLINT_2.17.x_base) git; urgency=low
 
-  * Preparing 2.15.0 release
+  * c92e96f [APPROVAL] OSS master to master
+  * 27f3348 Import internal commit 0454183481f25471c59b3a0f5740766f5a22812b : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
+  * 6734b02 Import internal commit 7602e96e54223a3ac2a9c15554d971a7031741d0 : [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
+  * afd9b76 Import internal commit f9a3125265ac3d13b12c5c62babdffa669cba457 : [APPROVAL] pending/master/alloctesttype-td-safe-fix-drqs-36772136 to master
+  * e2140fb Import internal commit 899fb2b4cd942eba7a41d7016769cf4cc2938eef : [APPROVAL] pending/master/oss-universal-size-type-printf-code-in-bsls_bsltestutil-drqs_37405914 to master
+  * 22e0cb6 Import internal commit cf441df5f54da3445a2bd15a68aceda8d631b684 : [APPROVAL] pending/master/revert_hash_const_char_intentional_breakage_drqs38592188 to master
+  * 6cfb352 Import internal commit a100fe32303c878dd982b899e810b60e2ae45f21 : [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
+  * ba3149f Import internal commit 091f6194ae0f32c9f07cb3ab191c0abf6f03f8a0 : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
+  * fbc3082 Import internal commit 28c4c9957a48079edf387480ef3dbc178a06f83b : [APPROVAL] pending/master/oss-bsls_buildtarget-test-driver-drqs_33319796 to master
+  * 7d8ff62 Import internal commit 3abccd623c95cc0f3fe924a66adfcf7c34710a99 : [APPROVAL] pending/master/update-licenses-to-MIT-2013-drqs-39016521 to master
+  * 6f8ef59 Import internal commit a89d3be5dd87c84cb0e272082aab17bab613ac9a : [APPROVAL] pending/master/ongoing_deprecation_of_hash_const_char_star_drqs38592188 to master
+  * cf14770 Import internal commit bf4c4bfef006ebbb6339d301016031f61d396e4f : [APPROVAL] pending/master/bsltf_basic_form_drqs39249075 to master
+  * 64d2588 Import internal commit dc5d44230208a52085e8a288c6224862ffe5840f : [APPROVAL] pending/master/yet_more_bslmf_fixes_following_previous_two_merges_drqs39336243 to master
+  * 752b045 Import internal commit 73808cad4a40b82894062f01b68085f7d673218f : [APPROVAL] pending/master/bsl-atomic-test-typo-drqs39355553 to master
+  * b77a915 Import internal commit 8f02c2ae5b569af03ac78ac6158948dd63a639d8 : [APPROVAL] pending/master/clean_up_bsls_for_windows_drqs39193654 to master
+  * 963d736 Import internal commit cce363391903866cc50b75619fb9254ccc12622f : [APPROVAL] pending/master/bslmf_enableif_crashes_clang3.1_drqs39147181 to master
+  * 4c6eaab Import internal commit b8fa0b5d053d31773da913646780828b5e6af0c7 : [APPROVAL] pending/master/nullptr_t_patch_for_msvc_clr_drqs38441804 to master
+  * 99a4c0a Import internal commit 6891bfee785516eb5c9829f77f79f9b04750525b : [APPROVAL] bde-bsl-versions-to-2.17 to master
+  * 8615724 Import internal commit 4413c825c1746a4c617ed864162a9af8822790e3 : [APPROVAL] pending/master/cygwin-port-phase-2 to master
+  * 9d8a44b Import internal commit d0939294af61e92da77d62f4578938e1f0c7bb29 : [APPROVAL] pending/master/drqs35514064_list_leak_file to master
+  * abeedc8 Import internal commit bd55884af5fc0b4b769a677a85de7841970bab3a : [APPROVAL] pending/master/drqs35886446_list_inline to master
+  * d76e308 Import internal commit aec74673cb343fabd87f08348255192a5a3de517 : [APPROVAL] pending/master/cleanup-doc-bslstl_allocator-drqs-36470520 to master
+  * a831bfa Import internal commit 7ce81562a9c32601fd1a3df41ddecf598e39bcf7 : [APPROVAL] pending/master/drqs-32442862-bslma-testallocator-print to master
+  * e9eb907 Import internal commit 5d0bf0e6aacecccba86106e5b5d5629f994b23de : [APPROVAL] pending/master/drqs36665676_traits_to_end to master
+  * 681f8aa Import internal commit 43e8b16c2b9ea98e6c5259ebad7bff5a672ff9de : [APPROVAL] pending/master/fix-unused-warnings-oss-issues-20-21_drqs-36943747 to master
+  * f89acc1 Import internal commit ed6aba11550d89781cf8ce3cf03ffb235c4f2bbf : [APPROVAL] pending/master/bsl-atomics-intrinsic-drqs37688355 to master
+  * 0ff633e Import internal commit ceaf74946686b4429e770cbe4e9fd4771965147a : [APPROVAL] pending/master/bsls-atomics-slow-tests-drqs39101345 to master
+  * b9d16ac Import internal commit d3523c85b82f06d29cf6654ce33f08fc8765d164 : [APPROVAL] pending/master/clean_up_bslmf_for_windows_drqs39269611 to master
+  * 81530ea Import internal commit dbcd057ffdaefb7372f07baeb0aeac5290d14aa9 : [APPROVAL] pending/master/eliminate_invented_legacy_in_bsls_drqs39194279 to master
+  * df1d7ba Import internal commit fd4898e249f741d0395efdc89dffe096a68cd2d2 : [APPROVAL] pending/master/type-traits-doc to master
+  * 9945a9b Import internal commit 0576197f8d36451c7e0041e013edad9cc941a15f : [APPROVAL] pending/master/gcc-4.7.0-cpp11-fixes-drqs31611140 to master
+  * ccb9653 Import internal commit b8cb1d6fe185bfc334e8a76cdac71e48b6c1d1d4 : [APPROVAL] pending/master/unordered_testing_revised to master
+  * 1d1bb46 Import internal commit b6656a5e7b230abccc26be3153233f951daf4b32 : [APPROVAL] pending/master/bsl-stringbuf-readeof-drqs38933184 to master
+  * 4f2a29c Import internal commit 20a9dab0b8f9275afb0de1abd0471a7e7eddf6d1 : [APPROVAL] pending/master/bsl-stringbuf-assertoutputpos-drqs38872456-rebase to master
+  * 28a32f0 Import internal commit 96e74eba244db41d0fbcae2ed3c0c1f2da2fd6e6 : [APPROVAL] pending/master/bsl-iosfwd-macrostd-drqs38887876 to master
+  * 9d7f980 Import internal commit 7c822ebc09c2d94eecf2f9889300f027d25d18c5 : [APPROVAL] pending/master/bsl-detectnested-templateconversion-drqs38623160 to master
+  * 947b3be Import internal commit 5c6422f3b1c49f2bd472939f4618a763a6bf659f : [APPROVAL] pending/master/bsl-detectnested-templateconversion-drqs38623160 to master
+  * 5667226 Import internal commit 1a755ebd1c2731369af031c2a4b10039f96db387 : [APPROVAL] origin/review/bsl-stringbuf-m64-warnings-drqs38470743 to master
+  * 81b7d17 Import internal commit 018b110162ce1bb470001fa0c50d46cf9a03a85e : [APPROVAL] origin/review/bsl-stringbuf-assertsize-drqs38618050 to master
+  * b9e8a04 Import internal commit 90e91784ee3e86697cbfccd9ca0ab88680eb7d7a : [APPROVAL] origin/review/fixes_for_doxygen-drqs-38664727 to master
+  * e7a6ea0 Import internal commit 414edb6e54182def7d25aa540cdcfe70818d92ee : [APPROVAL] pending/master/fix-bdeut_variant-warning-drqs-37689270 to master
+  * 1f5eebf Import internal commit 49a9b029b9417d6b4bfe8ff366c554d82e4fb7d8 : [APPROVAL] pending/master/bslalg_autoarray-move-destructor-usage-drqs-34554786 to master
+  * 8783b88 Import internal commit de0473a297248668b55a3385ba5eda7b73184ff3 : [APPROVAL] pending/master/restore_non_standard_bsl_hash_for_strings_drqs37540921 to master
+  * e3755a0 Import internal commit e02418a7deff5f08ca6cd1d9ff425c3ddb0da679 : [APPROVAL] pending/master/bslmf-tests-msvc-drqs37446628 to master
+  * 7a4ceae Import internal commit d33d90ed2a832a83ddb0dff2d2e623ac0418caae : [APPROVAL] pending/master/fix-bslmf_removepointer_t_cpp-omit_deprecated-on-aix-drqs-37503925 to master
+  * 702d68f Import internal commit 529cd3d19fe59ddddc86df57e5ad0ce7190c0b8f : [APPROVAL] pending/master/bslmf_isfunction-fails-test-case-1-on-clang-drqs-37510095 to master
+  * 91c6861 Import internal commit 92e27598afb6e0b92b2174802e03e24abef804a1 : [APPROVAL] pending/master/stringstream_warnings_drqs37145006 to master
+  * d99595a Import internal commit ef537930d09930ea1b711b13cd01a06b1038260e : [APPROVAL] pending/master/bslalg_autoarray-move-destructor-usage-drqs-34554786 to master
+  * 1917200 Import internal commit 7da1eac1c34c8554dd1b107994ffb5e1ac5d175b : [APPROVAL] pending/master/unordered-fix-rehash to master
+  * d13477c Import internal commit b8613a40eaa8b610f2d41b1cc5287c9fafbcd39b : [APPROVAL] pending/master/unordered_validation to master
+  * 20497bc Import internal commit 573ee7922c0f2de1d6d70a83b4afac67d70a22d0 : [APPROVAL] origin/review/unordered_validation to rssuite-2.16.0
+  * 3d014bd Import internal commit 188010cf54916f501f29a2aa0355ed67fcc51e0e : [APPROVAL] pending/master/bsl-atomic-failure-clang-drqs-37362137 to master
+  * ba6a76f Import internal commit 0f93d1a4d00712c7afdf820f6a2ea93bbbb5e6e7 : [APPROVAL] pending/master/bsls-atomics-Solaris-Gcc-Code-Missing-drqs-35034529 to master
+  * f528a5f Import internal commit dfa592b869e082fa529bccce4a4f5b11d51ca3cc : [APPROVAL] pending/master/bsl-removepointer-functionptr-xlc-drqs-37290749/1354836570 to master
+  * 5be532d Import internal commit c4429ce4ddcece574e35b12884b3f1a4939a06b2 : [APPROVAL] pending/master/bsls_timeutil-and-bsls_stopwatch-corrections-drqs-34696461 to master
+  * ad3bc06 Import internal commit d7344f63d00ee91ba6d7474d3574f5d97aae79a5 : [APPROVAL] pending/master/type-traits-doc to master
+  * 1ffcaf6 Import internal commit d6da2fe92a0eff7c45de84f9c17dbf31d691ba86 : [APPROVAL] pending/master/add-bslstl_bitset-component-drqs-37337945 to master
+  * 0d2e3e8 Import internal commit 0b2d8e0ff85b622aa4ec1b2ce04c530410790a73 : [APPROVAL] pending/master/bslcleanup-bsls_pkg_doc-drqs-35429100 to master
+  * a601505 Import internal commit d830a8b9f65f96cb2a6ab0b984126c66325c1d6b : [APPROVAL] pending/master/fix-warnings-in-bslalg_rangecompare-drqs-37088163 to master
+  * 6000026 Import internal commit a2a7ceb7fadb076fdda57f4da8078b2400faed7b : [APPROVAL] pending/master/fix-warnings-in-bslalg_dequeprimitives-drqs-37088378 to master
+  * e659c43 Import internal commit 136c4b5ac15a30254a505e6e2f32ec52cd105e20 : [APPROVAL] pending/master/fix-warnings-issues-41_42_46_47_56-drqs-37220936 to master
+  * 608cbbc Import internal commit 5693cf365d7cd954d10232cccae661679a0ef836 : [APPROVAL] origin/review/bsl-stdhdrs-time-h-drqs37074038 to master
+  * d909e7c Import internal commit 007676d1c2830fbb1a066f94ab8e2f0a4ed66356 : [APPROVAL] pending/master/fix-unused-warnings-oss-issues-22-24_drqs-36943712 to master
+  * 22293b7 Import internal commit 791cabf2cf00354a52739c59e55145b6cdd71ec8 : [APPROVAL] pending/master/bslcleanup-update_pkg_synopses-drqs-35798568 to master
+  * f9b052c Import internal commit 60a0c65fd1ad1b5f5d5d6aa7f9f68da7fee8269f : [APPROVAL] pending/master/drqs-35256287-bslma-package-level-doc to master
+  * 501143e Import internal commit a65a561ba7f4b14a43c8bd1a056159db1a5a95cd : [APPROVAL] pending/master/reduce-scope-of-omit-transitional-in-bsl_functional_drqs-36719120 to master
+  * 346e72a Import internal commit 849c21ede5e4f898db51adc9147c73ce2020f993 : [APPROVAL] bump-versions-to-2.16.0 to master
+  * 19a0f6f Import internal commit ad11f5e7116a3834fee7839eb3fb62fd37775be3 : [APPROVAL] pending/master/remove-my_class5-tests-from-typetraits-test-drivers_drqs-35644799 to master
+  * bfb2aea Import internal commit 91357c2f70de28a6092f685d17e2d946ec3793c3 : [APPROVAL] origin/review/allow-pointer-to-member-in-bsl_pair_drqs-36958527 to master
+  * a185536 Import internal commit 37c0921a9ef817cfde697f335588abf2ab525d23 : [APPROVAL] origin/review/bsls_platform-docs-missing-os-darwin-platform_drqs-36943777 to master
+  * c76d698 Import internal commit 67870004e468d51e21292b0cee7f90bb91ea48fb : [APPROVAL] origin/review/oss-issue-26-cosmetica_drqs-36959222 to master
+  * fb13eac Import internal commit c662e925effd4c223bb4c6611df9e75838b9d0a8 : [APPROVAL] origin/review/bsls-atomics-dependent-call-drqs36927466 to master
+  * 9099272 Import internal commit 5d963eb25ecd65d14ca06586bc9564194e120e21 : [APPROVAL] origin/review/fix-bslstl_iteratorutil-on-sun_drqs-36781261 to master
+  * 872d7c5 Import internal commit b8202f86dc414ac04ced53909a5b49c88f5b6242 : [APPROVAL] origin/review/fix-bslstl_unorderedmultiset-test-case-1_drqs-36781261 to master
+  * 4a3a384 Import internal commit b1320d9de0fac94e84113f489e71bfe68b3913ca : [APPROVAL] origin/review/oss-issue-5-bsls-timeutil-darwin-includes_drqs-36883008 to master
+  * 5d4f8c5 Import internal commit 84799c6fac6b795652b2c99127b1ae9a718ffbf7 : [APPROVAL] origin/review/fix-package-prefix-use-in-bsls_buildtarget-phase-2-drqs-36700708 to master
+  * 7959a10 Import internal commit b2540abc5d7c3ca1acdc5e44d5c34125d6e9a544 : [APPROVAL] origin/review/cleanup-legacy-identifier-use_drqs-36870775 to master
+  * ed6172a Import internal commit 64e4529545b04f6bcc0eec290a18e0d70f6cc90f : [APPROVAL] unordered_polish-master-merge to master
+  * 9ba36c3 Import internal commit 0aa702365149efffb0057683a23486c074dae71b : [APPROVAL] cygwin_build-master-merge to master
+  * d470f6a Import internal commit 8c1178da0c021dc693be14177f14bb495fcb8adf : [APPROVAL] pending/master/type-traits-update to master
+  * 4feb220 Import internal commit 41e7710c4310430d4e068635e41d3db5673adb32 : [APPROVAL] pending/master/include_next-drqs36057057-merge to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Aug 2012 13:59:00 -0400
-
-bsl-internal (2.14.0.201208v01.0) unstable; urgency=low
-
-  * Rebase to BSL 2.14.0
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 27 Jul 2012 17:21:41 -0500
-
-bsl-internal (2.13.0.RS201205v01.0) unstable; urgency=low
-
-  * Rebase to BSL 2.13.0
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 16 May 2012 17:21:41 -0500
-
-bsl-internal (2.12.2.RS201201v00.0) unstable; urgency=low
-
-  * Rebase to BSL 2.12.2
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 26 Apr 2012 17:21:41 -0500
-
-bsl-internal (2.12.0.10.RS201201v00) unstable; urgency=low
-
-  * Hard-code the UPLID to avoid weirdnes
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 26 Apr 2012 17:21:41 -0500
-
-bsl-internal (2.12.0.9.RS201201v00) unstable; urgency=low
-
-  * Attempt to prevent undefs in the shared object broke the build
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 12 Apr 2012 17:21:41 -0500
-
-bsl-internal (2.12.0.8.RS201201v00) unstable; urgency=low
-
-  * Fix list of packages that should not be installed
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 20 Mar 2012 17:21:41 -0500
-
-bsl-internal (2.12.0.7.RS201201v00) unstable; urgency=low
-
-  * Refactor header installation.
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 19 Mar 2012 17:21:41 -0500
-
-bsl-internal (2.12.0.6.RS201201v00) unstable; urgency=low
-
-  * Refuse unresolved symbols in the shared libraries
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
-
-bsl-internal (2.12.0.5.RS201201v00) unstable; urgency=low
-
-  * Produces the libraries using producemake and also the RSSUITE
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
-
-bsl-internal (2.12.0-4-gc4e17b7) unstable; urgency=low
-
-  * Produces the libraries using producemake and also the RSSUITE
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
-
-bsl-internal (2.11.0-233-g54ba421) unstable; urgency=low
-
-  * Initial release
-
- -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 14 Dec 2011 15:42:22 -0500
+ -- Alexander Beels <abeels@bloomberg.net>  Tue, 9 Apr 2013 19:20:18 -0400
