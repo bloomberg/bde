@@ -1212,6 +1212,19 @@ class SelfReference
     void release() { d_dataPtr.reset(); }
 };
 
+
+bsl::auto_ptr<TObj> makeAuto()
+{
+    return bsl::auto_ptr<TObj>((TObj*)0);
+}
+
+bsl::auto_ptr<TObj> makeAuto(bsls::Types::Int64 *counter)
+{
+    BSLS_ASSERT_OPT(counter);
+
+    return bsl::auto_ptr<TObj>(new TObj(counter));
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -3319,6 +3332,29 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+        if (verbose) cout << "\nTesting ASSIGNMENT of auto_ptr rvalue"
+                          << "\n-------------------------------------\n";
+        {
+            Obj x;
+            Obj const& X = x;
+            ASSERT(0 == x.ptr());
+            ASSERT(0 == x.numReferences());
+
+            numDeletes = 0;
+
+            x = makeAuto(&numDeletes);
+
+            if (veryVerbose) {
+                P_(numDeletes);        P_(X.numReferences());
+                P(X.get());
+            }
+
+            ASSERT(0 == numDeletes);
+            ASSERT(0 != X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        ASSERT(1 == numDeletes);
+
         if (verbose) cout << "\nTesting ASSIGNMENT of empty object"
                           << "\n----------------------------------\n";
         {
@@ -3443,24 +3479,29 @@ int main(int argc, char *argv[])
         numDeallocations = ta.numDeallocations();
         {
 
-            Obj w((TObj*)0); Obj const& W=w;
+            Obj w((TObj*)0); const Obj& W = w;
             ASSERT(0 == W.ptr());
             ASSERT(0 == W.numReferences());
 
             numAllocations = ta.numAllocations();
 
-            Obj x((TObj*)0, &ta); Obj const&X=x;
+            Obj x((TObj*)0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
 
             bsl::auto_ptr<TObj> apY((TObj*)0);
-            Obj y(apY, &ta); Obj const&Y=y;
+            Obj y(apY, &ta); const Obj& Y = y;
             ASSERT(0 == Y.ptr());
             ASSERT(0 == Y.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
 
-            Obj z((TObj*)0, &ta, &ta); Obj const&Z=z;
+            Obj y2(makeAuto(), &ta); const Obj& Y2 = y2;
+            ASSERT(0 == Y.ptr());
+            ASSERT(0 == Y.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+
+            Obj z((TObj*)0, &ta, &ta); const Obj& Z = z;
             ASSERT(0 == Z.ptr());
             ASSERT(0 == Z.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
@@ -3477,7 +3518,7 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) TObj(&numDeletes);
             numAllocations = ta.numAllocations();
 
-            Obj x(p, &ta); Obj const& X=x;
+            Obj x(p, &ta); const Obj& X = x;
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
@@ -3505,7 +3546,7 @@ int main(int argc, char *argv[])
 
             numAllocations = ta.numAllocations();
 
-            Obj x(ap, &ta); Obj const& X=x;
+            Obj x(ap, &ta); const Obj& X = x;
             ASSERT(0 == ap.get());
             ASSERT(++numAllocations == ta.numAllocations());
 
@@ -3514,6 +3555,31 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == numDeletes);
             ASSERT(p == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT((++numDeallocations) == ta.numDeallocations());
+
+        if (verbose)
+            cout << "\nTesting auto_ptr rvalue constructor (with allocator)"
+                 << "\n----------------------------------------------------\n";
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            numAllocations = ta.numAllocations();
+
+            Obj x(makeAuto(&numDeletes), &ta); const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(0 != X.ptr());
             ASSERT(1 == X.numReferences());
         }
         if (veryVerbose) {
@@ -3532,7 +3598,7 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) TObj(&numDeletes);
             numAllocations = ta.numAllocations();
 
-            Obj x(p, &ta, &ta); Obj const& X=x;
+            Obj x(p, &ta, &ta); const Obj& X = x;
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
@@ -3559,7 +3625,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             MyTestDeleter deleter(&ta);
-            Obj x(p, deleter, 0);  Obj const& X=x;
+            Obj x(p, deleter, 0);  const Obj& X = x;
             ASSERT(numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
@@ -3586,7 +3652,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             MyTestDeleter deleter(&ta);
-            Obj x(p, deleter, &ta); Obj const& X=x;
+            Obj x(p, deleter, &ta); const Obj& X = x;
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
@@ -3612,7 +3678,7 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) TObj(&numDeletes);
             numAllocations = ta.numAllocations();
 
-            Obj x(p, &ta); Obj const& X=x;
+            Obj x(p, &ta); const Obj& X = x;
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
