@@ -3,6 +3,7 @@ bdede_base64encoder
 bdede_charconvertstatus
 bdede_charconvertucs2
 bdede_charconvertutf16
+bdede_charconvertutf32
 bdede_crc32
 bdede_md5
 bdede_quotedprintabledecoder
