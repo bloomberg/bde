@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a utility for converting date/time objects to/from ISO8601.
 //
 //@CLASSES:
-//     bdepu_Iso8601: namespace for ISO8601 date/time conversion functions
+//  bdepu_Iso8601: namespace for ISO8601 date/time conversion functions
 //
 //@SEE_ALSO: bdet_date, bdet_datetime, bdet_datetimetz, bdet_datetz, bdet_time,
 //           bdet_timetz, baexml_encoder, baexml_decoder
@@ -310,19 +310,19 @@ struct bdepu_Iso8601 {
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  'hh' must be in the range
         // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 ]'.  If 'ss == 60', then a value of 59 is
-        // loaded into the 'seconds' field, and after all fields are loaded, 1
-        // second is added to '*result'.  If '{.d+}' contains more than 3
-        // digits, the value will be rounded to the nearest value in
-        // milliseconds, possibly rounding '*result' up a full second.
-        // Optional time zone information may be provided, in which case
-        // '*result' is converted to the equivalent GMT time.  An exceptional
-        // time value of '24:00:00' may be provided, in which case the fraction
-        // of a second must be 0 and the time zone must be absent or GMT.  Do
-        // not modify '*result' on failure.  Return 0 on success, and a
-        // non-zero otherwise.  Note that if 'inputLength' is longer than the
-        // length of the parsed data, parsing will fail.  Also note that it is
-        // possible for the resulting 'ss' value to be rounded up twice if
+        // be in the range '[ 00, 60 ]'.  If 'ss == 60' (a leap second), then
+        // a value of 59 is loaded into the 'seconds' field, and after all
+        // fields are loaded, 1 second is added to '*result'.  If '{.d+}'
+        // contains more than 3 digits, the value will be rounded to the
+        // nearest value in milliseconds, possibly rounding '*result' up a full
+        // second.  Optional time zone information may be provided, in which
+        // case '*result' is converted to the equivalent GMT time.  An
+        // exceptional time value of '24:00:00' may be provided, in which case
+        // the fraction of a second must be 0 and the time zone must be absent
+        // or GMT.  Do not modify '*result' on failure.  Return 0 on success,
+        // and a non-zero otherwise.  Note that if 'inputLength' is longer than
+        // the length of the parsed data, parsing will fail.  Also note that it
+        // is possible for the resulting 'ss' value to be rounded up twice if
         // originally 'ss == 60' and there was rounding up due to the '{.d+}'
         // field.
 
@@ -345,11 +345,11 @@ struct bdepu_Iso8601 {
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  'hh' must be in the range
         // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 ]'.  If 'ss == 60', the time is
-        // interpreted as a leap second and the result is rounded up to the
-        // following value for which 'ss == 00'.  If '{.d+}' contains more than
-        // 3 digits, the value will be rounded to the nearest value in
-        // milliseconds, possibly resulting in time being rounded up a full
+        // be in the range '[ 00, 60 ]'.  If 'ss == 60' (a leap-second), then a
+        // value of 59 is loaded into the 'seconds' field, and after all fields
+        // are loaded, 1 second is added to '*result'.  If '{.d+}' contains
+        // more than 3 digits, the value will be rounded to the nearest value
+        // in milliseconds, possibly resulting in time being rounded up a full
         // second.  Optional time zone information may be provided, in which
         // case '*result' is converted to the equivalent GMT time.  An
         // exceptional case is that a time value of '24:00:00' is allowed, but
@@ -357,8 +357,8 @@ struct bdepu_Iso8601 {
         // GMT.  Do not modify '*result' on failure.  Return 0 on success, and
         // a non-zero value otherwise.  Note that if 'inputLength' is longer
         // than the length of the parsed data, parsing will fail.  Also note
-        // that the final 'ss' may be rounded up twice if originally
-        // 'ss == 60' and there is rounding up due to the '{.d+}' field.
+        // that the final 'ss' may be rounded up twice if originally 'ss == 60'
+        // and there is rounding up due to the '{.d+}' field.
 
     static int parse(bdet_DateTz *result,
                      const char  *input,
@@ -394,11 +394,11 @@ struct bdepu_Iso8601 {
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  'hh' must be in the range
         // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 ]'.  If 'ss == 60', the time is
-        // interpreted as a leap second and the result is rounded up to the
-        // following value for which 'ss == 00'.  If '{.d+}' contains more than
-        // 3 digits, the value will be rounded to the nearest value in
-        // milliseconds, possibly rounding '*result' up a full second.
+        // be in the range '[ 00, 60 ]'.  If 'ss == 60' (a leap-second), then a
+        // value of 59 is loaded into the 'seconds' field, and after all fields
+        // are loaded, 1 second is added to '*result'.  If '{.d+}' contains
+        // more than 3 digits, the value will be rounded to the nearest value
+        // in milliseconds, possibly rounding '*result' up a full second.
         // Optional time zone information may be provided in the "Shh:mm"
         // format accepted by this function, 'hh' and 'mm' are 2 digit integers
         // (left padded with '0's if necessary).  'hh' must be in the range
@@ -436,21 +436,21 @@ struct bdepu_Iso8601 {
         // milliseconds, possibly rounding '*result' up by a full second.  'hh'
         // must be in the range '[ 00, 24 )', 'mm' must be in the range
         // '[ 00, 60 )', and 'ss' must be in the range '[ 00, 60 ]'.  If
-        // 'ss == 60', the time is interpreted as a leap second and the result
-        // is rounded up to the following value for which 'ss == 00'.  The time
-        // zone information is optional but if it is provided then it must be
-        // in the "Shh:mm" format, 'hh' and 'mm' are 2 digit integers (left
-        // padded with '0's if necessary).  'hh' must be in the range
-        // '[ 00, 24 )' and 'mm' must be in the range '[ 00, 60 )'.  An
-        // alternate form of representing the time zone is 'Z' or 'z',
-        // signifying GMT.  If the time zone is not provided, GMT is assumed.
-        // Do not modify '*result' on failure.  An exceptional time value of
-        // '24:00;00' may be provided, but if so the fraction of a second must
-        // be 0 and time zone, if any, must be GMT.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that if 'inputLength' is longer than
-        // the length of the parsed data, parsing will fail.  Also note that
-        // the final 'ss' may be rounded up twice if originally 'ss == 60' and
-        // there is rounding up due to the '{.d+}' field.
+        // 'ss == 60' (a leap-second), then a value of 59 is loaded into the
+        // 'seconds' field, and after all fields are loaded, 1 second is added
+        // to '*result'.  The time zone information is optional but if it is
+        // provided then it must be in the "Shh:mm" format, 'hh' and 'mm' are 2
+        // digit integers (left padded with '0's if necessary).  'hh' must be
+        // in the range '[ 00, 24 )' and 'mm' must be in the range
+        // '[ 00, 60 )'.  An alternate form of representing the time zone is
+        // 'Z' or 'z', signifying GMT.  If the time zone is not provided, GMT
+        // is assumed.  Do not modify '*result' on failure.  An exceptional
+        // time value of '24:00;00' may be provided, but if so the fraction of
+        // a second must be 0 and time zone, if any, must be GMT.  Return 0 on
+        // success, and a non-zero value otherwise.  Note that if 'inputLength'
+        // is longer than the length of the parsed data, parsing will fail.
+        // Also note that the final 'ss' may be rounded up twice if originally
+        // 'ss == 60' and there is rounding up due to the '{.d+}' field.
 };
 
 // ===========================================================================
