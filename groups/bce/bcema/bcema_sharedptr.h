@@ -1425,10 +1425,9 @@ class bcema_SharedPtr {
         // the error.  Note that if 'managedPtr' is empty, then an empty shared
         // pointer is created and 'basicAllocator' is ignored.
 
-    template <class BCE_OTHER_TYPE>
-    explicit bcema_SharedPtr(
-                           bsl::auto_ptr<BCE_OTHER_TYPE>  autoPtr,
-                           bslma::Allocator              *basicAllocator = 0);
+    template <class OTHER_TYPE>
+    explicit bcema_SharedPtr(bsl::auto_ptr<OTHER_TYPE>  autoPtr,
+                             bslma::Allocator          *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' to
         // the parameterized 'OTHER_TYPE', and that refers to
@@ -1510,8 +1509,8 @@ class bcema_SharedPtr {
         // 'rhs' is empty, then this shared pointer will also be empty after
         // the assignment.
 
-    template <class BCE_OTHER_TYPE>
-    bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<BCE_OTHER_TYPE> rhs);
+    template <class OTHER_TYPE>
+    bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<OTHER_TYPE> rhs);
         // Transfer ownership to this shared pointer of the modifiable object
         // managed by the 'rhs' auto pointer to the parameterized 'OTHER_TYPE',
         // using the 'delete' operator to destroy the shared object when the
@@ -2248,8 +2247,8 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
 template <class TYPE>
 template <class OTHER_TYPE>
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(
-                                bsl::auto_ptr<BCE_OTHER_TYPE>  autoPtr,
-                                bslma::Allocator              *basicAllocator)
+                                     bsl::auto_ptr<OTHER_TYPE>  autoPtr,
+                                     bslma::Allocator          *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
@@ -2354,7 +2353,7 @@ bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
 template <class TYPE>
 template <class OTHER_TYPE>
 bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
-                                             bsl::auto_ptr<BCE_OTHER_TYPE> rhs)
+                                                 bsl::auto_ptr<OTHER_TYPE> rhs)
 {
     SelfType(rhs).swap(*this);
     return *this;
