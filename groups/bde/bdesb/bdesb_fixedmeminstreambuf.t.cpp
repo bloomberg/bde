@@ -284,7 +284,7 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         const char *text = "If concrete objects reside in such a library ";
-        bdesb_FixedMemInStreamBuf sb((char *)text, strlen(text));
+        bdesb_FixedMemInStreamBuf sb(text, strlen(text));
         my_WordStreamer ws(&sb);
 
         bsl::string nextWord;

@@ -97,7 +97,7 @@ ssize_t writev(int fildes,  const  struct  iovec  *iov,  int iovcnt)
     if (globalVerbose) P(iovcnt);
     int i;
     for (i = 0; i < iovcnt; ++i) {
-        btes_Ovec * ovec = (btes_Ovec *) iov;
+        const btes_Ovec * ovec = (const btes_Ovec *) iov;
         LOOP_ASSERT(i, ((void *) iov[i].iov_base) == ovec[i].buffer());
         LOOP_ASSERT(i, ((unsigned int) iov[i].iov_len) ==
                                               (unsigned int) ovec[i].length());
