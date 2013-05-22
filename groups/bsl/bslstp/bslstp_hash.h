@@ -216,9 +216,9 @@ struct HashCString {
     }
 };
 
-                 // ============================================
-                 // explcit class bslstp::Hash<> specializations
-                 // ============================================
+                 // =============================================
+                 // explicit class bslstp::Hash<> specializations
+                 // =============================================
 
 template <>
 struct Hash<char> {
