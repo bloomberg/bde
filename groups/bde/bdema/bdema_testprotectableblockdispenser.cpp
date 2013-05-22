@@ -175,7 +175,7 @@ void printBadBlock(const Align                        *align,
 #ifdef BSLS_PLATFORM_CPU_64_BIT
             std::printf(
   "*** byte count %d doesn't match descriptor count %lld at address %p *** \n",
-                        numBytes, (long long) block.size(), (void *)align);
+                      numBytes, (long long) block.size(), (const void *)align);
 #else
             std::printf(
   "*** byte count %d doesn't match descriptor count %d at address %p *** \n",
