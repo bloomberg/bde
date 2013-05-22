@@ -1,3 +1,22 @@
+// bslstp_hashtable.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLSTP_HASHTABLE
+#define INCLUDED_BSLSTP_HASHTABLE
+
+//@PURPOSE: Provide facilities for STLPort implementation.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
+//
+//@CLASSES:
+//
+//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
+//
+//@AUTHOR: Steven Breitstein (sbreitstein)
+//
+//@DESCRIPTION: This component is for internal use only.
+//
+// Note that the functions in this component are based on STLPort's
+// implementation, with copyright notice as follows:
+//..
 /*
  *
  * Copyright (c) 1994
@@ -22,13 +41,11 @@
  * modified is included with the above copyright notice.
  *
  */
-
-/* NOTE: This is an internal header file, included by other STL headers.
- *   You should not attempt to use it directly.
- */
-
-#ifndef INCLUDED_BSLSTP_HASHTABLE
-#define INCLUDED_BSLSTP_HASHTABLE
+//..
+//
+///Usage
+///-----
+// This component is for internal use only.
 
 #ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_hashtable is not for publication"

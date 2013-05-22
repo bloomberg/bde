@@ -1,3 +1,22 @@
+// bslstp_alloc.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLSTP_ALLOC
+#define INCLUDED_BSLSTP_ALLOC
+
+//@PURPOSE: Provide facilities for STLPort implementation.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
+//
+//@CLASSES:
+//
+//@SEE_ALSO: bslstp_hashmap, bslstp_hashtable, bslstp_slist
+//
+//@AUTHOR: Steven Breitstein (sbreitstein)
+//
+//@DESCRIPTION: This component is for internal use only.
+//
+// Note that the functions in this component are based on STLPort's
+// implementation, with copyright notice as follows:
+//..
 /*
  *
  * Copyright (c) 1996,1997
@@ -19,13 +38,11 @@
  * modified is included with the above copyright notice.
  *
  */
-
-/* NOTE: This is an internal header file, included by other STL headers.
- *   You should not attempt to use it directly.
- */
-
-#ifndef INCLUDED_BSLSTP_ALLOC
-#define INCLUDED_BSLSTP_ALLOC
+//..
+//
+///Usage
+///-----
+// This component is for internal use only.
 
 #ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_alloc is not for publication"

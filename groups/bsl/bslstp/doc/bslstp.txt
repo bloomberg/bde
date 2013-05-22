@@ -2,6 +2,8 @@
 
 @PURPOSE: Provide replacement classes (adopted from STLport) for STL.
 
+@INTERNAL_DEPRECATED: Do not use directly.
+
 @MNEMONIC: Basic Standard Library STlPort types (bslstp)
 
 @AUTHOR: Arthur Chiu (achiu21)
@@ -72,4 +74,3 @@
 :
 : 'bslstp_sstream'
 :     conforming 'std::sstream' implementation
-
