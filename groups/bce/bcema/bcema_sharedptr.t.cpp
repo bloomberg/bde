@@ -1244,6 +1244,121 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+    case 22: {
+        // --------------------------------------------------------------------
+        // TESTING 'bcema_SharedPtr<cv-void> (DRQS 33549823)
+        //
+        // Concerns:
+        //: 1 Can construct a shared pointer to a cv-qualified 'void' type.
+        //:
+        //: 2 Can perform basic operations that do not dereference such a
+        //:   pointer.
+        //
+        // Plan:
+        //: 1 Create a 'shared_ptr<cv-void>' object for each cv variant.
+        //:
+        //: 2 Run through a quick set of reasonable operations for a non-
+        //:   dereferenceable smart pointer.
+        //:
+        //: 3 Verify that an assertion failure does not happen (in any mode).
+        //
+        // Testing:
+        //   void reset();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Confirming bcema_SharedPtr<void> support.\n";
+        {
+            typedef bcema_SharedPtr<void> TestObj;
+            int iX = 42;
+            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pY = pX;  const TestObj& Y = pY;
+
+            ASSERT(   Y == pX );
+            ASSERT(!(pX != Y) );
+
+            ASSERT(&iX == static_cast<int *>(Y.get()));
+
+            double dY = 3.14159;
+            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+
+            ASSERT(   Y != pX );
+            ASSERT(!(pX == Y) );
+
+            ASSERT(&dY == static_cast<double *>(Y.get()));
+        }
+
+        if (verbose) cout <<
+                           "Confirming bcema_SharedPtr<const void> support.\n";
+        {
+            typedef bcema_SharedPtr<const void> TestObj;
+            const int iX = 42;
+            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pY = pX;  const TestObj& Y = pY;
+
+            ASSERT(   Y == pX );
+            ASSERT(!(pX != Y) );
+
+            ASSERT(&iX == static_cast<const int *>(Y.get()));
+
+            double dY = 3.14159;
+            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+
+            ASSERT(   Y != pX );
+            ASSERT(!(pX == Y) );
+
+            ASSERT(&dY == static_cast<const double *>(Y.get()));
+        }
+
+#if 0   // volatile types are not yet supported in general.  The test case is
+        // retained as a demonstration of what might need fixing if support for
+        // volatile types becomes desirable, such as for standard conformance.
+        // Note that the current failures occur in the out-of-place rep type.
+
+        if (verbose) cout <<
+                        "Confirming bcema_SharedPtr<volatile void> support.\n";
+        {
+            typedef bcema_SharedPtr<volatile void> TestObj;
+            int iX = 42;
+            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pY = pX;  const TestObj& Y = pY;
+
+            ASSERT(   Y == pX );
+            ASSERT(!(pX != Y) );
+
+            ASSERT(&iX == static_cast<volatile int *>(Y.get()));
+
+            volatile double dY = 3.14159;
+            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+
+            ASSERT(   Y != pX );
+            ASSERT(!(pX == Y) );
+
+            ASSERT(&dY == static_cast<volatile double *>(Y.get()));
+        }
+
+        if (verbose) cout <<
+                  "Confirming bcema_SharedPtr<const volatile void> support.\n";
+        {
+            typedef bcema_SharedPtr<const volatile void> TestObj;
+            volatile int iX = 42;
+            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pY = pX;  const TestObj& Y = pY;
+
+            ASSERT(   Y == pX );
+            ASSERT(!(pX != Y) );
+
+            ASSERT(&iX == static_cast<const volatile int *>(Y.get()));
+
+            const double dY = 3.14159;
+            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+
+            ASSERT(   Y != pX );
+            ASSERT(!(pX == Y) );
+
+            ASSERT(&dY == static_cast<const volatile double *>(Y.get()));
+        }
+#endif
+    } break;
     case 21: {
         // --------------------------------------------------------------------
         // TESTING 'reset' using a self-referenced shared ptr (DRQS 26465543)
