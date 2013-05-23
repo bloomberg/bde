@@ -1123,6 +1123,10 @@ BDES_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include <bslmf_addlvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -1164,31 +1168,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-template <class TYPE>
-struct bcema_SharedPtr_ReferenceType;
-
-                        // ====================================
-                        // struct bcema_SharedPtr_ReferenceType
-                        // ====================================
-
-template <class TYPE>
-struct bcema_SharedPtr_ReferenceType {
-    // This 'struct' defines some basic traits used by 'bcema_SharedPtr'.  It
-    // is primarily used to allow shared pointers of type 'void' to work
-    // properly.
-
-    typedef TYPE& Reference;
-};
-
-template <>
-struct bcema_SharedPtr_ReferenceType<void> {
-    // This 'struct' provides a specialization of
-    // 'bcema_SharedPtr_ReferenceType' for type 'void' and allows us to avoid
-    // declaring a reference to 'void' (which is invalid).
-
-    typedef void Reference;
-};
 
                 // ============================================
                 // struct bcema_SharedPtr_UnspecifiedBoolHelper
@@ -1752,7 +1731,7 @@ class bcema_SharedPtr {
         // 'if' or 'while' statement), but does *not* allow shared pointers to
         // be compared (e.g., via '<' or '>').
 
-    typename bcema_SharedPtr_ReferenceType<TYPE>::Reference
+    typename ::bsl::add_lvalue_reference<TYPE>::type
     operator[](bsl::ptrdiff_t index) const;
         // Return a reference to the modifiable object at the specified 'index'
         // offset in object referred to by this shared pointer.  The behavior
@@ -1762,7 +1741,7 @@ class bcema_SharedPtr {
         // shared pointer refers to an array of 'TYPE' objects.  Note that this
         // is logically equivalent to '*(ptr() + index)'.
 
-    typename bcema_SharedPtr_ReferenceType<TYPE>::Reference
+    typename ::bsl::add_lvalue_reference<TYPE>::type
     operator*() const;
         // Return a reference to the modifiable object referred to by this
         // shared pointer.  The behavior is undefined unless this shared
@@ -2780,7 +2759,7 @@ bcema_SharedPtr<TYPE>::operator bcema_SharedPtr_UnspecifiedBool() const
 
 template <class TYPE>
 inline
-typename bcema_SharedPtr_ReferenceType<TYPE>::Reference
+typename ::bsl::add_lvalue_reference<TYPE>::type
 bcema_SharedPtr<TYPE>::operator[](bsl::ptrdiff_t index) const
 {
     return *(d_ptr_p + index);
@@ -2788,7 +2767,7 @@ bcema_SharedPtr<TYPE>::operator[](bsl::ptrdiff_t index) const
 
 template <class TYPE>
 inline
-typename bcema_SharedPtr_ReferenceType<TYPE>::Reference
+typename ::bsl::add_lvalue_reference<TYPE>::type
 bcema_SharedPtr<TYPE>::operator*() const
 {
     return *d_ptr_p;
