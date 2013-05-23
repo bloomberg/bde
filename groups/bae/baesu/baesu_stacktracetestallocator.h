@@ -519,8 +519,8 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
   public:
     // PUBLIC TYPES
     typedef bdef_Function<void (*)()> FailureHandler;
-            // Function object or pointer type returned by 'failureHandler()'
-            // and set by 'setFailureHandler'.
+                // Function object or pointer type returned by
+                // 'failureHandler()' and set by 'setFailureHandler'.
 
   private:
     // PRIVATE TYPES
