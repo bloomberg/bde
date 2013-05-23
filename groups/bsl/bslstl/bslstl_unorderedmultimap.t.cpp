@@ -361,7 +361,9 @@ struct CharToPairConverter {
         BSLS_ASSERT(address);
         BSLS_ASSERT(allocator);
         BSLS_ASSERT(0 < value);
+#if CHAR_MAX >= 128
         BSLS_ASSERT(value < 128);
+#endif
 
         // If creating the 'key' and 'value' temporary objects requires an
         // allocator, it should not be the default allocator as that will
