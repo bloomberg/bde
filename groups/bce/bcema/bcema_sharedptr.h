@@ -1288,6 +1288,12 @@ class bcema_SharedPtr {
         // that was actually aliasing another object was too high, and could
         // not be easily detected.
 
+    explicit
+    bcema_SharedPtr(bcema_SharedPtrRep *rep);
+        // Construct a shared pointer taking ownership of the specified 'rep'
+        // and referring to the object stored in 'rep'.  Note that this method
+        // *DOES* *NOT* increment the number of references to 'rep'.
+
   public:
     // TYPES
     typedef TYPE ElementType;
