@@ -2057,12 +2057,12 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
     typedef bcema_SharedPtrInplaceRep<bdema_ManagedPtr<TYPE> > Rep;
 
     if (d_ptr_p) {
-        typedef void (*ManagedPtrDeleter)(void *, bcema_SharedPtrRep *);
+        typedef bdema_ManagedPtrDeleter::Deleter ManagedPtrDeleter;
 
         if (&bcema_SharedPtrRep::managedPtrDeleter ==
-                           (ManagedPtrDeleter)managedPtr.deleter().deleter()) {
-            d_rep_p = (bcema_SharedPtrRep *)
-                                         managedPtr.release().second.factory();
+                                              managedPtr.deleter().deleter()) {
+            d_rep_p = static_cast<bcema_SharedPtrRep *>
+                                       (managedPtr.release().second.factory());
         }
         else {
             basicAllocator = bslma::Default::allocator(basicAllocator);

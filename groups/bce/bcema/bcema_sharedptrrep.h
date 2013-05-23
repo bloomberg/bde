@@ -325,7 +325,7 @@ class bcema_SharedPtrRep {
 
   public:
     // CLASS METHODS
-    static void managedPtrDeleter(void *, bcema_SharedPtrRep *rep);
+    static void managedPtrDeleter(void *, void *rep);
         // Delete the shared object referred to by this representation
         // if all the shared references to the shared object are released.
         // Note that the first argument is ignored.  Also note that this
@@ -443,9 +443,11 @@ bcema_SharedPtrRep::~bcema_SharedPtrRep()
 
 // CLASS METHODS
 inline
-void bcema_SharedPtrRep::managedPtrDeleter(void *, bcema_SharedPtrRep *rep)
+void bcema_SharedPtrRep::managedPtrDeleter(void *, void *rep)
 {
-    rep->releaseRef();
+    BSLS_ASSERT_SAFE(rep);
+
+    static_cast<bcema_SharedPtrRep *>(rep)->releaseRef();
 }
 
 // CREATORS
