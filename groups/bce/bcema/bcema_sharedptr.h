@@ -1277,6 +1277,12 @@ class bcema_SharedPtr {
         // specied 'ptr' using the specified 'deleter', using the currently
         // installed default allocator to provide storage.
 
+    explicit
+    bcema_SharedPtr(bcema_SharedPtrRep *rep);
+        // Construct a shared pointer taking ownership of the specified 'rep'
+        // and referring to the object stored in 'rep'.  Note that this method
+        // *DOES* *NOT* increment the number of references to 'rep'.
+
   public:
     // TYPES
     typedef TYPE ElementType;
@@ -2280,6 +2286,7 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
     }
 }
 
+#if defined(AJM_TESTING_DEPRECATING_THE_SINGLE_REP_PTR_CTOR)
 template <class TYPE>
 template <class OTHER_TYPE>
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(

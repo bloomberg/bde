@@ -3919,7 +3919,11 @@ int main(int argc, char *argv[])
             bcema_SharedPtrRep *rep = x.rep();
             x.release();
 
+#if defined(AJM_TESTING_DEPRECATING_THE_SINGLE_REP_PTR_CTOR)
             Obj xx(rep); const Obj& XX = xx;
+#else
+            Obj xx(p, rep); const Obj& XX = xx;
+#endif
             ASSERT(p == XX.ptr());
             ASSERT(rep ==  XX.rep());
             ASSERT(1 == XX.numReferences());
