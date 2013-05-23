@@ -1248,6 +1248,12 @@ class bcema_SharedPtr {
     // FRIENDS
     template <class BCE_OTHER_TYPE> friend class bcema_SharedPtr;
 
+    explicit
+    bcema_SharedPtr(bcema_SharedPtrRep *rep);
+        // Construct a shared pointer taking ownership of the specified 'rep'
+        // and referring to the object stored in 'rep'.  Note that this method
+        // *DOES* *NOT* increment the number of references to 'rep'.
+
   public:
     // TYPES
     typedef TYPE ElementType;
@@ -1382,12 +1388,6 @@ class bcema_SharedPtr {
         // destroy them both, but they do not necessarily have the same type.
         // Also note that if either 'source' is empty or 'object' is null, then
         // an empty shared pointer is created.
-
-    explicit
-    bcema_SharedPtr(bcema_SharedPtrRep *rep);
-        // Construct a shared pointer taking ownership of the specified 'rep'
-        // and referring to the object stored in 'rep'.  Note that this method
-        // *DOES* *NOT* increment the number of references to 'rep'.
 
     bcema_SharedPtr(TYPE *ptr, bcema_SharedPtrRep *rep);
         // Construct a shared pointer taking ownership of the specified 'rep'
@@ -2119,6 +2119,7 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
     }
 }
 
+#if defined(AJM_TESTING_DEPRECATING_THE_SINGLE_REP_PTR_CTOR)
 template <class TYPE>
 inline
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(bcema_SharedPtrRep *rep)
@@ -2126,6 +2127,7 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(bcema_SharedPtrRep *rep)
 , d_rep_p(rep)
 {
 }
+#endif
 
 template <class TYPE>
 inline
