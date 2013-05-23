@@ -447,13 +447,6 @@ void baesu_StackTraceTestAllocator::setFailureHandler(
     d_failureHandler = func;
 }
 
-void baesu_StackTraceTestAllocator::setFailureHandler(void (*func)())
-{
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-
-    d_failureHandler = func;
-}
-
 void baesu_StackTraceTestAllocator::setName(const char *name)
 {
     BSLS_ASSERT(0 != name);

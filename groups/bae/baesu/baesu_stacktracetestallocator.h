@@ -672,15 +672,6 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
         // 'ostream' associated with this object prior to the call to the
         // failure handler.
 
-    void setFailureHandler(void (*func)());
-        // Assign the specified 'func' to this test allocator's failure handler
-        // functor object.  Upon construction, the function 'failAbort' is
-        // associated with this object by default.  Note that 'func' will be
-        // called by this object's destructor if memory is leaked, so it is
-        // important that it not throw.  Note that in ALL failure situations,
-        // errors or warnings will be written to the 'ostream' associated with
-        // this object prior to the call to the failure handler.
-
     void setName(const char * name);
         // Set the name of this allocator to the specified 'name'.  If
         // 'setName' is never called, the name of the allocator is "<unnamed>".
