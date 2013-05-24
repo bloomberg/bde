@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an  ...
+//@PURPOSE: Provide an test SOCSK5 proxy server.
 //
 //@CLASSES:
 //   btes5::btes5_TestServer: <<description>>

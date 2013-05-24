@@ -44,13 +44,15 @@ BDES_IDENT("$Id: $")
 //      }
 //  }
 //  static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
-//                                   const bteso_Endpoint& corpProxy2)
+//                                   const bteso_Endpoint& corpProxy2,
+//                                   const bteso_Endpoint& regionProxy1,
+//                                   const bteso_Endpoint& regionProxy2)
 //  {
 //      btemt::btes5_NetworkDescription proxies;
 //      proxies.addProxy(0, corpProxy1);
 //      proxies.addProxy(0, corpProxy2);
-//      proxies.addProxy(1, bteso_Endpoint("proxy1.example.tk", 1080));
-//      proxies.addProxy(1, bteso_Endpoint("proxy2.example.tk", 1080));
+//      proxies.addProxy(1, regionProxy1);
+//      proxies.addProxy(1, regionProxy2);
 //
 //      btes5_NetworkDescriptionUtil::setAllCredentials(&proxies,
 //                                                      "john.smith",
@@ -71,6 +73,10 @@ BDES_IDENT("$Id: $")
 #include <btes5_credentialsprovider.h>
 #endif
 
+#ifndef INCLUDED_BTES5_DETAILEDERROR
+#include <btes5_detailederror.h>
+#endif
+
 #ifndef INCLUDED_BTES5_NETWORKDESCRIPTION
 #include <btes5_networkdescription.h>
 #endif
@@ -81,6 +87,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BTESO_ENDPOINT
 #include <bteso_endpoint.h>
+#endif
+
+#ifndef INCLUDED_BTESO_STREAMSOCKET
+#include <bteso_streamsocket.h>
 #endif
 
 #ifndef INCLUDED_BTESO_STREAMSOCKETFACTORY
@@ -120,10 +130,10 @@ public:
     };
 
     typedef bdef_Function<void (*)(
-            Status                                        status,
+            btes5_NetworkConnector::Status                status,
             bteso_StreamSocket<bteso_IPv4Address>        *socket,
             bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
-            btes5_DetailedError&                          error)>
+            const btes5_DetailedError&                    error)>
         ConnectCallback;
         // A callback of this type is invoked when the 'btes5_NetworkConnector'
         // object establishes a connection or fails. If the specified 'status'
@@ -135,9 +145,12 @@ private:
     // DATA
     int                                           d_minSourcePort;
     int                                           d_maxSourcePort;
+        // if not 0, originating sockets will be bound to a port in this range
+
     btes5_NetworkDescription                      d_socks5Servers;
     bteso_StreamSocketFactory<bteso_IPv4Address> *d_socketFactory_p; // held
-    btemt_TcpTimerEventManager                   *d_eventManager;    // held
+    btemt_TcpTimerEventManager                   *d_eventManager_p;  // held
+    btes5_CredentialsProvider                    *d_provider_p;      // held
     bslma::Allocator                             *d_allocator_p;     // held
 
 public:

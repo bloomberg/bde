@@ -1,7 +1,6 @@
-// btemt_socks5connector.t.cpp                                        -*-C++-*-
+// btes5_networkconnector.t.cpp                                        -*-C++-*-
 
 #include <btes5_networkconnector.h>
-#include <btemt_tcptimereventmanager.h>
 #include <btes5_testserver.h> // for testing only
 
 #include <bdef_bind.h>
@@ -18,7 +17,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;
-using namespace BloombergLP::btemt;
 
 //=============================================================================
 //                             TEST PLAN
@@ -108,7 +106,7 @@ bool veryVeryVeryVerbose = 0;
 // ============================================================================
 //                     btemt_SessionPool testing callback
 // ----------------------------------------------------------------------------
-void poolStateCb(int state, int source, void *userData)
+void poolStateCb(int state, int source, void *)
 {
     if (verbose) {
         cout << "Session Pool: state=" << state
@@ -117,27 +115,24 @@ void poolStateCb(int state, int source, void *userData)
     }
 }
 
-void socks5Cb(btemt::Socks5Negotiator::Status               status,
+void socks5Cb(btes5_NetworkConnector::Status                status,
               bteso_StreamSocket<bteso_IPv4Address>        *socket,
               bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
-              const HostPort                               *lastProxy,
+              const btes5_DetailedError&                    error,
               btemt_SessionPool                            *sessionPool,
               bcemt_Mutex                                  *stateLock,
               bcemt_Condition                              *stateChanged,
               volatile int                                 *state)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
-    if (status == Socks5Negotiator::BTEMT_SUCCESS) {
+    if (status == btes5_NetworkConnector::BTES5_SUCCESS) {
         *state = 1;
         cout << "connection succeeded" << endl;
-        //TODO: import into sessionPool->import(...)
+        //TODO: import into sessionPool->import(...), for now just deallocate
+        socketFactory->deallocate(socket);
     } else {
         *state = -1;
-        cout << "Connect failed status=" << status;
-        if (lastProxy) {
-            cout << " from proxy " << *lastProxy;
-        }
-        cout << endl;
+        cout << "Connect failed " << status << ": " << error << endl;
     }
     stateChanged->signal();
 }
@@ -160,7 +155,7 @@ void socks5Cb(btemt::Socks5Negotiator::Status               status,
 void connectCb(int                                           status,
                bteso_StreamSocket< bteso_IPv4Address>       *socket,
                bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
-               const HostPort                               *lastProxy,
+               const btes5_DetailedError&                    error,
                bcemt_Mutex                                  *stateLock,
                bcemt_Condition                              *stateChanged,
                volatile int                                 *state)
@@ -170,11 +165,7 @@ void connectCb(int                                           status,
         // Success: conduct I/O operations with 'socket' ... and deallocate it.
         socketFactory->deallocate(socket);
     } else {
-        cout << "Connect failed status=" << status;
-        if (lastProxy) {
-            cout << " from proxy " << *lastProxy;
-        }
-        cout << endl;
+        cout << "Connect failed " << status << ": " << error << endl;
     }
     bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
     *state = status ? -1 : 1; // 1 for success, -1 for failure
@@ -183,41 +174,39 @@ void connectCb(int                                           status,
 //..
 // Then we define the level of proxies that should be reachable directory.
 //..
-static int connectThroughProxies(const HostPort& corpProxy1,
-                                  const HostPort& corpProxy2)
+static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
+                                 const bteso_Endpoint& corpProxy2)
 {
-    btemt::ProxyGroup socks5Servers;
-    socks5Servers.addProxy(0, corpProxy1);
-    socks5Servers.addProxy(0, corpProxy2);
+    btes5_NetworkDescription proxies;
+    proxies.addProxy(0, corpProxy1);
+    proxies.addProxy(0, corpProxy2);
 //..
 // Next we add a level for regional proxies reachable from the corporate
 // proxies. Note that .tk stands for Tokelau in the Pacific Ocean.
 //..
-    socks5Servers.addProxy(1, HostPort("proxy1.example.tk", 1080));
-    socks5Servers.addProxy(1, HostPort("proxy2.example.tk", 1080));
+    proxies.addProxy(1, bteso_Endpoint("proxy1.example.tk", 1080));
+    proxies.addProxy(1, bteso_Endpoint("proxy2.example.tk", 1080));
 //..
 // Then we set the user name and password which will be used in case one of the
 // proxies in the connection path requires that type of authentication.
 //..
-    ProxyGroupUtil::setAllCredentials(&socks5Servers, "john.smith", "pass1");
+    btes5_UserCredentials credentials("John.smith", "pass1");
+    btes5_NetworkDescriptionUtil::setAllCredentials(&proxies, credentials);
 //..
-// Next we construct a 'Socks5Connector' which will be used to connect to one
-// or more destinations. We don't care which local port we are bound to.
+// Next we construct a 'btes5_NetworkConnector' which will be used to connect
+// to one or more destinations.
 //..
-    int minSourcePort = 0;
-    int maxSourcePort = 0;
-    bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
-    Socks5Connector connector(socks5Servers,
-                              &socketFactory,
-                              minSourcePort,
-                              maxSourcePort);
+    bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+    btemt_TcpTimerEventManager eventManager;
+    eventManager.enable();
+    btes5_NetworkConnector connector(proxies, &factory, &eventManager);
 //..
 // Finally we attempt to connect to the destination. Input, output and eventual
 // closing of the connection will be handled from 'connectCb', which will
 // signal the using 'state', with the access protected by a mutex and condition
 // variable.
 //..
-    int             timeoutSeconds = 30;
+    const bdet_TimeInterval timeout(30.0);
     bcemt_Mutex     stateLock;
     bcemt_Condition stateChanged;
     volatile int    state = 0; // value > 0 indicates success, < 0 is error
@@ -227,8 +216,8 @@ static int connectThroughProxies(const HostPort& corpProxy1,
                                           &stateLock,
                                           &stateChanged,
                                           &state),
-                      timeoutSeconds,
-                      HostPort("destination.example.com", 8194));
+                      timeout,
+                      bteso_Endpoint("destination.example.com", 8194));
     bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
     while (!state) {
         stateChanged.wait(&stateLock);
@@ -274,11 +263,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE 1" << endl
                           << "===============" << endl;
-        TestSocks5ServerArgs args;
+        btes5_TestServerArgs args;
         // TODO: configure to simulate connection on valid request
 
-        HostPort proxy;
-        btemt::TestSocks5Server proxyServer(&proxy, &args);
+        bteso_Endpoint proxy;
+        btes5_TestServer proxyServer(&proxy, &args);
         if (verbose) {
             cout << "proxy started on " << proxy << endl;
         }
@@ -289,8 +278,8 @@ int main(int argc, char *argv[])
         // SOCKS5 SOCKET IMPORT INTO SESSION POOL
         //
         // Concerns:
-        //: 1 A socket connection established by 'Socks5Connector' can be
-        //:   imported into, and managed by btemt_SessionPool
+        //: 1 A socket connection established by 'btes5_NetworkConnector' can
+        //:   be imported into, and managed by btemt_SessionPool
         //
         // Plan:
         //: 1 Create a test destination server
@@ -304,29 +293,30 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "SOCKS5 + btemt_SessionPool::import" << endl
                           << "==================================" << endl;
-        TestSocks5ServerArgs args;
+        btes5_TestServerArgs args;
 
-        HostPort destination;
-        btemt::TestSocks5Server destinationServer(&destination, &args);
+        bteso_Endpoint destination;
+        btes5_TestServer destinationServer(&destination, &args);
         if (verbose) {
             cout << "destination server started on " << destination << endl;
         }
 
-        args.d_expectedPort = destination.d_port;
-        HostPort proxy;
-        btemt::TestSocks5Server proxyServer(&proxy, &args);
+        args.d_expectedPort = destination.port();
+        bteso_Endpoint proxy;
+        btes5_TestServer proxyServer(&proxy, &args);
         if (verbose) {
             cout << "proxy started on " << proxy << endl;
         }
-        ProxyGroup socks5Servers(&ta);
+        btes5_NetworkDescription socks5Servers(&ta);
         socks5Servers.addProxy(0, proxy);
 
         bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory(&ta);
-        const int minSourcePort = 0;
-        const int maxSourcePort = 0;
-        Socks5Connector connector(socks5Servers, &socketFactory,
-                                  minSourcePort, maxSourcePort,
-                                  &ta);
+        btemt_TcpTimerEventManager eventManager;
+        eventManager.enable();
+        btes5_NetworkConnector connector(socks5Servers,
+                                         &socketFactory,
+                                         &eventManager,
+                                         &ta);
 
         btemt_ChannelPoolConfiguration config;
         using namespace bdef_PlaceHolders;
@@ -343,7 +333,7 @@ int main(int argc, char *argv[])
                  << " via " << proxy
                  << endl;
         }
-        const int timeoutSeconds = 10;
+        const bdet_TimeInterval timeout(30.0);
         bcemt_Mutex     stateLock;
         bcemt_Condition stateChanged;
         volatile int    state = 0; // value > 0 indicates success, < 0 is error
@@ -353,7 +343,7 @@ int main(int argc, char *argv[])
                                               &stateLock,
                                               &stateChanged,
                                               &state),
-                          timeoutSeconds,
+                          timeout,
                           destination);
         bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
         while (!state) {

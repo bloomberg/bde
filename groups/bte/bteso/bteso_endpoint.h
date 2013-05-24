@@ -60,8 +60,8 @@ class bteso_Endpoint {
         // default allocator. Note that 'isSet()' will return 'false' for this
         // object until 'operator=()' or 'set()' is executed.
 
-    explicit bteso_Endpoint(const bteso_Endpoint&  original,
-                            bslma::Allocator      *allocator = 0);
+    bteso_Endpoint(const bteso_Endpoint&  original,
+                   bslma::Allocator      *allocator = 0);
         // Create a 'bteso_Endpoint' object having the same value as the
         // specified 'original' object. If the optionally specified
         // 'allocator' is not 0 use it to supply memory, otherwise use the

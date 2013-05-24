@@ -142,14 +142,46 @@ int main(int argc, char *argv[])
         //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
-        //   BREATHING TEST
+        //   BREATHING TEST: exercise 
+        //: 1 constructor
+        //: 2 manipulators
+        //: 3 accessors (through assertions)
+        //: 4 utility functions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        // TODO
+        veryVerbose && cout << "C-tor and levelCount()" << endl;
+        btes5_NetworkDescription network;
+        ASSERT(0 == network.levelCount());
+
+        veryVerbose && cout << "addProxy()" << endl;
+        bteso_Endpoint corp1("proxy1.corp.com", 1081);
+        bteso_Endpoint corp2("proxy2.corp.com", 1082);
+        bteso_Endpoint region1("proxy2.region.com", 1091);
+        bteso_Endpoint region2("proxy2.region.com", 1092);
+        network.addProxy(0, corp1);
+        network.addProxy(0, corp2);
+        ASSERT(1 == network.levelCount());
+        network.addProxy(1, region1);
+        network.addProxy(1, region2);
+        ASSERT(2 == network.levelCount());
+
+        veryVerbose &&
+            cout << "operator=(), operator!=() and operator==()" << endl;
+        btes5_NetworkDescription network2;
+        ASSERT(network != network2);
+        network2 = network;
+        ASSERT(network == network2);
+
+        if (veryVerbose) {
+            cout << "operator<<():\n" << network << endl;
+        }
+
+        // TODO Credentials tests, incl. utility functions
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

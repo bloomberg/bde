@@ -1,42 +1,99 @@
-// btemt_socks5connector.cpp                                          -*-C++-*-
-#include <btemt_socks5connector.h>
+// btes5_networkconnector.cpp                                         -*-C++-*-
+#include <btes5_networkconnector.h>
 
+#include <btes5_testserver.h> // for testing only
 #include <btemt_sessionpool.h> // for testing only
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
-namespace btemt {
-
-                        // ---------------------
-                        // class Socks5Connector
-                        // ---------------------
+                        // ----------------------------
+                        // class btes5_NetworkConnector
+                        // ----------------------------
 // CREATORS
-Socks5Connector::Socks5Connector(
-                  const ProxyGroup&                             socks5Servers,
-                  bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
-                  int                                           minSourcePort,
-                  int                                           maxSourcePort,
-                  bslma::Allocator                             *basicAllocator)
+btes5_NetworkConnector::btes5_NetworkConnector(
+                   const btes5_NetworkDescription&               socks5Servers,
+                   bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+                   btemt_TcpTimerEventManager                   *eventManager,
+                   int                                           minSourcePort,
+                   int                                           maxSourcePort,
+                   btes5_CredentialsProvider                    *provider,
+                   bslma::Allocator                             *allocator)
 : d_minSourcePort(minSourcePort)
 , d_maxSourcePort(maxSourcePort)
 , d_socks5Servers(socks5Servers)
 , d_socketFactory_p(socketFactory)
-, d_eventManager(basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_eventManager_p(eventManager)
+, d_provider_p(provider)
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
-    d_eventManager.enable();
+    BSLS_ASSERT(eventManager);
+    d_eventManager_p->enable();
 }
 
-Socks5Connector::~Socks5Connector()
+btes5_NetworkConnector::btes5_NetworkConnector(
+                   const btes5_NetworkDescription&               socks5Servers,
+                   bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+                   btemt_TcpTimerEventManager                   *eventManager,
+                   btes5_CredentialsProvider                    *provider,
+                   bslma::Allocator                             *allocator)
+: d_minSourcePort(0)
+, d_maxSourcePort(0)
+, d_socks5Servers(socks5Servers)
+, d_socketFactory_p(socketFactory)
+, d_eventManager_p(eventManager)
+, d_provider_p(provider)
+, d_allocator_p(bslma::Default::allocator(allocator))
+{
+    BSLS_ASSERT(eventManager);
+    d_eventManager_p->enable();
+}
+
+btes5_NetworkConnector::btes5_NetworkConnector(
+                   const btes5_NetworkDescription&               socks5Servers,
+                   bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+                   btemt_TcpTimerEventManager                   *eventManager,
+                   int                                           minSourcePort,
+                   int                                           maxSourcePort,
+                   bslma::Allocator                             *allocator)
+: d_minSourcePort(minSourcePort)
+, d_maxSourcePort(maxSourcePort)
+, d_socks5Servers(socks5Servers)
+, d_socketFactory_p(socketFactory)
+, d_eventManager_p(eventManager)
+, d_provider_p(0)
+, d_allocator_p(bslma::Default::allocator(allocator))
+{
+    BSLS_ASSERT(eventManager);
+    d_eventManager_p->enable();
+}
+
+btes5_NetworkConnector::btes5_NetworkConnector(
+                   const btes5_NetworkDescription&               socks5Servers,
+                   bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+                   btemt_TcpTimerEventManager                   *eventManager,
+                   bslma::Allocator                             *allocator)
+: d_minSourcePort(0)
+, d_maxSourcePort(0)
+, d_socks5Servers(socks5Servers)
+, d_socketFactory_p(socketFactory)
+, d_eventManager_p(eventManager)
+, d_provider_p(0)
+, d_allocator_p(bslma::Default::allocator(allocator))
+{
+    BSLS_ASSERT(eventManager);
+    d_eventManager_p->enable();
+}
+
+btes5_NetworkConnector::~btes5_NetworkConnector()
 {
 }
 
 // MANIPULATORS
-void Socks5Connector::connect(const ConnectCallback&      callback,
-                              int                         timeoutSeconds,
-                              const HostPort&             server)
+void btes5_NetworkConnector::connect(const ConnectCallback&   callback,
+                                     const bdet_TimeInterval& timeout,
+                                     const bteso_Endpoint&    server)
 {
 /*** TODO: put real logic here
 check at least one level, and each proxy level has at least one proxy
@@ -76,13 +133,13 @@ negotiatorCb(socket, level, order
   connect(level=0, indices)
 
 ***/
-    callback(Socks5Negotiator::BTEMT_INVALID_DESTINATION,
+    btes5_DetailedError error("not implemented yet");
+    callback(BTES5_ERROR,
              0,
-             0,
-             &HostPort("local", 9999));
+             d_socketFactory_p,
+             error);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------

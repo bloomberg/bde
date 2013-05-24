@@ -84,12 +84,11 @@ class btes5_NetworkDescription {
         // optionally specified 'allocator' is not 0, use it to allocate
         // memory, otherwise use the default allocator.
 
-    explicit
     btes5_NetworkDescription(const btes5_NetworkDescription&  original,
-                             bslma::Allocator                *alocator = 0);
+                             bslma::Allocator                *allocator = 0);
         // Create a 'btes5_NetworkDescription' object having the same
         // value as the specified 'original' object. If the optionally
-        // specified 'alocator' is not 0 use it to supply memory,
+        // specified 'allocator' is not 0 use it to supply memory,
         // otherwise use the default allocator.
 
     ~btes5_NetworkDescription(); // Destroy this object.
@@ -99,6 +98,7 @@ class btes5_NetworkDescription {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    // TODO: replace both with addProxy(int, const btes5_ProxyDescription&) ?
     int addProxy(int                          level,
                  const bteso_Endpoint&        address,
                  const btes5_UserCredentials& credentials);
@@ -111,27 +111,25 @@ class btes5_NetworkDescription {
         // 'level' and unset credentials, and return its ordinal number in the
         // 'level'. The behavior is undefined unless 'level >= 0'.
 
-    void setCredentials(int                level,
-                        int                order,
-                        const bsl::string& username,
-                        const bsl::string& password);
+    void setCredentials(int                          level,
+                        int                          order,
+                        const btes5_UserCredentials& credentials);
         // Set credentials for the proxy identified by the specified 'level'
-        // and 'order' to the specified 'username' and 'password'. The behavior
-        // is undefined unless 'level' and 'order' identify a proxy previously
-        // added with 'addProxy', and 'username' and 'password' are between 1
-        // and 255 characters in length.
+        // and 'order' to the specified 'credentials'. The behavior is
+        // undefined unless 'level' and 'order' identify a proxy previously
+        // added with 'addProxy'.
 
     // ACCESSORS
     int levelCount() const;
         // Return the number of levels in this 'btes5_NetworkDescription'
         // object.
 
-    ProxyIterator beginLevel(int level);
+    ProxyIterator beginLevel(int level) const;
         // Return the beginning iterator providing read-only access to proxies
         // in the specified 'level'. The behavior is undefined unless
         // '0 <= level && level < levelCount()'.
 
-    ProxyIterator endLevel(int level);
+    ProxyIterator endLevel(int level) const;
         // Return the ending iterator providing read-only access to proxies
         // in the specified 'level'. The behavior is undefined unless
         // '0 <= level && level < levelCount()'.
@@ -169,6 +167,11 @@ bool operator==(const btes5_NetworkDescription& lhs,
 bool operator!=(const btes5_NetworkDescription& lhs,
                 const btes5_NetworkDescription& rhs);
     // Return 'true' if '!(lhs == rhs)', and 'false' otherwise.
+
+bsl::ostream& operator<<(bsl::ostream&                   output,
+                         const btes5_NetworkDescription& object);
+    // Write the specified 'error' to the specified 'output' in human-readable
+    // format, and return the reference to 'output'.
 
 // TRAITS
 namespace bslma {
