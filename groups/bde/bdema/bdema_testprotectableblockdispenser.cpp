@@ -290,25 +290,7 @@ bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
     }
 #endif
 
-    if (numBytes < 0) {
-        ++d_numErrors;
-        if (!d_quietFlag) {
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-            std::printf("*** Invalid (negative) allocation size %lld ***\n",
-                        (long long) numBytes);
-#else
-            std::printf("*** Invalid (negative) allocation size %d ***\n",
-                        numBytes);
-#endif
-
-            if (!d_noAbortFlag) {
-                std::abort();                                         // ABORT
-            }
-        }
-        return bdema_MemoryBlockDescriptor();                         // RETURN
-    }
-    if (numBytes <= 0) {
+    if (numBytes == 0) {
         return bdema_MemoryBlockDescriptor();                         // RETURN
     }
 
