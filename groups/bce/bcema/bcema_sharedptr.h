@@ -1289,10 +1289,15 @@ class bcema_SharedPtr {
         // not be easily detected.
 
     explicit
-    bcema_SharedPtr(bcema_SharedPtrRep *rep);
-        // Construct a shared pointer taking ownership of the specified 'rep'
-        // and referring to the object stored in 'rep'.  Note that this method
-        // *DOES* *NOT* increment the number of references to 'rep'.
+    bcema_SharedPtr(bcema_SharedPtrRep *rep);  // = delete;
+        // This constructor is declared as private in order to catch any old
+        // callers of this code, but never defined.  If you see an error
+        // calling this constructor, you should call the public constructor
+        // that, in addition to the specified 'rep', also takes a pointer to
+        // the object that the 'rep' either points to, or is aliasing.  This
+        // constructor has been retired as the risk of calling with a 'rep'
+        // that was actually aliasing another object was too high, and could
+        // not be easily detected.
 
   public:
     // TYPES
