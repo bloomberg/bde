@@ -15,10 +15,12 @@
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bdetu_systemtime.h>
+#include <bdeu_random.h>
 
 #include <bsl_algorithm.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
@@ -1644,7 +1646,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // ---------------------------------------------------------
         // TESTING sequence constraints using 'backwards'
         // ---------------------------------------------------------
@@ -1666,7 +1668,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 18: {
+      case 19: {
         // ---------------------------------------------------------
         // TESTING sequence constraints using popFront(TYPE*)
         // ---------------------------------------------------------
@@ -1690,7 +1692,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         //  Basic test for popFront(TYPE*) and popBack(TYPE*)
         // --------------------------------------------------------------------
@@ -1740,7 +1742,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 
       } break;
-      case 16: {
+      case 17: {
         // ---------------------------------------------------------
         // TESTING queue of zero ptr
         // ---------------------------------------------------------
@@ -1762,7 +1764,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 15: {
+      case 16: {
         // ---------------------------------------------------------
         // TESTING sequence constraints
         // ---------------------------------------------------------
@@ -1784,7 +1786,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE 1
         //   The first usage example from the header has been incorporated into
@@ -1811,7 +1813,7 @@ int main(int argc, char *argv[])
             myProducer(NTHREADS);
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE 2
         //   The second usage example from the header has been incorporated
@@ -1868,7 +1870,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // multithreaded test of tryPopFront, tryPopBack
         //
@@ -1926,7 +1928,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::join(handle);
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TEST BLOCKING ON EMPTY QUEUE
         //
@@ -2007,7 +2009,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
       }  break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TEST BLOCKING ON EMPTY QUEUE
         //
@@ -2087,7 +2089,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
       }  break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TEST TRYPOPFRONT, TRYPOPBACK -- SINGLE THREAD TEST
         //
@@ -2235,7 +2237,7 @@ int main(int argc, char *argv[])
 
         ASSERT(!X.length());
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TEST USE OF THE BDEC_QUEUE INTERFACE
         //
@@ -2262,7 +2264,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING REMOVEALL
         //
@@ -2322,7 +2324,7 @@ int main(int argc, char *argv[])
             ASSERT(VC == buffer[2]);
         }
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING INTERNAL BDEC QUEUE ACCESSORS
         //
@@ -2480,7 +2482,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING TIMED PUSH FUNCTIONS IN PRESENCE OF A HIGH WATER MARK
         //
@@ -2683,7 +2685,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING PUSH FUNCTIONS IN PRESENCE OF A HIGH WATER MARK
         //
@@ -2850,7 +2852,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING TIMED POP FUNCTIONS IN MULTI-THREAD
         //
@@ -2999,7 +3001,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING PUSH AND POP FUNCTIONS IN MULTI-THREAD
         //
@@ -3088,6 +3090,219 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
 
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // SINGLE_THREADED TESTING LENGTH
+        //
+        // Concerns:
+        //   That push, pop and length work in a single-threaded context.
+        //
+        // Plan:
+        //   1. Do explicit pushes and pops to and from both ends of the
+        //      queue, verifying that the length is as expected.
+        //   2. Do a large number of pushes and pops of various values onto
+        //      a 'queue' while doing identical operations on a parallel
+        //      'deque', observing that the behavior of the two containers
+        //      is identical.  Decisions about the value to push, whether to
+        //      push or pop, and which end to push or pop from will all be
+        //      driven by 'bdeu_Random'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING PUSh, POP, and LENGTH\n"
+                             "=============================\n";
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        if (verbose) Q(Growing Queue);
+        {
+            const Element VA = 1.0;
+            const Element VB = 2.1;
+            const Element VC = 3.2;
+
+            Obj x1(&ta);    const Obj& X1 = x1;
+
+            ASSERT(0 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushBack(VA);
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushBack(VB);
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushBack(VC);
+            ASSERT(3 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VA == x1.popFront());
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VB == x1.popFront());
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VC == x1.popFront());
+            ASSERT(0 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+
+
+            x1.pushFront(VA);
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushFront(VB);
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushFront(VC);
+            ASSERT(3 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VA == x1.popBack());
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VB == x1.popBack());
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VC == x1.popBack());
+            ASSERT(0 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+
+
+            x1.pushFront(VA);
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushFront(VB);
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushFront(VC);
+            ASSERT(3 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VC == x1.popFront());
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VB == x1.popFront());
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VA == x1.popFront());
+            ASSERT(0 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+
+
+
+            x1.pushBack(VA);
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushBack(VB);
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            x1.pushBack(VC);
+            ASSERT(3 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VC == x1.popBack());
+            ASSERT(2 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VB == x1.popBack());
+            ASSERT(1 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+
+            ASSERT(VA == x1.popBack());
+            ASSERT(0 == X1.length());
+            ASSERT(x1.queue().length() == X1.length());
+        }
+
+        ASSERT(0 == ta.numBytesInUse());
+
+        if (verbose) Q(Randomly pushing and popping to both ends vs deque);
+        {
+            Obj x(&ta);                     const Obj& X = x;
+            bsl::deque<Element> d(&ta);     const bsl::deque<Element>& D = d;
+
+            ASSERT(0 == D.size());
+            ASSERT(0 == X.length());
+            ASSERT(x.queue().length() == X.length());
+
+            int expectedLength = 0;
+            int seed = 123456789;
+
+            for (int i = 0; i < 40; ++i) {
+                const int LENGTH = bdeu_Random::generate15(&seed) % 8;
+
+                if (expectedLength < LENGTH) {
+                    while (expectedLength < LENGTH) {
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == X.length());
+                        ASSERT(expectedLength == x.queue().length());
+
+                        // Generate a fairly random double using 'generate15'.
+
+                        Element v = bdeu_Random::generate15(&seed);
+                        v += bdeu_Random::generate15(&seed) /
+                                                            (double) (1 << 15);
+                        if (bdeu_Random::generate15(&seed) & 0x80) {
+                            v = -v;
+                        }
+
+                        if (bdeu_Random::generate15(&seed) & 0x80) {
+                            x.pushBack(v);
+                            d.push_back(v);
+                        }
+                        else {
+                            x.pushFront(v);
+                            d.push_front(v);
+                        }
+
+                        ++expectedLength;
+
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == X.length());
+                        ASSERT(expectedLength == x.queue().length());
+                    }
+                }
+                else {
+                    while (expectedLength > LENGTH) {
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == X.length());
+                        ASSERT(expectedLength == x.queue().length());
+
+                        if (bdeu_Random::generate15(&seed) & 0x80) {
+                            const Element popped = D.back();
+                            d.pop_back();
+                            ASSERT(popped == x.popBack());
+                        }
+                        else {
+                            const Element popped = D.front();
+                            d.pop_front();
+                            ASSERT(popped == x.popFront());
+                        }
+
+                        --expectedLength;
+
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == X.length());
+                        ASSERT(expectedLength == x.queue().length());
+                    }
+                }
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -3467,7 +3682,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

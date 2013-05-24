@@ -697,7 +697,7 @@ class bcec_Queue {
         // constructor.
 
     int length() const;
-        // Return the length of the queue.
+        // Return the number of elements in this queue.
 };
 
 // ===========================================================================
@@ -1124,7 +1124,7 @@ int bcec_Queue<TYPE>::length() const
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
