@@ -2235,24 +2235,62 @@ int main(int argc, char **argv)
         // NON-MINIMALLY ENCODED UTF-8 ERRORS
         // --------------------------------------------------------------------
 
-	if (verbose) cout
-	
-        const char *errIn[] = { "\xc0\x80",            // 2 char zero
-                                "\xe0\x80\x80",        // 3 char zero
-                                "\xf0\x80\x80\x80",    // 4 char zero
-			        "\xc1\xbf",            // 2 char 1 too small
-			        "\xe0\x9f\xbf",        // 3 char 1 too small
-			        "\xf0\x8f\xbf\xbf"     // 4 char 1 too small
+        if (verbose) cout << "NON-MINIMALLY ENCODED UTF-8 ERRORS\n"
+                             "==================================\n";
 
+        struct {
+            const char   *d_utf8String;
+            unsigned int  d_midVal;
+            const bool    d_error;
+        } DATA[] = {
+            { "1\xc0\x80z",          '?',       1 },  // 2 char zero
+            { "1\xe0\x80\x80z",      '?',       1 },  // 3 char zero
+            { "1\xf0\x80\x80\x80z",  '?',       1 },  // 4 char zero
+            { "1\xc1\xbfz",          '?',       1 },  // 2 char 1 too small
+            { "1\xe0\x9f\xbfz",      '?',       1 },  // 3 char 1 too small
+            { "1\xf0\x8f\xbf\xbfz",  '?',       1 },  // 4 char 1 too small
+            { "1\xc2\x80z",          0x80,      0 },  // 2 char just big enough
+            { "1\xe0\xa0\x80z",      1<<11,     0 },  // 3 char just big enough
+            { "1\xf0\x90\x80\x80z",  1<<16,     0 },  // 4 char just big enough
+            { "1\x7fz",              0x7f,      0 },  // 1 char max
+            { "1\xdf\xbfz",          (1<<11)-1, 0 },  // 2 char max
+            { "1\xef\xbf\xbfz",      (1<<16)-1, 0 },  // 3 char max
+            { "1\xf4\x8f\xbf\xbfz",  0x10ffff,  0 },  // 4 char max
+            { "1\xf4\x90\x80\x80z",  '?',       1 },  // 4 char 1 too much
+        };
 
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const char         *UTF8_STRING = DATA[ti].d_utf8String;
+            const unsigned int  MID_VAL     = DATA[ti].d_midVal;
+            const bool          IS_ERROR    = DATA[ti].d_error;
+
+            unsigned int outBuf[100];
+            unsigned int expectedOut[] = { '1', MID_VAL, 'z', 0 };
+            const int expectedRet = IS_ERROR
+                                  ? Status::BDEDE_INVALID_CHARS_BIT
+                                  : 0;
+
+            bsl::size_t numChars;
+            int ret = Util::utf8ToUtf32(outBuf,
+                                        100,
+                                        UTF8_STRING,
+                                        &numChars);
+            ASSERT(expectedRet == ret);
+            ASSERT(4 == numChars);
+            ASSERT(0 == bsl::memcmp(outBuf, expectedOut,
+                                                     sizeof(expectedOut)));
+            LOOP3_ASSERT(ti, MID_VAL, (void*) outBuf[1], MID_VAL == outBuf[1]);
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATING TEST
         //
-	// Plan:
-	//   Translate a sequence, with no errors, from utf8 to utf32 and
-	//   back.
+        // Plan:
+        //   Translate a sequence, with no errors, from utf8 to utf32 and
+        //   back.
         // --------------------------------------------------------------------
 
         const char *utf8 = "H" "e" "l" "l" "o" "\n"   // ASCII

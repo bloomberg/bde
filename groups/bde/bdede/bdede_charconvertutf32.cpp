@@ -802,7 +802,8 @@ void Utf8ToUtf32Translator<CAPACITY>::decodeCharacter(const OctetType uc)
     else if (isFourOctetHeader(uc)) {
         len = lookaheadContinuations(d_input + 1, 3);
         good = 3 == len && ! fitsInThreeOctets(
-                                          newChar = decodeFourOctets(d_input));
+                                        newChar = decodeFourOctets(d_input)) &&
+                                                           newChar <= 0x10ffff;
     }
     else {
         invalidChar();
