@@ -8,12 +8,16 @@ BDES_IDENT_RCSID(bdema_testprotectableblockdispenser_cpp,"$Id$ $CSID$")
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>                  // print messages
 #include <bsl_cstdlib.h>                 // abort
 #include <bsl_cstring.h>                 // memset
+
+// Platform-neutral format specifier for size_type
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 namespace BloombergLP {
 
@@ -172,16 +176,9 @@ void printBadBlock(const Align                        *align,
         }
         if (numBytes != block.size()) {
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
             bsl::printf(
-  "*** byte count %d doesn't match descriptor count %lld at address %p *** \n",
-                        numBytes, (long long) block.size(), align);
-#else
-            bsl::printf(
-  "*** byte count %d doesn't match descriptor count %d at address %p *** \n",
+  "*** byte count %d doesn't match descriptor count " ZU " at address %p *** \n",
                         numBytes, block.size(), align);
-#endif
-
         }
     }
     const unsigned char *address = (const unsigned char *) ++align;
