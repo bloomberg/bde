@@ -9446,7 +9446,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             LOOP2_ASSERT(LINE, ti, Y[POS] == X[0]);
                         } else {
                             LOOP2_ASSERT(LINE, ti, 0 == X.size());
-                            LOOP2_ASSERT(LINE, ti, 0 <= X.capacity());
+                            // 0 < n || 0 == n is identical to 0 <= n but
+                            // doesn't generate a warning if n is unsigned:
+                            LOOP2_ASSERT(LINE,
+                                         ti,
+                                         0 < X.capacity() ||
+                                         0 == X.capacity());
                             LOOP2_ASSERT(LINE, ti, TYPE() == X[0]);
                         }
                     }

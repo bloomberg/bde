@@ -2488,8 +2488,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             ObjStlAlloc mX(BEGIN, END);  const ObjStlAlloc& X = mX;
 
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            // 0 < n || 0 == n is identical to 0 <= n but
+            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
+                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
 
             ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
 
@@ -2502,8 +2505,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             mZ.swap(mX);
 
             ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
+            // 0 < n || 0 == n is identical to 0 <= n but
+            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
+                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -2527,8 +2533,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
                 ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
             }
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            // 0 < n || 0 == n is identical to 0 <= n but
+            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
+                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
         }
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
