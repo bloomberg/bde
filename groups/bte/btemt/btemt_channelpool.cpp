@@ -4014,16 +4014,18 @@ int btemt_ChannelPool::setWriteCacheWatermarks(int channelId,
 
     btemt_Channel *channel = channelHandle.ptr();
 
+    int rc;
     if (hiWatermark < channel->writeCacheLowWatermark()) {
-        channel->setWriteCacheLowWatermark(lowWatermark);
-        channel->setWriteCacheHiWatermark(hiWatermark);
+        rc  = channel->setWriteCacheLowWatermark(lowWatermark);
+        rc |= channel->setWriteCacheHiWatermark(hiWatermark);
     }
     else {
-        channel->setWriteCacheHiWatermark(hiWatermark);
-        channel->setWriteCacheLowWatermark(lowWatermark);
+        rc  = channel->setWriteCacheHiWatermark(hiWatermark);
+        rc |= channel->setWriteCacheLowWatermark(lowWatermark);
     }
+    BSLS_ASSERT(!rc);
 
-    return 0;
+    return rc;
 }
 
 int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)

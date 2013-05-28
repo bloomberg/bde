@@ -504,9 +504,9 @@ BDES_IDENT("$Id: $")
 // its busy metrics.  For simplicity, we will use the following function
 // for monitoring:
 //..
-//  static inline void  monitorPool(bcemt_Mutex              *coutLock,
-//                                  const btemt_ChannelPool&  pool,
-//                                  int                       numTimes)
+//  static void monitorPool(bcemt_Mutex              *coutLock,
+//                          const btemt_ChannelPool&  pool,
+//                          int                       numTimes)
 //      // Every 10 seconds, output the percent busy of the specified channel
 //      // 'pool' to the standard output, using the specified 'coutLock' to
 //      // synchronizing access to the standard output stream; return to the
