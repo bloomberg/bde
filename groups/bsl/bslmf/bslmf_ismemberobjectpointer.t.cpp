@@ -105,6 +105,13 @@ struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
 
+typedef int  FunctionIntIntTestType   (int);
+typedef void FunctionVoidVoidTestType (void);
+typedef int  FunctionIntVoidTestType  (void);
+typedef void FunctionVoidIntTestType  (int);
+    // These function types are intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
@@ -319,13 +326,13 @@ int main(int argc, char *argv[])
 
         // C-5
         TYPE_ASSERT_CVQ_PREFIX(
-                            bsl::is_member_object_pointer, int  (int),  false);
+               bsl::is_member_object_pointer, FunctionIntIntTestType,   false);
         TYPE_ASSERT_CVQ_PREFIX(
-                            bsl::is_member_object_pointer, void (void), false);
+               bsl::is_member_object_pointer, FunctionVoidVoidTestType, false);
         TYPE_ASSERT_CVQ_PREFIX(
-                            bsl::is_member_object_pointer, int  (void), false);
+               bsl::is_member_object_pointer, FunctionIntVoidTestType,  false);
         TYPE_ASSERT_CVQ_PREFIX(
-                            bsl::is_member_object_pointer, void (int),  false);
+               bsl::is_member_object_pointer, FunctionVoidIntTestType,  false);
 
       } break;
       default: {

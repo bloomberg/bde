@@ -117,6 +117,13 @@ struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_reference'.
 
+typedef int  FunctionIntIntTestType   (int);
+typedef void FunctionVoidVoidTestType (void);
+typedef int  FunctionIntVoidTestType  (void);
+typedef void FunctionVoidIntTestType  (int);
+    // These function types are intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_reference'.
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
@@ -361,10 +368,14 @@ int main(int argc, char *argv[])
 #endif
 
         // C-5
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_reference, value, int  (int),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_reference, value, void (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_reference, value, int  (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_reference, value, void (int),  false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                   bsl::is_reference, value, FunctionIntIntTestType,    false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                   bsl::is_reference, value, FunctionVoidVoidTestType,  false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                   bsl::is_reference, value, FunctionIntVoidTestType,   false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                   bsl::is_reference, value, FunctionVoidIntTestType,   false);
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

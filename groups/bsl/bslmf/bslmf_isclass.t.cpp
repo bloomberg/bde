@@ -106,6 +106,13 @@ struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_class'.
 
+typedef int  FunctionIntIntTestType   (int);
+typedef void FunctionVoidVoidTestType (void);
+typedef int  FunctionIntVoidTestType  (void);
+typedef void FunctionVoidIntTestType  (int);
+    // These function types are intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_class'.
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
@@ -275,10 +282,10 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bslmf::IsClass, FunctionPtrTestType,        0);
 
         // C-5
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, int  (int),  0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, void (void), 0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, int  (void), 0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, void (int),  0);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, FunctionIntIntTestType,   0);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, FunctionVoidVoidTestType, 0);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, FunctionIntVoidTestType,  0);
+        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsClass, FunctionVoidIntTestType,  0);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -362,10 +369,10 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bsl::is_class, FunctionPtrTestType,        false);
 
         // C-5
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, int  (int),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, void (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, int  (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, void (int),  false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, FunctionIntIntTestType,   false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, FunctionVoidVoidTestType, false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, FunctionIntVoidTestType,  false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, FunctionVoidIntTestType,  false);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
