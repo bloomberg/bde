@@ -105,6 +105,13 @@ struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 
+typedef int  FunctionIntIntTestType   (int);
+typedef void FunctionVoidVoidTestType (void);
+typedef int  FunctionIntVoidTestType  (void);
+typedef void FunctionVoidIntTestType  (int);
+    // These function types are intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
@@ -352,10 +359,14 @@ int main(int argc, char *argv[])
 #endif
 
         // C-6
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_rvalue_reference, int  (int),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_rvalue_reference, void (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_rvalue_reference, int  (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_rvalue_reference, void (int),  false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                    bsl::is_rvalue_reference, FunctionIntIntTestType,   false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                    bsl::is_rvalue_reference, FunctionVoidVoidTestType, false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                    bsl::is_rvalue_reference, FunctionIntVoidTestType,  false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                    bsl::is_rvalue_reference, FunctionVoidIntTestType,  false);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

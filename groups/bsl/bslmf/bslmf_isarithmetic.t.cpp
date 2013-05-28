@@ -103,6 +103,13 @@ struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
+typedef int  FunctionIntIntTestType   (int);
+typedef void FunctionVoidVoidTestType (void);
+typedef int  FunctionIntVoidTestType  (void);
+typedef void FunctionVoidIntTestType  (int);
+    // These function types are intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
@@ -325,10 +332,14 @@ int main(int argc, char *argv[])
                  bsl::is_arithmetic, value, FunctionPtrTestType,        false);
 
         // C-6
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, int  (int),   false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, void (void),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, int  (void),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, void (int),   false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_arithmetic, value, FunctionIntIntTestType,     false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_arithmetic, value, FunctionVoidVoidTestType,   false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_arithmetic, value, FunctionIntVoidTestType,    false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_arithmetic, value, FunctionVoidIntTestType,    false);
 
       } break;
       default: {

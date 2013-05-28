@@ -107,6 +107,13 @@ struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_fundamental'.
 
+typedef int  FunctionIntIntTestType   (int);
+typedef void FunctionVoidVoidTestType (void);
+typedef int  FunctionIntVoidTestType  (void);
+typedef void FunctionVoidIntTestType  (int);
+    // These function types are intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_fundamental'.
+
 }  // close unnamed namespace
 
 #define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
@@ -355,10 +362,14 @@ int main(int argc, char *argv[])
                    bslmf::IsFundamental, VALUE, MethodPtrTestType,          0);
 
         // C-4
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (int),  0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, void (void), 0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (void), 0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, void (int),  0);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bslmf::IsFundamental, VALUE, FunctionIntIntTestType,   0);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bslmf::IsFundamental, VALUE, FunctionVoidVoidTestType, 0);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bslmf::IsFundamental, VALUE, FunctionIntVoidTestType,  0);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bslmf::IsFundamental, VALUE, FunctionVoidIntTestType,  0);
 
       } break;
       case 1: {
@@ -532,10 +543,14 @@ int main(int argc, char *argv[])
                   bsl::is_fundamental, value, MethodPtrTestType,        false);
 
         // C-4
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, int  (int),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, void (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, int  (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, void (int),  false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_fundamental, value, FunctionIntIntTestType,    false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_fundamental, value, FunctionVoidVoidTestType,  false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_fundamental, value, FunctionIntVoidTestType,   false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                 bsl::is_fundamental, value, FunctionVoidIntTestType,   false);
 
       } break;
       default: {
