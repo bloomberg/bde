@@ -53,26 +53,38 @@ using namespace bsl;  // automatically added by script
 //   documentation) and there is code written specifically for avoiding memory
 //   leaks in the constructors (untested).
 // - The usage example is also untested.
+// - Many test cases assume that the default allocator will be the NewDelete
+//   allocator, and fail if a TestAllocator is installed as the default in
+//   'main'.  This should be addressed as part of resolving DRQS
 //-----------------------------------------------------------------------------
 // bcema_SharedPtrOutofplaceRep
-//------------------------
+//-----------------------------
 // [17] void *originalPtr() const;
 // [16] bcema_SharedPtrOutofplaceRep(...);
 //
 // bcema_SharedPtr
 //----------------
 // [ 2] bcema_SharedPtr();
-// [ 2] bcema_SharedPtr(TYPE *ptr, bslma::Allocator *basicAllocator=0);
-// [ 3] bcema_SharedPtr(PTRTYPE *ptr, bslma::Allocator *basicAllocator=0)
-// [ 3] bcema_SharedPtr(PTRTYPE *ptr, const DELETER &deleter, ... *allocator
-// [ 3] bcema_SharedPtr(bsl::auto_ptr<PTRTYPE> &autoPtr, ...
-// [ 7] bcema_SharedPtr(bcema_SharedPtr<TYPE> const &alias, TYPE *object);
-// [ 3] bcema_SharedPtr(bcema_SharedPtr<TYPE> const &original);
+// [  ] bcema_SharedPtr(OTHER *ptr)
+// [  ] bcema_SharedPtr(OTHER *ptr, bslma::Allocator *basicAllocator)
+// [ 3] bcema_SharedPtrTYPE *ptr, bcema_SharedPtrRep *rep);
+// [ 3] bcema_SharedPtr(OTHER *ptr, DELETER *const& deleter);
+// [ 3] bcema_SharedPtr(OTHER *ptr, const DELETER&, bslma::Allocator * = 0);
+// [ 3] bcema_SharedPtr(nullptr_t, const DELETER&, bslma::Allocator * = 0);
+// [  ] bcema_SharedPtr(bdema_ManagedPtr<OTHER>, bslma::Allocator * = 0);
+// [ 3] bcema_SharedPtr(bsl::auto_ptr<OTHER>, bslma::Allocator * = 0);
+// [  ] bcema_SharedPtr(bcema_SharedPtr<OTHER> const& alias, TYPE *object);
+// [  ] bcema_SharedPtr(bcema_SharedPtr<OTHER> const& other);
+// [ 3] bcema_SharedPtr(bcema_SharedPtr const& original);
 // [ 3] bcema_SharedPtr(bcema_SharedPtrRep *rep);
 // [ 2] ~bcema_SharedPtr();
-// [ 6] void load(PTRTYPE *ptr, bslma::Allocator *allocator=0)
-// [ 6] void load(PTRTYPE *ptr, DELETER const&, bslma::Allocator *)
-// [ 8] void loadAlias(bcema_SharedPtr<OTHER_TYPE> const& target, TYPE *object)
+// [ 4] bcema_SharedPtr& operator=(const bcema_SharedPtr& rhs);
+// [ 4] bcema_SharedPtr& operator=(const bcema_SharedPtr<OTHER>& rhs);
+// [ 4] bcema_SharedPtr& operator=(bsl::auto_ptr<PTRTYPE> rhs);
+// [ 2] void clear();
+// [ 6] void load(OTHER *ptr, bslma::Allocator *allocator=0)
+// [ 6] void load(OTHER *ptr, const DELETER&, bslma::Allocator *)
+// [ 8] void loadAlias(const bcema_SharedPtr<OTHER>& target, TYPE *object)
 // [ 5] void createInplace(bslma::Allocator *allocator=0);
 // [ 5] void createInplace(bslma::Allocator *allocator, A1 const& a1)
 // [ 5] void createInplace(bslma::Allocator *allocator, A1 const& a1, ..&a2);
@@ -88,27 +100,58 @@ using namespace bsl;  // automatically added by script
 // [ 5] void createInplace(bslma::Allocator *allocator, A1 const& a1,...a12);
 // [ 5] void createInplace(bslma::Allocator *allocator, A1 const& a1,...a13);
 // [ 5] void createInplace(bslma::Allocator *allocator, A1 const& a1,...a14);
-// [ 4] bcema_SharedPtr<TYPE>& operator=(const bcema_SharedPtr<TYPE> &);
-// [ 4] bcema_SharedPtr<TYPE>& operator=(const bcema_SharedPtr<OTHER_TYPE> &)
-// [ 4] bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<PTRTYPE> &rhs)
-// [12] void swap(bcema_SharedPtr<OTHER_TYPE> &src)
-// [13] bdema_ManagedPtr<TYPE> managedPtr() const;
-// [ 2] operator bool() const;
+// [  ] bsl::pair<TYPE *, bcema_SsharedPtrRep *> release();
+// [12] void swap(bcema_SharedPtr<OTHER> &src)
+// [ 2] operator bcema_SharedPtr_UnspecifiedBool() const;
+// [ 2] typename bcema_SharedPtr<TYPE>::Reference operator[](ptrdiff_t) const;
 // [ 2] typename bcema_SharedPtr<TYPE>::Reference operator*() const;
 // [ 2] TYPE *operator->() const;
 // [ 2] TYPE *ptr() const;
 // [ 2] bcema_SharedPtrRep *rep() const;
 // [ 2] int numReferences() const;
+// [13] bdema_ManagedPtr<TYPE> managedPtr() const;
+// [  ] void reset();
+// [  ] void reset(OTHER_TYPE *ptr);
+// [  ] void reset(OTHER_TYPE *ptr, const DELETER& deleter);
+// [  ] void reset(const bcema_SharedPtr<OTHER>& source, TYPE *ptr);
+// [ 2] TYPE *get() const;
+// [ 2] bool unique() const;
+// [ 2] int use_count() const;
+// [  ] bool operator==(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bool operator!=(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bsl::ostream& operator<<(bsl::ostream&, const bcema_SharedPtr<TYPE>&);
+// [  ] void swap(bcema_SharedPtr<TYPE>& a, bcema_SharedPtr<TYPE>& b);
+// 
+// bcema_SharedPtrLess
+//--------------------
+// [  ] bool operator()(const bcema_SharedPtr&, const bcema_SharedPtr&) const;
 //
 // bcema_SharedPtrUtil
 //--------------------
-// [ 9] bcema_SharedPtr<TARGET> dynamicCast(bcema_SharedPtr<SOURCE> const& )
-// [ 9] bcema_SharedPtr<TARGET> staticCast(bcema_SharedPtr<SOURCE> const& )
-// [ 9] bcema_SharedPtr<TARGET> constCast(bcema_SharedPtr<SOURCE> const& )
+// [ 9] bcema_SharedPtr<TARGET> dynamicCast(const bcema_SharedPtr<SOURCE>&);
+// [ 9] bcema_SharedPtr<TARGET> staticCast(const bcema_SharedPtr<SOURCE>&);
+// [ 9] bcema_SharedPtr<TARGET> constCast(const bcema_SharedPtr<SOURCE>&);
+// [  ] void dynamicCast(bcema_SharedPtr<TRGT> *, const bcema_SharedPtr<SRC>&);
+// [  ] void staticCast(bcema_SharedPtr<TRGT> *, const bcema_SharedPtr<SRC>&);
+// [  ] void constCast(bcema_SharedPtr<TRGT> *, const bcema_SharedPtr<SRC>&);
 // [10] bcema_SharedPtr<char> createInplaceUninitializedBuffer(...)
 // [11] struct PtrLess<TYPE>;
+//
+// bcema_SharedPtrNilDeleter
+//--------------------------
+// [  ] void operator()(TYPE *);
+//
+// bcema_SharedPtr_ReferenceType
+//------------------------------
+// [  ]
+//
+// bcema_SharedPtr_UnspecifiedBoolHelper
+//--------------------------------------
+// [  ]
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 2] bcema_SharedPtr(TYPE *ptr);
+// [ 2] bcema_SharedPtr(TYPE *ptr, bslma::Allocator *basicAllocator);
 // [14] CONCERN: SHARED POINTER IN-PLACE INSIDE 'bdef_Function' OBJECT
 // [15] CONCERN: C++ 'bsl::shared_ptr' COMPLIANCE
 // [18] USAGE EXAMPLE // TBD
@@ -1225,6 +1268,11 @@ bsl::auto_ptr<TObj> makeAuto(bsls::Types::Int64 *counter)
     return bsl::auto_ptr<TObj>(new TObj(counter));
 }
 
+namespace TestDriver {
+template <class TYPE>
+void doNotDelete(TYPE *) {} // Do nothing
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1236,7 +1284,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bcema_TestAllocator ta(veryVeryVerbose);
+//    bcema_TestAllocator ta(veryVeryVerbose);
     bsls::Types::Int64 numDeallocations;
     bsls::Types::Int64 numAllocations;
     bsls::Types::Int64 numDeletes = 0;
@@ -1690,6 +1738,9 @@ int main(int argc, char *argv[])
       case 15: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: C++ 'bsl::shared_ptr' COMPLIANCE
+        //   Note that these tests assume that the default allocator is the
+        //   NewDelete allocator; installing a test allocator for the default
+        //   will break this test.
         //
         // Plan:  Check that the 'reset' function works, by simply exercising
         //   them on a non-empty shared pointer, and checking that the result
@@ -1718,6 +1769,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'reset'."
                           << "\n----------------" << endl;
+
+        bcema_TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -1928,6 +1981,8 @@ int main(int argc, char *argv[])
                  << "Testing conversion to bdema_ManagedPtr" << endl
                  << "======================================" << endl;
 
+        bcema_TestAllocator ta(veryVeryVerbose);
+
         bdema_ManagedPtr<MyPDTestObject> mp;
         bcema_SharedPtr<MyPDTestObject>  sp(mp);
 
@@ -2016,6 +2071,8 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout << "\tWith default allocator." << endl;
+
+        bcema_TestAllocator ta(veryVeryVerbose);
 
         bsls::Types::Int64 numDeletes1 = 0;
         numDeletes = 0;
@@ -2156,6 +2213,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTesting 'bcema_SharedPtrUtil::PtrLess'\n"
                           << "\t--------------------------------------\n";
 
+        bcema_TestAllocator ta(veryVeryVerbose);
+
         bcema_SharedPtrUtil::PtrLess<MyTestObject> LT;
         {
             MyTestDerivedObject *pd = new(ta) MyTestDerivedObject(&numDeletes);
@@ -2265,6 +2324,8 @@ int main(int argc, char *argv[])
                  << "==========================================" << endl;
 
         static const char EXP[] = "createInplaceUninitializedBuffer";
+
+        bcema_TestAllocator ta(veryVeryVerbose);
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -2390,6 +2451,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'dynamicCast'"
                           << "\n---------------------\n";
 
+        bcema_TestAllocator ta(veryVeryVerbose);
+
         numDeallocations = ta.numDeallocations();
         {
             numDeletes = 0;
@@ -2500,6 +2563,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'loadAlias' (unset target)"
                           << "\n----------------------------------\n";
+
+        bcema_TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2639,6 +2704,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting \"alias\" constructor"
                           << "\n---------------------------\n";
 
+        bcema_TestAllocator ta(veryVeryVerbose);
+
         numDeallocations = ta.numDeallocations();
         {
             numDeletes = 0;
@@ -2739,6 +2806,10 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING 'load'
+        //   Note that these tests assume that the default allocator is the
+        //   NewDelete allocator; installing a test allocator for the default
+        //   will break this test.  (This actually ffects only one 'load' call
+        //   in practice.)
         //
         // Plan: TBD
         //
@@ -2746,148 +2817,150 @@ int main(int argc, char *argv[])
         //   void load(PTRTYPE *ptr, bslma::Allocator *allocator=0)
         //   void load(PTRTYPE *ptr, DELETER const&, bslma::Allocator *)
         // --------------------------------------------------------------------
-          if (verbose)
-              cout << endl
-                   << "Testing load of null ptr(on empty object)" << endl
-                   << "-----------------------------------------" << endl;
+        if (verbose)
+            cout << endl
+                 << "Testing load of null ptr(on empty object)" << endl
+                 << "-----------------------------------------" << endl;
 
-          numDeallocations = ta.numDeallocations();
-          {
-              Obj x; Obj const& X=x;
-              x.load((TObj*)0);
-              ASSERT(0 == X.ptr());
-              ASSERT(0 == X.numReferences());
+        bcema_TestAllocator ta(veryVeryVerbose);
 
-              numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            Obj x; Obj const& X=x;
+            x.load((TObj*)0);
+            ASSERT(0 == X.ptr());
+            ASSERT(0 == X.numReferences());
 
-              Obj y; Obj const&Y=y;
-              y.load((TObj*)0, &ta);
-              ASSERT(0 == Y.ptr());
-              ASSERT(0 == Y.numReferences());
-              ASSERT(numAllocations == ta.numAllocations());
+            numAllocations = ta.numAllocations();
 
-              Obj z; Obj const&Z=z;
-              z.load((TObj*)0, &ta, &ta);
-              ASSERT(0 == Z.ptr());
-              ASSERT(0 == Z.numReferences());
-              ASSERT(numAllocations == ta.numAllocations());
-          }
-          ASSERT(numDeallocations == ta.numDeallocations());
+            Obj y; Obj const&Y=y;
+            y.load((TObj*)0, &ta);
+            ASSERT(0 == Y.ptr());
+            ASSERT(0 == Y.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
 
-          if (verbose)
-              cout << endl
-                   << "Testing load of null ptr(on non-empty object)" << endl
-                   << "---------------------------------------------" << endl;
-          {
-              numDeletes = 0;
-              Obj x(new (ta) TObj(&numDeletes), &ta, 0); Obj const& X=x;
-              numAllocations = ta.numAllocations();
-              numDeallocations = ta.numDeallocations();
-              ASSERT(0 == numDeletes);
-              x.load((TObj*)0);
-              ASSERT(1 == numDeletes);
-              ASSERT(numAllocations == ta.numAllocations());
-              ASSERT(++numDeallocations == ta.numDeallocations());
-              ASSERT(0 == X.ptr());
-              ASSERT(0 == X.numReferences());
-          }
-          ASSERT(numAllocations == ta.numAllocations());
-          ASSERT(numDeallocations == ta.numDeallocations());
+            Obj z; Obj const&Z=z;
+            z.load((TObj*)0, &ta, &ta);
+            ASSERT(0 == Z.ptr());
+            ASSERT(0 == Z.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+        }
+        ASSERT(numDeallocations == ta.numDeallocations());
 
-          {
-              numDeletes = 0;
-              Obj y(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Y=y;
-              numAllocations = ta.numAllocations();
-              numDeallocations = ta.numDeallocations();
-              ASSERT(0 == numDeletes);
-              y.load((TObj*)0, &ta);
-              ASSERT(1 == numDeletes);
-              ASSERT(numAllocations == ta.numAllocations());
-              ASSERT(++numDeallocations == ta.numDeallocations());
-              ASSERT(0 == Y.ptr());
-              ASSERT(0 == Y.numReferences());
-              ASSERT(numAllocations == ta.numAllocations());
-          }
-          ASSERT(numAllocations == ta.numAllocations());
-          ASSERT(numDeallocations == ta.numDeallocations());
+        if (verbose)
+            cout << endl
+                 << "Testing load of null ptr(on non-empty object)" << endl
+                 << "---------------------------------------------" << endl;
+        {
+            numDeletes = 0;
+            Obj x(new (ta) TObj(&numDeletes), &ta, 0); Obj const& X=x;
+            numAllocations = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+            ASSERT(0 == numDeletes);
+            x.load((TObj*)0);
+            ASSERT(1 == numDeletes);
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(0 == X.ptr());
+            ASSERT(0 == X.numReferences());
+        }
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT(numDeallocations == ta.numDeallocations());
 
-          {
-              numDeletes = 0;
-              Obj z(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Z=z;
-              numAllocations = ta.numAllocations();
-              numDeallocations = ta.numDeallocations();
-              ASSERT(0 == numDeletes);
-              z.load((TObj*)0, &ta, &ta);
-              ASSERT(1 == numDeletes);
-              ASSERT(numAllocations == ta.numAllocations());
-              ASSERT(++numDeallocations == ta.numDeallocations());
-              ASSERT(0 == Z.ptr());
-              ASSERT(0 == Z.numReferences());
-              ASSERT(numAllocations == ta.numAllocations());
-          }
-          ASSERT(numAllocations == ta.numAllocations());
-          ASSERT(numDeallocations == ta.numDeallocations());
+        {
+            numDeletes = 0;
+            Obj y(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Y=y;
+            numAllocations = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+            ASSERT(0 == numDeletes);
+            y.load((TObj*)0, &ta);
+            ASSERT(1 == numDeletes);
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(0 == Y.ptr());
+            ASSERT(0 == Y.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+        }
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT(numDeallocations == ta.numDeallocations());
 
-          if (verbose)
-              cout << "\nTesting load of non-null ptr (on non-empty object)"
-                   << "\n--------------------------------------------------\n";
+        {
+            numDeletes = 0;
+            Obj z(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Z=z;
+            numAllocations = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+            ASSERT(0 == numDeletes);
+            z.load((TObj*)0, &ta, &ta);
+            ASSERT(1 == numDeletes);
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(0 == Z.ptr());
+            ASSERT(0 == Z.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+        }
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT(numDeallocations == ta.numDeallocations());
 
-          {
-              numDeletes = 0;
-              Obj x(new (ta) TObj(&numDeletes), &ta, 0); Obj const& X=x;
-              numAllocations = ta.numAllocations();
-              numDeallocations = ta.numDeallocations();
-              ASSERT(0 == numDeletes);
-              TObj *p = new TObj(&numDeletes);
-              x.load(p);
-              ASSERT(1 == numDeletes);
-              ASSERT(numAllocations == ta.numAllocations());
-              ASSERT(++numDeallocations == ta.numDeallocations());
-              ASSERT(p == X.ptr());
-              ASSERT(1 == X.numReferences());
-          }
-          ASSERT(2 == numDeletes);
-          ASSERT(numAllocations == ta.numAllocations());
-          ASSERT(numDeallocations == ta.numDeallocations());
+        if (verbose)
+            cout << "\nTesting load of non-null ptr (on non-empty object)"
+                 << "\n--------------------------------------------------\n";
 
-          {
-              numDeletes = 0;
-              Obj y(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Y=y;
-              numAllocations = ta.numAllocations();
-              numDeallocations = ta.numDeallocations();
-              ASSERT(0 == numDeletes);
-              TObj *p = new(ta) TObj(&numDeletes);
-              numAllocations = ta.numAllocations();
-              y.load(p, &ta);
-              ASSERT(1 == numDeletes);
-              ASSERT(++numAllocations == ta.numAllocations());
-              ASSERT(++numDeallocations == ta.numDeallocations());
-              ASSERT(p == Y.ptr());
-              ASSERT(1 == Y.numReferences());
-          }
-          ASSERT(2 == numDeletes);
-          ASSERT(numAllocations == ta.numAllocations());
-          ASSERT((numDeallocations+2) == ta.numDeallocations());
+        {
+            numDeletes = 0;
+            Obj x(new (ta) TObj(&numDeletes), &ta, 0); Obj const& X=x;
+            numAllocations = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+            ASSERT(0 == numDeletes);
+            TObj *p = new TObj(&numDeletes);
+            x.load(p);
+            ASSERT(1 == numDeletes);
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(p == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        ASSERT(2 == numDeletes);
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT(numDeallocations == ta.numDeallocations());
 
-          {
-              numDeletes = 0;
-              Obj z(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Z=z;
-              numAllocations = ta.numAllocations();
-              numDeallocations = ta.numDeallocations();
-              ASSERT(0 == numDeletes);
-              TObj *p = new(ta) TObj(&numDeletes);
-              numAllocations = ta.numAllocations();
-              z.load(p, &ta, &ta);
-              ASSERT(1 == numDeletes);
-              ASSERT(++numAllocations == ta.numAllocations());
-              ASSERT(++numDeallocations == ta.numDeallocations());
-              ASSERT(p == Z.ptr());
-              ASSERT(1 == Z.numReferences());
-              ASSERT(numAllocations == ta.numAllocations());
-          }
-          ASSERT(2 == numDeletes);
-          ASSERT(numAllocations == ta.numAllocations());
-          ASSERT((numDeallocations+2) == ta.numDeallocations());
+        {
+            numDeletes = 0;
+            Obj y(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Y=y;
+            numAllocations = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+            ASSERT(0 == numDeletes);
+            TObj *p = new(ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+            y.load(p, &ta);
+            ASSERT(1 == numDeletes);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(p == Y.ptr());
+            ASSERT(1 == Y.numReferences());
+        }
+        ASSERT(2 == numDeletes);
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT((numDeallocations+2) == ta.numDeallocations());
+
+        {
+            numDeletes = 0;
+            Obj z(new (ta) TObj(&numDeletes), &ta, 0); Obj const& Z=z;
+            numAllocations = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+            ASSERT(0 == numDeletes);
+            TObj *p = new(ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+            z.load(p, &ta, &ta);
+            ASSERT(1 == numDeletes);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(p == Z.ptr());
+            ASSERT(1 == Z.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+        }
+        ASSERT(2 == numDeletes);
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT((numDeallocations+2) == ta.numDeallocations());
 
       } break;
       case 5: {
@@ -2936,6 +3009,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'createInplace' with 1 argument"
                           << "\n---------------------------------------\n";
+
+        bcema_TestAllocator ta(veryVeryVerbose);
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -3258,6 +3333,9 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATORS
+        //   Note that these tests assume that the default allocator is the
+        //   NewDelete allocator; installing a test allocator for the default
+        //   will break this test.
         //
         // Plan: TBD
         //
@@ -3458,14 +3536,24 @@ int main(int argc, char *argv[])
         //   and the reference count is updated.  Check that memory is
         //   deallocated upon object destruction.  Check that no memory is
         //   leaked in the presence of exceptions.
+        //   Note that these tests assume that the default allocator is the
+        //   NewDelete allocator; installing a test allocator for the default
+        //   will break this test.
+        //   Note that we do not appear to test construction from a pointer to
+        //   some 'OTHER' type, nor the copy constructor, despite being listed
+        //   here in the component test plan.
         //
         // Plan: TBD
         //
         // Testing:
-        //   bcema_SharedPtr(PTRTYPE *ptr, bslma::Allocator *allocator=0)
-        //   bcema_SharedPtr(PTRTYPE *ptr, const DELETER &deleter, ...
-        //   bcema_SharedPtr(bsl::auto_ptr<PTRTYPE> &autoPtr, ...
-        //   bcema_SharedPtr(bcema_SharedPtr<TYPE> const& original);
+        // * bcema_SharedPtr(OTHER *ptr)
+        // * bcema_SharedPtr(OTHER *ptr, bslma::Allocator *allocator)
+        //   bcema_SharedPtrTYPE *ptr, bcema_SharedPtrRep *rep)
+        //   bcema_SharedPtr(OTHER *ptr, DELETER *const& deleter)
+        //   bcema_SharedPtr(OTHER *ptr, const DELETER& deleter, ...
+        //   bcema_SharedPtr(nullptr_t, const DELETER&, bslma::Allocator * = 0);
+        //   bcema_SharedPtr(bsl::auto_ptr<OTHER> autoPtr, bslma::Allocator * = 0);
+        // * bcema_SharedPtr(const bcema_SharedPtr& original);
         //   bcema_SharedPtr(bcema_SharedPtrRep *);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -3475,6 +3563,44 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nTesting null ptr constructor"
                  << "\n----------------------------\n";
+
+        bcema_TestAllocator ta(veryVeryVerbose);
+
+        numDeallocations = ta.numDeallocations();
+        {
+
+            Obj w(0); const Obj& W = w;
+            ASSERT(0 == W.ptr());
+            ASSERT(0 == W.numReferences());
+
+            numAllocations = ta.numAllocations();
+
+            Obj x(0, &ta); const Obj& X = x;
+            ASSERT(0 == X.ptr());
+            ASSERT(0 == X.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+
+            bsl::auto_ptr<TObj> apY(0);
+            Obj y(apY, &ta); const Obj& Y = y;
+            ASSERT(0 == Y.ptr());
+            ASSERT(0 == Y.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+
+            Obj y2(makeAuto(), &ta); const Obj& Y2 = y2;
+            ASSERT(0 == Y.ptr());
+            ASSERT(0 == Y.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+
+            Obj z(0, &ta, &ta); const Obj& Z = z;
+            ASSERT(0 == Z.ptr());
+            ASSERT(0 == Z.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+        }
+        ASSERT(numDeallocations == ta.numDeallocations());
+
+        if (verbose)
+            cout << "\nTesting (cast) null ptr constructor"
+                 << "\n-----------------------------------\n";
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3488,17 +3614,6 @@ int main(int argc, char *argv[])
             Obj x((TObj*)0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-
-            bsl::auto_ptr<TObj> apY((TObj*)0);
-            Obj y(apY, &ta); const Obj& Y = y;
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-
-            Obj y2(makeAuto(), &ta); const Obj& Y2 = y2;
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
 
             Obj z((TObj*)0, &ta, &ta); const Obj& Z = z;
@@ -3598,6 +3713,8 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) TObj(&numDeletes);
             numAllocations = ta.numAllocations();
 
+            // Note - not a great test when factor and allocator are the same.
+
             Obj x(p, &ta, &ta); const Obj& X = x;
             ASSERT(++numAllocations == ta.numAllocations());
 
@@ -3615,8 +3732,8 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations + 2 == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting constructor(with deleter)"
-                 << "\n---------------------------------\n";
+            cout << "\nTesting constructor (with deleter object)"
+                 << "\n-----------------------------------------\n";
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3625,7 +3742,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             MyTestDeleter deleter(&ta);
-            Obj x(p, deleter, 0);  const Obj& X = x;
+            Obj x(p, deleter);  const Obj& X = x;
             ASSERT(numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
@@ -3642,8 +3759,65 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations + 1 == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting constructor(with deleter and allocator)"
-                 << "\n-----------------------------------------------\n";
+            cout << "\nTesting constructor (with deleter function pointer)"
+                 << "\n---------------------------------------------------\n";
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            Obj x(&testObject, &TestDriver::doNotDelete<TObj>);
+            const Obj& X = x;
+            ASSERT(numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations == ta.numDeallocations());
+
+        if (verbose)
+            cout << "\nTesting constructor (with deleter function type)"
+                 << "\n------------------------------------------------\n";
+
+//#define BCEMA_TESTING_FUNCTION_TYPE_DELETERS
+#if defined(BCEMA_TESTING_FUNCTION_TYPE_DELETERS)
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            Obj x(&testObject, TestDriver::doNotDelete<TObj>);
+            const Obj& X = x;
+            ASSERT(numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations == ta.numDeallocations());
+#endif // BCEMA_TESTING_FUNCTION_TYPE_DELETERS
+
+        if (verbose)
+            cout << "\nTesting constructor (with deleter and allocator)"
+                 << "\n------------------------------------------------\n";
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3668,9 +3842,66 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
+
         if (verbose)
-            cout << "\nTesting constructor(with rep)"
-                 << "\n-----------------------------\n";
+            cout << "\nTesting ctor (with function pointer and allocator)"
+                 << "\n--------------------------------------------------\n";
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            Obj x(&testObject, &TestDriver::doNotDelete<TObj>, &ta);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+
+        if (verbose)
+            cout << "\nTesting ctor (with function type and allocator)"
+                 << "\n-----------------------------------------------\n";
+
+#if defined(BCEMA_TESTING_FUNCTION_TYPE_DELETERS)
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            Obj x(&testObject, TestDriver::doNotDelete<TObj>, &ta);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+#endif // BCEMA_TESTING_FUNCTION_TYPE_DELETERS
+
+        if (verbose)
+            cout << "\nTesting constructor (with rep)"
+                 << "\n------------------------------\n";
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3706,11 +3937,15 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING BASIC CONSTRUCTORS AND ACCESSORS
         //   Verify that upon construction the object is properly initialized,
+        //   Note that these tests assume that the default allocator is the
+        //   NewDelete allocator; installing a test allocator for the default
+        //   will break this test.
         //
         // Testing:
         //   bcema_SharedPtr();
-        //   bcema_SharedPtr(TYPE *ptr, bslma::Allocator *allocator=0);
-        //   operator bool() const;
+        //   [bcema_SharedPtr(TYPE *ptr);]
+        //   [bcema_SharedPtr(TYPE *ptr, bslma::Allocator *allocator);]
+        //   operator bcema_SharedPtr_UnspecifiedBool() const;
         //   typename bcema_SharedPtr<TYPE>::Reference operator[]() const;
         //   typename bcema_SharedPtr<TYPE>::Reference operator*() const;
         //   TYPE *operator->() const;
@@ -3726,6 +3961,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "Testing Constructors and Destructor" << endl
                           << "===================================" << endl;
+
+        bcema_TestAllocator ta(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing default constructor" << endl
@@ -3778,7 +4015,7 @@ int main(int argc, char *argv[])
             numDeletes = 0;
             TObj *p = new(ta) TObj(&numDeletes);
 
-            Obj x(p,&ta); Obj const& X=x;
+            Obj x(p, &ta); Obj const& X=x;
             numAllocations = ta.numAllocations();
 
             if (veryVerbose) {
@@ -3809,6 +4046,9 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   Note that these tests assume that the default allocator is the
+        //   NewDelete allocator; installing a test allocator for the default
+        //   will break this test.
         //
         // Testing:
         //   This test exercises basic functionality but tests nothing.

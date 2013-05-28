@@ -1425,10 +1425,9 @@ class bcema_SharedPtr {
         // the error.  Note that if 'managedPtr' is empty, then an empty shared
         // pointer is created and 'basicAllocator' is ignored.
 
-    template <class BCE_OTHER_TYPE>
-    explicit bcema_SharedPtr(
-                           bsl::auto_ptr<BCE_OTHER_TYPE>  autoPtr,
-                           bslma::Allocator              *basicAllocator = 0);
+    template <class OTHER_TYPE>
+    explicit bcema_SharedPtr(bsl::auto_ptr<OTHER_TYPE>  autoPtr,
+                             bslma::Allocator          *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' to
         // the parameterized 'OTHER_TYPE', and that refers to
@@ -1511,7 +1510,7 @@ class bcema_SharedPtr {
         // the assignment.
 
     template <class OTHER_TYPE>
-    bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<OTHER_TYPE>& rhs);
+    bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<OTHER_TYPE> rhs);
         // Transfer ownership to this shared pointer of the modifiable object
         // managed by the 'rhs' auto pointer to the parameterized 'OTHER_TYPE',
         // using the 'delete' operator to destroy the shared object when the
@@ -1554,7 +1553,7 @@ class bcema_SharedPtr {
         // delete' if an allocator is not specified.
 
     template <class OTHER_TYPE, class DELETER>
-    void load(OTHER_TYPE   *ptr,
+    void load(OTHER_TYPE       *ptr,
               const DELETER&    deleter,
               bslma::Allocator *basicAllocator);
         // Modify this shared pointer to manage the modifiable object of the
@@ -1592,7 +1591,7 @@ class bcema_SharedPtr {
 
     template <class OTHER_TYPE>
     void loadAlias(const bcema_SharedPtr<OTHER_TYPE>&  source,
-                   TYPE                                   *object);
+                   TYPE                               *object);
         // Modify this shared pointer to manage the same modifiable object (if
         // any) as the specified 'source' shared pointer to the parameterized
         // 'OTHER_TYPE', and refer to the modifiable object at the
@@ -2106,8 +2105,9 @@ bcema_SharedPtr<TYPE>::makeInternalRep(OTHER_TYPE *ptr,
 {
     typedef bcema_SharedPtrOutofplaceRep<OTHER_TYPE, DELETER *> RepMaker;
 
-    bslma::Allocator *defaltAllocator = bslma::Default::defaultAllocator();
-    return RepMaker::makeOutofplaceRep(ptr, defaltAllocator, defaltAllocator);
+    bslma::Allocator *defaultAllocator = bslma::Default::defaultAllocator();
+//    return RepMaker::makeOutofplaceRep(ptr, defaltAllocator, defaltAllocator);
+    return RepMaker::makeOutofplaceRep(ptr, deleter, defaultAllocator);
 }
 
 template <class TYPE>
@@ -2248,8 +2248,8 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
 template <class TYPE>
 template <class OTHER_TYPE>
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(
-                                    bsl::auto_ptr<OTHER_TYPE>&  autoPtr,
-                                    bslma::Allocator           *basicAllocator)
+                                     bsl::auto_ptr<OTHER_TYPE>  autoPtr,
+                                     bslma::Allocator          *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
@@ -2354,7 +2354,7 @@ bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
 template <class TYPE>
 template <class OTHER_TYPE>
 bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
-                                            bsl::auto_ptr<OTHER_TYPE>& rhs)
+                                                 bsl::auto_ptr<OTHER_TYPE> rhs)
 {
     SelfType(rhs).swap(*this);
     return *this;
