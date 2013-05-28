@@ -2824,12 +2824,12 @@ int bcema_SharedPtr<TYPE>::numReferences() const
 template <class TYPE>
 bdema_ManagedPtr<TYPE> bcema_SharedPtr<TYPE>::managedPtr() const
 {
-    typedef void (*Deleter)(TYPE *, bcema_SharedPtrRep *);
     if (d_rep_p) {
         d_rep_p->acquireRef();
     }
-    bdema_ManagedPtr<TYPE> ptr(d_ptr_p, d_rep_p,
-                             (Deleter)&bcema_SharedPtrRep::managedPtrDeleter);
+    bdema_ManagedPtr<TYPE> ptr(d_ptr_p,
+                               d_rep_p,
+                               &bcema_SharedPtrRep::managedPtrDeleter);
     return ptr;
 }
 

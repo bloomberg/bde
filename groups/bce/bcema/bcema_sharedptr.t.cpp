@@ -65,8 +65,8 @@ using namespace bsl;  // automatically added by script
 // bcema_SharedPtr
 //----------------
 // [ 2] bcema_SharedPtr();
-// [  ] bcema_SharedPtr(OTHER *ptr)
-// [  ] bcema_SharedPtr(OTHER *ptr, bslma::Allocator *basicAllocator)
+//*[ 3] bcema_SharedPtr(OTHER *ptr)
+//*[ 3] bcema_SharedPtr(OTHER *ptr, bslma::Allocator *basicAllocator)
 // [ 3] bcema_SharedPtrTYPE *ptr, bcema_SharedPtrRep *rep);
 // [ 3] bcema_SharedPtr(OTHER *ptr, DELETER *const& deleter);
 // [ 3] bcema_SharedPtr(OTHER *ptr, const DELETER&, bslma::Allocator * = 0);
@@ -75,7 +75,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] bcema_SharedPtr(bsl::auto_ptr<OTHER>, bslma::Allocator * = 0);
 // [  ] bcema_SharedPtr(bcema_SharedPtr<OTHER> const& alias, TYPE *object);
 // [  ] bcema_SharedPtr(bcema_SharedPtr<OTHER> const& other);
-// [ 3] bcema_SharedPtr(bcema_SharedPtr const& original);
+//*[ 3] bcema_SharedPtr(bcema_SharedPtr const& original);
 // [ 3] bcema_SharedPtr(bcema_SharedPtrRep *rep);
 // [ 2] ~bcema_SharedPtr();
 // [ 4] bcema_SharedPtr& operator=(const bcema_SharedPtr& rhs);
@@ -1284,7 +1284,6 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-//    bcema_TestAllocator ta(veryVeryVerbose);
     bsls::Types::Int64 numDeallocations;
     bsls::Types::Int64 numAllocations;
     bsls::Types::Int64 numDeletes = 0;
