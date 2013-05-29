@@ -3565,6 +3565,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
 
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
 #if defined(AJM_HAS_RECONCILED_CONFLICTING_BRANCHES)
