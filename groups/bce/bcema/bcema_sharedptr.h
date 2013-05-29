@@ -2229,8 +2229,6 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(
     typedef bcema_SharedPtrInplaceRep<bdema_ManagedPtr<TYPE> > Rep;
 
     if (d_ptr_p) {
-        typedef bdema_ManagedPtrDeleter::Deleter ManagedPtrDeleter;
-
         if (&bcema_SharedPtrRep::managedPtrDeleter ==
                                               managedPtr.deleter().deleter()) {
             d_rep_p = static_cast<bcema_SharedPtrRep *>
