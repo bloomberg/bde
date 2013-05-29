@@ -1253,6 +1253,7 @@ class bcema_SharedPtr {
     template <class OTHER_TYPE> friend class bcema_SharedPtr;
 
   private:
+    // PRIVATE CLASS METHODS
     template <class INPLACE_REP>
     static bcema_SharedPtrRep *makeInternalRep(TYPE *,
                                                INPLACE_REP *,
@@ -1260,12 +1261,12 @@ class bcema_SharedPtr {
         // Return the specified 'rep'.
 
     template <class OTHER_TYPE, class ALLOCATOR>
-    static bcema_SharedPtrRep *makeInternalRep(OTHER_TYPE   *ptr,
+    static bcema_SharedPtrRep *makeInternalRep(OTHER_TYPE       *ptr,
                                                ALLOCATOR        *,
-                                               bslma::Allocator *basicAllocator);
+                                               bslma::Allocator *allocator);
         // Return an out of place representation for a shared pointer managing
-        // the specified 'ptr' and using the specified 'basicAllocator' to
-        // provide storage.
+        // the specified 'ptr' and using the specified 'allocator' to provide
+        // storage.
 
     template <class OTHER_TYPE, class DELETER>
     static bcema_SharedPtrRep *makeInternalRep(OTHER_TYPE *ptr,
@@ -1398,7 +1399,7 @@ class bcema_SharedPtr {
     bcema_SharedPtr(bsl::nullptr_t    nullPointerLiteral,
                     const DELETER&    deleter,
                     bslma::Allocator *basicAllocator = 0);
-        // TBD Create an empty  shared pointer that reference counts the
+        // TBD Create an empty shared pointer that reference counts the
         // deleter, and uses the specified allocator to create the storage
         // area for the reference counts.  THIS DOC NEEDS TO BE WRITTEN
         // MORE PRECISELY, JUST TESTING THE FEATURE FOR NOW
@@ -2087,12 +2088,12 @@ inline
 bcema_SharedPtrRep *
 bcema_SharedPtr<TYPE>::makeInternalRep(OTHER_TYPE       *ptr,
                                        ALLOCATOR        *,
-                                       bslma::Allocator *basicAllocator)
+                                       bslma::Allocator *allocator)
 {
     typedef bcema_SharedPtrOutofplaceRep<OTHER_TYPE, bslma::Allocator *>
                                                                       RepMaker;
 
-    return RepMaker::makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
+    return RepMaker::makeOutofplaceRep(ptr, allocator, allocator);
 }
 
 template <class TYPE>
@@ -2383,8 +2384,8 @@ void bcema_SharedPtr<TYPE>::load(OTHER_TYPE   *ptr,
 template <class TYPE>
 template <class OTHER_TYPE>
 void bcema_SharedPtr<TYPE>::loadAlias(
-                                const bcema_SharedPtr<OTHER_TYPE>&  source,
-                                TYPE                                   *object)
+                                    const bcema_SharedPtr<OTHER_TYPE>&  source,
+                                    TYPE                               *object)
 {
     if (source.d_rep_p == d_rep_p && object) {
         d_ptr_p = d_rep_p ? object : 0;
@@ -2871,7 +2872,7 @@ template <class TYPE>
 template <class OTHER_TYPE>
 void bcema_SharedPtr<TYPE>::reset(
                                 const bcema_SharedPtr<OTHER_TYPE>&  source,
-                                TYPE                                   *ptr)
+                                TYPE                               *ptr)
 {
     SelfType(source, ptr).swap(*this);
 }
