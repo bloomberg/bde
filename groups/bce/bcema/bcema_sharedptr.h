@@ -1731,7 +1731,7 @@ class bcema_SharedPtr {
         // 'if' or 'while' statement), but does *not* allow shared pointers to
         // be compared (e.g., via '<' or '>').
 
-    typename ::bsl::add_lvalue_reference<TYPE>::type
+    typename bsl::add_lvalue_reference<TYPE>::type
     operator[](bsl::ptrdiff_t index) const;
         // Return a reference to the modifiable object at the specified 'index'
         // offset in object referred to by this shared pointer.  The behavior
@@ -1741,7 +1741,7 @@ class bcema_SharedPtr {
         // shared pointer refers to an array of 'TYPE' objects.  Note that this
         // is logically equivalent to '*(ptr() + index)'.
 
-    typename ::bsl::add_lvalue_reference<TYPE>::type
+    typename bsl::add_lvalue_reference<TYPE>::type
     operator*() const;
         // Return a reference to the modifiable object referred to by this
         // shared pointer.  The behavior is undefined unless this shared
@@ -2759,7 +2759,7 @@ bcema_SharedPtr<TYPE>::operator bcema_SharedPtr_UnspecifiedBool() const
 
 template <class TYPE>
 inline
-typename ::bsl::add_lvalue_reference<TYPE>::type
+typename bsl::add_lvalue_reference<TYPE>::type
 bcema_SharedPtr<TYPE>::operator[](bsl::ptrdiff_t index) const
 {
     return *(d_ptr_p + index);
@@ -2767,7 +2767,7 @@ bcema_SharedPtr<TYPE>::operator[](bsl::ptrdiff_t index) const
 
 template <class TYPE>
 inline
-typename ::bsl::add_lvalue_reference<TYPE>::type
+typename bsl::add_lvalue_reference<TYPE>::type
 bcema_SharedPtr<TYPE>::operator*() const
 {
     return *d_ptr_p;
