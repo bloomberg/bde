@@ -1108,6 +1108,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
+, d_map(basicAllocator)
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
