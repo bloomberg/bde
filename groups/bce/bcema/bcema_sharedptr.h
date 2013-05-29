@@ -2106,7 +2106,6 @@ bcema_SharedPtr<TYPE>::makeInternalRep(OTHER_TYPE *ptr,
     typedef bcema_SharedPtrOutofplaceRep<OTHER_TYPE, DELETER *> RepMaker;
 
     bslma::Allocator *defaultAllocator = bslma::Default::defaultAllocator();
-//    return RepMaker::makeOutofplaceRep(ptr, defaltAllocator, defaltAllocator);
     return RepMaker::makeOutofplaceRep(ptr, deleter, defaultAllocator);
 }
 
