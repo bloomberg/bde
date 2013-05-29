@@ -3567,12 +3567,12 @@ int main(int argc, char *argv[])
 
         numDeallocations = ta.numDeallocations();
         {
-
+#if defined(AJM_HAS_RECONCILED_CONFLICTING_BRANCHES)
             Obj w(0); const Obj& W = w;
             ASSERT(0 == W.ptr());
             ASSERT(0 == W.numReferences());
-
-            numAllocations = ta.numAllocations();
+            ASSERT(numAllocations == ta.numAllocations());
+#endif // AJM_HAS_RECONCILED_CONFLICTING_BRANCHES
 
             Obj x(0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
@@ -3603,12 +3603,10 @@ int main(int argc, char *argv[])
 
         numDeallocations = ta.numDeallocations();
         {
-
             Obj w((TObj*)0); const Obj& W = w;
             ASSERT(0 == W.ptr());
             ASSERT(0 == W.numReferences());
-
-            numAllocations = ta.numAllocations();
+            ASSERT(numAllocations == ta.numAllocations());
 
             Obj x((TObj*)0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
