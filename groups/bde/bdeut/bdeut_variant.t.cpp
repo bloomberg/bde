@@ -1432,54 +1432,54 @@ class my_VariantWrapper {
         // wrapper.
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
         return d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
         return d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
         return d_variant.applyRaw(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
-                          void>::Type
+                          void>::type
     apply(VISITOR&       visitor) {
         d_lastVisitCall = VOID_VISIT;
         d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
-                          void>::Type
+                          void>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
         d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
-                          void>::Type
+                          void>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
         d_variant.applyRaw(visitor);
@@ -1514,54 +1514,54 @@ class my_VariantWrapper {
         // wrapper.
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
         return d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
         return d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
         return d_variant.applyRaw(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
-                          void>::Type
+                          void>::type
     apply(VISITOR&       visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
         d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
-                          void>::Type
+                          void>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
         d_variant.apply(visitor);
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
-                          void>::Type
+                          void>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
         d_variant.applyRaw(visitor);
@@ -2236,8 +2236,8 @@ template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf::TypeList<Bloomb
 template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf::TypeList<int,char,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
 template class my_VariantWrapper<BloombergLP::bdeut_VariantImp<BloombergLP::bslmf::TypeList<int,TestInt,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestString,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> > >;
 template struct BloombergLP::bdeut_Variant_ReturnValueHelper<my_ReturningVisitor>;
-template struct BloombergLP::bdeut_Variant_EnableIf<1,int>;
-template struct BloombergLP::bdeut_Variant_EnableIf<0,void>;
+template struct BloombergLP::bsl::enable_if<1,int>;
+template struct BloombergLP::bsl::enable_if<0,void>;
 template struct BloombergLP::bdeut_Variant_ReturnValueHelper<my_ConstReturningVisitor>;
 //template class BloombergLP::bdeut_VariantImp<BloombergLP::bslmf::TypeList<Copyable,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil> >;
 template class BloombergLP::bdeut_Variant<TestAllocObj,int,bsl::basic_string<char,std::char_traits<char>,bsl::allocator<char> >,TestInt,TestString,TestVoid,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil,BloombergLP::bslmf::Nil>;
