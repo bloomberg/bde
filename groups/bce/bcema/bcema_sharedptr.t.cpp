@@ -3787,8 +3787,6 @@ int main(int argc, char *argv[])
             cout << "\nTesting constructor (with deleter function type)"
                  << "\n------------------------------------------------\n";
 
-//#define BCEMA_TESTING_FUNCTION_TYPE_DELETERS
-#if defined(BCEMA_TESTING_FUNCTION_TYPE_DELETERS)
         numDeallocations = ta.numDeallocations();
         {
             numDeletes = 0;
@@ -3811,7 +3809,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());
-#endif // BCEMA_TESTING_FUNCTION_TYPE_DELETERS
 
         if (verbose)
             cout << "\nTesting constructor (with deleter and allocator)"
@@ -3872,7 +3869,6 @@ int main(int argc, char *argv[])
             cout << "\nTesting ctor (with function type and allocator)"
                  << "\n-----------------------------------------------\n";
 
-#if defined(BCEMA_TESTING_FUNCTION_TYPE_DELETERS)
         numDeallocations = ta.numDeallocations();
         {
             numDeletes = 0;
@@ -3895,7 +3891,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
-#endif // BCEMA_TESTING_FUNCTION_TYPE_DELETERS
 
         if (verbose)
             cout << "\nTesting constructor (with rep)"
