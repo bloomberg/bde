@@ -302,9 +302,11 @@ void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
 {
     for (int i = 0; i < SIZE/8; ++i){
         BloombergLP::bsls::PerformanceHint::prefetchForWriting(
-                                                          (int *) arrayA + 16);
+            // cast away the volatile qualifier:
+            const_cast<int *>(arrayA + 16));  
         BloombergLP::bsls::PerformanceHint::prefetchForReading(
-                                                          (int *) arrayB + 16);
+            // cast away the volatile qualifier:
+            const_cast<int *>(arrayB + 16));
 
         *arrayA += *(arrayB++);
         ++arrayA;

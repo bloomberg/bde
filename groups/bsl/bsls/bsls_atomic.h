@@ -1350,7 +1350,7 @@ inline
 AtomicPointer<TYPE>::AtomicPointer(TYPE *value)
 {
     AtomicOperations_Imp::initPointer(&d_value,
-                                      reinterpret_cast<const void *>(value));
+                                      reinterpret_cast<void *>(value));
 }
 
 // MANIPULATORS
