@@ -859,7 +859,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
 
     // We do not contractually offer meaningful return codes (providing status
-    // in a cross-platform way is problematic), however the returned value may
+    // in a cross-platform way is problematic); however, the returned value may
     // be logged, so providing a more informative value may aid in debugging.
 
     return 0 == rc ? 0 : errno;

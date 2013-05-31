@@ -8,7 +8,6 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
-#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -32,14 +31,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-#include <pthread.h>
-#include <sys/time.h>
-typedef pthread_t my_thread_t;
-#else
-#include <windows.h>  // for Sleep, GetLastError
-typedef HANDLE my_thread_t;
-#endif
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
@@ -67,10 +58,13 @@ using namespace bsl;  // automatically added by script
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
 // [ 8] FD open(const char *p, bool writable, bool exist, bool append);
+// [10] int tryLock(FileDescriptor, bool )
+// [13] int sync(char *, int , bool )
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE 1
-// [10] USAGE EXAMPLE 2
+// [12] CONCERN: Open in append-mode behavior (particularly on windows)
+// [14] USAGE EXAMPLE 1
+// [15] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -559,12 +553,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING: sync
         //
-        // Note that this is a white-box test, that aims to verify the
+        // Note that this is a white-box test that aims to verify the
         // underlying system call is called with the appropriate arguments (it
         // is not a test of the operating system behavior).
         //
         // Unfortunately, in practice, I've been unable to create a test
-        // that would fail without the use of 'sync', which makes in
+        // that would fail without the use of 'sync', which makes it
         // impossible to test concerns 1, 2, and 3 effectively.
         //
         // Concerns:
@@ -576,16 +570,16 @@ int main(int argc, char *argv[])
         //:
         //: 3 That only the indicated number of bytes are synchronized.
         //:
-        //: 4 That on failure an error status is return.
+        //: 4 That on failure an error status is returned.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         //
         //:Plan:
-        //: 1 Call 'sync' will valid arguments and verify it returns
-        //:   successfully.
+        //: 1 Call 'sync' with valid arguments and verify it returns
+        //:   successfully. (C-1..3)
         //:
-        //: 2 Call 'seek' with an invalid set of arguments (having disabled
+        //: 2 Call 'sync' with an invalid set of arguments (having disabled
         //:   assertions that would prevent the arguments being supplied to the
         //:   underlying system call)  (C-4)
         //:
