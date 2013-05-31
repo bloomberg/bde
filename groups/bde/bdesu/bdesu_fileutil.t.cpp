@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#endif // !BSLS_PLATFORM_OS_WINDOWS
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
