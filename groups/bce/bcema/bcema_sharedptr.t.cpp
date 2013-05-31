@@ -3783,6 +3783,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());
 
+#if !defined(BSLS_PLATFORM_CMP_IBM)
         if (verbose)
             cout << "\nTesting constructor (with deleter function type)"
                  << "\n------------------------------------------------\n";
@@ -3809,6 +3810,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());
+#endif  // BSLS_PLATFORM_CMP_IBM
 
         if (verbose)
             cout << "\nTesting constructor (with deleter and allocator)"
@@ -3865,6 +3867,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
 
+#if !defined(BSLS_PLATFORM_CMP_IBM)
         if (verbose)
             cout << "\nTesting ctor (with function type and allocator)"
                  << "\n-----------------------------------------------\n";
@@ -3891,6 +3894,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
+#endif  // BSLS_PLATFORM_CMP_IBM
 
         if (verbose)
             cout << "\nTesting constructor (with rep)"
