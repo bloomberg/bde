@@ -120,16 +120,21 @@ namespace bsl {
 
 }  // close namespace bsl
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
 // implementation, in which case the implementation file will be included by
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
+#include <bslstl_algorithmworkaround.h>
+#endif
+
+#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BSL_OVERRIDES_STD
 #include <bslstp_exalgorithm.h>
 #endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif
 
 #endif
 
