@@ -134,7 +134,7 @@ namespace bsl {
 #ifndef BSL_OVERRIDES_STD
 #include <bslstp_exalgorithm.h>
 #endif
-#endif
+#endif  // BDE_OMIT_TRANSITIONAL -- STP
 
 #endif
 
