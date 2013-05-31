@@ -253,8 +253,7 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(&failAbort,
-                   basicAllocator ? basicAllocator
+, d_failureHandler(basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(DEFAULT_NUM_RECORDED_FRAMES + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(DEFAULT_NUM_RECORDED_FRAMES))
@@ -265,6 +264,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 {
     BSLS_ASSERT_SAFE(d_maxRecordedFrames >= DEFAULT_NUM_RECORDED_FRAMES);
     BSLS_ASSERT_SAFE(d_traceBufferLength >= d_maxRecordedFrames);
+
+    d_failureHandler = &failAbort;
 }
 
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
@@ -275,8 +276,7 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(&failAbort,
-                   basicAllocator ? basicAllocator
+, d_failureHandler(basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
@@ -286,9 +286,11 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
                                : &bslma::MallocFreeAllocator::singleton())
 {
     BSLS_ASSERT_OPT(numRecordedFrames >= 2);
-
     BSLS_ASSERT(d_maxRecordedFrames >= numRecordedFrames);
     BSLS_ASSERT(d_traceBufferLength >= d_maxRecordedFrames);
+
+    d_failureHandler = &failAbort;
+
 }
 
 baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
@@ -305,6 +307,7 @@ baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
     }
 }
 
+// MANIPULATORS
 void *baesu_StackTraceTestAllocator::allocate(size_type size)
 {
     if (0 == size) {
