@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
         //     and, for a number of iterations, publish a series of records,
         //     and then repeatedly call 'recordQueueLength' and sanity test
         //     the returned value (it should be decreasing) until the record
-        //     queue is empty.
+        //     queue is empty. C-2
         //
         // Testing:
         //   int recordQueueLength() const;
