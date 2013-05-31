@@ -558,9 +558,9 @@ int main(int argc, char *argv[])
         // underlying system call is called with the appropriate arguments (it
         // is not a test of the operating system behavior).
         //
-        // Unfortunately, in practice, I've been unable to create a test
-        // that would fail without the use of 'sync', which makes it
-        // impossible to test concerns 1, 2, and 3 effectively.
+        // Unfortunately, I been unable to find an effective test for
+        // concerns  1, 2, and 3, since I've been unable to observe memory
+        // pages *not* synchronized to disk.
         //
         // Concerns:
         //: 1 On success the mapped bytes are synchronized with their values
@@ -646,11 +646,12 @@ int main(int argc, char *argv[])
             rc = Obj::sync(writeBuffer, SIZE, true);
             ASSERT(0 == rc);
 
-            // Unfortunately, I haven't found a way to verify the
-            // behavior of 'sync' because I was unable observe an
-            // "unsynchronized" write to a memory mapped file.  For reference,
-            // you can find some experiments writing to mapped-memory, and
-            // read from a different file descriptor to the same file, in
+            // I have not been able to fashion an effective test for 'sync'
+            // because I've been unable to observe unsynchronized memory
+            // mapped pages (so it cannot be determined whether 'sync' is
+            // actually performing synchronization).  For reference, you can
+            // find some experiments writing to mapped-memory, and read from a
+            // different file descriptor to the same file, in
             // 'devgit:bde/bde-core' commit:
             //..
             //  commit a93a90d9c567d7a24994811f79c65b38c2cb9791
