@@ -51,6 +51,7 @@ BDES_IDENT("$Id: $")
 //                         |              isFileLoggingEnabled
 //                         |              isStdoutLoggingPrefixEnabled
 //                         |              isUserFieldsLoggingEnabled
+//                         |              recordQueueLength
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
@@ -461,7 +462,7 @@ class bael_AsyncFileObserver : public bael_Observer {
                          bael_Severity::Level  dropRecordsOnFullQueueThreshold,
                          bslma::Allocator     *basicAllocator = 0);
         // Create a file observer that asynchronously publishes log records by
-        // enqueing them onto a record queue having the specified
+        // enqueuing them onto a record queue having the specified
         // 'maxRecordQueue' length, where an independent publication thread
         // will later write them both to a log file and possibly also to
         // 'stdout', if the records's severities are at least as severe as the
@@ -626,6 +627,10 @@ class bael_AsyncFileObserver : public bael_Observer {
         // thread and return to the caller.
 
     // ACCESSORS
+    int recordQueueLength() const;
+        // Return the number of log records currently in this observer's log
+        // record queue.
+
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
         // Return 'true' if file logging is enabled for this async file
@@ -804,6 +809,13 @@ bdet_DatetimeInterval bael_AsyncFileObserver::rotationLifetime() const
 {
     return d_fileObserver.rotationLifetime();
 }
+
+inline
+int bael_AsyncFileObserver::recordQueueLength() const
+{
+    return d_recordQueue.length();
+}
+
 
 inline
 int bael_AsyncFileObserver::rotationSize() const
