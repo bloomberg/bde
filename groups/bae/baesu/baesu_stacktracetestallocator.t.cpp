@@ -1114,7 +1114,7 @@ int main(int argc, char *argv[])
         {
             baesu_StackTraceTestAllocator stta;
             stta.setName("stta");
-            stta.setFailureHandler(&stta.failNoop);
+            stta.setFailureHandler(&Obj::failNoop);
 
             bslma::TestAllocator ta("Bslma Test Allocator", &stta);
             ta.setNoAbort(true);
