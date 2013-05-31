@@ -31,6 +31,11 @@ BDES_IDENT_PRAGMA_ONCE
 // Me = month of earlier date           Ml = month of later date
 // De =   day of earlier date           Dl =   day of later date
 //
+//   o If De is 31, change De to 30.
+//
+//   o If at this point De is 30 and Dl is 31, change Dl to 30.
+//
+//
 // daysDiff ::= sign(endDate - beginDate) *
 //                                   (Yl - Ye) * 360 + (Ml - Me) * 30 + Dl - De
 //..
