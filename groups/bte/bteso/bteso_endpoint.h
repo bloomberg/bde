@@ -90,6 +90,9 @@ class bteso_Endpoint {
         // '1 <= hostname.size() && hostname.size <= 255' and
         // '0 < port && port <= 65535'.
 
+    void reset();
+        // Reset this object to an empty state.
+
     // ACCESSORS
     bool isSet() const;
         // Return 'true' if this object is set, and 'false' otherwise.

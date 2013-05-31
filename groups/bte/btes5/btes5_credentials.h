@@ -1,4 +1,4 @@
-// btes5_usercredentials.h                                            -*-C++-*-
+// btes5_credentials.h                                            -*-C++-*-
 
 #ifndef INCLUDED_BTES5_USERCREDENTIALS
 #define INCLUDED_BTES5_USERCREDENTIALS
@@ -49,9 +49,9 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
                          // ===========================
-                         // class btes5_UserCredentials
+                         // class btes5_Credentials
                          // ===========================
-class btes5_UserCredentials {
+class btes5_Credentials {
     // This value-semantic type defines the username and password for SOCKS5
     // authentication per RFC 1929. An object of this type can be unset,
     // signifying that password authentication is not available.
@@ -62,32 +62,32 @@ class btes5_UserCredentials {
 
   public:
     // CREATORS
-    explicit btes5_UserCredentials(bslma::Allocator *allocator = 0);
-        // Create an unset 'btes5_UserCredentials' object. If the optionally
+    explicit btes5_Credentials(bslma::Allocator *allocator = 0);
+        // Create an unset 'btes5_Credentials' object. If the optionally
         // specified 'allocator' is not 0 use it to supply memory,
         // otherwise use the default allocator.
 
-    btes5_UserCredentials(const bslstl::StringRef&  username,
+    btes5_Credentials(const bslstl::StringRef&  username,
                           const bslstl::StringRef&  password,
                           bslma::Allocator         *allocator = 0);
-        // Create a 'btes5_UserCredentials' object with the specified
+        // Create a 'btes5_Credentials' object with the specified
         // 'username' and 'password'. If the optionally specified
         // 'allocator' is not 0 use it to supply memory, otherwise use the
         // default allocator. The behavior is undefined unless the length of
         // both 'username' and 'password' is between 1 and 255 inclusive.
 
-    btes5_UserCredentials(const btes5_UserCredentials&  original,
+    btes5_Credentials(const btes5_Credentials&  original,
                           bslma::Allocator             *allocator = 0);
-        // Create a 'btes5_UserCredentials' object having the same value as the
+        // Create a 'btes5_Credentials' object having the same value as the
         // specified 'original' object. If the optionally specified
         // 'allocator' is not 0 use it to supply memory, otherwise use the
         // default allocator.
 
-    ~btes5_UserCredentials();
+    ~btes5_Credentials();
         // Destroy this object.
 
     // MANIPULATORS
-    // operator=(const btes5_UserCredentials& rhs) = default;
+    // operator=(const btes5_Credentials& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -96,6 +96,10 @@ class btes5_UserCredentials {
         // Set user credentials to the specified 'username' and 'password'. The
         // behavior is undefined unless the length of both 'username' and
         // 'password' is between 1 and 255 inclusive.
+
+    void reset();
+        // Reset this object. 'isSet()' will return 'true' until 'set()' is
+        // called on this object.
 
     // ACCESSORS
     bool isSet() const;
@@ -111,22 +115,22 @@ class btes5_UserCredentials {
 };
 
 // FREE OPERATORS
-bool operator==(const btes5_UserCredentials& lhs,
-                const btes5_UserCredentials& rhs);
+bool operator==(const btes5_Credentials& lhs,
+                const btes5_Credentials& rhs);
     // Return 'true' if and only if
     // 'lhs.username() == rhs.username() && lhs.password() == rhs.password()'.
 
-bool operator!=(const btes5_UserCredentials& lhs,
-                const btes5_UserCredentials& rhs);
+bool operator!=(const btes5_Credentials& lhs,
+                const btes5_Credentials& rhs);
     // Return 'true' if and only if
     // 'lhs.username() != rhs.username() || lhs.password() != rhs.password()'.
 
 bsl::ostream& operator<<(bsl::ostream&                output,
-                         const btes5_UserCredentials& object);
+                         const btes5_Credentials& object);
 
 // TRAITS
 namespace bslma {
-    template<> struct UsesBslmaAllocator<btes5_UserCredentials>
+    template<> struct UsesBslmaAllocator<btes5_Credentials>
         : bsl::true_type {
     };
 }

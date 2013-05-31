@@ -54,6 +54,12 @@ void bteso_Endpoint::set(const bslstl::StringRef& hostname, int port)
     d_port = port;
 }
 
+void bteso_Endpoint::reset()
+{
+    d_port = -1;
+    d_hostname.clear();
+}
+
 // ACCESSORS
 bool bteso_Endpoint::isSet() const
 {

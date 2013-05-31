@@ -1,6 +1,6 @@
-// btemt_socks5connector.t.cpp                                        -*-C++-*-
+// btes5_credentials.t.cpp                                        -*-C++-*-
 
-#include <btemt_socks5connector.h>
+#include <btes5_credentials.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -12,11 +12,8 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#include <btemt_tcptimereventmanager.h>
-
 using namespace BloombergLP;
 using namespace bsl;
-using namespace BloombergLP::btemt;
 
 //=============================================================================
 //                             TEST PLAN
@@ -96,83 +93,6 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef btemt::Socks5Connector Obj;
-
-// ============================================================================
-//                  USAGE EXAMPLE
-// ----------------------------------------------------------------------------
-///Example 1: Connect to a server through two proxy levels
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We want to connect to a server reachable through two levels of proxies:
-// first through one of corporate SOCKS5 servers, and then through one of
-// regional SOCKS5 servers.
-//
-// First we define a callback function to process connection status.
-//..
-void connectCb(int                                     status,
-                  bteso_StreamSocket< bteso_IPv4Address> *socket)
-{
-    if (0 == status) {
-        cout << "connection succeeded" << endl;
-        // Success: conduct I/O operations with 'socket', or use
-        // btemt_SessionPool::import to import it into a session pool.
-        //TODO: signal success to main function
-    } else {
-        cerr << "Connect failed: "
-             << btemt::Socks5Connector::errorToString(status)
-             << endl;
-    }
-}
-//..
-// Then we define the level of proxies that should be reachable directory.
-//..
-static void connectThroughProxies()
-{
-    btemt::Socks5Connector::ProxyLevel corpProxies;
-    corpProxies.push_back(HostPort("proxy1.corp.com", 1080));
-    corpProxies.push_back(HostPort("proxy2.corp.com", 1080));
-//..
-// Next we add a layer for regional proxies reachable from the corporate
-// proxies. Note that .tk stands for Tokelau in the Pacific Ocean.
-//..
-    btemt::Socks5Connector::ProxyLevel regionProxies;
-    corpProxies.push_back(HostPort("proxy1.example.tk", 1080));
-    corpProxies.push_back(HostPort("proxy2.example.tk", 1080));
-    bsl::vector<btemt::Socks5Connector::ProxyLevel> socks5Servers;
-    socks5Servers.push_back(corpProxies);
-    socks5Servers.push_back(regionProxies);
-//..
-// Then we set configuration parameters, including the user name and password
-// which will be used in case one of the proxies in the connection path
-// requires that type of authentication.
-//..
-    SocksConfiguration configuration;
-    configuration.username() = "john.smith";
-    configuration.password() = "pass1";
-//..
-// Next we construct a 'Socks5Connector' which will be used to connect to one
-// or more destinations. We don't care which local port we are bound to, and
-// specify the total timeout of 30 seconds.
-//..
-    int minSourcePort = 0;
-    int maxSourcePort = 0;
-    int timeoutSeconds = 30;
-    btemt_TcpTimerEventManager timerEventManager;
-    Socks5Connector connector(socks5Servers,
-                              configuration,
-                              minSourcePort,
-                              maxSourcePort,
-                              timeoutSeconds,
-                              &timerEventManager);
-//..
-// Finally we enable the event manager and attempt to connect to the
-// destination. Input, output and eventual closing of the connection will be
-// handled from 'connectCb'.
-//..
-    timerEventManager.enable();
-    connector.connect(&connectCb, HostPort("destination.example.com", 8194));
-}
-
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -188,7 +108,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 12: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -208,8 +128,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-        connectThroughProxies();
-        //TODO: test connection status
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -230,6 +148,38 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
+        btes5_Credentials credentials1;
+        ASSERT(!credentials1.isSet());
+
+        credentials1.set("john.smith", "pass1");
+        ASSERT(credentials1.isSet());
+        ASSERT(credentials1.username() == "john.smith");
+        ASSERT(credentials1.password() == "pass1");
+        if (verbose) {
+            cout << "credentials1=" << credentials1 << endl;
+        }
+
+        btes5_Credentials credentials2(credentials1);
+        ASSERT(credentials2.isSet());
+        ASSERT(credentials2.username() == "john.smith");
+        ASSERT(credentials2.password() == "pass1");
+        ASSERT(credentials1 == credentials2);
+
+        credentials2.set("jane.doe", "pass2");
+        if (verbose) {
+            cout << "credentials1=" << credentials1
+                 << " credentials2=" << credentials2
+                 << endl;
+        }
+        ASSERT(credentials1 != credentials2);
+        credentials1 = credentials2;
+        ASSERT(credentials1.isSet());
+        ASSERT(credentials1.username() == "jane.doe");
+        ASSERT(credentials1.password() == "pass2");
+
+        ASSERT(credentials1.isSet());
+        credentials1.reset();
+        ASSERT(!credentials1.isSet());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

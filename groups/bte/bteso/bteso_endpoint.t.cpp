@@ -179,6 +179,10 @@ int main(int argc, char *argv[])
         ASSERT(address1.isSet());
         ASSERT(address1.hostname() == "bloomberg.com");
         ASSERT(address1.port() == 80);
+
+        ASSERT(address1.isSet());
+        address1.reset();
+        ASSERT(!address1.isSet());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

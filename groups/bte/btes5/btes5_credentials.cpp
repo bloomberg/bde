@@ -1,35 +1,35 @@
-// btes5_usercredentials.cpp                                          -*-C++-*-
-#include <btes5_usercredentials.h>
+// btes5_credentials.cpp                                          -*-C++-*-
+#include <btes5_credentials.h>
 
 #include <bsl_ostream.h>
 #include <bsls_assert.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(btes5_usercredentials, "$Id$ $CSID$")
+BDES_IDENT_RCSID(btes5_credentials, "$Id$ $CSID$")
 
 namespace BloombergLP {
 
                          // ---------------------------
-                         // class btes5_UserCredentials
+                         // class btes5_Credentials
                          // ---------------------------
 
 // CREATORS
-btes5_UserCredentials::btes5_UserCredentials(bslma_Allocator *allocator)
+btes5_Credentials::btes5_Credentials(bslma_Allocator *allocator)
 : d_username(bslma::Default::allocator(allocator))
 , d_password(bslma::Default::allocator(allocator))
 {
     // 'd_username.length() > 0' is the internal indicator for 'this->isSet()'.
 }
 
-btes5_UserCredentials::btes5_UserCredentials(
-    const btes5_UserCredentials&  original,
+btes5_Credentials::btes5_Credentials(
+    const btes5_Credentials&  original,
     bslma::Allocator             *allocator)
 : d_username(original.d_username, bslma::Default::allocator(allocator))
 , d_password(original.d_password, bslma::Default::allocator(allocator))
 {
 }
 
-btes5_UserCredentials::btes5_UserCredentials(
+btes5_Credentials::btes5_Credentials(
     const bslstl::StringRef&  username,
     const bslstl::StringRef&  password,
     bslma::Allocator         *allocator)
@@ -39,12 +39,12 @@ btes5_UserCredentials::btes5_UserCredentials(
     set(username, password);
 }
 
-btes5_UserCredentials::~btes5_UserCredentials()
+btes5_Credentials::~btes5_Credentials()
 {
 }
 
 // MANIPULATORS
-void btes5_UserCredentials::set(const bslstl::StringRef& username,
+void btes5_Credentials::set(const bslstl::StringRef& username,
                                 const bslstl::StringRef& password)
 {
     BSLS_ASSERT(0 < username.length() && username.length() <= 255);
@@ -53,39 +53,45 @@ void btes5_UserCredentials::set(const bslstl::StringRef& username,
     d_password = password;
 }
 
+void btes5_Credentials::reset()
+{
+    d_username.clear();
+    d_password.clear();
+}
+
 // ACCESSORS
-bool btes5_UserCredentials::isSet() const
+bool btes5_Credentials::isSet() const
 {
     return d_username.length() > 0;
 }
 
-const bsl::string& btes5_UserCredentials::username() const
+const bsl::string& btes5_Credentials::username() const
 {
     return d_username;
 }
 
-const bsl::string& btes5_UserCredentials::password() const
+const bsl::string& btes5_Credentials::password() const
 {
     return d_password;
 }
 
 // FREE OPERATORS
-bool operator==(const btes5_UserCredentials& lhs,
-                const btes5_UserCredentials& rhs)
+bool operator==(const btes5_Credentials& lhs,
+                const btes5_Credentials& rhs)
 {
     return lhs.username() == rhs.username()
         && lhs.password() == rhs.password();
 }
 
-bool operator!=(const btes5_UserCredentials& lhs,
-                const btes5_UserCredentials& rhs)
+bool operator!=(const btes5_Credentials& lhs,
+                const btes5_Credentials& rhs)
 {
     return lhs.username() != rhs.username()
         || lhs.password() != rhs.password();
 }
 
 bsl::ostream& operator<<(bsl::ostream&                output,
-                         const btes5_UserCredentials& object)
+                         const btes5_Credentials& object)
 {
     output << object.username() << ':' << object.password();
     return output;
