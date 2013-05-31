@@ -491,6 +491,14 @@ bool isIllegal16BitValue(Iso10646Char uc)
 }
 
 static inline
+bool isIllegalFourOctetValue(Iso10646Char uc)
+    // Return 'true' if the specied 32 bit value is too high to be represented
+    // in unicode.
+{
+    return uc > 0x10ffff;
+}
+
+static inline
 const OctetType *skipUtf8Character(const OctetType *input)
     // Return a pointer to the next unicode char after the char in the sequence
     // beginning at 'input'.  Note that this routine is able to handle illegal
@@ -553,7 +561,9 @@ bsl::size_t utf8BufferLengthNeeded(const Iso10646Char    *input,
              : fitsInThreeOctets(uc) ? (isIllegal16BitValue(uc)
                                               ? errorCharSize
                                               : 3)
-             : fitsInFourOctets( uc) ? 4
+             : fitsInFourOctets( uc) ? (isIllegalFourOctetValue(uc)
+                                              ? errorCharSize
+                                              : 4)
              :                         errorCharSize;
     }
 
@@ -706,15 +716,26 @@ class Utf32ToUtf8Translator {
         ++d_numCharsWritten;
     }
 
-    void invalidChar()
+    int invalidChar()
         // Update this object and the output, if appropriate, to reflect the
         // fact that an error sequence has been encountered in the input.
+        // Return 0 if the error char was successfully written, and a non-zero
+        // value if there was insufficient space.
     {
-        if (d_errorChar) {
+        d_invalidChars = true;
+
+        if (0 == d_errorChar) {
+            return 0;                                                 // RETURN
+        }
+
+        if (d_capacity >= 2) {
             *d_output = d_errorChar;
             advance(1);
+            return 0;                                                 // RETURN
         }
-        d_invalidChars = true;
+        else {
+            return -1;                                                // RETURN
+        }
     }
 
     int decodeCharacter(const Iso10646Char uc);
@@ -803,7 +824,7 @@ void Utf8ToUtf32Translator<CAPACITY>::decodeCharacter(const OctetType uc)
         len = lookaheadContinuations(d_input + 1, 3);
         good = 3 == len && ! fitsInThreeOctets(
                                         newChar = decodeFourOctets(d_input)) &&
-                                                           newChar <= 0x10ffff;
+                                            ! isIllegalFourOctetValue(newChar);
     }
     else {
         invalidChar();
@@ -829,13 +850,14 @@ int Utf8ToUtf32Translator<CAPACITY>::translate(Iso10646Char *output,
                                                bsl::size_t  *numCharsWritten,
                                                Iso10646Char  errorChar)
 {
+    BSLS_ASSERT(! isIllegal16BitValue(errorChar) &&
+                                         ! isIllegalFourOctetValue(errorChar));
+
     Utf8ToUtf32Translator<CAPACITY> translator(output,
                                                capacity,
                                                constOctetCast(input),
                                                errorChar);
-
     BSLS_ASSERT(translator.d_capacity >= 1);
-    BSLS_ASSERT(! isIllegal16BitValue(errorChar));
 
     OctetType uc;
     int ret = 0;
@@ -889,12 +911,17 @@ Utf32ToUtf8Translator<CAPACITY>::Utf32ToUtf8Translator(
 template <typename CAPACITY>
 int Utf32ToUtf8Translator<CAPACITY>::decodeCharacter(const Iso10646Char uc)
 {
-    BSLS_ASSERT_SAFE(d_capacity >= 2);
+    BSLS_ASSERT_SAFE(d_capacity >= 1);
     BSLS_ASSERT_SAFE(uc);
 
     if      (fitsInSingleOctet(uc)) {
-        *d_output = (OctetType) uc;
-        advance(1);
+        if (d_capacity >= 2) {
+            *d_output = (OctetType) uc;
+            advance(1);
+        }
+        else {
+            return -1;                                                // RETURN
+        }
     }
     else if (fitsInTwoOctets(uc)) {
         if (d_capacity >= 3) {
@@ -907,7 +934,7 @@ int Utf32ToUtf8Translator<CAPACITY>::decodeCharacter(const Iso10646Char uc)
     }
     else if (fitsInThreeOctets(uc)) {
         if (isIllegal16BitValue(uc)) {
-            invalidChar();
+            return invalidChar();                                     // RETURN
         }
         else {
             if (d_capacity >= 4) {
@@ -920,7 +947,10 @@ int Utf32ToUtf8Translator<CAPACITY>::decodeCharacter(const Iso10646Char uc)
         }
     }
     else if (fitsInFourOctets(uc)) {
-        if (d_capacity >= 5) {
+        if (isIllegalFourOctetValue(uc)) {
+            return invalidChar();                                     // RETURN
+        }
+        else if (d_capacity >= 5) {
             encodeFourOctets(d_output, uc);
             advance(4);
         }
@@ -929,7 +959,7 @@ int Utf32ToUtf8Translator<CAPACITY>::decodeCharacter(const Iso10646Char uc)
         }
     }
     else {
-        invalidChar();
+        return invalidChar();                                         // RETURN
     }
 
     return 0;
@@ -944,17 +974,18 @@ int Utf32ToUtf8Translator<CAPACITY>::translate(
                                            bsl::size_t        *numBytesWritten,
                                            const char          errorChar)
 {
+    BSLS_ASSERT(0 == (0x80 & errorChar));
+
     Utf32ToUtf8Translator<CAPACITY> translator(octetCast(output),
                                                capacity,
                                                input,
                                                errorChar);
     BSLS_ASSERT_SAFE(translator.d_capacity >= 1);
-    BSLS_ASSERT(0 == (0x80 & errorChar));
 
     int ret = 0;
     Iso10646Char uc;
     while ((uc = *translator.d_input++)) {
-        if (translator.d_capacity < 2 || 0 != translator.decodeCharacter(uc)) {
+        if (0 != translator.decodeCharacter(uc)) {
             BSLS_ASSERT((bsl::is_same<CAPACITY, Capacity>::value));
             ret |= OUT_OF_SPACE_BIT;
             break;
