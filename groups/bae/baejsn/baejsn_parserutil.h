@@ -284,6 +284,12 @@ int baejsn_ParserUtil::getDateAndTimeValue(TYPE              *value,
 inline
 int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
 {
+    enum { BAEJSN_MIN_LENGTH = 4 };
+
+    if (data.length() < BAEJSN_MIN_LENGTH) {
+        return -1;                                                    // RETURN
+    }
+
     if (0 == bsl::strncmp("true", data.data(), data.length())) {
         *value = true;
     }

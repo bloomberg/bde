@@ -4238,7 +4238,9 @@ int main(int argc, char *argv[])
         //: 1 "true" is decoded into 'true' and "false" is decoded into
         //:   'false'.
         //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        //: 2 An empty string returns an error.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
         //: 1 Use a brute force approach to test both cases.  Confirm that the
@@ -4257,10 +4259,15 @@ int main(int argc, char *argv[])
         {
             typedef bool Type;
 
-            const Type   XA1 = true;    Type XA2; const string EA = "true";
-            const Type   XB1 = false;   Type XB2; const string EB = "false";
+            const Type   XA1 = true;    Type XA2;
+            const Type   XB1 = false;   Type XB2;
                   Type   XC1 = true;    Type XC2 = false;
+                  Type   XD1 = true;    Type XD2 = false;
+
+            const string  EA = "true";
+            const string  EB = "false";
             const string  EC = "error";
+            const string  EM = "";
 
             {
                 StringRef isb(EA.data(), EA.length());
@@ -4284,6 +4291,18 @@ int main(int argc, char *argv[])
                 StringRef isb(EC.data(), EC.length());
                 ASSERT(SUCCESS != Util::getValue(&XC2, isb));
                 ASSERT(false   == XC2);
+            }
+
+            {
+                StringRef isb(EM.data(), EM.length());
+                ASSERT(SUCCESS != Util::getValue(&XD1, isb));
+                ASSERT(true    == XD1);
+            }
+
+            {
+                StringRef isb(EM.data(), EM.length());
+                ASSERT(SUCCESS != Util::getValue(&XD2, isb));
+                ASSERT(false   == XD2);
             }
         }
       } break;
