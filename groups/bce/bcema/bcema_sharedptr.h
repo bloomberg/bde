@@ -1288,8 +1288,9 @@ class bcema_SharedPtr {
         // that was actually aliasing another object was too high, and could
         // not be easily detected.
 
-    explicit
-    bcema_SharedPtr(bcema_SharedPtrRep *rep);  // = delete;
+  private:
+    // NOT IMPLEMENTED
+    explicit bcema_SharedPtr(bcema_SharedPtrRep *);  // = delete;
         // This constructor is declared as private in order to catch any old
         // callers of this code, but never defined.  If you see an error
         // calling this constructor, you should call the public constructor
