@@ -1248,8 +1248,9 @@ class bcema_SharedPtr {
     // FRIENDS
     template <class BCE_OTHER_TYPE> friend class bcema_SharedPtr;
 
-    explicit
-    bcema_SharedPtr(bcema_SharedPtrRep *rep);  // = delete;
+  private:
+    // NOT IMPLEMENTED
+    explicit bcema_SharedPtr(bcema_SharedPtrRep *);  // = delete;
         // This constructor is declared as private in order to catch any old
         // callers of this code, but never defined.  If you see an error
         // calling this constructor, you should call the public constructor
