@@ -282,27 +282,6 @@ int baejsn_ParserUtil::getDateAndTimeValue(TYPE              *value,
 }
 
 inline
-int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
-{
-    enum { BAEJSN_MIN_LENGTH = 4 };
-
-    if (data.length() < BAEJSN_MIN_LENGTH) {
-        return -1;                                                    // RETURN
-    }
-
-    if (0 == bsl::strncmp("true", data.data(), data.length())) {
-        *value = true;
-    }
-    else if (0 == bsl::strncmp("false", data.data(), data.length())) {
-        *value = false;
-    }
-    else {
-        return -1;                                                    // RETURN
-    }
-    return 0;
-}
-
-inline
 int baejsn_ParserUtil::getValue(char *value, bslstl::StringRef data)
 {
     signed char tmp;  // Note that 'char' is unsigned on IBM.
