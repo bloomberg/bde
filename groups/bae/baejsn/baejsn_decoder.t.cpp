@@ -26,6 +26,8 @@
 #include <bdeu_printmethods.h>  // for printing vector
 #include <bdeu_chartype.h>
 
+#include <bcemt_thread.h>
+
 // These header are for testing only and the hierarchy level of baejsn was
 // increase because of them.  They should be remove when possible.
 #include <baea_testmessages.h>
@@ -72,7 +74,8 @@ using bsl::endl;
 // [ 5] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
+// [ 6] MULTI-THREADING TEST CASE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -35089,6 +35092,85 @@ void constructFeatureTestMessage(
     }
 }
 
+namespace CASE6 {
+
+struct ThreadData {
+    const bsl::vector<baea::FeatureTestMessage> *d_testObjects_p;
+    bool                                         d_veryVerbose;
+};
+
+void *threadFunction(void *data)
+{
+    ThreadData& threadData = *(ThreadData *) data;
+    const bsl::vector<baea::FeatureTestMessage>& testObjects =
+                                                   *threadData.d_testObjects_p;
+    bool veryVerbose = threadData.d_veryVerbose;
+
+    for (int ti = 0; ti < NUM_JSON_PRETTY_MESSAGES; ++ti) {
+        const int          LINE   = JSON_PRETTY_MESSAGES[ti].d_line;
+        const bsl::string& PRETTY = JSON_PRETTY_MESSAGES[ti].d_input_p;
+        const baea::FeatureTestMessage& EXP = testObjects[ti];
+
+        if (veryVerbose) {
+            P(ti) P(LINE) P(PRETTY)
+            EXP.print(bsl::cout, 1, 4);
+        }
+
+        {
+            baea::FeatureTestMessage  value;
+            baejsn_DecoderOptions     options;
+            baejsn_Decoder            decoder;
+            bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+
+            const int rc = decoder.decode(&isb, &value, options);
+            ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+            ASSERTV(LINE, isb.length(), 0 == isb.length());
+            ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
+        }
+
+        {
+            baea::FeatureTestMessage  value;
+            baejsn_DecoderOptions     options;
+            baejsn_Decoder            decoder;
+            bdesb_FixedMemInStreamBuf isb(PRETTY.data(), PRETTY.length());
+            bsl::istream              iss(&isb);
+
+            const int rc = decoder.decode(iss, &value, options);
+            ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+            ASSERTV(LINE, isb.length(), 0 == isb.length());
+            ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
+        }
+    }
+
+    for (int ti = 0; ti < NUM_JSON_COMPACT_MESSAGES; ++ti) {
+        const int          LINE    = JSON_COMPACT_MESSAGES[ti].d_line;
+        const bsl::string& COMPACT = JSON_COMPACT_MESSAGES[ti].d_input_p;
+        const baea::FeatureTestMessage& EXP = testObjects[ti];
+
+        if (veryVerbose) {
+            P(ti) P(LINE) P(COMPACT)
+            EXP.print(bsl::cout, 1, 4);
+        }
+
+        {
+            baea::FeatureTestMessage value;
+
+            baejsn_DecoderOptions     options;
+            baejsn_Decoder            decoder;
+            bdesb_FixedMemInStreamBuf isb(COMPACT.data(), COMPACT.length());
+            bsl::istream              iss(&isb);
+
+            const int rc = decoder.decode(&isb, &value, options);
+            ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
+            ASSERTV(LINE, isb.length(), 0 == isb.length());
+            ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
+        }
+    }
+}
+
+}
+
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -35103,7 +35185,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -35281,6 +35363,71 @@ int main(int argc, char *argv[])
     ASSERT(21              == employee["age"].asInt());
 //..
     }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING DECODING FROM MULTIPLE DECODERS IN SEPARATE THREADS
+        //
+        // Concerns:
+        //: 1 Multiple decoders in separate threads decode correctly.
+        //
+        // Plan:
+        //: 1 Create multiple threads.
+        //:
+        //: 2 Using the table-driven technique, specify three tables: one with
+        //:   a set of distinct rows of XML string value corresponding to a
+        //:   'baea_FeatureTestMessage' object, the second with JSON in pretty
+        //:   format, and third with the JSON in the compact format.
+        //:
+        //: 3 For each thread created, for each row in the tables of P-2:
+        //:
+        //:   1 Construct a 'baea::FeatureTestMessage' object from the XML
+        //:     string using the XML decoder.
+        //:
+        //:   2 Create a 'baejsn_Decoder' object.
+        //:
+        //:   3 Create a 'bdesb_FixedMemInStreamBuf' object with the pretty
+        //:     JSON text.
+        //:
+        //:   4 Decode that JSON into a 'baea::FeatureTestMessage' object.
+        //:
+        //:   5 Verify that the decoded object matches the original object
+        //:     from step 1.
+        //:
+        //:   6 Repeat steps 1 - 5 using JSON in the compact format.
+        //
+        // Testing:
+        //   DRQS 41660550
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+               << endl
+               << "TESTING DECODING FROM MULTIPLE DECODERS IN SEPARATE THREADS"
+               << endl
+               << "==========================================================="
+               << endl;
+
+        using namespace CASE6;
+
+        bsl::vector<baea::FeatureTestMessage> testObjects;
+        constructFeatureTestMessage(&testObjects);
+
+        ThreadData threadData;
+        threadData.d_testObjects_p = &testObjects;
+        threadData.d_veryVerbose   = veryVerbose;
+
+        const int NUM_THREADS = 20;
+        bcemt_ThreadUtil::Handle handles[NUM_THREADS];
+
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == bcemt_ThreadUtil::create(&handles[i],
+                                                 &threadFunction,
+                                                 &threadData));
+        }
+        
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == bcemt_ThreadUtil::join(handles[i]));
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
