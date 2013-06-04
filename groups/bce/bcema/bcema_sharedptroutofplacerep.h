@@ -217,12 +217,20 @@ BDES_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -410,8 +418,8 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
         BCEMA_USES_ALLOC =
          bslalg::HasTrait<DELETER, bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
 
-        BCEMA_IS_PTR = bslmf::IsPointer<DELETER>::VALUE
-                   && !bslmf::IsFunctionPointer<DELETER>::VALUE
+        BCEMA_IS_OBJ_PTR = bsl::is_pointer<DELETER>::VALUE
+                       && !bslmf::IsFunctionPointer<DELETER>::VALUE
     };
 
     typedef bcema_SharedPtrOutofplaceRep_DeleterType DeleterType;
@@ -424,12 +432,14 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
         // This enumeration contains the return value of the meta-function.
         VALUE = BCEMA_USES_ALLOC
                 ? DeleterType::BCEMA_FUNCTOR_WITH_ALLOC
-                : !BCEMA_IS_PTR
+                : !BCEMA_IS_OBJ_PTR
                   ? DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC
                   : DeleterType::BCEMA_FACTORY_PTR
     };
 
-    typedef DELETER Type;
+    typedef typename bsl::conditional<bsl::is_function<DELETER>::value,
+                                      DELETER *,
+                                      DELETER>::type Type;
         // 'Type' represents the type of the deleter used to destroy the shared
         // object.
 };
@@ -807,7 +817,9 @@ bcema_SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>
         return;                                                       // RETURN
     }
 
-    DELETER tempDeleter(d_deleter);
+    typename bsl::conditional<bsl::is_function<DELETER>::value,
+                              DELETER *,
+                              DELETER>::type tempDeleter(d_deleter);
     bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(d_ptr_p,
                                                              tempDeleter);
 }
