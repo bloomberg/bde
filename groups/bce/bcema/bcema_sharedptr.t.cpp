@@ -4034,7 +4034,7 @@ int main(int argc, char *argv[])
             bcema_SharedPtrRep *rep = x.rep();
             x.release();
 
-            Obj xx(rep); const Obj& XX = xx;
+            Obj xx(p, rep); const Obj& XX = xx;
             ASSERT(p == XX.ptr());
             ASSERT(rep ==  XX.rep());
             ASSERT(1 == XX.numReferences());
