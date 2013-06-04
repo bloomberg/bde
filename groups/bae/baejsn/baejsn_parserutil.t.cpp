@@ -4260,8 +4260,6 @@ int main(int argc, char *argv[])
             typedef bool Type;
 
             const Type EV = false;
-            const Type T1 = true;
-            const Type T2 = false;
 
             static const struct {
                 int         d_line;    // line number
