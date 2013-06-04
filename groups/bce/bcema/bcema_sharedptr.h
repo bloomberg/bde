@@ -1295,39 +1295,37 @@ class bcema_SharedPtr {
 
     template <class OTHER_TYPE>
     explicit bcema_SharedPtr(OTHER_TYPE *ptr);
-        // Create a shared pointer that refers to and manages the modifiable
-        // object of the (template parameter) type 'OTHER_TYPE' at the
-        // specified 'ptr' address and refers to '(TYPE *)ptr'.  The currently
-        // installed default allocator is used to allocate and deallocate the
-        // internal representation of the shared pointer and to destroy the
-        // shared object when all references have been released.  If
-        // 'OTHER_TYPE *' is not implicitly convertible to 'TYPE *' then a
-        // compiler diagnostic will be emitted indicating the error.  If
-        // 'ptr' is 0, an empty shared pointer is created and no memory is
-        // allocated.  Note that as mentioned in the "CAVEAT" in the
-        // "C++ Standard Compliance" section of the component-level
-        // documentation, to comply with C++ standard specifications, future
-        // implementations of 'bcema_SharedPtr' may destroy the shared object
-        // using '::operator delete'.
+        // Create a shared pointer that manages a modifiable object of
+        // (template parameter) type 'OTHER_TYPE' and refers to '(TYPE *)ptr'.
+        // The currently installed default allocator is used to allocate and
+        // deallocate the internal representation of the shared pointer and to
+        // destroy the shared object when all references have been released.
+        // If 'OTHER_TYPE *' is not implicitly convertible to 'TYPE *' then a
+        // compiler diagnostic will be emitted indicating the error.  If 'ptr'
+        // is 0, an empty shared pointer is created and no memory is allocated.
+        // Note that as mentioned in the "CAVEAT" in the "C++ Standard
+        // Compliance" section of the component-level documentation, to comply
+        // with C++ standard specifications, future implementations of
+        // 'bcema_SharedPtr' may destroy the shared object using
+        // '::operator delete'.
 
     template <class OTHER_TYPE>
     bcema_SharedPtr(OTHER_TYPE *ptr, bslma::Allocator *basicAllocator);
-        // Create a shared pointer that refers to and manages the modifiable
-        // object of (template parameter) type 'OTHER_TYPE' at the specified
-        // 'ptr' address and refers to '(TYPE *)ptr'.  If 'basicAllocator' is
-        // not 0 the specified 'basicAllocator' used to allocate and deallocate
-        // the internal representation of the shared pointer and to destroy the
-        // shared object when all references have been released.  Otherwise,
-        // the currently installed default allocator is used.  If
-        // 'OTHER_TYPE *' is not implicitly convertible to 'TYPE *' then a
-        // compiler diagnostic will be emitted indicating the error.  If
-        // 'ptr' is 0, an empty shared pointer is created and 'basicAllocator'
-        // is ignored.  Note that as mentioned in the "CAVEAT" in the "C++
-        // Standard Compliance" section of the component-level documentation,
-        // to comply with C++ standard specifications, future implementations
-        // of 'bcema_SharedPtr' may destroy the shared object using
-        // '::operator delete' if an allocator is not specified.  Also note
-        // that if 'basicAllocator' is a pointer to a class derived from
+        // Create a shared pointer that manages a modifiable object of
+        // (template parameter) type 'OTHER_TYPE' and refers to '(TYPE *)ptr'.
+        // If 'basicAllocator' is not 0 the specified 'basicAllocator' used to
+        // allocate and deallocate the internal representation of the shared
+        // pointer and to destroy the shared object when all references have
+        // been released, otherwise the currently installed default allocator
+        // is used.  If 'OTHER_TYPE *' is not implicitly convertible to
+        // 'TYPE *' then a compiler diagnostic will be emitted indicating the
+        // error.  If 'ptr' is 0, an empty shared pointer is created and
+        // 'basicAllocator' is ignored.  Note that as mentioned in the "CAVEAT"
+        // in the "C++ Standard Compliance" section of the component-level
+        // documentation, to comply with C++ standard specifications, future
+        // implementations of 'bcema_SharedPtr' may destroy the shared object
+        // using '::operator delete' if an allocator is not specified.  Also
+        // note that if 'basicAllocator' is a pointer to a class derived from
         // 'bslma::Allocator', the compiler will actually select the following
         // (more general) constructor that has the same behavior:
         //..
@@ -1336,11 +1334,11 @@ class bcema_SharedPtr {
         //..
 
     bcema_SharedPtr(TYPE *ptr, bcema_SharedPtrRep *rep);
-        // Construct a shared pointer taking ownership of the specified 'rep'
-        // and referring to the modifiable object at the specified 'ptr'
-        // address.  If 'ptr' is 0, an empty shared pointer is created.  Note
-        // that this method *DOES* *NOT* increment the number of references to
-        // 'rep'.  Note that if 'rep' is a pointer to a class derived from
+        // Create a shared pointer taking ownership of the specified 'rep' and
+        // referring to the modifiable object at the specified 'ptr' address.
+        // If 'ptr' is 0, an empty shared pointer is created.  Note that this
+        // method *DOES* *NOT* increment the number of references to 'rep'.
+        // Note that if 'rep' is a pointer to a class derived from
         // 'bcema_SharedPtrRep', the compiler will actually select the
         // following (more general) constructor that has the same behavior:
         //..
@@ -1355,11 +1353,10 @@ class bcema_SharedPtr {
         // using the specified 'deleter' to delete the shared object when all
         // references have been released and the currently installed default
         // allocator to allocate and deallocate the internal representation of
-        // the shared pointer, unless 'DELETER' is a class derived from
-        // 'bslma::allocator', or unless 'DELETER' is a class derived from
-        // 'bcema_SharedPtrRep'; if 'DELETER' is a class derived from
-        // 'bslma::allocator' create a shared pointer as if calling the
-        // constructor:
+        // the shared pointer, unless 'DELETER' is a class derived from either
+        // 'bslma::allocator' or 'bcema_SharedPtrRep'; if 'DELETER' is a class
+        // derived from 'bslma::allocator' create a shared pointer as if
+        // calling the constructor:
         //..
         //  template <class OTHER_TYPE>
         //  bcema_SharedPtr(OTHER_TYPE *ptr, bslma::Allocator *basicAllocator);
@@ -1371,14 +1368,14 @@ class bcema_SharedPtr {
         //..
         // If 'DELETER' does not derive from either 'bslma::allocator' or
         // 'bcema_SharedPtrRep', then 'deleter' is assumed to be a pointer to a
-        // factory object that exposes a 'deleteObject(OTHER_TYPE *)' interface
-        // that will be invoked to destroy the object at the 'ptr' address
-        // (i.e., 'deleter->deleteObject(ptr)' will be called to delete the
-        // shared object).  (See the "Deleters" section in the component-level
-        // documentation.)  If 'OTHER_TYPE *' is not implicitly convertible to
-        // 'TYPE *' then a compiler diagnostic will be emitted indicating the
-        // error.  Also note that if 'ptr' is 0, an empty shared pointer is
-        // created and 'deleter' is ignored.
+        // factory object that exposes a member function that can be invoked as
+        // 'deleteObject(ptr)' that will be called to destroy the object at the
+        // 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will be called to
+        // delete the shared object).  (See the "Deleters" section in the
+        // component-level documentation.)  If 'OTHER_TYPE *' is not implicitly
+        // convertible to 'TYPE *' then a compiler diagnostic will be emitted
+        // indicating the error.  Also note that if 'ptr' is 0, an empty shared
+        // pointer is created and 'deleter' is ignored.
 
     template <class OTHER_TYPE, class DELETER>
     bcema_SharedPtr(OTHER_TYPE       *ptr,
@@ -1481,8 +1478,8 @@ class bcema_SharedPtr {
 
     explicit
     bcema_SharedPtr(bcema_SharedPtrRep *rep);
-        // Construct a shared pointer taking ownership of the specified 'rep'
-        // and referring to the object stored in 'rep'.  Note that this method
+        // Create a shared pointer taking ownership of the specified 'rep' and
+        // referring to the object stored in 'rep'.  Note that this method
         // *DOES* *NOT* increment the number of references to 'rep'.
 
     ~bcema_SharedPtr();
@@ -1505,8 +1502,7 @@ class bcema_SharedPtr {
         // then this method has no effect.
 
     template <class OTHER_TYPE>
-    bcema_SharedPtr<TYPE>&
-    operator=(const bcema_SharedPtr<OTHER_TYPE>& rhs);
+    bcema_SharedPtr<TYPE>& operator=(const bcema_SharedPtr<OTHER_TYPE>& rhs);
         // Make this shared pointer refer to and manage the same modifiable
         // object as the specified 'rhs' shared pointer to the (template
         // parameter) type 'OTHER_TYPE', using the same deleter as 'rhs' and
@@ -1581,10 +1577,10 @@ class bcema_SharedPtr {
         // type 'OTHER_TYPE *' (i.e., 'deleter(ptr)' will be called to
         // destroy the shared object).  If 'DELETER' is a pointer type, then
         // 'deleter' is assumed to be a pointer to a factory object that
-        // exposes a 'deleteObject(OTHER_TYPE *)' interface that will be
-        // invoked to destroy the object at the 'ptr' address (i.e.,
-        // 'deleter->deleteObject(ptr)' will be called to delete the shared
-        // object).  (See the "Deleters" section in the component-level
+        // exposes a member function that can be invoked as 'deleteObject(ptr)'
+        // that will be called to destroy the object at the 'ptr' address
+        // (i.e., 'deleter->deleteObject(ptr)' will be called to delete the
+        // shared object).  (See the "Deleters" section in the component-level
         // documentation.)  If 'OTHER_TYPE *' is not implicitly convertible
         // to 'TYPE *' then a compiler diagnostic will be emitted indicating
         // the error.  Note that, for factory deleters, the specified 'deleter'
@@ -1842,21 +1838,21 @@ class bcema_SharedPtr {
         // referred to by a single argument of type 'OTHER_TYPE *' (i.e.,
         // 'deleter(ptr)' will be called to destroy the shared object).  If
         // 'DELETER' is a pointer type, then 'deleter' is assumed to be a
-        // pointer to a factory object that exposes a
-        // 'deleteObject(OTHER_TYPE *)' interface that will be invoked to
-        // destroy the object at the 'ptr' address (i.e.,
-        // 'deleter->deleteObject(ptr)' will be called to delete the shared
-        // object).  (See the "Deleters" section in the component-level
-        // documentation.)  The currently installed default allocator is used
-        // to allocate the internal representation of this shared pointer and
-        // to destroy the shared object when all references have been
-        // released.  If 'OTHER_TYPE *' is not implicitly convertible to
-        // 'TYPE *' then a compiler diagnostic will be emitted indicating the
-        // error.  Note that, for factory deleters, 'deleter' must remain valid
-        // until all references to 'ptr' have been released.  Also note that if
-        // 'ptr' is 0, then this shared pointer will be reset to the empty
-        // state and 'deleter' is ignored.  The behavior of this method is the
-        // same as 'load(ptr, deleter, (bslma::Allocator *)0)'.
+        // pointer to a factory object that exposes a member function that can
+        // be invoked as 'deleteObject(ptr)' that will be called to destroy the
+        // object at the 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will
+        // be called to delete the shared object).  (See the "Deleters"
+        // section in the component-level documentation.)  The currently
+        // installed default allocator is used to allocate the internal
+        // representation of this shared pointer and to destroy the shared
+        // object when all references have been released.  If 'OTHER_TYPE *' is
+        // not implicitly convertible to 'TYPE *' then a compiler diagnostic
+        // will be emitted indicating the error.  Note that, for factory
+        // deleters, 'deleter' must remain valid until all references to 'ptr'
+        // have been released.  Also note that if 'ptr' is 0, then this shared
+        // pointer will be reset to the empty state and 'deleter' is ignored.
+        // The behavior of this method is the same as
+        // 'load(ptr, deleter, (bslma::Allocator *)0)'.
 
     template <class OTHER_TYPE>
     void reset(const bcema_SharedPtr<OTHER_TYPE>& source, TYPE *ptr);
