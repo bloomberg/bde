@@ -460,8 +460,8 @@ struct bdesu_FileUtil {
         // on disk.  If the specified 'sync' flag is true, block until all
         // writes to nonvolatile media have actually completed; otherwise,
         // return once they have been scheduled.  Return 0 on success, and a
-        // nonzero value otherwise.  The behavior is undefined if 'addr' is not
-        // aligned on a page boundary, if 'numBytes' is not a multiple of
+        // nonzero value otherwise.  The behavior is undefined unless 'addr'
+        // is aligned on a page boundary, 'numBytes' is a multiple of
         // 'pageSize()', and '0 <= numBytes'.
 
     static Offset seek(FileDescriptor fd, Offset offset, int whence);
