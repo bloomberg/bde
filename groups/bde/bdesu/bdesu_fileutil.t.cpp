@@ -573,12 +573,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == ::stat64(testFile, &info));
 # endif
         info.st_mode &= 0777;
-        const bool eq =
-                (S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH) == info.st_mode;
+        const bool eq = (S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH|S_IWOTH)
+                                                               == info.st_mode;
         if (veryVerbose || !eq) {
             bsl::ios_base::fmtflags flags = cout.flags();
             cout << bsl::oct;
-            P_((S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH));
+            P_((S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH|S_IWOTH));
             P(info.st_mode);
             cout.flags(flags);
         }
