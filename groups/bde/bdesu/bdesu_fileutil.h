@@ -460,7 +460,7 @@ struct bdesu_FileUtil {
         // on disk.  If the specified 'sync' flag is true, block until all
         // writes to nonvolatile media have actually completed; otherwise,
         // return once they have been scheduled.  Return 0 on success, and a
-        // nonzero value otherwise.  The behavior is undefined unless 'addr'
+        // non-zero value otherwise.  The behavior is undefined unless 'addr'
         // is aligned on a page boundary, 'numBytes' is a multiple of
         // 'pageSize()', and '0 <= numBytes'.
 
