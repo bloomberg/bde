@@ -753,7 +753,7 @@ BDES_IDENT("$Id: $")
 //          // Create this 'my_MutexUnlockAndBroadcastDeleter' object.  Use
 //          // the specified 'cond' to broadcast a signal and the specified
 //          // 'mutex' to serialize access to 'cond'.  The behavior is
-//          // undefined unless '0 != mutex' and '0 != cond'.
+//          // undefined unless 'mutex' is not 0 and 'cond' is not 0.
 //      : d_mutex_p(mutex)
 //      , d_cond_p(cond)
 //      {
@@ -1303,7 +1303,7 @@ class bcema_SharedPtr {
         // shared object when all references have been released.  If
         // 'OTHER_TYPE *' is not implicitly convertible to 'TYPE *' then a
         // compiler diagnostic will be emitted indicating the error.  If
-        // '0 == ptr', an empty shared pointer is created and no memory is
+        // 'ptr' is 0, an empty shared pointer is created and no memory is
         // allocated.  Note that as mentioned in the "CAVEAT" in the
         // "C++ Standard Compliance" section of the component-level
         // documentation, to comply with C++ standard specifications, future
@@ -1314,14 +1314,14 @@ class bcema_SharedPtr {
     bcema_SharedPtr(OTHER_TYPE *ptr, bslma::Allocator *basicAllocator);
         // Create a shared pointer that refers to and manages the modifiable
         // object of (template parameter) type 'OTHER_TYPE' at the specified
-        // 'ptr' address and refers to '(TYPE *)ptr'.  If '0 != basicAllocator'
-        // the specified 'basicAllocator' used to allocate and deallocate the
-        // internal representation of the shared pointer and to destroy the
+        // 'ptr' address and refers to '(TYPE *)ptr'.  If 'basicAllocator' is
+        // not 0 the specified 'basicAllocator' used to allocate and deallocate
+        // the internal representation of the shared pointer and to destroy the
         // shared object when all references have been released.  Otherwise,
         // the currently installed default allocator is used.  If
         // 'OTHER_TYPE *' is not implicitly convertible to 'TYPE *' then a
         // compiler diagnostic will be emitted indicating the error.  If
-        // '0 == ptr', an empty shared pointer is created and 'basicAllocator'
+        // 'ptr' is 0, an empty shared pointer is created and 'basicAllocator'
         // is ignored.  Note that as mentioned in the "CAVEAT" in the "C++
         // Standard Compliance" section of the component-level documentation,
         // to comply with C++ standard specifications, future implementations
@@ -2090,7 +2090,7 @@ struct bcema_SharedPtrNilDeleter {
                             // class bcema_SharedPtr
                             // ---------------------
 
-// CLASS METHODS
+// PRIVATE CLASS METHODS
 template <class TYPE>
 template <class OTHER_TYPE, class ALLOCATOR>
 inline
@@ -2210,13 +2210,11 @@ template <class TYPE>
 template <class DELETER>
 inline
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(bsl::nullptr_t,  // argument is not used
-                                       const DELETER&    deleter,
-                                       bslma::Allocator *basicAllocator)
+                                       const DELETER&,  // argument is not used
+                                       bslma::Allocator *)   // ... is not used
 : d_ptr_p(0)
+, d_rep_p(0)
 {
-    typedef bcema_SharedPtrOutofplaceRep<TYPE, DELETER> RepMaker;
-
-    d_rep_p = RepMaker::makeOutofplaceRep(0, deleter, basicAllocator);
 }
 
 template <class TYPE>
