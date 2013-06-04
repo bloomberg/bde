@@ -35166,6 +35166,7 @@ void *threadFunction(void *data)
             ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
         }
     }
+    return (void *) 0;
 }
 
 }
