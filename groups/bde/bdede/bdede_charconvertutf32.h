@@ -49,13 +49,121 @@ BDES_IDENT("$Id: $")
 //
 // Non-minimal UTF-8 encodings of characters are reported as errors.  Octets
 // and post-conversion characters in the forbidden ranges are treated as errors
-// and removed (or replaced, if a replacement character is provided).
+// and removed if 0 is specified as 'errorCharacter', or replaced with
+// 'errorCharacter' otherwise.o
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1:
+///Example:
+///-------
+// The following snippets of code illustrate a typical use of the
+// 'bdede_CharConvertUtf32' struct's utility functions, first
+// converting from UTF-8 to UTF-32, and then converting back to make
+// sure the round trip returns the same value.
+//
+// First, we declare a string of utf8 containing single-, double-,
+// triple-, and quadruple-octet characters.
+//..
+//  const char utf8MultiLang[] = {
+//      "Hello"                                         // -- Ascii
+//      "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
+//      "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
+//      "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
+//      "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
+//..
+// Then, we declare an enum summarizing the counts of characters in the
+// string and verify that the counts add up to the length of the
+// string.
+//..
+//  enum { NUM_ASCII_CHARS   = 5,
+//         NUM_GREEK_CHARS   = 3,
+//         NUM_CHINESE_CHARS = 2,
+//         NUM_HINDI_CHARS   = 2,
+//         NUM_QUAD_CHARS    = 2 };
+//
+//  assert(1 * NUM_ASCII_CHARS +
+//         2 * NUM_GREEK_CHARS +
+//         3 * NUM_CHINESE_CHARS +
+//         3 * NUM_HINDI_CHARS +
+//         4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
+//..
+// Next, we declare the vector where our utf32 output will go, and a
+// variable into which the number of characters (characters, not bytes
+// or words) written will be stored.  It is not necessary to initialize
+// 'utf32CharsWritten'.
+//..
+//  bsl::vector<unsigned int> v32;
+//..
+// Note that for performance, we should
+// 'v32.reserve(sizeof(utf8MultiLang))', but it's not strictly
+// necessary -- it will automatically be grown to the correct size.
+// Note also that if 'v32' were not empty, that wouldn't be a problem
+// -- any contents will be discarded.
+//
+// Then, we do the translation to 'UTF-32'.
+//..
+//  int retVal = bdede_CharConvertUtf32::utf8ToUtf32(&v32,
+//                                                   utf8MultiLang);
+//
+//  assert(0 == retVal);        // verify success
+//  assert(0 == v32.back());    // verify null terminated
+//..
+// Next, we verify that the number of characters (characters, not bytes
+// or words) that was returned is correct.  Note that in UTF-32, the
+// number of unicode characters written is the same as the number of
+// 32 bit words written.
+//..
+//  enum { EXPECTED_CHARS_WRITTEN =
+//                  NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
+//                  NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
+//  assert(EXPECTED_CHARS_WRITTEN == v32.size());
+//..
+// Then, we calculate and confirm the difference betwen the number of
+// utf32 words output and the number of bytes input.  The ascii chars
+// will take 1 32-bit word apiece, the Greek chars are double octets
+// that will become single unsigneds, the Chinese chars are encoded as
+// utf8 triple octets that will turn into single 32-bit words, the same
+// for the Hindi chars, and the quad chars are quadruple octets that
+// will turn into single unsigned ints.
+//..
+//  enum { SHRINKAGE =
+//                    NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
+//                    NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
+//                    NUM_QUAD_CHARS    * (4-1) };
+//
+//  assert(v32.size() == sizeof(utf8MultiLang) - SHRINKAGE);
+//..
+// Next, we go on to do the reverse 'utf32ToUtf8' transform to turn it
+// back into utf8, and we should get a result identical to our original
+// input.  Declare a 'bsl::string' for our output, and a variable to
+// count the number of characters (characters, not bytes or words)
+// translated.
+//..
+//  bsl::string s;
+//  bsl::size_t utf8CharsWritten;
+//..
+// Again, note that for performance, we should ideally
+// 's.reserve(3 * v32.size())' but it's not really necessary.
+//
+// Now, we do the reverse transform:
+//..
+//  retVal = bdede_CharConvertUtf32::utf32ToUtf8(&s,
+//                                               v32.begin(),
+//                                               &utf8CharsWritten);
+//..
+// Finally, we verify a successful status was returned, that the output
+// of the reverse transform was identical to the original input, and
+// that the number of chars translated was as expected.
+//..
+//  assert(0 == retVal);
+//  assert(utf8MultiLang == s);
+//  assert(s.length() + 1         == sizeof(utf8MultiLang));
+//
+//  assert(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
+//  assert(v32.size()             == utf8CharsWritten);
+//..
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>

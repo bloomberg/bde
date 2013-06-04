@@ -7,11 +7,13 @@
 #include <bdeu_random.h>
 
 #include <bslma_testallocator.h>
+#include <bslmf_issame.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
 #include <bsl_cstring.h>
 
@@ -2301,9 +2303,38 @@ bsl::ostream& outputSequence(bsl::ostream& stream, unsigned val)
 
 }  // close namespace CASE_MINuS_1_NAMESPACE
 
+bsl::string dumpUtf8Vec(const bsl::vector<char>& utf8Vec)
+{
+    bsl::ostringstream oss;
+
+    oss << bsl::hex;
+    oss << "utf8(";
+    for (unsigned u = 0; u < utf8Vec.size(); ++u) {
+        oss << (u > 0 ? ", " : "") << "0x" <<
+                                         (unsigned) (unsigned char) utf8Vec[u];
+    }
+    oss << ')';
+
+    return oss.str();
+}
+
+bsl::string dumpUtf32Vec(const bsl::vector<unsigned int>& utf32Vec)
+{
+    bsl::ostringstream oss;
+
+    oss << bsl::hex;
+    oss << "utf32(";
+    for (unsigned u = 0; u < utf32Vec.size(); ++u) {
+        oss << (u > 0 ? ", " : "") << "0x" << utf32Vec[u];
+    }
+    oss << ')';
+
+    return oss.str();
+}
+
 int myRandSeed = 1234567890;
 static inline
-unsigned int myRand()
+unsigned int myRand32()
 {
     return ((unsigned int) bdeu_Random::generate15(&myRandSeed) << 20) ^
            ((unsigned int) bdeu_Random::generate15(&myRandSeed) <<  8) ^
@@ -2347,7 +2378,7 @@ unsigned int myRandUtf32Char()
 
         unsigned int ret;
         do {
-            ret = myRand() & 0xffff;
+            ret = myRand32() & 0xffff;
         } while (ret < (1 << 11));
 
         return ret;                                                   // RETURN
@@ -2356,7 +2387,7 @@ unsigned int myRandUtf32Char()
         // legal 4 octet
 
         unsigned int ret;
-        ret = (myRand() & 0xfffff) + 0x10000;
+        ret = (myRand32() & 0xfffff) + 0x10000;
         ASSERT(ret <= 0x10ffff);
         ASSERT(ret >=  0x10000);
 
@@ -2367,25 +2398,26 @@ unsigned int myRandUtf32Char()
 
         unsigned int ret;
         do {
-            ret = myRand();
+            ret = myRand32();
         } while (ret <= 0x10ffff);
 
         return ret;                                                   // RETURN
     }
 }
 
+template <typename TYPE>
 struct NotEqual {
     // For passing to 'bsl::find_if'.
 
     // DATA
-    char d_char;
+    TYPE d_word;
 
     // CREATOR
     explicit
-    NotEqual(char c) : d_char(c) {}
+    NotEqual(TYPE c) : d_word(c) {}
 
     // ACCESSOR
-    bool operator()(char c) const { return d_char != c; }
+    bool operator()(TYPE c) const { return d_word != c; }
 };
 
 static const struct Utf32TableStruct {
@@ -2502,18 +2534,507 @@ int main(int argc, char **argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 16: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
+
+        // The following snippets of code illustrate a typical use of the
+        // 'bdede_CharConvertUtf32' struct's utility functions, first
+        // converting from UTF-8 to UTF-32, and then converting back to make
+        // sure the round trip returns the same value.
+
+        // First, we declare a string of utf8 containing single-, double-,
+        // triple-, and quadruple-octet characters.
+
+        const char utf8MultiLang[] = {
+            "Hello"                                         // -- Ascii
+            "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
+            "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
+            "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
+            "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
+
+        // Then, we declare an enum summarizing the counts of characters in the
+        // string and verify that the counts add up to the length of the
+        // string.
+
+        enum { NUM_ASCII_CHARS   = 5,
+               NUM_GREEK_CHARS   = 3,
+               NUM_CHINESE_CHARS = 2,
+               NUM_HINDI_CHARS   = 2,
+               NUM_QUAD_CHARS    = 2 };
+
+        ASSERT(1 * NUM_ASCII_CHARS +
+               2 * NUM_GREEK_CHARS +
+               3 * NUM_CHINESE_CHARS +
+               3 * NUM_HINDI_CHARS +
+               4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
+
+        // Next, we declare the vector where our utf32 output will go, and a
+        // variable into which the number of characters (characters, not bytes
+        // or words) written will be stored.  It is not necessary to initialize
+        // 'utf32CharsWritten'.
+
+        bsl::vector<unsigned int> v32;
+
+        // Note that for performance, we should
+        // 'v32.reserve(sizeof(utf8MultiLang))', but it's not strictly
+        // necessary -- it will automatically be grown to the correct size.
+        // Note also that if 'v32' were not empty, that wouldn't be a problem
+        // -- any contents will be discarded.
+
+        // Then, we do the translation to 'UTF-32'.
+
+        int retVal = bdede_CharConvertUtf32::utf8ToUtf32(&v32,
+                                                         utf8MultiLang);
+
+        ASSERT(0 == retVal);        // verify success
+        ASSERT(0 == v32.back());    // verify null terminated
+
+        // Next, we verify that the number of characters (characters, not bytes
+        // or words) that was returned is correct.  Note that in UTF-32, the
+        // number of unicode characters written is the same as the number of
+        // 32 bit words written.
+
+        enum { EXPECTED_CHARS_WRITTEN =
+                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
+                        NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
+        ASSERT(EXPECTED_CHARS_WRITTEN == v32.size());
+
+        // Next, we calculate and confirm the difference betwen the number of
+        // utf32 words output and the number of bytes input.  The ascii chars
+        // will take 1 32-bit word apiece, the Greek chars are double octets
+        // that will become single unsigneds, the Chinese chars are encoded as
+        // utf8 triple octets that will turn into single 32-bit words, the same
+        // for the Hindi chars, and the quad chars are quadruple octets that
+        // will turn into single unsigned ints.
+
+        enum { SHRINKAGE =
+                          NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
+                          NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
+                          NUM_QUAD_CHARS    * (4-1) };
+
+        ASSERT(v32.size() == sizeof(utf8MultiLang) - SHRINKAGE);
+
+        // Then, we go on to do the reverse 'utf32ToUtf8' transform to turn it
+        // back into utf8, and we should get a result identical to our original
+        // input.  Declare a 'bsl::string' for our output, and a variable to
+        // count the number of characters (characters, not bytes or words)
+        // translated.
+
+        bsl::string s;
+        bsl::size_t utf8CharsWritten;
+
+        // Again, note that for performance, we should ideally
+        // 's.reserve(3 * v32.size())' but it's not really necessary.
+
+        // Now, we do the reverse transform:
+
+        retVal = bdede_CharConvertUtf32::utf32ToUtf8(&s,
+                                                     v32.begin(),
+                                                     &utf8CharsWritten);
+
+        // Finally, we verify a successful status was returned, that the output
+        // of the reverse transform was identical to the original input, and
+        // that the number of chars translated was as expected.
+
+        ASSERT(0 == retVal);
+        ASSERT(utf8MultiLang == s);
+        ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
+
+        ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
+        ASSERT(v32.size()             == utf8CharsWritten);
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // PURELY RANDOM UTF-8 -> UTF-32 TEST
+        //
+        // Concerns:
+        //   That the translator can handle random inpuut without dire effects.
+        //: 1 The translator never segfaultss and asserts never fail.
+        //: 2 The output is always error-free UTF-32.  (Note we say
+        //:   'error-free', not 'correct'.  Figuring out what the correct
+        //:   UTF-32 would be given arbitary UTF-8 input is about as hard as
+        //:   writing this whole component, so the exact output is not
+        //:   checked).  We merely check that it does not contain any invalid
+        //:   UTF-32 values.
+        //
+        // Plan:
+        //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
+        //:   Linux.
+        //: 2 Generate 'numBytess', a length from 6-16, of bytes of of input
+        //:   that the test sequence is to be.
+        //: 3 For each loop, iterate twice, once with a non-zero randomly
+        //:   generated legal utf32 'errorChar', and once with
+        //:   '0 == errorChar'.
+        //: 4 Generate an input buffer 'utf8InBuf' of 'numBytes' bytes of
+        //:   values that are purely random except that only the last one is 0.
+        //: 5 Translate the UTF-8 to a UTF-32 vector 'utf32OutVec'.  Observe
+        //:   that the 'out of space' bit of the return value is always 0.
+        //: 6 Iterate 'len' from slightly more than 'utf32OutVec.size()' down
+        //:   to 0, and for each value, translate 'utf8InBuf' to a buffer,
+        //:   passing 'len' as capacity.
+        //: 7 Observe that no more than 'len' words of output were written,
+        //:   that there were no embedded 0's in the ouput, and that the final
+        //:   word is 0.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "PURELY RANDOM UTF-8 -> UTF-32 TEST\n"
+                             "==================================\n";
+
+        // This test case is calibrated to run as many test cases as can be run
+        // in 0.1 sec on Linux, which will be much faster than 30 sec on the
+        // slowest architecture.
+
+        bsls_Stopwatch sw;
+        sw.start();
+
+        bsl::vector<char>         utf8OutVec;
+        bsl::vector<unsigned int> utf32OutVec;
+
+        enum { MAX_SEQ_LEN             = 17,
+               SEQ_LEN_MOD             = MAX_SEQ_LEN - 1,
+               MAX_UTF8_BYTES_INPUT    = MAX_SEQ_LEN };
+
+        char utf8InBuf[          MAX_UTF8_BYTES_INPUT];
+        unsigned int utf32OutBuf[MAX_UTF8_BYTES_INPUT + 1];
+        enum { UTF32_OUT_BUF_LEN = sizeof(utf32OutBuf) / sizeof(int) };
+
+        bsl::string utf8Seq;
+
+        for (int ti = 0; ti < 25 * 1000; ++ti) {
+            const unsigned numBytesIn = myRand15() % SEQ_LEN_MOD + 2;
+            const unsigned int fillWord = myRandUtf32Char();
+
+            char *pc = utf8InBuf;
+            for (unsigned tj = 1; tj < numBytesIn; ++tj) {
+                utf8InBuf[tj] = (char) (myRand15() & 0xff);
+            }
+            *pc++ = 0;
+            ASSERT(pc - utf8InBuf <= MAX_UTF8_BYTES_INPUT);
+
+            bsl::vector<char> utf8InVec(utf8InBuf + 0, pc);
+
+            for (int zeroErrorChar = 0; zeroErrorChar < 2; ++zeroErrorChar) {
+                unsigned int errorChar;
+                if (zeroErrorChar) {
+                    errorChar = 0;
+                }
+                else {
+                    int ret;
+                    do {
+                        errorChar = myRandUtf32Char();
+                        unsigned int utf32ErrorSeq[] = { errorChar, 0 };
+
+                        // Note UTF32 -> UTF-8 translation is already
+                        // well-tested.
+
+                        bsl::string utf8ErrorSeq;
+                        ret = Util::utf32ToUtf8(&utf8ErrorSeq,
+                                                utf32ErrorSeq);
+                    } while (0 != ret);
+                    ASSERT(errorChar);
+                }
+
+                utf32OutVec.clear();
+                utf32OutVec.resize(myRand15() % (2 * numBytesIn), fillWord);
+
+                int ret = Util::utf8ToUtf32(&utf32OutVec,
+                                            utf8InBuf,
+                                            errorChar);
+                ASSERT(0 == (ret & ~Status::BDEDE_INVALID_CHARS_BIT));
+                ASSERT(bsl::find(utf32OutVec.begin(), utf32OutVec.end(), 0) ==
+                                                          &utf32OutVec.back());
+                ASSERT(utf32OutVec.size() <  numBytesIn);
+
+                bsl::size_t ncw = -1;
+                ret = Util::utf32ToUtf8(&utf8OutVec,
+                                        utf32OutVec.begin(),
+                                        &ncw);
+                ASSERT(0 == ret);    // this is important -- the utf32 output
+                                     // must have no errors
+                ASSERT(utf32OutVec.size() == ncw);
+                ASSERT(utf8OutVec.size() <= numBytesIn);
+                ASSERT(bsl::find(utf8OutVec.begin(), utf8OutVec.end(), 0) ==
+                                                           &utf8OutVec.back());
+
+                if (veryVeryVerbose) Q(Now do xlation to a utf8 buffer);
+
+                for (bsl::size_t len = utf32OutVec.size() + 1; len >= 2;
+                                                                       --len) {
+                    bsl::fill(utf32OutBuf + 0,
+                              utf32OutBuf + UTF32_OUT_BUF_LEN,
+                              fillWord);
+
+                    ncw = -1;
+                    ret = Util::utf8ToUtf32(utf32OutBuf,
+                                            len,
+                                            utf8InBuf,
+                                            &ncw,
+                                            errorChar);
+                    LOOP6_ASSERT(ti, len, utf32OutVec.size(), ret,
+                             dumpUtf8Vec(utf8InVec), dumpUtf32Vec(utf32OutVec),
+                                                  (len < utf32OutVec.size()) ==
+                                    !! (ret & Status::BDEDE_OUT_OF_SPACE_BIT));
+                    ASSERT(len > utf32OutVec.size() ? utf32OutVec.size() == ncw
+                                                    : ncw == len);
+                    ASSERT(bsl::find_if(utf32OutBuf + ncw,
+                                        utf32OutBuf + UTF32_OUT_BUF_LEN,
+                                        NotEqual<unsigned int>(fillWord)) ==
+                                              utf32OutBuf + UTF32_OUT_BUF_LEN);
+                    ASSERT(bsl::find(utf32OutBuf + 0,
+                                     utf32OutBuf + ncw,
+                                     0) == utf32OutBuf + ncw - 1);
+                }
+            }
+        }
+        sw.stop();
+
+        if (verbose) P(sw.accumulatedWallTime());
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TABLE-DRIVEN RANDOM UTF-8 -> UTF-32 SEQUENCES
         //
         // Concerns:
-          // That the translator performs well when passed a random assortment
-          // of UTF-8 sequences from 'utf8Table'.
-        //: 1 No eequence causes segfaults.
+        //   That the translator performs well when passed a random assortment
+        //   of UTF-8 sequences from 'utf8Table'.
+        //: 1 No eequence causes segfaults and asserts never fail.
         //: 2 The translated output is exactly correct.
         //: 3 The return value is correct.
-        //: 4
+        //: 4 When the output is to a buffer that isn't long enough, it exactly
+        //:   fills up the space in the buffer.
+        //: 5 The UTF-32 output has *NO* errors in it.
+        //
+        // Plan:
+        //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
+        //:   Linux.
+        //: 2 Generate 'numChars', a length from 2-7, of unicode chars that our
+        //:   test sequence is to be.
+        //: 3 For each loop, iterate twice, once with a non-zero randomly
+        //:   generated legal utf32 'errorChar', and once with
+        //:   '0 == errorChar'.
+        //: 4 When '0 != errorChar', generate a corresponding UTF-8 sequence
+        //:   'errorSeq'.
+        //: 5 Generate a sequence of bytes in buffer 'utf8InBuf' (and a copy in
+        //:   vector 'utf8InVec') of 'numChars' unicode chars, but randomly
+        //:   selecting utf8 sequences from 'utf8Table' (and eliminating the
+        //:   preceding '1' and trailing 'z'.  Simultanously construct
+        //:   vector 'utf32ExpVec' of what we expect the UTF-32 output to be
+        //:   and vector 'utf8ExpVec' of what we expect the result to be when
+        //:   that UTF-32 is translated back to UTF-8.
+        //: 6 Translate 'utf8InBuf' to a utf32 vector 'utf32OutVec' and observe
+        //:   the result and return value are as expected.
+        //: 7 Translate 'utv32OutVec' to a utf8 vector 'utf8OutVec' and observe
+        //:   the result and return value are as expected.
+        //: 8 Iterate 'len' from slightly above the expected length of UTF-32
+        //:   output down to 2, and translate 'utf8InBuf' to a utf32 buffer,
+        //:   passing 'len' as capacity, and observe that the result and return
+        //:   value are as expected.
+        //: 9 Observe that no more than 'len' words of output were written,
+        //:   that there were no embedded 0's in the ouput, and that the final
+        //:   word is 0.
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << "TABLE-DRIVEN RANDOM UTF-8 -> UTF-32 SEQUENCES\n"
+                             "=============================================\n";
+
+        // This test case is calibrated to run as many test cases as can be run
+        // in 0.1 sec on Linux, which will be much faster than 30 sec on the
+        // slowest architecture.
+
+        bsls_Stopwatch sw;
+        sw.start();
+
+        bsl::vector<unsigned int> utf8InVec, utf32ExpVec;
+        bsl::vector<char> utf8ExpVec;
+
+        bsl::vector<char>         utf8OutVec;
+        bsl::vector<unsigned int> utf32OutVec;
+
+        enum { MAX_SEQ_LEN             = 7,
+               SEQ_LEN_MOD             = MAX_SEQ_LEN - 1,
+               MAX_UTF32_CHARS_WRITTEN = MAX_SEQ_LEN,
+               MAX_UTF8_BYTES_INPUT    = (MAX_SEQ_LEN - 1) * 5 + 1,
+               UTF8_TABLE_MOD          = NUM_UTF8_TABLE + 1 };
+
+        char utf8InBuf[          MAX_UTF8_BYTES_INPUT];
+        unsigned int utf32OutBuf[MAX_UTF32_CHARS_WRITTEN + 1];
+        enum { UTF32_OUT_BUF_LEN = sizeof(utf32OutBuf) / sizeof(int) };
+
+        bsl::string utf8Seq;
+
+        for (int ti = 0; ti < 8 * 1000; ++ti) {
+            const unsigned numCharsIn = myRand15() % SEQ_LEN_MOD + 2;
+            const unsigned int fillWord = myRandUtf32Char();
+            const char fillChar = (char) (myRand15() % 0xff);
+
+            for (int zeroErrorChar = 0; zeroErrorChar < 2; ++zeroErrorChar) {
+                unsigned int errorChar;
+                bsl::string utf8ErrorSeq;
+                if (zeroErrorChar) {
+                    errorChar = 0;
+                }
+                else {
+                    int ret;
+                    do {
+                        errorChar = myRandUtf32Char();
+                        unsigned int utf32ErrorSeq[] = { errorChar, 0 };
+
+                        // Note UTF32 -> UTF-8 translation is already
+                        // well-tested.
+
+                        ret = Util::utf32ToUtf8(&utf8ErrorSeq,
+                                                utf32ErrorSeq);
+                    } while (0 != ret);
+                    ASSERT(errorChar);
+                    ASSERT(utf8ErrorSeq.length() >= 1);
+                }
+
+                utf8ExpVec. clear();
+                utf32ExpVec.clear();
+
+                char *pc = utf8InBuf;
+                bool errorsPresent = false;
+                bool prevTrunc = false;
+                for (unsigned tj = 1; tj < numCharsIn; ++tj) {
+                    unsigned idx;
+                    bool repeat = true;
+                    for (; repeat;) {
+                        idx = myRand15() % UTF8_TABLE_MOD;
+                        if (NUM_UTF8_TABLE == idx) {
+                            // continuation char, unless previous was truncated
+
+                            repeat = prevTrunc;
+                            if (!prevTrunc) {
+                                char cont = (char) (0x80|(myRand15() & 0x3f));
+                                unsigned seqlen = myRand15() % 5 + 1;
+                                bsl::memset(pc, cont, seqlen);
+                                pc += seqlen;
+
+                                errorsPresent = true;
+                                prevTrunc = seqlen < 5;
+
+                                if (errorChar) {
+                                    utf8ExpVec.insert(utf8ExpVec.end(),
+                                                      utf8ErrorSeq.begin(),
+                                                      utf8ErrorSeq.end());
+                                    utf32ExpVec.push_back(errorChar);
+                                }
+                            }
+                        }
+                        else {
+                            const char *utf8Seq =
+                                               utf8Table[idx].d_utf8String + 1;
+                            unsigned seqlen = bsl::strlen(utf8Seq) - 1;
+                            ASSERT(seqlen <= 5);
+                            ASSERT(seqlen >= 1);
+                            bsl::memcpy(pc, utf8Seq, seqlen);
+                            pc += seqlen;
+
+                            repeat = false;
+                            prevTrunc = utf8Table[idx].d_truncBy > 0;
+                            if (utf8Table[idx].d_error) {
+                                errorsPresent = true;
+
+                                if (errorChar) {
+                                    utf8ExpVec.insert(utf8ExpVec.end(),
+                                                      utf8ErrorSeq.begin(),
+                                                      utf8ErrorSeq.end());
+                                    utf32ExpVec.push_back(errorChar);
+                                }
+                            }
+                            else {
+                                utf8ExpVec.insert(utf8ExpVec.end(),
+                                                  utf8Seq,
+                                                  utf8Seq + seqlen);
+                                utf32ExpVec.push_back(utf8Table[idx].d_midVal);
+                            }
+                        }
+                    }
+                }
+                *pc++ = 0;
+                utf8ExpVec. push_back(0);
+                utf32ExpVec.push_back(0);
+                ASSERT(pc <= utf8InBuf + MAX_UTF8_BYTES_INPUT);
+                LOOP4_ASSERT(ti, utf8ExpVec.size(), pc - utf8InBuf,
+                                                errorChar, errorChar >= 0x80 ||
+                                    (int) utf8ExpVec.size() <= pc - utf8InBuf);
+                bsl::vector<char> utf8InVec(
+                            utf8InBuf, utf8InBuf + bsl::strlen(utf8InBuf) + 1);
+
+                utf32OutVec.clear();
+                utf32OutVec.resize(myRand15() % (2 * numCharsIn), fillWord);
+
+                int ret = Util::utf8ToUtf32(&utf32OutVec,
+                                            utf8InBuf,
+                                            errorChar);
+                ASSERT(ret == (errorsPresent ? Status::BDEDE_INVALID_CHARS_BIT
+                                             : 0));
+                LOOP3_ASSERT(ti, dumpUtf32Vec(utf32ExpVec),
+                                                     dumpUtf32Vec(utf32OutVec),
+                                                   utf32ExpVec == utf32OutVec);
+                ASSERT(bsl::find(utf32OutVec.begin(), utf32OutVec.end(), 0) ==
+                                                         &utf32OutVec.back());
+                ASSERT((errorsPresent && !errorChar)
+                                           ? utf32OutVec.size() <  numCharsIn
+                                           : utf32OutVec.size() == numCharsIn);
+
+                if (veryVeryVerbose) Q(Now do the return trip);
+
+                utf8OutVec.clear();
+                utf8OutVec.resize(myRand15() % (8 * numCharsIn), fillChar);
+
+                bsl::size_t ncw = -1;
+                ret = Util::utf32ToUtf8(&utf8OutVec,
+                                        utf32OutVec.begin(),
+                                        &ncw);
+                ASSERT(0 == ret);    // this is important -- the utf32 output
+                                     // must have no errors
+                ASSERT(utf32ExpVec.size() == ncw);
+                ASSERT(bsl::find(utf8OutVec.begin(), utf8OutVec.end(), 0) ==
+                                                           &utf8OutVec.back());
+                ASSERT(utf8ExpVec == utf8OutVec);
+
+                if (veryVeryVerbose) Q(Now do xlation to a utf8 buffer);
+
+                for (bsl::size_t len = utf32ExpVec.size() + 1; len >= 2;
+                                                                       --len) {
+                    bsl::fill(utf32OutBuf + 0,
+                              utf32OutBuf + UTF32_OUT_BUF_LEN,
+                              fillWord);
+
+                    ncw = -1;
+                    bsl::size_t nbw = -1;
+                    ret = Util::utf8ToUtf32(utf32OutBuf,
+                                            len,
+                                            utf8InBuf,
+                                            &ncw,
+                                            errorChar);
+                    LOOP6_ASSERT(ti, len, utf32ExpVec.size(), ret,
+                             dumpUtf8Vec(utf8InVec), dumpUtf32Vec(utf32ExpVec),
+                                                  (len < utf32ExpVec.size()) ==
+                                    !! (ret & Status::BDEDE_OUT_OF_SPACE_BIT));
+                    ASSERT(errorsPresent || 0 ==
+                                      (ret & Status::BDEDE_INVALID_CHARS_BIT));
+                    ASSERT(len > utf32ExpVec.size() ? utf32ExpVec.size() == ncw
+                                                    : ncw == len);
+                    ASSERT(bsl::find_if(utf32OutBuf + ncw,
+                                        utf32OutBuf + UTF32_OUT_BUF_LEN,
+                                        NotEqual<unsigned int>(fillWord)) ==
+                                              utf32OutBuf + UTF32_OUT_BUF_LEN);
+                    ASSERT(bsl::find(utf32OutBuf + 0,
+                                     utf32OutBuf + ncw,
+                                     0) == utf32OutBuf + ncw - 1);
+                }
+            }
+        }
+        sw.stop();
+
+        if (verbose) P(sw.accumulatedWallTime());
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -2689,7 +3210,7 @@ int main(int argc, char **argv)
                     ASSERT(utf8OutBuf + sizeof(utf8OutBuf) ==
                                   bsl::find_if(utf8OutBuf + nbw,
                                                utf8OutBuf + sizeof(utf8OutBuf),
-                                               NotEqual(fillChar)));
+                                               NotEqual<char>(fillChar)));
                     ASSERT(bsl::strlen(utf8OutBuf) + 1 == nbw);
                     ASSERT(! bsl::strncmp(utf8OutBuf,
                                           utf8ExpVec.begin(),
@@ -2731,7 +3252,7 @@ int main(int argc, char **argv)
         bsl::vector<char> bufferVec;
 
         for (int ti = 0; ti < 15 * 1000; ++ti) {
-            const int numCharsIn = myRand() % 4 + 1;
+            const int numCharsIn = myRand32() % 4 + 1;
             const char fillChar = (char) (myRand15() & 0xff);
 
             utf32InVec. clear();
@@ -2740,7 +3261,7 @@ int main(int argc, char **argv)
 
             bool errorsPresent = false;
             for (int tj = 1; tj < numCharsIn; ++tj) {
-                unsigned tr = myRand() % NUM_UTF32_TABLE;
+                unsigned tr = myRand32() % NUM_UTF32_TABLE;
                 unsigned int uc      = utf32Table[tr].d_utf32Val;
                 const char *utf8Str  = utf32Table[tr].d_utf8String;
                 const bool  IS_ERROR = utf32Table[tr].d_error;
@@ -2825,9 +3346,10 @@ int main(int argc, char **argv)
                 ASSERT(!nbw || 0 == bsl::strncmp(utf8OutVec.begin(),
                                                  bufferVec.begin(),
                                                  nbw - 1));
-                ASSERT(bufferVec.end() == bsl::find_if(&bufferVec[nbw],
-                                                       bufferVec.end(),
-                                                       NotEqual(fillChar)));
+                ASSERT(bufferVec.end() == bsl::find_if(
+                                                    &bufferVec[nbw],
+                                                    bufferVec.end(),
+                                                    NotEqual<char>(fillChar)));
             }
         }
         sw.stop();
@@ -2863,7 +3385,7 @@ int main(int argc, char **argv)
         bsl::vector<char> bufferVec;
 
         for (int ti = 0; ti < 15 * 1000; ++ti) {
-            const int numChars = myRand() % 6 + 2;
+            const int numChars = myRand32() % 6 + 2;
             const char fillChar = (char) (myRand15() & 0xff);
 
             utf32InVec. clear();
@@ -2872,7 +3394,7 @@ int main(int argc, char **argv)
 
             bool errorsPresent = false;
             for (int tj = 1; tj < numChars; ++tj) {
-                unsigned tr = myRand() % NUM_UTF32_TABLE;
+                unsigned tr = myRand32() % NUM_UTF32_TABLE;
                 unsigned int uc      = utf32Table[tr].d_utf32Val;
                 const char *utf8Str  = utf32Table[tr].d_utf8String;
                 const bool  IS_ERROR = utf32Table[tr].d_error;
@@ -2910,7 +3432,7 @@ int main(int argc, char **argv)
             if (veryVerbose) Q(UTF-8 -> UTF-32);
 
             bsl::vector<unsigned int> utf32OutVec;
-            utf32OutVec.resize(myRand15() % 9, myRand());
+            utf32OutVec.resize(myRand15() % 9, myRand32());
             ret = Util::utf8ToUtf32(&utf32OutVec,
                                     utf8OutVec.begin());
             ASSERT(0 == ret);
@@ -2951,9 +3473,10 @@ int main(int argc, char **argv)
                 ASSERT(!nbw || 0 == bsl::strncmp(utf8OutVec.begin(),
                                                  bufferVec.begin(),
                                                  nbw - 1));
-                ASSERT(bufferVec.end() == bsl::find_if(&bufferVec[nbw],
-                                                       bufferVec.end(),
-                                                       NotEqual(fillChar)));
+                ASSERT(bufferVec.end() == bsl::find_if(
+                                                    &bufferVec[nbw],
+                                                    bufferVec.end(),
+                                                    NotEqual<char>(fillChar)));
             }
         }
         sw.stop();
@@ -4307,7 +4830,7 @@ int main(int argc, char **argv)
             }
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::memset(out32Buf, -1, sizeof(out32Buf));
-                int expectedRet = IS_ERROR && len > 2
+                int expectedRet = IS_ERROR && len >= 2
                                   ? Status::BDEDE_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < (IS_ERROR ? 3 : 4)
                                ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
@@ -4353,7 +4876,7 @@ int main(int argc, char **argv)
 
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::memset(out32Buf, -1, sizeof(out32Buf));
-                int expectedRet = IS_ERROR && len > 1
+                int expectedRet = IS_ERROR && len >= 1
                                   ? Status::BDEDE_INVALID_CHARS_BIT : 0;
                 expectedRet |= len < (IS_ERROR ? 2 : 3)
                                ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
@@ -4379,6 +4902,7 @@ int main(int argc, char **argv)
         if (verbose) Q(Eliminating last char);
 
         for (int ti = 0; ti < NUM_UTF8_TABLE; ++ti) {
+            const int           LINE        = utf8Table[ti].d_line;
             const char         *UTF8_STRING = utf8Table[ti].d_utf8String;
             const unsigned int  MID_VAL     = utf8Table[ti].d_midVal;
             const bool          IS_ERROR    = utf8Table[ti].d_error;
@@ -4391,9 +4915,9 @@ int main(int argc, char **argv)
             unsigned int expectedOut[] = { '1', MID_VAL, 0 };
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::memset(out32Buf, -1, sizeof(out32Buf));
-                int expectedRet = IS_ERROR && len > 2
+                int expectedRet = IS_ERROR && len >= 2
                                   ? Status::BDEDE_INVALID_CHARS_BIT : 0;
-                expectedRet |= len < 3
+                expectedRet |= len < (IS_ERROR ? 2 : 3)
                                ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
                 const unsigned expectedChars =
                                            bsl::min(len, IS_ERROR ? 2 : 3);
@@ -4404,7 +4928,7 @@ int main(int argc, char **argv)
                                             s.c_str(),
                                             &numChars,
                                             0);
-                ASSERT(expectedRet == ret);
+                LOOP4_ASSERT(LINE, len, expectedRet, ret, expectedRet == ret);
                 ASSERT(expectedChars == numChars);
                 ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
 
@@ -4443,23 +4967,25 @@ int main(int argc, char **argv)
 
                 switch (TRUNC_BY) {
                   case 0: {
-                    expectedRet = (IS_ERROR && len > 2) || len > 3
+                    expectedRet = (IS_ERROR && len >= 2) || len >= 3
                                   ? Status::BDEDE_INVALID_CHARS_BIT : 0;
-                    expectedRet |= len < (IS_ERROR ? 3 : 4)
+                    expectedRet |= len < (IS_ERROR ? 2 : 3)
                                   ? Status::BDEDE_OUT_OF_SPACE_BIT  : 0;
                     expectedChars = bsl::min(len, IS_ERROR ? 2 : 3);
                   } break;
                   case 1: {
-                    expectedRet = len < 3 ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
-                    expectedRet |= len > 2 && fiveOctet ?
+                    expectedRet =
+                                len < (0xf8 == (0xf8 & UTF8_STRING[1]) ? 2 : 3)
+                                          ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                    expectedRet |= len >= 2 && fiveOctet ?
                                            Status::BDEDE_INVALID_CHARS_BIT : 0;
                     expectedChars = bsl::min(len, fiveOctet ? 2 : 3);
                   } break;
                   default: {    // 2 or more
-                    expectedRet = len > 2 ?
-                                       Status::BDEDE_INVALID_CHARS_BIT : 0;
-                    expectedRet |= (IS_ERROR && len < 2) ||len < 3
-                                   ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
+                    expectedRet = len >= 2 ?
+                                           Status::BDEDE_INVALID_CHARS_BIT : 0;
+                    expectedRet |= len < (IS_ERROR ? 2 : 3)
+                                          ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
                     expectedChars = bsl::min(len, 2);
                   }
                 }
@@ -4715,7 +5241,7 @@ int main(int argc, char **argv)
                 unsigned int expectedOut[] = { '1', MID_VAL, 'z', 0 };
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::memset(out32Buf, -1, sizeof(out32Buf));
-                    int expectedRet = IS_ERROR && len > 2
+                    int expectedRet = IS_ERROR && len > 1
                                       ? Status::BDEDE_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < 4
                                    ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
@@ -4730,7 +5256,8 @@ int main(int argc, char **argv)
                             : Util::utf8ToUtf32(out32Buf,
                                                 len,
                                                 UTF8_STRING);
-                    ASSERT(expectedRet == ret);
+                    LOOP4_ASSERT(ti, len, expectedRet, ret,
+                                                           expectedRet == ret);
                     ASSERT(!checkNumChars || expectedChars == numChars);
                     ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
 
@@ -4763,7 +5290,7 @@ int main(int argc, char **argv)
                 unsigned int expectedOut[] = { MID_VAL, 'z', 0 };
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::memset(out32Buf, -1, sizeof(out32Buf));
-                    int expectedRet = IS_ERROR && len > 1
+                    int expectedRet = IS_ERROR && len > 0
                                       ? Status::BDEDE_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < 3
                                    ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
@@ -4813,7 +5340,7 @@ int main(int argc, char **argv)
                 unsigned int expectedOut[] = { '1', MID_VAL, 0 };
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::memset(out32Buf, -1, sizeof(out32Buf));
-                    int expectedRet = IS_ERROR && len > 2
+                    int expectedRet = IS_ERROR && len >= 2
                                       ? Status::BDEDE_INVALID_CHARS_BIT : 0;
                     expectedRet |= len < 3
                                    ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;
@@ -4873,7 +5400,7 @@ int main(int argc, char **argv)
 
                     switch (TRUNC_BY) {
                       case 0: {
-                        expectedRet = (IS_ERROR && len > 2) || len > 3
+                        expectedRet = (IS_ERROR && len >= 2) || len >= 3
                                       ? Status::BDEDE_INVALID_CHARS_BIT : 0;
                         expectedRet |= len < 4
                                       ? Status::BDEDE_OUT_OF_SPACE_BIT  : 0;
@@ -4884,7 +5411,7 @@ int main(int argc, char **argv)
                       case 1: {
                         expectedRet = len < 3
                                       ? Status::BDEDE_OUT_OF_SPACE_BIT  : 0;
-                        expectedRet |= len > 2 &&
+                        expectedRet |= len >= 2 &&
                                               (UTF8_STRING[1] & 0xf8) == 0xf8 ?
                                            Status::BDEDE_INVALID_CHARS_BIT : 0;
                         expectedChars = bsl::min(len, 3);
@@ -4892,7 +5419,7 @@ int main(int argc, char **argv)
                                                           sizeof(unsigned int);
                       } break;
                       default: {    // 2 or more
-                        expectedRet = len > 2 ?
+                        expectedRet = len >= 2 ?
                                            Status::BDEDE_INVALID_CHARS_BIT : 0;
                         expectedRet |= len < 3
                                        ? Status::BDEDE_OUT_OF_SPACE_BIT : 0;

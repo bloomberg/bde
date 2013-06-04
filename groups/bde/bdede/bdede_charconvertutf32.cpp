@@ -624,23 +624,35 @@ class Utf8ToUtf32Translator {
         --d_capacity;
     }
 
-    void invalidChar()
+    int invalidChar()
         // Update the state of this object and possibly the output to reflect
         // that an error sequence was encountered in the input.u
     {
-        if (d_errorChar) {
-            *d_output = d_errorChar;
-            advance();
-        }
         d_invalidChars = true;
+
+        if (! d_errorChar) {
+            return 0;                                                 // RETURN
+        }
+        else {
+            if (d_capacity >= 2) {
+                *d_output = d_errorChar;
+                advance();
+                return 0;                                             // RETURN
+            }
+            else {
+                return -1;                                            // RETURN
+            }
+        }
     }
 
-    void decodeCharacter(const OctetType uc);
+    int decodeCharacter(const OctetType uc);
         // Read one unicode character of utf8 from the input stream 'd_input',
         // the first byte of which is the specified 'uc', and update the ouput
-        // and the state of this object accordingly.  The behavior is undefined
-        // unless 'uc' is non-zero, and unless at least 2 words of space are
-        // available in the output buffer.
+        // and the state of this object accordingly.  Return 0 if the
+        // translation was room for the output in the output buffer (or if no
+        // output was written) and a non-zero value otherwise.  The behavior is
+        // undefined unless 'uc' is non-zero, and unless at least 1 word of
+        // space is available in the output buffer.
 
   public:
     // PUBLIC CLASS METHOD
@@ -794,9 +806,9 @@ Utf8ToUtf32Translator<CAPACITY>::Utf8ToUtf32Translator(
 
 // PRIVATE MANIPULATORS
 template <typename CAPACITY>
-void Utf8ToUtf32Translator<CAPACITY>::decodeCharacter(const OctetType uc)
+int Utf8ToUtf32Translator<CAPACITY>::decodeCharacter(const OctetType uc)
 {
-    BSLS_ASSERT_SAFE(d_capacity >= 2);
+    BSLS_ASSERT_SAFE(d_capacity >= 1);
     BSLS_ASSERT_SAFE(uc);
 
     int len;
@@ -804,10 +816,15 @@ void Utf8ToUtf32Translator<CAPACITY>::decodeCharacter(const OctetType uc)
     Iso10646Char newChar;
     if      (isSingleOctet(uc)) {
         BSLS_ASSERT_SAFE(uc);
-        *d_output = uc;
-        advance();
-        ++d_input;
-        return;                                                       // RETURN
+        if (d_capacity >= 2) {
+            *d_output = uc;
+            advance();
+            ++d_input;
+            return 0;                                                 // RETURN
+        }
+        else {
+            return -1;                                                // RETURN
+        }
     }
     else if (isTwoOctetHeader(uc)) {
         len = lookaheadContinuations(d_input + 1, 1);
@@ -827,20 +844,29 @@ void Utf8ToUtf32Translator<CAPACITY>::decodeCharacter(const OctetType uc)
                                             ! isIllegalFourOctetValue(newChar);
     }
     else {
-        invalidChar();
         ++d_input;
         d_input += lookaheadContinuations(d_input, 4);
-        return;                                                       // RETURN
+
+        return invalidChar();                                         // RETURN
     }
 
+    d_input += 1 + len;
+
     if (good) {
-        *d_output = newChar;
-        advance();
+        if (d_capacity >= 2) {
+            *d_output = newChar;
+            advance();
+            return 0;                                                 // RETURN
+        }
+        else {
+            return -1;                                                // RETURN
+        }
     }
     else {
-        invalidChar();
+        return invalidChar();                                         // RETURN
     }
-    d_input += 1 + len;
+
+    BSLS_ASSERT(0 && "reached unreachable statement");
 }
 
 template <typename CAPACITY>
@@ -862,12 +888,11 @@ int Utf8ToUtf32Translator<CAPACITY>::translate(Iso10646Char *output,
     OctetType uc;
     int ret = 0;
     while ((uc = *translator.d_input)) {
-        if (translator.d_capacity < 2) {
+        if (0 != translator.decodeCharacter(uc)) {
             BSLS_ASSERT((bsl::is_same<CAPACITY, Capacity>::value));
             ret = OUT_OF_SPACE_BIT;
             break;
         }
-        translator.decodeCharacter(uc);
     }
     ++translator.d_input;
     BSLS_ASSERT_SAFE(translator.d_capacity >= 1);
