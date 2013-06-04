@@ -1531,9 +1531,9 @@ class btemt_ChannelPool {
         // (if 'type' is 'SHUTDOWN_RECEIVE'), will fail.
 
     int stopAndRemoveAllChannels();
-        // Terminate all threads managed by this channel pool, stop all
+        // Terminate all threads managed by this channel pool, close all
         // listening sockets, close both the read and write parts of all
-        // communication channels under management, and remove those
+        // communication channels under management, and remove all those
         // communication channels from this channel pool.  Return 0 on success,
         // and a non-zero value otherwise.  Note that shutting down a channel
         // will deallocate all system resources associated with that channel.

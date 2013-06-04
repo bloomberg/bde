@@ -3943,10 +3943,6 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
         return rc;                                                    // RETURN
     }
 
-    // Deallocate channels.
-
-    d_channels.removeAll();
-
     // Deallocate pending connecting sockets.
 
     d_connectorsLock.lock();
@@ -3969,6 +3965,10 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
     d_acceptors.clear();
 
     d_acceptorsLock.unlock();
+
+    // Deallocate channels.
+
+    d_channels.removeAll();
 
     // Deregister all events from the event managers.
 
