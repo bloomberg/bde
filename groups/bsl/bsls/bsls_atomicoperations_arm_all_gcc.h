@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AtomicOperations_ARM_ALL_GCC: implementation of atomics for ARM/GCC.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1), Andrei Basov (abasov)
-//
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Linux ARM platform with GCC.  The classes are for private use only.
 // See 'bsls_atomicoperations' and 'bsls_atomic' for the public interface to
@@ -248,7 +246,7 @@ int AtomicOperations_ARM_ALL_GCC::
                   [tmp] "=&r" (tmp),
                         "+Qo" (*atomicInt)
                 :       "r"   (atomicInt),
-                  [val] "Ir"  (swapValue)
+                  [val] "r"   (swapValue)
                 : "cc", "memory");
 
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
@@ -352,8 +350,8 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
                   [old2] "=&r" (((Int64_Words &) oldValue).w2),
                          "+Qo" (*atomicInt)
                 :        "r"   (atomicInt),
-                  [val1] "Ir"  (((Int64_Words &) swapValue).w1),
-                  [val2] "Ir"  (((Int64_Words &) swapValue).w2)
+                  [val1] "r"   (((Int64_Words &) swapValue).w1),
+                  [val2] "r"   (((Int64_Words &) swapValue).w2)
                 : "r2", "r3", "cc", "memory");
 
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
@@ -390,6 +388,7 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
         "       mov     r3, %[val2]            \n\t"
         "       mov     %[rc], #0              \n\t"
         "       teq     %[old1], %[cmp1]       \n\t"
+        "       itt     eq                     \n\t"
         "       teqeq   %[old2], %[cmp2]       \n\t"
         "       strexdeq %[rc], r2, r3, [%4]   \n\t"
         "       teq     %[rc], #0              \n\t"
@@ -402,8 +401,8 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
                 :        "r"   (atomicInt),
                   [cmp1] "r"   (((Int64_Words &) compareValue).w1),
                   [cmp2] "r"   (((Int64_Words &) compareValue).w2),
-                  [val1] "Ir"  (((Int64_Words &) swapValue).w1),
-                  [val2] "Ir"  (((Int64_Words &) swapValue).w2)
+                  [val1] "r"   (((Int64_Words &) swapValue).w1),
+                  [val2] "r"   (((Int64_Words &) swapValue).w2)
                 : "r2", "r3", "cc", "memory");
 
     BSLS_ATOMICOPERATIONS_INSTR_BARRIER();
@@ -462,4 +461,3 @@ Types::Int64 AtomicOperations_ARM_ALL_GCC::
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
-
