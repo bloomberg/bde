@@ -1,8 +1,25 @@
-bsl-internal (2.18.0.0) unstable; urgency=low
+bsl-internal (2.18.1.000) unstable; urgency=low
 
   * Bump changelog
+  * 9f0ea47 Bump version to 2.18.1
+  * 59d7214 [APPROVAL] OSS pending/master/fix-dual-stlmode-include-drqs41100790 to master
+  * 1bb7998 [APPROVAL] pending/master/fix-dual-stlmode-include-drqs41100790 to master
+  * ccfaeaf [APPROVAL] OSS review/bsl-platform-namespace-drqs41495060 to master
+  * 503b0c1 [APPROVAL] review/bsl-platform-namespace-drqs41495060 to master
+  * 83cdc4d [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
+  * 1d1ade6 [APPROVAL] review/bsl-stringref-drqs41338618 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 4 Jun 2013 21:10:18 -0400
+
+bsl-internal (2.18.0.0) git; urgency=low
+
+  * 1787de3 [APPROVAL] bump-changelog-to-2.18.0.0 to master
+  * 2fe62c6 bump changelog for 2.18.0.0 release
+  * a0d8927 [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
+  * 28c5755 [APPROVAL] review/bsl-stringref-drqs41338618 to master
   * 5a87563 [APPROVAL] OSS bump-version-to-2.18-drqs-41339858 to master
   * 8285cf6 [APPROVAL] bump-version-to-2.18-drqs-41339858 to master
+  * 46bd7a8 bump version to 2.18.0
   * 66ea7d6 [APPROVAL] pending/master/move-default.opts-metadata-to-bde-tools-drqs-40974008 to master
   * 85116d4 [APPROVAL] OSS pending/master/const-cast-qual-drqs40473559 to master
   * ea47c05 [APPROVAL] pending/master/const-cast-qual-drqs40473559 to master
@@ -29,7 +46,17 @@ bsl-internal (2.18.0.0) unstable; urgency=low
   * 663207c [APPROVAL] OSS review/update-gyp-files to master
   * a4a9310 [APPROVAL] review/update-gyp-files to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 May 2013 13:16:40 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 May 2013 10:31:10 -0400
+
+bsl-internal (BSL_OSS_BASE) git; urgency=low
+
+
+ -- Alexander Beels <abeels@bloomberg.net>  Tue, 23 Apr 2013 12:31:43 -0400
+
+bsl-internal (BSL_OSS_IMPORT) git; urgency=low
+
+
+ -- Alexander Beels <abeels@bloomberg.net>  Tue, 23 Apr 2013 12:29:52 -0400
 
 bsl-internal (BSL_INTERNAL_BASE) git; urgency=low
 
@@ -49,10 +76,16 @@ bsl-internal (BSL_INTERNAL_BASE) git; urgency=low
 bsl-internal (BSLINT_2.17.x_base) git; urgency=low
 
   * c92e96f [APPROVAL] OSS master to master
+
+ -- Alexander Beels <abeels@bloomberg.net>  Tue, 9 Apr 2013 19:20:18 -0400
+
+bsl-internal (BSL_2.17.x_base) git; urgency=low
+
   * 27f3348 Import internal commit 0454183481f25471c59b3a0f5740766f5a22812b : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
   * 6734b02 Import internal commit 7602e96e54223a3ac2a9c15554d971a7031741d0 : [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
   * afd9b76 Import internal commit f9a3125265ac3d13b12c5c62babdffa669cba457 : [APPROVAL] pending/master/alloctesttype-td-safe-fix-drqs-36772136 to master
   * e2140fb Import internal commit 899fb2b4cd942eba7a41d7016769cf4cc2938eef : [APPROVAL] pending/master/oss-universal-size-type-printf-code-in-bsls_bsltestutil-drqs_37405914 to master
+  * de5ec87 Remove hardcoded GCC and Clang version numbers
   * 22e0cb6 Import internal commit cf441df5f54da3445a2bd15a68aceda8d631b684 : [APPROVAL] pending/master/revert_hash_const_char_intentional_breakage_drqs38592188 to master
   * 6cfb352 Import internal commit a100fe32303c878dd982b899e810b60e2ae45f21 : [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
   * ba3149f Import internal commit 091f6194ae0f32c9f07cb3ab191c0abf6f03f8a0 : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
@@ -130,4 +163,4 @@ bsl-internal (BSLINT_2.17.x_base) git; urgency=low
   * d470f6a Import internal commit 8c1178da0c021dc693be14177f14bb495fcb8adf : [APPROVAL] pending/master/type-traits-update to master
   * 4feb220 Import internal commit 41e7710c4310430d4e068635e41d3db5673adb32 : [APPROVAL] pending/master/include_next-drqs36057057-merge to master
 
- -- Alexander Beels <abeels@bloomberg.net>  Tue, 9 Apr 2013 19:20:18 -0400
+ -- Alexander Beels <abeels@bloomberg.net>  Tue, 9 Apr 2013 18:44:41 -0400
