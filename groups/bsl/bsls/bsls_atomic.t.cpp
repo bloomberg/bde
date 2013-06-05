@@ -162,6 +162,17 @@ typedef bsls::Types::Int64            Int64;
 
 namespace {
 
+const int g_spinCount = 100;
+
+void yield()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    SwitchToThread();
+#else
+    pthread_yield();
+#endif
+}
+
 template <class INT>
 struct LockData
 {
@@ -192,12 +203,17 @@ public:
         d().flags[d_id].storeRelaxed(1);
         d().turn.swapAcqRel(1 - d_id);
 
+        int spin = g_spinCount;
+
         while (d().flags[1 - d_id].loadAcquire()
             && d().turn.loadAcquire() == 1 - d_id)
             // Contrary to justsoftwaresolutions 'turn' load needs to be
             // 'loadAcquire'.
         {
-            continue;
+            if (--spin == 0) {
+                yield();
+                spin = g_spinCount;
+            }
         }
     }
 
@@ -236,9 +252,14 @@ public:
         d().flags[d_id] = 1;
         d().turn.swap(1 - d_id);
 
+        int spin = g_spinCount;
+
         while (d().flags[1 - d_id] && d().turn == 1 - d_id)
         {
-            continue;
+            if (--spin == 0) {
+                yield();
+                spin = g_spinCount;
+            }
         }
     }
 
@@ -356,7 +377,7 @@ void joinThread(thread_t thr)
 
 void sleepSeconds(int sec)
 {
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     Sleep(sec * 1000);
 #else
     sleep(sec);
@@ -463,10 +484,17 @@ void testSharedCountWrite(int& data,
                           bsls::AtomicInt& done,
                           int)
 {
+    int spin = g_spinCount;
+
     while (!done.loadRelaxed()) {
         while (shared.loadRelaxed() > 1) {
             const_cast<int volatile &>(data) = shared.loadRelaxed();
             shared.addAcqRel(-1);           // plays the role of store release
+        }
+
+        if (--spin == 0) {
+            yield();
+            spin = g_spinCount;
         }
     }
 }
@@ -479,8 +507,13 @@ void testSharedCountRead(int& data,
     for (int i = 0; i < iterations; ++i) {
         shared.storeRelease(10);
 
+        int spin = g_spinCount;
+
         while (shared.loadRelaxed() != 1) {
-            ;
+            if (--spin == 0) {
+                yield();
+                spin = g_spinCount;
+            }
         }
 
         if (shared.addAcqRel(-1) == 0) {    // plays the role of load acquire
