@@ -315,9 +315,14 @@ int countLoggedRecords(const bsl::string& fileName)
     BSLS_ASSERT_OPT(fs.is_open());
 
     while (getline(fs, line)) {
-        ++numLines; 
+        ++numLines;
     }
     fs.close();
+
+    // Note that we divide 'numLines' by 2 because there are 2 lines written
+    // to the log file for eached logged record (when using the default record
+    // formatter typically used in this test driver).
+
     return numLines / 2;
 
 }
@@ -556,43 +561,42 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING: 'recordQueueLength'
-        //
-        // Note that this is a white box text, in that 'recordQueueLength'
-        // delegates to 'bcec_fixedqueue'.  This test verifies that records are
-        // added from and removed from the queue correctly (and the length
-        // reflects the queue size), and a sanity test for concurrent access.
-        // Exhaustive testing of the thread-safety is left to
-        // 'bcec_fixedqueue'. 
+        //  Note that this is a white box text, in that 'recordQueueLength'
+        //  delegates to 'bcec_fixedqueue'.  This test verifies that records
+        //  are added from and removed from the queue correctly (and the length
+        //  reflects the queue size), and a sanity test for concurrent access.
+        //  Exhaustive testing of the thread-safety is left to
+        //  'bcec_fixedqueue'.
         //
         // Concerns:
-        //   1 'recordQueueLength' returns the current number of log records
-        //     that have been published, but not yet written to the file log.
-        //
-        //   2 That 'recordQueueLength' may be called concurrently with record
-        //     publication.
+        //:  1 'recordQueueLength' returns the current number of log records
+        //:    that have been published, but not yet written to the file log.
+        //:
+        //:  2 That 'recordQueueLength' may be called concurrently with record
+        //:    publication.
         //
         // Plan:
-        //   1 Create a async-file observer, and publish a series of records
-        //     and verify the updated 'recordQueueLength' correctly increments
-        //     as records are published.  Start asynchronous record
-        //     publication, then stop it, and verify the length of the new
-        //     lenfrg of the record queue reflects the number of records that
-        //     have been published to the log file (and removed from the
-        //     queue). C-1 
-        //
-        //   2 Create a async-file obsererver, start asynchronous publication,
-        //     and, for a number of iterations, publish a series of records,
-        //     and then repeatedly call 'recordQueueLength' and sanity test
-        //     the returned value (it should be decreasing) until the record
-        //     queue is empty. C-2
+        //:  1 Create a async-file observer, publish a series of records,
+        //:    and verify the updated 'recordQueueLength' correctly increments
+        //:    as records are published.  Start asynchronous record
+        //:    publication, then stop it, and verify the length of the record
+        //:    queue reflects the number of records that have been published
+        //:    to the log file (and removed from the queue). (C-1)
+        //:
+        //:  2 Create a async-file obsererver, start asynchronous publication,
+        //:    and, for a number of iterations, publish a series of records,
+        //:    and then repeatedly call 'recordQueueLength' and sanity test
+        //:    the returned value (it should be decreasing) until the record
+        //:    queue is empty. (C-2)
         //
         // Testing:
         //   int recordQueueLength() const;
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl << "Testing: 'recordQueueLength'" << endl
-                         << "============================" << endl;
+            cout << endl
+                 << "Testing: 'recordQueueLength'" << endl
+                 << "============================" << endl;
 
         const int ERROR = bael_Severity::BAEL_ERROR;
 
@@ -606,7 +610,7 @@ int main(int argc, char *argv[])
             enum { MAX_QUEUE_LENGTH = 1024 };
 
             // Set up a non-blocking async observer
-            Obj mX(bael_Severity::BAEL_FATAL, 
+            Obj mX(bael_Severity::BAEL_FATAL,
                    false,
                    MAX_QUEUE_LENGTH,
                    bael_Severity::BAEL_TRACE,
@@ -623,29 +627,29 @@ int main(int argc, char *argv[])
 
                 mX.publish(record, context);
             }
-            ASSERT(MAX_QUEUE_LENGTH == X.recordQueueLength());            
+            ASSERT(MAX_QUEUE_LENGTH == X.recordQueueLength());
 
             mX.enableFileLogging(fileName.c_str());
 
-            mX.startPublicationThread();   
+            mX.startPublicationThread();
 
             bcemt_ThreadUtil::microSleep(1, 0);
 
             // Note that stopping the publication thread clears the record
             // queue, so we capture a snapshot of the queue length, and then
             // disable publication so we can determine the number of logged
-            // records in the file.  As records may be logged between the
-            // recording the queue length, and disabling publication, we
-            // 'ASSERT' that: 
-            // 'MAX_QUEUE_LENGTH - X.recordQueueLength() <= # Logged Records' 
-            
+            // records in the file.  As records may be logged between
+            // accessing the queue length, and disabling publication, we
+            // 'ASSERT' that:
+            // 'MAX_QUEUE_LENGTH - X.recordQueueLength() <= # Logged Records'
+
             const int queueLength = X.recordQueueLength();
             mX.disableFileLogging();
-            
+
             const int numLoggedRecords = countLoggedRecords(fileName);
 
             mX.shutdownPublicationThread();
-            
+
             if (veryVeryVerbose) {
                 P_(numLoggedRecords); P_(queueLength);
                 P(MAX_QUEUE_LENGTH - queueLength);
@@ -661,7 +665,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            cout << "\tCall 'recordQueueLength' concurrent to publication" 
+            cout << "\tCall 'recordQueueLength' concurrently with publication"
                  << endl;
         }
         {
@@ -672,7 +676,7 @@ int main(int argc, char *argv[])
             enum { NUM_ITERATIONS = 10 };
 
             // Set up a non-blocking async observer
-            Obj mX(bael_Severity::BAEL_FATAL, 
+            Obj mX(bael_Severity::BAEL_FATAL,
                    false,
                    MAX_QUEUE_LENGTH,
                    bael_Severity::BAEL_TRACE,
@@ -680,7 +684,7 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
 
             mX.enableFileLogging(fileName.c_str());
-            mX.startPublicationThread();   
+            mX.startPublicationThread();
             for (int iteration = 0; iteration < NUM_ITERATIONS; ++iteration){
                 for (int i = 0; i < MAX_QUEUE_LENGTH; ++i) {
                     bcema_SharedPtr<bael_Record> record;
@@ -706,7 +710,7 @@ int main(int argc, char *argv[])
             mX.shutdownPublicationThread();
             ASSERT(0 == X.recordQueueLength());
             removeFilesByPrefix(fileName.c_str());
-        }     
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
