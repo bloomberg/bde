@@ -1147,10 +1147,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_functional.h>      // 'bsl::binary_function'
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
 #ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>          // 'bsl::auto_ptr'
 #endif
@@ -1166,6 +1162,12 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>         // 'bsl::pair'
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -1898,12 +1900,13 @@ bool operator!=(const bcema_SharedPtr<LHS_TYPE>& lhs,
     // error.  Also note that two equal shared pointers do not necessarily
     // manage the same object due to aliasing.
 
-template <typename TYPE>
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const bcema_SharedPtr<TYPE>& object);
+template<class CHAR_TYPE, class CHAR_TRAITS, class TYPE>
+bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
+operator<<(bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+           const bcema_SharedPtr<TYPE>&                rhs);
     // Print to the specified 'stream' the address of the shared object
-    // referred to by the specified 'object' shared pointer and return a
-    // reference to the modifiable 'stream'.
+    // referred to by the specified 'rhs' shared pointer and return a reference
+    // to the modifiable 'stream'.
 
                         // *** std::tr1 COMPATIBILITY ***
 
@@ -2973,12 +2976,13 @@ bool BloombergLP::operator!=(const bcema_SharedPtr<LHS_TYPE>& lhs,
     return !(lhs == rhs);
 }
 
-template <typename TYPE>
-bsl::ostream& BloombergLP::operator<<(bsl::ostream&                stream,
-                                      const bcema_SharedPtr<TYPE>& rhs)
+template<class CHAR_TYPE, class CHAR_TRAITS, class TYPE>
+inline
+bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
+BloombergLP::operator<<(bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+                        const bcema_SharedPtr<TYPE>&                rhs)
 {
-    stream << rhs.ptr();
-    return stream;
+    return stream << rhs.ptr();
 }
 
                         // *** std::tr1 COMPATIBILITY ***
