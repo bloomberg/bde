@@ -15,6 +15,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_algorithm.h>    // 'bsl::find'
 
 #include <bsl_climits.h>      // 'CHAR_BIT'
+#include <bsl_cstring.h>      // 'CHAR_BIT'
 
 ///IMPLEMENTATION NOTES
 ///--------------------
