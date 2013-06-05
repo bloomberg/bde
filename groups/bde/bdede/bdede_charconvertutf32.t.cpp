@@ -16,6 +16,7 @@
 #include <bsl_sstream.h>
 
 #include <bsl_cstring.h>
+#include <bsl_cctype.h>
 
 using namespace BloombergLP;
 
