@@ -7,6 +7,7 @@
 #include <bcemt_barrier.h>
 #include <bdema_testprotectableblockdispenser.h>
 #include <bdema_protectableblockdispenser.h>
+#include <bdema_protectablememoryscopedguard.h>
 #include <bdema_nativeprotectableblockdispenser.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_defaultallocatorguard.h>
@@ -389,8 +390,9 @@ extern "C" void *workerThread(void *arg)
             int      *oldData = d_data_p;
             int       oldSize = d_maxSize;
             d_maxSize *= GROW_FACTOR;
-            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
-            bsl::copy(oldData, oldData + oldSize, d_data_p);		
+            d_data_p = static_cast<int *>(d_allocator.allocate(
+                                                     d_maxSize * sizeof(int)));
+            bsl::copy(oldData, oldData + oldSize, d_data_p);
         }
 
 
@@ -406,33 +408,39 @@ extern "C" void *workerThread(void *arg)
         : d_data_p()
         , d_stackSize(0)
         , d_maxSize(INITIAL_SIZE)
-        , d_allocator(protectedDispenser)
+        , d_allocator(protectedDispenser
+                         ? protectedDispenser
+                         : &bdema_NativeProtectableBlockDispenser::singleton())
         {
-            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+            d_data_p = static_cast<int *>(d_allocator.allocate(
+                                                     d_maxSize * sizeof(int)));
             d_allocator.protect();
         }
 
         ~IntegerStack()
             // Destroy this object (and release its memory).
         {
+            d_allocator.unprotect();
         }
 
 //..
-// We must unprotect the dispenser before modifying or deallocating
-// memory:
+// We must unprotect the dispenser before modifying or deallocating memory.
+// Note that we use a 'bdema_ProtectableMemoryScopedGuard' to assure that the
+// memory will be re-protected in the event of an exception:
 //..
         // MANIPULATORS
         void push(int value)
             // Push the specified 'value' onto the stack.
         {
-            d_allocator.unprotect();
+            bdema_ProtectableMemoryScopedGuard
+                    <bcema_ProtectableSequentialAllocator> guard(&d_allocator);
+
             if (d_stackSize >= d_maxSize) {
                 increaseSize();
             }
 
             // Sufficient room is guaranteed.
             d_data_p[d_stackSize++] = value;
-            d_allocator.protect();
         }
 
         int pop()

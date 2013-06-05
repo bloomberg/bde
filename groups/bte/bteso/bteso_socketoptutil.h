@@ -370,7 +370,7 @@ bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle  handle,
     }
     #else
     if (0 == setsockopt(handle, level, option,
-                        (void*)&value, sizeof value )) {
+                        (const void*)&value, sizeof value )) {
         return 0;
     }
     else {

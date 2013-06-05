@@ -1,43 +1,26 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-MAKE_JOBS:=4
+MAKE_JOBS:=12
 PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
 TMPDIR:=/tmp
 SHELL:=/bin/bash
 RSSUITE_TOOLS=/bbsrc/rssuite-tools
 RSSUITE:=$(shell cat $(RSSUITE_TOOLS)/RSSUITE.version)
 PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
-UNAME:=$(shell uname)
-ifeq ($(UNAME),HP-UX)
- UPLID:=unix-HP_UX-ia64-B.11.31-acc-6.2
-else ifeq ($(UNAME),SunOS)
- UPLID:=unix-SunOS-sparc-5.10-cc-5.10
-else ifeq ($(UNAME),AIX)
- UPLID:=unix-AIX-powerpc-6.1-xlc-10.1
-else ifeq ($(UNAME),Linux)
- UPLID:=unix-Linux-x86_64-2.6.18-gcc-4.1.2
-else
- $(error Unsupported platform $(UNAME))
-endif
-GROUPS_STATIC_ONLY:=bae bce bde bte bbe
-GROUPS_RSSUITE:=bsl
-GROUPS:=$(GROUPS_STATIC_ONLY) $(GROUPS_RSSUITE)
-DEFAULT_STATIC_FLAVOR_32bit:=opt_exc_mt
-DEFAULT_STATIC_FLAVOR_64bit:=opt_exc_mt_64
-STATIC_FLAVORS_32bit:=$(shell echo {opt,dbg,opt_dbg}_exc_mt{,_safe})
-STATIC_FLAVORS_64bit:=$(shell echo {opt,dbg,opt_dbg}_exc_mt_64{,_safe} {opt,dbg}_exc_mt_64_pic)
-STATIC_FLAVORS:=$(STATIC_FLAVORS_64bit) $(STATIC_FLAVORS_32bit)
-DYNAMIC_FLAVOR_32bit:=opt_exc_mt_shr
-DYNAMIC_FLAVOR_64bit:=opt_exc_mt_64_shr
-DYNAMIC_FLAVORS:=$(DYNAMIC_FLAVOR_32bit) $(DYNAMIC_FLAVOR_64bit)
-ALL_FLAVORS:=$(STATIC_FLAVORS) $(DYNAMIC_FLAVORS)
+
+BDE_TOOLS_ETC=/bbshr/bde/bde-tools/etc
+
+include $(BDE_TOOLS_ETC)/debian-rules-uplid
+include $(BDE_TOOLS_ETC)/debian-rules-flavors
+
+GROUPS:=bae bce bde bte bbe
+
 comma:= ,
 empty:=
 space:= $(empty) $(empty)
 
 clean:
-	cat debian/control.in | perl -pi -e 's/\$$\{shlib\:RSSUITE\}/$(RSSUITE)/g' > debian/control
-	rm -rf debian/lib{bae,bce,bde,bsl,bte,bbe}-dev debian/libbsl-rs debian/bde-core-bdemeta
+	rm -rf debian/lib{bae,bce,bde,bte,bbe}-dev debian/bde-core-bdemeta
 	rm -f debian/*files debian/files
 	rm -f debian/build-stamp
 	rm -f debian/binary-stamp
@@ -46,25 +29,21 @@ clean:
 	   -name $(UPLID) \
 	   -prune -exec rm -rf {} \;
 
+# A few levels of hackery to keep producemake happy:
+#   o Copy default.opts into "etc" in the source tree
+#   o Add a line to default.opts adding the -I rules for /bb/include and
+#     /bb/include/stlport to USER_CXXFLAGS.
+#   o Copy all the bsl metadata from /bb/bdemeta/groups/ into groups/
 producemake:
-ifeq ($(STATIC_FLAVORS),)
-	BDE_ROOT=. PATH=$(PATH)                                      \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
-	  -p $(UPLID)                                                \
-	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
-	  -t $(subst $(space),$(comma),$(DYNAMIC_FLAVORS))
-else
-	BDE_ROOT=. PATH=$(PATH)                                      \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
+	mkdir -p etc
+	cp $(BDE_TOOLS_ETC)/default.opts etc/
+	echo "* _ USER_CXXFLAGS = -I/bb/include -I/bb/include/stlport" >> etc/default.opts
+	rsync -a /bb/bdemeta/groups/ groups/
+	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
+	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
 	  -g $(subst $(space),$(comma),$(GROUPS_STATIC_ONLY))        \
 	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
-	BDE_ROOT=. PATH=$(PATH)                                      \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake        \
-	  -p $(UPLID)                                                \
-	  -g $(subst $(space),$(comma),$(GROUPS_RSSUITE))            \
-	  -t $(subst $(space),$(comma),$(ALL_FLAVORS))
-endif
 
 ##################################################################
 # First we're going to define the rules for the actual build....
@@ -77,10 +56,10 @@ endif
 # is:
 #    bde+pcre bsl+stdhdrs bsl+apache
 # All other packages need to be installed.
-PACKAGES_NO_INSTALL:=bde+pcre bsl+stdhdrs bsl+apache
+PACKAGES_NO_INSTALL:=bde+pcre
 
 define GROUP_template
-GROUP_$(1)_DEPENDS:=$(shell cat groups/$(1)/group/$(1).dep)
+GROUP_$(1)_DEPENDS:=$(filter $GROUPS,$(shell cat groups/$(1)/group/$(1).dep))
 GROUP_$(1)_INSTALL_PACKAGES:=$(filter-out $(PACKAGES_NO_INSTALL),$(shell cat groups/$(1)/group/$(1).mem | perl -pi -e 's/\#.*$$//'))
 GROUP_$(1)_INSTALL_HEADERS:=$$(foreach package,$$(GROUP_$(1)_INSTALL_PACKAGES),$$(shell find groups/$(1)/$$(package)/ -name '*.h'))
 
@@ -99,46 +78,15 @@ $(foreach group,$(GROUPS),$(eval $(call GROUP_template,$(group))))
 #################################################################
 
 ############
-# dynamic libary... just one, so no macros...
-############
-
-libbsl-rs: lib/$(UPLID)/bsl.stamp
-	mkdir -p debian/libbsl-rs/bb/bin/so/RS$(RSSUITE)/
-	mkdir -p debian/libbsl-rs/bb/bin/so/64/RS$(RSSUITE)/
-	mkdir -p debian/libbsl-rs/DEBIAN
-	cp lib/$(UPLID)/libbsl.$(subst _shr,,$(DYNAMIC_FLAVOR_32bit)).so debian/libbsl-rs/bb/bin/so/RS$(RSSUITE)/libbsl_$(RSSUITE).so
-	cp lib/$(UPLID)/libbsl.$(subst _shr,,$(DYNAMIC_FLAVOR_64bit)).so debian/libbsl-rs/bb/bin/so/64/RS$(RSSUITE)/libbsl_$(RSSUITE).so
-
-ALL_SO_PACKAGES:=libbsl-rs-binary
-libbsl-rs-binary: libbsl-rs
-	dpkg-gencontrol -V"shlib:RSSUITE=$(RSSUITE)" -p"libbsl-rs$(RSSUITE)" \
-	  -Pdebian/libbsl-rs
-	dpkg-deb -b debian/libbsl-rs ../
-
-############
 # static libraries and headers...
 ############
 
 # This was taken from $cstools/build/build_prebuild. Comment in there was:
-## the non-conformant bde and bsl directories are not deployed
+## the non-conformant bde directories are not deployed
 ## normally (perhaps we should just test for '+' instead of listing
 ## them out?), mostly they're not deployed at all. the only
 ## exception being stlport (in BDE 2.0+ stdhdrs) which is deployed
 ## by a special-case top level symlink elsewhere
-# We install the compliant package's headers here, and later we have a ifeq
-# for bsl to install the stlport headers.
-libbsl-dev-additional:
-	mkdir -p debian/libbsl-dev/bb/include/stlport
-# This is implemented just as a symlink in build_prebuild, but here we won't have
-# the source, so we need to copy
-	cp -r groups/bsl/bsl+stdhdrs/* debian/libbsl-dev/bb/include/stlport
-# Unfortunally, there is going to be more stuff in there than it should, so we're
-# just going to purge the excess
-	rm -rf debian/libbsl-dev/bb/include/stlport/package/ \
-	       debian/libbsl-dev/bb/include/stlport/doc/ \
-	       debian/libbsl-dev/bb/include/stlport/test/ \
-	       debian/libbsl-dev/bb/include/stlport/$(UPLID)/
-
 define GROUPdev_template
 
 # default empty rule for packages that don't need override.
@@ -161,8 +109,7 @@ endif
 
 ALL_DEV_PACKAGES+=lib$(1)-dev-binary
 lib$(1)-dev-binary: lib$(1)-dev
-	dpkg-gencontrol -plib$(1)-dev -V"shlib:RSSUITE=$(RSSUITE)" \
-	     -Pdebian/lib$(1)-dev
+	dpkg-gencontrol -plib$(1)-dev -Pdebian/lib$(1)-dev
 	dpkg-deb -b debian/lib$(1)-dev ../
 
 endef
@@ -171,7 +118,7 @@ $(foreach group,$(GROUPS),$(eval $(call GROUPdev_template,$(group))))
 
 debian/bde-core-bdemeta.stamp:
 	mkdir -p debian/bde-core-bdemeta/DEBIAN
-	find groups -type d \( -name 'package' -or -name 'group' \) \
+	find $(foreach g,$(GROUPS),groups/$(g)) -type d \( -name 'package' -or -name 'group' \) \
 	  -exec mkdir -p debian/bde-core-bdemeta/bb/bdemeta/{} \; \
 	  -exec sh -c "cp "{}"/* debian/bde-core-bdemeta/bb/bdemeta/"{}"/" \;
 	dpkg-gencontrol -pbde-core-bdemeta \

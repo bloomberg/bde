@@ -7,11 +7,11 @@
 #include <bcemt_barrier.h>
 #include <bcemt_threadutil.h>
 
+#include <bdema_bufferedsequentialallocator.h>
 #include <bdesu_fileutil.h>
 #include <bdeu_random.h>
 #include <bdeu_string.h>
 
-#include <bslma_bufferallocator.h>
 #include <bslma_deallocatorguard.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -951,7 +951,7 @@ void Functor::operator()()
                                 // ------
 
 static
-bslma_Allocator *leakTwiceAllocator = 0;
+bslma::Allocator *leakTwiceAllocator = 0;
 int leakTwiceCount;
 
 static
@@ -1403,7 +1403,7 @@ int main(int argc, char *argv[])
 
             void *p = ta.allocate(100);
 
-            bslma_DeallocatorGuard<bslma::Allocator> guard(p, &ta);
+            bslma::DeallocatorGuard<bslma::Allocator> guard(p, &ta);
 
             bsl::stringstream ssR(&sta);
             ta.reportBlocksInUse(&ssR);
@@ -1922,12 +1922,13 @@ int main(int argc, char *argv[])
                 // We use a special underlying allocator in this place, because
                 // if the underlying OS writes over freed memory, we cannot
                 // detect redundant frees as such.  We use a
-                // 'bslma::BufferAllocator' because it won't actually write
-                // over a freed block, nor will it turn it over to the
-                // underlying OS which may do uncontrollable things with it.
+                // 'bdema_BufferedSequentialAllocator' because it won't
+                // actually write over a freed block, nor will it turn it over
+                // to the underlying OS which may do uncontrollable things with
+                // it.
 
                 char buffer[4 * 1000];
-                bslma::BufferAllocator ba(buffer, sizeof(buffer));
+                bdema_BufferedSequentialAllocator ba(buffer, sizeof(buffer));
                 Obj tba(8, &ba);
                 tba.setName("beta");
                 tba.setOstream(&oss);
@@ -2383,7 +2384,7 @@ int main(int argc, char *argv[])
             bsl::stringstream ss;
 
             for (int numAllocs = 0; numAllocs <= 100; ++numAllocs) {
-                bslma_TestAllocator sta("sta");
+                bslma::TestAllocator sta("sta");
                 Obj *pta = new (sta) Obj(8, &sta);
                 pta->setName("ta");
                 pta->setOstream(&ss);
@@ -2426,7 +2427,7 @@ int main(int argc, char *argv[])
             bsl::stringstream ss;
 
             for (int numAllocs = 1; numAllocs <= 100; ++numAllocs) {
-                bslma_TestAllocator sta("sta");
+                bslma::TestAllocator sta("sta");
                 Obj *pta = new(sta) Obj(8, &sta);
                 pta->setName("ta");
                 pta->setOstream(&ss);
@@ -2524,8 +2525,8 @@ int main(int argc, char *argv[])
 
         typedef bcemt_ThreadUtil Util;
 
-        bslma_TestAllocator bslta("bsl_ta");
-        TC::TouchyAllocator touchy(&bslta);
+        bslma::TestAllocator bslta("bsl_ta");
+        TC::TouchyAllocator  touchy(&bslta);
 
         TC::Functor::initFuncPtrs();
 
@@ -2636,7 +2637,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "SUCCESSFUL FREEING TEST\n"
                              "=======================\n";
 
-        bslma_TestAllocator sta;
+        bslma::TestAllocator sta;
 
         bsl::stringstream ss(&sta);
 

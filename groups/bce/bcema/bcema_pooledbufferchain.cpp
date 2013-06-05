@@ -294,7 +294,7 @@ void bcema_PooledBufferChain::replace(int                            offset,
         }
         if (srcOffset == srcBufSize) {
             srcOffset = 0;
-            src = (((char **)(void *)src)[-1]) + sizeof src;
+            src = (((const char * const *)(const void *)src)[-1]) + sizeof src;
         }
     }
 }
@@ -322,7 +322,7 @@ void bcema_PooledBufferChain::copyOut(char *arena,
     }
     BSLS_ASSERT(bufferIdx < endBufferIdx);
 
-    const char *p = buffer(bufferIdx);
+    char *p = const_cast<char *>(buffer(bufferIdx));
     char **next = *(char ***)(void *)(p - sizeof(char*));
 
     bsl::memcpy(arena, p + bufferOffset, size - bufferOffset);

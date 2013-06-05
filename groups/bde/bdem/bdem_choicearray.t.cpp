@@ -351,7 +351,7 @@ bdem_List::bdem_List()
 }
 
 bdem_List::bdem_List(const bdem_List&  original)
-: d_listImp((bdem_ListImp &) original,
+: d_listImp((const bdem_ListImp &) original,
             bdem_AggregateOption::BDEM_PASS_THROUGH)
 {
 }
@@ -1114,7 +1114,7 @@ static Catalog ggCatalog(const char *s)
     return catalog;
 }
 
-static const void *getValueA(char spec)
+static void *getValueA(char spec)
     // Return the 'A' value corresponding to the specified 'spec'.  Valid
     // input consists of uppercase letters where the index of each letter is
     // in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
@@ -1123,27 +1123,27 @@ static const void *getValueA(char spec)
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_A[index];
+    return const_cast<void *>(VALUES_A[index]);
 }
 
-static const void *getValueB(char spec)
+static void *getValueB(char spec)
     // Return the 'B' value corresponding to the specified 'spec'.
 {
     const char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_B[index];
+    return const_cast<void *>(VALUES_B[index]);
 }
 
-static const void *getValueN(char spec)
+static void *getValueN(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     const char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_N[index];
+    return const_cast<void *>(VALUES_N[index]);
 }
 
 static CERef getConstERefA(char spec)

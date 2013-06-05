@@ -15,11 +15,10 @@
 #include <bsls_platform.h>                      // for testing only
 #include <bsls_stopwatch.h>
 
+#include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_string.h>
-
-#include <bsl_c_stdlib.h>     // atoi()
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable: 4355) // we often use 'this' in member-initializers
@@ -27,7 +26,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                             TEST PLAN
@@ -127,7 +125,7 @@ void aSsErT(int c, const char *s, int i)
     }
 }
 
-}
+}  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -210,8 +208,8 @@ struct Function2 {
 struct EqualityComparisonUtil {
 
     // TYPES
-     typedef bool (*EqualityManager)(const Function_Rep2 *lhs,
-                                     const Function_Rep2 *rhs);
+    typedef bool (*EqualityManager)(const Function_Rep2 *lhs,
+                                    const Function_Rep2 *rhs);
          // 'EqualityManager' is an alias for a boolean predicate comparing two
          // instances of 'Function_Rep2' passed by address.
 
@@ -308,16 +306,16 @@ bool functionsHaveSameValue(const bdef_Function<PROTOTYPE>& lhs,
     const Function2& rhs2 = reinterpret_cast<const Function2&>(rhs);
 
     if (lhs2.d_invoker_p != rhs2.d_invoker_p) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (!lhs2.d_invoker_p) {
-        return true;
+        return true;                                                  // RETURN
     }
 
     if (lhs2.d_rep.d_manager_p != rhs2.d_rep.d_manager_p) {
         // ASSERT(lhs2.d_rep.d_manager_p == rhs2.d_rep.d_manager_p);
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (!lhs2.d_rep.d_manager_p) {
@@ -683,7 +681,7 @@ class PointerSemanticWrapper {
 
     // CREATORS
     PointerSemanticWrapper() : d_object() {}
-    PointerSemanticWrapper(const FUNC& func) : d_object(func) {}
+    PointerSemanticWrapper(const FUNC& func) : d_object(func) {}    // IMPLICIT
 
     // MANIPULATORS
     FUNC& operator *() { return d_object; }
@@ -726,8 +724,8 @@ class RawPointerWrapper {
 
     // FRIENDS
     template <class FUNC2>
-    friend bool operator==(const RawPointerWrapper<FUNC2>& lhs,
-                           const RawPointerWrapper<FUNC2>& rhs);
+    friend bool operator==(const RawPointerWrapper<FUNC2>&,
+                           const RawPointerWrapper<FUNC2>&);
 
   public:
     // TRAITS
@@ -736,7 +734,7 @@ class RawPointerWrapper {
 
     // CREATORS
     RawPointerWrapper() : d_object_p(0) {}
-    RawPointerWrapper(FUNC *funcPtr) : d_object_p(funcPtr) {}
+    RawPointerWrapper(FUNC *funcPtr) : d_object_p(funcPtr) {}       // IMPLICIT
 
     // ACCESSORS
     FUNC& operator *() const { return *d_object_p; }
@@ -854,7 +852,7 @@ int getValue(int *i, const char *spec, int verboseFlag)
     ++(*i);
     if (spec[*i]) {
         if ('0' <= spec[*i] && spec[*i] <= '9') {
-            return (int)(spec[*i] - '0');
+            return (int)(spec[*i] - '0');                             // RETURN
         }
         else {
             if (verboseFlag) {
@@ -862,7 +860,7 @@ int getValue(int *i, const char *spec, int verboseFlag)
                      << " in spec \"" << spec << "\""
                      << " at position " << *i << '.' << endl;
             }
-            return -*i;
+            return -*i;                                               // RETURN
         }
     }
 
@@ -905,7 +903,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorU mU;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mU.d_value = value;
                 *object = pointerWrapper(mU);
@@ -916,7 +914,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorV mV;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mV.d_value = value;
                 *object = pointerWrapper(mV);
@@ -927,7 +925,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorW mW;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mW.d_value = value;
                 *object = pointerWrapper(mW);
@@ -938,7 +936,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorS mS; const FunctorS& S = mS;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mS.d_value = value;
                 *object = S;
@@ -948,7 +946,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorT mT; const FunctorT& T = mT;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mT.d_value = value;
                 *object = T;
@@ -958,7 +956,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorP mP;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mP.d_value = value;
                 *object = pointerWrapper(mP);
@@ -969,7 +967,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorQ mQ;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mQ.d_value = value;
                 *object = pointerWrapper(mQ);
@@ -980,7 +978,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorL mL; const FunctorL& L = mL;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mL.d_value = value;
                 *object = L;
@@ -990,7 +988,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 FunctorM mM; const FunctorM& M = mM;
                 int value = getValue(&i, spec, verboseFlag);
                 if (value < 0) {
-                    return i;
+                    return i;                                         // RETURN
                 }
                 mM.d_value = value;
                 *object = M;
@@ -1002,7 +1000,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                          << " in spec \"" << spec << "\""
                          << " at position " << i << '.' << endl;
                 }
-                return i;  // Discontinue processing this spec.
+                return i;  // Discontinue processing this spec.       // RETURN
             }
         }
         else if ('~' == spec[i]) {
@@ -1016,7 +1014,7 @@ ggg(bdef_Function<PROTOTYPE> *object, const char *spec, int verboseFlag = 0)
                 cout << "Error, bad character ('" << spec[i] << "') in spec \""
                      << spec << "\" at position " << i << '.' << endl;
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
    }
    return SUCCESS;
@@ -1513,7 +1511,8 @@ namespace TEST_CASE_BASSVC {
 struct SharedPtr {};
 namespace bassvc {
     struct ServiceManifest {};
-}
+}  // close namespace TEST_CASE_BASSVC
+
 struct Aggregate {
     int d_value;
 };
@@ -1558,7 +1557,7 @@ struct InProcessServiceManager {
     }
 };
 
-}  // namespace  TEST_CASE_BASSVC
+}  // close namespace TEST_CASE_BASSVC
 //=============================================================================
 //                 USAGE EXAMPLE CLASSES AND FUNCTIONS
 //-----------------------------------------------------------------------------
@@ -1693,14 +1692,14 @@ namespace USAGE_EXAMPLE_NAMESPACE {
     class MessageHandler {
       public:
         virtual ~MessageHandler() {}
-        virtual void processMessage(Message const &msg) {}
+        virtual void processMessage(const Message& msg) {}
     };
 
     class MessageProcessor {
         MessageHandler *d_handler_p;
-        int extractMessage(Message *messageBuffer, bsl::istream &stream);
+        int extractMessage(Message *messageBuffer, bsl::istream& stream);
       public:
-        MessageProcessor(MessageHandler *handler);
+        explicit MessageProcessor(MessageHandler *handler);
 
         void processMessages(bsl::istream &stream);
     };
@@ -1717,7 +1716,7 @@ namespace USAGE_EXAMPLE_NAMESPACE {
       public:
         virtual ~PrintOnlyHandler() {
         }
-        void processMessage(Message const&msg)
+        void processMessage(const Message& msg)
         {
            bsl::cout << msg << bsl::endl;
         }
@@ -1727,7 +1726,7 @@ namespace USAGE_EXAMPLE_NAMESPACE {
       public:
         virtual ~ActualHandler() {
         }
-        void processMessage(Message const&msg)
+        void processMessage(const Message& msg)
         {
            // Do some stuff!!
         }
@@ -1738,7 +1737,7 @@ namespace USAGE_EXAMPLE_NAMESPACE {
     {
     }
 
-    void MessageProcessor::processMessages(bsl::istream &stream)
+    void MessageProcessor::processMessages(bsl::istream& stream)
     {
         int ret;
         do {
@@ -1779,9 +1778,9 @@ namespace USAGE_EXAMPLE_NAMESPACE {
         MessageHandler d_handler;
         int extractMessage(Message *messageBuffer, bsl::istream &stream);
       public:
-        MessageProcessor2(MessageHandler handler);
+        explicit MessageProcessor2(MessageHandler handler);
 
-        void processMessages(bsl::istream &stream);
+        void processMessages(bsl::istream& stream);
     };
 
     MessageProcessor2::MessageProcessor2(MessageHandler handler)
@@ -1824,7 +1823,7 @@ namespace USAGE_EXAMPLE_NAMESPACE {
     }
 //..
 
-} // closing namespace USAGE_EXAMPLE_NAMESPACE
+}  // close namespace USAGE_EXAMPLE_NAMESPACE
 
 void testCase19(int argc)
 {

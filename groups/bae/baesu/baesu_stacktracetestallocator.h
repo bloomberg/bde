@@ -601,10 +601,10 @@ class baesu_StackTraceTestAllocator : public bdema_ManagedAllocator {
 
     // CREATORS
     explicit
-    baesu_StackTraceTestAllocator(bslma_Allocator *basicAllocator = 0);
+    baesu_StackTraceTestAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
-    baesu_StackTraceTestAllocator(int              numRecordedFrames,
-                                  bslma_Allocator *basicAllocator = 0);
+    baesu_StackTraceTestAllocator(int               numRecordedFrames,
+                                  bslma::Allocator *basicAllocator = 0);
         // Create a test allocator.  Optionally specify 'numRecordedFrames',
         // the number of stack trace frame pointers to be saved for every
         // allocation.  Specifying a larger value of 'numRecordedFrames' means
