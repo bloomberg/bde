@@ -20,7 +20,8 @@
 #include <bdetu_datetime.h>
 #include <bdetu_systemtime.h>
 
-#include <bsls_platform.h>                    // for testing only
+#include <bsls_stopwatch.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
@@ -312,7 +313,7 @@ int countLoggedRecords(const bsl::string& fileName)
     bsl::ifstream fs;
     fs.open(fileName.c_str(), bsl::ifstream::in);
 
-    BSLS_ASSERT_OPT(fs.is_open());
+    ASSERT(fs.is_open());
 
     while (getline(fs, line)) {
         ++numLines;
@@ -633,7 +634,13 @@ int main(int argc, char *argv[])
 
             mX.startPublicationThread();
 
-            bcemt_ThreadUtil::microSleep(1, 0);
+            
+            bsls::Stopwatch timer;
+            timer.start();
+            while (MAX_QUEUE_LENGTH == X.recordQueueLength() &&
+                   timer.elapsedTime() < 5) {
+                bcemt_ThreadUtil::microSleep(10, 0);
+            }
 
             // Note that stopping the publication thread clears the record
             // queue, so we capture a snapshot of the queue length, and then
@@ -1100,12 +1107,13 @@ int main(int argc, char *argv[])
                 ASSERT(1 == globbuf.gl_pathc);
 
                 // Wait up to 3 seconds for the async logging to complete
-                loopCount = 0;
-                linesNum  = 0;
-                ASSERT(X.recordQueueLength() <= 1);
+
+                bsls::Stopwatch timer;
+                timer.start();
+              
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0);
+                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
                     ASSERT(1 == countLoggedRecords(globbuf.gl_pathv[0]));
@@ -1145,11 +1153,12 @@ int main(int argc, char *argv[])
 
                 // Wait up to 3 seconds for the async logging to complete
 
-                loopCount = 0;
-                linesNum  = 0;
+                bsls::Stopwatch timer;
+                timer.start();
+
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0);
+                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 // Check the number of lines in the file.
                 {
@@ -1167,12 +1176,12 @@ int main(int argc, char *argv[])
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Wait up to 3 seconds for the async logging to complete
+                timer.reset();
+                timer.start();
 
-                loopCount = 0;
-                linesNum  = 0;
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0);
+                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
                     ASSERT(3 == countLoggedRecords(globbuf.gl_pathv[1]));
@@ -1289,12 +1298,11 @@ int main(int argc, char *argv[])
                 ASSERT(1 == globbuf.gl_pathc);
 
                 // Wait up to 3 seconds for the async logging to complete
-
-                loopCount = 0;
-                linesNum  = 0;
+                bsls::Stopwatch timer;
+                timer.start();                
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0);
+                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
                     ASSERT(1 == countLoggedRecords(globbuf.gl_pathv[0]));
@@ -1332,12 +1340,12 @@ int main(int argc, char *argv[])
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Wait up to 3 seconds for the async logging to complete
-
-                loopCount = 0;
+                bsls::Stopwatch timer;
+                timer.start();
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0);
-
+                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
+                
                 {
                     ASSERT(2 == countLoggedRecords(globbuf.gl_pathv[0]));
                     globfree(&globbuf);
@@ -1355,10 +1363,11 @@ int main(int argc, char *argv[])
 
                 // Wait up to 3 seconds for the async logging to complete
 
-                loopCount = 0;
+                timer.reset();
+                timer.start();
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0);
+                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
                     ASSERT(3 == countLoggedRecords(globbuf.gl_pathv[0]));
