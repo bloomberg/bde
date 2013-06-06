@@ -118,7 +118,23 @@ using namespace bsl;  // automatically added by script
 // [ 2] bool unique() const;
 // [ 2] int use_count() const;
 // [  ] bool operator==(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bool operator==(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+// [  ] bool operator==(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
 // [  ] bool operator!=(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bool operator!=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+// [  ] bool operator!=(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
+// [  ] bool operator< (const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bool operator< (const bcema_SharedPtr<A>&, bsl::nullptr_t);
+// [  ] bool operator< (bsl::nullptr_t,            const bcema_SharedPtr<B>&);
+// [  ] bool operator<=(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bool operator<=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+// [  ] bool operator<=(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
+// [  ] bool operator>=(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bool operator>=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+// [  ] bool operator>=(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
+// [  ] bool operator> (const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
+// [  ] bool operator> (const bcema_SharedPtr<A>&, bsl::nullptr_t);
+// [  ] bool operator> (bsl::nullptr_t,            const bcema_SharedPtr<B>&);
 // [  ] bsl::ostream& operator<<(bsl::ostream&, const bcema_SharedPtr<TYPE>&);
 // [  ] void swap(bcema_SharedPtr<TYPE>& a, bcema_SharedPtr<TYPE>& b);
 //
@@ -252,30 +268,7 @@ bcema_SharedPtr<int> ptr1Fun()
     return ptr1;
 }
 
-// For detecting absence of 'operator<':
-
-struct NoOperatorLT {};
-
-struct One {
-    char d_member;
-};     // sizeof(One) == 1
-
-struct Two {
-    char d_member[12345];
-};  // sizeof(Two) != 1
-
-One NoOperatorLTMatch(...);
-Two NoOperatorLTMatch(NoOperatorLT);
-
 }  // close namespace NAMESPACE_TEST_CASE_16
-
-template <class U>
-NAMESPACE_TEST_CASE_16::NoOperatorLT
-operator<(const bcema_SharedPtr<U>& lhs, const bcema_SharedPtr<U>& rhs);
-
-template <class U, class V>
-NAMESPACE_TEST_CASE_16::NoOperatorLT
-operator<(const bcema_SharedPtr<U>& lhs, const bcema_SharedPtr<V>& rhs);
 
                    // *** 'MyTestObject' CLASS HIERARCHY ***
 
@@ -1716,7 +1709,6 @@ int main(int argc, char *argv[])
         //     o SharedPtr can be used in "boolean" contexts such as 'if (p)',
         //       'if (!p)', 'if
         //     o SharedPtr cannot be converted to an 'int'.
-        //     o SharedPtr cannot be compared via 'operator<'.
         //     o SharedPtr returned by a function (as a temporary) does not
         //       lead to erroneous bool value (DRQS 12252806).
         //
@@ -1743,11 +1735,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Not convertible to ints.\n" << endl;
 
         ASSERT((0 == bslmf::IsConvertible<bcema_SharedPtr<int>, int>::VALUE));
-
-        if (verbose) cout << "Not less than comparable.\n" << endl;
-
-        ASSERT(sizeof(Two) == sizeof(NoOperatorLTMatch(ptr1 < ptr2)));
-        ASSERT(sizeof(Two) == sizeof(NoOperatorLTMatch(ptr1 < ptr3)));
 
         if (verbose) cout << "Simple boolean expressions.\n" << endl;
 
