@@ -24,12 +24,13 @@ namespace {
 
 // STATIC HELPER FUNCTIONS
 static inline
-bsls::Types::size_type roundUp(bsls::Types::size_type value,
-                               bsls::Types::size_type multiple)
+bcema_ProtectableSequentialAllocator::size_type roundUp(
+                      bcema_ProtectableSequentialAllocator::size_type value,
+                      bcema_ProtectableSequentialAllocator::size_type multiple)
     // Return the specified 'value' rounded up to the next highest multiple of
     // the specified 'multiple'
 {
-    return (value + multiple - 1) & ~(multiple - 1);
+    return value == 0 ? 0 : multiple * (1 + ((value - 1) / multiple));
 }
 
 }  // close unnamed namespace
@@ -115,12 +116,12 @@ bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_buffer(0)
 , d_bufSize(0)
 , d_growthLimit(bsl::numeric_limits<size_type>::max())
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_size(0)
-, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -135,12 +136,12 @@ bcema_ProtectableSequentialAllocator(
                                bsls::Alignment::Strategy        strategy,
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_strategy(strategy)
 , d_buffer(0)
 , d_bufSize(0)
 , d_growthLimit(bsl::numeric_limits<size_type>::max())
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_size(0)
-, d_strategy(strategy)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -157,13 +158,13 @@ bcema_ProtectableSequentialAllocator(
                           size_type                        bufferExpansionSize,
                           bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(growthStrategy)
+, d_strategy(strategy)
 , d_buffer(0)
 , d_bufSize(0)
 , d_growthLimit(bufferExpansionSize ? bufferExpansionSize
                                     : bsl::numeric_limits<size_type>::max())
-, d_growthStrategy(growthStrategy)
 , d_size(0)
-, d_strategy(strategy)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())

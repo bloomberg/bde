@@ -38,6 +38,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_c_stdio.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -223,7 +224,7 @@ void makeArbitraryFile(const char *path)
 }
 
 inline
-bsl::string tempFileName()
+bsl::string tempFileName(const char *fnTemplate = 0)
 {
     bsl::string result;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -231,16 +232,22 @@ bsl::string tempFileName()
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bde", 0, tmpNameBuf);
     result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    char tmpPathBuf[L_tmpnam];
-    result = tmpnam(tmpPathBuf);
 #else
-    result = tmpnam(0);
+    fnTemplate = fnTemplate ? fnTemplate : "bdesu_fileutil.test";
+    bsl::vector<char> fn;
+    fn.resize(bsl::strlen(fnTemplate) + 7);
+    bsl::strcpy(fn.begin(), fnTemplate);
+    bsl::strcat(fn.begin(), "XXXXXX");
+    ASSERT(bsl::strlen(fn.begin()) == fn.size() - 1);
+    ASSERT(!bsl::strcmp(fn.end() - 7, "XXXXXX"));
+    mkstemp(fn.begin());
+    ASSERT(bsl::strlen(fn.begin()) == fn.size() - 1);
+    result = fn.begin();
 #endif
 
     // Test Invariant:
 
-    BSLS_ASSERT(!result.empty());
+    ASSERT(!result.empty());
     return result;
 }
 
@@ -773,9 +780,9 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        const char *fileNameWrite   = "tmp.bdesu_fileutil_11.write.txt";
-        const char *fileNameRead    = "tmp.bdesu_fileutil_11.read.txt";
-        const char *fileNameSuccess = "tmp.bdesu_fileutil_11.success.txt";
+        bsl::string fileNameWrite   = tempFileName("tmp.fileutil_11.write");
+        bsl::string fileNameRead    = tempFileName("tmp.fileutil_11.read");
+        bsl::string fileNameSuccess = tempFileName("tmp.fileutil_11.success");
 
         FD fdWrite = bdesu_FileUtil::INVALID_FD;
         FD fdRead  = bdesu_FileUtil::INVALID_FD;
@@ -944,7 +951,8 @@ int main(int argc, char *argv[])
                 // Touch the 'success' file to tell the parent process we
                 // succeeded.
 
-                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess, true,
+                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess,
+                                                    true,
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
@@ -976,9 +984,16 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        const char *fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
-        const char *fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
-        const char *fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
+        // It is important not to use 'tempFileName' here because otherwise
+        // the parent and child will have different file names.
+
+        bsl::string fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
+        bsl::string fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
+        bsl::string fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
+
+        if (veryVerbose) {
+            P_(fileNameWrite);    P_(fileNameRead);    P(fileNameSuccess);
+        }
 
         FD fdWrite = bdesu_FileUtil::INVALID_FD;
         FD fdRead  = bdesu_FileUtil::INVALID_FD;
@@ -1132,7 +1147,8 @@ int main(int argc, char *argv[])
                 // Touch the 'success' file to tell the parent process we
                 // succeeded.
 
-                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess, true,
+                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess,
+                                                    true,
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
@@ -1287,11 +1303,8 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         // Setup by first creating a tmp file
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        string fileName("getFileSizeTest.txt");  // not sure where to put it
-#else
-        string fileName("/tmp/getFileSizeTest.txt");
-#endif
+        string fileName = tempFileName("tmp.getFileSizeTest");
+        if (veryVerbose) P(fileName);
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(fileName,
                                                                  true,
                                                                  false);
@@ -1412,7 +1425,9 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) cout << "\n5. Symbolic Links" << endl;
-            system("ln -s /tmp/getFileSizeTest.txt testLink");
+
+            bsl::string cmd = "ln -s " + fileName + " testLink";
+            system(cmd.c_str());
 
             string fileName("testLink");
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);

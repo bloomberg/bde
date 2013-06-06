@@ -1,14 +1,15 @@
 // bcema_sharedptroutofplacerep.t.cpp                                -*-C++-*-
 
 #include <bcema_sharedptroutofplacerep.h>
-#include <bsl_algorithm.h>       // for 'bsl::swap'
-#include <bslma_default.h>
-#include <bslma_allocator.h>
-#include <bcema_testallocator.h>                // for testing only
-#include <bsl_iostream.h>
-#include <bdet_datetime.h>
 
+#include <bcema_testallocator.h>                // for testing only
+#include <bdet_datetime.h>
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
+#include <bsl_algorithm.h>       // for 'bsl::swap'
 #include <bsl_c_stdlib.h>             // 'atoi'
+#include <bsl_iostream.h>
 
 using bsl::cout;
 using bsl::endl;
@@ -44,7 +45,7 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -191,16 +192,16 @@ class MyAllocTestDeleter {
 
   public:
     // CREATORS
-    MyAllocTestDeleter(bslma::Allocator *deleter,
+    explicit MyAllocTestDeleter(bslma::Allocator *deleter,
                        bslma::Allocator *basicAllocator = 0);
 
-    MyAllocTestDeleter(MyAllocTestDeleter const&  orig,
+    MyAllocTestDeleter(const MyAllocTestDeleter&  original,
                        bslma::Allocator          *basicAllocator = 0);
 
     ~MyAllocTestDeleter();
 
     // MANIPULATORS
-    MyAllocTestDeleter& operator=(MyAllocTestDeleter const& orig);
+    MyAllocTestDeleter& operator=(const MyAllocTestDeleter& rhs);
 
     // ACCESSORS
     template <class TYPE>
@@ -220,7 +221,7 @@ MyAllocTestDeleter::MyAllocTestDeleter(bslma::Allocator *deleter,
 }
 
 MyAllocTestDeleter::MyAllocTestDeleter(
-                                     MyAllocTestDeleter const&  original,
+                                     const MyAllocTestDeleter&  original,
                                      bslma::Allocator          *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_deleter_p(original.d_deleter_p)
@@ -235,7 +236,7 @@ MyAllocTestDeleter::~MyAllocTestDeleter()
 
 // MANIPULATORS
 MyAllocTestDeleter& MyAllocTestDeleter::operator=(
-                                                 MyAllocTestDeleter const& rhs)
+                                                 const MyAllocTestDeleter& rhs)
 {
     ASSERT(!"I think we do not use operator =");
     d_deleter_p = rhs.d_deleter_p;
@@ -282,8 +283,8 @@ class MySharedDatetime {
 
   public:
     // CREATORS
-    MySharedDatetime(bdet_Datetime    *ptr,
-                     bslma::Allocator *basicAllocator = 0);
+    explicit MySharedDatetime(bdet_Datetime    *ptr,
+                              bslma::Allocator *basicAllocator = 0);
     MySharedDatetime(const MySharedDatetime& original);
     ~MySharedDatetime();
 
@@ -439,10 +440,10 @@ int main(int argc, char *argv[])
                           << "-------------------------------" << endl;
 
         {
-            TObj* t = new(ta) TObj();
-            Obj* xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
-            Obj & x = *xPtr;
-            Obj const& X = x;
+            TObj *t = new(ta) TObj();
+            Obj *xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
+            Obj& x = *xPtr;
+            const Obj& X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -463,14 +464,14 @@ int main(int argc, char *argv[])
             MyTestFactory *factory = new(ta) MyTestFactory();
 
 
-            TObj* t = factory->createObject();
-            bcema_SharedPtrOutofplaceRep<MyTestObject, MyTestFactory*>* xPtr =
+            TObj *t = factory->createObject();
+            bcema_SharedPtrOutofplaceRep<MyTestObject, MyTestFactory *> *xPtr =
                    bcema_SharedPtrOutofplaceRep<MyTestObject, MyTestFactory*>::
                    makeOutofplaceRep(t, factory, &ta);
-            bcema_SharedPtrOutofplaceRep<MyTestObject, MyTestFactory* >& x =
+            bcema_SharedPtrOutofplaceRep<MyTestObject, MyTestFactory *>& x =
                                                                          *xPtr;
-            bcema_SharedPtrOutofplaceRep<MyTestObject, MyTestFactory* >
-                                                                  const& X = x;
+            const bcema_SharedPtrOutofplaceRep<MyTestObject, MyTestFactory *>&
+                                                                         X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -489,13 +490,13 @@ int main(int argc, char *argv[])
               bcema_SharedPtrOutofplaceRep_DeleterDiscriminator<DeleteFunction>
               ::VALUE };
 
-            TObj* t = new TObj();
-            bcema_SharedPtrOutofplaceRep<MyTestObject, DeleteFunction>* xPtr =
+            TObj *t = new TObj();
+            bcema_SharedPtrOutofplaceRep<MyTestObject, DeleteFunction> *xPtr =
                    bcema_SharedPtrOutofplaceRep<MyTestObject, DeleteFunction>::
                    makeOutofplaceRep(t, myDeleteFunction, &ta);
             bcema_SharedPtrOutofplaceRep<MyTestObject, DeleteFunction >& x =
                                                                          *xPtr;
-            bcema_SharedPtrOutofplaceRep<MyTestObject, DeleteFunction > const&
+            const bcema_SharedPtrOutofplaceRep<MyTestObject, DeleteFunction >&
                                                                          X = x;
 
             ASSERT(1 == X.numReferences());
@@ -516,15 +517,15 @@ int main(int argc, char *argv[])
              bcema_SharedPtrOutofplaceRep_DeleterDiscriminator<MyDeleteFunctor>
              ::VALUE };
 
-            TObj* t = new TObj();
+            TObj *t = new TObj();
             MyDeleteFunctor deleteFunctor;
-            bcema_SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor>* xPtr=
+            bcema_SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor> *xPtr=
                   bcema_SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor>::
                   makeOutofplaceRep(t, deleteFunctor, &ta);
             bcema_SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor >& x =
                                                                          *xPtr;
-            bcema_SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor >
-                                                                  const& X = x;
+            const bcema_SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor >&
+                                                                         X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -545,16 +546,16 @@ int main(int argc, char *argv[])
             TObj* t = new(ta) TObj();
             MyAllocTestDeleter deleteFunctor(&ta, &ta);
 
-            bcema_SharedPtrOutofplaceRep<MyTestObject, MyAllocTestDeleter>*
-               xPtr =
-               bcema_SharedPtrOutofplaceRep<MyTestObject, MyAllocTestDeleter>::
-               makeOutofplaceRep(t, deleteFunctor, &ta);
+            bcema_SharedPtrOutofplaceRep<MyTestObject, MyAllocTestDeleter>
+               *xPtr = bcema_SharedPtrOutofplaceRep<MyTestObject,
+                                                    MyAllocTestDeleter>::
+                                      makeOutofplaceRep(t, deleteFunctor, &ta);
 
             bcema_SharedPtrOutofplaceRep<MyTestObject, MyAllocTestDeleter>& x =
                                                                          *xPtr;
 
-            bcema_SharedPtrOutofplaceRep<MyTestObject, MyAllocTestDeleter>
-                                                                  const& X = x;
+            const bcema_SharedPtrOutofplaceRep<MyTestObject,
+                                               MyAllocTestDeleter>& X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -596,13 +597,13 @@ int main(int argc, char *argv[])
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            TObj* t = new (ta) TObj();
+            TObj *t = new (ta) TObj();
 
             ASSERT(++numAllocations == ta.numAllocations());
 
-            Obj* xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
+            Obj *xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
             Obj& x = *xPtr;
-            Obj const& X = *xPtr;
+            const Obj& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
 
@@ -636,13 +637,13 @@ int main(int argc, char *argv[])
                         << "-----------------------------------------" << endl;
 
         {
-            TObj* t = new (ta) TObj();
+            TObj *t = new (ta) TObj();
 
             ASSERT(++numAllocations == ta.numAllocations());
 
-            Obj* xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
+            Obj *xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
             Obj& x = *xPtr;
-            Obj const& X = *xPtr;
+            const Obj& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
 
@@ -694,10 +695,10 @@ int main(int argc, char *argv[])
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            TObj* t = new (ta) TObj();
-            Obj* xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
+            TObj *t = new (ta) TObj();
+            Obj *xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
             Obj& x = *xPtr;
-            Obj const& X = *xPtr;
+            const Obj& X = *xPtr;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -723,10 +724,10 @@ int main(int argc, char *argv[])
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            TObj* t = new (ta) TObj();
-            Obj* xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
+            TObj *t = new (ta) TObj();
+            Obj *xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
             Obj& x = *xPtr;
-            Obj const& X = *xPtr;
+            const Obj& X = *xPtr;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());

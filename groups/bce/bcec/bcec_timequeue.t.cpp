@@ -2867,7 +2867,7 @@ int main(int argc, char *argv[])
             const bdet_TimeInterval  TIME(1);
             const char              *STRDATA = "Unused";
             const int                HANDLE = 0xffff;
-            const Obj::Key           KEY((void*)&HANDLE);
+            const Obj::Key           KEY((const void*)&HANDLE);
 
             // CREATORS, ACCESSORS
             if (verbose) cout << "\t\tDefault constructor.\n";
@@ -2929,7 +2929,7 @@ int main(int argc, char *argv[])
             const TestString         STRDATA("Unused", &ta2);
             const TestString         STRDATA2("Another unused", &ta2);
             const int                HANDLE = 0xffff;
-            const Obj::Key           KEY((void*)&HANDLE);
+            const Obj::Key           KEY((const void*)&HANDLE);
 
             const int NUM_ALLOC2 = ta2.numAllocations();
 

@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
           // TEST INVARIANTS: grow the file beyond the necessary size
           ASSERT(-1 != bdesu_FileUtil::seek(fd, PAGESIZE_BYTES*NUM_PAGES*3,
                                             SEEK_SET));
-          ASSERT(1 == bdesu_FileUtil::write(fd, (char*)"", 1));
+          ASSERT(1 == bdesu_FileUtil::write(fd, "", 1));
 
           enum { MAPPING_LIMIT = (1 << 19), // 500 K
                  NUM_PRIORITY_LEVELS = 2 };
