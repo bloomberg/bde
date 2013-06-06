@@ -4238,7 +4238,7 @@ int main(int argc, char *argv[])
         //: 1 "true" is decoded into 'true' and "false" is decoded into
         //:   'false'.
         //:
-        //: 2 An empty string returns an error.
+        //: 2 A string that is a subset of 'true' and 'false' returns an error.
         //:
         //: 3 The return code is 0 on success and non-zero on failure.
         //
