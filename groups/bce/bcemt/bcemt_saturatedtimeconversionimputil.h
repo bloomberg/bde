@@ -127,7 +127,6 @@ BDES_IDENT("$Id: $")
 
 #endif
 
-#endif
 
 namespace BloombergLP {
 
@@ -184,9 +183,8 @@ struct bcemt_SaturatedTimeConversionImpUtil {
                            const bdet_TimeInterval&  src);
     static void toMillisec(unsigned long            *dst, 
                            const bdet_TimeInterval&  src);
-    static void toMillisec(bsls::Types::UInt64      *dst, 
+    static void toMillisec(bsls::Types::Uint64      *dst, 
                            const bdet_TimeInterval&  src);
-
         // Assign to the specified 'dst' the value of the specified 'src'
         // converted to milliseconds, and if that value is a negative time
         // interval, set 'dst' to 0, and if that value is greater than
