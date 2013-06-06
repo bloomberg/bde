@@ -235,11 +235,11 @@ bsl::string tempFileName(const char *fnTemplate = 0)
 #else
     fnTemplate = fnTemplate ? fnTemplate : "bdesu_fileutil.test";
     bsl::vector<char> fn;
-    fn.resize(bsl::strlen(fnTemplate) + 7);
+    fn.resize(bsl::strlen(fnTemplate) + 8);
     bsl::strcpy(fn.begin(), fnTemplate);
-    bsl::strcat(fn.begin(), "XXXXXX");
+    bsl::strcat(fn.begin(), "_XXXXXX");
     ASSERT(bsl::strlen(fn.begin()) == fn.size() - 1);
-    ASSERT(!bsl::strcmp(fn.end() - 7, "XXXXXX"));
+    ASSERT(!bsl::strcmp(fn.end() - 8, "_XXXXXX"));
     mkstemp(fn.begin());
     ASSERT(bsl::strlen(fn.begin()) == fn.size() - 1);
     result = fn.begin();
