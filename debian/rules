@@ -42,7 +42,7 @@ producemake:
 	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
 	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
-	  -g $(subst $(space),$(comma),$(GROUPS_STATIC_ONLY))        \
+	  -g $(subst $(space),$(comma),$(GROUPS))        \
 	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
 
 ##################################################################
