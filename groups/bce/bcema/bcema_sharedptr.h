@@ -1873,6 +1873,14 @@ class bcema_SharedPtr {
         // one) that share ownership of the object referred to by this shared
         // pointer.  Note that the behavior of this function is the same as
         // 'numReferences'.
+
+    template<class OTHER_TYPE>
+    bool owner_before(const bcema_SharedPtr<OTHER_TYPE>& other) const;
+        // Return 'true' if the address of the 'bcema_SharedPtrRep' object
+        // used by this shared pointer is ordered before the address of the
+        // 'bcema_SharedPtrRep' object used by the specified 'other' shared
+        // pointer under the total ordering supplied by
+        // 'bsl::less<bcema_SharedPtrRep *>', and 'false' otherwise.
 };
 
 // FREE OPERATORS
@@ -2987,6 +2995,15 @@ inline
 int bcema_SharedPtr<TYPE>::use_count() const
 {
     return numReferences();
+}
+
+template <class TYPE>
+template<class OTHER_TYPE>
+inline
+bool bcema_SharedPtr<TYPE>::owner_before(
+                                const bcema_SharedPtr<OTHER_TYPE>& other) const
+{
+    return bsl::less<bcema_SharedPtrRep *>()(rep(), other.rep());
 }
 
                     // --------------------------

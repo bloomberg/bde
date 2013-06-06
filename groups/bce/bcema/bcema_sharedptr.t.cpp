@@ -117,6 +117,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] TYPE *get() const;
 // [ 2] bool unique() const;
 // [ 2] int use_count() const;
+// [  ] bool owner_before(const bcema_SharedPtr<OTHER>& other) const;
 // [  ] bool operator==(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
 // [  ] bool operator==(const bcema_SharedPtr<A>&, bsl::nullptr_t);
 // [  ] bool operator==(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
@@ -1284,6 +1285,124 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+    case 23: {
+        // --------------------------------------------------------------------
+        // TESTING 'bcema_SharedPtr<cv-void> (DRQS 33549823)
+        //
+        // Concerns:
+        //: 1 Can compare two constant shared pointer obiects using any
+        //:   comparison operator.
+        //:
+        //: 2 Can compare two shared pointer objects pointing to different
+        //:   target types.
+        //:
+        //: 3 Can correctly compare a shared pointer with a null pointer in
+        //:   either order.
+        //
+        // Plan:
+        //: 1 TBD
+        //
+        // Testing:
+        //   bool owner_before(const bcema_SharedPtr<OTHER>& other) const;
+        //   bool operator==(const bcema_SharedPtr&, const bcema_SharedPtr&);
+        //   bool operator==(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+        //   bool operator==(bsl::nullptr_t, const bcema_SharedPtr<B>&);
+        //   bool operator!=(const bcema_SharedPtr&, const bcema_SharedPtr&);
+        //   bool operator!=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+        //   bool operator!=(bsl::nullptr_t, const bcema_SharedPtr<B>&);
+        //   bool operator< (const bcema_SharedPtr&, const bcema_SharedPtr&);
+        //   bool operator< (const bcema_SharedPtr<A>&, bsl::nullptr_t);
+        //   bool operator< (bsl::nullptr_t, const bcema_SharedPtr<B>&);
+        //   bool operator<=(const bcema_SharedPtr&, const bcema_SharedPtr&);
+        //   bool operator<=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+        //   bool operator<=(bsl::nullptr_t, const bcema_SharedPtr<B>&);
+        //   bool operator>=(const bcema_SharedPtr&, const bcema_SharedPtr&);
+        //   bool operator>=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
+        //   bool operator>=(bsl::nullptr_t, const bcema_SharedPtr<B>&);
+        //   bool operator> (const bcema_SharedPtr&, const bcema_SharedPtr&);
+        //   bool operator> (const bcema_SharedPtr<A>&, bsl::nullptr_t);
+        //   bool operator> (bsl::nullptr_t, const bcema_SharedPtr<B>&);
+        // --------------------------------------------------------------------
+
+        typedef bcema_SharedPtr<const int> IntPtr;
+        typedef bcema_SharedPtr<void>      VoidPtr;
+
+        bcema_SharedPtrNilDeleter doNothing = {};
+
+        int sampleArray[] = { 42, 13 };
+        int *const pA = &sampleArray[0];
+        int *const pB = &sampleArray[1];
+        
+        const IntPtr  X(sampleArray, doNothing);
+        const VoidPtr Y(X, pB);
+
+        ASSERT(  X == X  );
+        ASSERT(!(X != X) );
+        ASSERT(!(X <  X) );
+        ASSERT(  X <= X  );
+        ASSERT(  X >= X  );
+        ASSERT(!(X >  X) );
+
+        ASSERT(!(X == Y) );
+        ASSERT(  X != Y  );
+        ASSERT(  X <  Y  );
+        ASSERT(  X <= Y  );
+        ASSERT(!(X >= Y) );
+        ASSERT(!(X >  Y) );
+
+        ASSERT(!(Y == X) );
+        ASSERT(  Y != X  );
+        ASSERT(!(Y <  X) );
+        ASSERT(!(Y <= X) );
+        ASSERT(  Y >= X  );
+        ASSERT(  Y >  X  );
+
+        ASSERT(  Y == Y  );
+        ASSERT(!(Y != Y) );
+        ASSERT(!(Y <  Y) );
+        ASSERT(  Y <= Y  );
+        ASSERT(  Y >= Y  );
+        ASSERT(!(Y >  Y) );
+
+        const IntPtr Z;
+        ASSERT(  Z == 0  );
+        ASSERT(!(Z != 0) );
+        ASSERT(!(Z <  0) );
+        ASSERT(  Z <= 0  );
+        ASSERT(  Z >= 0  );
+        ASSERT(!(Z >  0) );
+
+        ASSERT(  0 == Z  );
+        ASSERT(!(0 != Z) );
+        ASSERT(!(0 <  Z) );
+        ASSERT(  0 <= Z  );
+        ASSERT(  0 >= Z  );
+        ASSERT(!(0 >  Z) );
+
+        ASSERT(!(X == 0) );
+        ASSERT(  X != 0  );
+        ASSERT(!(X <  0) );
+        ASSERT(!(X <= 0) );
+        ASSERT(  X >= 0  );
+        ASSERT(  X >  0  );
+
+        ASSERT(!(0 == X) );
+        ASSERT(  0 != X  );
+        ASSERT(  0 <  X  );
+        ASSERT(  0 <= X  );
+        ASSERT(!(0 >= X) );
+        ASSERT(!(0 >  X) );
+
+        const IntPtr  A(pA, doNothing);
+        const VoidPtr B(pB, doNothing);
+
+        ASSERT(!A.owner_before(A));
+        ASSERT(!X.owner_before(X));
+        ASSERT(!X.owner_before(Y));
+        ASSERT(!Z.owner_before(Z));
+        ASSERT(A.owner_before(B) != B.owner_before(A));
+        ASSERT(A.owner_before(Z) == B.owner_before(Z));
+    } break;
     case 22: {
         // --------------------------------------------------------------------
         // TESTING 'bcema_SharedPtr<cv-void> (DRQS 33549823)
