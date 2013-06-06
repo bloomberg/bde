@@ -3489,9 +3489,27 @@ btemt_ChannelPool::btemt_ChannelPool(
 
 btemt_ChannelPool::~btemt_ChannelPool()
 {
+    stop();
     d_managers[0]->deregisterTimer(d_metricsTimerId);
 
-    stopAndRemoveAllChannels();
+    // Deallocate channels.
+
+    d_channels.removeAll();
+
+    // Deallocate pending connecting sockets.
+
+    ConnectorMap::iterator cBegin = d_connectors.begin(),
+                           cEnd   = d_connectors.end();
+    for (ConnectorMap::iterator cIter = cBegin; cIter != cEnd; ++cIter) {
+        if (cIter->second.d_socket_p) {
+            d_factory.deallocate(cIter->second.d_socket_p);
+        }
+        cIter->second.d_socket_p = 0;
+    }
+
+    // Deallocate servers.
+
+    d_acceptors.clear();
 
     // Deallocate event managers.
 
@@ -3938,48 +3956,60 @@ int btemt_ChannelPool::shutdown(int                      channelId,
 
 int btemt_ChannelPool::stopAndRemoveAllChannels()
 {
-    const int rc = stop();
-    if (rc) {
-        return rc;                                                    // RETURN
-    }
+    bcemt_LockGuard<bcemt_Mutex> managersGuard(&d_managersLock);
 
-    // Deallocate pending connecting sockets.
+    // Terminate all the worker threads ensuring that no socket event is being
+    // monitored.  Deregister all events associated with the all event
+    // managers ensuring that any held shared pointers are released.  We keep
+    // 'd_managersLock' locked during this function so another thread does not
+    // succeed in calling 'start' before the function returns.
 
-    d_connectorsLock.lock();
-
-    ConnectorMap::iterator cBegin = d_connectors.begin(),
-                           cEnd   = d_connectors.end();
-    for (ConnectorMap::iterator cIter = cBegin; cIter != cEnd; ++cIter) {
-        if (cIter->second.d_socket_p) {
-            d_factory.deallocate(cIter->second.d_socket_p);
+    int numManagers = d_managers.size();
+    for (int i = 0; i < numManagers; ++i) {
+        if (d_managers[i]->disable()) {
+           while(--i >= 0) {
+               bcemt_Attribute attr;
+               attr.setStackSize(d_config.threadStackSize());
+               int rc = d_managers[i]->enable(attr);
+               BSLS_ASSERT(0 == rc);
+           }
+           return -1;
         }
-        cIter->second.d_socket_p = 0;
     }
+    d_startFlag = 0;
 
-    d_connectorsLock.unlock();
-
-    // Deallocate servers.
-
-    d_acceptorsLock.lock();
-
-    d_acceptors.clear();
-
-    d_acceptorsLock.unlock();
-
-    // Deallocate channels.
-
-    d_channels.removeAll();
-
-    // Deregister all events from the event managers.
-
-    d_managersLock.lock();
-
-    int numEventManagers = d_managers.size();
     for (int i = 0; i < numEventManagers; ++i) {
         d_managers[i]->deregisterAll();
     }
 
-    d_managersLock.unlock();
+    // Deallocate all servers.  Note that since we have already deregistered
+    // all the timer and socket events we just need to deallocate the servers
+    // closing the listening sockets.
+
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_acceptorsLock);
+
+        d_acceptors.clear();
+    }
+
+    // Deallocate pending connecting sockets.
+
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_connectorsLock);
+
+        ConnectorMap::iterator cBegin = d_connectors.begin(),
+                               cEnd   = d_connectors.end();
+        for (ConnectorMap::iterator cIter = cBegin; cIter != cEnd; ++cIter) {
+            if (cIter->second.d_socket_p) {
+                d_factory.deallocate(cIter->second.d_socket_p);
+            }
+            cIter->second.d_socket_p = 0;
+        }
+    }
+
+    // Remove and deallocate all channels.
+
+    d_channels.removeAll();
 
     return 0;
 }
