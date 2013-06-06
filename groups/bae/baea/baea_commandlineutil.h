@@ -19,14 +19,12 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This class provides a namespace for a set of utility functions
 // that can be used to process command-line arguments.
 //
-///Usage Examples
-///--------------
-// The following usage examples illustrate common uses of the
-// 'baea_CommandLineUtil' functions to split a set of command-line arguments
-// into two separate sets.
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
-///Example 1
-///- - - - -
+///Example 1: Multiple Argument Sets
+///- - - - - - - - - - - - - - - - -
 // Suppose that we need to modify an existing program so that it spawns a
 // script, and that furthermore, the script processes a set of command-line
 // arguments that are different from the command-line arguments specified to
@@ -37,19 +35,23 @@ BDES_IDENT("$Id: $")
 //..
 //  int main(int argc, char **argv)
 //  {
-//      bsl::vector<char *> taskArgs;
+//      bsl::vector<char *> hostArgs;
 //      bsl::vector<char *> scriptArgs;
-//      if (0 != baea_commandLineUtil::splitCommandLineArguments(
-//              &taskArgs, &scriptArgs, argc, argv))
-//      {
+//
+//      if (0 != baea_CommandLineUtil::splitCommandLineArguments(&hostArgs,
+//                                                               &scriptArgs,
+//                                                               argc,
+//                                                               argv)) {
 //          // ...handle error...
 //      }
 //
 //      // Execute the script with its own command-line arguments.
+//
 //      forkAndExecute("/path/to/script", scriptArgs.size(), &scriptArgs[0]);
 //
 //      // Execute the remainder of the original program.
-//      bsl::string configFilename;
+//
+//      bsl::string                configFilename;
 //      baea_CommandLineOptionInfo specTable[] = {
 //          {
 //              "",
@@ -61,7 +63,7 @@ BDES_IDENT("$Id: $")
 //      };
 //
 //      baea_CommandLine commandLine(specTable);
-//      if (0 != commandLine.parse(taskArgs.size(), &taskArgs[0)) {
+//      if (0 != commandLine.parse(hostArgs.size(), &hostArgs[0])) {
 //          commandLine.printUsage();
 //          bsl::exit(-1);
 //      }
@@ -86,6 +88,7 @@ struct baea_CommandLineUtil {
     // This class provides a namespace for a set utility functions that can be
     // used to process command-line arguments.
 
+    // CLASS METHODS
     static int splitCommandLineArguments(
                                       bsl::vector<char *>  *leftArgs,
                                       bsl::vector<char *>  *rightArgs,

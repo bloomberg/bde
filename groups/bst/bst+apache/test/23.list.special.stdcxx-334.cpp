@@ -28,6 +28,12 @@
 #include <string>
 #include <cassert>
 
+/*
+// We are disabling this test because we believe it is invalid:
+// 1. The allocator 'Alloc' does not supply rebind.
+// 2. The allocator comparison is always 'false'.
+
+
 class Alloc : public std::allocator <char>
 {
 };
@@ -41,9 +47,11 @@ bool operator != (Alloc a1, Alloc a2)
 {
     return true;
 }
+*/
 
 int main(int argc, char* argv[])
 {
+/*
     const char src [] = "source string";
     const char dst [] = "destination string";
 
@@ -61,6 +69,6 @@ int main(int argc, char* argv[])
 
     assert (std::string (src_lst.begin (), src_lst.end ()) == dst);
     assert (std::string (dst_lst.begin (), dst_lst.end ()) == src);
-
+*/
     return 0;
 }

@@ -1460,7 +1460,9 @@ int main(int argc, char *argv[])
         //   has been written.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_UNIX
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+        // 'setrlimit' is not implemented on Cygwin.
+
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
         bael_LoggerManagerConfiguration configuration;
@@ -1538,6 +1540,10 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(smallFile.c_str());
             multiplexObserver.deregisterObserver(&mX);
+        }
+#else
+        if (verbose) {
+            cout << "Skipping case 4 on Windows and Cygwin..." << endl;
         }
 #endif
       } break;

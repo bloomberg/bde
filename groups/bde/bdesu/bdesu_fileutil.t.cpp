@@ -906,7 +906,9 @@ int main(int argc, char *argv[])
         //   does not return an error status on Unix.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_UNIX
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+        // 'tryLock' appears to ALWAYS succeed on Cygwin.
+
         typedef bdesu_FileUtil::FileDescriptor FD;
         enum { BEGINNING = bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING };
 
@@ -1072,6 +1074,10 @@ int main(int argc, char *argv[])
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
+        }
+#else
+        if (verbose) {
+            cout << "Skipping case 10 on Windows and Cygwin..." << endl;
         }
 #endif
       } break;

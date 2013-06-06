@@ -40,6 +40,7 @@ BDES_IDENT("$Id: $")
 //  bdet_TimeTz          string     ISO 8601 format
 //  bdet_DatetimeTz      string     ISO 8601 format
 //  bdet_DatetimeTz      string     ISO 8601 format
+//..
 //
 ///Usage
 ///-----

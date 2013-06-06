@@ -783,8 +783,9 @@ template <class TYPE>
 inline
 bcec_ObjectCatalogIter<TYPE>::operator const void *() const
 {
-    return (void *)(((unsigned)d_index < d_catalog_p->d_nodes.size()) ? this
-                                                                      : 0);
+    return (void *)(((unsigned)d_index < d_catalog_p->d_nodes.size())
+            ? const_cast<bcec_ObjectCatalogIter<TYPE> *>(this)
+            : 0);
 }
 
 template <class TYPE>

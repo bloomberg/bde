@@ -828,7 +828,7 @@ int main(int argc, char *argv[])
 
         WorkerArgs args;
         args.d_dispenser = &mX;
-        args.d_sizes     = (int *)&SIZES;
+        args.d_sizes     = (const int *)&SIZES;
         args.d_numSizes  = NUM_SIZES;
 
         for (int i = 0; i < NUM_THREADS; ++i) {

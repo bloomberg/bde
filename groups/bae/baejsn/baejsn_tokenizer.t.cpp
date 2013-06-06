@@ -40,7 +40,7 @@ using bsl::endl;
 // after the advance the next token and the data value is as expected.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baejsn_Tokenizer(bslma_Allocator *bA = 0);
+// [ 2] baejsn_Tokenizer(bslma::Allocator *bA = 0);
 // [ 2] ~baejsn_Tokenizer();
 //
 // MANIPULATORS
@@ -52,7 +52,7 @@ using bsl::endl;
 // [ 3] int value(bslstl::StringRef *data) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -179,11 +179,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator          globalAllocator("global", veryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -315,9 +315,267 @@ int main(int argc, char *argv[])
     ASSERT(10022           == address["zipcode"].asInt());
 //..
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING that strings with escaped quotes are handled correctly
+        //
+        // Concerns:
+        //: 1 Values having escaped quotes are handled correctly.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text and expected output.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' till an ELEMENT_VALUE
+        //:     token is reached.
+        //:
+        //:   4 Confirm that the value of that token is as expected.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING that strings with escaped quotes "
+                          << "are handled correctly" << endl;
+
+        const struct {
+            int             d_line;
+            const char     *d_value_p;
+        } DATA[] = {
+        // line   value
+        // ----   -----
+
+          { L_,   "\"\""                    },
+
+          { L_,   "\"\\\"\""                },
+          { L_,   "\" \\\"\""               },
+          { L_,   "\"\\\" \""               },
+          { L_,   "\" \\\" \""              },
+
+          { L_,   "\"\\\"\""                },
+          { L_,   "\"A\\\"\""               },
+          { L_,   "\"\\\"A\""               },
+          { L_,   "\"A\\\"B\""              },
+
+          { L_,   "\"A \\\" B\""            },
+
+          { L_,   "\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\""     },
+
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+          {
+            L_,
+            "\"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\\\"\\\"\"",
+          },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ ti) {
+            const int            LINE      = DATA[ti].d_line;
+            const string         EXP_VALUE = DATA[ti].d_value_p;
+
+            bsl::ostringstream os;
+            os << "{\"n\":" << EXP_VALUE << "}";
+
+            bsl::istringstream iss(os.str());
+
+            if (veryVerbose) {
+                P(LINE) P(EXP_VALUE)
+            }
+
+            bslma::TestAllocator ta;
+            Obj mX(&ta);  const Obj& X = mX;
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+
+            mX.reset(iss.rdbuf());
+
+            int rc;
+            do {
+                rc = mX.advanceToNextToken();
+            } while (!rc && Obj::BAEJSN_ELEMENT_VALUE != X.tokenType());
+
+            ASSERTV(LINE, rc, 0 == rc);
+
+            bslstl::StringRef value;
+            ASSERTV(LINE, 0 == X.value(&value));
+            ASSERTV(LINE, value, EXP_VALUE, value == EXP_VALUE);
+        }
+      } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING that large values (greater than 1K) are handled correctly
+        // TESTING that large values (greater than 8K) are handled correctly
         //
         // Concerns:
         //: 1 Values of larger sizes are handled correctly.
@@ -348,19 +606,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING that large values (greater than 1K) "
+                          << "TESTING that large values (greater than 8K) "
                           << "are handled correctly" << endl;
 
-        const struct {
-            int               d_line;
-            const bsl::string d_text;
-            bool              d_allocatesMemory;
-        } DATA[] = {
-#if !defined(BSLS_PLATFORM_CPU_64_BIT)
-        // 32-bit
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+        const bsl::string LARGE_STRING =
+            "\"selection11selection1element1255element43123123123elementasdd52"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -375,178 +625,29 @@ int main(int argc, char *argv[])
             "element1element1element2element4element6LONDONLONDONelemendt2true"
             "trueelement31.51.5element4element5-980123-980123element6ement2tre"
             "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUV",
-            false
-        },
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVW",
-            false
-        },
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWX",
-            true
-        },
-#else
-        // 64-bit
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUV",
-            false
-        },
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUVW",
-            false
-        },
-#if !defined(BSLS_PLATFORM_CMP_AIX)
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6ABCDEFGHIJKLMNOPQRSTUVWX",
-            true
-        },
-#endif // AIX
-
-#endif
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXY",
-            true
-        },
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF",
-            true
-        },
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
-            "element6999999element7customelement8999element10255255elementsd11"
-            "element12element13255255element14element1531231231233123123112323"
-            "selection6arbitrarystringvalueselection7element1element1elements2"
-            "element4element5element1element1element2element4element5elemenst1"
-            "element1element2element4element6LONDONLONDONelement2truetruement6"
-            "element31.51.5element4element5-980123-980123element6elemen123t608"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7ment6"
-            "element6LONDONLONDONelement2truetrueelement31.51.5elemenst4ment68"
-            "element5-980123-980123element62012-08-18T132500.000+0000element68"
-            "2012-08-18T132500.000+0000element7element6LONDONLONDONelem123ent1"
-            "element2element4element5element1element1element2element4edlement5"
-            "element1element1element2element4element6LONDONLONDONelemendt2true"
-            "trueelement31.51.5element4element5-980123-980123element6ement2tre"
-            "2012-08-18T132500.000+00002012-08-18T132500.000+0000elemement2nt7"
-            "element6element7LONDONLONDONelementtruetruetrue12345",
-            true
-        },
-        {
-            L_,
-            "selection11selection1element1255element43123123123elementasdd5255"
+            "element6LONDONLONDONelement2truetrueelement31.51.5element4ent2tue"
+            "element5-980123-980123element62012-08-18T132500.000+0000ement2tue"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemesdfnt1"
+            "element2element4element5element1element1element2element4elemendt5"
+            "element1element1element2element4element6LONDONLONDONelement2trdue"
+            "trueelement31.51.5element4element5-980123-980123element6ent2tuesd"
+            "2012-08-18T132500.000+00002012-08-18T132500.000+0000element7sdsdd"
+            "element6LONDONLONDONelement2truetrueelement31.515element4element5"
+            "-980123-980123element62012-08-18T132500.000+00005element4element5"
+            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element62012-08-18Tsdf132500000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeldfsement1"
+            "element2element4element5element1element1element2element4eledment5"
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "selection11selection1element1255element43123123123elementasdd5234"
             "element6999999element7customelement8999element10255255elementsd11"
             "element12element13255255element14element1531231231233123123112323"
             "selection6arbitrarystringvalueselection7element1element1elements2"
@@ -625,16 +726,63 @@ int main(int argc, char *argv[])
             "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
             "trueelement31.51.5element4element5-980123-980123element62010000ds"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "selection21.5selection21.5",
-            true
-        },
+            "element1element1element2element4element6LONDONLONDONelement2dtrue"
+            "trueelement31.51.5element4element5-980123-980123element6201+0d000"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONeleme2trdue"
+            "trueelement31.51.5element4element5-980123-980123element62010000ds"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
+            "2012-08-18T132500.000+0000element7element6LOND";
+
+        const struct {
+            int               d_line;
+            const bsl::string d_suffixText;
+            bool              d_allocatesMemory;
+        } DATA[] = {
+
+        // Line  Suffix Text                             Allocates memory flag
+        // ----  -----------                             ---------------------
+
+#if !defined(BSLS_PLATFORM_CPU_64_BIT)
+
+        // 32-bit
+
+        {   L_,  "12345678ABC\"",                         false              },
+        {   L_,  "12345678ABCD\"",                        false              },
+        {   L_,  "12345678ABCDE\"",                       true               },
+        {   L_,  "12345678ABCDE12345678901234567890\"",   true               },
+
+#else
+        // 64-bit
+
+        {   L_,  "ABC\"",                                 false              },
+        {   L_,  "ABCD\"",                                false              },
+
+#if !defined(BSLS_PLATFORM_CMP_AIX)
+        // AIX
+
+        {   L_,  "ABCDE\"",                               true               },
+#endif
+
+        {   L_,  "ABCDE12345678901234567890\"",           true               },
+
+#endif
+
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ ti) {
-            const int    LINE  = DATA[ti].d_line;
-            const string TEXT  = DATA[ti].d_text;
-            const bool   ALLOC = DATA[ti].d_allocatesMemory;
+            const int    LINE   = DATA[ti].d_line;
+            const string SUFFIX = DATA[ti].d_suffixText;
+            const bool   ALLOC  = DATA[ti].d_allocatesMemory;
+            const string TEXT   = LARGE_STRING + SUFFIX;
+
+            if (veryVerbose) {
+                P(LINE) P(TEXT) P(ALLOC)
+            }
 
             bsl::ostringstream os;
             os << "{\"n\":" << TEXT << "}";
@@ -652,12 +800,12 @@ int main(int argc, char *argv[])
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
 
-            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(LINE, 0                   == mX.advanceToNextToken());
             ASSERTV(Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
 
             bslstl::StringRef data;
-            ASSERTV(0                == X.value(&data));
-            ASSERTV(TEXT, data, TEXT == data);
+            ASSERTV(0                      == X.value(&data));
+            ASSERTV(LINE, TEXT, data, TEXT == data);
 
             if (ALLOC) {
                 ASSERTV(LINE, ta.numBlocksTotal() > 0);
@@ -665,6 +813,78 @@ int main(int argc, char *argv[])
             else {
                 ASSERTV(LINE, 0 == ta.numBlocksTotal());
             }
+        }
+
+        {
+            bsl::ostringstream os;
+            os << "{\"Sequence\":{";
+            for (int ti = 0; ti < NUM_DATA; ++ ti) {
+                const int    LINE   = DATA[ti].d_line;
+                const string SUFFIX = DATA[ti].d_suffixText;
+                const string TEXT   = LARGE_STRING + SUFFIX;
+
+                os << "\"" << 'a' << "\":" << TEXT << ",";
+            }
+
+            bsl::ostringstream ds;
+            const string S = LARGE_STRING + DATA[NUM_DATA - 1].d_suffixText;
+            const string T(S.begin() + 1, S.end() - 1);
+            const string VERY_LARGE_STRING = "\"" + T + T + T + T + "\"";
+
+            for (int ti = 0; ti < NUM_DATA - 1; ++ ti) {
+                os << "\"" << 'a' << "\":" << VERY_LARGE_STRING << ",";
+            }
+
+            os << "\"" << 'a' << "\":" << VERY_LARGE_STRING << "}";
+
+            bsl::istringstream is(os.str());
+
+            if (veryVerbose) {
+                P(os.str())
+            }
+
+            Obj mX;  const Obj& X = mX;
+            mX.reset(is.rdbuf());
+
+            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
+
+            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+
+            ASSERTV(0                         == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_START_OBJECT  == X.tokenType());
+
+            for (int ti = 0; ti < NUM_DATA; ++ ti) {
+                const int    LINE   = DATA[ti].d_line;
+                const string SUFFIX = DATA[ti].d_suffixText;
+                const string TEXT   = LARGE_STRING + SUFFIX;
+
+                ASSERTV(LINE, 0                    == mX.advanceToNextToken());
+                ASSERTV(LINE, Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+
+                ASSERTV(LINE, 0                    == mX.advanceToNextToken());
+                ASSERTV(LINE, Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
+
+                bslstl::StringRef data;
+                ASSERTV(LINE, 0                == X.value(&data));
+                ASSERTV(LINE, TEXT, data, TEXT == data);
+            }
+
+            for (int ti = 0; ti < NUM_DATA; ++ ti) {
+                ASSERTV(0                         == mX.advanceToNextToken());
+                ASSERTV(Obj::BAEJSN_ELEMENT_NAME  == X.tokenType());
+
+                ASSERTV(0                         == mX.advanceToNextToken());
+                ASSERTV(Obj::BAEJSN_ELEMENT_VALUE == X.tokenType());
+
+                bslstl::StringRef data;
+                ASSERTV(0                                 == X.value(&data));
+                ASSERTV(VERY_LARGE_STRING, data, VERY_LARGE_STRING == data);
+            }
+
+            ASSERTV(0                       == mX.advanceToNextToken());
+            ASSERTV(Obj::BAEJSN_END_OBJECT  == X.tokenType());
         }
       } break;
       case 9: {
@@ -1081,7 +1301,7 @@ int main(int argc, char *argv[])
                 WS            ":"
                 WS               "["
                 WS                 "\"John\""  WS ","
-                WS                 "\"Smith\"" WS 
+                WS                 "\"Smith\"" WS
                 WS                                  "]",
                 5,
                 true,
@@ -1097,7 +1317,7 @@ int main(int argc, char *argv[])
                 WS               "["
                 WS                 "\"John\""  WS ","
                 WS                 "\"Smith\"" WS ","
-                WS                 "\"Ryan\""  WS 
+                WS                 "\"Ryan\""  WS
                 WS                                  "]",
                 6,
                 true,
@@ -1143,7 +1363,7 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS
                 WS                                                         "]",
                 5,
                 true,
@@ -1158,7 +1378,7 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS "," 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS ","
                 WS                    "\"" WS "New"   WS "Deal" WS "\"" WS
                 WS                                                         "]",
                 6,
@@ -3311,7 +3531,7 @@ int main(int argc, char *argv[])
                 WS            ":"
                 WS              "["
                 WS                "\"John\""  WS ","
-                WS                "\"Smith\"" WS 
+                WS                "\"Smith\"" WS
                 WS                                 "]",
                 4,
                 true,
@@ -3327,7 +3547,7 @@ int main(int argc, char *argv[])
                 WS               "["
                 WS                 "\"John\""  WS ","
                 WS                 "\"Smith\"" WS ","
-                WS                 "\"Ryan\""  WS 
+                WS                 "\"Ryan\""  WS
                 WS                                  "]",
                 5,
                 true,
@@ -3373,7 +3593,7 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS
                 WS                                                         "]",
                 4,
                 true,
@@ -3388,8 +3608,8 @@ int main(int argc, char *argv[])
                 WS                 ":"
                 WS                   "["
                 WS                    "\"" WS "John"  WS "Doe"  WS "\"" WS ","
-                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS "," 
-                WS                    "\"" WS "New"   WS "Deal" WS "\"" WS 
+                WS                    "\"" WS "Black" WS "Jack" WS "\"" WS ","
+                WS                    "\"" WS "New"   WS "Deal" WS "\"" WS
                 WS                                                         "]",
                 5,
                 true,
@@ -3500,7 +3720,7 @@ int main(int argc, char *argv[])
                 WS            ":"
                 WS              "["
                 WS                "\"John\""  WS ","
-                WS                "12345"     WS 
+                WS                "12345"     WS
                 WS                                 "]",
                 4,
                 true,
@@ -3516,7 +3736,7 @@ int main(int argc, char *argv[])
                 WS               "["
                 WS                 "\"John\""  WS ","
                 WS                 "\"Smith\"" WS ","
-                WS                 "12345"     WS 
+                WS                 "12345"     WS
                 WS                                  "]",
                 5,
                 true,

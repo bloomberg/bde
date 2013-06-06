@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
 
         for (bool demangle = false; true; demangle = true) {
             baesu_StackTrace stackTrace;
-            stackTrace.resize(5);
+            stackTrace.resize(4);
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
             stackTrace[1].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
@@ -339,19 +339,7 @@ int main(int argc, char *argv[])
             // 'Obj::testFunc' is an inline routine, but we force it out of
             // line by taking a function ptr to it.
 
-            UintPtr testFuncPtr = (UintPtr) &Obj::testFunc;
-
-            // If we now just called through it, the optimizer would inline the
-            // call.  So let's juggle (without actually changing it) a bit in a
-            // way the optizer can't possibly figure out:
-
-            testFuncPtr = foilOptimizer(testFuncPtr);
-
-            int testFuncLine = (* (int (*)()) testFuncPtr)();
-            ASSERT(testFuncLine < 2000);
-            stackTrace[2].setAddress(addFixedOffset(testFuncPtr));
-
-            testFuncPtr = (UintPtr) &funcStaticInlineOne;
+            UintPtr testFuncPtr = (UintPtr) &funcStaticInlineOne;
 
             // If we now just called through it, the optimizer would inline the
             // call.  So let's juggle (without actually changing it) a bit in a
@@ -361,7 +349,7 @@ int main(int argc, char *argv[])
 
             int result = (* (int (*)(int)) testFuncPtr)(100);
             ASSERT(result > 10000);
-            stackTrace[3].setAddress(addFixedOffset(testFuncPtr));
+            stackTrace[2].setAddress(addFixedOffset(testFuncPtr));
 
 #if 0
             // Testing '&qsort' doesn't work.  The similar test in
@@ -376,10 +364,10 @@ int main(int argc, char *argv[])
                 int ints[] = { 0, 1 };
                 bsl::qsort(&ints, 2, sizeof(ints[0]), &phonyCompare);
             }
-            stackTrace[4].setAddress(addFixedOffset((UintPtr) &bsl::qsort));
+            stackTrace[3].setAddress(addFixedOffset((UintPtr) &bsl::qsort));
 #endif
 
-            stackTrace[4].setAddress(addFixedOffset((UintPtr)
+            stackTrace[3].setAddress(addFixedOffset((UintPtr)
                    &baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Elf>::
                                                                      resolve));
 
@@ -440,8 +428,6 @@ int main(int argc, char *argv[])
                              stackTrace[2].libraryFileName().c_str(), libName);
             GOOD_LIBNAME(safeCmp,
                              stackTrace[3].libraryFileName().c_str(), libName);
-            GOOD_LIBNAME(safeCmp,
-                             stackTrace[4].libraryFileName().c_str(), libName);
 #undef  GOOD_LIBNAME
 
             // frame[1] was pointing to a static, the ELF resolver should have
@@ -476,15 +462,13 @@ int main(int argc, char *argv[])
 
             SM(stackTrace[0].mangledSymbolName(), "funcGlobalOne");
             SM(stackTrace[1].mangledSymbolName(), "funcStaticOne");
-            SM(stackTrace[2].mangledSymbolName(), "testFunc");
-            SM(stackTrace[3].mangledSymbolName(), "funcStaticInlineOne");
-            SM(stackTrace[4].mangledSymbolName(), "resolve");
+            SM(stackTrace[2].mangledSymbolName(), "funcStaticInlineOne");
+            SM(stackTrace[3].mangledSymbolName(), "resolve");
 
             SM(stackTrace[0].symbolName(), "funcGlobalOne");
             SM(stackTrace[1].symbolName(), "funcStaticOne");
-            SM(stackTrace[2].symbolName(), "testFunc");
-            SM(stackTrace[3].symbolName(), "funcStaticInlineOne");
-            SM(stackTrace[4].symbolName(), "resolve");
+            SM(stackTrace[2].symbolName(), "funcStaticInlineOne");
+            SM(stackTrace[3].symbolName(), "resolve");
 
             if (demangle) {
 #undef  SM
@@ -495,21 +479,16 @@ int main(int argc, char *argv[])
 
                 SM(0, "funcGlobalOne(int)");
                 SM(1, "funcStaticOne(int)");
-                SM(2, "BloombergLP::"
-                      "baesu_StackTraceResolverImpl"
-                      "<BloombergLP::"
-                      "baesu_ObjectFileFormat::Elf>::"
-                      "testFunc()");
-                SM(3, "funcStaticInlineOne(int)");
+                SM(2, "funcStaticInlineOne(int)");
                 const char *resName = "BloombergLP::"
                                       "baesu_StackTraceResolverImpl"
                                       "<BloombergLP::"
                                       "baesu_ObjectFileFormat::Elf>::"
                                       "resolve(";
                 int resNameLen = (int) bsl::strlen(resName);
-                const char *name4 = stackTrace[4].symbolName().c_str();
-                LOOP2_ASSERT(name4, resName,
-                                          safeCmp(name4, resName, resNameLen));
+                const char *name3 = stackTrace[3].symbolName().c_str();
+                LOOP2_ASSERT(name3, resName,
+                                          safeCmp(name3, resName, resNameLen));
                 break;
             }
 

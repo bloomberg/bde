@@ -319,7 +319,7 @@ void *bcema_Pool::allocate()
                     // The node is now free but not on the free list.
                     // Try to take it.
 
-                    return (void *)&p->d_next_p;                      // RETURN
+                    return (void *) const_cast<Link **>(&p->d_next_p); // RETURN
                 }
             }
             else if (refCount ==
@@ -332,7 +332,7 @@ void *bcema_Pool::allocate()
         }
     }
 
-    return (void *)&p->d_next_p;
+    return (void *) const_cast<Link **>(&p->d_next_p);
 }
 
 void bcema_Pool::deallocate(void *address)

@@ -835,11 +835,14 @@ struct tempStruct {
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static int compare(const void *p, const void *q, char spec)
+static int compare(const void *cp, const void *cq, char spec)
     // Compare the specified 'p' and 'q' void pointers by casting them to the
     // data type corresponding to the specified 'spec' value.  Return true if
     // the two values are equal and false otherwise.
 {
+    void * p = const_cast<void *>(cp);
+    void * q = const_cast<void *>(cq);
+
     switch (spec) {
       case 'A': return *(char *) p == *(char *) q;
       case 'B': return *(short *) p == *(short *) q;
@@ -883,10 +886,13 @@ static int compare(const void *p, const void *q, char spec)
     }
 }
 
-static void assign(void *lhs, const void *rhs, char spec)
+static void assign(void *clhs, const void *crhs, char spec)
     // Assign to the specified 'lhs' the value of the specified 'rhs'
     // according to the specified 'spec'.
 {
+    void * lhs = const_cast<void *>(clhs);
+    void * rhs = const_cast<void *>(crhs);
+
     switch (spec) {
       case 'A': *(char   *) lhs = *(char   *) rhs; break;
       case 'B': *(short  *) lhs = *(short  *) rhs; break;
@@ -958,27 +964,27 @@ static const Desc *getDescriptor(char spec)
     return DESCRIPTORS[index];
 }
 
-static const void *getValueA(char spec)
+static void *getValueA(char spec)
     // Return the 'A' value corresponding to the specified 'spec'.  Valid
     // input consists of uppercase letters where the index of each letter is
     // in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
 {
     int index = getElemType(spec);
-    return VALUES_A[index];
+    return const_cast<void *>(VALUES_A[index]);
 }
 
-static const void *getValueB(char spec)
+static void *getValueB(char spec)
     // Return the 'B' value corresponding to the specified 'spec'.
 {
     int index = getElemType(spec);
-    return VALUES_B[index];
+    return const_cast<void *>(VALUES_B[index]);
 }
 
-static const void *getValueN(char spec)
+static void *getValueN(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     int index = getElemType(spec);
-    return VALUES_N[index];
+    return const_cast<void *>(VALUES_N[index]);
 }
 
 static void populateCatalog(Catalog *catalog, const char *spec)

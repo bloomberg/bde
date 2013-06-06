@@ -95,7 +95,9 @@ baem_MetricRegistry::insertId(const char *category, const char *name)
 
     bcema_SharedPtr<baem_MetricDescription> metricPtr(
                      new (*d_allocator_p) baem_MetricDescription(
-                                                 catIt->second.ptr(), nameStr),
+                             catIt->second.ptr(), 
+                             nameStr, 
+                             d_allocator_p),
                      d_allocator_p);
 
     for (int i = 0; i < userData.size(); ++i) {

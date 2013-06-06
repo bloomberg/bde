@@ -1,6 +1,7 @@
 // baea_commandlineutil.t.cpp   -*-C++-*-
 
 #include <baea_commandlineutil.h>
+#include <baea_commandline.h>  // for testing only
 
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
@@ -9,18 +10,18 @@
 
 using namespace BloombergLP;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
-//                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+//                                  -------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -34,9 +35,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  STANDARD BDE LOOP ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -53,9 +54,9 @@ static void aSsErT(int c, const char *s, int i)
                aSsErT(1, #X, __LINE__); } }
 
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  SEMI STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
@@ -65,27 +66,139 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define NL "\n"
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+// ============================================================================
+//                                 USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+namespace UsageExample1 {
+
+void forkAndExecute(const char  *pathToScript,
+                    int          numScriptArgs,
+                    char       **scriptArgs)
+{
+    (void)pathToScript;
+    (void)numScriptArgs;
+    (void)scriptArgs;
+}
+
+void process(const bsl::string& configFilename)
+{
+    (void)configFilename;
+}
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Multiple Argument Sets
+///- - - - - - - - - - - - - - - - -
+// Suppose that we need to modify an existing program so that it spawns a
+// script, and that furthermore, the script processes a set of command-line
+// arguments that are different from the command-line arguments specified to
+// the host program.  We can simply concatenate the script's command-line
+// arguments to those of the host program, separated by the string '--', and
+// then parse the single command-line into two sets of arguments, one of which
+// can be passed to a function that executes the script.
+//..
+    int main(int argc, char **argv)
+    {
+        bsl::vector<char *> hostArgs;
+        bsl::vector<char *> scriptArgs;
+
+        if (0 != baea_CommandLineUtil::splitCommandLineArguments(&hostArgs,
+                                                                 &scriptArgs,
+                                                                 argc,
+                                                                 argv)) {
+            // ...handle error...
+        }
+
+        // Execute the script with its own command-line arguments.
+
+        forkAndExecute("/path/to/script", scriptArgs.size(), &scriptArgs[0]);
+
+        // Execute the remainder of the original program.
+
+        bsl::string                configFilename;
+        baea_CommandLineOptionInfo specTable[] = {
+            {
+                "",
+                "filename",
+                "configuration file name",
+                baea_CommandLineTypeInfo(&configFilename),
+                baea_CommandLineOccurrenceInfo::REQUIRED,
+            },
+        };
+
+        baea_CommandLine commandLine(specTable);
+        if (0 != commandLine.parse(hostArgs.size(), &hostArgs[0])) {
+            commandLine.printUsage();
+            bsl::exit(-1);
+        }
+
+        process(configFilename);
+
+        return 0;
+    }
+//..
+}  // close namespace UsageExample1
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4; (void)veryVeryVerbose;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << bsl::endl
+                               << "USAGE EXAMPLE" << bsl::endl
+                               << "=============" << bsl::endl;
+
+        const char *argv[] = { "myTaskname",
+                               "myFilename",
+                               "--",
+                               "scriptName",
+                               "scriptArg0",
+                               "scriptArg1",
+                               "scriptArg2"
+                            };
+        const int   argc = sizeof(argv)/sizeof(*argv);
+
+        UsageExample1::main(argc, const_cast<char **>(argv));
+
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // BACKWARDS COMPATIBILITY: 'bael_CommandLineUtil'
-        // 
+        //
         // Note that this is a duplicate of the breathing test, but uses the
         // deprecated typename 'bael_CommandLineUtil'.
         // --------------------------------------------------------------------

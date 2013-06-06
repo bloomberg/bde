@@ -4,9 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcema_protectablesequentialallocator_cpp,"$Id$ $CSID$")
 
-#ifdef TEST
 #include <bcema_testallocator.h>     // for testing only
-#endif
 
 #include <bdema_bufferimputil.h>
 #include <bdema_memoryblockdescriptor.h>
@@ -18,6 +16,7 @@ BDES_IDENT_RCSID(bcema_protectablesequentialallocator_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>      // for 'bsl::abs'
+#include <bsl_limits.h>       // for 'bsl::numeric_limits'
 
 namespace BloombergLP {
 
@@ -25,12 +24,13 @@ namespace {
 
 // STATIC HELPER FUNCTIONS
 static inline
-bsls::Types::size_type roundUp(bsls::Types::size_type value,
-                               bsls::Types::size_type multiple)
+bcema_ProtectableSequentialAllocator::size_type roundUp(
+                      bcema_ProtectableSequentialAllocator::size_type value,
+                      bcema_ProtectableSequentialAllocator::size_type multiple)
     // Return the specified 'value' rounded up to the next highest multiple of
     // the specified 'multiple'
 {
-    return (value + multiple - 1) & ~(multiple - 1);
+    return value == 0 ? 0 : multiple * (1 + ((value - 1) / multiple));
 }
 
 }  // close unnamed namespace
@@ -66,21 +66,26 @@ void *bcema_ProtectableSequentialAllocator::allocateWithoutLock(size_type size)
     const int HEADER   = bdema_ProtectableBlockList::blockHeaderSize();
     const int BLK_SIZE = d_dispenser_p->minimumBlockSize();
 
+    BSLS_ASSERT(HEADER <= BLK_SIZE);
+
     size_type allocSize = (0 == d_size ? BLK_SIZE : d_size) - HEADER;
 
-    while (allocSize < size && allocSize <= d_geometricGrowthLimit) {
-        allocSize += allocSize + HEADER;  // Double allocation while still
-                                          // accounting for the header size.
+    if (d_growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC) {
+        while (allocSize < size && allocSize <= d_growthLimit) {
+            allocSize += allocSize + HEADER;  // Double allocation while still
+                                              // accounting for the header
+                                              // size.
+        }
     }
 
-    if (allocSize > d_geometricGrowthLimit) {
+    if (d_growthStrategy == bsls::BlockGrowth::BSLS_CONSTANT ||
+                                                   allocSize > d_growthLimit) {
 
         // If the allocation's size is greater than the max buffer size, but
         // still not enough to satisfy the request, allocate the requested
-        // size; otherwise, allocate the max buffer size.  Use
-        // |d_geometricGrowthLimit| since, the value may be negative.
+        // size; otherwise, allocate the max buffer size.
 
-        size_type bufferLimit = bsl::abs(d_geometricGrowthLimit);
+        size_type bufferLimit = d_growthLimit;
         const int allocEstimate = size > bufferLimit ? size : bufferLimit;
         allocSize = roundUp(allocEstimate + HEADER, BLK_SIZE) - HEADER;
     }
@@ -88,6 +93,7 @@ void *bcema_ProtectableSequentialAllocator::allocateWithoutLock(size_type size)
     BSLS_ASSERT(0 == (allocSize + HEADER) % BLK_SIZE);
 
     // Keep track of the actual size (w/ header).
+
     d_size += allocSize + HEADER;
 
     // Use the block list to allocate the memory.  Set 'd_bufSize' to the
@@ -110,11 +116,12 @@ bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_buffer(0)
 , d_bufSize(0)
-, d_geometricGrowthLimit(INT_MAX)
+, d_growthLimit(bsl::numeric_limits<size_type>::max())
 , d_size(0)
-, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -129,11 +136,12 @@ bcema_ProtectableSequentialAllocator(
                                bsls::Alignment::Strategy        strategy,
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_strategy(strategy)
 , d_buffer(0)
 , d_bufSize(0)
-, d_geometricGrowthLimit(INT_MAX)
+, d_growthLimit(bsl::numeric_limits<size_type>::max())
 , d_size(0)
-, d_strategy(strategy)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -146,14 +154,17 @@ bcema_ProtectableSequentialAllocator(
 bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
                           bsls::Alignment::Strategy        strategy,
-                          int                              bufferExpansionSize,
+                          bsls::BlockGrowth::Strategy      growthStrategy,
+                          size_type                        bufferExpansionSize,
                           bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
+, d_growthStrategy(growthStrategy)
+, d_strategy(strategy)
 , d_buffer(0)
 , d_bufSize(0)
-, d_geometricGrowthLimit(bufferExpansionSize ? -bufferExpansionSize : INT_MAX)
+, d_growthLimit(bufferExpansionSize ? bufferExpansionSize
+                                    : bsl::numeric_limits<size_type>::max())
 , d_size(0)
-, d_strategy(strategy)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -188,16 +199,21 @@ void bcema_ProtectableSequentialAllocator::release()
     d_size    = 0;
 }
 
-int bcema_ProtectableSequentialAllocator::expand(void      *address,
-                                                 size_type  originalNumBytes,
-                                                 size_type  maxNumBytes)
+bsls::Types::size_type bcema_ProtectableSequentialAllocator::expand(
+                                      void                   *address,
+                                      bsls::Types::size_type  originalNumBytes,
+                                      bsls::Types::size_type  maxNumBytes)
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
     size_type size = originalNumBytes;
     if ((char *)address + originalNumBytes == d_buffer + d_cursor) {
-        int newNumBytes = originalNumBytes + d_bufSize - d_cursor;
-        if (maxNumBytes && (int)maxNumBytes < newNumBytes) {
+
+        BSLS_ASSERT(d_cursor < 0 ||
+                    (size_type) d_cursor <= originalNumBytes + d_bufSize);
+
+        size_type newNumBytes = originalNumBytes + d_bufSize - d_cursor;
+        if (maxNumBytes && maxNumBytes < newNumBytes) {
             newNumBytes = maxNumBytes;
         }
         d_cursor = d_cursor + newNumBytes - originalNumBytes;
@@ -213,6 +229,7 @@ void bcema_ProtectableSequentialAllocator::reserveCapacity(size_type numBytes)
 
     if (numBytes) {
         // Test if the current buffer has enough space for 'numBytes'.
+
         int cursor = d_cursor;
         void *memory = d_buffer
                      ? bdema_BufferImpUtil::allocateFromBuffer(&cursor,
@@ -223,6 +240,7 @@ void bcema_ProtectableSequentialAllocator::reserveCapacity(size_type numBytes)
         if (0 == memory) {
             // If it does not, perform an allocation and then reset the cursor
             // to 0.
+
             allocateWithoutLock(numBytes);
             d_cursor = 0;
         }

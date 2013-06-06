@@ -331,7 +331,7 @@ inline btes_Ovec::btes_Ovec(const void *buffer, int length)
     d_buffer.iov_base = (void *) buffer;
     d_buffer.iov_len = length;
 #else
-    d_buffer.iov_base = (caddr_t) buffer;
+    d_buffer.iov_base = (caddr_t) const_cast<void *>(buffer);
     d_buffer.iov_len = length;
 #endif
 }
@@ -354,7 +354,7 @@ inline void btes_Ovec::setBuffer(const void *buffer, int length)
     d_buffer.iov_base = (void *) buffer;
     d_buffer.iov_len = length;
 #else
-    d_buffer.iov_base = (caddr_t) buffer;
+    d_buffer.iov_base = (caddr_t) const_cast<void *>(buffer);
     d_buffer.iov_len = length;
 #endif
 }
