@@ -3959,10 +3959,9 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
     bcemt_LockGuard<bcemt_Mutex> managersGuard(&d_managersLock);
 
     // Terminate all the worker threads ensuring that no socket event is being
-    // monitored.  Deregister all events associated with the all event
-    // managers ensuring that any held shared pointers are released.  We keep
-    // 'd_managersLock' locked during this function so another thread does not
-    // succeed in calling 'start' before the function returns.
+    // monitored.  We keep 'd_managersLock' locked during this function so
+    // another thread does not succeed in calling 'start' before this function
+    // returns.
 
     const int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
@@ -3977,10 +3976,6 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
         }
     }
     d_startFlag = 0;
-
-    for (int i = 0; i < numManagers; ++i) {
-        d_managers[i]->deregisterAll();
-    }
 
     // Deallocate all servers.  Note that since we have already deregistered
     // all the timer and socket events we just need to deallocate the servers
@@ -4010,6 +4005,13 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
     // Remove and deallocate all channels.
 
     d_channels.removeAll();
+
+    // Deregister all events associated with the all event managers ensuring
+    // that any held shared pointers are released.
+
+    for (int i = 0; i < numManagers; ++i) {
+        d_managers[i]->deregisterAll();
+    }
 
     return 0;
 }
