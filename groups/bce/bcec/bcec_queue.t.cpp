@@ -11,11 +11,13 @@
 #include <bcemt_threadgroup.h>
 #include <bces_atomictypes.h>
 
-#include <bslma_defaultallocatorguard.h>
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bdetu_systemtime.h>
 #include <bdeu_random.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
 
@@ -3099,22 +3101,42 @@ int main(int argc, char *argv[])
         //   That push, pop and length work in a single-threaded context.
         //
         // Plan:
-        //   1. Do explicit pushes and pops to and from both ends of the
-        //      queue, verifying that the length is as expected.
-        //   2. Do a large number of pushes and pops of various values onto
-        //      a 'queue' while doing identical operations on a parallel
-        //      'deque', observing that the behavior of the two containers
-        //      is identical.  Decisions about the value to push, whether to
-        //      push or pop, and which end to push or pop from will all be
-        //      driven by 'bdeu_Random'.
+        //: 1 Do explicit pushes and pops to and from both ends of the queue,
+        //:   verifying that the length is as expected.
+        //: 2 Iterate, randomly choosing a queue length in the range 0-7.
+        //:   o If the chosen length is longer than the existing queue length,
+        //:     grow the queue to the desired queue length by random choosing
+        //:     'pushFront' or 'pushBack', and pushing random floats into the
+        //:     queue.  Simultanously push the same value onto the same end of
+        //:     a 'bsl::deque' kept in parallel.
+        //:   o If the chosen length is shorter than the existing queue, shrink
+        //:     the queue to the desiged queue length by randomly calling
+        //:     'popFront' or 'popBack'.  Simultaneously do a similar pop from
+        //:     the parallel 'bsl::deque', and observe the values popped are
+        //:     identical.
+        //:   o Each iteration, whether growing or shrinking, frequently check
+        //:     the length is as expected, via bcec_Queue::length, but also
+        //:     check the length of the deque, and call '.queue().length()' on
+        //:     the queue and observe that all three lengths match with the
+        //:     expected value.
+        //
+        // Testing:
+        //   pushFront
+        //   pushBack
+        //   popFront
+        //   popBack
+        //   length
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING PUSh, POP, and LENGTH\n"
+        if (verbose) cout << "TESTING PUSH, POP, and LENGTH\n"
                              "=============================\n";
+
+        bsls::Stopwatch sw;
+        sw.start();
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
-        if (verbose) Q(Growing Queue);
+        if (verbose) cout << "1. Explicit Pushes and Pops\n";
         {
             const Element VA = 1.0;
             const Element VB = 2.1;
@@ -3231,7 +3253,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.numBytesInUse());
 
-        if (verbose) Q(Randomly pushing and popping to both ends vs deque);
+        if (verbose) cout << "2. Random pushes and pops\n";
         {
             Obj x(&ta);                     const Obj& X = x;
             bsl::deque<Element> d(&ta);     const bsl::deque<Element>& D = d;
@@ -3243,8 +3265,14 @@ int main(int argc, char *argv[])
             int expectedLength = 0;
             int seed = 123456789;
 
-            for (int i = 0; i < 40; ++i) {
-                const int LENGTH = bdeu_Random::generate15(&seed) % 8;
+            for (int i = 0; i < 10 * 1000; ++i) {
+                int ll;
+                do {
+                    ll = bdeu_Random::generate15(&seed) % 8;
+                } while (expectedLength == ll);
+                const int LENGTH = ll;
+
+                if (veryVerbose) P(LENGTH);
 
                 if (expectedLength < LENGTH) {
                     while (expectedLength < LENGTH) {
@@ -3303,6 +3331,9 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        sw.stop();
+
+        if (verbose) P(sw.accumulatedWallTime());
       } break;
       case 1: {
         // --------------------------------------------------------------------
