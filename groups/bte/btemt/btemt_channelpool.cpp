@@ -3964,7 +3964,7 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
     // 'd_managersLock' locked during this function so another thread does not
     // succeed in calling 'start' before the function returns.
 
-    int numManagers = d_managers.size();
+    const int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
            while(--i >= 0) {
@@ -3978,7 +3978,7 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
     }
     d_startFlag = 0;
 
-    for (int i = 0; i < numEventManagers; ++i) {
+    for (int i = 0; i < numManagers; ++i) {
         d_managers[i]->deregisterAll();
     }
 
