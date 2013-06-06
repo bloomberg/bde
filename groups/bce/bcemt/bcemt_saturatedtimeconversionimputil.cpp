@@ -8,12 +8,22 @@ BDES_IDENT_RCSID(bcemt_barrier_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #endif
 
+#if (6 == sizeof(long))
+#error !!!
+#endif
+
 #if defined(BCES_PLATFORM_POSIX_THREADS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // Note 'long' is always 32 bit on 64 bit Windows.
 #define BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT 1
 #endif
 
 namespace BloombergLP {
+
+// PRIVATE CONSTANTS
+enum { 
+    NANOSEC_PER_MILLISEC = 1000000,
+    MILLISEC_PER_SEC     = 1000
+};
 
 // PRIVATE CLASS METHODS
 template <typename TYPE>
@@ -156,16 +166,15 @@ void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
                                                  unsigned int             *dst,
                                                  const bdet_TimeInterval&  src)
 {
-    enum { MILLION = 1000 * 1000 };
+    BSLS_ASSERT(dst);
 
-    const int nanoMilliSeconds = src.nanoseconds() / MILLION;
+    const int nanoMilliSeconds = src.nanoseconds() / NANOSEC_PER_MILLISEC;
 
-    if (src.seconds() > maxOf(*dst)) {
-        *dst = maxOf(*dst);
-    }
-    else if (src.seconds() < 0 ||
-                               (0 == src.seconds() && nanoMilliSeconds <= 0)) {
+    if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
         *dst = 0;
+    }
+    else if (src.seconds() > maxOf(*dst)) {
+        *dst = maxOf(*dst);
     }
     else {
         // 'src.seconds() < 2^32', therefore
@@ -175,6 +184,45 @@ void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
         toTimeTImp(dst, src.seconds() * 1000 + nanoMilliSeconds);
     }
 }
+
+void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                                 unsigned long            *dst,
+                                                 const bdet_TimeInterval&  src)
+{
+    BSLS_ASSERT_SAFE(dst);
+
+    typedef bsl::conditional<sizeof(unsigned int) == sizeof(unsigned long),
+                             unsigned int, 
+                             Uint64>::type LongAlias;
+
+    LongAlias result;
+
+    toMillisec(&result, src);
+
+    *dst = result;
+}
+
+void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
+                                                 bsls::Types::UInt64      *dst,
+                                                 const bdet_TimeInterval&  src)
+{
+    BSLS_ASSERT(dst);
+
+    const int nanoMilliSeconds = src.nanoseconds() / NANOSEC_PER_MILLISEC;
+
+    if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
+        *dst = 0;
+    }
+    else if (src.seconds() >= maxOf(src.secconds()) / 1000 - nanoMillseconds) {
+        *dst = maxOf(*dst);
+    }
+    else {              
+        toTimeTImp(dst, src.seconds() * 1000 + nanoMilliSeconds);
+    }
+}
+
+#endif
+
 
 }  // close namespace BloombergLP
 

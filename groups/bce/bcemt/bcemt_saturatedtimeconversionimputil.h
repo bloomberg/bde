@@ -43,7 +43,7 @@ BDES_IDENT("$Id: $")
 //  bdet_TimeInterval sourceInterval;
 //..
 // Then, we try a value that does not require saturation and observe that
-// 'toMillisec' converts it without modification (beyond loss of precision:
+// 'toMillisec' converts it without modification (beyond loss of precision):
 //..
 //  sourceInterval.setInterval(4, 321000000);
 //  bcemt_SaturatedTimeConversionImpUtil::toMillisec(
@@ -63,7 +63,7 @@ BDES_IDENT("$Id: $")
 //                                 &destinationInterval, maxiumumTimeInterval);
 //  assert(maxDestinationInterval == destinationInterval);
 //..
-// Now, we attempt to convert a value higher than the maximum representable in
+// Now, we attempt to convert a value greater than the maximum representable in
 // an 'unsigned int' milliseconds and verify that the resulting value is the
 // maximum representable 'unsigned int' value:
 //..
@@ -116,13 +116,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_CTIME
 #include <bsl_ctime.h>
-#endif
-
-#ifdef BCES_PLATFORM_POSIX_THREADS
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-// Note that 'long' is not 64 bit on Windows.
-#define BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT 1
 #endif
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
@@ -187,42 +180,24 @@ struct bcemt_SaturatedTimeConversionImpUtil {
         // the highest representable 'time_t' value, set 'dst' to the maximum
         // 'time_t' value.
 
-    static void toMillisec(unsigned int *dst, const bdet_TimeInterval& src);
-        // Assign to the specified 'dst' the value of the specified 'src'
-        // converted to milliseconds, and if that value is a negative time
-        // interval, set 'dst' to 0, and if that value is greater 'UINT_MAX'
-        // milliseconds set dest to 'UNIT_MAX'.
+    static void toMillisec(unsigned int             *dst, 
+                           const bdet_TimeInterval&  src);
+    static void toMillisec(unsigned long            *dst, 
+                           const bdet_TimeInterval&  src);
+    static void toMillisec(bsls::Types::UInt64      *dst, 
+                           const bdet_TimeInterval&  src);
 
-#ifdef BCES_PLATFORM_WIN32_THREADS
-    static void toMillisec(unsigned long *dst, const bdet_TimeInterval& src);
         // Assign to the specified 'dst' the value of the specified 'src'
         // converted to milliseconds, and if that value is a negative time
-        // interval, set 'dst' to 0, and if that value is greater 'ULONG_MAX'
-        // milliseconds set dest to 'ULONG_MAX'.
-#endif
+        // interval, set 'dst' to 0, and if that value is greater than
+        // the maximum representable value of 'dst' set 'dst' to its maximum
+        // representable value.
 };
 
 //=============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 //=============================================================================
 
-#ifdef BCES_PLATFORM_WIN32_THREADS
-
-inline
-void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
-                                                 unsigned long            *dst,
-                                                 const bdet_TimeInterval&  src)
-{
-    // 'long' is always 32-bit on Windows, in 32 or 64 bit executables.
-
-    BSLMF_ASSERT(sizeof(unsigned int) == sizeof(unsigned long));
-
-    // See other asserts about 'DWORD' type in the test driver.
-
-    toMillisec((unsigned int *) dst, src);
-}
-
-#endif
 
 }  // close namespace BloombergLP
 
