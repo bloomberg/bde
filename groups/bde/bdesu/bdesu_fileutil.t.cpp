@@ -59,6 +59,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
 // [ 8] FD open(const char *p, bool writable, bool exist, bool append);
+// [13] CONCERNS: Unix File Permissions for 'open'
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE 1
@@ -534,16 +535,22 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // PERMISSIONS TEST
+        // TESTING: Unix File Permissions for 'open'
         //
         // Concerns:
-        //   That the file permissions of a file created with 'open' are
-        //   as expected.  The behavior is not specified in the contract,
-        //   and we don't specify security information on Windows.
+        //: 1 The permissions of a file created with 'open' on unix are chmod
+        //:   0666.  Although not (currently) contractually guaranteed, this
+        //:   matches the behavior for std::fstream and is consistent with the
+        //:   use of a umask (see DRQS 40563234).
+        //
+        // Plan:
+        //: 1 Open and file, write some data to it, and close it.
+        //: 2 Read its permissions via 'stat64' or 'stat'.
+        //: 3 Observe that the permission are chmod 0666 (C-1).
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "PERMISSIONS TEST\n"
-                             "================\n";
+        if (verbose) cout << "TESTING: Unix File Permissions for 'open'\n"
+                             "=========================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
