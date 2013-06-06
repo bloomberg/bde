@@ -1393,6 +1393,20 @@ int main(int argc, char *argv[])
         ASSERT(!(0 >= X) );
         ASSERT(!(0 >  X) );
 
+        ASSERT(!(X == Z) );
+        ASSERT(  X != Z  );
+        ASSERT(!(X <  Z) );
+        ASSERT(!(X <= Z) );
+        ASSERT(  X >= Z  );
+        ASSERT(  X >  Z  );
+
+        ASSERT(!(Z == X) );
+        ASSERT(  Z != X  );
+        ASSERT(  Z <  X  );
+        ASSERT(  Z <= X  );
+        ASSERT(!(Z >= X) );
+        ASSERT(!(Z >  X) );
+
         const IntPtr  A(pA, doNothing);
         const VoidPtr B(pB, doNothing);
 
