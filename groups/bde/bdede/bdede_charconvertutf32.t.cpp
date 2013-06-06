@@ -2690,7 +2690,7 @@ int main(int argc, char **argv)
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
         // slowest architecture.
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         sw.start();
 
         bsl::vector<char>         utf8OutVec;
@@ -2847,7 +2847,7 @@ int main(int argc, char **argv)
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
         // slowest architecture.
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         sw.start();
 
         bsl::vector<unsigned int> utf8InVec, utf32ExpVec;
@@ -3081,7 +3081,7 @@ int main(int argc, char **argv)
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
         // slowest architecture.
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         sw.start();
 
         bsl::vector<unsigned int> utf32InVec, utf32ExpVec;
@@ -3245,7 +3245,7 @@ int main(int argc, char **argv)
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
         // slowest architecture.
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         sw.start();
 
         bsl::vector<unsigned int> utf32InVec, utf32ExpVec;
@@ -3378,7 +3378,7 @@ int main(int argc, char **argv)
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
         // slowest architecture.
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         sw.start();
 
         bsl::vector<unsigned int> utf32InVec, utf32ExpVec;
