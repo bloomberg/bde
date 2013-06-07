@@ -28,6 +28,7 @@ bsl::ostream& baejsn_EncoderOptions::print(bsl::ostream& stream,
     printer.printAttribute("initialIndentLevel", d_initialIndentLevel);
     printer.printAttribute("spacesPerLevel",     d_spacesPerLevel);
     printer.printAttribute("encodingStyle",      d_encodingStyle);
+    printer.printAttribute("encodeEmptyArrays",  d_encodeEmptyArrays);
     printer.end();
 
     return stream;
@@ -42,6 +43,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     printer.printValue(object.initialIndentLevel());
     printer.printValue(object.spacesPerLevel());
     printer.printValue(object.encodingStyle());
+    printer.printValue(object.encodeEmptyArrays());
     printer.end();
 
     return stream;

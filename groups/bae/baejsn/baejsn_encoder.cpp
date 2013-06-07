@@ -142,7 +142,7 @@ void baejsn_Encoder_Formatter::closeDocument()
 
 // PRIVATE MANIPULATORS
 int baejsn_Encoder_EncodeImpl::encodeImp(const bsl::vector<char>& value,
-                                         int                      mode,
+                                         int,
                                          bdeat_TypeCategory::Array)
 {
     bsl::string base64String;

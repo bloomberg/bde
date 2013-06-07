@@ -85,7 +85,8 @@ using bsl::endl;
 // [13] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
+// [15] ENCODING EMPTY ARRAYS
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -168,11 +169,12 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baejsn_Encoder            Obj;
-typedef baejsn_Encoder_EncodeImpl Impl;
-typedef baejsn_EncoderOptions     Options;
-typedef bsls::Types::Int64        Int64;
-typedef bsls::Types::Uint64       Uint64;
+typedef baejsn_Encoder                       Obj;
+typedef baejsn_Encoder_EncodeImpl            Impl;
+typedef baejsn_EncoderOptions                Options;
+typedef baejsn_EncoderOptions::EncodingStyle Style;
+typedef bsls::Types::Int64                   Int64;
+typedef bsls::Types::Uint64                  Uint64;
 
 // ============================================================================
 //                  GLOBAL DATA FOR TESTING
@@ -30307,7 +30309,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -30479,6 +30481,124 @@ int main(int argc, char *argv[])
     ASSERT(EXP_OUTPUT == os.str());
     }
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // ENCODING EMPTY ARRAYS
+        //
+        // Concerns:
+        //: 1 Empty vectors with the 'encodeEmptyArrays' options result in an
+        //:   '[' and ']'.
+        //:
+        //: 2 The formatting is appropriately output for empty vectors when
+        //:   used in consonance with the 'encodeEmptyArrays' option.
+        //
+        // Plan:
+        //: 1 Use a table-driven approach:
+        //:
+        //:   1 Create a set of values with various length of 'vector<char>'.
+        //:
+        //:   2 Encode each values and verify the result is in base64 format.
+        //:
+        //: 2 Repeat step one with 'vector<int>' instead.
+        //
+        // Testing:
+        //   int encode(bsl::ostream& s, const bsl::vector<TYPE>& v, options);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ENCODING ARRAYS" << endl
+                          << "===============" << endl;
+
+        if (verbose) cout << "Encode 'vector<char>'" << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input_p;
+                int         d_inputLength;
+                const char *d_result_p;
+            } DATA[] = {
+
+            //LINE  INPUT  LEN  RESULT
+            //----  -----  ---  ------
+
+            { L_,   "",     0,   "\"\""  },
+            { L_,   "\x00", 1,   "\"AA==\""  },
+            { L_,   "\xFF", 1,   "\"\\/w==\""  },
+            { L_,   "\x00\x00\x00\x00\x00\x00\x00\x00\00", 9,
+                                                           "\"AAAAAAAAAAAA\"" }
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            Options options;
+            options.setEncodeEmptyArrays(true);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const char *const INPUT  = DATA[ti].d_input_p;
+                const int         LENGTH = DATA[ti].d_inputLength;
+                const char *const EXP    = DATA[ti].d_result_p;
+                const bsl::vector<char> VALUE(INPUT, INPUT + LENGTH);
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf(), options);
+                ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
+
+        if (verbose) cout << "Encode 'vector<int>' with compact style" << endl;
+        {
+            const struct {
+                int            d_line;
+                const char    *d_input_p;
+                Style          d_style;
+                int            d_initialIndentLevel;
+                int            d_spacesPerLevel;
+                const char    *d_result_p;
+            } DATA[] = {
+
+            //LINE  INPUT   Style  INDENT     SPL    RESULT
+            //----  -----   -----  ------     ---    ------
+
+            { L_,     "",         0,      0,    "[]"     },
+//             { L_,   "0",      [0,1,2,3]"  }
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const char *const INPUT  = DATA[ti].d_input_p;
+                const int         LEN    = bsl::strlen(INPUT);
+                const int         INDENT = DATA[ti].d_initialIndentLevel;
+                const int         SPL    = DATA[ti].d_spacesPerLevel;
+                const char *const EXP    = DATA[ti].d_result_p;
+
+                bsl::vector<int> value;
+                for (int i = 0; i < LEN; ++i) {
+                    value.push_back(i);
+                }
+
+                Options options;
+                options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
+                options.setInitialIndentLevel(INDENT);
+                options.setSpacesPerLevel(SPL);
+                options.setEncodeEmptyArrays(true);
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf(), options);
+                ASSERTV(LINE, 0 == impl.encode(value, 0));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------

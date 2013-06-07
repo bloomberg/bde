@@ -468,6 +468,11 @@ class baejsn_Encoder_EncodeImpl {
 
     baejsn_Encoder_Formatter              d_formatter;        // formatter
 
+    bool                                  d_encodeEmptyArrays;// flag to encode
+                                                              // empty arrays
+ 
+
+
     // FRIENDS
     friend struct baejsn_Encoder_DynamicTypeDispatcher;
     friend struct baejsn_Encoder_ElementVisitor;
@@ -922,6 +927,10 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
         d_formatter.closeArray();
     }
+    else if (d_encodeEmptyArrays) {
+        d_formatter.openArray();
+        d_formatter.closeArray();
+    }
 
     return 0;
 }
@@ -958,6 +967,7 @@ baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
 : d_encoder(encoder)
 , d_outputStream(streambuf)
 , d_formatter(d_outputStream, options)
+, d_encodeEmptyArrays(options.encodeEmptyArrays())
 {
 }
 
