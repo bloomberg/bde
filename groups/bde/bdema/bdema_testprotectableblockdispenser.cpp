@@ -8,12 +8,16 @@ BDES_IDENT_RCSID(bdema_testprotectableblockdispenser_cpp,"$Id$ $CSID$")
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <cstdio>                  // print messages
-#include <cstdlib>                 // abort
-#include <cstring>                 // memset
+#include <bsl_cstdio.h>                  // print messages
+#include <bsl_cstdlib.h>                 // abort
+#include <bsl_cstring.h>                 // memset
+
+// Platform-neutral format specifier for size_type
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 namespace BloombergLP {
 
@@ -98,38 +102,38 @@ void printAlign(const Align *align)
     // Print on a single line the specified 'align' (in hex) followed by the
     // (hex) value of each byte.
 {
-    std::printf("%p:\t", align);
+    bsl::printf("%p:\t", align);
 
     const unsigned char *addr = (const unsigned char *) align;
 
     for (int i = 0; i < (int)(sizeof *align / 4); ++i) {
         if (i > 0) {
-            std::printf("  ");
+            bsl::printf("  ");
         }
         for (int j = 0; j < 4; ++j) {
-            std::printf("%02x ", *addr++);
+            bsl::printf("%02x ", *addr++);
         }
     }
-    std::printf("\n");
+    bsl::printf("\n");
 }
 
 void print16bytes(const void *address)
     // Print on a single line the specified 'address' (in hex) followed by the
     // (hex) value of the block of 16 bytes it addresses.
 {
-    std::printf("%p:\t", address);
+    bsl::printf("%p:\t", address);
 
     const unsigned char *addr = (const unsigned char *) address;
 
     for (int i = 0; i < 4; ++i) {
         if (i > 0) {
-            std::printf("  ");
+            bsl::printf("  ");
         }
         for (int j = 0; j < 4; ++j) {
-            std::printf("%02x ", *addr++);
+            bsl::printf("%02x ", *addr++);
         }
     }
-    std::printf("\n");
+    bsl::printf("\n");
 }
 
 void printBadBlock(const Align                        *align,
@@ -154,34 +158,27 @@ void printBadBlock(const Align                        *align,
     printAlign(align);
     if (MAGIC_NUMBER != magicNumber)  {
         if (DEALLOCATED_MEMORY == magicNumber)  {
-            std::printf(
+            bsl::printf(
                   "*** Deallocating previously deallocated memory at %p ***\n",
                    align);
         }
         else {
-            std::printf("*** Invalid magic number %08x at address %p ***\n",
+            bsl::printf("*** Invalid magic number %08x at address %p ***\n",
             magicNumber, align);
         }
     }
     else {
         int numBytes = align->d_object.d_bytes;
         if (numBytes <= 0) {
-            std::printf(
+            bsl::printf(
                "*** Invalid (non-positive) byte count %d at address %p *** \n",
                numBytes, align);
         }
         if (numBytes != block.size()) {
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-            std::printf(
-  "*** byte count %d doesn't match descriptor count %lld at address %p *** \n",
-                      numBytes, (long long) block.size(), (const void *)align);
-#else
-            std::printf(
-  "*** byte count %d doesn't match descriptor count %d at address %p *** \n",
+            bsl::printf(
+"*** byte count %d doesn't match descriptor count " ZU " at address %p *** \n",
                         numBytes, block.size(), align);
-#endif
-
         }
     }
     const unsigned char *address = (const unsigned char *) ++align;
@@ -214,7 +211,7 @@ bool isValid(const Align                        *align,
         if (!quietFlag) {
             printBadBlock(align, block);
             if (!noAbortFlag) {
-                std::abort();                                          // ABORT
+                bsl::abort();                                          // ABORT
             }
         }
     }
@@ -260,13 +257,13 @@ bdema_TestProtectableBlockDispenser::~bdema_TestProtectableBlockDispenser()
 
     if (!d_quietFlag) {
         if (d_numBytesInUse || d_numBlocksInUse) {
-            std::printf("MEMORY_LEAK:\n"
+            bsl::printf("MEMORY_LEAK:\n"
                         "  Number of blocks in use = %d\n"
                         "   Number of bytes in use = %d\n",
                         d_numBlocksInUse, d_numBytesInUse);
 
             if (!d_noAbortFlag) {
-                std::abort();                                          // ABORT
+                bsl::abort();                                          // ABORT
             }
         }
     }
@@ -290,31 +287,13 @@ bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
     }
 #endif
 
-    if (numBytes < 0) {
-        ++d_numErrors;
-        if (!d_quietFlag) {
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-            std::printf("*** Invalid (negative) allocation size %lld ***\n",
-                        (long long) numBytes);
-#else
-            std::printf("*** Invalid (negative) allocation size %d ***\n",
-                        numBytes);
-#endif
-
-            if (!d_noAbortFlag) {
-                std::abort();                                         // ABORT
-            }
-        }
-        return bdema_MemoryBlockDescriptor();                         // RETURN
-    }
-    if (numBytes <= 0) {
+    if (numBytes == 0) {
         return bdema_MemoryBlockDescriptor();                         // RETURN
     }
 
     int actualNumBytes = allocationSize(numBytes, d_pageSize);
     Align *align = static_cast<Align *>(
-                                std::malloc(sizeof *align + actualNumBytes));
+                                bsl::malloc(sizeof *align + actualNumBytes));
 
     // Ensure malloc returned maximally aligned memory.
     BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
@@ -340,11 +319,11 @@ bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
     }
 
     if (d_verboseFlag) {
-        std::printf("bdema_TestProtectableBlockDispenser: "
+        bsl::printf("bdema_TestProtectableBlockDispenser: "
                     "allocated %d at %p\n",
                     actualNumBytes,
                     addr);
-        std::fflush(stdout);
+        bsl::fflush(stdout);
     }
 
     d_lastAllocateNumBytes = actualNumBytes;
@@ -377,10 +356,10 @@ void bdema_TestProtectableBlockDispenser::deallocate(
     if (align->d_object.d_isProtected) {
         d_numErrors++;
         if (!d_quietFlag) {
-            std::printf("Deallocate block protected state: %p",
+            bsl::printf("Deallocate block protected state: %p",
                         block.address());
             if (!d_noAbortFlag) {
-                std::abort();                                         // ABORT
+                bsl::abort();                                         // ABORT
             }
         }
         return;                                                       // RETURN
@@ -393,15 +372,15 @@ void bdema_TestProtectableBlockDispenser::deallocate(
     --d_numBlocksInUse;
 
     if (d_verboseFlag) {
-        std::printf("bdema_TestProtectableBlockDispenser: "
+        bsl::printf("bdema_TestProtectableBlockDispenser: "
                     "freed %d at %p\n",
                     numBytes,
                     block.address());
-        std::fflush(stdout);
+        bsl::fflush(stdout);
     }
 
-    std::memset(block.address(), (int) SCRIBBLED_MEMORY, numBytes);
-    std::free(align);
+    bsl::memset(block.address(), (int) SCRIBBLED_MEMORY, numBytes);
+    bsl::free(align);
 }
 
 int bdema_TestProtectableBlockDispenser::protect(
@@ -439,10 +418,10 @@ int bdema_TestProtectableBlockDispenser::unprotect(
 
             ++d_numErrors;
             if (!d_quietFlag) {
-                std::printf("Modification to a protected block detected: %p\n",
+                bsl::printf("Modification to a protected block detected: %p\n",
                             block.address());
                 if (!d_noAbortFlag) {
-                    std::abort();                                     // ABORT
+                    bsl::abort();                                     // ABORT
                 }
             }
         }
@@ -475,9 +454,9 @@ bool bdema_TestProtectableBlockDispenser::isProtected(
     Align *align = static_cast<Align *>(block.address()) - 1;
     if (!isValid(align, block, d_quietFlag, d_noAbortFlag)) {
         if (!d_quietFlag) {
-            std::printf("*** Invalid block supplied to isProtected ***\n");
+            bsl::printf("*** Invalid block supplied to isProtected ***\n");
             if (!d_noAbortFlag) {
-                std::abort();                                         // ABORT
+                bsl::abort();                                         // ABORT
             }
         }
         return false;                                                 // RETURN
@@ -488,7 +467,7 @@ bool bdema_TestProtectableBlockDispenser::isProtected(
 
 void bdema_TestProtectableBlockDispenser::print() const
 {
-    std::printf("\n"
+    bsl::printf("\n"
                 "==================================================\n"
                 "                TEST ALLOCATOR STATE\n"
                 "--------------------------------------------------\n"
@@ -504,7 +483,7 @@ void bdema_TestProtectableBlockDispenser::print() const
                 numBlocksTotal(), numBytesTotal(),
                 numErrors());
 
-    std::fflush(stdout);
+    bsl::fflush(stdout);
 }
 
 }  // close namespace BloombergLP
