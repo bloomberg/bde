@@ -12,12 +12,15 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <baesu_stacktraceresolverimpl_xcoff.h>
 #include <baesu_stacktraceresolverimpl_windows.h>
 
+#include <bdema_heapbypassallocator.h>
+
 #include <bslma_allocator.h>
 #include <bslma_deallocatorguard.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
@@ -81,6 +84,21 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dummy>
         return -1;
     }
 };
+
+bsl::ostream& baesu_StackTraceUtil::hexStackTrace(bsl::ostream &stream)
+{
+    // It is too hard to predict when the routine that calls this one will be
+    // inline and when it won't.  On 32 bit Linux debug, for example, it is
+    // clearly an inline template function but in a debug build it is not
+    // inlined.  On 64 bit Linux debug, it is inlined!  On 32 bit
+    // Solaris & AIX, the definition is virtually identical and it is inlined,
+    // Who knows what will happen if built optimized on Linux, or on some
+    // future platform.  Let's play it safe, assume it's inlined, and allow
+    // potentially an extra pointer to be printed out, by passing '1' to
+    // 'additionalIgnoreFrames'.
+
+    return printHexStackTrace(stream, ' ', -1, 1);
+}
 
 int baesu_StackTraceUtil::loadStackTraceFromAddressArray(
                                    baesu_StackTrace   *result,
@@ -212,6 +230,73 @@ bsl::ostream& baesu_StackTraceUtil::printFormatted(
     }
 
     return stream;
+}
+
+bsl::ostream& baesu_StackTraceUtil::printHexStackTrace(
+                                      bsl::ostream&     stream,
+                                      char              delimiter,
+                                      int               maxFrames,
+                                      int               additionalIgnoreFrames,
+                                      bslma::Allocator *allocator)
+{
+    BSLS_ASSERT(0 != delimiter);
+
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+    return stream;
+#else
+    enum {
+        DEFAULT_MAX_FRAMES = 1024,
+    };
+
+    if (maxFrames < 0) {
+        maxFrames = DEFAULT_MAX_FRAMES;
+    }
+
+    // The value 'ignoreFrames' indicates the number of additional frames to
+    // be ignored because they contained function calls within the stack trace
+    // facility.
+
+    const int ignoreFrames = baesu_StackAddressUtil::BAESU_IGNORE_FRAMES + 1 +
+                                                       additionalIgnoreFrames;
+    maxFrames += ignoreFrames;
+
+    bdema_HeapBypassAllocator hbpAlloc;
+    if (0 == allocator) {
+        allocator = &hbpAlloc;
+    }
+
+    void **addresses =
+                     (void **) allocator->allocate(maxFrames * sizeof(void *));
+    bslma::DeallocatorGuard<bslma::Allocator> guard(addresses, allocator);
+
+    int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
+                                                                 maxFrames);
+    if (numAddresses <= ignoreFrames) {
+        return stream;                                                // RETURN
+    }
+
+    bsl::ios_base::fmtflags saveOptions = stream.flags();
+    stream << bsl::hex;
+
+    for (int i = ignoreFrames; i < numAddresses; ++i) {
+        if (i > ignoreFrames) {
+            stream << delimiter;
+        }
+
+        // If we just output the addresses as pointers, the behavior would be
+        // inconsistent across platforms, with some platforms printing the '0x'
+        // prefix and some not.  So we print them out as an integral type
+        // formatted as hex and explicitly add the "0x" to get consistent
+        // behavior.
+
+        stream << "0x" << (bsls::Types::UintPtr) addresses[i];
+    }
+
+    stream << bsl::flush;
+    stream.flags(saveOptions);
+
+    return stream;
+#endif
 }
 
 }  // close namespace BloombergLP
