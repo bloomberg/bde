@@ -52,6 +52,43 @@ BDES_IDENT("$Id: $")
 // proctor no lock.  The destructor of each of the guard types has no effect if
 // no lock is under management.
 //
+///Behavior of the 'release' method
+///--------------------------------
+// Like all BDE proctor classes, each of the three 'bcemt_LockGuard*' classes
+// provides a 'release' method that terminates the proctor's management of any
+// lock object that the proctor holds.  The 'release' method has *no* *effect*
+// on the state of the lock object.
+//
+// In particular, 'bcemt_ReadLockGuard::release' does not unlock the lock
+// object under management.  If a user wants to release the lock object *and*
+// unlock the lock object (because the lock is no longer required before the
+// guard goes out of scope), the following idiom can be used:
+//..
+//  // 'guard' is an existing guard of type 'bcemt_LockGuard<my_Lock>',
+//  // created in a scope that we do not control.
+//
+//  {
+//      // ... Do work that requires the lock.
+//
+//      // We know that the lock is no longer needed.
+//
+//      my_Lock *lock = guard.release();
+//
+//      // 'lock' is no longer managed, but is *still* *locked*.
+//
+//      lock->unlock();
+//
+//      // ... Do work that does not require the lock.
+//  }
+//..
+// Note that this is the standard behavior of the 'release' method of any BDE
+// proctor class.  For most BDE proctors the meaning of 'release' requires no
+// special explanation.  This explanation is provided here because users may be
+// confused by the fact that the 'bcemt_LockGuard*' classes manage lock
+// objects, and the term "release" is often used to describe the action of
+// unlocking a lock object.  Keep in mind that the 'release' method applies
+// only to the proctor, and does not unlock the managed object.
+//
 ///Usage
 ///-----
 // Use this component to ensure that in the event of an exception or exit from
@@ -190,7 +227,8 @@ class bcemt_LockGuard {
         // Return the address of the modifiable lock object under management by
         // this proctor, and release the lock from further management by this
         // proctor.  If no lock is currently being managed, return 0 with no
-        // other effect.
+        // other effect.  Note that this operation does *not* unlock the lock
+        // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
@@ -240,7 +278,8 @@ class bcemt_LockGuardUnlock {
         // Return the address of the modifiable lock object under management by
         // this proctor, and release the lock from further management by this
         // proctor.  If no lock is currently being managed, return 0 with no
-        // other effect.
+        // other effect.  Note that this operation does *not* lock the lock
+        // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
@@ -308,7 +347,8 @@ class bcemt_LockGuardTryLock {
         // Return the address of the modifiable lock object under management by
         // this proctor, and release the lock from further management by this
         // proctor.  If no lock is currently being managed, return 0 with no
-        // other effect.
+        // other effect.  Note that this operation does *not* unlock the lock
+        // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
