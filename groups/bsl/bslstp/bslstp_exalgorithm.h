@@ -7,12 +7,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a namespace for algorithm extensions
+//@PURPOSE: Provide a namespace for algorithm extensions.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
 //
 //@CLASSES:
 //  bslstp::exalgorithm::copy_n: copy 'n' elements
 //
-//@SEE_ALSO: bsl+stdhdrs
+//@SEE_ALSO: bsl_algorithm
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -51,8 +53,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stdhdrs' package.  Use 'algorithm'
-// directly.
+// This component is for internal use only.
 
 #ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_exalgorithm is not for publication"

@@ -7,19 +7,21 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a namespace for hash functions
+//@PURPOSE: Provide a namespace for hash functions.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
 //
 //@CLASSES:
 //          bslstp::Hash: hash function for primitive types
 //   bslstp::HashCString: hash function pointers to null-terminated strings
 //  bslstp::HashSelector: metafunction to select a preferred hash functor type
 //
-//@SEE_ALSO: bsl+stdhdrs
+//@SEE_ALSO: bslalg_hashutil
 //
-//@AUTHOR: Arthur Chiu (achiu21) Alisdair Meredith (ameredit)
+//@AUTHOR: Arthur Chiu (achiu21), Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a namespace for hash functions used by
-// 'hash_map', 'hash_set' and 'hashtable'.
+// 'hash_map' and 'hash_set'.
 //
 // Note that the hash functions here are based on STLPort's implementation,
 // with copyright notice as follows:
@@ -52,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use by the deprecated 'bslstp' hash containers.
+// This component is for internal use only.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -214,9 +216,9 @@ struct HashCString {
     }
 };
 
-                 // ============================================
-                 // explcit class bslstp::Hash<> specializations
-                 // ============================================
+                 // =============================================
+                 // explicit class bslstp::Hash<> specializations
+                 // =============================================
 
 template <>
 struct Hash<char> {

@@ -1,3 +1,25 @@
+// bslstp_hashmap.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLSTP_HASHMAP
+#define INCLUDED_BSLSTP_HASHMAP
+
+//@PURPOSE: Provide containers indexed by a hashed key value.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
+//
+//@CLASSES:
+//        bsl::hash_map: map key to value uniquely
+//   bsl::hash_multimap: map key to value(s)
+//
+//@SEE_ALSO: bsl_unordered_map
+//
+//@AUTHOR: Steven Breitstein (sbreitstein)
+//
+//@DESCRIPTION: This component is for internal use only.  Please include
+// '<bsl_hash_map.h>' instead. 
+//
+// Note that the functions in this component are based on STLPort's
+// implementation, with copyright notice as follows:
+//..
 /*
  * Copyright (c) 1996,1997
  * Silicon Graphics Computer Systems, Inc.
@@ -42,9 +64,11 @@
  * modified is included with the above copyright notice.
  *
  */
-
-#ifndef INCLUDED_BSLSTP_HASHMAP
-#define INCLUDED_BSLSTP_HASHMAP
+//..
+//
+///Usage
+///-----
+// This component is for internal use only.
 
 #ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_hashmap is not for publication"
