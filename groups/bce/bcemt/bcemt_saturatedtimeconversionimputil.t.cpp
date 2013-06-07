@@ -855,6 +855,74 @@ int main(int argc, char *argv[])
 
             ASSERT(dst == 0);
         }
+
+        if (veryVerbose) {
+            cout << "\tTest 64bit toMilleconds" << endl;
+        }
+        {
+            typedef bsls::Types::Int64 Int64;
+            typedef bsls::Types::Uint64 Uint64;
+
+            const Int64  MAX_INT64  = bsl::numeric_limits<Int64>::max();
+            const Int64  MIN_INT64  = bsl::numeric_limits<Int64>::min();
+            const Uint64 MAX_UINT64 = bsl::numeric_limits<Uint64>::max();
+
+
+            enum {
+                MILLISECS_PER_SEC     = 1000,        // one thousand
+                MICROSECS_PER_SEC     = 1000000,     // one million
+                NANOSECS_PER_MICROSEC = 1000,        // one thousand
+                NANOSECS_PER_MILLISEC = 1000000,     // one million
+                NANOSECS_PER_SEC      = 1000000000   // one billion
+            };
+
+            // Compute the threshold for saturation.
+
+            const Int64    SEC_LIMIT = MAX_UINT64 / MILLISECS_PER_SEC;
+            const int NANO_SEC_LIMIT = (MAX_UINT64 - (SEC_LIMIT * 1000))
+                                                    * NANOSECS_PER_MILLISEC;
+
+            P(MAX_UINT64);
+            P(SEC_LIMIT);
+            struct {
+                int    d_line;
+                Int64  d_seconds;
+                Int64  d_nanoseconds;
+                Uint64 d_expectedResult;
+            } VALUES[] = {
+                { L_,             0,         0,                 0 },
+                { L_,     MAX_INT64, 999999999,        MAX_UINT64 },
+                { L_,     MIN_INT64,         0,                 0 },
+
+                // Test values approach and just past the limit
+       { L_, SEC_LIMIT - 1,         0, ((Uint64)SEC_LIMIT -1) * 1000 },
+       { L_,     SEC_LIMIT,         0,      (Uint64)SEC_LIMIT * 1000 },
+
+       { L_,     SEC_LIMIT, NANO_SEC_LIMIT - 1000000, MAX_UINT64 - 1 },
+       { L_,     SEC_LIMIT,           NANO_SEC_LIMIT,     MAX_UINT64 },
+       { L_,     SEC_LIMIT,       NANO_SEC_LIMIT + 1,     MAX_UINT64 },
+       { L_,     SEC_LIMIT, NANO_SEC_LIMIT + 1000000,     MAX_UINT64 },
+       { L_, SEC_LIMIT + 1,                        0,    MAX_UINT64 },
+       { L_, SEC_LIMIT + 2,                        0,    MAX_UINT64 },
+
+
+            };
+            const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
+
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int    LINE     = VALUES[i].d_line;
+                const Uint64 EXPECTED = VALUES[i].d_expectedResult;
+                bdet_TimeInterval input(VALUES[i].d_seconds,
+                                        VALUES[i].d_nanoseconds);
+
+                Uint64 result;
+
+                Obj::toMillisec(&result, input);
+
+                ASSERTV(LINE, EXPECTED, result, input, EXPECTED == result);
+            }
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------

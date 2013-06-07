@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bcemt_saturatedtimeconversionimputil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // PRIVATE CONSTANTS
-enum { 
+enum {
     NANOSEC_PER_MILLISEC = 1000000,
     MILLISEC_PER_SEC     = 1000
 };
@@ -49,7 +49,7 @@ void toTimeTImp(long *dst, bsls::Types::Int64 src)
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
 {
     typedef bsl::conditional<sizeof(int) == sizeof(long),
-                            int, 
+                            int,
                             bsls::Types::Int64>::type LongAlias;
 
 
@@ -89,7 +89,7 @@ void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
 {
     typedef bsl::conditional<sizeof(unsigned int) == sizeof(unsigned long),
-                             unsigned int, 
+                             unsigned int,
                              bsls::Types::Uint64>::type UnsignedLongAlias;
 
     UnsignedLongAlias result;
@@ -192,7 +192,7 @@ void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
     BSLS_ASSERT_SAFE(dst);
 
     typedef bsl::conditional<sizeof(unsigned int) == sizeof(unsigned long),
-                             unsigned int, 
+                             unsigned int,
                              bsls::Types::Uint64>::type UnsignedLongAlias;
 
     UnsignedLongAlias result;
@@ -208,16 +208,23 @@ void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
 {
     BSLS_ASSERT(dst);
 
+    typedef bsls::Types::Uint64 Uint64;
+
     const int nanoMilliSeconds = src.nanoseconds() / NANOSEC_PER_MILLISEC;
+    const Uint64 UINT_MAX = maxOf(*dst);
+    const Uint64 MAX_SEC  = UINT_MAX / 1000;
+    const Uint64 MAX_MILLI_FOR_MAX_SEC = UINT_MAX - ((UINT_MAX)/1000) * 1000;
 
     if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
         *dst = 0;
     }
-    else if (src.seconds() >= maxOf(src.seconds()) / 1000 - nanoMilliSeconds) {
-        *dst = maxOf(*dst);
+    else if ((Uint64)src.seconds() < MAX_SEC ||
+               ((Uint64)src.seconds() == MAX_SEC &&
+                (Uint64)nanoMilliSeconds < MAX_MILLI_FOR_MAX_SEC))  {
+        *dst = (bsls::Types::Uint64)src.seconds() * 1000 + nanoMilliSeconds;
     }
-    else {              
-        toTimeTImp(dst, src.seconds() * 1000 + nanoMilliSeconds);
+    else {
+        *dst = maxOf(*dst);
     }
 }
 
