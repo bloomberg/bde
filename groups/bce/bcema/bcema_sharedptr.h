@@ -1135,6 +1135,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_nullptr.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
+#include <bsls_unspecifiedbool.h>
+#endif
+
 #ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>       // 'bsl::swap', found in <utility> in C++11
 #endif
@@ -1144,11 +1148,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
-#include <bsl_functional.h>      // 'bsl::binary_function'
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#include <bsl_functional.h>      // 'bsl::binary_function', 'bsl::less'
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -1159,39 +1159,21 @@ BDES_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #endif
 
-#ifndef INCLUDED_BSL_TYPEINFO
-#include <bsl_typeinfo.h>
-#endif
-
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>         // 'bsl::pair'
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
+#ifndef INCLUDED_BSL_TYPEINFO
+#include <bsl_typeinfo.h>
+#endif
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace BloombergLP {
-
-                // ============================================
-                // struct bcema_SharedPtr_UnspecifiedBoolHelper
-                // ============================================
-
-struct bcema_SharedPtr_UnspecifiedBoolHelper {
-    // This 'struct' provides a member, 'd_member', whose pointer-to-member is
-    // used to convert a shared pointer to an "unspecified boolean type".
-
-    int d_member;
-        // This data member is used solely for taking its address to return a
-        // non-null pointer-to-member.  Note that the *value* of 'd_member' is
-        // not used.
-};
-
-typedef int bcema_SharedPtr_UnspecifiedBoolHelper::*
-                                               bcema_SharedPtr_UnspecifiedBool;
-    // 'bcema_SharedPtr_UnspecifiedBool' is an alias for a pointer-to-member of
-    // the 'bcema_SharedPtr_UnspecifiedBoolHelper' class.  This (opaque) type
-    // can be used as an "unspecified boolean type" for converting a shared
-    // pointer to 'bool' in contexts such as 'if (sp) { ... }' without actually
-    // having a conversion to 'bool', or being less-than comparable (either of
-    // which would enable undesirable implicit comparisons of shared
-    // pointers to 'int' and less-than comparisons).
 
                         // =====================
                         // class bcema_SharedPtr
@@ -1227,6 +1209,8 @@ class bcema_SharedPtr {
     // PRIVATE TYPES
     typedef bcema_SharedPtr<TYPE> SelfType;
         // 'SelfType' is an alias to this 'class'.
+
+    typedef typename bsls::UnspecifiedBool<bcema_SharedPtr>::BoolType BoolType;
 
     // FRIENDS
     template <class OTHER_TYPE> friend class bcema_SharedPtr;
@@ -1729,7 +1713,7 @@ class bcema_SharedPtr {
         // object formerly referred to by the other.
 
     // ACCESSORS
-    operator bcema_SharedPtr_UnspecifiedBool() const;
+    operator BoolType() const;
         // Return a value of an "unspecified bool" type that evaluates to
         // 'false' if this shared pointer is in the empty state, and 'true'
         // otherwise.  Note that this conversion operator allows a shared
@@ -2055,11 +2039,9 @@ struct bcema_SharedPtrNilDeleter {
     // This 'struct' provides a function-like shared pointer deleter that does
     // nothing when invoked.
 
-    // MANIPULATORS
-    void operator()(const void *) const
+    // ACCESSORS
+    void operator()(const void *) const;
         // No-Op.
-    {
-    }
 };
 
 // ============================================================================
@@ -2137,6 +2119,7 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(OTHER_TYPE *ptr)
 
 template <class TYPE>
 template <class OTHER_TYPE>
+inline
 bcema_SharedPtr<TYPE>::bcema_SharedPtr(OTHER_TYPE       *ptr,
                                        bslma::Allocator *basicAllocator)
 : d_ptr_p(ptr)
@@ -2283,6 +2266,7 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(const bcema_SharedPtr<TYPE>& original)
 }
 
 template <class TYPE>
+inline
 bcema_SharedPtr<TYPE>::~bcema_SharedPtr()
 {
     BSLS_ASSERT_SAFE(!d_rep_p || d_ptr_p);
@@ -2330,6 +2314,7 @@ bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
 
 template <class TYPE>
 template <class OTHER_TYPE>
+inline
 bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
                                                  bsl::auto_ptr<OTHER_TYPE> rhs)
 {
@@ -2338,6 +2323,7 @@ bcema_SharedPtr<TYPE>& bcema_SharedPtr<TYPE>::operator=(
 }
 
 template <class TYPE>
+inline
 void bcema_SharedPtr<TYPE>::clear()
 {
     reset();
@@ -2345,7 +2331,8 @@ void bcema_SharedPtr<TYPE>::clear()
 
 template <class TYPE>
 template <class OTHER_TYPE>
-void bcema_SharedPtr<TYPE>::load(OTHER_TYPE   *ptr,
+inline
+void bcema_SharedPtr<TYPE>::load(OTHER_TYPE       *ptr,
                                  bslma::Allocator *basicAllocator)
 {
     SelfType(ptr, basicAllocator).swap(*this);
@@ -2353,7 +2340,8 @@ void bcema_SharedPtr<TYPE>::load(OTHER_TYPE   *ptr,
 
 template <class TYPE>
 template <class OTHER_TYPE, class DELETER>
-void bcema_SharedPtr<TYPE>::load(OTHER_TYPE   *ptr,
+inline
+void bcema_SharedPtr<TYPE>::load(OTHER_TYPE       *ptr,
                                  const DELETER&    deleter,
                                  bslma::Allocator *basicAllocator)
 {
@@ -2738,6 +2726,7 @@ bsl::pair<TYPE *, bcema_SharedPtrRep *> bcema_SharedPtr<TYPE>::release()
 }
 
 template <class TYPE>
+inline
 void bcema_SharedPtr<TYPE>::swap(bcema_SharedPtr<TYPE>& other)
 {
     bsl::swap(d_ptr_p, other.d_ptr_p);
@@ -2747,11 +2736,15 @@ void bcema_SharedPtr<TYPE>::swap(bcema_SharedPtr<TYPE>& other)
 // ACCESSORS
 template <class TYPE>
 inline
-bcema_SharedPtr<TYPE>::operator bcema_SharedPtr_UnspecifiedBool() const
+bcema_SharedPtr<TYPE>::operator BoolType() const
 {
+#if 1
+    return bsls::UnspecifiedBool<bcema_SharedPtr>::makeValue(d_ptr_p);
+#else
     return d_ptr_p
            ? &bcema_SharedPtr_UnspecifiedBoolHelper::d_member
            : 0;
+#endif
 }
 
 template <class TYPE>
@@ -2832,6 +2825,7 @@ void bcema_SharedPtr<TYPE>::reset()
 
 template <class TYPE>
 template <class OTHER_TYPE>
+inline
 void bcema_SharedPtr<TYPE>::reset(OTHER_TYPE *ptr)
 {
     // Wrap 'ptr' in 'auto_ptr' to ensure standard delete behavior.
@@ -2842,6 +2836,7 @@ void bcema_SharedPtr<TYPE>::reset(OTHER_TYPE *ptr)
 
 template <class TYPE>
 template <class OTHER_TYPE, class DELETER>
+inline
 void bcema_SharedPtr<TYPE>::reset(OTHER_TYPE *ptr, const DELETER& deleter)
 {
     SelfType(ptr, deleter, 0).swap(*this);
@@ -2849,6 +2844,7 @@ void bcema_SharedPtr<TYPE>::reset(OTHER_TYPE *ptr, const DELETER& deleter)
 
 template <class TYPE>
 template <class OTHER_TYPE>
+inline
 void bcema_SharedPtr<TYPE>::reset(
                                 const bcema_SharedPtr<OTHER_TYPE>&  source,
                                 TYPE                               *ptr)
@@ -2884,6 +2880,7 @@ int bcema_SharedPtr<TYPE>::use_count() const
 
 // ACCESSORS
 template <typename TYPE>
+inline
 bool bcema_SharedPtrLess::operator()(const bcema_SharedPtr<TYPE>& a,
                                      const bcema_SharedPtr<TYPE>& b) const
 {
@@ -2896,9 +2893,10 @@ bool bcema_SharedPtrLess::operator()(const bcema_SharedPtr<TYPE>& a,
 
 // ACCESSORS
 template <typename TYPE>
+inline
 bool bcema_SharedPtrUtil::PtrLess<TYPE>::operator()(
-                                        const bcema_SharedPtr<TYPE>& a,
-                                        const bcema_SharedPtr<TYPE>& b) const
+                                          const bcema_SharedPtr<TYPE>& a,
+                                          const bcema_SharedPtr<TYPE>& b) const
 {
     return bsl::less<TYPE *>()(a.ptr(), b.ptr());
 }
@@ -2909,6 +2907,7 @@ bool bcema_SharedPtrUtil::PtrLess<TYPE>::operator()(
 
 // CLASS METHODS
 template <class TARGET, class SOURCE>
+inline
 bcema_SharedPtr<TARGET>
 bcema_SharedPtrUtil::dynamicCast(const bcema_SharedPtr<SOURCE>& source)
 {
@@ -2917,6 +2916,7 @@ bcema_SharedPtrUtil::dynamicCast(const bcema_SharedPtr<SOURCE>& source)
 }
 
 template <class TARGET, class SOURCE>
+inline
 bcema_SharedPtr<TARGET>
 bcema_SharedPtrUtil::staticCast(const bcema_SharedPtr<SOURCE>& source)
 {
@@ -2925,6 +2925,7 @@ bcema_SharedPtrUtil::staticCast(const bcema_SharedPtr<SOURCE>& source)
 }
 
 template <class TARGET, class SOURCE>
+inline
 bcema_SharedPtr<TARGET>
 bcema_SharedPtrUtil::constCast(const bcema_SharedPtr<SOURCE>& source)
 {
@@ -2940,6 +2941,7 @@ void bcema_SharedPtrUtil::dynamicCast(bcema_SharedPtr<TARGET>        *target,
 }
 
 template <class TARGET, class SOURCE>
+inline
 void bcema_SharedPtrUtil::staticCast(bcema_SharedPtr<TARGET>        *target,
                                      const bcema_SharedPtr<SOURCE>&  source)
 {
@@ -2947,10 +2949,21 @@ void bcema_SharedPtrUtil::staticCast(bcema_SharedPtr<TARGET>        *target,
 }
 
 template <class TARGET, class SOURCE>
+inline
 void bcema_SharedPtrUtil::constCast(bcema_SharedPtr<TARGET>        *target,
                                     const bcema_SharedPtr<SOURCE>&  source)
 {
     target->loadAlias(source, const_cast<TARGET *>(source.ptr()));
+}
+
+                      // --------------------------------
+                      // struct bcema_SharedPtrNilDeleter
+                      // --------------------------------
+
+// ACCESSORS
+inline
+void bcema_SharedPtrNilDeleter::operator()(const void *) const
+{
 }
 
 }  // close namespace BloombergLP
@@ -2983,6 +2996,7 @@ bsl::ostream& BloombergLP::operator<<(bsl::ostream&                stream,
                         // *** std::tr1 COMPATIBILITY ***
 
 template <class TYPE>
+inline
 void BloombergLP::swap(bcema_SharedPtr<TYPE>& a, bcema_SharedPtr<TYPE>& b)
 {
     a.swap(b);

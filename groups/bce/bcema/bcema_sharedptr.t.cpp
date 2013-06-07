@@ -2,33 +2,35 @@
 
 #include <bcema_sharedptr.h>
 
-#include <bcema_testallocator.h>                // for testing only
-#include <bcemt_lockguard.h>                    // for testing only
-#include <bcemt_thread.h>                       // for testing only
-#include <bdef_bind_test.h>                     // for testing only
-#include <bdef_function.h>                      // for testing only
-#include <bdema_managedptr.h>                   // for testing only
-#include <bslalg_scalarprimitives.h>            // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslmf_isconvertible.h>                // for testing only
-#include <bsls_stopwatch.h>                     // for testing only
-
-#include <bsls_alignmentfromtype.h>
+#include <bcema_testallocator.h>
+#include <bdef_bind_test.h>
+#include <bdef_function.h>
+#include <bdema_managedptr.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_isconvertible.h>
+#include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>          // placement syntax
+#include <bsl_utility.h>
 #include <bsl_vector.h>
 
-#include <bsl_cstdlib.h>      // atoi()
+#include <bsl_cstdlib.h>      // atoi
 #include <bsl_cstring.h>      // strcmp, strcpy
 
-using bsl::cout;
 using bsl::endl;
 using bsl::cerr;
+using bsl::cout;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC   // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS          // Microsoft Extensions Enabled
@@ -140,14 +142,6 @@ using namespace bsl;  // automatically added by script
 // bcema_SharedPtrNilDeleter
 //--------------------------
 // [  ] void operator()(TYPE *);
-//
-// bcema_SharedPtr_ReferenceType
-//------------------------------
-// [  ]
-//
-// bcema_SharedPtr_UnspecifiedBoolHelper
-//--------------------------------------
-// [  ]
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] bcema_SharedPtr(TYPE *ptr);
@@ -646,10 +640,6 @@ class MyAllocTestDeleter {
     void             *d_someMemory;
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(MyAllocTestDeleter,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
-  public:
     // CREATORS
     explicit MyAllocTestDeleter(bslma::Allocator *deleter,
                                 bslma::Allocator *basicAllocator = 0);
@@ -666,6 +656,14 @@ class MyAllocTestDeleter {
     template <class TYPE>
     void operator()(TYPE *ptr) const;
 };
+
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<MyAllocTestDeleter>
+     : bsl::true_type {};
+}  // close namespace bslma
+}  // close namespace BloombergLP
 
                              // ==================
                              // class MyTestFunctor
