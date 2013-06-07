@@ -211,9 +211,10 @@ void bcemt_SaturatedTimeConversionImpUtil::toMillisec(
     typedef bsls::Types::Uint64 Uint64;
 
     const int nanoMilliSeconds = src.nanoseconds() / NANOSEC_PER_MILLISEC;
-    const Uint64 UINT_MAX = maxOf(*dst);
-    const Uint64 MAX_SEC  = UINT_MAX / 1000;
-    const Uint64 MAX_MILLI_FOR_MAX_SEC = UINT_MAX - ((UINT_MAX)/1000) * 1000;
+    const Uint64 MAX_UINT64 = maxOf(*dst);
+    const Uint64 MAX_SEC    = MAX_UINT64 / 1000;
+    const Uint64 MAX_MILLI_FOR_MAX_SEC = 
+                                      MAX_UINT64 - ((MAX_UINT64)/1000) * 1000;
 
     if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
         *dst = 0;

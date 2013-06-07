@@ -148,7 +148,7 @@ const Int64 i48         = ((Int64) 1 << 48);
 
 int verbose;
 int veryVerbose;
-// int veryVeryVerbose;
+int veryVeryVerbose;
 
 //=============================================================================
 //                            ASSERTS ABOUT TYPES
@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
-    // veryVeryVerbose = argc > 4;
+    veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -727,7 +727,7 @@ int main(int argc, char *argv[])
 
         ASSERT(uintMax == maxSec * 1000 + maxNSec / MILLION);
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Vary nsec values of input around the top saturating range);
         }
         for (int ns = BILLION - 1; ns >= 0; ns -= MILLION) {
@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
                                                       (Int64) dst == expected);
         }
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Vary sec values of input around the top saturating range);
         }
         for (Int64 i = maxSec - 1000; i < maxSec + 1000; ++i) {
@@ -750,7 +750,7 @@ int main(int argc, char *argv[])
             ASSERT((Int64) dst == (i > maxSec ? uintMax : i * 1000));
         }
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Vary sec values of input around the top saturating range);
             Q(... with nanoseconds above exactly saturating level);
         }
@@ -763,7 +763,7 @@ int main(int argc, char *argv[])
             ASSERT((Int64) dst == (i >= maxSec ? uintMax : i * 1000 + nsDiv));
         }
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Vary sec values from 0 to above saturating by 1000s);
         }
         Int64 stopAt = maxSec + 2 * MILLION;
@@ -781,7 +781,7 @@ int main(int argc, char *argv[])
             ASSERT((Int64) dst == expected);
         }
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Vary sec values from 0 to above saturating by 1000s);
             Q(... with nsecs at exactly saturating level);
         }
@@ -794,7 +794,7 @@ int main(int argc, char *argv[])
             ASSERT(dst == i * 1000 + nsDiv);
         }
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Vary sec values from 0 down to large negative values);
         }
         ns = -MILLION;
@@ -816,7 +816,7 @@ int main(int argc, char *argv[])
             ASSERT(dst == uintMax);
         }
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Hold sec at Zero and vary nsec across full range);
         }
         for (ns = -BILLION + MILLION; ns < BILLION; ns += MILLION / 4) {
@@ -834,7 +834,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             Q(Hold sec at max and vary nsec over full range);
         }
         ns = 0;
@@ -882,8 +882,6 @@ int main(int argc, char *argv[])
             const int NANO_SEC_LIMIT = (MAX_UINT64 - (SEC_LIMIT * 1000))
                                                     * NANOSECS_PER_MILLISEC;
 
-            P(MAX_UINT64);
-            P(SEC_LIMIT);
             struct {
                 int    d_line;
                 Int64  d_seconds;
@@ -919,6 +917,11 @@ int main(int argc, char *argv[])
                 Uint64 result;
 
                 Obj::toMillisec(&result, input);
+
+                if (veryVeryVerbose) {
+                    P_(LINE); P_(EXPECTED); 
+                    P_(result); P(input);
+                }
 
                 ASSERTV(LINE, EXPECTED, result, input, EXPECTED == result);
             }
