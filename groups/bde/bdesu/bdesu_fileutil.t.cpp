@@ -6,6 +6,8 @@
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -29,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#else
+#else // !BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>  // for Sleep, GetLastError
 #endif
 
@@ -59,10 +61,13 @@ using namespace bsl;  // automatically added by script
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
 // [ 8] FD open(const char *p, bool writable, bool exist, bool append);
+// [10] int tryLock(FileDescriptor, bool )
+// [13] int sync(char *, int , bool )
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE 1
-// [10] USAGE EXAMPLE 2
+// [12] CONCERN: Open in append-mode behavior (particularly on windows)
+// [14] USAGE EXAMPLE 1
+// [15] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -103,6 +108,17 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
@@ -294,6 +310,10 @@ class MMIXRand {
 };
 
 
+void NoOpAssertHandler(const char *, const char *, int)
+{
+}
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -353,7 +373,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -440,7 +460,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -531,6 +551,155 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING: sync
+        //
+        // Note that this is a white-box test that aims to verify the
+        // underlying system call is called with the appropriate arguments (it
+        // is not a test of the operating system behavior).
+        //
+        // Unfortunately, I been unable to find an effective test for
+        // concerns  1, 2, and 3, since I've been unable to observe memory
+        // pages *not* synchronized to disk.
+        //
+        // Concerns:
+        //: 1 On success the mapped bytes are synchronized with their values
+        //:   in the file.
+        //:
+        //: 2 That only the region of memory at the specified location
+        //:   is synchronized.
+        //:
+        //: 3 That only the indicated number of bytes are synchronized.
+        //:
+        //: 4 That on failure an error status is returned.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        //
+        //:Plan:
+        //: 1 Call 'sync' with valid arguments and verify it returns
+        //:   successfully. (C-1..3)
+        //:
+        //: 2 Call 'sync' with an invalid set of arguments (having disabled
+        //:   assertions that would prevent the arguments being supplied to the
+        //:   underlying system call)  (C-4)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values (using the 'BSLS_ASSERTTEST_*'
+        //:   macros).  (C-5)
+        //
+        // Testing:
+        //   static int sync(char *, int , bool );
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING: 'sync'" << endl
+                          << "===============" << endl;
+
+        typedef bdesu_FileUtil::FileDescriptor FD;
+
+        // Note that there appear to be '#define' for PAGESIZE and PAGE_SIZE
+        // on AIX.
+
+        const int MYPAGESIZE = bdesu_MemoryUtil::pageSize();
+        const int SIZE       = MYPAGESIZE;
+        const int READ       = bdesu_MemoryUtil::BDESU_ACCESS_READ;
+        const int READ_WRITE = bdesu_MemoryUtil::BDESU_ACCESS_READ |
+                               bdesu_MemoryUtil::BDESU_ACCESS_WRITE;
+        int         rc     = 0;
+        Obj::Offset offset = 0;
+
+        bsl::string testFileName(tempFileName());
+        Obj::remove(testFileName);
+        FD writeFd = Obj::open(testFileName, true, false, false);
+        FD readFd  = Obj::open(testFileName, false, true, false);
+
+        ASSERT(Obj::INVALID_FD != writeFd);
+        ASSERT(Obj::INVALID_FD != readFd);
+
+        offset = Obj::seek(writeFd, SIZE, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(SIZE == offset);
+        rc = Obj::write(writeFd, testFileName.c_str(), 1);
+        ASSERT(1 == rc);
+
+        offset = Obj::seek(writeFd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(0 == offset);
+
+        void *writeMemory, *readMemory;
+
+        rc = Obj::map(writeFd, &writeMemory, 0, SIZE, READ_WRITE);
+        ASSERT(0 == rc);
+
+        rc = Obj::map(readFd,   &readMemory, 0, SIZE, READ);
+        ASSERT(0 == rc);
+
+        ASSERT(readFd != writeFd);
+
+        char *writeBuffer = static_cast<char *>(writeMemory);
+
+        {
+
+            if (veryVerbose) {
+                cout << "\tTesting msync is performed" << endl;
+            }
+
+            rc = Obj::sync(writeBuffer, SIZE, true);
+            ASSERT(0 == rc);
+
+            // I have not been able to fashion an effective test for 'sync'
+            // because I've been unable to observe unsynchronized memory
+            // mapped pages (so it cannot be determined whether 'sync' is
+            // actually performing synchronization).  For reference, you can
+            // find some experiments writing to mapped-memory, and read from a
+            // different file descriptor to the same file, in
+            // 'devgit:bde/bde-core' commit:
+            //..
+            //  commit a93a90d9c567d7a24994811f79c65b38c2cb9791
+            //  Author: (Henry) Mike Verschell <hverschell@bloomberg.net>
+            //  Date:   Fri Apr 19 16:28:50 2013 -0400
+            //..
+        }
+        {
+            if (veryVerbose) {
+                cout << "\tTesting msync returns an error status" << endl;
+            }
+
+            // Note that, experimentally, the only sane way to force an error
+            // code from sync is to pass a address that is not aligned on a
+            // page boundary.  We must first disable our own assertion handler
+            // in order for the underlying system call to be invoked.
+
+            bsls::AssertFailureHandlerGuard hg(NoOpAssertHandler);
+
+            int address;
+
+            rc = Obj::sync((char *)&address, MYPAGESIZE, true);
+            ASSERT(0 != rc);
+#ifdef BSLS_PLATFORM_OS_UNIX
+            // Note that this is a white-box test that we return 'errno' on
+            // error, which is not required by the method contract.
+            ASSERT(EINVAL == rc);
+            if (veryVeryVerbose) {
+                P(rc);
+            }
+#endif
+        }
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                            bsls::AssertTest::failTestDriver);
+            if (veryVerbose) cout << "\tTest assertions." << endl;
+
+            ASSERT_PASS(Obj::sync(writeBuffer, SIZE, true));
+            ASSERT_FAIL(Obj::sync(0, SIZE, true));
+            ASSERT_FAIL(Obj::sync(writeBuffer, SIZE / 2, true));
+            ASSERT_FAIL(Obj::sync(writeBuffer + 1, SIZE, true));
+
+        }
+        Obj::close(writeFd);
+        Obj::close(readFd);
+        Obj::remove(testFileName);
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1893,7 +2062,8 @@ int main(int argc, char *argv[])
                                            bdet_TimeInterval(3 * 24 * 3600, 0);
             if (isOld) {
                 struct utimbuf timeInfo;
-                timeInfo.actime = timeInfo.modtime = threeDaysAgo.seconds();
+                timeInfo.actime = timeInfo.modtime = 
+                                         (bsl::time_t)threeDaysAgo.seconds();
 
                 //test invariant:
 
