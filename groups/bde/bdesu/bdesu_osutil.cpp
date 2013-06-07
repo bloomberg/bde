@@ -22,18 +22,17 @@ BDES_IDENT_RCSID(bdesu_osutil_cpp, "$Id$ $CSID$")
 
 
 namespace BloombergLP {
-namespace bdesu {
 
-                        // -------------
-                        // struct OsUtil
-                        // -------------
+                        // -------------------
+                        // struct bdesu_OsUtil
+                        // -------------------
 
 // CLASS METHODS
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-int OsUtil::getOsInfo(bsl::string *osName,
-                      bsl::string *osVersion,
-                      bsl::string *osPatch)
+int bdesu_OsUtil::getOsInfo(bsl::string *osName,
+                            bsl::string *osVersion,
+                            bsl::string *osPatch)
 {
     BSLS_ASSERT(osName);
     BSLS_ASSERT(osVersion);
@@ -62,9 +61,9 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
 #else
 
-int OsUtil::getOsInfo(bsl::string *osName,
-                      bsl::string *osVersion,
-                      bsl::string *osPatch)
+int bdesu_OsUtil::getOsInfo(bsl::string *osName,
+                            bsl::string *osVersion,
+                            bsl::string *osPatch)
 {
     BSLS_ASSERT(osName);
     BSLS_ASSERT(osVersion);
@@ -81,7 +80,6 @@ int OsUtil::getOsInfo(bsl::string *osName,
 }
 
 #endif
-}  // close package namespace
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
