@@ -85,8 +85,7 @@ using bsl::endl;
 // [13] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLE
-// [15] ENCODING EMPTY ARRAYS
+// [15] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -30309,7 +30308,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 16: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -30481,124 +30480,6 @@ int main(int argc, char *argv[])
     ASSERT(EXP_OUTPUT == os.str());
     }
 //..
-      } break;
-      case 15: {
-        // --------------------------------------------------------------------
-        // ENCODING EMPTY ARRAYS
-        //
-        // Concerns:
-        //: 1 Empty vectors with the 'encodeEmptyArrays' options result in an
-        //:   '[' and ']'.
-        //:
-        //: 2 The formatting is appropriately output for empty vectors when
-        //:   used in consonance with the 'encodeEmptyArrays' option.
-        //
-        // Plan:
-        //: 1 Use a table-driven approach:
-        //:
-        //:   1 Create a set of values with various length of 'vector<char>'.
-        //:
-        //:   2 Encode each values and verify the result is in base64 format.
-        //:
-        //: 2 Repeat step one with 'vector<int>' instead.
-        //
-        // Testing:
-        //   int encode(bsl::ostream& s, const bsl::vector<TYPE>& v, options);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "ENCODING ARRAYS" << endl
-                          << "===============" << endl;
-
-        if (verbose) cout << "Encode 'vector<char>'" << endl;
-        {
-            const struct {
-                int         d_line;
-                const char *d_input_p;
-                int         d_inputLength;
-                const char *d_result_p;
-            } DATA[] = {
-
-            //LINE  INPUT  LEN  RESULT
-            //----  -----  ---  ------
-
-            { L_,   "",     0,   "\"\""  },
-            { L_,   "\x00", 1,   "\"AA==\""  },
-            { L_,   "\xFF", 1,   "\"\\/w==\""  },
-            { L_,   "\x00\x00\x00\x00\x00\x00\x00\x00\00", 9,
-                                                           "\"AAAAAAAAAAAA\"" }
-
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            Options options;
-            options.setEncodeEmptyArrays(true);
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE   = DATA[ti].d_line;
-                const char *const INPUT  = DATA[ti].d_input_p;
-                const int         LENGTH = DATA[ti].d_inputLength;
-                const char *const EXP    = DATA[ti].d_result_p;
-                const bsl::vector<char> VALUE(INPUT, INPUT + LENGTH);
-
-                Obj  encoder;
-                bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), options);
-                ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
-
-                bsl::string result = oss.str();
-                ASSERTV(LINE, result, EXP, result == EXP);
-            }
-        }
-
-        if (verbose) cout << "Encode 'vector<int>' with compact style" << endl;
-        {
-            const struct {
-                int            d_line;
-                const char    *d_input_p;
-                Style          d_style;
-                int            d_initialIndentLevel;
-                int            d_spacesPerLevel;
-                const char    *d_result_p;
-            } DATA[] = {
-
-            //LINE  INPUT   Style  INDENT     SPL    RESULT
-            //----  -----   -----  ------     ---    ------
-
-            { L_,     "",         0,      0,    "[]"     },
-//             { L_,   "0",      [0,1,2,3]"  }
-
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE   = DATA[ti].d_line;
-                const char *const INPUT  = DATA[ti].d_input_p;
-                const int         LEN    = bsl::strlen(INPUT);
-                const int         INDENT = DATA[ti].d_initialIndentLevel;
-                const int         SPL    = DATA[ti].d_spacesPerLevel;
-                const char *const EXP    = DATA[ti].d_result_p;
-
-                bsl::vector<int> value;
-                for (int i = 0; i < LEN; ++i) {
-                    value.push_back(i);
-                }
-
-                Options options;
-                options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
-                options.setInitialIndentLevel(INDENT);
-                options.setSpacesPerLevel(SPL);
-                options.setEncodeEmptyArrays(true);
-
-                Obj  encoder;
-                bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), options);
-                ASSERTV(LINE, 0 == impl.encode(value, 0));
-
-                bsl::string result = oss.str();
-                ASSERTV(LINE, result, EXP, result == EXP);
-            }
-        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -31381,9 +31262,16 @@ int main(int argc, char *argv[])
         //: 1 'bsl::vector<char>' is encoded into as a JSON string type in
         //:   base64 encoding.
         //:
-        //: 2 Empty 'bsl::vector<char>' results in an empyt string.
+        //: 2 Empty 'bsl::vector<char>' results in an empty string.
         //:
-        //: 3 Array of other types will be encoded as a JSON array.
+        //: 3 Empty arrays of other types by will not be encoded by default.
+        //:
+        //: 4 Empty vectors with the 'encodeEmptyArrays' option set to 'true'
+        //:   result in an '[' and ']' being output.
+        //:
+        //: 5 The formatting is appropriately output for all vectors including
+        //:   empty vectors when used in consonance with the
+        //:   'encodeEmptyArrays' option.
         //
         // Plan:
         //: 1 Use a table-driven approach:
@@ -31393,6 +31281,8 @@ int main(int argc, char *argv[])
         //:   2 Encode each values and verify the result is in base64 format.
         //:
         //: 2 Repeat step one with 'vector<int>' instead.
+        //:
+        //: 3 Ensure that the output is as expected in all cases.
         //
         // Testing:
         //   int encode(bsl::ostream& s, const bsl::vector<TYPE>& v, options);
@@ -31406,9 +31296,9 @@ int main(int argc, char *argv[])
         {
             const struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_inputLength;
-                const char *d_result;
+                const char *d_result_p;
             } DATA[] = {
 
             //LINE  INPUT  LEN  RESULT
@@ -31426,53 +31316,150 @@ int main(int argc, char *argv[])
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
-                const char *const INPUT  = DATA[ti].d_input;
+                const char *const INPUT  = DATA[ti].d_input_p;
                 const int         LENGTH = DATA[ti].d_inputLength;
-                const char *const EXP    = DATA[ti].d_result;
+                const char *const EXP    = DATA[ti].d_result_p;
                 const bsl::vector<char> VALUE(INPUT, INPUT + LENGTH);
 
-                Obj  encoder;
-                bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+                {
+                    Obj  encoder;
+                    bsl::ostringstream oss;
+                    Impl impl(&encoder, oss.rdbuf(), Options());
+                    ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
 
-                bsl::string result = oss.str();
-                ASSERTV(LINE, result, EXP, result == EXP);
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, result, EXP, result == EXP);
+                }
+
+                {
+                    Options options;
+                    options.setEncodeEmptyArrays(true);
+
+                    Obj  encoder;
+                    bsl::ostringstream oss;
+                    Impl impl(&encoder, oss.rdbuf(), options);
+                    ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, result, EXP, result == EXP);
+                }
             }
         }
 
         if (verbose) cout << "Encode 'vector<int>'" << endl;
         {
+            typedef Options::EncodingStyle Style;
+            Style P = Options::BAEJSN_PRETTY;
+            Style C = Options::BAEJSN_COMPACT;
+
+#define NL "\n"
+
             const struct {
-                int         d_line;
-                const char *d_result;
+                int            d_line;
+                const char    *d_input_p;
+                bool           d_encodeEmptyArrays;
+                Style          d_encodingStyle;
+                int            d_initialIndentLevel;
+                int            d_spacesPerLevel;
+                const char    *d_result_p;
             } DATA[] = {
 
-            //LINE  RESULT
-            //----  ------
+            //LINE  INPUT  EEA     Style  INDENT     SPL    RESULT
+            //----  -----  ---     -----  ------     ---    ------
 
-            { L_,   ""     },
-            { L_,   "[0]"  },
-            { L_,   "[0,1]"  },
-            { L_,   "[0,1,2]"  },
-            { L_,   "[0,1,2,3]"  }
+             { L_,    "",  false,     C,      0,      0,    ""           },
+             { L_,    "",  false,     P,      0,      0,    ""           },
+             { L_,    "",  false,     C,      1,      2,    ""           },
+             { L_,    "",  false,     P,      1,      2,    ""           },
+
+             { L_,    "",  true,      C,      0,      0,    "[]"         },
+             { L_,    "",  true,      P,      0,      0,    "[]"         },
+             { L_,    "",  true,      C,      1,      2,    "[]"         },
+             { L_,    "",  true,      P,      1,      2,    "[]"         },
+
+             { L_,    "2", false,     C,      0,      0,    "[2]"        },
+
+             { L_,    "2", false,     P,      0,      0,    "["      NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,    "2", false,     C,      1,      2,    "[2]"        },
+
+             { L_,    "2", false,     P,      1,      2,    "["      NL
+                                                            "    2"  NL
+                                                            "  ]"        },
+
+             { L_,    "2", true,      C,      0,      0,    "[2]"        },
+
+             { L_,    "2", true,      P,      0,      0,    "["      NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,    "2", true,      C,      1,      2,    "[2]"        },
+
+             { L_,    "2", true,      P,      1,      2,    "["      NL
+                                                            "    2"  NL
+                                                            "  ]"        },
+
+             { L_,  "012", false,     C,      0,      0,    "[0,1,2]"    },
+
+             { L_,  "012", false,     P,      0,      0,    "["      NL
+                                                            "0,"     NL
+                                                            "1,"     NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,  "012", false,     C,      1,      2,    "[0,1,2]"    },
+
+             { L_,  "012", false,     P,      1,      2,    "["      NL
+                                                            "    0," NL
+                                                            "    1," NL
+                                                            "    2"  NL
+                                                            "  ]"        },
+
+             { L_,  "012", true,      C,      0,      0,    "[0,1,2]"    },
+
+             { L_,  "012", true,      P,      0,      0,    "["      NL
+                                                            "0,"     NL
+                                                            "1,"     NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,  "012", true,      C,      1,      2,    "[0,1,2]"    },
+
+             { L_,  "012", true,      P,      1,      2,    "["      NL
+                                                            "    0," NL
+                                                            "    1," NL
+                                                            "    2"  NL
+                                                            "  ]"        },
 
             };
+#undef NL
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
-                const int         NUM    = ti;
-                const char *const EXP    = DATA[ti].d_result;
+                const bsl::string INPUT  = DATA[ti].d_input_p;
+                const bool        EEA    = DATA[ti].d_encodeEmptyArrays;
+                const Style       STYLE  = DATA[ti].d_encodingStyle;
+                const int         INDENT = DATA[ti].d_initialIndentLevel;
+                const int         SPL    = DATA[ti].d_spacesPerLevel;
+                const bsl::string EXP    = DATA[ti].d_result_p;
 
                 bsl::vector<int> value;
-                for (int i = 0; i < NUM; ++i) {
-                    value.push_back(i);
+                for (int i = 0; i < INPUT.size(); ++i) {
+                    value.push_back(INPUT[i] - '0');
                 }
+
+                Options options;
+                options.setEncodingStyle(STYLE);
+                options.setInitialIndentLevel(INDENT);
+                options.setSpacesPerLevel(SPL);
+                options.setEncodeEmptyArrays(EEA);
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
+                Impl impl(&encoder, oss.rdbuf(), options);
                 ASSERTV(LINE, 0 == impl.encode(value, 0));
 
                 bsl::string result = oss.str();

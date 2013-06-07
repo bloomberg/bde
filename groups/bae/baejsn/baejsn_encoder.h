@@ -410,13 +410,19 @@ class baejsn_Encoder_Formatter {
         // Print onto the stream supplied at construction the sequence of
         // characters designating the end of an object.
 
-    void openArray();
+    void openArray(bool isEmptyArray = false);
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an array.
+        // characters designating the start of an array.  Optionally specify
+        // 'isEmptyArray' denoting if the array being opened represents an
+        // empty array.  If 'isEmptyArray' is not specified then the array
+        // being opened is assumed to be non-empty.
 
-    void closeArray();
+    void closeArray(bool isEmptyArray = false);
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an array.
+        // characters designating the end of an array.  Optionally specify
+        // 'isEmptyArray' denoting if the array being closed represents an
+        // empty array.  If 'isEmptyArray' is not specified then the array
+        // being opened is assumed to be non-empty.
 
     void indent();
         // Print onto the stream supplied at construction the sequence of
@@ -928,8 +934,8 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         d_formatter.closeArray();
     }
     else if (d_encodeEmptyArrays) {
-        d_formatter.openArray();
-        d_formatter.closeArray();
+        d_formatter.openArray(true);
+        d_formatter.closeArray(true);
     }
 
     return 0;
