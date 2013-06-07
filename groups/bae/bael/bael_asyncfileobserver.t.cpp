@@ -13,15 +13,15 @@
 #include <bcema_testallocator.h>
 #include <bcema_sharedptr.h>
 
-#include <bdet_date.h>
-#include <bdet_datetime.h>
 #include <bdesu_fileutil.h>
 #include <bdesu_processutil.h>
+#include <bdet_date.h>
+#include <bdet_datetime.h>
 #include <bdetu_datetime.h>
 #include <bdetu_systemtime.h>
 
-#include <bsls_stopwatch.h>
 #include <bsls_platform.h>
+#include <bsls_stopwatch.h>
 
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
