@@ -2,18 +2,24 @@
 #include <bsls_atomic.h>
 
 #include <bsls_types.h>
+#include <bsls_platform.h>
 
 #include <stdlib.h>               // atoi(), rand()
 #include <iostream>
 
 // For thread support
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
+#   include <windows.h>
+
 typedef HANDLE thread_t;
+
 #else
-#include <pthread.h>
-#include <unistd.h>
+#   include <pthread.h>
+#   include <unistd.h>
+#   include <sched.h>           // sched_yield
+
 typedef pthread_t thread_t;
+
 #endif
 
 using namespace BloombergLP;
@@ -169,7 +175,7 @@ void yield()
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     SwitchToThread();
 #else
-    pthread_yield();
+    sched_yield();
 #endif
 }
 
