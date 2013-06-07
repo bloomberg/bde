@@ -359,7 +359,7 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
     // part in 'exponent' and the sign in 'isExpNegative'.
 
     int  exponent = 0;
-    bool isExpNegative;
+    bool isExpNegative = false;
     if ('E' == static_cast<char>(bsl::toupper(*iter))) {
 
         ++iter;
@@ -371,7 +371,6 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
             if ('+' == *iter) {
                 ++iter;
             }
-            isExpNegative = false;
         }
 
         while (iter < end && bsl::isdigit(*iter)) {
