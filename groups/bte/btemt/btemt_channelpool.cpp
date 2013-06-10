@@ -4006,11 +4006,12 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
 
     d_channels.removeAll();
 
-    // Deregister all events associated with the all event managers ensuring
+    // Deregister all events associated with the event managers ensuring
     // that any held shared pointers are released.
 
     for (int i = 0; i < numManagers; ++i) {
         d_managers[i]->deregisterAll();
+        d_managers[i]->clearExecuteQueue();
     }
 
     return 0;
