@@ -184,6 +184,12 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
+//                  EXCEPTION TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define EXCEPTION_COUNT bslmaExceptionCounter
+
+// ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -745,6 +751,13 @@ int main(int argc, char *argv[])
                         Obj *mR = &(mX = Z);
                         LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
                         LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                        
+#ifdef BDE_BUILD_TARGET_EXC
+                        if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
+                            LOOP2_ASSERT(LINE1, LINE2, 0 < EXCEPTION_COUNT);
+                        }
+#endif
 
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -1451,6 +1464,12 @@ int main(int argc, char *argv[])
 
                     Obj obj(Z, &sa);
                     LOOP3_ASSERT(LINE, Z, obj, Z == obj);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    if ('Y' == MEM) {
+                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
+                    }
+#endif
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -2476,6 +2495,12 @@ int main(int argc, char *argv[])
                                  FLAG == obj.dstInEffectFlag());
                     LOOP3_ASSERT(LINE, DESC, obj.description(),
                                  DESC == obj.description());
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    if ('Y' == MEM) {
+                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
+                    }
+#endif
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
