@@ -2806,6 +2806,10 @@ int main(int argc, char *argv[])
                     mX.setDescription(A3);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
 
+#ifdef BDE_BUILD_TARGET_EXC
+                    ASSERT(0 < EXCEPTION_COUNT);
+#endif
+
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
                 LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
