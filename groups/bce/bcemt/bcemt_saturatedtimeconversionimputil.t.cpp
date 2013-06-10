@@ -154,12 +154,6 @@ int veryVeryVerbose;
 //                            ASSERTS ABOUT TYPES
 //-----------------------------------------------------------------------------
 
-#ifdef BCEMT_SATURATEDTIMECONVERSION_LONG_IS_64_BIT
-BSLMF_ASSERT(sizeof(long) == sizeof(bsls::Types::Int64));
-#else
-BSLMF_ASSERT(sizeof(long) == sizeof(int));
-#endif
-
 BSLMF_ASSERT(sizeof(long long) == sizeof(bsls::Types::Int64));
 BSLMF_ASSERT(sizeof(int)       <  sizeof(bsls::Types::Int64));
 

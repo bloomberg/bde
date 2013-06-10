@@ -42,25 +42,6 @@ void toTimeTImp(int *dst, bsls::Types::Int64 src)
 }
 
 static inline
-void toTimeTImp(long *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
-    // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
-    // the minimum 'time_t' value, and if 'src' is greater than the highest
-    // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
-{
-    typedef bsl::conditional<sizeof(int) == sizeof(long),
-                            int,
-                            bsls::Types::Int64>::type LongAlias;
-
-
-    LongAlias result;
-
-    toTimeTImp(&result, src);
-
-    *dst = result;
-}
-
-static inline
 void toTimeTImp(long long *dst, bsls::Types::Int64 src)
     // Assign to the specified 'dst' the value of the sepcified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
@@ -82,6 +63,35 @@ void toTimeTImp(unsigned int *dst, bsls::Types::Int64 src)
 }
 
 static inline
+void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src)
+    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
+    // the minimum 'time_t' value, and if 'src' is greater than the highest
+    // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
+{
+    *dst = src < 0 ? 0 : (unsigned long long) src;
+}
+
+static inline
+void toTimeTImp(long *dst, bsls::Types::Int64 src)
+    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
+    // the minimum 'time_t' value, and if 'src' is greater than the highest
+    // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
+{
+    typedef bsl::conditional<sizeof(int) == sizeof(long),
+                            int,
+                            bsls::Types::Int64>::type LongAlias;
+
+
+    LongAlias result;
+
+    toTimeTImp(&result, src);
+
+    *dst = result;
+}
+
+static inline
 void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
     // Assign to the specified 'dst' the value of the sepcified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
@@ -97,16 +107,6 @@ void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
     toTimeTImp(&result, src);
 
     *dst = result;
-}
-
-static inline
-void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
-    // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
-    // the minimum 'time_t' value, and if 'src' is greater than the highest
-    // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
-{
-    *dst = src < 0 ? 0 : (unsigned long long) src;
 }
 
 // PUBLIC CLASS METHODS
