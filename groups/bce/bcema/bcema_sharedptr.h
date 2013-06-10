@@ -1256,18 +1256,6 @@ class bcema_SharedPtr {
         // specied 'ptr' using the specified 'deleter', using the currently
         // installed default allocator to provide storage.
 
-  private:
-    // NOT IMPLEMENTED
-    explicit bcema_SharedPtr(bcema_SharedPtrRep *);  // = delete;
-        // This constructor is declared as private in order to catch any old
-        // callers of this code, but never defined.  If you see an error
-        // calling this constructor, you should call the public constructor
-        // that, in addition to the specified 'rep', also takes a pointer to
-        // the object that the 'rep' either points to, or is aliasing.  This
-        // constructor has been retired as the risk of calling with a 'rep'
-        // that was actually aliasing another object was too high, and could
-        // not be easily detected.
-
   public:
     // TYPES
     typedef TYPE ElementType;
@@ -1466,6 +1454,22 @@ class bcema_SharedPtr {
         // (if any) as the specified 'original' shared pointer, using the same
         // deleter as 'original' to destroy the shared object.  Note that if
         // 'original' is empty, then an empty shared pointer is created.
+
+    explicit bcema_SharedPtr(bcema_SharedPtrRep *rep);
+        // Create a shared pointer taking ownership of the specified 'rep'
+        // and pointing to the object stored in the specified 'rep'.  The
+        // behavior is undefined unless 'rep->originalPtr()' points to an
+        // object of type 'TYPE'.  Note that this method *DOES* *NOT* increment
+        // the number of references to 'rep'.
+        //
+        // DEPRECATED This constructor will be made inaccessible in the next
+        // BDE release, as the undefined behavior is too easily triggered and
+        // offers no simple way to guard against misuse.  Instead, call the
+        // constructor taking an additional 'TYPE *' initial argument:
+        //..
+        //  bcema_SharedPtr(TYPE *ptr, bcema_SharedPtrRep *rep);
+        //..
+
 
     ~bcema_SharedPtr();
         // Destroy this shared pointer.  If this shared pointer refers to a
@@ -2281,6 +2285,14 @@ bcema_SharedPtr<TYPE>::bcema_SharedPtr(const bcema_SharedPtr<TYPE>& original)
     } else {
         d_rep_p = 0;
     }
+}
+
+template <class TYPE>
+inline
+bcema_SharedPtr<TYPE>::bcema_SharedPtr(bcema_SharedPtrRep *rep)
+: d_ptr_p(rep ? reinterpret_cast<TYPE *>(rep->originalPtr()) : 0)
+, d_rep_p(rep)
+{
 }
 
 template <class TYPE>
