@@ -6,6 +6,7 @@ BDES_IDENT_RCSID(bdema_sequentialallocator_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
+#include <bsls_types.h>
 
 namespace BloombergLP {
 
@@ -19,7 +20,7 @@ bdema_SequentialAllocator::~bdema_SequentialAllocator()
 }
 
 // MANIPULATORS
-void *bdema_SequentialAllocator::allocate(bsls_PlatformUtil::size_type size)
+void *bdema_SequentialAllocator::allocate(bsls::Types::size_type size)
 {
     BSLS_ASSERT(0 <= size);
 
@@ -32,7 +33,7 @@ void *bdema_SequentialAllocator::allocate(bsls_PlatformUtil::size_type size)
 }
 
 void *bdema_SequentialAllocator::allocateAndExpand(
-                                            bsls_PlatformUtil::size_type *size)
+                                                  bsls::Types::size_type *size)
 {
     BSLS_ASSERT(size);
     BSLS_ASSERT(0 <= *size);

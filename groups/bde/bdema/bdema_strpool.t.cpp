@@ -124,8 +124,8 @@ typedef bdema_StrPool Obj;
 // testing purposes.
 
 struct InfrequentDeleteBlock {
-    InfrequentDeleteBlock              *d_next_p;
-    bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+    InfrequentDeleteBlock               *d_next_p;
+    bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
 // This type is copied from 'bdema_strpool.cpp' to determine the internal
@@ -180,7 +180,7 @@ static int blockSize(int numBytes)
 
     if (numBytes) {
         numBytes += sizeof(InfrequentDeleteBlock) - 1;
-        numBytes &= ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+        numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
     return numBytes;
@@ -220,11 +220,11 @@ static int growPool(bdema_StrPool& pool, int numBytes)
 // my_cstrarray.h
 
 class my_CstrArray {
-    char            **d_array_p;     // dynamically allocated array
-    int               d_size;        // physical capacity of this array
-    int               d_length;      // logical length of this array
-    bdema_StrPool     d_strPool;     // manages and supplies string memory
-    bslma_Allocator  *d_allocator_p; // holds (but doesn't own) allocator
+    char             **d_array_p;     // dynamically allocated array
+    int                d_size;        // physical capacity of this array
+    int                d_length;      // logical length of this array
+    bdema_StrPool      d_strPool;     // manages and supplies string memory
+    bslma::Allocator  *d_allocator_p; // holds (but doesn't own) allocator
 
   private:  // not implemented.
     my_CstrArray(const my_CstrArray& original);
@@ -233,7 +233,7 @@ class my_CstrArray {
     void increaseSize();
 
   public:
-    my_CstrArray(bslma_Allocator *basicAllocator = 0);
+    my_CstrArray(bslma::Allocator *basicAllocator = 0);
     ~my_CstrArray();
 
     my_CstrArray& operator=(const my_CstrArray& rhs);
@@ -261,11 +261,11 @@ int nextSize(int size)
 }
 
 inline static
-void reallocate(char            ***array,
-                int               *size,
-                int                newSize,
-                int                length,
-                bslma_Allocator   *basicAllocator)
+void reallocate(char             ***array,
+                int                *size,
+                int                 newSize,
+                int                 length,
+                bslma::Allocator   *basicAllocator)
     // Reallocate memory in the specified 'array' using the specified
     // 'basicAllocator' and update the specified size to the specified
     // 'newSize'.  The specified 'length' number of leading elements are
@@ -296,11 +296,11 @@ void my_CstrArray::increaseSize()
     reallocate(&d_array_p, &d_size, nextSize(d_size), d_length, d_allocator_p);
 }
 
-my_CstrArray::my_CstrArray(bslma_Allocator *basicAllocator)
+my_CstrArray::my_CstrArray(bslma::Allocator *basicAllocator)
 : d_size(MY_INITIAL_SIZE)
 , d_length(0)
 , d_strPool(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     ASSERT(d_allocator_p)
     d_array_p = (char **) d_allocator_p->allocate(d_size * sizeof *d_array_p);
@@ -389,13 +389,13 @@ int main(int argc, char *argv[])
         const char *DATA[] = { "A", "B", "C", "D", "E" };
         const int NUM_ELEM = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
-        const bslma_TestAllocator& TA = ta;
-        bslma_Allocator *const ALLOCATOR[] = { &ta, 0 };
+        bslma::TestAllocator ta(veryVeryVerbose);
+        const bslma::TestAllocator& TA = ta;
+        bslma::Allocator *const ALLOCATOR[] = { &ta, 0 };
         const int NUM_ALLOCATOR = sizeof ALLOCATOR / sizeof *ALLOCATOR;
 
         for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
-            bslma_Allocator *a = ALLOCATOR[ai];
+            bslma::Allocator *a = ALLOCATOR[ai];
             my_CstrArray mX(a);    const my_CstrArray& X = mX;
             my_CstrArray mY(a);    const my_CstrArray& Y = mY;
 
@@ -471,7 +471,7 @@ int main(int argc, char *argv[])
               } break;
               case 1: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 sp.deleteObjectRaw(pLCC);
               } break;
               case 2: {
@@ -479,12 +479,12 @@ int main(int argc, char *argv[])
               } break;
               case 3: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 sp.deleteObject(pLCC);
               } break;
               case 4: {
                 const RightChild *pRCC = pMDC;
-                ASSERT((void*) pRCC != (void*) pMDC);
+                ASSERT((const void*) pRCC != (const void*) pMDC);
                 sp.deleteObject(pRCC);
               } break;
               case 5: {
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void alloactesreserveCapacity(numBytes);
         // --------------------------------------------------------------------
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdema_SequentialAllocator sa(&ta);
         bdema_StrPool pool(&sa);
 
@@ -547,8 +547,9 @@ int main(int argc, char *argv[])
                           << endl;
         {
             int poolSize = THRESHOLD;
-            bslma_TestAllocator a(veryVeryVerbose); bslma_TestAllocator& A = a;
-            bslma_TestAllocator& testAllocator = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator& A = a;
+            bslma::TestAllocator& testAllocator = a;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(&a);
                 mX.reserveCapacity(poolSize);
@@ -556,32 +557,32 @@ int main(int argc, char *argv[])
                 // ensure reserveCapacity does not decrease capacity
                 mX.reserveCapacity(1);
 
-                int numAllocation = A.numAllocations();
+                int numAllocations = A.numAllocations();
                 char *p0 = (char *) mX.allocate(1);
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p0); }
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p0); }
                 // Ensure memory is allocated from the current block.
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
 
                 const int SIZE = THRESHOLD - 2;
                 char *p1 = (char *) mX.allocate(SIZE);
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p1); }
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p1); }
                 // Ensure memory is allocated from the current block.
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(1 == p1 - p0);
 
                 ASSERT(poolSize - THRESHOLD - 2 < SIZE);
                 char *p2 = (char *) mX.allocate(THRESHOLD + 1);
-                ++numAllocation;
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p2); }
+                ++numAllocations;
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p2); }
                 // Ensure memory is allocated as an individual block.
                 ASSERT(SIZE != p2 - p1);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
 
                 char *p3 = (char *) mX.allocate(1);
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p3); }
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p3); }
                 // Ensure memory is allocated from the current block.
                 ASSERT(SIZE == p3 - p1);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
             } END_BSLMA_EXCEPTION_TEST
         }
 
@@ -591,8 +592,9 @@ int main(int argc, char *argv[])
                           << endl;
         {
             int poolSize = THRESHOLD + 3;
-            bslma_TestAllocator a(veryVeryVerbose); bslma_TestAllocator& A = a;
-            bslma_TestAllocator& testAllocator = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator& A = a;
+            bslma::TestAllocator& testAllocator = a;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(&a);
                 mX.reserveCapacity(poolSize);
@@ -601,30 +603,30 @@ int main(int argc, char *argv[])
                 mX.reserveCapacity(1);
 
                 char *p0 = (char *) mX.allocate(1);
-                int numAllocation = A.numAllocations();
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p0); }
+                int numAllocations = A.numAllocations();
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p0); }
 
                 const int SIZE = THRESHOLD + 1;
                 char *p1 = (char *) mX.allocate(SIZE);
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p1); }
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p1); }
                 // Ensure memory is allocated from the current block.
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(1 == p1 - p0);
 
                 ASSERT(poolSize - THRESHOLD - 2 < SIZE);
                 char *p2 = (char *) mX.allocate(SIZE);
-                ++numAllocation;
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p2); }
+                ++numAllocations;
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p2); }
                 // Ensure memory is allocated as an individual block.
                 ASSERT(SIZE != p2 - p1);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(A.lastAllocatedNumBytes() == blockSize(SIZE));
 
                 char *p3 = (char *) mX.allocate(1);
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p3); }
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p3); }
                 // Ensure memory is allocated from the current block.
                 ASSERT(SIZE == p3 - p1);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
             } END_BSLMA_EXCEPTION_TEST
         }
       } break;
@@ -651,8 +653,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'release' and destructor." << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
-        const bslma_TestAllocator& A = a;
+        bslma::TestAllocator a(veryVeryVerbose);
+        const bslma::TestAllocator& A = a;
         {
             Obj mX(&a);
 
@@ -667,17 +669,17 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t[Reuse pool after 'release']" << endl;
             {
-                int numAllocation = A.numAllocations();
+                int numAllocations = A.numAllocations();
                 int totalSize = 0;
                 char *p0 = 0;
                 for (int di = 0; di < NUM_DATA; ++di) {
                     const int SIZE = DATA[di];
                     char *p = (char *) mX.allocate(SIZE);
                     if (0 == di) {
-                        ++numAllocation;
+                        ++numAllocations;
                         int blkSize = blockSize(poolSize);
                         LOOP_ASSERT(di, A.lastAllocatedNumBytes() == blkSize);
-                        LOOP_ASSERT(di, A.numAllocations() == numAllocation);
+                        LOOP_ASSERT(di, A.numAllocations() == numAllocations);
                     }
                     else {
                         int offset = p - p0;
@@ -691,14 +693,14 @@ int main(int argc, char *argv[])
                     totalSize += SIZE;
                 }
                 ASSERT(totalSize <= poolSize); // Ensure test data integrity.
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
 
                 // Request more than the remaining block and ensure a new block
                 // is allocated.
                 mX.allocate(poolSize - totalSize + 1);
-                ++numAllocation;
+                ++numAllocations;
                 int blkSize = blockSize(poolSize * GROW_FACTOR);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(A.lastAllocatedNumBytes() == blkSize);
             }
             ASSERT(0 < A.numBytesInUse());
@@ -756,26 +758,26 @@ int main(int argc, char *argv[])
             const int DATA[] = { 1, 5, 12, 24, 32, 1 };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
-            bslma_TestAllocator& testAllocator = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
+            bslma::TestAllocator& testAllocator = a;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(&a);
 
                 int poolSize = 128; // Enough to satisfy all requests in vector
                 poolSize = growPool(mX, poolSize);
 
-                int numAllocation = A.numAllocations();
+                int numAllocations = A.numAllocations();
                 int totalSize = 0;
                 char *p0 = 0;
                 for (int di = 0; di < NUM_DATA; ++di) {
                     const int SIZE = DATA[di];
                     char *p = (char *) mX.allocate(SIZE);
                     if (0 == di) {
-                        ++numAllocation;
+                        ++numAllocations;
                         int blkSize = blockSize(poolSize);
                         LOOP_ASSERT(di, A.lastAllocatedNumBytes() == blkSize);
-                        LOOP_ASSERT(di, A.numAllocations() == numAllocation);
+                        LOOP_ASSERT(di, A.numAllocations() == numAllocations);
                     }
                     else {
                         int offset = p - p0;
@@ -793,9 +795,9 @@ int main(int argc, char *argv[])
                 // Request more than the remaining block and ensure a new block
                 // is allocated.
                 mX.allocate(poolSize - totalSize + 1);
-                ++numAllocation;
+                ++numAllocations;
                 int blkSize = blockSize(poolSize * GROW_FACTOR);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(A.lastAllocatedNumBytes() == blkSize);
             } END_BSLMA_EXCEPTION_TEST
         }
@@ -806,37 +808,38 @@ int main(int argc, char *argv[])
                           << endl;
         {
             int poolSize = THRESHOLD + 3;
-            bslma_TestAllocator a(veryVeryVerbose); bslma_TestAllocator& A = a;
-            bslma_TestAllocator& testAllocator = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator& A = a;
+            bslma::TestAllocator& testAllocator = a;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(&a);
                 poolSize = growPool(mX, poolSize);
 
                 char *p0 = (char *) mX.allocate(1);
-                int numAllocation = A.numAllocations();
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p0); }
+                int numAllocations = A.numAllocations();
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p0); }
 
                 const int SIZE = THRESHOLD + 1;
                 char *p1 = (char *) mX.allocate(SIZE);
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p1); }
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p1); }
                 // Ensure memory is allocated from the current block.
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(1 == p1 - p0);
 
                 ASSERT(poolSize - THRESHOLD - 2 < SIZE);
                 char *p2 = (char *) mX.allocate(SIZE);
-                ++numAllocation;
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p2); }
+                ++numAllocations;
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p2); }
                 // Ensure memory is allocated as an individual block.
                 ASSERT(SIZE != p2 - p1);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(A.lastAllocatedNumBytes() == blockSize(SIZE));
 
                 char *p3 = (char *) mX.allocate(1);
-                if (veryVerbose) { TAB; P_(numAllocation); TAB; A(p3); }
+                if (veryVerbose) { TAB; P_(numAllocations); TAB; A(p3); }
                 // Ensure memory is allocated from the current block.
                 ASSERT(SIZE == p3 - p1);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
             } END_BSLMA_EXCEPTION_TEST
         }
       } break;
@@ -864,7 +867,7 @@ int main(int argc, char *argv[])
 
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            bslma_TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator a(veryVeryVerbose);
             const int SIZE = DATA[di];
             Obj mX(&a);
             int poolSize = growPool(mX, SIZE);
@@ -923,8 +926,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting default constructor and destructor."
                           << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
             {
                 Obj mX(&a);
             }
@@ -934,23 +937,23 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'allocate' w/ size 0." << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
-            bslma_TestAllocator& testAllocator = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
+            bslma::TestAllocator& testAllocator = a;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(&a);
 
                 // Ensure that allocator's 'allocate' is never called.
-                int numAllocation = A.numAllocations();
+                int numAllocations = A.numAllocations();
                 ASSERT(0 == mX.allocate(0));
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
 
                 char *p1 = (char *) mX.allocate(1);
-                ++numAllocation;
-                ASSERT(A.numAllocations() == numAllocation);
+                ++numAllocations;
+                ASSERT(A.numAllocations() == numAllocations);
 
                 mX.allocate(0);
-                ASSERT(A.numAllocations() == numAllocation);
+                ASSERT(A.numAllocations() == numAllocations);
 
                 // Ensure the pool's cursor is not changed after 'allocate(0)'.
                 char *p2 = (char *) mX.allocate(1);  ASSERT(1 == p2 - p1);
@@ -964,9 +967,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'allocate' to grow block size."
                           << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
-            bslma_TestAllocator& testAllocator = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
+            bslma::TestAllocator& testAllocator = a;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 Obj mX(&a);
 
@@ -1017,7 +1020,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
         bdema_InfrequentDeleteBlockList bl(&a);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];

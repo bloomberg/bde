@@ -193,20 +193,24 @@ BDES_IDENT("$Id: $")
 #include <bcemt_writelockguard.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BDEMA_POOL
+#include <bdema_pool.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDEMA_POOL
-#include <bdema_pool.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
@@ -227,10 +231,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -314,12 +314,12 @@ class bcec_ObjectCatalog {
 
     struct Node {
         union {
-            char                               d_value[sizeof(TYPE)];
+            char                                d_value[sizeof(TYPE)];
+ 
+            Node                               *d_next_p; // when free, pointer
+                                                          // to next free node
 
-            Node                              *d_next_p; // when free, pointer
-                                                         // to next free node
-
-            bsls_AlignmentUtil::MaxAlignedType d_filler;
+            bsls::AlignmentUtil::MaxAlignedType d_filler;
         };
         int  d_handle;
     };
@@ -352,10 +352,10 @@ class bcec_ObjectCatalog {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_ObjectCatalog,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bcec_ObjectCatalog(bslma_Allocator *allocator = 0);
+    bcec_ObjectCatalog(bslma::Allocator *allocator = 0);
         // Create an empty object catalog, using the optionally specified
         // 'allocator' to supply any memory.
 
@@ -561,7 +561,7 @@ bcec_ObjectCatalog<TYPE>::findNode(int handle) const
 // CREATORS
 template <class TYPE>
 inline
-bcec_ObjectCatalog<TYPE>::bcec_ObjectCatalog(bslma_Allocator *allocator)
+bcec_ObjectCatalog<TYPE>::bcec_ObjectCatalog(bslma::Allocator *allocator)
 : d_nodes(allocator)
 , d_nodePool(sizeof(Node), allocator)
 , d_nextFreeNode_p(0)
@@ -612,7 +612,7 @@ int bcec_ObjectCatalog<TYPE>::add(const TYPE& object)
     handle = node->d_handle;
 
     // We need to use the copyConstruct logic to pass the allocator through.
-    bslalg_ScalarPrimitives::copyConstruct(
+    bslalg::ScalarPrimitives::copyConstruct(
             (TYPE *)(void *)&node->d_value, object,
             d_nodes.get_allocator().mechanism());
 
@@ -684,7 +684,7 @@ int bcec_ObjectCatalog<TYPE>::replace(int handle, const TYPE& newObject)
 
     ((TYPE *)(void *)&node->d_value)->~TYPE();
     // We need to use the copyConstruct logic to pass the allocator through.
-    bslalg_ScalarPrimitives::copyConstruct(
+    bslalg::ScalarPrimitives::copyConstruct(
             (TYPE *)(void *)&node->d_value, newObject,
             d_nodes.get_allocator().mechanism());
 
@@ -783,8 +783,9 @@ template <class TYPE>
 inline
 bcec_ObjectCatalogIter<TYPE>::operator const void *() const
 {
-    return (void *)(((unsigned)d_index < d_catalog_p->d_nodes.size()) ? this
-                                                                      : 0);
+    return (void *)(((unsigned)d_index < d_catalog_p->d_nodes.size())
+            ? const_cast<bcec_ObjectCatalogIter<TYPE> *>(this)
+            : 0);
 }
 
 template <class TYPE>

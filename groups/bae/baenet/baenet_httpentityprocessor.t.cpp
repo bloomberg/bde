@@ -114,7 +114,7 @@ baenet_HttpStartLine::operator=(const baenet_HttpStartLine&)
 //-----------------------------------------------------------------------------
 
 struct HttpEntityProcessorTest
-                             : bsls_ProtocolTestImp<baenet_HttpEntityProcessor>
+                            : bsls::ProtocolTestImp<baenet_HttpEntityProcessor>
 {
     void onStartEntity(const baenet_HttpStartLine&,
                        const bcema_SharedPtr<baenet_HttpHeader>&)
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
         // PROTOCOL TEST
         // --------------------------------------------------------------------
 
-        bsls_ProtocolTest<HttpEntityProcessorTest> t(veryVerbose);
+        bsls::ProtocolTest<HttpEntityProcessorTest> t(veryVerbose);
 
         ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());

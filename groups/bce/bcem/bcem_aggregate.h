@@ -601,9 +601,13 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BCEM_AGGREGATERAW
 #include <bcem_aggregateraw.h>
 #endif
-#ifndef INCLUDED_BCEM_ERRORATTRIBUTES
 
+#ifndef INCLUDED_BCEM_ERRORATTRIBUTES
 #include <bcem_errorattributes.h>
+#endif
+
+#ifndef INCLUDED_BCEM_ERRORCODE
+#include <bcem_errorcode.h>
 #endif
 
 #ifndef INCLUDED_BCEM_FIELDSELECTOR
@@ -674,6 +678,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -706,10 +714,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_utility.h>   // for 'bsl::pair'
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
 
 typedef bcem_FieldSelector bcem_Aggregate_NameOrIndex;
@@ -732,7 +736,10 @@ class bcem_Aggregate {
     //..
 
     // DATA
-    bcem_AggregateRaw   d_aggregateRaw;
+    bcem_AggregateRaw   d_aggregateRaw;                 // aggregate
+                                                        // representation
+                                                        // without reference
+                                                        // counting
     bcema_SharedPtrRep *d_schemaRep_p;                  // shared schema
     bcema_SharedPtrRep *d_valueRep_p;                   // pointer to data
     bcema_SharedPtrRep *d_isTopLevelAggregateNullRep_p; // nullness indicator
@@ -769,14 +776,14 @@ class bcem_Aggregate {
     void init(const bcema_SharedPtr<const bdem_Schema>&     schemaPtr,
               const bdem_RecordDef                         *recordDefPtr,
               bdem_ElemType::Type                           elemType,
-              bslma_Allocator                              *basicAllocator);
+              bslma::Allocator                             *basicAllocator);
     void init(const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
               bdem_ElemType::Type                           elemType,
-              bslma_Allocator                              *basicAllocator);
+              bslma::Allocator                             *basicAllocator);
     void init(const bcema_SharedPtr<const bdem_Schema>&     schemaPtr,
               const char                                   *recordName,
               bdem_ElemType::Type                           elemType,
-              bslma_Allocator                              *basicAllocator);
+              bslma::Allocator                             *basicAllocator);
         // Initialize this object from the specified record definition and
         // element type.  By default, the constructed object is not null.
         // The behavior is undefined if this method is invoked on an
@@ -810,7 +817,7 @@ class bcem_Aggregate {
     // PRIVATE CLASS METHODS
     static bcema_SharedPtr<void> makeValuePtr(
                                     bdem_ElemType::Type  type,
-                                    bslma_Allocator     *basicAllocator = 0);
+                                    bslma::Allocator    *basicAllocator = 0);
         // Return a shared pointer to a newly-created unset value of the
         // specified 'type'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -839,10 +846,10 @@ class bcem_Aggregate {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bcem_Aggregate,
-                                  bslalg_TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitBitwiseMoveable,
                                   bdeu_TypeTraitHasPrintMethod);
         // Note that this class does not have the
-        // 'bslalg_TypeTraitUsesBslmaAllocator' trait.  Although some
+        // 'bslalg::TypeTraitUsesBslmaAllocator' trait.  Although some
         // constructors do take an allocator, the pointer-like semantics do not
         // fully allow the use of the allocator idioms.
 
@@ -910,7 +917,7 @@ class bcem_Aggregate {
     template <typename VALTYPE>
     bcem_Aggregate(const bdem_ElemType::Type  dataType,
                    const VALTYPE&             value,
-                   bslma_Allocator           *basicAllocator = 0);
+                   bslma::Allocator          *basicAllocator = 0);
         // Create an aggregate representing a value of the type specified in
         // 'dataType' and initialize it to the specified 'value'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -936,10 +943,10 @@ class bcem_Aggregate {
 
     explicit bcem_Aggregate(
         const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
     explicit bcem_Aggregate(
         const bcema_SharedPtr<bdem_RecordDef>&        recordDefPtr,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
         // Create an aggregate containing a list or choice object structured
         // according to the record definition pointed to by the specified
         // 'recordDefPtr'.  Optionally specify a 'basicAllocator' used to
@@ -960,11 +967,11 @@ class bcem_Aggregate {
     bcem_Aggregate(
         const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
         bdem_ElemType::Type                           elemType,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
     bcem_Aggregate(
         const bcema_SharedPtr<bdem_RecordDef>&        recordDefPtr,
         bdem_ElemType::Type                           elemType,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
         // Create an aggregate containing a list, table, choice, or
         // choice-array object structured according to the record definition
         // specified by 'recordDefPtr'.  Optionally specify a 'basicAllocator'
@@ -992,12 +999,12 @@ class bcem_Aggregate {
  const bcema_SharedPtr<const bdem_Schema>& schemaPtr,
  const bsl::string&                        recordName,
  bdem_ElemType::Type                       elemType = bdem_ElemType::BDEM_VOID,
- bslma_Allocator                          *basicAllocator = 0);
+ bslma::Allocator                         *basicAllocator = 0);
     bcem_Aggregate(
    const bcema_SharedPtr<bdem_Schema>&     schemaPtr,
    const bsl::string&                      recordName,
    bdem_ElemType::Type                     elemType = bdem_ElemType::BDEM_VOID,
-   bslma_Allocator                        *basicAllocator = 0);
+   bslma::Allocator                       *basicAllocator = 0);
         // Create an aggregate containing a list, table, choice, or
         // choice-array object structured according to the record definition
         // identified by the specified 'recordName' within the schema pointed
@@ -1046,20 +1053,20 @@ class bcem_Aggregate {
     // MANIPULATORS
     bcem_Aggregate& operator=(const bcem_Aggregate& rhs);
         // Make this aggregate refer to the same data and schema as the
-        // specified 'rhs' aggregate and return a modifiable reference to this
-        // aggregate.  This creates a new reference to existing data -- no
-        // data is copied.  The reference counts on the previously-referenced
-        // data and schema are decremented, possibly causing either or both to
-        // be destroyed and deallocated.  After the assignment,
-        // 'areIdentical(*this, rhs)' will return 'true'.  Note that, unlike
-        // most BDE types, the allocator for this aggregate will change to be
-        // the same as the allocator for 'rhs'.  Note that if 'rhs' is an
-        // error aggregate, then this aggregate will be assigned the same
-        // error state.
+        // specified 'rhs' aggregate and return a reference providing
+        // modifiable access to this aggregate.  This creates a new reference
+        // to existing data -- no data is copied.  The reference counts on the
+        // previously-referenced data and schema are decremented, possibly
+        // causing either or both to be destroyed and deallocated.  After the
+        // assignment, 'areIdentical(*this, rhs)' will return 'true'.  Also
+        // note that, unlike most BDE types, the allocator for this aggregate
+        // will change to be the same as the allocator for 'rhs'.  Note that if
+        // 'rhs' is an error aggregate, then this aggregate will be assigned
+        // the same error state.
 
     bcem_AggregateRaw& aggregateRaw();
-        // Return a reference to the modifiable non-reference-counted portion
-        // of this aggregate.
+        // Return a reference providing modifiable access to the
+        // non-reference-counted portion of this aggregate.
 
     const bcem_Aggregate reserveRaw(bsl::size_t numItems);
         // Reserve sufficient memory for at least the specified 'numItems' if
@@ -1715,7 +1722,7 @@ class bcem_Aggregate {
     char asChar() const;
     short asShort() const;
     int asInt() const;
-    bsls_Types::Int64 asInt64() const;
+    bsls::Types::Int64 asInt64() const;
     float asFloat() const;
     double asDouble() const;
     bdet_Datetime asDatetime() const;
@@ -1732,8 +1739,8 @@ class bcem_Aggregate {
         // fails.
 
     const bdem_ElemRef asElemRef() const;
-        // Return a reference to the modifiable element value held by this
-        // aggregate.
+        // Return an element reference providing modifiable access to the
+        // element value held by this aggregate.
 
     bool hasField(const char *fieldName) const;
         // Return 'true' if this aggregate contains a field having the
@@ -1804,28 +1811,28 @@ class bcem_Aggregate {
         // 'fieldByIndex').  Note that if 'true == isNul2()' then an error is
         // returned.
 
-    const bcem_Aggregate fieldByIndex(int index) const;
+    const bcem_Aggregate fieldByIndex(int fieldIndex) const;
         // Get the field within this aggregate with the specified (zero-based)
-        // 'fieldIndex'.  Return a modifiable sub-aggregate referring to the
-        // field on success or an error object on failure (as described in the
-        // "Error Handling" section of the 'bcem_aggregate' component-level
+        // 'fieldIndex'.  Return a sub-aggregate referring to the field on
+        // success or an error object on failure (as described in the "Error
+        // Handling" section of the 'bcem_aggregate' component-level
         // documentation).  Note that if 'true == isNul2()' then an error is
         // returned.
 
     const bcem_Aggregate anonymousField(int n) const;
-        // Return a modifiable sub-aggregate referring to the specified 'n'th
-        // anonymous field within this [list or choice] aggregate (where 'n'
-        // is zero-based) or an error object on failure (as described in the
+        // Return a sub-aggregate referring to the specified 'n'th anonymous
+        // field within this [list or choice] aggregate (where 'n' is
+        // zero-based) or an error object on failure (as described in the
         // "Error Handling" section of the 'bcem_aggregate' component-level
-        // documentation).  An anonymous field is a field with with a null
-        // name and is typically, but not always, an aggregate with the
-        // 'IS_UNTAGGED' bit set in its formatting mode.  Note that this
-        // function differs from 'fieldByIndex' in that only the anonymous
-        // fields are counted.  Also note that it is rarely necessary to call
-        // this function, since 'field', 'setField', 'makeSelection', and
-        // 'selection' will automatically descend into anonymous fields in
-        // most cases.  For more information see the "Anonymous Fields"
-        // section of the 'bcem_aggregate' component-level documentation.
+        // documentation).  An anonymous field is a field with a null name and
+        // is typically, but not always, an aggregate with the 'IS_UNTAGGED'
+        // bit set in its formatting mode.  Note that this function differs
+        // from 'fieldByIndex' in that only the anonymous fields are counted.
+        // Also note that it is rarely necessary to call this function, since
+        // 'field', 'setField', 'makeSelection', and 'selection' will
+        // automatically descend into anonymous fields in most cases.  For more
+        // information see the "Anonymous Fields" section of the
+        // 'bcem_aggregate' component-level documentation.
 
     const bcem_Aggregate anonymousField() const;
         // If this aggregate contains exactly one anonymous field, then return
@@ -2006,7 +2013,7 @@ class bcem_Aggregate {
         // field (if any), as per the "Anonymous Fields" section of the
         // 'bcem_aggregate' component-level documentation.
 
-    const bcem_Aggregate clone(bslma_Allocator *basicAllocator = 0) const;
+    const bcem_Aggregate clone(bslma::Allocator *basicAllocator = 0) const;
         // Make an independent copy, using the specified 'basicAllocator', of
         // this aggregate's data and schema and return a new aggregate object
         // holding the copy.  Changes made to the clone's data will have no
@@ -2017,7 +2024,7 @@ class bcem_Aggregate {
         // equivalent, but not identical, error object.  Note that the
         // nullness information is also cloned.
 
-    const bcem_Aggregate cloneData(bslma_Allocator *basicAllocator = 0) const;
+    const bcem_Aggregate cloneData(bslma::Allocator *basicAllocator = 0) const;
         // Make an independent copy, using the specified 'basicAllocator', of
         // the this aggregate's data, but not its schema, and return a new a
         // new aggregate object holding the copy.  The new aggregate will
@@ -2039,22 +2046,22 @@ class bcem_Aggregate {
         // no associated schema (i.e., is unconstrained).
 
     const bcem_AggregateRaw& aggregateRaw() const;
-        // Return a reference to the non-reference-counted portion of
-        // this aggregate.
+        // Return a reference providing non-modifiable access to the
+        // non-reference-counted portion of this aggregate.
 
     const bdem_RecordDef *recordConstraint() const;
-        // Return a pointer to the non-modifiable record definition that
-        // describes the structure of the object referenced by this aggregate,
-        // or a null pointer if this aggregate references a scalar, array of
-        // scalars, or unconstrained 'bdem' aggregate.
+        // Return a pointer providing non-modifiable access to the record
+        // definition that describes the structure of the object referenced by
+        // this aggregate, or a null pointer if this aggregate references a
+        // scalar, array of scalars, or unconstrained 'bdem' aggregate.
 
     const bdem_RecordDef& recordDef() const;
-        // Return a reference to the non-modifiable record definition that
-        // describes the structure of the object referenced by this aggregate.
-        // The behavior is undefined unless this aggregate references a
-        // constrained list, constrained table, or constrained choice object.
-        // (Use 'recordConstraint' if there is any doubt as to whether this
-        // aggregate has a record definition.)
+        // Return a reference providing non-modifiable access to the record
+        // definition that describes the structure of the object referenced by
+        // this aggregate.  The behavior is undefined unless this aggregate
+        // references a constrained list, constrained table, or constrained
+        // choice object.  (Use 'recordConstraint' if there is any doubt as to
+        // whether this aggregate has a record definition.)
 
     bcema_SharedPtr<const bdem_RecordDef> recordDefPtr() const;
         // Return a shared pointer to the non-modifiable record definition
@@ -2063,39 +2070,39 @@ class bcem_Aggregate {
         // scalar, array of scalars, or unconstrained aggregate.
 
     const bdem_EnumerationDef *enumerationConstraint() const;
-        // Return a pointer to the non-modifiable enumeration definition that
-        // constrains the object referenced by this aggregate, or a null
-        // pointer if this aggregate does not reference an enumeration object.
+        // Return a pointer providing non-modifiable access to the enumeration
+        // definition that constrains the object referenced by this aggregate,
+        // or a null pointer if this aggregate does not reference an
+        // enumeration object.
 
     const bdem_FieldDef *fieldDef() const;
-        // Return a pointer to the non-modifiable field definition for the
-        // object referenced by this aggregate, or null if this object does
-        // not have a field definition.  An aggregate constructed directly
-        // using a record definition will not have a field definition,
-        // whereas a sub-aggregate returned by a field-access function (e.g.,
-        // 'operator[]' or 'field') will.  Note that, if this aggregate is an
-        // item within an array, table, or choice array, then
+        // Return a pointer providing non-modifiable access to the field
+        // definition for the object referenced by this aggregate, or null if
+        // this object does not have a field definition.  An aggregate
+        // constructed directly using a record definition will not have a field
+        // definition, whereas a sub-aggregate returned by a field-access
+        // function (e.g., 'operator[]' or 'field') will.  Note that if this
+        // aggregate is an item within an array, table, or choice array, then
         // 'fieldDef()->elemType()' will return the *array* type, not the
         // *item* type (i.e., 'fieldDef()->elemType()' will not match
         // 'dataType()').
 
     const bdem_FieldDef *fieldSpec() const;
-        // Return a pointer to the non-modifiable field definition for the
-        // object referenced by this aggregate, or null if this object does
-        // not have a field definition.  An aggregate constructed directly
-        // using a record definition will not have a field definition,
-        // whereas a sub-aggregate returned by a field-access function (e.g.,
-        // 'operator[]' or 'field') will.  Note that, if this aggregate is an
-        // item within an array, table, or choice array, then
-        // 'fieldSpec()->elemType()' will return the *array* type, not the
-        // *item* type (i.e., 'fieldSpec()->elemType()' will not match
-        // 'dataType()').
+        // Return a pointer providing non-modifiable access to the object
+        // referenced by this aggregate, or null if this object does not have a
+        // field definition.  An aggregate constructed directly using a record
+        // definition will not have a field definition, whereas a sub-aggregate
+        // returned by a field-access function (e.g., 'operator[]' or 'field')
+        // will.  Note that if this aggregate is an item within an array,
+        // table, or choice array, then 'fieldSpec()->elemType()' will return
+        // the *array* type, not the *item* type (i.e.,
+        // 'fieldSpec()->elemType()' will not match 'dataType()').
         //
         // DEPRECATED: use 'fieldDef' instead.
 
     const void *data() const;
-        // Return the address of the non-modifiable data referenced by this
-        // aggregate.  The behavior is undefined unless
+        // Return a pointer providing non-modifiable access to the data
+        // referenced by this aggregate.  The behavior is undefined unless
         // 'bdem_ElemType::BDEM_VOID != dataType()'.
 
     template <class STREAM>
@@ -2132,7 +2139,6 @@ class bcem_Aggregate {
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream& stream, const bcem_Aggregate& rhs);
     // Format 'rhs' in human-readable form (same format as
     // 'rhs.print(stream, 0, -1)') and return a modifiable reference to
@@ -2187,7 +2193,7 @@ int bcem_Aggregate::maxSupportedBdexVersion()
 template <typename VALTYPE>
 bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
                                const VALTYPE&             value,
-                               bslma_Allocator           *basicAllocator)
+                               bslma::Allocator          *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2214,7 +2220,7 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
         d_valueRep_p = value_sp.rep();
         d_valueRep_p->acquireRef();
 
-        d_aggregateRaw.setTopLevelAggregateNullnessPointer(null_sp.ptr());
+        d_aggregateRaw.setTopLevelAggregateNullness(null_sp.ptr());
         d_aggregateRaw.setDataType(dataType);
         d_aggregateRaw.setData(value_sp.ptr());
     }
@@ -2223,7 +2229,7 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
 inline
 bcem_Aggregate::bcem_Aggregate(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2235,7 +2241,7 @@ bcem_Aggregate::bcem_Aggregate(
 inline
 bcem_Aggregate::bcem_Aggregate(
                         const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2248,7 +2254,7 @@ inline
 bcem_Aggregate::bcem_Aggregate(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
                   bdem_ElemType::Type                           elemType,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2261,7 +2267,7 @@ inline
 bcem_Aggregate::bcem_Aggregate(
                         const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
                         bdem_ElemType::Type                     elemType,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2275,7 +2281,7 @@ bcem_Aggregate::bcem_Aggregate(
                      const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
                      const bsl::string&                         recordName,
                      bdem_ElemType::Type                        elemType,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2289,7 +2295,7 @@ bcem_Aggregate::bcem_Aggregate(
                            const bcema_SharedPtr<bdem_Schema>&  schemaPtr,
                            const bsl::string&                   recordName,
                            bdem_ElemType::Type                  elemType,
-                           bslma_Allocator                     *basicAllocator)
+                           bslma::Allocator                    *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2746,7 +2752,6 @@ const bcem_Aggregate bcem_Aggregate::appendNull() const
 }
 
 template <typename VALTYPE>
-inline
 const bcem_Aggregate bcem_Aggregate::insert(int            pos,
                                             const VALTYPE& newItem) const
 {
@@ -2844,7 +2849,7 @@ int bcem_Aggregate::asInt() const
 }
 
 inline
-bsls_Types::Int64 bcem_Aggregate::asInt64() const
+bsls::Types::Int64 bcem_Aggregate::asInt64() const
 {
     return d_aggregateRaw.asInt64();
 }
@@ -2954,7 +2959,6 @@ bcem_Aggregate::makeSelection(const bsl::string& newSelector,
 }
 
 template <typename VALTYPE>
-inline
 const bcem_Aggregate
 bcem_Aggregate::makeSelectionById(int id, const VALTYPE& value) const
 {
@@ -3195,12 +3199,6 @@ struct bcem_Aggregate_NullableAdapter {
 namespace bdeat_ArrayFunctions {
 
     // META-FUNCTIONS
-    bslmf_MetaInt<1> isArrayMetaFunction(const bcem_Aggregate&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-
     template <>
     struct IsArray<bcem_Aggregate> {
         enum { VALUE = 1 };
@@ -3252,12 +3250,6 @@ bsl::size_t bdeat_arraySize(const bcem_Aggregate& array)
 namespace bdeat_ChoiceFunctions {
 
     // META-FUNCTIONS
-    bslmf_MetaInt<1> isChoiceMetaFunction(const bcem_Aggregate&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-
     template <>
     struct IsChoice<bcem_Aggregate> {
         enum { VALUE = 1 };
@@ -3327,12 +3319,6 @@ int bdeat_choiceSelectionId(const bcem_Aggregate& object)
 namespace bdeat_EnumFunctions {
 
     // META-FUNCTIONS
-    bslmf_MetaInt<1> isEnumerationMetaFunction(const bcem_Aggregate&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-
     template <>
     struct IsEnumeration<bcem_Aggregate> {
         enum { VALUE = 1 };
@@ -3437,7 +3423,7 @@ void bdeat_valueTypeReset(bcem_Aggregate_NullableAdapter *object)
 namespace bdeat_SequenceFunctions {
 
     // META-FUNCTIONS
-    bslmf_MetaInt<1> isSequenceMetaFunction(const bcem_Aggregate&);
+    bslmf::MetaInt<1> isSequenceMetaFunction(const bcem_Aggregate&);
 
     template <>
     struct IsSequence<bcem_Aggregate> {

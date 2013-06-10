@@ -54,11 +54,11 @@
 //      bcemt_Mutex        d_lock;
 //      bsl::deque<Job *>  d_queue;
 //      bcema_FixedPool    d_pool;
-//      bslma_Allocator   *d_allocator_p;
+//      bslma::Allocator  *d_allocator_p;
 //
 //    public:
 //      // CREATORS
-//      my_JobQueue(int maxJobs, bslma_Allocator *basicAllocator = 0);
+//      my_JobQueue(int maxJobs, bslma::Allocator *basicAllocator = 0);
 //      ~my_JobQueue();
 //
 //      // MANIPULATORS
@@ -67,10 +67,10 @@
 //      int tryExecuteJob();
 //  };
 //
-//  my_JobQueue::my_JobQueue(int maxJobs, bslma_Allocator *basicAllocator)
+//  my_JobQueue::my_JobQueue(int maxJobs, bslma::Allocator *basicAllocator)
 //  : d_queue(basicAllocator)
 //  , d_pool(sizeof(Job), maxJobs, basicAllocator)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //  }
 //
@@ -128,6 +128,10 @@
 #include <bdema_pool.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DELETERHELPER
 #include <bslma_deleterhelper.h>
 #endif
@@ -146,10 +150,6 @@
 
 #ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>            // 'bsl::size_t'
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -213,7 +213,7 @@ class bcema_FixedPool {
     int                  d_backoffLevel;   // determines amount of spinning
                                            // when under contention
 
-    bslma_Allocator     *d_allocator_p;    // memory allocator (held, not
+    bslma::Allocator    *d_allocator_p;    // memory allocator (held, not
                                            // owned)
 
     // NOT IMPLEMENTED
@@ -231,9 +231,9 @@ class bcema_FixedPool {
 
   public:
     // CREATORS
-    bcema_FixedPool(int              objectSize,
-                    int              poolSize,
-                    bslma_Allocator *basicAllocator = 0);
+    bcema_FixedPool(int               objectSize,
+                    int               poolSize,
+                    bslma::Allocator *basicAllocator = 0);
         // Create a memory pool that returns memory of the specified
         // 'objectSize' for each invocation of the 'allocate' method.
         // Configure this pool to support allocation of up to the specified
@@ -340,8 +340,8 @@ void *operator new(bsl::size_t size, BloombergLP::bcema_FixedPool& pool);
     // internally within its constructor, requiring the allocator to be passed
     // in as a constructor argument:
     //..
-    //  my_Type *newMyType(bcema_FixedPool *pool,
-    //                     bslma_Allocator *basicAllocator) {
+    //  my_Type *newMyType(bcema_FixedPool  *pool,
+    //                     bslma::Allocator *basicAllocator) {
     //      return new (*pool) my_Type(..., basicAllocator);
     //  }
     //..
@@ -380,14 +380,14 @@ template<class TYPE>
 inline
 void bcema_FixedPool::deleteObject(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObject(object, this);
+    bslma::DeleterHelper::deleteObject(object, this);
 }
 
 template<class TYPE>
 inline
 void bcema_FixedPool::deleteObjectRaw(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObjectRaw(object, this);
+    bslma::DeleterHelper::deleteObjectRaw(object, this);
 }
 
 inline
@@ -400,7 +400,7 @@ void bcema_FixedPool::setBackoffLevel(int backoffLevel)
 inline
 void *bcema_FixedPool::addressFromIndex(int index) const
 {
-    const Node * const node = d_nodes[index];
+    Node * node = const_cast<Node *>(d_nodes[index]);
 
     BSLS_ASSERT(node);
     return (char *)node + d_dataOffset;
@@ -439,8 +439,8 @@ void *operator new(bsl::size_t size, BloombergLP::bcema_FixedPool& pool)
 {
     using namespace BloombergLP;
     BSLS_ASSERT((int) size <= pool.objectSize()
-         && bsls_AlignmentUtil::calculateAlignmentFromSize((int)size)
-         <= bsls_AlignmentUtil::calculateAlignmentFromSize(pool.objectSize()));
+        && bsls::AlignmentUtil::calculateAlignmentFromSize((int)size)
+        <= bsls::AlignmentUtil::calculateAlignmentFromSize(pool.objectSize()));
 
     (void)size;  // suppress "unused parameter" warnings
     return pool.allocate();

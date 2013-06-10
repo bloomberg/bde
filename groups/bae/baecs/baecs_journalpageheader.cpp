@@ -5,6 +5,7 @@
 #include <bael_log.h>
 
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 
@@ -169,8 +170,8 @@ int baecs_JournalPageHeader::markFreeListsForValidation(unsigned *map,
 }
 
 void baecs_JournalPageHeader::copyFrom(
-                                 const baecs_JournalPageHeader &other,
-                                 const bsls_PlatformUtil::Int64 &transactionId)
+                                  const baecs_JournalPageHeader& other,
+                                  const bsls::Types::Int64&      transactionId)
 {
     BSLS_ASSERT(d_numBlocks == other.d_numBlocks);
     d_transactionId.setValue(transactionId);
@@ -185,9 +186,8 @@ void baecs_JournalPageHeader::copyFrom(
 
 }
 
-void baecs_JournalPageHeader::init(
-                                unsigned numBlocks,
-                                const bsls_PlatformUtil::Int64 &transactionId)
+void baecs_JournalPageHeader::init(unsigned                  numBlocks,
+                                   const bsls::Types::Int64& transactionId)
 {
     d_transactionId.setValue(transactionId);
     d_firstAvailableBlock = 0;
@@ -214,7 +214,7 @@ unsigned baecs_JournalPageHeader::getSize(unsigned numBlocks)
 }
 
 unsigned baecs_JournalPageHeader::allocate(unsigned numBlocks,
-                                            unsigned attributes)
+                                           unsigned attributes)
 {
     BSLS_ASSERT(numBlocks <= d_numAvailableBlocks);
     BSLS_ASSERT(numBlocks > 0);

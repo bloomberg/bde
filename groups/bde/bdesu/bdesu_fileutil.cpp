@@ -225,10 +225,10 @@ bdesu_FileUtil::open(const char *pathName,
                                          : 0);
     DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
 
-    // The file locking behavior for the opened file 
+    // The file locking behavior for the opened file
     // ('FILE_SHARE_READ | FILE_SHARE_WRITE') is chosen to match the posix
     // behavior for open (DRQS 30568749).
- 
+
     return CreateFile(pathName,
                       accessMode,
                       FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
@@ -374,8 +374,12 @@ int bdesu_FileUtil::unmap(void *addr, int)
 
 int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
 {
-    BSLS_ASSERT(addr);
+    BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+                     bdesu_MemoryUtil::pageSize());
+
 
     // The meaning of the 'sync' flag (cause this function to be
     // synchronous vs. asynchronous) does not appear to be supported by
@@ -486,7 +490,7 @@ void bdesu_FileUtil::visitPaths(
         bsl::vector<bsl::string> leaves;
         bsl::vector<bsl::string> paths, workingPaths;
         bsl::string pattern = patternStr;
-        while(bdesu_PathUtil::hasLeaf(pattern)) {
+        while (bdesu_PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
             int rc = bdesu_PathUtil::getLeaf(&leaves.back(), pattern);
             BSLS_ASSERT(0 == rc);
@@ -632,7 +636,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
     BSLS_ASSERT(path);
 
     WIN32_FILE_ATTRIBUTE_DATA fileAttribute;
-    if(!GetFileAttributesEx(path, GetFileExInfoStandard,
+    if (!GetFileAttributesEx(path, GetFileExInfoStandard,
                                                      (void *)&fileAttribute)) {
         return -1;                                                    // RETURN
     }
@@ -664,7 +668,8 @@ bdesu_FileUtil::open(const char *pathName,
                       | (writableFlag && appendFlag ? O_APPEND : 0);
 
     if (existFlag) {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
         return ::open(  pathName, oflag);                             // RETURN
 #elif defined(BSLS_PLATFORM_OS_HPUX)
         // In 64-bit mode, HP-UX defines 'open64' to be 'open', which triggers
@@ -675,7 +680,8 @@ bdesu_FileUtil::open(const char *pathName,
 #endif
     }
 
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     return ::open(  pathName, oflag | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 #elif defined(BSLS_PLATFORM_OS_HPUX)
@@ -696,7 +702,8 @@ bdesu_FileUtil::Offset
 bdesu_FileUtil::seek(FileDescriptor fd, Offset offset, int whence)
 {
     switch (whence) {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
       case BDESU_SEEK_FROM_BEGINNING:
         return lseek(fd, offset, SEEK_SET);                           // RETURN
       case BDESU_SEEK_FROM_CURRENT:
@@ -817,7 +824,8 @@ int bdesu_FileUtil::map(FileDescriptor   fd,
     if (mode & bdesu_MemoryUtil::BDESU_ACCESS_WRITE)   protect |= PROT_WRITE;
     if (mode & bdesu_MemoryUtil::BDESU_ACCESS_EXECUTE) protect |= PROT_EXEC;
 
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     *addr = mmap(0, size, protect, MAP_SHARED, fd, offset);
 #else
     *addr = mmap64(0, size, protect, MAP_SHARED, fd, offset);
@@ -842,10 +850,19 @@ int  bdesu_FileUtil::unmap(void *addr, int len)
 
 int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
 {
-    BSLS_ASSERT(addr);
+    BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+                     bdesu_MemoryUtil::pageSize());
 
-    return ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
+    int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
+
+    // We do not contractually offer meaningful return codes (providing status
+    // in a cross-platform way is problematic); however, the returned value may
+    // be logged, so providing a more informative value may aid in debugging.
+
+    return 0 == rc ? 0 : errno;
 }
 
 int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
@@ -960,7 +977,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
 
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     struct statvfs buf;
     int rc = statvfs(path, &buf);
 #else
@@ -978,7 +996,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 
 bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
 {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     struct statvfs buf;
     int rc = fstatvfs(fd, &buf);
 #else
@@ -996,9 +1015,15 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
 
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 {
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+    struct stat fileStats;
+
+    if (0 != stat(path, &fileStats)) {
+#else
     struct stat64 fileStats;
 
     if (0 != stat64(path, &fileStats)) {
+#endif
         return -1;                                                    // RETURN
     }
 
@@ -1008,7 +1033,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_HPUX)
+ || defined(BSLS_PLATFORM_OS_HPUX)    || defined(BSLS_PLATFORM_OS_CYGWIN)
     struct rlimit rl, rlMax, rlInf;
     int rc = getrlimit(RLIMIT_FSIZE, &rl);
 #else
@@ -1064,7 +1089,7 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
         bdesu_PathUtil::popLeaf(&path);
     }
 
-    while(bdesu_PathUtil::hasLeaf(path)) {
+    while (bdesu_PathUtil::hasLeaf(path)) {
         directoryStack.push_back(bsl::string());
         int rc = bdesu_PathUtil::getLeaf(&directoryStack.back(), path);
         BSLS_ASSERT(0 == rc);
@@ -1149,7 +1174,7 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         char *buf = (char*)allocator_p->allocate(bufferSize);
         bsl::memset(buf, 1, bufferSize);
         Offset bytesToGrow = size - currentSize;
-        while(bytesToGrow > 0) {
+        while (bytesToGrow > 0) {
             int nBytes = static_cast<int>(
                                    bsl::min(bytesToGrow, (Offset)bufferSize));
             int rc = write(fd, buf, nBytes);

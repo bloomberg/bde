@@ -47,7 +47,7 @@ BDES_IDENT("$Id: $")
 // We start by creating a 'bdem_FieldDefAttributes' objects for a couple of
 // specific 'bdem' types:
 //..
-//  bslma_Allocator *allocator = bslma_Default::allocator();
+//  bslma::Allocator *allocator = bslma::Default::allocator();
 //  bdem_FieldDefAttributes  intType(bdem_ElemType::BDEM_INT,  allocator);
 //  bdem_FieldDefAttributes listType(bdem_ElemType::BDEM_LIST, allocator);
 //..
@@ -199,20 +199,20 @@ class bdem_FieldDefAttributes {
         // stored in the buffer.
 
         // DATA
-        bsls_ObjectBuffer<bool>              d_bool;
-        bsls_ObjectBuffer<char>              d_char;
-        bsls_ObjectBuffer<short>             d_short;
-        bsls_ObjectBuffer<int>               d_int;
-        bsls_ObjectBuffer<bsls_Types::Int64> d_int64;
-        bsls_ObjectBuffer<float>             d_float;
-        bsls_ObjectBuffer<double>            d_double;
-        bsls_ObjectBuffer<bsl::string>       d_string;
-        bsls_ObjectBuffer<bdet_Datetime>     d_datetime;
-        bsls_ObjectBuffer<bdet_DatetimeTz>   d_datetimeTz;
-        bsls_ObjectBuffer<bdet_Date>         d_date;
-        bsls_ObjectBuffer<bdet_DateTz>       d_dateTz;
-        bsls_ObjectBuffer<bdet_Time>         d_time;
-        bsls_ObjectBuffer<bdet_TimeTz>       d_timeTz;
+        bsls::ObjectBuffer<bool>               d_bool;
+        bsls::ObjectBuffer<char>               d_char;
+        bsls::ObjectBuffer<short>              d_short;
+        bsls::ObjectBuffer<int>                d_int;
+        bsls::ObjectBuffer<bsls::Types::Int64> d_int64;
+        bsls::ObjectBuffer<float>              d_float;
+        bsls::ObjectBuffer<double>             d_double;
+        bsls::ObjectBuffer<bsl::string>        d_string;
+        bsls::ObjectBuffer<bdet_Datetime>      d_datetime;
+        bsls::ObjectBuffer<bdet_DatetimeTz>    d_datetimeTz;
+        bsls::ObjectBuffer<bdet_Date>          d_date;
+        bsls::ObjectBuffer<bdet_DateTz>        d_dateTz;
+        bsls::ObjectBuffer<bdet_Time>          d_time;
+        bsls::ObjectBuffer<bdet_TimeTz>        d_timeTz;
     };
 
     enum Flags {
@@ -233,26 +233,26 @@ class bdem_FieldDefAttributes {
     int                  d_flags;           // see enum 'Flags' above
     DefaultValue         d_defaultValue;    // scalar default value
     int                  d_formattingMode;  // formatting-mode of field
-    bslma_Allocator     *d_allocator_p;     // memory allocator (held, not
+    bslma::Allocator    *d_allocator_p;     // memory allocator (held, not
                                             // owned)
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdem_FieldDefAttributes,
-                                  bslalg_TypeTraitBitwiseMoveable,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                  bslalg::TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    bdem_FieldDefAttributes(bslma_Allocator     *basicAllocator = 0);
+    bdem_FieldDefAttributes(bslma::Allocator    *basicAllocator = 0);
     bdem_FieldDefAttributes(bdem_ElemType::Type  type,
-                            bslma_Allocator     *basicAllocator = 0);
+                            bslma::Allocator    *basicAllocator = 0);
     bdem_FieldDefAttributes(bdem_ElemType::Type  type,
                             bool                 nullabilityFlag,
-                            bslma_Allocator     *basicAllocator = 0);
+                            bslma::Allocator    *basicAllocator = 0);
     bdem_FieldDefAttributes(bdem_ElemType::Type  type,
                             bool                 nullabilityFlag,
                             int                  formattingMode,
-                            bslma_Allocator     *basicAllocator = 0);
+                            bslma::Allocator    *basicAllocator = 0);
         // Create a field definition attributes object.  Optionally specify
         // the 'type', indicating the data type of a field described by these
         // attributes.  If no 'type' is specified, 'elemType()' will default to
@@ -267,7 +267,7 @@ class bdem_FieldDefAttributes {
 
     bdem_FieldDefAttributes(
                            const bdem_FieldDefAttributes&  original,
-                           bslma_Allocator                *basicAllocator = 0);
+                           bslma::Allocator               *basicAllocator = 0);
         // Create a field definition attributes object having the value of the
         // specified 'original' field definition attributes.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If

@@ -8,7 +8,7 @@ BDES_IDENT_RCSID(baexml_errorinfo_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP  {
 
-baexml_ErrorInfo::baexml_ErrorInfo(bslma_Allocator *basicAllocator)
+baexml_ErrorInfo::baexml_ErrorInfo(bslma::Allocator *basicAllocator)
 : d_severity    (BAEXML_NO_ERROR)
 , d_lineNumber  (0)
 , d_columnNumber(0)
@@ -17,8 +17,8 @@ baexml_ErrorInfo::baexml_ErrorInfo(bslma_Allocator *basicAllocator)
 {
 }
 
-baexml_ErrorInfo::baexml_ErrorInfo(const baexml_ErrorInfo& other,
-                                   bslma_Allocator        *basicAllocator)
+baexml_ErrorInfo::baexml_ErrorInfo(const baexml_ErrorInfo&  other,
+                                   bslma::Allocator        *basicAllocator)
 : d_severity    (other.d_severity)
 , d_lineNumber  (other.d_lineNumber)
 , d_columnNumber(other.d_columnNumber)

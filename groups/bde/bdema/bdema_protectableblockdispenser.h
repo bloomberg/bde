@@ -1,4 +1,4 @@
-// bdema_protectableblockdispenser.h      -*-C++-*-
+// bdema_protectableblockdispenser.h                                  -*-C++-*-
 #ifndef INCLUDED_BDEMA_PROTECTABLEBLOCKDISPENSER
 #define INCLUDED_BDEMA_PROTECTABLEBLOCKDISPENSER
 
@@ -281,8 +281,8 @@ BDES_IDENT("$Id: $")
 //            // This structure is used to ensure the alignment of the header
 //            // information.
 //
-//            Header                         d_header;  // memory header
-//            bsls_Alignment::MaxAlignedType d_align;   // ensure alignment
+//            Header                          d_header;  // memory header
+//            bsls::Alignment::MaxAlignedType d_align;   // ensure alignment
 //        };
 //
 //    }  // close unnamed namespace
@@ -298,8 +298,8 @@ BDES_IDENT("$Id: $")
 //    , d_pageSize(pageSize)
 //    {
 //        std::memset(buffer, UNUSED_BUFFER_BYTE, bufferSize);
-//        d_cursor_p += bsls_Alignment::calculateAlignmentOffset(
-//                                  d_cursor_p, bsls_Alignment::MAX_ALIGNMENT);
+//        d_cursor_p += bsls::Alignment::calculateAlignmentOffset(
+//                                 d_cursor_p, bsls::Alignment::MAX_ALIGNMENT);
 //    }
 //
 //    DummyProtectableBufferBlockDispenser::
@@ -322,7 +322,7 @@ BDES_IDENT("$Id: $")
 //        if (d_cursor_p + sizeWithHeader > d_buffer_p + d_size) {
 //
 //            // Not enough free space in the buffer.
-//            bslma_Allocator::throwBadAlloc();
+//            bslma::Allocator::throwBadAlloc();
 //        }
 //
 //        char *cursor = d_cursor_p;
@@ -339,8 +339,8 @@ BDES_IDENT("$Id: $")
 //        // Update the cursor to the next empty buffer location and then
 //        // ensure the proper alignment of the next position.
 //        d_cursor_p += sizeWithHeader;
-//        d_cursor_p += bsls_Alignment::calculateAlignmentOffset(
-//                                  d_cursor_p, bsls_Alignment::MAX_ALIGNMENT);
+//        d_cursor_p += bsls::Alignment::calculateAlignmentOffset(
+//                                 d_cursor_p, bsls::Alignment::MAX_ALIGNMENT);
 //
 //        // Return the block of memory starting after the header.
 //        return bdema_MemoryBlockDescriptor(
@@ -418,9 +418,16 @@ BDES_IDENT("$Id: $")
 #include <bdema_memoryblockdescriptor.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -439,7 +446,7 @@ class bdema_ProtectableBlockDispenser {
 
   public:
     // PUBLIC TYPES
-    typedef bsls_PlatformUtil::size_type size_type;  // type for block size
+    typedef bsls::Types::size_type size_type;  // type for block size
 
     // CREATORS
     virtual ~bdema_ProtectableBlockDispenser();

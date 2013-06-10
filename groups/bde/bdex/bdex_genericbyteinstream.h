@@ -35,8 +35,8 @@ BDES_IDENT("$Id: $")
 // The supported types and required content are listed in the table below.
 // All of the fundamental types in the table may be input as scalar values or
 // as homogeneous arrays.  'bsl::string' is input as a logical scalar string.
-// Note that 'Int64' and 'Uint64' denote 'bsls_Types::Int64' and
-// 'bsls_Types::Uint64', which in turn are 'typedef' names for the signed and
+// Note that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
+// 'bsls::Types::Uint64', which in turn are 'typedef' names for the signed and
 // unsigned 64-bit integer types, respectively, on the host platform.
 //..
 //      C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM NEUTRAL FORMAT
@@ -339,10 +339,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>  // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -354,6 +350,13 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -450,56 +453,56 @@ class bdex_GenericByteInStream {
 
      ///Getting Scalar Integral Values
      /// - - - - - - - - - - - - - - -
-     bdex_GenericByteInStream& getInt64(bsls_Types::Int64& variable);
+     bdex_GenericByteInStream& getInt64(bsls::Types::Int64& variable);
         // Read eight bytes from this input stream as a 64-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended if 'variable' holds more than 64 bits
         // on this platform.
 
-     bdex_GenericByteInStream& getUint64(bsls_Types::Uint64& variable);
+     bdex_GenericByteInStream& getUint64(bsls::Types::Uint64& variable);
         // Read eight bytes from this input stream as a 64-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be zero-extended if 'variable' holds more than 64 bits
         // on this platform.
 
-     bdex_GenericByteInStream& getInt56(bsls_Types::Int64& variable);
+     bdex_GenericByteInStream& getInt56(bsls::Types::Int64& variable);
         // Read seven bytes from this input stream as a 56-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended to the size of the 'variable'
         // on this platform.
 
-     bdex_GenericByteInStream& getUint56(bsls_Types::Uint64& variable);
+     bdex_GenericByteInStream& getUint56(bsls::Types::Uint64& variable);
         // Read seven bytes from this input stream as a 56-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be zero-extended to the size of the 'variable'
         // on this platform.
 
-     bdex_GenericByteInStream& getInt48(bsls_Types::Int64& variable);
+     bdex_GenericByteInStream& getInt48(bsls::Types::Int64& variable);
         // Read six bytes from this input stream as a 48-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended to the size of the 'variable'
         // on this platform.
 
-     bdex_GenericByteInStream& getUint48(bsls_Types::Uint64& variable);
+     bdex_GenericByteInStream& getUint48(bsls::Types::Uint64& variable);
         // Read six bytes from this input stream as a 48-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be zero-extended to the size of the 'variable'
         // on this platform.
 
-     bdex_GenericByteInStream& getInt40(bsls_Types::Int64& variable);
+     bdex_GenericByteInStream& getInt40(bsls::Types::Int64& variable);
         // Read five bytes from this input stream as a 40-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended to the size of the 'variable'
         // on this platform.
 
-     bdex_GenericByteInStream& getUint40(bsls_Types::Uint64& variable);
+     bdex_GenericByteInStream& getUint40(bsls::Types::Uint64& variable);
         // Read five bytes from this input stream as a 40-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
@@ -579,7 +582,7 @@ class bdex_GenericByteInStream {
      ///Getting Arrays of Integral Values
      ///- - - - - - - - - - - - - - - - -
      bdex_GenericByteInStream&
-     getArrayInt64(bsls_Types::Int64 *array, int count);
+     getArrayInt64(bsls::Types::Int64 *array, int count);
         // Read the specified 'count' eight-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -588,7 +591,7 @@ class bdex_GenericByteInStream {
         // 64 bits on this platform.
 
      bdex_GenericByteInStream&
-     getArrayUint64(bsls_Types::Uint64 *array, int count);
+     getArrayUint64(bsls::Types::Uint64 *array, int count);
         // Read the specified 'count' eight-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -597,7 +600,7 @@ class bdex_GenericByteInStream {
         // 64 bits on this platform.
 
      bdex_GenericByteInStream&
-     getArrayInt56(bsls_Types::Int64 *array, int count);
+     getArrayInt56(bsls::Types::Int64 *array, int count);
         // Read the specified 'count' seven-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -606,7 +609,7 @@ class bdex_GenericByteInStream {
         // element on this platform.
 
      bdex_GenericByteInStream&
-     getArrayUint56(bsls_Types::Uint64 *array, int count);
+     getArrayUint56(bsls::Types::Uint64 *array, int count);
         // Read the specified 'count' seven-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -615,7 +618,7 @@ class bdex_GenericByteInStream {
         // element on this platform.
 
      bdex_GenericByteInStream&
-     getArrayInt48(bsls_Types::Int64 *array, int count);
+     getArrayInt48(bsls::Types::Int64 *array, int count);
         // Read the specified 'count' six-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -624,7 +627,7 @@ class bdex_GenericByteInStream {
         // element on this platform.
 
      bdex_GenericByteInStream&
-     getArrayUint48(bsls_Types::Uint64 *array, int count);
+     getArrayUint48(bsls::Types::Uint64 *array, int count);
         // Read the specified 'count' six-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -633,7 +636,7 @@ class bdex_GenericByteInStream {
         // element on this platform.
 
      bdex_GenericByteInStream&
-     getArrayInt40(bsls_Types::Int64 *array, int count);
+     getArrayInt40(bsls::Types::Int64 *array, int count);
         // Read the specified 'count' five-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -642,7 +645,7 @@ class bdex_GenericByteInStream {
         // element on this platform.
 
      bdex_GenericByteInStream&
-     getArrayUint40(bsls_Types::Uint64 *array, int count);
+     getArrayUint40(bsls::Types::Uint64 *array, int count);
         // Read the specified 'count' five-byte, two's complement integers (in
         // network byte order) from this input stream and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -893,11 +896,11 @@ bdex_GenericByteInStream<StreamBuf>::getLength(int& length)
 template <class StreamBuf>
 inline
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getInt64(bsls_Types::Int64& variable)
+bdex_GenericByteInStream<StreamBuf>::getInt64(bsls::Types::Int64& variable)
 {
     typedef union {
-        bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[sizeof(bsls::Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -923,9 +926,9 @@ bdex_GenericByteInStream<StreamBuf>::getInt64(bsls_Types::Int64& variable)
 template <class StreamBuf>
 inline
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getUint64(bsls_Types::Uint64& variable)
+bdex_GenericByteInStream<StreamBuf>::getUint64(bsls::Types::Uint64& variable)
 {
-    return getInt64((bsls_Types::Int64&)variable);
+    return getInt64((bsls::Types::Int64&)variable);
 }
 
 template <class StreamBuf>
@@ -933,11 +936,11 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getInt56(bsls_Types::Int64& variable)
+bdex_GenericByteInStream<StreamBuf>::getInt56(bsls::Types::Int64& variable)
 {
     typedef union {
-        bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[sizeof(bsls::Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -975,11 +978,11 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getUint56(bsls_Types::Uint64& variable)
+bdex_GenericByteInStream<StreamBuf>::getUint56(bsls::Types::Uint64& variable)
 {
     typedef union {
-        bsls_Types::Uint64 d_variable;
-        char               d_bytes[1];
+        bsls::Types::Uint64 d_variable;
+        char                d_bytes[sizeof(bsls::Types::Uint64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1017,11 +1020,11 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getInt48(bsls_Types::Int64& variable)
+bdex_GenericByteInStream<StreamBuf>::getInt48(bsls::Types::Int64& variable)
 {
     typedef union {
-        bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[sizeof(bsls::Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1058,11 +1061,11 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getUint48(bsls_Types::Uint64& variable)
+bdex_GenericByteInStream<StreamBuf>::getUint48(bsls::Types::Uint64& variable)
 {
     typedef union {
-        bsls_Types::Uint64 d_variable;
-        char               d_bytes[1];
+        bsls::Types::Uint64 d_variable;
+        char                d_bytes[sizeof(bsls::Types::Uint64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1099,11 +1102,11 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getInt40(bsls_Types::Int64& variable)
+bdex_GenericByteInStream<StreamBuf>::getInt40(bsls::Types::Int64& variable)
 {
     typedef union {
-        bsls_Types::Int64 d_variable;
-        char              d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[sizeof(bsls::Types::Int64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1139,11 +1142,11 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getUint40(bsls_Types::Uint64& variable)
+bdex_GenericByteInStream<StreamBuf>::getUint40(bsls::Types::Uint64& variable)
 {
     typedef union {
-        bsls_Types::Uint64 d_variable;
-        char               d_bytes[1];
+        bsls::Types::Uint64 d_variable;
+        char                d_bytes[sizeof(bsls::Types::Uint64)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1181,7 +1184,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt32(int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1211,7 +1214,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint32(unsigned int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1243,7 +1246,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt24(int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1281,7 +1284,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint24(unsigned int& variable)
 {
     typedef union {
         int  d_variable;
-        char d_bytes[1];
+        char d_bytes[sizeof(int)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1317,7 +1320,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt16(short& variable)
 {
     typedef union {
         short d_variable;
-        char  d_bytes[1];
+        char  d_bytes[sizeof(short)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1347,7 +1350,7 @@ bdex_GenericByteInStream<StreamBuf>::getUint16(unsigned short& variable)
 {
     typedef union {
         short d_variable;
-        char  d_bytes[1];
+        char  d_bytes[sizeof(short)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1377,7 +1380,7 @@ bdex_GenericByteInStream<StreamBuf>::getInt8(char& variable)
 {
     typedef union {
         short d_variable;
-        char  d_bytes[1];
+        char  d_bytes[sizeof(short)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1422,11 +1425,11 @@ bdex_GenericByteInStream<StreamBuf>&
 bdex_GenericByteInStream<StreamBuf>::getFloat64(double& variable)
 {
     typedef union {
-        double             d_variable;
+        double              d_variable;
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
-        bsls_Types::Uint64 d_longlong;
+        bsls::Types::Uint64 d_longlong;
 #endif
-        char               d_bytes[1];
+        char                d_bytes[sizeof(double)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1459,7 +1462,7 @@ bdex_GenericByteInStream<StreamBuf>::getFloat32(float& variable)
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
         int   d_int;
 #endif
-        char  d_bytes[1];
+        char  d_bytes[sizeof(float)];
     }& T;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!d_valid)) {
@@ -1489,8 +1492,8 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayInt64(bsls_Types::Int64 *array,
-                                                   int                count)
+bdex_GenericByteInStream<StreamBuf>::getArrayInt64(bsls::Types::Int64 *array,
+                                                   int                 count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1501,12 +1504,12 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt64(bsls_Types::Int64 *array,
     }
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    const bsls_Types::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt64(*array);
     }
 #else
-    const int numBytes = static_cast<int>(sizeof(bsls_Types::Int64) * count);
+    const int numBytes = static_cast<int>(sizeof(bsls::Types::Int64) * count);
     if (d_streamBuf->sgetn((char *)array, numBytes) < numBytes) {
         d_valid = false;
     }
@@ -1520,8 +1523,8 @@ template <class StreamBuf>
 inline
 #endif
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayUint64(bsls_Types::Uint64 *array,
-                                                    int                 count)
+bdex_GenericByteInStream<StreamBuf>::getArrayUint64(bsls::Types::Uint64 *array,
+                                                    int                  count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1532,12 +1535,12 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint64(bsls_Types::Uint64 *array,
     }
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    const bsls_Types::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint64(*array);
     }
 #else
-    const int numBytes = static_cast<int>(sizeof(bsls_Types::Int64) * count);
+    const int numBytes = static_cast<int>(sizeof(bsls::Types::Int64) * count);
     if (d_streamBuf->sgetn((char *)array, numBytes) < numBytes) {
         d_valid = false;
     }
@@ -1548,8 +1551,8 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint64(bsls_Types::Uint64 *array,
 
 template <class StreamBuf>
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayInt56(bsls_Types::Int64 *array,
-                                                   int                count)
+bdex_GenericByteInStream<StreamBuf>::getArrayInt56(bsls::Types::Int64 *array,
+                                                   int                 count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1559,7 +1562,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt56(bsls_Types::Int64 *array,
         return *this;                                                 // RETURN
     }
 
-    const bsls_Types::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt56(*array);
     }
@@ -1569,8 +1572,8 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt56(bsls_Types::Int64 *array,
 
 template <class StreamBuf>
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayUint56(bsls_Types::Uint64 *array,
-                                                    int                 count)
+bdex_GenericByteInStream<StreamBuf>::getArrayUint56(bsls::Types::Uint64 *array,
+                                                    int                  count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1580,7 +1583,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint56(bsls_Types::Uint64 *array,
         return *this;                                                 // RETURN
     }
 
-    const bsls_Types::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint56(*array);
     }
@@ -1590,8 +1593,8 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint56(bsls_Types::Uint64 *array,
 
 template <class StreamBuf>
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayInt48(bsls_Types::Int64 *array,
-                                                   int                count)
+bdex_GenericByteInStream<StreamBuf>::getArrayInt48(bsls::Types::Int64 *array,
+                                                   int                 count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1601,7 +1604,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt48(bsls_Types::Int64 *array,
         return *this;                                                 // RETURN
     }
 
-    const bsls_Types::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt48(*array);
     }
@@ -1611,8 +1614,8 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt48(bsls_Types::Int64 *array,
 
 template <class StreamBuf>
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayUint48(bsls_Types::Uint64 *array,
-                                                    int                 count)
+bdex_GenericByteInStream<StreamBuf>::getArrayUint48(bsls::Types::Uint64 *array,
+                                                    int                  count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1622,7 +1625,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint48(bsls_Types::Uint64 *array,
         return *this;                                                 // RETURN
     }
 
-    const bsls_Types::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint48(*array);
     }
@@ -1632,8 +1635,8 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint48(bsls_Types::Uint64 *array,
 
 template <class StreamBuf>
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayInt40(bsls_Types::Int64 *array,
-                                                   int                count)
+bdex_GenericByteInStream<StreamBuf>::getArrayInt40(bsls::Types::Int64 *array,
+                                                   int                 count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1643,7 +1646,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt40(bsls_Types::Int64 *array,
         return *this;                                                 // RETURN
     }
 
-    const bsls_Types::Int64 *endArray = array + count;
+    const bsls::Types::Int64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getInt40(*array);
     }
@@ -1653,8 +1656,8 @@ bdex_GenericByteInStream<StreamBuf>::getArrayInt40(bsls_Types::Int64 *array,
 
 template <class StreamBuf>
 bdex_GenericByteInStream<StreamBuf>&
-bdex_GenericByteInStream<StreamBuf>::getArrayUint40(bsls_Types::Uint64 *array,
-                                                    int                 count)
+bdex_GenericByteInStream<StreamBuf>::getArrayUint40(bsls::Types::Uint64 *array,
+                                                    int                  count)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= count);
@@ -1664,7 +1667,7 @@ bdex_GenericByteInStream<StreamBuf>::getArrayUint40(bsls_Types::Uint64 *array,
         return *this;                                                 // RETURN
     }
 
-    const bsls_Types::Uint64 *endArray = array + count;
+    const bsls::Types::Uint64 *endArray = array + count;
     for (; array < endArray; ++array) {
         getUint40(*array);
     }

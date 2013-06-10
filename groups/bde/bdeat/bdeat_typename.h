@@ -84,8 +84,8 @@ BDES_IDENT("$Id: $")
 //  unsigned short                DEFAULT/DEC                 unsignedShort
 //  int                           DEFAULT/DEC                 int
 //  unsigned int                  DEFAULT/DEC                 unsignedInt
-//  bsls_PlatformUtil::Int64      DEFAULT/DEC                 long
-//  bsls_PlatformUtil::Uint64     DEFAULT/DEC                 unsignedLong
+//  bsls::Types::Int64            DEFAULT/DEC                 long
+//  bsls::Types::Uint64           DEFAULT/DEC                 unsignedLong
 //  float                         DEFAULT                     float
 //  float                         DEC                         decimal
 //  double                        DEFAULT                     double
@@ -256,8 +256,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -276,6 +276,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #endif
 
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -443,8 +450,8 @@ struct bdeat_TypeName_Imp {
     static const char *name(const unsigned int              *object);
     static const char *name(const long                      *object);
     static const char *name(const unsigned long             *object);
-    static const char *name(const bsls_PlatformUtil::Int64  *object);
-    static const char *name(const bsls_PlatformUtil::Uint64 *object);
+    static const char *name(const bsls::Types::Int64        *object);
+    static const char *name(const bsls::Types::Uint64       *object);
     static const char *name(const float                     *object);
     static const char *name(const double                    *object);
     static const char *name(const char               *const *object);
@@ -483,10 +490,8 @@ struct bdeat_TypeName_Imp {
     static const char *xsdName(const unsigned int         *object, int format);
     static const char *xsdName(const long                 *object, int format);
     static const char *xsdName(const unsigned long        *object, int format);
-    static const char *xsdName(const bsls_PlatformUtil::Int64
-                                                          *object, int format);
-    static const char *xsdName(const bsls_PlatformUtil::Uint64
-                                                          *object, int format);
+    static const char *xsdName(const bsls::Types::Int64   *object, int format);
+    static const char *xsdName(const bsls::Types::Uint64  *object, int format);
     static const char *xsdName(const float                *object, int format);
     static const char *xsdName(const double               *object, int format);
     static const char *xsdName(const bsl::string          *object, int format);
@@ -549,21 +554,21 @@ const char *bdeat_TypeName_Imp::className(const TYPE *object)
 {
     enum {
         HAS_CLASS_NAME =
-              bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
-            | bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
-            | bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicCustomizedType>::VALUE,
+             bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
+           | bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
+           | bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicCustomizedType>::VALUE,
 
         IS_BASIC_ENUMERATION =
-            bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE,
+            bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE,
 
         SELECTOR = (HAS_CLASS_NAME ? 0 : (IS_BASIC_ENUMERATION ? 1 : 2))
     };
 
     typedef typename
-    bslmf_Switch<SELECTOR,
-                 HasClassName,
-                 IsBasicEnumeration,
-                 Other>::Type        Switch;
+    bslmf::Switch<SELECTOR,
+                  HasClassName,
+                  IsBasicEnumeration,
+                  Other>::Type        Switch;
 
     return classNameImp(object, Switch());
 }
@@ -637,13 +642,13 @@ const char *bdeat_TypeName_Imp::name(const unsigned long *)
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bsls_PlatformUtil::Int64  *)
+const char *bdeat_TypeName_Imp::name(const bsls::Types::Int64 *)
 {
     return BDEAT_NAME_INT64;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bsls_PlatformUtil::Uint64 *)
+const char *bdeat_TypeName_Imp::name(const bsls::Types::Uint64 *)
 {
     return BDEAT_NAME_UINT64;
 }
@@ -832,7 +837,7 @@ bdeat_TypeName_Imp::xsdName(const unsigned long *, int format)
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const bsls_PlatformUtil::Int64 *, int format)
+bdeat_TypeName_Imp::xsdName(const bsls::Types::Int64 *, int format)
 {
     BSLS_ASSERT_SAFE(
                     FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
@@ -844,7 +849,7 @@ bdeat_TypeName_Imp::xsdName(const bsls_PlatformUtil::Int64 *, int format)
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const bsls_PlatformUtil::Uint64 *, int format)
+bdeat_TypeName_Imp::xsdName(const bsls::Types::Uint64 *, int format)
 {
     BSLS_ASSERT_SAFE(
                     FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)

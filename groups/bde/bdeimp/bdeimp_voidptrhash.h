@@ -29,8 +29,8 @@ BDES_IDENT("$Id: $")
 //  bdeci_Hashtable<void *, bdeimp_VoidPtrHash> hashTable;
 //..
 // See the component-level documentation of 'bdeci_hashtable' for further
-// information.  However, note that 'bsl::hash_map' generally should be used
-// instead of 'bdeci_Hashtable'.
+// information.  However, note that 'bsl::unordered_map' generally should be
+// used instead of 'bdeci_Hashtable'.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -44,9 +44,16 @@ BDES_IDENT("$Id: $")
 #include <bdeimp_int64hash.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -85,8 +92,8 @@ int bdeimp_VoidPtrHash::hash(const void *value, int modulus)
         return bdeimp_IntHash::hash(*v, modulus);
     }
     else {
-        const bsls_PlatformUtil::Int64 *v =
-                              (const bsls_PlatformUtil::Int64 *)(void *)&value;
+        const bsls::Types::Int64 *v =
+                                    (const bsls::Types::Int64 *)(void *)&value;
         return bdeimp_Int64Hash::hash(*v, modulus);
     }
 }

@@ -65,8 +65,8 @@ BDES_IDENT("$Id: $")
 // The following example illustrates the use of 'bcemt_Turnstile' to control
 // the rate of output being written to a specified output stream.  The example
 // function, 'heartbeat', prints a specified message at a specified rate for a
-// specified duration.  An instance of 'bsls_Stopwatch' is used to measure time
-// against the specified duration.
+// specified duration.  An instance of 'bsls::Stopwatch' is used to measure
+// time against the specified duration.
 //..
 //  void heartbeat(bsl::ostream&      stream,
 //                 const bsl::string& message,
@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 //      // specified 'rate' (given in messages per second) for the specified
 //      // 'duration'.
 //
-//      bsls_Stopwatch  timer;
+//      bsls::Stopwatch  timer;
 //      timer.start();
 //      bcemt_Turnstile turnstile(rate);
 //
@@ -124,11 +124,14 @@ BDES_IDENT("$Id: $")
 #include <bdetu_systemtime.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -165,7 +168,7 @@ class bcemt_Turnstile {
                                            // microseconds
 
     // PRIVATE TYPES
-    typedef bsls_Types::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
   private:
     // NOT IMPLEMENTED
@@ -196,13 +199,13 @@ class bcemt_Turnstile {
         // specified, the first turn may be taken immediately.  Note that
         // threads blocked on 'waitTurn' are not interrupted.
 
-    bsls_Types::Int64 waitTurn();
+    bsls::Types::Int64 waitTurn();
         // Sleep until the next turn may be taken or return immediately if the
         // turnstile is lagging behind schedule.  Return the non-negative
         // number of microseconds spent waiting.
 
     // ACCESSORS
-    bsls_PlatformUtil::Int64 lagTime() const;
+    bsls::Types::Int64 lagTime() const;
         // Return the positive number of microseconds difference between the
         // the current time and the next turn, indicating that the turnstile is
         // lagging behind the configured rate.  Otherwise, return 0.

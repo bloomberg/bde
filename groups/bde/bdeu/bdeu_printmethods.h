@@ -39,8 +39,8 @@ BDES_IDENT("$Id: $")
 // by this component:
 //..
 //  bdeu_TypeTraitHasPrintMethod       ( highest precedence )
-//  bslalg_TypeTraitHasStlIterators
-//  bslalg_TypeTraitPair               ( lowest precedence  )
+//  bslalg::TypeTraitHasStlIterators
+//  bslalg::TypeTraitPair              ( lowest precedence  )
 //..
 // Since a class may declare multiple traits (see the component-level
 // documentation of 'bslalg_typetraits' for information about declaring
@@ -72,9 +72,9 @@ BDES_IDENT("$Id: $")
 //  'stream' is not valid on entry, this operation has no effect.
 //..
 //
-///Affect of 'bslalg_TypeTraitHasStlIterators' Trait
+///Affect of 'bslalg::TypeTraitHasStlIterators' Trait
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// If a class 'X' declares the 'bslalg_TypeTraitHasStlIterators' trait, then
+// If a class 'X' declares the 'bslalg::TypeTraitHasStlIterators' trait, then
 // it must provide access to iterators using the standard STL protocol.  The
 // BDE implementation of STL declares this trait for all STL container types
 // that have STL iterators.  Other containers that provide STL iterators should
@@ -89,9 +89,9 @@ BDES_IDENT("$Id: $")
 // its own print method, and with an indentation level one higher than that of
 // the container.
 //
-///Affect of 'bslalg_TypeTraitPair' Trait
+///Affect of 'bslalg::TypeTraitPair' Trait
 /// - - - - - - - - - - - - - - - - - - -
-// If a class 'X' declares the 'bslalg_TypeTraitPair' trait, then the class
+// If a class 'X' declares the 'bslalg::TypeTraitPair' trait, then the class
 // must contain two 'public' data members named 'first' and 'second'.  The
 // BDE implementation of STL declares this trait for the 'bsl::pair' 'struct'.
 // Other classes that have 'public' 'first' and 'second' data members may
@@ -366,7 +366,10 @@ namespace bdeu_PrintMethods {
                 // --------------------------------------------
 
 template <typename TYPE, typename SELECTOR>
-struct bdeu_PrintMethods_Imp {
+struct bdeu_PrintMethods_Imp;
+
+template <typename TYPE>
+struct bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
     // parameterized 'TYPE' that do not declare any of the traits recognized
@@ -387,7 +390,8 @@ struct bdeu_PrintMethods_Imp {
               // --------------------------------------------------------------
 
 template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod<TYPE> > {
+struct bdeu_PrintMethods_Imp<TYPE,
+                             bslmf::SelectTraitCase<bdeu_HasPrintMethod> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of the
     // parameterized 'TYPE' that are associated with the 'bdeu_HasPrintMethod'
@@ -405,7 +409,8 @@ struct bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod<TYPE> > {
          // ------------------------------------------------------------------
 
 template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> > {
+struct bdeu_PrintMethods_Imp<TYPE,
+                            bslmf::SelectTraitCase<bslalg::HasStlIterators> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of the
     // parameterized 'TYPE' that have the 'bslalg::StlIterators'
@@ -423,7 +428,7 @@ struct bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> > {
                   // ---------------------------------------------------------
 
 template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> > {
+struct bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
     // parameterized 'TYPE' that declare the 'bslmf::IsPair' trait.
@@ -444,9 +449,9 @@ struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> > {
                 // --------------------------------------------
 
 // CLASS METHODS
-template <typename TYPE, typename SELECTOR>
+template <typename TYPE>
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, SELECTOR>::
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -478,7 +483,7 @@ print(bsl::ostream& stream,
 template <typename TYPE>
 inline
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod<TYPE> >::
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bdeu_HasPrintMethod> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -498,7 +503,7 @@ print(bsl::ostream& stream,
 // CLASS METHODS
 template <typename TYPE>
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> >::
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslalg::HasStlIterators> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -561,7 +566,7 @@ print(bsl::ostream& stream,
 // CLASS METHODS
 template <typename TYPE>
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >::
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -636,7 +641,7 @@ bdeu_PrintMethods::print(bsl::ostream& stream,
                 bslalg::HasStlIterators,
                 bslmf::IsPair
             >::Type BdeuSelector;
-        
+
     return bdeu_PrintMethods_Imp<TYPE, BdeuSelector>::print(stream,
                                                             object,
                                                             level,
@@ -653,10 +658,10 @@ bdeu_PrintMethods::print(
 {
     return bdeu_PrintMethods_Imp<
                           bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>,
-                          bsl::false_type>::print(stream,
-                                                  object,
-                                                  level,
-                                                  spacesPerLevel);
+                          bslmf::SelectTraitCase<> >::print(stream,
+                                                            object,
+                                                            level,
+                                                            spacesPerLevel);
 }
 
 template <typename ALLOC>

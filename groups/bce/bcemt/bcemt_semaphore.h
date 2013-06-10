@@ -43,7 +43,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      explicit IntQueue(bslma_Allocator *basicAllocator = 0);
+//      explicit IntQueue(bslma::Allocator *basicAllocator = 0);
 //          // Create an 'IntQueue' object.  Optionally specified a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -65,7 +65,7 @@ BDES_IDENT("$Id: $")
 // construction:
 //..
 //  // CREATORS
-//  IntQueue::IntQueue(bslma_Allocator *basicAllocator)
+//  IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 //  : d_queue(basicAllocator)
 //  {
 //      d_mutexSem.post();
@@ -105,8 +105,8 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTEDPTHREAD
-#include <bcemt_semaphoreimpl_countedpthread.h>
+#ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTED
+#include <bcemt_semaphoreimpl_counted.h>
 #endif
 
 #ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_PTHREAD

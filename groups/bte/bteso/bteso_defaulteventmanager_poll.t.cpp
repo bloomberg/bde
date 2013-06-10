@@ -32,7 +32,7 @@ using namespace BloombergLP;
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)    \
     || defined(BSLS_PLATFORM_OS_LINUX)   \
-    || defined(BDES_PLATFORM_OS_FREEBSD) \
+    || defined(BSLS_PLATFORM_OS_FREEBSD) \
     || defined(BSLS_PLATFORM_OS_AIX)     \
     || defined(BSLS_PLATFORM_OS_HPUX)    \
     || defined(BSLS_PLATFORM_OS_CYGWIN)  \
@@ -156,7 +156,7 @@ enum {
     };
 #endif
 
-enum { POLL_IS_DEFAULT = bslmf_IsSame<
+enum { POLL_IS_DEFAULT = bslmf::IsSame<
                            bteso_Platform::POLL,
                            bteso_Platform::DEFAULT_POLLING_MECHANISM>::VALUE };
 
@@ -319,7 +319,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bteso_SocketImpUtil::startup();
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
     bteso_TimeMetrics timeMetric(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);

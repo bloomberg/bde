@@ -34,7 +34,7 @@ BDES_IDENT("$Id: $")
 //..
 //    bael_Attribute a1("day", "Sunday");
 //    bael_Attribute a2("day", 7);
-//    bael_Attribute a3("day", static_cast<bsls_PlatformUtil::Int64>(7));
+//    bael_Attribute a3("day", static_cast<bsls::Types::Int64>(7));
 //..
 // The names of the attributes can be found by calling the 'name' method:
 //..
@@ -51,8 +51,8 @@ BDES_IDENT("$Id: $")
 //    assert(true     == a2.value().is<int>());
 //    assert(7        == a2.value().the<int>());
 //
-//    assert(true     == a3.value().is<bsls_PlatformUtil::Int64>());
-//    assert(7        == a3.value().the<bsls_PlatformUtil::Int64>());
+//    assert(true     == a3.value().is<bsls::Types::Int64>());
+//    assert(7        == a3.value().the<bsls::Types::Int64>());
 //..
 // Note that the name string that is passed to the constructor of
 // 'bael_Attribute' *must* remain valid and unchanged after the
@@ -79,20 +79,24 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
 #ifndef INCLUDED_BDEUT_VARIANT
 #include <bdeut_variant.h>
 #endif
 
 #ifndef INCLUDED_BDEUT_STRINGREF
 #include <bdeut_stringref.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -103,9 +107,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -120,7 +127,7 @@ class bael_Attribute {
   public:
     // TYPES
     typedef bdeut_Variant<int,
-                          bsls_PlatformUtil::Int64,
+                          bsls::Types::Int64,
                           bsl::string> Value;
 
   private:
@@ -142,7 +149,7 @@ class bael_Attribute {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bael_Attribute,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
     static int hash(const bael_Attribute& attribute, int size);
@@ -152,9 +159,9 @@ class bael_Attribute {
         // undefined unless '0 <= size'.
 
     // CREATORS
-    bael_Attribute(const char      *name,
-                   int              value,
-                   bslma_Allocator *basicAllocator = 0 );
+    bael_Attribute(const char       *name,
+                   int               value,
+                   bslma::Allocator *basicAllocator = 0 );
         // Create a 'bael_Attribute' object having the specified (literal)
         // 'name' and (32-bit integer) 'value'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -162,9 +169,9 @@ class bael_Attribute {
         // 'name' is not managed by this object and therefore must remain
         // valid while in use by any 'bael_Attribute' object.
 
-    bael_Attribute(const char               *name,
-                   bsls_PlatformUtil::Int64  value,
-                   bslma_Allocator          *basicAllocator = 0 );
+    bael_Attribute(const char         *name,
+                   bsls::Types::Int64  value,
+                   bslma::Allocator   *basicAllocator = 0 );
         // Create a 'bael_Attribute' object having the specified (literal)
         // 'name' and (64-bit integer) 'value'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -174,7 +181,7 @@ class bael_Attribute {
 
     bael_Attribute(const char             *name,
                    const bdeut_StringRef&  value,
-                   bslma_Allocator        *basicAllocator = 0 );
+                   bslma::Allocator       *basicAllocator = 0 );
         // Create a 'bael_Attribute' object having the specified (literal)
         // 'name' and (character string)'value'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -182,9 +189,9 @@ class bael_Attribute {
         // 'name' is not managed by this object and therefore must remain
         // valid while in use by any 'bael_Attribute' object.
 
-    bael_Attribute(const char      *name,
-                   const Value&     value,
-                   bslma_Allocator *basicAllocator = 0 );
+    bael_Attribute(const char       *name,
+                   const Value&      value,
+                   bslma::Allocator *basicAllocator = 0 );
         // Create a 'bael_Attribute' object having the specified (literal)
         // 'name' and 'value'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -193,7 +200,7 @@ class bael_Attribute {
         // 'bael_Attribute' object.
 
     bael_Attribute(const bael_Attribute&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a 'bael_Attribute' object having the same (literal) name and
         // attribute value as the specified 'original' object.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -215,7 +222,7 @@ class bael_Attribute {
 
     void setValue(const Value& value);
     void setValue(int value);
-    void setValue(bsls_PlatformUtil::Int64 value);
+    void setValue(bsls::Types::Int64 value);
     void setValue(const bdeut_StringRef& value);
         // Set the attribute value of this object to the specified 'value'.
 
@@ -269,9 +276,9 @@ bsl::ostream& operator<<(bsl::ostream&         output,
 
 // CREATORS
 inline
-bael_Attribute::bael_Attribute(const char      *name,
-                               int              value,
-                               bslma_Allocator *basicAllocator)
+bael_Attribute::bael_Attribute(const char       *name,
+                               int               value,
+                               bslma::Allocator *basicAllocator)
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
@@ -280,20 +287,20 @@ bael_Attribute::bael_Attribute(const char      *name,
 }
 
 inline
-bael_Attribute::bael_Attribute(const char               *name,
-                               bsls_PlatformUtil::Int64 value,
-                               bslma_Allocator          *basicAllocator)
+bael_Attribute::bael_Attribute(const char         *name,
+                               bsls::Types::Int64  value,
+                               bslma::Allocator   *basicAllocator)
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
 {
-    d_value.assign<bsls_PlatformUtil::Int64>(value);
+    d_value.assign<bsls::Types::Int64>(value);
 }
 
 inline
 bael_Attribute::bael_Attribute(const char             *name,
                                const bdeut_StringRef&  value,
-                               bslma_Allocator        *basicAllocator)
+                               bslma::Allocator       *basicAllocator)
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
@@ -302,9 +309,9 @@ bael_Attribute::bael_Attribute(const char             *name,
 }
 
 inline
-bael_Attribute::bael_Attribute(const char      *name,
-                               const Value&     value,
-                               bslma_Allocator *basicAllocator)
+bael_Attribute::bael_Attribute(const char       *name,
+                               const Value&      value,
+                               bslma::Allocator *basicAllocator)
 : d_name(name)
 , d_value(value, basicAllocator)
 , d_hashValue(-1)
@@ -313,7 +320,7 @@ bael_Attribute::bael_Attribute(const char      *name,
 
 inline
 bael_Attribute::bael_Attribute(const bael_Attribute&  original,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_name(original.d_name)
 , d_value(original.d_value, basicAllocator)
 , d_hashValue(original.d_hashValue)
@@ -359,7 +366,7 @@ void bael_Attribute::setValue(int value)
 }
 
 inline
-void bael_Attribute::setValue(bsls_PlatformUtil::Int64 value)
+void bael_Attribute::setValue(bsls::Types::Int64 value)
 {
     d_value.assign(value);
     d_hashValue = -1;

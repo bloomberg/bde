@@ -73,7 +73,7 @@ using bsl::flush;
 // primary publish variant 'publish(const char *[], ...)'.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 5]  baem_MetricsManager(bslma_Allocator *basicAllocator = 0);
+// [ 5]  baem_MetricsManager(bslma::Allocator *basicAllocator = 0);
 // [ 5]  ~baem_MetricsManager();
 // MANIPULATORS
 // [16]  CallbackHandle registerCollectionCallback(const char * ,
@@ -282,20 +282,20 @@ class TestCallback {
     bces_AtomicInt     d_numInvocations; // number of invocations
     baem_MetricRecord  d_record;         // record to append on 'recordMetrics'
     bool               d_reset;          // last invocation's resetFlag
-    bslma_Allocator   *d_allocator_p;    // allocator (held, not owned)
+    bslma::Allocator  *d_allocator_p;    // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     TestCallback(const TestCallback& );
     TestCallback& operator=(const TestCallback& );
   public:
     // CREATORS
-    TestCallback(baem_MetricId metricId, bslma_Allocator *allocator);
+    TestCallback(baem_MetricId metricId, bslma::Allocator *allocator);
         // Create a 'TestCallback' that will populate a metric record with the
         // specified 'metricId'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    TestCallback(const baem_MetricRecord& record, bslma_Allocator *allocator);
+    TestCallback(const baem_MetricRecord& record, bslma::Allocator *allocator);
         // Create a 'TestCallback' that will populate a metric with the
         // specified 'record'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently
@@ -344,7 +344,7 @@ class TestCallback {
 
 // CREATORS
 inline
-TestCallback::TestCallback(Id metricId, bslma_Allocator *allocator)
+TestCallback::TestCallback(Id metricId, bslma::Allocator *allocator)
 : d_numInvocations(0)
 , d_record(metricId)
 , d_reset(false)
@@ -354,7 +354,7 @@ TestCallback::TestCallback(Id metricId, bslma_Allocator *allocator)
 
 inline
 TestCallback::TestCallback(const baem_MetricRecord&  record,
-                           bslma_Allocator          *allocator)
+                           bslma::Allocator         *allocator)
 : d_numInvocations(0)
 , d_record(record)
 , d_reset(false)
@@ -420,6 +420,88 @@ bool TestCallback::resetFlag() const
     return d_reset;
 }
 
+                  // =========================
+                  // class LockAndModifyWorker
+                  // =========================
+
+class LockAndModifyWorker {
+    // This class owns a thread in which manipulators of a
+    // 'baem_MetricsManager' are invoked under the scope of another lock,
+    // repeatedly.
+
+    bcemt_Mutex                *d_mutex_p;
+    baem_MetricsManager        *d_obj_p;
+    bcemt_ThreadUtil::Handle    d_thread;
+    bces_AtomicInt              d_done;
+    const baem_Category        *d_myCategory_p;
+
+    void worker();
+    static void dummyCallback(bsl::vector<baem_MetricRecord>*,
+                              bool) {}
+
+public:
+    // CREATORS
+    LockAndModifyWorker(bcemt_Mutex *mutex,
+                        baem_MetricsManager *obj)
+    : d_mutex_p(mutex)
+    , d_obj_p(obj)
+    , d_myCategory_p(obj->metricRegistry().addCategory("LOCKANDMODIFYWORKER"))
+    {}
+
+    int start() {
+        d_done = 0;
+        return bcemt_ThreadUtil::create(
+                      &d_thread,
+                      bdef_MemFnUtil::memFn(&LockAndModifyWorker::worker,
+                                            this));
+    }
+
+    void stop() {
+        d_done = 1;
+        bcemt_ThreadUtil::join(d_thread);
+    }
+};
+
+void
+LockAndModifyWorker::worker() {
+    while (!d_done) {
+        bcemt_LockGuard<bcemt_Mutex> guard(d_mutex_p);
+
+        baem_MetricsManager::CallbackHandle handle =
+            d_obj_p->registerCollectionCallback(
+                                          d_myCategory_p,
+                                          &LockAndModifyWorker::dummyCallback);
+        d_obj_p->removeCollectionCallback(handle);
+    }
+}
+
+                    // ======================
+                    // class LockingPublisher
+                    // ======================
+
+class LockingPublisher : public baem_Publisher {
+    // This class defines a test implementation of 'baem_Publisher' that
+    // locks and unlocks a specified mutex when publish() is invoked.
+
+    bcemt_Mutex *d_mutex_p;
+
+public:
+
+    // CREATORS
+    LockingPublisher(bcemt_Mutex *mutex)
+    : d_mutex_p(mutex)
+    {}
+
+    // MANIPULATORS
+    virtual void publish(const baem_MetricSample&);
+       // Lock and unlock the mutex specified at construction.
+};
+
+void
+LockingPublisher::publish(const baem_MetricSample&) {
+    bcemt_LockGuard<bcemt_Mutex> guard(d_mutex_p);
+}
+
                       // ===================
                       // class TestPublisher
                       // ===================
@@ -462,7 +544,7 @@ class TestPublisher : public baem_Publisher {
   public:
 
     // CREATORS
-    TestPublisher(bslma_Allocator *allocator);
+    TestPublisher(bslma::Allocator *allocator);
         // Create a test publisher with 0 'invocations()' and the default
         // constructed 'lastSample()' using the specified 'allocator' to
         // supply memory.
@@ -537,7 +619,7 @@ class TestPublisher : public baem_Publisher {
 
 // CREATORS
 inline
-TestPublisher::TestPublisher(bslma_Allocator *allocator)
+TestPublisher::TestPublisher(bslma::Allocator *allocator)
 : d_numInvocations(0)
 , d_recordBuffer(allocator)
 , d_sortedRecords(allocator)
@@ -677,7 +759,7 @@ class CombinationIterator {
 
     // CREATORS
     CombinationIterator(const bsl::vector<T>&  values,
-                        bslma_Allocator       *allocator);
+                        bslma::Allocator      *allocator);
         // Create this combination iterator and initialize it with the first
         // combination of values (the empty set of values), use the specified
         // 'allocator' to supply memory.  The behavior is undefined unless '
@@ -719,7 +801,7 @@ void CombinationIterator<T>::createCurrentCombination()
 // CREATORS
 template <typename T>
 CombinationIterator<T>::CombinationIterator(const bsl::vector<T>&  values,
-                                            bslma_Allocator       *allocator)
+                                            bslma::Allocator      *allocator)
 : d_values(values, allocator)
 , d_currentCombination(allocator)
 , d_maxBits( (1 << values.size()) - 1 )
@@ -801,7 +883,7 @@ class ConcurrencyTest {
     bcep_FixedThreadPool      d_pool;
     bcemt_Barrier             d_barrier;
     baem_MetricsManager      *d_manager_p;
-    bslma_Allocator          *d_allocator_p;
+    bslma::Allocator         *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -812,7 +894,7 @@ class ConcurrencyTest {
     // CREATORS
     ConcurrencyTest(int                  numThreads,
                     baem_MetricsManager *manager,
-                    bslma_Allocator     *basicAllocator)
+                    bslma::Allocator    *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_manager_p(manager)
@@ -841,7 +923,7 @@ void ConcurrencyTest::execute()
 
     const int NUM_THREADS = d_barrier.numThreads();
 
-    bslma_Allocator *Z = d_allocator_p;
+    bslma::Allocator *Z = d_allocator_p;
     Obj *mX = d_manager_p; const Obj *MX = mX;
     Registry& registry = mX->metricRegistry();
     for (int i = 0; i < 10; ++i) {
@@ -1244,7 +1326,7 @@ void ConcurrencyTest::runTest()
       public:
         // CREATORS
         EventHandlerWithCallback(baem_MetricsManager *manager,
-                                 bslma_Allocator     *basicAllocator = 0);
+                                 bslma::Allocator    *basicAllocator = 0);
             // Initialize this object to use the specified 'manager' to record
             // and publish metrics.
 
@@ -1304,7 +1386,7 @@ void ConcurrencyTest::runTest()
     // CREATORS
     EventHandlerWithCallback::EventHandlerWithCallback(
                                            baem_MetricsManager *manager,
-                                           bslma_Allocator     *basicAllocator)
+                                           bslma::Allocator    *basicAllocator)
     : d_numEvents(0)
     , d_periodStart(bdetu_SystemTime::now())
     , d_eventsPerSecId()
@@ -1401,9 +1483,9 @@ int main(int argc, char *argv[])
                                       bael_Severity::BAEL_OFF,
                                       bael_Severity::BAEL_OFF);
 
-    bslma_TestAllocator testAlloc; bslma_TestAllocator *Z = &testAlloc;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     bdetu_SystemTime::now();
 
@@ -1447,7 +1529,7 @@ int main(int argc, char *argv[])
 
         // ...
 
-        bslma_Allocator    *allocator = bslma_Default::allocator(0);
+        bslma::Allocator   *allocator = bslma::Default::allocator(0);
         baem_MetricsManager manager(allocator);
 
         bcema_SharedPtr<baem_Publisher> publisher(
@@ -1506,21 +1588,41 @@ int main(int argc, char *argv[])
         // CONCURRENCY TEST
         //
         // Testing:
-        //     Thread-safety of 'baem_MetricsManager' operations.
-        //
+        //: o Thread-safety of 'baem_MetricsManager' operations.
+        //: o publish() is invoked outside the scope of the
+        //    'baem_MetricsManager' lock.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
-        baem_MetricsManager manager(&testAllocator);;
         {
-            ConcurrencyTest tester(10, &manager, &defaultAllocator);
-            tester.runTest();
+            baem_MetricsManager manager(&testAllocator);
+            {
+                ConcurrencyTest tester(10, &manager, &defaultAllocator);
+                tester.runTest();
+            }
+        }
+
+        {
+            bcemt_Mutex lock;
+            bcema_SharedPtr<baem_Publisher> publisher
+                (new (testAllocator) LockingPublisher(&lock),
+                 &testAllocator);
+            baem_MetricsManager manager(&testAllocator);
+            manager.addGeneralPublisher(publisher);
+
+            LockAndModifyWorker worker(&lock, &manager);
+            worker.start();
+            {
+                ConcurrencyTest tester(2, &manager, &defaultAllocator);
+                tester.runTest();
+            }
+            worker.stop();
         }
       } break;
       case 24: {
@@ -1894,7 +1996,7 @@ int main(int argc, char *argv[])
         typedef bsl::map<Id, CallbackInfo>    CallbackMap;
 
         {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             Obj mX(&testAllocator); const Obj& MX = mX;
             TestPublisher tp(Z), tp1(Z), tp2(Z);
             PubPtr pub_p(&tp, bcema_SharedPtrNilDeleter(), Z);
@@ -1922,7 +2024,7 @@ int main(int argc, char *argv[])
             }
 
             BEGIN_BSLMA_EXCEPTION_TEST {
-                bslma_DefaultAllocatorGuard guard(&testAllocator);
+                bslma::DefaultAllocatorGuard guard(&testAllocator);
                 tp.reset();
                 mX.publishAll();
                 ASSERT(1 == tp.invocations());
@@ -1959,7 +2061,7 @@ int main(int argc, char *argv[])
         typedef bcema_SharedPtr<TestCallback>      CbPtr;
 
         {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             Obj mX(&testAllocator); const Obj& MX = mX;
             TestPublisher tp(Z);
             PubPtr pub_p(&tp, bcema_SharedPtrNilDeleter(), Z);
@@ -2007,7 +2109,7 @@ int main(int argc, char *argv[])
         const int NUM_PUBS = sizeof(TEST_PUBS)/sizeof(*TEST_PUBS);
         bsl::set<baem_Publisher *> generalPublishers;
         {
-            bslma_TestAllocator testAllocator;
+            bslma::TestAllocator testAllocator;
             Obj mX(&testAllocator); const Obj& MX = mX;
             BEGIN_BSLMA_EXCEPTION_TEST {
                 for (int i = 0; i < NUM_PUBS; ++i) {
@@ -3504,7 +3606,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   baem_MetricsManager(bslma_Allocator *);
+        //   baem_MetricsManager(bslma::Allocator *);
         //   ~baem_MetricsManager();
         //   baem_CollectorRepository& collectorRepository();
         //   baem_MetricRegistry& metricRegistry();

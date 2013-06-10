@@ -39,8 +39,8 @@ BDES_IDENT("$Id: $")
 // start by setting the default allocator to a test allocator so we can verify
 // later that it was unused:
 //..
-//  bslma_TestAllocator         da;
-//  bslma_DefaultAllocatorGuard guard(&da);
+//  bslma::TestAllocator         da;
+//  bslma::DefaultAllocatorGuard guard(&da);
 //..
 // Then, we create a stack-trace object.  Note that when we don't specify an
 // allocator, the default allocator is not used -- rather, a heap-bypass
@@ -155,8 +155,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -165,10 +173,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -207,12 +211,12 @@ class baesu_StackTrace {
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS2(baesu_StackTrace,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     explicit
-    baesu_StackTrace(bslma_Allocator *basicAllocator = 0);
+    baesu_StackTrace(bslma::Allocator *basicAllocator = 0);
         // Create an empty 'baesu_StackTrace' object (having a length of 0).
         // Optionally specify 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, then an owned heap-bypass allocator object is
@@ -221,7 +225,7 @@ class baesu_StackTrace {
         // corrupted.
 
     baesu_StackTrace(const baesu_StackTrace&  original,
-                     bslma_Allocator         *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
         // Create a 'baesu_StackTrace' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, then an owned
@@ -275,7 +279,7 @@ class baesu_StackTrace {
 
                         // Aspects
 
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the owned
         // heap-bypass allocator is used.
@@ -341,14 +345,14 @@ void swap(baesu_StackTrace& a, baesu_StackTrace& b);
 
 // ACCESSORS
 inline
-bslma_Allocator *baesu_StackTrace::allocator() const
+bslma::Allocator *baesu_StackTrace::allocator() const
 {
     return d_frames.get_allocator().mechanism();
 }
 
 // CREATORS
 inline
-baesu_StackTrace::baesu_StackTrace(bslma_Allocator *basicAllocator)
+baesu_StackTrace::baesu_StackTrace(bslma::Allocator *basicAllocator)
 : d_hbpAlloc()
 , d_frames(basicAllocator ? basicAllocator : &d_hbpAlloc)
 {
@@ -356,7 +360,7 @@ baesu_StackTrace::baesu_StackTrace(bslma_Allocator *basicAllocator)
 
 inline
 baesu_StackTrace::baesu_StackTrace(const baesu_StackTrace&  original,
-                                   bslma_Allocator         *basicAllocator)
+                                   bslma::Allocator        *basicAllocator)
 : d_hbpAlloc()
 , d_frames(original.d_frames,
            basicAllocator ? basicAllocator : &d_hbpAlloc)

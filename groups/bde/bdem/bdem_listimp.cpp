@@ -110,7 +110,7 @@ struct bdem_ListImp_AttrFuncs {
     void defaultConstruct(
                   void                                     *obj,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc);
+                  bslma::Allocator                         *alloc);
         // Construct a list object into raw memory.  The prototype for this
         // function must match the defaultConstruct function pointer in
         // bdem_Descriptor.
@@ -120,7 +120,7 @@ struct bdem_ListImp_AttrFuncs {
                   void                                     *obj,
                   const void                               *rhs,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc);
+                  bslma::Allocator                         *alloc);
         // Copy construct a list object into raw memory.  The prototype for
         // this function must match the copyConstruct function pointer in
         // bdem_Descriptor.
@@ -142,7 +142,7 @@ void
 bdem_ListImp_AttrFuncs::defaultConstruct(
                   void                                     *obj,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc)
+                  bslma::Allocator                         *alloc)
 {
     BSLS_ASSERT(obj);
 
@@ -154,7 +154,7 @@ bdem_ListImp_AttrFuncs::copyConstruct(
                   void                                     *obj,
                   const void                               *rhs,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc)
+                  bslma::Allocator                         *alloc)
 {
     BSLS_ASSERT(obj);
     BSLS_ASSERT(rhs);
@@ -185,7 +185,7 @@ const bdem_Descriptor bdem_ListImp::d_listAttr =
 {
     bdem_ElemType::BDEM_LIST,
     sizeof(bdem_ListImp),
-    bsls_AlignmentFromType<bdem_ListImp>::VALUE,
+    bsls::AlignmentFromType<bdem_ListImp>::VALUE,
     &bdem_ListImp_AttrFuncs::defaultConstruct,
     &bdem_ListImp_AttrFuncs::copyConstruct,
     &bdem_FunctionTemplates::destroy<bdem_ListImp>,
@@ -200,11 +200,11 @@ const bdem_Descriptor bdem_ListImp::d_listAttr =
 // PRIVATE MANIPULATORS
 void bdem_ListImp::init()
 {
-    bslma_Allocator *allocator = d_allocatorManager.internalAllocator();
+    bslma::Allocator *allocator = d_allocatorManager.internalAllocator();
 
     d_rowLayout_p = new (*allocator) bdem_RowLayout(allocator);
 
-    bslma_RawDeleterProctor<bdem_RowLayout, bslma_Allocator> proctor(
+    bslma::RawDeleterProctor<bdem_RowLayout, bslma::Allocator> proctor(
                                                                  d_rowLayout_p,
                                                                  allocator);
 
@@ -222,14 +222,14 @@ void bdem_ListImp::init(const bdem_ElemType::Type *elementTypes,
 {
     BSLS_ASSERT(0 <= numElements);
 
-    bslma_Allocator *allocator = d_allocatorManager.internalAllocator();
+    bslma::Allocator *allocator = d_allocatorManager.internalAllocator();
 
     d_rowLayout_p = new (*allocator) bdem_RowLayout(elementTypes,
                                                     numElements,
                                                     attrLookupTbl,
                                                     allocator);
 
-    bslma_RawDeleterProctor<bdem_RowLayout, bslma_Allocator> proctor(
+    bslma::RawDeleterProctor<bdem_RowLayout, bslma::Allocator> proctor(
                                                                  d_rowLayout_p,
                                                                  allocator);
 
@@ -243,14 +243,14 @@ void bdem_ListImp::init(const bdem_ElemType::Type *elementTypes,
 
 void bdem_ListImp::init(const bdem_RowData& srcRowData)
 {
-    bslma_Allocator *allocator = d_allocatorManager.internalAllocator();
+    bslma::Allocator *allocator = d_allocatorManager.internalAllocator();
 
     d_rowLayout_p = new (*allocator) bdem_RowLayout(*srcRowData.rowLayout(),
                                                     allocator);
 
     d_rowLayout_p->compact();
 
-    bslma_RawDeleterProctor<bdem_RowLayout, bslma_Allocator> proctor(
+    bslma::RawDeleterProctor<bdem_RowLayout, bslma::Allocator> proctor(
                                                                  d_rowLayout_p,
                                                                  allocator);
 
@@ -266,7 +266,7 @@ void bdem_ListImp::init(const bdem_RowData& srcRowData)
 // CREATORS
 bdem_ListImp::bdem_ListImp(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 {
     init();
@@ -275,7 +275,7 @@ bdem_ListImp::bdem_ListImp(
 bdem_ListImp::bdem_ListImp(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 {
     BSLS_ASSERT(0 <= initialMemorySize);
@@ -288,7 +288,7 @@ bdem_ListImp::bdem_ListImp(
                   int                                       numElements,
                   const bdem_Descriptor *const             *attrLookupTbl,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 {
     BSLS_ASSERT(0 <= numElements);
@@ -302,7 +302,7 @@ bdem_ListImp::bdem_ListImp(
                   const bdem_Descriptor *const             *attrLookupTbl,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 {
     BSLS_ASSERT(0 <= numElements);
@@ -314,7 +314,7 @@ bdem_ListImp::bdem_ListImp(
 bdem_ListImp::bdem_ListImp(
                   const bdem_RowData&                       original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 {
     init(original);
@@ -324,7 +324,7 @@ bdem_ListImp::bdem_ListImp(
                   const bdem_RowData&                       original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 {
     BSLS_ASSERT(0 <= initialMemorySize);
@@ -335,7 +335,7 @@ bdem_ListImp::bdem_ListImp(
 bdem_ListImp::bdem_ListImp(
                   const bdem_ListImp&                       original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 {
     init(*original.d_rowData_p);
@@ -345,7 +345,7 @@ bdem_ListImp::bdem_ListImp(
                   const bdem_ListImp&                       original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   const InitialMemory&                      initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 {
     BSLS_ASSERT(0 <= initialMemorySize);
@@ -357,7 +357,7 @@ bdem_ListImp::~bdem_ListImp()
 {
     if (!(bdem_AggregateOption::BDEM_NODESTRUCT_FLAG &
                                     d_allocatorManager.allocationStrategy())) {
-        bslma_Allocator *allocator = d_allocatorManager.internalAllocator();
+        bslma::Allocator *allocator = d_allocatorManager.internalAllocator();
 
         allocator->deleteObject(d_rowData_p);
         allocator->deleteObject(d_rowLayout_p);
@@ -518,13 +518,14 @@ bsl::string& bdem_ListImp::insertString(int dstIndex, const char *value)
     BSLS_ASSERT(0 <= dstIndex);
     BSLS_ASSERT(     dstIndex <= length());
 
-    bsls_ObjectBuffer<bsl::string> stringBuffer;
+    bsls::ObjectBuffer<bsl::string> stringBuffer;
 
     new (stringBuffer.buffer()) bsl::string(
                                        value,
                                        d_allocatorManager.internalAllocator());
 
-    bslma_AutoDestructor<bsl::string> autoElemDestr(&stringBuffer.object(), 1);
+    bslma::AutoDestructor<bsl::string> autoElemDestr(&stringBuffer.object(),
+                                                     1);
     void *elemData = insertElementRaw(dstIndex,
                                       &bdem_Properties::d_stringAttr);
     autoElemDestr.release();
@@ -543,14 +544,14 @@ bdem_ListImp& bdem_ListImp::insertList(int                 dstIndex,
     // Must construct list in temporary buffer to avoid overlap/recursion
     // potential.
 
-    bsls_ObjectBuffer<bdem_ListImp> listBuffer;
+    bsls::ObjectBuffer<bdem_ListImp> listBuffer;
 
     new (listBuffer.buffer()) bdem_ListImp(
                                        srcRow,
                                        d_allocatorManager.allocationStrategy(),
                                        d_allocatorManager.originalAllocator());
 
-    bslma_AutoDestructor<bdem_ListImp> autoElemDestr(&listBuffer.object(), 1);
+    bslma::AutoDestructor<bdem_ListImp> autoElemDestr(&listBuffer.object(), 1);
     void *elemData = insertElementRaw(dstIndex, &bdem_ListImp::d_listAttr);
     autoElemDestr.release();
 
@@ -568,7 +569,7 @@ void bdem_ListImp::replaceElement(int index, const bdem_ConstElemRef& srcElem)
     const bdem_Descriptor *descriptor = (*d_rowLayout_p)[index].attributes();
     if (srcElem.descriptor() == descriptor
      && ! (bdem_ElemType::BDEM_LIST == srcElem.type()
-        && this == (bdem_ListImp *) srcElem.data())) {
+        && this == (const bdem_ListImp *) srcElem.data())) {
         d_rowData_p->elemRef(index).replaceValue(srcElem);
     }
     else {

@@ -139,10 +139,10 @@ class bcecs_RoundRobin {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcecs_RoundRobin,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bcecs_RoundRobin(bslma_Allocator *allocator=0);
+    bcecs_RoundRobin(bslma::Allocator *allocator = 0);
         // Create a round robin.  Use the optionally specified
         // 'allocator' to supply memory.  If 'allocator' is 0, the
         // currently installed default allocator is used.
@@ -191,7 +191,7 @@ class bcecs_RoundRobin {
 
 // CREATORS
 template <class TYPE>
-inline bcecs_RoundRobin<TYPE>::bcecs_RoundRobin(bslma_Allocator *allocator)
+inline bcecs_RoundRobin<TYPE>::bcecs_RoundRobin(bslma::Allocator *allocator)
 : d_pool(sizeof(Node), allocator)
 , d_currentPosition_p(0)
 , d_numObjects(0)

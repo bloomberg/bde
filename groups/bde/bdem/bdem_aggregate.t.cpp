@@ -70,7 +70,7 @@ using namespace bsl;  // automatically added by script
 // [29]  char& theChar(int index);
 // [29]  short& theShort(int index);
 // [29]  int& theInt(int index);
-// [29]  bsls_Types::Int64& theInt64(int index);
+// [29]  bsls::Types::Int64& theInt64(int index);
 // [29]  float& theFloat(int index);
 // [29]  double& theDouble(int index);
 // [29]  bsl::string& theString(int index);
@@ -122,7 +122,7 @@ using namespace bsl;  // automatically added by script
 // [ 5]  ostream& operator<<(ostream& stream, const bdem_Row& rhs);
 //
 // 'bdem_List' public interface
-// [11]  bdem_List(bslma_Allocator *ba = 0);
+// [11]  bdem_List(bslma::Allocator *ba = 0);
 // [11]  bdem_List(bdem_AggregateOption::AllocationStrategy allocMode, *ba=0);
 // [11]  bdem_List(const ExplicitRow& original, *ba = 0);
 // [11]  bdem_List(const bdem_List& original, *ba = 0);
@@ -266,7 +266,7 @@ using namespace bsl;  // automatically added by script
 // [ 5]  ostream& operator<<(ostream& stream, const bdem_List& rhs);
 //
 // 'bdem_Table' public interface
-// [12]  bdem_Table(bslma_Allocator *ba = 0);
+// [12]  bdem_Table(bslma::Allocator *ba = 0);
 // [12]  bdem_Table(bdem_AggregateAllocationMode::AllocationStrategy, *ba = 0);
 // [12]  bdem_Table(const bdem_Table& original, *ba = 0);
 // [12]  bdem_Table(const bdem_Table& original, allocationMode, *ba = 0);
@@ -431,7 +431,7 @@ typedef bdem_Table Table;
 typedef bdex_TestInStream  In;
 typedef bdex_TestOutStream Out;
 
-typedef bsls_Types::Int64  Int64;
+typedef bsls::Types::Int64 Int64;
 
 const int NUM_TYPES = bdem_ElemType::BDEM_NUM_TYPES;
 
@@ -1561,8 +1561,8 @@ void dumpOffsets(const Row& srcRow)
 // specific testing scenarios.
 
 #define DECLARE_TEST_ALLOCATOR                                                \
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);                      \
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);                     \
+    bslma::Allocator     *Z = &testAllocator;
 
 #define DECLARE_MAIN_VARIABLES                                                \
     /* -----------------------------------------------------------------------\
@@ -5039,8 +5039,8 @@ DEFINE_TEST_CASE(34) {
         //   parameter to the function is contained within the 'bdem_List'
         //   itself, i.e., a list with these types or a table with these types.
         //   The test is performed with a 'bdem_List' using an allocator that
-        //   scribbles over memory after deallocation 'bslma_TestAllocator' and
-        //   using the no pool option.
+        //   scribbles over memory after deallocation ('bslma::TestAllocator')
+        //   and using the no pool option.
         //
         //  Testing:
         //    void reset(const my_ElemTypeArray& srcTypes);
@@ -5283,8 +5283,8 @@ DEFINE_TEST_CASE(34) {
 
                 if (veryVerbose) cout << "\t\treset(se)" << endl;
                 {
-                  bslma_TestAllocator ta;
-                  bslma_TestAllocator& testAllocator = ta;
+                  bslma::TestAllocator ta;
+                  bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
 
@@ -12698,8 +12698,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tinsertNullElements(di, se)" << endl;
                 {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List x(DD, &testAllocator);  const List &X = x;
@@ -12720,8 +12720,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tinsertNullElements(di, se)" << endl;
                 {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List x(DD, &testAllocator);  const List &X = x;
@@ -12746,8 +12746,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tinsertNullElement(di, item)" << endl;
                 if (1 == NE) {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List x(DD, &testAllocator);  const List &X = x;
@@ -12764,8 +12764,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tinsertNullElement(di, item)" << endl;
                 if (1 == NE) {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List x(DD, &testAllocator);  const List &X = x;
@@ -12784,8 +12784,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tappendNullElements(se)" << endl;
                 if ((int)strlen(D_SPEC)/2 == DI) {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List x(DD, &testAllocator);  const List &X = x;
@@ -12806,8 +12806,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tappendNullElements(se)" << endl;
                 if ((int)strlen(D_SPEC)/2 == DI) {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List mExp(EE, &testAllocator); const List& Exp = mExp;
@@ -12832,8 +12832,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tappendNullElement(item)" << endl;
                 if ((int)strlen(D_SPEC)/2 == DI && 1 == NE) {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List x(DD, &testAllocator);  const List &X = x;
@@ -12850,8 +12850,8 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\tappendNullElement(item)" << endl;
                 if ((int)strlen(D_SPEC)/2 == DI && 1 == NE) {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List x(DD, &testAllocator);  const List &X = x;
@@ -13316,10 +13316,10 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose) cout << "\t\tcompact()" << endl;
                 const int NUM_PERMUTATIONS = 16;
 
-                bslma_TestAllocator ga;
+                bslma::TestAllocator ga;
 
-                bslma_TestAllocator da;
-                bslma_DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 List EE(g(SPEC), &ga);         // control for expected value
                 List RR(g(E_SPEC), &ga);       // control for reference value
@@ -13335,8 +13335,8 @@ DEFINE_TEST_CASE(15) {
                 }
 
                 for (int perm = 0; perm < NUM_PERMUTATIONS; ++perm) {
-                    bslma_TestAllocator ta;
-                    bslma_TestAllocator& testAllocator = ta;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List mU(&testAllocator);
@@ -13801,7 +13801,7 @@ DEFINE_TEST_CASE(14) {
             int                  LENGTH  = DATA[ti].d_length;
 
             Table mX(&testAllocator); hh(&mX, SPEC); const Table& X = mX;
-            bdex_ByteInStream testInStream((char *) BINARY, LENGTH);
+            bdex_ByteInStream testInStream((const char *) BINARY, LENGTH);
 
             Table U;
             int version;
@@ -14762,7 +14762,7 @@ DEFINE_TEST_CASE(12) {
         //      Removing the array does not cause any deallocation.
         //
         // Testing:
-        //   bdem_Table(bslma_Allocator *ba = 0);
+        //   bdem_Table(bslma::Allocator *ba = 0);
         //   bdem_Table(bdem_AggregateOption::AllocationStrategy aM, *ba = 0);
         //   bdem_Table(const my_ElemTypeArray& et, *ba = 0);
         //   bdem_Table(const my_ElemTypeArray& et, allocationMode, *ba = 0);
@@ -15454,7 +15454,7 @@ DEFINE_TEST_CASE(11) {
         //      deallocation.  Re-adding the array causes memory allocation.
         //
         // Testing:
-        //   bdem_List(bslma_Allocator *ba = 0);
+        //   bdem_List(bslma::Allocator *ba = 0);
         //   bdem_List(bdem_AggregateOption::AllocationStrategy, *ba = 0);
         //   bdem_List(const my_ElemTypeArray& et, *ba = 0);
         //   bdem_List(const my_ElemTypeArray& et, option, *ba = 0);
@@ -15481,7 +15481,7 @@ DEFINE_TEST_CASE(11) {
         if (verbose) cout << "verify BDEM_PASS_THROUGH default" << endl;
         {
             // BDEM_PASS_THROUGH is the default
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             List L2(&ta);
 
             ASSERT (L2.length() == 0);
@@ -16246,8 +16246,8 @@ DEFINE_TEST_CASE(10) {
 
                 const int NUM_PERMUTATIONS = 4;
                 for (int perm = 0; perm < NUM_PERMUTATIONS; ++perm) {
-                  bslma_TestAllocator ta;
-                  bslma_TestAllocator& testAllocator = ta;
+                  bslma::TestAllocator ta;
+                  bslma::TestAllocator& testAllocator = ta;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     List mU(&testAllocator);
@@ -16266,8 +16266,8 @@ DEFINE_TEST_CASE(10) {
 
                 if ((int)(strlen(SPEC) / 2) == NE && 0 == SI) {
                     for (int perm = 0; perm < NUM_PERMUTATIONS; ++perm) {
-                        bslma_TestAllocator ta;
-                        bslma_TestAllocator& testAllocator = ta;
+                        bslma::TestAllocator ta;
+                        bslma::TestAllocator& testAllocator = ta;
 
                       BEGIN_BSLMA_EXCEPTION_TEST {
                         List mU(&testAllocator);
@@ -16287,8 +16287,8 @@ DEFINE_TEST_CASE(10) {
 
                 if (NE == 1) {
                     for (int perm = 0; perm < NUM_PERMUTATIONS; ++perm) {
-                        bslma_TestAllocator ta;
-                        bslma_TestAllocator& testAllocator = ta;
+                        bslma::TestAllocator ta;
+                        bslma::TestAllocator& testAllocator = ta;
 
                       BEGIN_BSLMA_EXCEPTION_TEST {
                         List mU(&testAllocator);

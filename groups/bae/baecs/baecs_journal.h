@@ -253,16 +253,16 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetime.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
-#ifndef INCLUDED_BSL_HASH_MAP
-#include <bsl_hash_map.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_LIST
@@ -277,9 +277,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_UNORDERED_MAP
+#include <bsl_unordered_map.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -406,7 +413,8 @@ class baecs_Journal {
 
     baecs_MappingManager     *d_mappingManager_p;
 
-    typedef bsl::hash_map<RecordHandle, int> DebugRecordMap;
+    typedef bsl::unordered_map<RecordHandle, int> DebugRecordMap;
+
     DebugRecordMap            d_debugRecordMap;
 
     unsigned                  d_mode;
@@ -437,7 +445,7 @@ class baecs_Journal {
     bdesu_FileUtil::Offset    d_diskSpaceErrorThreshold;
 
     mutable bcema_PoolAllocator d_poolAllocator;
-    bslma_Allocator          *d_allocator_p;
+    bslma::Allocator         *d_allocator_p;
 
     // private methods
 
@@ -525,7 +533,7 @@ class baecs_Journal {
   public:
     // CREATORS
     baecs_Journal(baecs_MappingManager *mappingManager,
-                  bslma_Allocator      *basicAllocator = 0);
+                  bslma::Allocator     *basicAllocator = 0);
         // Create a journal that uses the specified 'mappingManager' for
         // page management.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the
@@ -669,7 +677,7 @@ class baecs_Journal {
     unsigned userDataSize() const;
         // Return the length of the user data.
 
-    bsls_PlatformUtil::Int64 getFileSize() const;
+    bsls::Types::Int64 getFileSize() const;
         // Return the current size of the backing file in bytes.
 
     int recordFragmentation(int *numBlocks, int *numPages,

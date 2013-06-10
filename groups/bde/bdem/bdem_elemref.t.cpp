@@ -111,7 +111,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const char& theChar() const;
 // [ 3] const short& theShort() const;
 // [ 3] const int& theInt() const;
-// [ 3] const bsls_Types::Int64& theInt64() const;
+// [ 3] const bsls::Types::Int64& theInt64() const;
 // [ 3] const float& theFloat() const;
 // [ 3] const double& theDouble() const;
 // [ 3] const bsl::string& theString() const;
@@ -125,7 +125,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const vector<char>& theCharArray() const;
 // [ 3] const vector<short>& theShortArray() const;
 // [ 3] const vector<int>& theIntArray() const;
-// [ 3] const vector<bsls_Types::Int64>& theInt64Array() const;
+// [ 3] const vector<bsls::Types::Int64>& theInt64Array() const;
 // [ 3] const vector<float>& theFloatArray() const;
 // [ 3] const vector<double>& theDoubleArray() const;
 // [ 3] const vector<bsl::string>& theStringArray() const;
@@ -169,7 +169,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] theModifiableChar(char value) const;
 // [ 4] theModifiableShort(short value) const;
 // [ 4] theModifiableInt(int value) const;
-// [ 4] theModifiableInt64(bsls_Types::Int64 value) const;
+// [ 4] theModifiableInt64(bsls::Types::Int64 value) const;
 // [ 4] theModifiableFloat(float value) const;
 // [ 4] theModifiableDouble(double value) const;
 // [ 4] theModifiableString(const bsl::string& value) const;
@@ -184,7 +184,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] theModifiableShortArray(const bsl::vector<short>& value) const;
 // [ 4] theModifiableIntArray(const bsl::vector<int>& value) const;
 // [ 4] theModifiableInt64Array(
-//               const bsl::vector<bsls_Types::Int64>& value) const;
+//               const bsl::vector<bsls::Types::Int64>& value) const;
 // [ 4] theModifiableFloatArray(const bsl::vector<float>& value) const;
 // [ 4] theModifiableDoubleArray(const bsl::vector<double>& value) const;
 // [ 4] theModifiableStringArray(const bsl::vector<bsl::string>& value) const;
@@ -206,7 +206,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const char& theChar() const;
 // [ 3] const short& theShort() const;
 // [ 3] const int& theInt() const;
-// [ 3] const bsls_Types::Int64& theInt64() const;
+// [ 3] const bsls::Types::Int64& theInt64() const;
 // [ 3] const float& theFloat() const;
 // [ 3] const double& theDouble() const;
 // [ 3] const bsl::string& theString() const;
@@ -220,7 +220,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] const vector<char>& theCharArray() const;
 // [ 3] const vector<short>& theShortArray() const;
 // [ 3] const vector<int>& theIntArray() const;
-// [ 3] const vector<bsls_Types::Int64>& theInt64Array() const;
+// [ 3] const vector<bsls::Types::Int64>& theInt64Array() const;
 // [ 3] const vector<float>& theFloatArray() const;
 // [ 3] const vector<double>& theDoubleArray() const;
 // [ 3] const vector<bsl::string>& theStringArray() const;
@@ -241,7 +241,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] char& theModifiableChar() const;
 // [ 3] short& theModifiableShort() const;
 // [ 3] int& theModifiableInt() const;
-// [ 3] bsls_Types::Int64& theModifiableInt64() const;
+// [ 3] bsls::Types::Int64& theModifiableInt64() const;
 // [ 3] float& theModifiableFloat() const;
 // [ 3] double& theModifiableDouble() const;
 // [ 3] bsl::string& theModifiableString() const;
@@ -255,7 +255,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] vector<char>& theModifiableCharArray() const;
 // [ 3] vector<short>& theModifiableShortArray() const;
 // [ 3] vector<int>& theModifiableIntArray() const;
-// [ 3] vector<bsls_Types::Int64>& theModifiableInt64Array() const;
+// [ 3] vector<bsls::Types::Int64>& theModifiableInt64Array() const;
 // [ 3] vector<float>& theModifiableFloatArray() const;
 // [ 3] vector<double>& theModifiableDoubleArray() const;
 // [ 3] vector<bsl::string>& theModifiableStringArray() const;
@@ -333,11 +333,11 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdem_ElemType     ET;
-typedef bdem_ElemRef      ERef;
-typedef bdem_ConstElemRef CERef;
+typedef bdem_ElemType      ET;
+typedef bdem_ElemRef       ERef;
+typedef bdem_ConstElemRef  CERef;
 
-typedef bsls_Types::Int64 Int64; // abbreviation
+typedef bsls::Types::Int64 Int64; // abbreviation
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -356,7 +356,7 @@ typedef bsls_Types::Int64 Int64; // abbreviation
 
 static void unsetConstructChar(void                                      *obj,
                                bdem_AggregateOption::AllocationStrategy,
-                               bslma_Allocator *)
+                               bslma::Allocator *)
 {
     new(obj) char;
     bdetu_Unset<char>::makeUnset(static_cast<char *>(obj));
@@ -365,7 +365,7 @@ static void unsetConstructChar(void                                      *obj,
 static void copyConstructChar(void                                      *obj,
                               const void                                *other,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator *)
+                              bslma::Allocator *)
 {
     new(obj) char(*static_cast<const char *>(other));
 }
@@ -412,9 +412,9 @@ static bsl::ostream& printChar(const void    *obj,
 
 static const bdem_Descriptor charDescriptor = {
     bdem_ElemType::BDEM_CHAR,     // enumeration constant for this type
-    sizeof(char),            // size of instances of this type
-    bsls_AlignmentFromType<char>::VALUE,  // alignment requirement for this
-                                          // type
+    sizeof(char),                 // size of instances of this type
+    bsls::AlignmentFromType<char>::VALUE,  // alignment requirement for this
+                                           // type
     unsetConstructChar,
     copyConstructChar,
     destroyChar,
@@ -432,7 +432,7 @@ static const bdem_Descriptor charDescriptor = {
 
 static void unsetConstructShort(void                                      *obj,
                                 bdem_AggregateOption::AllocationStrategy,
-                                bslma_Allocator *)
+                                bslma::Allocator *)
 {
     new(obj) short;
     bdetu_Unset<short>::makeUnset(static_cast<short *>(obj));
@@ -442,7 +442,7 @@ static void copyConstructShort(
                               void                                      *obj,
                               const void                                *other,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator *)
+                              bslma::Allocator *)
 {
     new(obj) short(*static_cast<const short *>(other));
 }
@@ -489,9 +489,9 @@ static bsl::ostream& printShort(const void    *obj,
 
 static const bdem_Descriptor shortDescriptor = {
     bdem_ElemType::BDEM_SHORT,     // enumeration constant for this type
-    sizeof(short),            // size of instances of this type
-    bsls_AlignmentFromType<short>::VALUE,  // alignment requirement for this
-                                           // type
+    sizeof(short),                 // size of instances of this type
+    bsls::AlignmentFromType<short>::VALUE,  // alignment requirement for this
+                                            // type
     unsetConstructShort,
     copyConstructShort,
     destroyShort,
@@ -508,7 +508,7 @@ static const bdem_Descriptor shortDescriptor = {
 
 static void unsetConstructInt(void                                      *obj,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator *)
+                              bslma::Allocator *)
 {
     new(obj) int;
     bdetu_Unset<int>::makeUnset(static_cast<int *>(obj));
@@ -517,7 +517,7 @@ static void unsetConstructInt(void                                      *obj,
 static void copyConstructInt(void                                      *obj,
                              const void                                *other,
                              bdem_AggregateOption::AllocationStrategy,
-                             bslma_Allocator *)
+                             bslma::Allocator *)
 {
     new(obj) int(*static_cast<const int *>(other));
 }
@@ -564,8 +564,8 @@ static bsl::ostream& printInt(const void    *obj,
 
 static const bdem_Descriptor intDescriptor = {
     bdem_ElemType::BDEM_INT,     // enumeration constant for this type
-    sizeof(int),            // size of instances of this type
-    bsls_AlignmentFromType<int>::VALUE,  // alignment requirement for this type
+    sizeof(int),                 // size of instances of this type
+    bsls::AlignmentFromType<int>::VALUE, // alignment requirement for this type
     unsetConstructInt,
     copyConstructInt,
     destroyInt,
@@ -600,7 +600,7 @@ static const bdem_Descriptor floatDescriptor = {
 
 static void unsetConstructDouble(void                                     *obj,
                                  bdem_AggregateOption::AllocationStrategy,
-                                 bslma_Allocator *)
+                                 bslma::Allocator *)
 {
     new(obj) double;
     bdetu_Unset<double>::makeUnset(static_cast<double *>(obj));
@@ -610,7 +610,7 @@ static void copyConstructDouble(
                               void                                      *obj,
                               const void                                *other,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator *)
+                              bslma::Allocator *)
 {
     new(obj) double(*static_cast<const double *>(other));
 }
@@ -657,9 +657,9 @@ static bsl::ostream& printDouble(const void    *obj,
 
 static const bdem_Descriptor doubleDescriptor = {
     bdem_ElemType::BDEM_DOUBLE,     // enumeration constant for this type
-    sizeof(double),            // size of instances of this type
-    bsls_AlignmentFromType<double>::VALUE,  // alignment requirement for this
-                                            // type
+    sizeof(double),                 // size of instances of this type
+    bsls::AlignmentFromType<double>::VALUE,  // alignment requirement for this
+                                             // type
     unsetConstructDouble,
     copyConstructDouble,
     destroyDouble,
@@ -678,7 +678,7 @@ static const bdem_Descriptor doubleDescriptor = {
 static void unsetConstructString(
                               void                                      *obj,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator                           *alloc)
+                              bslma::Allocator                          *alloc)
 {
     new(obj) bsl::string(alloc);
     bdetu_Unset<bsl::string>::makeUnset(static_cast<bsl::string *>(obj));
@@ -688,7 +688,7 @@ static void copyConstructString(
                               void                                      *obj,
                               const void                                *other,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator                           *alloc)
+                              bslma::Allocator                          *alloc)
 {
     new(obj) bsl::string(*static_cast<const bsl::string *>(other), alloc);
 }
@@ -736,9 +736,9 @@ static bsl::ostream& printString(const void    *obj,
 
 static const bdem_Descriptor stringDescriptor = {
     bdem_ElemType::BDEM_STRING,          // enumeration constant for this type
-    sizeof(bsl::string),            // size of instances of this type
-    bsls_AlignmentFromType<bsl::string>::VALUE,// alignment requirement for
-                                               // this type
+    sizeof(bsl::string),                 // size of instances of this type
+    bsls::AlignmentFromType<bsl::string>::VALUE,// alignment requirement for
+                                                // this type
     unsetConstructString,
     copyConstructString,
     destroyString,
@@ -881,7 +881,7 @@ class bdem_Table {
 
 static void unsetConstructTable(void                                      *obj,
                                 bdem_AggregateOption::AllocationStrategy,
-                                bslma_Allocator *)
+                                bslma::Allocator *)
 {
     new(obj) bdem_Table;
     bdetu_Unset<float>::makeUnset(&(float&)*static_cast<bdem_Table *>(obj));
@@ -891,7 +891,7 @@ static void copyConstructTable(
                               void                                      *obj,
                               const void                                *other,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator *)
+                              bslma::Allocator *)
 {
     new(obj) bdem_Table(*static_cast<const bdem_Table *>(other));
 }
@@ -940,7 +940,7 @@ static bsl::ostream& printTable(const void    *obj,
 static const bdem_Descriptor tableDescriptor = {
     bdem_ElemType::BDEM_TABLE,           // enumeration constant for this type
     sizeof(bdem_Table),                  // size of instances of this type
-    bsls_AlignmentFromType<bdem_Table>::VALUE, // alignment requirement for
+    bsls::AlignmentFromType<bdem_Table>::VALUE, // alignment requirement for
                                                // this type
     unsetConstructTable,
     copyConstructTable,
@@ -1163,14 +1163,14 @@ static int globalVeryVerbose = 0;         // set at top of main procedure
 static void defaultConstructTest(
                                 void                                      *obj,
                                 bdem_AggregateOption::AllocationStrategy,
-                                bslma_Allocator *)
+                                bslma::Allocator *)
 {
     new(obj) char;
 }
 
 static void unsetConstructTest(void                                      *obj,
                                bdem_AggregateOption::AllocationStrategy,
-                               bslma_Allocator *)
+                               bslma::Allocator *)
 {
     new(obj) char;
     bdetu_Unset<char>::makeUnset(static_cast<char *>(obj));
@@ -1180,7 +1180,7 @@ static void copyConstructTest(
                               void                                      *obj,
                               const void                                *other,
                               bdem_AggregateOption::AllocationStrategy,
-                              bslma_Allocator *)
+                              bslma::Allocator *)
 {
     new(obj) char(*static_cast<char *>(other));
 }
@@ -1512,7 +1512,7 @@ int main(int argc, char *argv[])
 
     const int LENGTH = 7;
 
-    bsls_ObjectBuffer<bdem_ElemRef> rawSpaceForList[LENGTH];
+    bsls::ObjectBuffer<bdem_ElemRef> rawSpaceForList[LENGTH];
 
     bdem_ElemRef *ref = reinterpret_cast<bdem_ElemRef *> (rawSpaceForList);
     new(ref + 0) bdem_ElemRef(&aChar     , &charDescriptor  , &nullBits, 0);
@@ -3180,7 +3180,7 @@ int main(int argc, char *argv[])
         // char& theModifiableChar() const;
         // short& theModifiableShort() const;
         // int& theModifiableInt() const;
-        // bsls_Types::Int64& theModifiableInt64() const;
+        // bsls::Types::Int64& theModifiableInt64() const;
         // float& theModifiableFloat() const;
         // double& theModifiableDouble() const;
         // bsl::string& theModifiableString() const;
@@ -3194,7 +3194,7 @@ int main(int argc, char *argv[])
         // bsl::vector<char>& theModifiableCharArray() const;
         // bsl::vector<short>& theModifiableShortArray() const;
         // bsl::vector<int>& theModifiableIntArray() const;
-        // bsl::vector<bsls_Types::Int64>& theModifiableInt64Array() const;
+        // bsl::vector<bsls::Types::Int64>& theModifiableInt64Array() const;
         // bsl::vector<float>& theModifiableFloatArray() const;
         // bsl::vector<double>& theModifiableDoubleArray() const;
         // bsl::vector<bsl::string>& theModifiableStringArray() const;
@@ -3242,7 +3242,7 @@ int main(int argc, char *argv[])
         ASSERT( NER.isNonNull());                                           \
         ASSERT(!isUnset(NER));                                              \
                                                                             \
-        pType = (TYPE *) &NER.the ## ETYPE();                               \
+        pType = const_cast<TYPE *>(&NER.the ## ETYPE());                    \
         ASSERT(&data == pType);                                             \
         ASSERT(!((1 << 3) & nullBits));                                     \
         ASSERT(!NER.isNull());                                              \
@@ -3262,7 +3262,7 @@ int main(int argc, char *argv[])
         ASSERT(!NER.isNonNull());                                           \
         ASSERT( isUnset(NER));                                              \
                                                                             \
-        pType = (TYPE *) &NER.the ## ETYPE();                               \
+        pType = const_cast<TYPE *>(&NER.the ## ETYPE());                    \
         ASSERT(&data == pType);                                             \
         ASSERT((1 << 3) & nullBits);                                        \
         ASSERT( NER.isNull());                                              \
@@ -3306,7 +3306,7 @@ int main(int argc, char *argv[])
         const bdem_ElemRef NER(data,                                      \
                                 &LCASETYPE ## Descriptor, &nullBits, 3);  \
         ASSERT((1 << 3) & nullBits);                                      \
-        pType = (CTYPE *) &NER.the ## UCASETYPE();                        \
+        pType = const_cast<CTYPE *>(&NER.the ## UCASETYPE());             \
         ASSERT((CTYPE *) data == pType);                                  \
         ASSERT((1 << 3) & nullBits);                                      \
         pType = 0;                                                        \
@@ -3350,7 +3350,7 @@ int main(int argc, char *argv[])
         //   const char& theChar() const;
         //   const short& theShort() const;
         //   const int& theInt() const;
-        //   const bsls_Types::Int64& theInt64() const;
+        //   const bsls::Types::Int64& theInt64() const;
         //   const float& theFloat() const;
         //   const double& theDouble() const;
         //   const bsl::string& theString() const;
@@ -3364,7 +3364,7 @@ int main(int argc, char *argv[])
         //   const vector<char>& theCharArray() const;
         //   const vector<short>& theShortArray() const;
         //   const vector<int>& theIntArray() const;
-        //   const vector<bsls_Types::Int64>& theInt64Array() const;
+        //   const vector<bsls::Types::Int64>& theInt64Array() const;
         //   const vector<float>& theFloatArray() const;
         //   const vector<double>& theDoubleArray() const;
         //   const vector<bsl::string>& theStringArray() const;
@@ -3387,7 +3387,7 @@ int main(int argc, char *argv[])
         //   const char& theChar() const;
         //   const short& theShort() const;
         //   const int& theInt() const;
-        //   const bsls_Types::Int64& theInt64() const;
+        //   const bsls::Types::Int64& theInt64() const;
         //   const float& theFloat() const;
         //   const double& theDouble() const;
         //   const bsl::string& theString() const;
@@ -3401,7 +3401,7 @@ int main(int argc, char *argv[])
         //   const vector<char>& theCharArray() const;
         //   const vector<short>& theShortArray() const;
         //   const vector<int>& theIntArray() const;
-        //   const vector<bsls_Types::Int64>& theInt64Array() const;
+        //   const vector<bsls::Types::Int64>& theInt64Array() const;
         //   const vector<float>& theFloatArray() const;
         //   const vector<double>& theDoubleArray() const;
         //   const vector<bsl::string>& theStringArray() const;
@@ -3422,7 +3422,7 @@ int main(int argc, char *argv[])
         //   char& theModifiableChar() const;
         //   short& theModifiableShort() const;
         //   int& theModifiableInt() const;
-        //   bsls_Types::Int64& theModifiableInt64() const;
+        //   bsls::Types::Int64& theModifiableInt64() const;
         //   float& theModifiableFloat() const;
         //   double& theModifiableDouble() const;
         //   bsl::string& theModifiableString() const;
@@ -3436,7 +3436,7 @@ int main(int argc, char *argv[])
         //   vector<char>& theModifiableCharArray() const;
         //   vector<short>& theModifiableShortArray() const;
         //   vector<int>& theModifiableIntArray() const;
-        //   vector<bsls_Types::Int64>& theModifiableInt64Array() const;
+        //   vector<bsls::Types::Int64>& theModifiableInt64Array() const;
         //   vector<float>& theModifiableFloatArray() const;
         //   vector<double>& theModifiableDoubleArray() const;
         //   vector<bdet_Datetime>& theModifiableDatetimeArray() const;

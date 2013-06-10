@@ -5,7 +5,6 @@
 #include <bcemt_thread.h>      // for testing only
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 #include <bsls_timeutil.h>
 
 #include <bdef_bind.h>

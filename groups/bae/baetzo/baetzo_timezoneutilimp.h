@@ -59,7 +59,7 @@ BDES_IDENT("$Id: $")
 // 'baetzo_Zoneinfo' object to be considered Well-Defined (see
 // 'baetzo_zoneinfoutil')
 //..
-//  const bsls_Epoch::TimeT64 firstTransitionTime =
+//  const bsls::Epoch::TimeT64 firstTransitionTime =
 //                       bdetu_Epoch::convertToTimeT64(bdet_Datetime(1, 1, 1));
 //
 //  newYork.addTransition(firstTransitionTime, est);
@@ -89,11 +89,11 @@ BDES_IDENT("$Id: $")
 //
 //  for (int i = 0; i < NUM_TRANSITION_TIMES; i += 2) {
 //
-//      const bsls_Epoch::TimeT64 edtTransitionTime =
+//      const bsls::Epoch::TimeT64 edtTransitionTime =
 //                          bdetu_Epoch::convertToTimeT64(TRANSITION_TIMES[i]);
 //      newYork.addTransition(edtTransitionTime, edt);
 //
-//      const bsls_Epoch::TimeT64 estTransitionTime =
+//      const bsls::Epoch::TimeT64 estTransitionTime =
 //                      bdetu_Epoch::convertToTimeT64(TRANSITION_TIMES[i + 1]);
 //      newYork.addTransition(estTransitionTime, est);
 //  }

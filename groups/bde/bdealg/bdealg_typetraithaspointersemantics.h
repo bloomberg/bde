@@ -42,7 +42,7 @@ namespace BloombergLP {
                  // struct bdealg_TypeTraitHasPointerSemantics
                  //===========================================
 
-typedef bslalg_TypeTraitHasPointerSemantics
+typedef bslalg::TypeTraitHasPointerSemantics
                                            bdealg_TypeTraitHasPointerSemantics;
     // A type with this trait is said to have "pointer semantics".  That is the
     // type behaves as if it were a fundamental pointer type.  The type must

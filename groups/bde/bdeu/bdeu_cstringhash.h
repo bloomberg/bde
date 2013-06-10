@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a functor to generate a hash code for a
 // null-terminated string, rather than simply generating a hash code for the
@@ -59,8 +59,8 @@ namespace BloombergLP {
 struct bdeu_CStringHash {
     // This 'struct' defines a hash operation for null-terminated character
     // strings enabling them to be used as keys in the standard unordered
-    // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
-    // Note that this class is an empty POD type.
+    // associative containers such as 'bsl::unordered_map' and
+    // 'bsl::unordered_set'.  Note that this class is an empty POD type.
 
     // STANDARD TYPEDEFS
     typedef const char *argument_type;

@@ -134,7 +134,7 @@ BDES_IDENT("$Id: $")
 //
 //   public:
 //     my_Server(const bdet_TimeInterval& ioTimeout,
-//                                             bslma_Allocator *allocator = 0);
+//                                            bslma::Allocator *allocator = 0);
 //         // Construct a 'my_Server' object with a timeout value of
 //         // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
 //         // supply memory.  If 'allocator' is 0, the currently installed
@@ -145,7 +145,7 @@ BDES_IDENT("$Id: $")
 // };
 //
 // my_Server::my_Server(const bdet_TimeInterval& ioTimeout,
-//                                                     bslma_Allocator *alloc)
+//                                                     bslma::Allocator *alloc)
 // : d_connections(alloc)
 // , d_scheduler(alloc)
 // , d_ioTimeout(ioTimeout)
@@ -228,16 +228,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -283,12 +283,12 @@ class bcep_TimerEventScheduler {
 
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(ClockData,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        ClockData(const bdef_Function<void(*)()>& callback,
-                  const bdet_TimeInterval&        interval,
-                  bslma_Allocator                *basicAllocator = 0)
+        ClockData(const bdef_Function<void(*)()>&  callback,
+                  const bdet_TimeInterval&         interval,
+                  bslma::Allocator                *basicAllocator = 0)
         : d_callback(callback, basicAllocator)
         , d_periodicInterval(interval)
         , d_isCancelled(false)
@@ -296,8 +296,8 @@ class bcep_TimerEventScheduler {
         {
         }
 
-        ClockData(const ClockData& original,
-                  bslma_Allocator *basicAllocator = 0)
+        ClockData(const ClockData&  original,
+                  bslma::Allocator *basicAllocator = 0)
         : d_callback(original.d_callback, basicAllocator)
         , d_periodicInterval(original.d_periodicInterval)
         , d_isCancelled(original.d_isCancelled)
@@ -333,51 +333,52 @@ class bcep_TimerEventScheduler {
 
   private:
     // DATA
-    bslma_Allocator *d_allocator_p;        // memory allocator (held)
+    bslma::Allocator *d_allocator_p;        // memory allocator (held)
 
-    bcema_Pool       d_clockDataAllocator; // pool for 'ClockData' objects
+    bcema_Pool        d_clockDataAllocator; // pool for 'ClockData' objects
 
-    EventTimeQueue   d_eventTimeQueue;     // time queue for non recurring
-                                           // events
+    EventTimeQueue    d_eventTimeQueue;     // time queue for non recurring
+                                            // events
 
-    ClockTimeQueue   d_clockTimeQueue;     // time queue for clock events
+    ClockTimeQueue    d_clockTimeQueue;     // time queue for clock events
 
     bcec_ObjectCatalog<ClockDataPtr>
-                     d_clocks;             // catalog of clocks
+                      d_clocks;             // catalog of clocks
 
-    bcemt_Mutex      d_mutex;              // mutex used to control access to
-                                           // this timer event scheduler
+    bcemt_Mutex       d_mutex;              // mutex used to control access to
+                                            // this timer event scheduler
 
-    bcemt_Condition  d_condition;          // condition variable used to
-                                           // control access to this timer
-                                           // event scheduler
+    bcemt_Condition   d_condition;          // condition variable used to
+                                            // control access to this timer
+                                            // event scheduler
 
     bcemt_ThreadUtil::Handle
-                     d_dispatcherThread;   // handle of the dispatcher thread
+                      d_dispatcherThread;   // handle of the dispatcher thread
 
-    Dispatcher       d_dispatcherFunctor;  // functor used to dispatch events
+    Dispatcher        d_dispatcherFunctor;  // functor used to dispatch events
 
-    volatile int     d_running;            // indicates if the timer event
-                                           // scheduler is running
+    volatile int      d_running;            // indicates if the timer event
+                                            // scheduler is running
 
-    volatile int     d_iterations;         // dispatcher cycle iteration number
+    volatile int      d_iterations;         // dispatcher cycle iteration
+                                            // number
 
     bsl::vector<EventItem>
-                     d_pendingEventItems;  // array of pending event callbacks
+                      d_pendingEventItems;  // array of pending event callbacks
 
-    int              d_currentEventIndex;  // index (in the array
-                                           // 'd_pendingEventItems') of the
-                                           // current event callback being
-                                           // processed by dispatcher thread
+    int               d_currentEventIndex;  // index (in the array
+                                            // 'd_pendingEventItems') of the
+                                            // current event callback being
+                                            // processed by dispatcher thread
 
-    bces_AtomicInt   d_numEvents;          // the number of events
-                                           // currently registered
-                                           // and/or pending dispatch
-                                           // (current callback is NOT
-                                           // counted)
+    bces_AtomicInt    d_numEvents;          // the number of events
+                                            // currently registered
+                                            // and/or pending dispatch
+                                            // (current callback is NOT
+                                            // counted)
 
-    bces_AtomicInt   d_numClocks;          // number of clocks currently
-                                           // registered
+    bces_AtomicInt    d_numClocks;          // number of clocks currently
+                                            // registered
 
     // NOT IMPLEMENTED
     bcep_TimerEventScheduler(const bcep_TimerEventScheduler& original);
@@ -395,10 +396,10 @@ class bcep_TimerEventScheduler {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcep_TimerEventScheduler,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bcep_TimerEventScheduler(bslma_Allocator *basicAllocator = 0);
+    explicit bcep_TimerEventScheduler(bslma::Allocator *basicAllocator = 0);
         // Construct a timer event scheduler using the default dispatcher
         // functor (see the "The dispatcher thread and the dispatcher functor"
         // section in component level doc).  Optionally specify a
@@ -406,16 +407,16 @@ class bcep_TimerEventScheduler {
         // the currently installed default allocator is used.
 
     explicit bcep_TimerEventScheduler(const Dispatcher&  dispatcherFunctor,
-                                      bslma_Allocator   *basicAllocator = 0);
+                                      bslma::Allocator  *basicAllocator = 0);
         // Construct a timer event scheduler using the specified
         // 'dispatcherFunctor' (see "The dispatcher thread and the dispatcher
         // functor" section in component level doc).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    bcep_TimerEventScheduler(int              numEvents,
-                             int              numClocks,
-                             bslma_Allocator *basicAllocator = 0);
+    bcep_TimerEventScheduler(int               numEvents,
+                             int               numClocks,
+                             bslma::Allocator *basicAllocator = 0);
         // Construct a timer event scheduler using the default dispatcher
         // functor (see the "The dispatcher thread and the dispatcher functor"
         // section in component level doc) that has the capability to
@@ -428,7 +429,7 @@ class bcep_TimerEventScheduler {
     bcep_TimerEventScheduler(int                numEvents,
                              int                numClocks,
                              const Dispatcher&  dispatcherFunctor,
-                             bslma_Allocator   *basicAllocator = 0);
+                             bslma::Allocator  *basicAllocator = 0);
         // Construct a timer event scheduler using the specified
         // 'dispatcherFunctor' (see "The dispatcher thread and the dispatcher
         // functor" section in component level doc) that has the capability to

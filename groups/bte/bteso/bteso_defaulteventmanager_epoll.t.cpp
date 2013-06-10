@@ -257,7 +257,7 @@ static void multiRegisterDeregisterCb(Obj *mX)
 //==========================================================================
 //                      MAIN PROGRAM
 //--------------------------------------------------------------------------
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
 #ifdef BTESO_EVENTMANAGER_ENABLETEST
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bteso_SocketImpUtil::startup();
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
     bteso_TimeMetrics timeMetric(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
@@ -433,12 +433,12 @@ int main(int argc, char *argv[])
         //   the expected traits declared.
         //
         // Plan:
-        //   Using the 'bslalg_HasTrait' meta-function, verify that the 'struct
-        //   epoll_event' defines the expected trait, namely
-        //   'bslalg_TypeTraitBitwiseCopyable'.
+        //   Using the 'bslalg::HasTrait' meta-function, verify that the
+        //   'struct epoll_event' defines the expected trait, namely
+        //   'bslalg::TypeTraitBitwiseCopyable'.
         //
         // Testing:
-        //   bslalg_TypeTraitBitwiseCopyable
+        //   bslalg::TypeTraitBitwiseCopyable
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Traits"
@@ -447,8 +447,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting struct ::epoll_event." << endl;
         {
             ASSERT((1 ==
-                bslalg_HasTrait<struct ::epoll_event,
-                                bslalg_TypeTraitBitwiseCopyable>::VALUE));
+                bslalg::HasTrait<struct ::epoll_event,
+                                bslalg::TypeTraitBitwiseCopyable>::VALUE));
         }
       } break;
 

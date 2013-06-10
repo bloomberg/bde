@@ -92,7 +92,7 @@ using namespace bsl;  // automatically added by script
 // [11] bool isValidUtcStartAndEndTime(const bdet_Datetime& start, end);
 //
 // CREATORS
-// [ 2] baetzo_LocalTimePeriod(bslma_Allocator *bA = 0);
+// [ 2] baetzo_LocalTimePeriod(bslma::Allocator *bA = 0);
 // [ 3] baetzo_LocalTimePeriod(const LTD& d, const Dt& s, e, Al *bA = 0);
 // [ 7] baetzo_LocalTimePeriod(const baetzo_LTD& o, Al *ba = 0);
 // [ 2] ~baetzo_LocalTimePeriod();
@@ -105,7 +105,7 @@ using namespace bsl;  // automatically added by script
 // [ 8] void swap(baetzo_LocalTimePeriod& other);
 //
 // ACCESSORS
-// [ 4] bslma_Allocator *allocator() const;
+// [ 4] bslma::Allocator *allocator() const;
 // [ 4] const baetzo_LocalTimePeriod& descriptor() const;
 // [ 4] const bdet_Datetime& utcStartTime() const;
 // [ 4] const bdet_Datetime& utcEndTime() const;
@@ -206,10 +206,10 @@ typedef bdet_Datetime              T3;  // 'utcEndTime'
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg_HasTrait<Obj,
-                              bslalg_TypeTraitBitwiseMoveable>::VALUE));
-BSLMF_ASSERT((bslalg_HasTrait<Obj,
-                              bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+BSLMF_ASSERT((bslalg::HasTrait<Obj,
+                               bslalg::TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT((bslalg::HasTrait<Obj,
+                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
@@ -248,14 +248,14 @@ class TestAllocatorMonitor {
     // TBD
 
     // DATA
-    int                              d_lastInUse;
-    int                              d_lastMax;
-    int                              d_lastTotal;
-    const bslma_TestAllocator *const d_allocator_p;
+    int                               d_lastInUse;
+    int                               d_lastMax;
+    int                               d_lastTotal;
+    const bslma::TestAllocator *const d_allocator_p;
 
   public:
     // CREATORS
-    TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
         // TBD
 
     ~TestAllocatorMonitor();
@@ -284,7 +284,7 @@ class TestAllocatorMonitor {
 // CREATORS
 inline
 TestAllocatorMonitor::TestAllocatorMonitor(
-                                     const bslma_TestAllocator& basicAllocator)
+                                    const bslma::TestAllocator& basicAllocator)
 : d_lastInUse(basicAllocator.numBlocksInUse())
 , d_lastMax(basicAllocator.numBlocksMax())
 , d_lastTotal(basicAllocator.numBlocksTotal())
@@ -394,13 +394,13 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator          allocator("zA", veryVeryVeryVerbose);
-    bslma_TestAllocator         *Z = &allocator;
-    bslma_TestAllocator          defaultAllocator("dA", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard  guard(&defaultAllocator);
+    bslma::TestAllocator          allocator("zA", veryVeryVeryVerbose);
+    bslma::TestAllocator         *Z = &allocator;
+    bslma::TestAllocator          defaultAllocator("dA", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard  guard(&defaultAllocator);
 
     switch (test) { case 0:
       case 12: {
@@ -497,7 +497,7 @@ int main(int argc, char *argv[])
         //:   to initialize a pointer to a function having the appropriate
         //:   signature and return type.  (C-2)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
@@ -547,8 +547,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::Default::setDefaultAllocatorRaw(&da);
 
         if (verbose) cout <<
             "\nCreate a table of distinct candidate attribute values." << endl;
@@ -700,7 +700,7 @@ int main(int argc, char *argv[])
         //:   pointer having the appropriate signature and return type for the
         //:   copy-assignment operator defined in this component.  (C-4)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
@@ -730,7 +730,7 @@ int main(int argc, char *argv[])
         //:
         //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
         //:
-        //:     1 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:     2 Use the value constructor and 'oa' to create a modifiable
         //:       'Obj', 'mX', having the value 'W'.
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
         //:   row (representing a distinct object value, 'V') in the table
         //:   described in P-3:  (C-9)
         //:
-        //:   1 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
         //:     'mX'; also use the value constructor and a distinct "scratch"
@@ -837,13 +837,13 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::Default::setDefaultAllocatorRaw(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
                                                                        << endl;
-        bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         // Attribute 1 Values: 'descriptor'
 
@@ -902,7 +902,7 @@ int main(int argc, char *argv[])
             const T2&  START1  = *DATA[ti].d_utcStartTime;
             const T3&  END1    = *DATA[ti].d_utcEndTime;
 
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             const Obj  Z(DESCR1, START1, END1, &scratch);
             const Obj ZZ(DESCR1, START1, END1, &scratch);
@@ -925,7 +925,7 @@ int main(int argc, char *argv[])
                 const T2&  START2  = *DATA[tj].d_utcStartTime;
                 const T3&  END2    = *DATA[tj].d_utcEndTime;
 
-                bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 {
                     Obj mX(DESCR2, START2, END2, &oa);  const Obj& X = mX;
@@ -976,10 +976,10 @@ int main(int argc, char *argv[])
 
             // self-assignment
 
-            bslma_TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
             {
-                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                       Obj mX(DESCR1, START1, END1, &oa);
                 const Obj ZZ(DESCR1, START1, END1, &scratch);
@@ -1048,7 +1048,7 @@ int main(int argc, char *argv[])
         //:   and free-function pointers having the appropriate signatures and
         //:   return types.  (C-4)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
@@ -1068,7 +1068,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 5)
         //:
-        //:   1 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:   2 Use the value constructor and 'oa' to create a modifiable
         //:     'Obj', 'mW', having the value described by 'R1'; also use the
@@ -1112,7 +1112,7 @@ int main(int argc, char *argv[])
         //:     corresponding to the default-constructed object, choosing
         //:     values that allocate memory if possible.
         //:
-        //:   2 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:   3 Use the default constructor and 'oa' to create a modifiable
         //:     'Obj' 'mX' (having default attribute values); also use the copy
@@ -1167,10 +1167,10 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::Default::setDefaultAllocatorRaw(&da);
 
-        bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1232,8 +1232,8 @@ int main(int argc, char *argv[])
             const T2&  START1 = *DATA[ti].d_utcStartTime;
             const T3&  END1   = *DATA[ti].d_utcEndTime;
 
-            bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                   Obj mW(DESCR1, START1, END1, &oa);  const Obj& W = mW;
             const Obj XX(W, &scratch);
@@ -1334,8 +1334,8 @@ int main(int argc, char *argv[])
         {
             // 'A' values: Should cause memory allocation if possible.
 
-            bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             const T1 A1(-4 * 60 * 60, true, LONG_STRING, &scratch);
             const T2 A2 = bdet_Datetime(2010,  3, 14, 7);
@@ -1366,12 +1366,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'swap' member function" << endl;
             {
-                bslma_TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma_TestAllocator oa2("object2", veryVeryVeryVerbose);
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
@@ -1382,8 +1383,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'swap' free function" << endl;
             {
-                bslma_TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma_TestAllocator oa2("object2", veryVeryVeryVerbose);
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
@@ -1467,7 +1468,7 @@ int main(int argc, char *argv[])
         //:
         //:   3 For each of these three iterations (P-2.2):  (C-1..12)
         //:
-        //:     1 Create three 'bslma_TestAllocator' objects, and install one
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
         //:       as the current default allocator (note that a ubiquitous test
         //:       allocator is already installed as the global allocator).
         //:
@@ -1531,7 +1532,7 @@ int main(int argc, char *argv[])
            "\nUse a table of distinct object values and expected memory usage."
                                                                        << endl;
 
-        bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         // Attribute 1 Values: 'descriptor'
 
@@ -1592,7 +1593,7 @@ int main(int argc, char *argv[])
                 const T2&  START = *DATA[ti].d_utcStartTime;
                 const T3&  END   = *DATA[ti].d_utcEndTime;
 
-                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 const Obj  Z(DESCR, START, END, &scratch);
                 const Obj ZZ(DESCR, START, END, &scratch);
 
@@ -1602,14 +1603,14 @@ int main(int argc, char *argv[])
 
                     const char CONFIG = cfg;  // how we specify the allocator
 
-                    bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-                    bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-                    bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma::Default::setDefaultAllocatorRaw(&da);
 
-                    Obj                 *objPtr;
-                    bslma_TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr;
+                    bslma::TestAllocator *objAllocatorPtr;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -1635,8 +1636,8 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
-                    bslma_TestAllocator&  oa = *objAllocatorPtr;
-                    bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
                     // Ensure the first row of the table contains the
                     // default-constructed value.
@@ -1730,14 +1731,14 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(MEM) P_(DESCR) P_(START) P(END) }
 
-                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 const Obj  Z(DESCR, START, END, &scratch);
                 const Obj ZZ(DESCR, START, END, &scratch);
 
-                bslma_TestAllocator da("default",  veryVeryVeryVerbose);
-                bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma::Default::setDefaultAllocatorRaw(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1802,7 +1803,7 @@ int main(int argc, char *argv[])
         //:   comparison operators defined in this component.
         //:   (C-9..10, 12..13)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
@@ -1868,10 +1869,10 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::Default::setDefaultAllocatorRaw(&da);
 
-        bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
@@ -1931,7 +1932,7 @@ int main(int argc, char *argv[])
 
             // Ensure an object compares correctly with itself (alias test).
             {
-                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
                 const Obj X(*DESCR1, *START1, *END1, &scratch);
 
@@ -1959,13 +1960,13 @@ int main(int argc, char *argv[])
 
                     // Create two distinct test allocators, 'oax' and 'oay'.
 
-                    bslma_TestAllocator oax("objectx", veryVeryVeryVerbose);
-                    bslma_TestAllocator oay("objecty", veryVeryVeryVerbose);
+                    bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
+                    bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
 
                     // Map allocators above to objects 'X' and 'Y' below.
 
-                    bslma_TestAllocator& xa = oax;
-                    bslma_TestAllocator& ya = 'a' == CONFIG ? oax : oay;
+                    bslma::TestAllocator& xa = oax;
+                    bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
 
                     const Obj X(*DESCR1, *START1, *END1, &xa);
                     const Obj Y(*DESCR2, *START2, *END2, &ya);
@@ -2337,7 +2338,7 @@ int main(int argc, char *argv[])
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Create two 'bslma_TestAllocator' objects, and install one as
+        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
         //:   the current default allocator (note that a ubiquitous test
         //:   allocator is already installed as the global allocator).
         //:
@@ -2366,7 +2367,7 @@ int main(int argc, char *argv[])
         //:     there is no change in total memory allocation.  (C-3..4)
         //
         // Testing:
-        //   bslma_Allocator *allocator() const;
+        //   bslma::Allocator *allocator() const;
         //   const baetzo_LocalTimePeriod& descriptor() const;
         //   const bdet_Datetime& utcStartTime() const;
         //   const bdet_Datetime& utcEndTime() const;
@@ -2400,10 +2401,10 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nCreate two test allocators; install one as the default." << endl;
 
-        bslma_TestAllocator da("default", veryVeryVeryVerbose);
-        bslma_TestAllocator oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma_Default::setDefaultAllocatorRaw(&da);
+        bslma::Default::setDefaultAllocatorRaw(&da);
 
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
@@ -2533,7 +2534,7 @@ int main(int argc, char *argv[])
         //:
         //:   2 For each of the three iterations in P-2.1:  (C-1, 4..11)
         //:
-        //:     1 Create three 'bslma_TestAllocator' objects, and install one
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
         //:       as the current default allocator (note that a ubiquitous test
         //:       allocator is already installed as the global allocator).
         //:
@@ -2687,14 +2688,14 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P(CONFIG) }
 
-                    bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-                    bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-                    bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma_Default::setDefaultAllocatorRaw(&da);
+                    bslma::Default::setDefaultAllocatorRaw(&da);
 
-                    Obj                 *objPtr;
-                    bslma_TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr;
+                    bslma::TestAllocator *objAllocatorPtr;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -2720,8 +2721,8 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
-                    bslma_TestAllocator&  oa = *objAllocatorPtr;
-                    bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
                     // Use untested functionality to help ensure the first row
                     // of the table contains the default-constructed value.
@@ -2810,7 +2811,7 @@ int main(int argc, char *argv[])
             // Note that any string arguments are now of type 'string', which
             // require their own "scratch" allocator.
 
-            bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                         LINE  = DATA[ti].d_line;
@@ -2824,10 +2825,10 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(MEM) P_(DESCR) P_(START) P(END) }
 
-                bslma_TestAllocator da("default",  veryVeryVeryVerbose);
-                bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma_Default::setDefaultAllocatorRaw(&da);
+                bslma::Default::setDefaultAllocatorRaw(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -2850,7 +2851,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'utcStartTime' and 'utcEndTime'"
                                   << endl;
@@ -2933,7 +2935,7 @@ int main(int argc, char *argv[])
         //:   and (c) passing the address of a test allocator distinct from the
         //:   default.  For each of these three iterations:  (C-1..14)
         //:
-        //:   1 Create three 'bslma_TestAllocator' objects, and install one as
+        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
         //:     as the current default allocator (note that a ubiquitous test
         //:     allocator is already installed as the global allocator).
         //:
@@ -2989,7 +2991,7 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   baetzo_LocalTimePeriod(bslma_Allocator *bA = 0);
+        //   baetzo_LocalTimePeriod(bslma::Allocator *bA = 0);
         //   ~baetzo_LocalTimePeriod();
         //   void setDescriptor(const baetzo_LocalTimeDescriptor& value);
         //   void setUtcStartAndEndTime(const bdet_Datetime& start, end);
@@ -3028,14 +3030,14 @@ int main(int argc, char *argv[])
 
             const char CONFIG = cfg;  // how we specify the allocator
 
-            bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-            bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-            bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_Default::setDefaultAllocatorRaw(&da);
+            bslma::Default::setDefaultAllocatorRaw(&da);
 
-            Obj                 *objPtr;
-            bslma_TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
 
             switch (CONFIG) {
               case 'a': {
@@ -3055,9 +3057,9 @@ int main(int argc, char *argv[])
               } break;
             }
 
-            Obj&                  mX = *objPtr;  const Obj& X = mX;
-            bslma_TestAllocator&  oa = *objAllocatorPtr;
-            bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // -------------------------------------------------------
             // Verify any attribute allocators are installed properly.
@@ -3192,7 +3194,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             Obj obj;
 

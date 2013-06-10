@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInFundamental<short,In> },
         { &bdem_FunctionTemplates::streamInFundamental<int,In> },
         { &bdem_FunctionTemplates::
-                                   streamInFundamental<bsls_Types::Int64,In> },
+                                  streamInFundamental<bsls::Types::Int64,In> },
         { &bdem_FunctionTemplates::streamInFundamental<float,In> },
         { &bdem_FunctionTemplates::streamInFundamental<double,In> },
         { &bdem_FunctionTemplates::streamInFundamental<bsl::string,In> },
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInArray<char,In> },
         { &bdem_FunctionTemplates::streamInArray<short,In> },
         { &bdem_FunctionTemplates::streamInArray<int,In> },
-        { &bdem_FunctionTemplates::streamInArray<bsls_Types::Int64,In>},
+        { &bdem_FunctionTemplates::streamInArray<bsls::Types::Int64,In>},
         { &bdem_FunctionTemplates::streamInArray<float,In> },
         { &bdem_FunctionTemplates::streamInArray<double,In> },
         { &bdem_FunctionTemplates::streamInArray<bsl::string,In> },
@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInFundamental<short,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<int,In2> },
         { &bdem_FunctionTemplates::
-                                  streamInFundamental<bsls_Types::Int64,In2> },
+                                 streamInFundamental<bsls::Types::Int64,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<float,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<double,In2> },
         { &bdem_FunctionTemplates::streamInFundamental<bsl::string,In2> },
@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamInArray<char,In2> },
         { &bdem_FunctionTemplates::streamInArray<short,In2> },
         { &bdem_FunctionTemplates::streamInArray<int,In2> },
-        { &bdem_FunctionTemplates::streamInArray<bsls_Types::Int64,In2> },
+        { &bdem_FunctionTemplates::streamInArray<bsls::Types::Int64,In2> },
         { &bdem_FunctionTemplates::streamInArray<float,In2> },
         { &bdem_FunctionTemplates::streamInArray<double,In2> },
         { &bdem_FunctionTemplates::streamInArray<bsl::string,In2> },
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutFundamental<short,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<int,Out> },
         { &bdem_FunctionTemplates::
-                                 streamOutFundamental<bsls_Types::Int64,Out> },
+                                streamOutFundamental<bsls::Types::Int64,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<float,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<double,Out> },
         { &bdem_FunctionTemplates::streamOutFundamental<bsl::string,Out> },
@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutArray<char,Out> },
         { &bdem_FunctionTemplates::streamOutArray<short,Out> },
         { &bdem_FunctionTemplates::streamOutArray<int,Out> },
-        { &bdem_FunctionTemplates::streamOutArray<bsls_Types::Int64,Out> },
+        { &bdem_FunctionTemplates::streamOutArray<bsls::Types::Int64,Out> },
         { &bdem_FunctionTemplates::streamOutArray<float,Out> },
         { &bdem_FunctionTemplates::streamOutArray<double,Out> },
         { &bdem_FunctionTemplates::streamOutArray<bsl::string,Out> },
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutFundamental<short,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<int,Out2> },
         { &bdem_FunctionTemplates::
-                                streamOutFundamental<bsls_Types::Int64,Out2> },
+                               streamOutFundamental<bsls::Types::Int64,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<float,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<double,Out2> },
         { &bdem_FunctionTemplates::streamOutFundamental<bsl::string,Out2> },
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
         { &bdem_FunctionTemplates::streamOutArray<char,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<short,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<int,Out2> },
-        { &bdem_FunctionTemplates::streamOutArray<bsls_Types::Int64,Out2> },
+        { &bdem_FunctionTemplates::streamOutArray<bsls::Types::Int64,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<float,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<double,Out2> },
         { &bdem_FunctionTemplates::streamOutArray<bsl::string,Out2> },
@@ -593,14 +593,19 @@ int main(int argc, char *argv[])
             const int NUM_ROWS = 1024;
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
-                bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
+
+                bslma::TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
                 Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
 
-                for (int j = 0; j < NUM_ROWS; ++j) {
-                    mX.insertNullRows(j, 1);
-                    LOOP2_ASSERT(j,
+                for (int j = 0; j < DATA_LEN; j++) {
+                    const int POSITION     = DATA[j].d_position;
+                    const int EXP_CAPACITY = DATA[j].d_expectedCapacity;
+                    mX.insertNullRows(POSITION, 1);
+                    LOOP4_ASSERT(i,
+                                 j,
+                                 EXP_CAPACITY,
                                  X.capacityRaw(),
-                                 j + 1 == X.capacityRaw());
+                                 EXP_CAPACITY == X.capacityRaw());
                 }
             }
         }
@@ -611,7 +616,7 @@ int main(int argc, char *argv[])
             const int NUM_ROWS = 1024;
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
-                bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
                 Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
 
                 for (int j = 0; j < NUM_ROWS; ++j) {
@@ -629,7 +634,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
 
-                bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
                 Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
 
                 for (int j = 0; j < DATA_LEN; j++) {
@@ -648,8 +653,8 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < STRATEGY_LEN; ++i) {
                 for (int j = 0; j < DATA_LEN; j++) {
-                    bslma_TestAllocator ta("TestAllocator",
-                                           veryVeryVeryVerbose);
+                    bslma::TestAllocator ta("TestAllocator",
+                                            veryVeryVeryVerbose);
                     Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
                     mX.reserveRaw(j + 1);
                     LOOP3_ASSERT(i,
@@ -666,7 +671,7 @@ int main(int argc, char *argv[])
             const int NUM_ROWS = 1024;
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
-                bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
+                bslma::TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
                 Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
 
                 for (int j = 0; j < NUM_ROWS; ++j) {
@@ -682,8 +687,8 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < STRATEGY_LEN; ++i) {
                 for (int j = 0; j < DATA_LEN; j++) {
-                    bslma_TestAllocator ta("TestAllocator",
-                                           veryVeryVeryVerbose);
+                    bslma::TestAllocator ta("TestAllocator",
+                                            veryVeryVeryVerbose);
                     Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
                     mX.reserveRaw(j + 1);
                     LOOP3_ASSERT(i,
@@ -731,6 +736,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTesting all allocation strategies\n"
                               << endl;
 
+        bdem_TableImp_disableGeometricMemoryGrowth();
+
         for (int i = 0; i < STRATEGY_LEN; ++i) {
 
             const Strategy STRATEGY = STRATEGY_DATA[i];
@@ -741,8 +748,8 @@ int main(int argc, char *argv[])
 
                 const int EXPECTED_CAPACITY = j;
                 if (veryVerbose) {  P(i) P_(j) }
-                 bslma_TestAllocator ta("TestAllocator",
-                                        veryVeryVeryVerbose);
+                 bslma::TestAllocator ta("TestAllocator",
+                                         veryVeryVeryVerbose);
 
                  Obj mX(STRATEGY, &ta); const Obj& X = mX;
                  ASSERT(0 == X.capacityRaw());
@@ -822,7 +829,7 @@ int main(int argc, char *argv[])
 
                 if (verbose) cout << "Testing 'reserveRaw(0)'" << endl;
                 {
-                    bslma_TestAllocator ta("TestAllocator",
+                    bslma::TestAllocator ta("TestAllocator",
                                             veryVeryVeryVerbose);
 
                     Obj mX(STRATEGY, &ta); const Obj& X = mX;
@@ -836,8 +843,8 @@ int main(int argc, char *argv[])
                 for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
 
                     if (veryVerbose) {  P(i) P_(j) }
-                     bslma_TestAllocator ta("TestAllocator",
-                                            veryVeryVeryVerbose);
+                     bslma::TestAllocator ta("TestAllocator",
+                                             veryVeryVeryVerbose);
 
                      Obj mX(STRATEGY, &ta); const Obj& X = mX;
 
@@ -852,7 +859,7 @@ int main(int argc, char *argv[])
                          // Add extra memory for Pass Through - 'bdem_RowData'
                          // allocate extra pointers when inserting null rows.
 
-                         NUM_BYTES += bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+                         NUM_BYTES += bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
                                       * 2 * MAX_NUM_ROWS;
                      }
 
@@ -863,7 +870,7 @@ int main(int argc, char *argv[])
                      }
 
                      // Do not execute this test on 64-bit platforms for
-                     // 'BDEM_WRITE_MANY'.  'bdema_AllocatorManager' has a
+                     // 'BDEM_WRITE_MANY'.  'bslma::AllocatorManager' has a
                      // broken behavior, the memory gets reserved in the first
                      // pool: if you ask for a different size, it will allocate
                      // again.
@@ -894,7 +901,7 @@ int main(int argc, char *argv[])
 
                 if (verbose) cout << "Testing 'reserveRaw(0)'" << endl;
                 {
-                    bslma_TestAllocator ta("TestAllocator",
+                    bslma::TestAllocator ta("TestAllocator",
                                             veryVeryVeryVerbose);
 
                     Obj mX(STRATEGY, &ta); const Obj& X = mX;
@@ -908,8 +915,8 @@ int main(int argc, char *argv[])
                 for (int j = 1; j <= MAX_NUM_ROWS; j <<= 1) {
 
                     if (veryVerbose) {  P(i) P_(j) }
-                     bslma_TestAllocator ta("TestAllocator",
-                                            veryVeryVeryVerbose);
+                     bslma::TestAllocator ta("TestAllocator",
+                                             veryVeryVeryVerbose);
 
                      Obj mX(STRATEGY, &ta); const Obj& X = mX;
 
@@ -924,7 +931,7 @@ int main(int argc, char *argv[])
                          // Add extra memory for Pass Through - 'bdem_RowData'
                          // allocate extra pointers when inserting null rows.
 
-                         NUM_BYTES += bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+                         NUM_BYTES += bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
                                       * 2 * MAX_NUM_ROWS;
                      }
 
@@ -935,7 +942,7 @@ int main(int argc, char *argv[])
                      }
 
                      // Do not execute this test on 64-bit platforms for
-                     // 'BDEM_WRITE_MANY'.  'bdema_AllocatorManager' has a
+                     // 'BDEM_WRITE_MANY'.  'bslma::AllocatorManager' has a
                      // broken behavior, the memory gets reserved in the first
                      // pool: if you ask for a different size, it will allocate
                      // again.
@@ -973,7 +980,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING print\n"
                              "=============\n";
 
-        bslma_TestAllocator allocator, *Z = &allocator;
+        bslma::TestAllocator allocator, *Z = &allocator;
 
         ET::Type COL_TYPES[] = {
             ET::BDEM_INT, ET::BDEM_STRING, ET::BDEM_CHAR
@@ -1249,7 +1256,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdex streaming test\n"
                              "===================\n";
 
-        bslma_TestAllocator allocator, *Z = &allocator;
+        bslma::TestAllocator allocator, *Z = &allocator;
 
         ET::Type DEST_COL_TYPES[] = {
             ET::BDEM_FLOAT, ET::BDEM_FLOAT, ET::BDEM_STRING
@@ -1417,7 +1424,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdex streaming test\n"
                              "===================\n";
 
-        bslma_TestAllocator testAllocator, *Z = &testAllocator;
+        bslma::TestAllocator testAllocator, *Z = &testAllocator;
 
         ET::Type DEST_COL_TYPES[] = {
             ET::BDEM_DOUBLE, ET::BDEM_DOUBLE, ET::BDEM_STRING
@@ -1601,7 +1608,7 @@ int main(int argc, char *argv[])
 
         enum { COL_TYPES_LEN = sizeof(COL_TYPES) / sizeof(*COL_TYPES) };
 
-        bslma_TestAllocator alloc, *Z = &alloc;
+        bslma::TestAllocator alloc, *Z = &alloc;
 
         Obj t1(COL_TYPES,
                COL_TYPES_LEN,
@@ -2153,20 +2160,20 @@ int main(int argc, char *argv[])
         // Plan: It suffices to assert that the traits is defined.  One way is
         //   by using 'BSLALG_DECLARE_NESTED_TRAITS' and another is by sniffing
         //   that there is an implicit conversion construction from
-        //   'bslma_Allocator*'.  We also want to discourage the second way, as
-        //   that constructor should be made explicit.
+        //   'bslma::Allocator*'.  We also want to discourage the second way,
+        //   as that constructor should be made explicit.
         //
         // Testing:
         //   bdema allocator model
-        //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
+        //   correct declaration of bslalg::TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing allocator traits\n"
                              "========================\n";
 
-        ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bslma::Allocator*, Obj>::VALUE));
         ASSERT((1 ==
-             bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+           bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2196,7 +2203,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Using 'BDEM_WRITE_ONCE'" << endl;
         {
-            bslma_TestAllocator allocator;
+            bslma::TestAllocator allocator;
             Obj mX(BDEM_WRITE_ONCE, &allocator);
 
             const int beforeSize = allocator.numBytesInUse();
@@ -2211,7 +2218,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Using 'BDEM_WRITE_MANY'" << endl;
         {
-            bslma_TestAllocator allocator;
+            bslma::TestAllocator allocator;
             Obj mX(BDEM_WRITE_MANY, &allocator);
 
             const int beforeSize = allocator.numBytesInUse();
@@ -2253,7 +2260,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 Obj mX(BDEM_WRITE_ONCE, SIZE, &allocator);
 
@@ -2262,7 +2269,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 Obj mX(BDEM_WRITE_MANY, SIZE, &allocator);
 
@@ -2275,7 +2282,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 Obj mX(&DESCRIPTOR_TYPE_ENUM,
                        1,
@@ -2289,7 +2296,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
 
                 Obj mX(&DESCRIPTOR_TYPE_ENUM,
                        1,
@@ -2307,7 +2314,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 Obj original(bdem_AggregateOption::BDEM_PASS_THROUGH,
                              &allocator);
 
@@ -2323,7 +2330,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 Obj original(bdem_AggregateOption::BDEM_PASS_THROUGH,
                              &allocator);
 
@@ -2343,7 +2350,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_ONCE'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_RowLayout rowLayout(&allocator);
                 bdem_RowData   rowData(&rowLayout,
                                        BDEM_PASS_THROUGH,
@@ -2361,7 +2368,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "\tUsing 'BDEM_WRITE_MANY'.\n";
             {
-                bslma_TestAllocator allocator;
+                bslma::TestAllocator allocator;
                 bdem_RowLayout rowLayout(&allocator);
                 bdem_RowData   rowData(&rowLayout,
                                        BDEM_PASS_THROUGH,
@@ -2405,9 +2412,9 @@ int main(int argc, char *argv[])
 
         enum { COL_TYPES_LEN = sizeof(COL_TYPES) / sizeof(*COL_TYPES) };
 
-        bslma_TestAllocator alloc1;
-        bslma_NewDeleteAllocator alloc2;
-        bslma_Allocator *Z1 = &alloc1, *Z2 = &alloc2;
+        bslma::TestAllocator alloc1;
+        bslma::NewDeleteAllocator alloc2;
+        bslma::Allocator *Z1 = &alloc1, *Z2 = &alloc2;
 
         Obj t1(COL_TYPES,
                COL_TYPES_LEN,
@@ -2660,8 +2667,8 @@ int main(int argc, char *argv[])
 
             bool leave = false;
             for (int ctor = 0; !leave; ++ctor) {
-                bslma_TestAllocator allocator;
-                bslma_TestAllocator *Z = &allocator;
+                bslma::TestAllocator allocator;
+                bslma::TestAllocator *Z = &allocator;
 
                 const bdem_RowLayout rowLayout(COL_TYPES,
                                                COL_TYPES_LEN,
@@ -2845,8 +2852,8 @@ int main(int argc, char *argv[])
 
         enum { COL_TYPES_LEN = sizeof(COL_TYPES) / sizeof(*COL_TYPES) };
 
-        bslma_TestAllocator  alloc;
-        bslma_Allocator     *Z = &alloc;
+        bslma::TestAllocator  alloc;
+        bslma::Allocator     *Z = &alloc;
 
         Obj t(COL_TYPES, COL_TYPES_LEN, ATTR_LOOKUP_TBL, BDEM_WRITE_MANY, Z);
         const Obj& T = t;

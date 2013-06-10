@@ -57,7 +57,7 @@ using namespace bsl;  // automatically added by script
 // the catalog.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bcec_ObjectCatalog(bslma_Allocator *allocator=0);
+// [ 1] bcec_ObjectCatalog(bslma::Allocator *allocator=0);
 // [ 1] ~bcec_ObjectCatalog();
 //
 // MANIPULATORS
@@ -216,8 +216,8 @@ class my_bcec_ObjectCatalog
     enum { MAX = 100 };
     struct {
         union {
-            int                                d_valid;
-            bsls_AlignmentUtil::MaxAlignedType d_filler;
+            int                                 d_valid;
+            bsls::AlignmentUtil::MaxAlignedType d_filler;
         };
         char d_obj_p[sizeof(TYPE)];
     } d_arr[MAX];
@@ -294,7 +294,7 @@ class my_bcec_ObjectCatalog
             return -1; //non zero
         }
         if(p != 0) {
-            *p = *((TYPE *)d_arr[h].d_obj_p);
+            *p = *((TYPE const *)d_arr[h].d_obj_p);
         }
 
         return 0;
@@ -736,7 +736,7 @@ void *testAddFindReplaceRemove(void *arg)
     // Invoke 'add', 'find', 'replace' and 'remove' in a loop.
 {
     barrier.wait();
-    int id = (bsls_Types::IntPtr)arg;
+    int id = (bsls::Types::IntPtr)arg;
     int v;
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
         int h = catalog.add(id);
@@ -814,33 +814,33 @@ class AllocPattern {
     // variable 'objCount', that holds the number of objects created for
     // this class.  It uses memory allocation to store the pattern.
 
-    bslma_Allocator *d_alloc_p;
-    int             *d_pattern_p;
+    bslma::Allocator *d_alloc_p;
+    int              *d_pattern_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(AllocPattern,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     static int objCount;
 
     // CONSTRUCTORS
-    AllocPattern(bslma_Allocator *alloc = 0)
-    : d_alloc_p(bslma_Default::allocator(alloc))
+    AllocPattern(bslma::Allocator *alloc = 0)
+    : d_alloc_p(bslma::Default::allocator(alloc))
     , d_pattern_p((int*)d_alloc_p->allocate(sizeof *d_pattern_p))
     {
-        ASSERT(0 == (bsls_Types::IntPtr)((char *)this) %
-                                  bsls_AlignmentFromType<AllocPattern>::VALUE);
+        ASSERT(0 == (bsls::Types::IntPtr)((char *)this) %
+                                 bsls::AlignmentFromType<AllocPattern>::VALUE);
         *d_pattern_p = 0;
         objCount++;
     }
 
-    AllocPattern(const AllocPattern& rhs, bslma_Allocator *alloc = 0)
-    : d_alloc_p(bslma_Default::allocator(alloc))
+    AllocPattern(const AllocPattern& rhs, bslma::Allocator *alloc = 0)
+    : d_alloc_p(bslma::Default::allocator(alloc))
     , d_pattern_p((int*)d_alloc_p->allocate(sizeof *d_pattern_p))
     {
-        ASSERT(0 == (bsls_Types::IntPtr)((char *)this) %
-                                  bsls_AlignmentFromType<AllocPattern>::VALUE);
+        ASSERT(0 == (bsls::Types::IntPtr)((char *)this) %
+                                 bsls::AlignmentFromType<AllocPattern>::VALUE);
         *d_pattern_p = *rhs.d_pattern_p;
         objCount++;
     }
@@ -893,8 +893,8 @@ class Pattern {
     // CONSTRUCTORS
     Pattern()
     {
-        ASSERT(0 == (bsls_Types::IntPtr)((char *)this)
-                                     % bsls_AlignmentFromType<Pattern>::VALUE);
+        ASSERT(0 == (bsls::Types::IntPtr)((char *)this)
+                                    % bsls::AlignmentFromType<Pattern>::VALUE);
         d_pattern = 0;
         objCount++;
     }
@@ -1139,7 +1139,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_THREADS; ++i) {
             bcemt_ThreadUtil::create(&threads[i],
                                      testAddFindReplaceRemove,
-                                     (void*)(bsls_Types::IntPtr)i);
+                                     (void*)(bsls::Types::IntPtr)i);
         }
 
         bcemt_ThreadUtil::create(&threads[NUM_THREADS + 0], testLength, NULL);

@@ -266,7 +266,7 @@ BDES_IDENT("$Id: $")
 //                             bdeat_TypeCategory::Array());          // RETURN
 //      }
 //
-//      return manipulator(object, bslmf_Nil());
+//      return manipulator(object, bslmf::Nil());
 //  }
 //
 //  template <typename MANIPULATOR>
@@ -278,7 +278,7 @@ BDES_IDENT("$Id: $")
 //                             bdeat_TypeCategory::Simple());         // RETURN
 //      }
 //
-//      return manipulator(object, bslmf_Nil());
+//      return manipulator(object, bslmf::Nil());
 //  }
 //
 //  template <typename ACCESSOR>
@@ -290,7 +290,7 @@ BDES_IDENT("$Id: $")
 //                          bdeat_TypeCategory::Array());             // RETURN
 //      }
 //
-//      return accessor(object, bslmf_Nil());
+//      return accessor(object, bslmf::Nil());
 //  }
 //
 //  template <typename ACCESSOR>
@@ -302,7 +302,7 @@ BDES_IDENT("$Id: $")
 //                          bdeat_TypeCategory::Simple());            // RETURN
 //      }
 //
-//      return accessor(object, bslmf_Nil());
+//      return accessor(object, bslmf::Nil());
 //  }
 //
 //..
@@ -313,7 +313,7 @@ BDES_IDENT("$Id: $")
 //      bsl::ostream *d_stream_p;
 //
 //      template <typename TYPE>
-//      int operator()(const TYPE& object, bslmf_Nil)
+//      int operator()(const TYPE& object, bslmf::Nil)
 //      {
 //          assert(0);  // received invalid object
 //          return -1;
@@ -530,14 +530,14 @@ struct bdeat_TypeCategory {
         };
 
         typedef typename
-        bslmf_Switch<BDEAT_SELECTION, DynamicType,
-                                      Array,
-                                      Choice,
-                                      CustomizedType,
-                                      Enumeration,
-                                      NullableValue,
-                                      Sequence,
-                                      Simple>::Type Type;
+        bslmf::Switch<BDEAT_SELECTION, DynamicType,
+                                       Array,
+                                       Choice,
+                                       CustomizedType,
+                                       Enumeration,
+                                       NullableValue,
+                                       Sequence,
+                                       Simple>::Type Type;
     };
 };
 
@@ -602,7 +602,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Array' tag object as the second argument if the
         // first argument can be used with 'bdeat_arrayfunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
     template <typename TYPE, typename MANIPULATOR>
@@ -611,7 +611,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Choice' tag object as the second argument if
         // the first argument can be used with 'bdeat_choicefunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
     template <typename TYPE, typename MANIPULATOR>
@@ -620,7 +620,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::CustomizedType' tag object as the second
         // argument if the first argument can be used with
-        // 'bdeat_customizedtypefunctions', or a 'bslmf_Nil' tag object
+        // 'bdeat_customizedtypefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'manipulator'.
 
     template <typename TYPE, typename MANIPULATOR>
@@ -629,7 +629,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Enumeration' tag object as the second argument
         // if the first argument can be used with 'bdeat_enumfunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
     template <typename TYPE, typename MANIPULATOR>
@@ -638,7 +638,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::NullableValue' tag object as the second
         // argument if the first argument can be used with
-        // 'bdeat_nullablevaluefunctions', or a 'bslmf_Nil' tag object
+        // 'bdeat_nullablevaluefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'manipulator'.
 
     template <typename TYPE, typename MANIPULATOR>
@@ -647,7 +647,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Sequence' tag object as the second argument if
         // the first argument can be used with 'bdeat_sequencefunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
     template <typename TYPE, typename MANIPULATOR>
@@ -655,7 +655,7 @@ namespace bdeat_TypeCategoryFunctions {
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Simple' tag object as the second argument if
-        // the first argument can be used as a simple type, or a 'bslmf_Nil'
+        // the first argument can be used as a simple type, or a 'bslmf::Nil'
         // tag object otherwise.  Return the result from the invocation of
         // 'manipulator'.
 
@@ -666,7 +666,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Array' tag object as the second argument if the
         // first argument can be used with 'bdeat_arrayfunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
     template <typename TYPE, typename ACCESSOR>
@@ -675,7 +675,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Choice' tag object as the second argument if
         // the first argument can be used with 'bdeat_choicefunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
     template <typename TYPE, typename ACCESSOR>
@@ -684,7 +684,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::CustomizedType' tag object as the second
         // argument if the first argument can be used with
-        // 'bdeat_customizedtypefunctions', or a 'bslmf_Nil' tag object
+        // 'bdeat_customizedtypefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'accessor'.
 
     template <typename TYPE, typename ACCESSOR>
@@ -693,7 +693,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Enumeration' tag object as the second argument
         // if the first argument can be used with 'bdeat_enumfunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
     template <typename TYPE, typename ACCESSOR>
@@ -702,7 +702,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::NullableValue' tag object as the second
         // argument if the first argument can be used with
-        // 'bdeat_nullablevaluefunctions', or a 'bslmf_Nil' tag object
+        // 'bdeat_nullablevaluefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'accessor'.
 
     template <typename TYPE, typename ACCESSOR>
@@ -711,7 +711,7 @@ namespace bdeat_TypeCategoryFunctions {
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Sequence' tag object as the second argument if
         // the first argument can be used with 'bdeat_sequencefunctions', or a
-        // 'bslmf_Nil' tag object otherwise.  Return the result from the
+        // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
     template <typename TYPE, typename ACCESSOR>
@@ -719,7 +719,7 @@ namespace bdeat_TypeCategoryFunctions {
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
         // 'bdeat_TypeCategory::Simple' tag object as the second argument if
-        // the first argument can be used as a simple type, or a 'bslmf_Nil'
+        // the first argument can be used as a simple type, or a 'bslmf::Nil'
         // tag object otherwise.  Return the result from the invocation of
         // 'accessor'.
 
@@ -1015,8 +1015,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateArray(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf_If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
-             bdeat_TypeCategory::Array, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+             bdeat_TypeCategory::Array, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1027,8 +1027,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateChoice(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf_If<bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-             bdeat_TypeCategory::Choice, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+             bdeat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1039,8 +1039,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateCustomizedType(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf_If<bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-             bdeat_TypeCategory::CustomizedType, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
+             bdeat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1051,8 +1051,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateEnumeration(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf_If<bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-             bdeat_TypeCategory::Enumeration, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
+             bdeat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1063,8 +1063,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateNullableValue(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf_If<bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-             bdeat_TypeCategory::NullableValue, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+             bdeat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1075,8 +1075,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateSequence(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf_If<bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-             bdeat_TypeCategory::Sequence, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+             bdeat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1087,9 +1087,9 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateSimple(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf_If<(int)bdeat_TypeCategory::Select<TYPE>::BDEAT_SELECTION ==
+    bslmf::If<(int)bdeat_TypeCategory::Select<TYPE>::BDEAT_SELECTION ==
                                 (int)bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY,
-             bdeat_TypeCategory::Simple, bslmf_Nil>::Type Tag;
+             bdeat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1102,8 +1102,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessArray(
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf_If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
-             bdeat_TypeCategory::Array, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+             bdeat_TypeCategory::Array, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
@@ -1114,8 +1114,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessChoice(
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf_If<bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-             bdeat_TypeCategory::Choice, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+             bdeat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
@@ -1126,8 +1126,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessCustomizedType(
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf_If<bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-             bdeat_TypeCategory::CustomizedType, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
+             bdeat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
@@ -1138,8 +1138,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessEnumeration(
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf_If<bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-             bdeat_TypeCategory::Enumeration, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
+             bdeat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
@@ -1150,8 +1150,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessNullableValue(
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf_If<bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-             bdeat_TypeCategory::NullableValue, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+             bdeat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
@@ -1162,8 +1162,8 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessSequence(
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf_If<bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-             bdeat_TypeCategory::Sequence, bslmf_Nil>::Type Tag;
+    bslmf::If<bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+             bdeat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
@@ -1174,9 +1174,9 @@ int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessSimple(
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf_If<(int)bdeat_TypeCategory::Select<TYPE>::BDEAT_SELECTION ==
+    bslmf::If<(int)bdeat_TypeCategory::Select<TYPE>::BDEAT_SELECTION ==
                                 (int)bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY,
-             bdeat_TypeCategory::Simple, bslmf_Nil>::Type Tag;
+             bdeat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 

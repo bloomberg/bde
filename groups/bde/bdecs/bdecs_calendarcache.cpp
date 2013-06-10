@@ -15,6 +15,7 @@ BDES_IDENT_RCSID(bdecs_calendarcache_cpp,"$Id$ $CSID$")
 #include <bslma_rawdeleterproctor.h>
 
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_functional.h>
 #include <bsl_string.h>
@@ -30,12 +31,12 @@ class bdecs_CalendarCacheEntry {
     // calendar object, the time when it is loaded into the cache, and a flag
     // which indicates a forced reload of the calendar object if set to true.
 
-    bdecs_Calendar   d_calendar;         // the calendar object
-    bdet_Datetime    d_loadTime;         // the time when this entry is loaded
-    bool             d_forceReloadFlag;  // set it to 'true' to force a reload
-    bool             d_firstLoadFlag;    // 'true' if 'd_calendar' has never
-                                         // been loaded and 'false' otherwise
-    bslma_Allocator *d_allocator_p;      // memory allocator(held, not owned)
+    bdecs_Calendar    d_calendar;         // the calendar object
+    bdet_Datetime     d_loadTime;         // the time when this entry is loaded
+    bool              d_forceReloadFlag;  // set it to 'true' to force a reload
+    bool              d_firstLoadFlag;    // 'true' if 'd_calendar' has never
+                                          // been loaded and 'false' otherwise
+    bslma::Allocator *d_allocator_p;      // memory allocator(held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -44,7 +45,7 @@ class bdecs_CalendarCacheEntry {
 
   public:
     // CREATORS
-    explicit bdecs_CalendarCacheEntry(bslma_Allocator *basicAllocator = 0);
+    explicit bdecs_CalendarCacheEntry(bslma::Allocator *basicAllocator = 0);
         // Create an empty calendar cache entry object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -71,11 +72,11 @@ class bdecs_CalendarCacheEntry {
 // CREATORS
 inline
 bdecs_CalendarCacheEntry::bdecs_CalendarCacheEntry(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_calendar(basicAllocator)
 , d_forceReloadFlag(true)
 , d_firstLoadFlag(true)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -119,8 +120,16 @@ const bdecs_Calendar *bdecs_CalendarCacheEntry::calendar(
     BSLS_ASSERT(loader);
     BSLS_ASSERT(name);
 
-    if ((bdetu_SystemTime::nowAsDatetimeUtc() - d_loadTime).seconds() >=
-                                                           timeout.seconds()) {
+    // Determine whether calendar should be reloaded by checking whether the
+    // elapsed time is greater than the time out time.  Note that the elapsed
+    // time has milliseconds precision while time out time has nanoseconds
+    // precision, and that the behavior is undefined unless 'timeout' is small
+    // enough to fit in a 64-bit integer value in milliseconds.
+
+    bsls::Types::Int64 elapsedTime =
+       (bdetu_SystemTime::nowAsDatetimeUtc() - d_loadTime).totalMilliseconds();
+
+    if (elapsedTime >= timeout.totalMilliseconds()) {
 
         // This entry has expired.
 
@@ -141,7 +150,7 @@ inline void bdecs_CalendarCacheEntry::invalidate()
 
 // CREATORS
 bdecs_CalendarCache::bdecs_CalendarCache(bdecs_CalendarLoader *loader,
-                                         bslma_Allocator      *basicAllocator)
+                                         bslma::Allocator     *basicAllocator)
 
 // We have to pass 'bsl::less<key>()' because 'bsl::map' does not have
 // a constructor which takes only a allocator.
@@ -149,7 +158,7 @@ bdecs_CalendarCache::bdecs_CalendarCache(bdecs_CalendarLoader *loader,
 : d_cache(bsl::less<bsl::string>(), basicAllocator)
 , d_loader_p(loader)
 , d_useTimeOutFlag(false)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(loader);
 }
@@ -157,7 +166,7 @@ bdecs_CalendarCache::bdecs_CalendarCache(bdecs_CalendarLoader *loader,
 bdecs_CalendarCache::bdecs_CalendarCache(
                                       bdecs_CalendarLoader     *loader,
                                       const bdet_TimeInterval&  timeout,
-                                      bslma_Allocator          *basicAllocator)
+                                      bslma::Allocator         *basicAllocator)
 
 // We have to pass 'bsl::less<key>()' because 'bsl::map' does not have
 // a constructor which takes only an allocator.
@@ -166,7 +175,7 @@ bdecs_CalendarCache::bdecs_CalendarCache(
 , d_loader_p(loader)
 , d_timeOut(timeout)
 , d_useTimeOutFlag(true)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(loader);
 }
@@ -202,11 +211,11 @@ const bdecs_Calendar *bdecs_CalendarCache::calendar(const char *calendarName)
         return 0;
     }
 
-    // The 'bslma_RawDeleterProctor' object below is used to release the memory
-    // pointed to by 'entry_p' in the case when an exception takes place.  It
-    // will release the memory when it is destroyed.
+    // The 'bslma::RawDeleterProctor' object below is used to release the
+    // memory pointed to by 'entry_p' in the case when an exception takes
+    // place.  It will release the memory when it is destroyed.
 
-    bslma_RawDeleterProctor<bdecs_CalendarCacheEntry, bslma_Allocator>
+    bslma::RawDeleterProctor<bdecs_CalendarCacheEntry, bslma::Allocator>
                                         deleterProctor(entry_p, d_allocator_p);
 
     const bdecs_Calendar *calendar_p = entry_p->calendar(d_loader_p,

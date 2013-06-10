@@ -329,7 +329,7 @@ void baenet_HttpMessageParser::prepareForNextMessage()
 baenet_HttpMessageParser::baenet_HttpMessageParser(
                                 baenet_HttpEntityProcessor    *entityProcessor,
                                 baenet_HttpMessageType::Value  messageType,
-                                bslma_Allocator               *basicAllocator)
+                                bslma::Allocator              *basicAllocator)
 : d_data(basicAllocator)
 , d_blobBufferFactory_p(0)
 , d_entityProcessor_p(entityProcessor)
@@ -349,7 +349,7 @@ baenet_HttpMessageParser::baenet_HttpMessageParser(
         baenet_HttpEntityProcessor    *entityProcessor,
         baenet_HttpMessageType::Value  messageType,
         bcema_BlobBufferFactory       *blobBufferFactory,
-        bslma_Allocator               *basicAllocator)
+        bslma::Allocator              *basicAllocator)
 : d_data(blobBufferFactory, basicAllocator)
 , d_blobBufferFactory_p(blobBufferFactory)
 , d_entityProcessor_p(entityProcessor)
@@ -546,7 +546,7 @@ int baenet_HttpMessageParser::addData(bsl::ostream&   errorStream,
 
         int numAvailable = source->in_avail();
 
-        if (numAvailable == 0) {
+        if (numAvailable <= 0) {
             break;
         }
 

@@ -95,7 +95,9 @@ baem_MetricRegistry::insertId(const char *category, const char *name)
 
     bcema_SharedPtr<baem_MetricDescription> metricPtr(
                      new (*d_allocator_p) baem_MetricDescription(
-                                                 catIt->second.ptr(), nameStr),
+                             catIt->second.ptr(), 
+                             nameStr, 
+                             d_allocator_p),
                      d_allocator_p);
 
     for (int i = 0; i < userData.size(); ++i) {
@@ -150,7 +152,7 @@ void baem_MetricRegistry::defaultUserData(
 }
 
 // CREATORS
-baem_MetricRegistry::baem_MetricRegistry(bslma_Allocator *basicAllocator)
+baem_MetricRegistry::baem_MetricRegistry(bslma::Allocator *basicAllocator)
 : d_uniqueStrings(basicAllocator)
 , d_categories(basicAllocator)
 , d_metrics(basicAllocator)
@@ -159,7 +161,7 @@ baem_MetricRegistry::baem_MetricRegistry(bslma_Allocator *basicAllocator)
 , d_categoryPrefixUserData(basicAllocator)
 , d_nextKey(0)
 , d_lock()
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -445,8 +447,8 @@ bsl::ostream& baem_MetricRegistry::print(bsl::ostream& stream,
     stream << "[" << SEP;
 
     // Note that this implementation assumes that the registry map is sorted
-    // by category (i.e., it is not a 'hash_map', and the comparator compares
-    // by category before name).
+    // by category (i.e., it is not an 'unordered_map', and the comparator
+    // compares by category before name).
 
     const baem_Category *lastCategory = 0;
     MetricRegistry::const_iterator it = d_metrics.begin();

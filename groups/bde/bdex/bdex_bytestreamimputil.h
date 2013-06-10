@@ -58,14 +58,14 @@ BDES_IDENT("$Id: $")
 //..
 //   Name                         Type of 'variable'           Notes
 //   ----                         ------------------           -----
-//   getIntNN(variable, buffer)   bsls_PlatformUtil::Int64 *   NN=64,56,48,40
+//   getIntNN(variable, buffer)   bsls::Types::Int64 *         NN=64,56,48,40
 //                                int *                        NN=32,24
 //                                short *                      NN=16
 //                                char *                       NN=8
 //                                signed char *                NN=8
 //                                unsigned char *              NN=8
 //
-//   getUintNN(variable, buffer)  bsls_PlatformUtil::Uint64 *  NN=64,56,48,40
+//   getUintNN(variable, buffer)  bsls::Types::Uint64 *        NN=64,56,48,40
 //                                int *                        NN=32,24
 //                                unsigned short *             NN=16
 //
@@ -78,7 +78,7 @@ BDES_IDENT("$Id: $")
 //..
 //   Name                         Type of 'value'              Notes
 //   ----                         ---------------              -----
-//   putIntNN(buffer, value)      bsls_PlatformUtil::Int64     NN=64,56,48,40
+//   putIntNN(buffer, value)      bsls::Types::Int64           NN=64,56,48,40
 //                                int                          NN=32,24,16,8
 //
 //   putFloatNN(buffer, value)    double                       NN=64
@@ -92,8 +92,8 @@ BDES_IDENT("$Id: $")
 //..
 //   Name                   Type of 'array'                    Notes
 //   ----                   ---------------                    -----
-//   putArrayIntNN(buffer,  const bsls_PlatformUtil::Int64 *   NN=64,56,48,40
-//                 array,   const bsls_PlatformUtil::Uint64 *  NN=64,56,48,40
+//   putArrayIntNN(buffer,  const bsls::Types::Int64 *         NN=64,56,48,40
+//                 array,   const bsls::Types::Uint64 *        NN=64,56,48,40
 //                 count)   const short *                      NN=32,34
 //                          const unsigned short *             NN=16
 //                          const char *                       NN=8
@@ -277,14 +277,25 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_CSTRING
 #include <cstring>           // for 'memcpy'
 #define INCLUDED_CSTRING
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -302,25 +313,25 @@ struct bdex_ByteStreamImpUtil {
 
                         // *** putting scalar integral values ***
 
-    static void putInt64(char *buffer, bsls_PlatformUtil::Int64 value);
+    static void putInt64(char *buffer, bsls::Types::Int64 value);
         // Format, as an eight-byte, two's complement integer (in network byte
         // order), the least significant 64 bits of the specified 'value' (in
         // host byte order) to the specified byte 'buffer'.  Note that this
         // function applies equally to unsigned 64-bit values.
 
-    static void putInt56(char *buffer, bsls_PlatformUtil::Int64 value);
+    static void putInt56(char *buffer, bsls::Types::Int64 value);
         // Format, as a seven-byte, two's complement integer (in network byte
         // order), the least significant 56 bits of the specified 'value' (in
         // host byte order) to the specified byte 'buffer'.  Note that this
         // function applies equally to unsigned 64-bit values.
 
-    static void putInt48(char *buffer, bsls_PlatformUtil::Int64 value);
+    static void putInt48(char *buffer, bsls::Types::Int64 value);
         // Format, as a six-byte, two's complement integer (in network byte
         // order), the least significant 48 bits of the specified 'value' (in
         // host byte order) to the specified byte 'buffer'.  Note that this
         // function applies equally to unsigned 64-bit values.
 
-    static void putInt40(char *buffer, bsls_PlatformUtil::Int64 value);
+    static void putInt40(char *buffer, bsls::Types::Int64 value);
         // Format, as a five-byte, two's complement integer (in network byte
         // order), the least significant 40 bits of the specified 'value' (in
         // host byte order) to the specified byte 'buffer'.  Note that this
@@ -368,62 +379,54 @@ struct bdex_ByteStreamImpUtil {
 
                         // *** getting scalar integral values ***
 
-    static void getInt64(bsls_PlatformUtil::Int64 *variable,
-                         const char               *buffer);
+    static void getInt64(bsls::Types::Int64 *variable, const char *buffer);
         // Read eight bytes from the specified 'buffer' as a 64-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended if 'variable' holds more than 64 bits
         // on this platform.
 
-    static void getUint64(bsls_PlatformUtil::Uint64 *variable,
-                          const char                *buffer);
+    static void getUint64(bsls::Types::Uint64 *variable, const char *buffer);
         // Read eight bytes from the specified 'buffer' as a 64-bit unsigned
         // integer (in network byte order) and store that value in the
         // specified 'variable' (in host byte order).  Note that the value will
         // be zero-extended if 'variable' holds more than 64 bits on this
         // platform.
 
-    static void getInt56(bsls_PlatformUtil::Int64 *variable,
-                         const char               *buffer);
+    static void getInt56(bsls::Types::Int64 *variable, const char *buffer);
         // Read seven bytes from the specified 'buffer' as a 56-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended to the size of the 'variable'
         // on this platform.
 
-    static void getUint56(bsls_PlatformUtil::Uint64 *variable,
-                          const char                *buffer);
+    static void getUint56(bsls::Types::Uint64 *variable, const char *buffer);
         // Read seven bytes from the specified 'buffer' as a 56-bit unsigned
         // integer (in network byte order) and store that value in the
         // specified 'variable' (in host byte order).  Note that the value will
         // be zero-extended to the size of the 'variable' on this platform.
 
-    static void getInt48(bsls_PlatformUtil::Int64 *variable,
-                         const char               *buffer);
+    static void getInt48(bsls::Types::Int64 *variable, const char *buffer);
         // Read six bytes from the specified 'buffer' as a 48-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended to the size of the 'variable'
         // on this platform.
 
-    static void getUint48(bsls_PlatformUtil::Uint64 *variable,
-                          const char                *buffer);
+    static void getUint48(bsls::Types::Uint64 *variable, const char *buffer);
         // Read six bytes from the specified 'buffer' as a 48-bit unsigned
         // integer (in network byte order) and store that value in the
         // specified 'variable' (in host byte order).  Note that the value will
         // be zero-extended to the size of the 'variable' on this platform.
 
-    static void getInt40(bsls_PlatformUtil::Int64 *variable,
-                         const char               *buffer);
+    static void getInt40(bsls::Types::Int64 *variable, const char *buffer);
         // Read five bytes from the specified 'buffer' as a 40-bit, two's
         // complement integer (in network byte order) and store that value
         // in the specified 'variable' (in host byte order).  Note that the
         // value will be sign-extended to the size of the 'variable'
         // on this platform.
 
-    static void getUint40(bsls_PlatformUtil::Uint64 *variable,
-                          const char                *buffer);
+    static void getUint40(bsls::Types::Uint64 *variable, const char *buffer);
         // Read five bytes from the specified 'buffer' as a 40-bit unsigned
         // integer (in network byte order) and store that value in the
         // specified 'variable' (in host byte order).  Note that the value will
@@ -492,48 +495,48 @@ struct bdex_ByteStreamImpUtil {
 
                         // *** putting arrays of integral values ***
 
-    static void putArrayInt64(char                           *buffer,
-                              const bsls_PlatformUtil::Int64 *array,
-                              int                             count);
-    static void putArrayInt64(char                            *buffer,
-                              const bsls_PlatformUtil::Uint64 *array,
-                              int                              count);
+    static void putArrayInt64(char                      *buffer,
+                              const bsls::Types::Int64  *array,
+                              int                        count);
+    static void putArrayInt64(char                      *buffer,
+                              const bsls::Types::Uint64 *array,
+                              int                        count);
         // Format, as consecutive eight-byte, two's complement integers (in
         // network byte order), the least significant 64 bits of each of the
         // specified 'count' leading entires in the specified 'array' (in host
         // byte order) to the specified 'buffer'.  The behavior is undefined
         // unless '0 <= count'.
 
-    static void putArrayInt56(char                           *buffer,
-                              const bsls_PlatformUtil::Int64 *array,
-                              int                             count);
-    static void putArrayInt56(char                            *buffer,
-                              const bsls_PlatformUtil::Uint64 *array,
-                              int                              count);
+    static void putArrayInt56(char                      *buffer,
+                              const bsls::Types::Int64  *array,
+                              int                        count);
+    static void putArrayInt56(char                      *buffer,
+                              const bsls::Types::Uint64 *array,
+                              int                        count);
         // Format, as consecutive seven-byte, two's complement integers (in
         // network byte order), the least significant 56 bits of each of the
         // specified 'count' leading entires in the specified 'array' (in host
         // byte order) to the specified 'buffer'.  The behavior is undefined
         // unless '0 <= count'.
 
-    static void putArrayInt48(char                           *buffer,
-                              const bsls_PlatformUtil::Int64 *array,
-                              int                             count);
-    static void putArrayInt48(char                            *buffer,
-                              const bsls_PlatformUtil::Uint64 *array,
-                              int                              count);
+    static void putArrayInt48(char                      *buffer,
+                              const bsls::Types::Int64  *array,
+                              int                        count);
+    static void putArrayInt48(char                      *buffer,
+                              const bsls::Types::Uint64 *array,
+                              int                        count);
         // Format, as consecutive six-byte, two's complement integers (in
         // network byte order), the least significant 48 bits of each of the
         // specified 'count' leading entires in the specified 'array' (in host
         // byte order) to the specified 'buffer'.  The behavior is undefined
         // unless '0 <= count'.
 
-    static void putArrayInt40(char                           *buffer,
-                              const bsls_PlatformUtil::Int64 *array,
-                              int                             count);
-    static void putArrayInt40(char                            *buffer,
-                              const bsls_PlatformUtil::Uint64 *array,
-                              int                              count);
+    static void putArrayInt40(char                      *buffer,
+                              const bsls::Types::Int64  *array,
+                              int                        count);
+    static void putArrayInt40(char                      *buffer,
+                              const bsls::Types::Uint64 *array,
+                              int                        count);
         // Format, as consecutive five-byte, two's complement integers (in
         // network byte order), the least significant 40 bits of each of the
         // specified 'count' leading entires in the specified 'array' (in host
@@ -571,9 +574,9 @@ struct bdex_ByteStreamImpUtil {
         // unless '0 <= count'.
 
     static void putArrayInt8(char *buffer, const char *array, int count);
-    static void putArrayInt8(char              *buffer,
-                             const signed char *array,
-                             int                count);
+    static void putArrayInt8(char                *buffer,
+                             const signed char   *array,
+                             int                  count);
     static void putArrayInt8(char                *buffer,
                              const unsigned char *array,
                              int                  count);
@@ -602,9 +605,9 @@ struct bdex_ByteStreamImpUtil {
 
                         // *** getting arrays of integral values ***
 
-    static void getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                              const char               *buffer,
-                              int                       count);
+    static void getArrayInt64(bsls::Types::Int64 *array,
+                              const char         *buffer,
+                              int                 count);
         // Read the specified 'count' eight-byte, two's complement integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -612,9 +615,9 @@ struct bdex_ByteStreamImpUtil {
         // each element value will be sign-extended if '*array' holds more than
         // 64 bits on this platform.
 
-    static void getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                               const char                *buffer,
-                               int                        count);
+    static void getArrayUint64(bsls::Types::Uint64 *array,
+                               const char          *buffer,
+                               int                  count);
         // Read the specified 'count' eight-byte unsigned integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -622,9 +625,9 @@ struct bdex_ByteStreamImpUtil {
         // each element value will be zero-extended if '*array' holds more than
         // 64 bits on this platform.
 
-    static void getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                              const char               *buffer,
-                              int                       count);
+    static void getArrayInt56(bsls::Types::Int64 *array,
+                              const char         *buffer,
+                              int                 count);
         // Read the specified 'count' seven-byte unsigned integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -632,9 +635,9 @@ struct bdex_ByteStreamImpUtil {
         // each element value will be sign-extended to the size of the array
         // element on this platform.
 
-    static void getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                               const char                *buffer,
-                               int                        count);
+    static void getArrayUint56(bsls::Types::Uint64 *array,
+                               const char          *buffer,
+                               int                  count);
         // Read the specified 'count' seven-byte, two's complement integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -642,9 +645,9 @@ struct bdex_ByteStreamImpUtil {
         // each element value will be zero-extended to the size of the array
         // element on this platform.
 
-    static void getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                              const char               *buffer,
-                              int                       count);
+    static void getArrayInt48(bsls::Types::Int64 *array,
+                              const char         *buffer,
+                              int                 count);
         // Read the specified 'count' six-byte, two's complement integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -652,9 +655,9 @@ struct bdex_ByteStreamImpUtil {
         // each element value will be sign-extended to the size of the array
         // element on this platform.
 
-    static void getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                               const char                *buffer,
-                               int                        count);
+    static void getArrayUint48(bsls::Types::Uint64 *array,
+                               const char          *buffer,
+                               int                  count);
         // Read the specified 'count' six-byte, two's complement integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -662,9 +665,9 @@ struct bdex_ByteStreamImpUtil {
         // each element value will be zero-extended to the size of the array
         // element on this platform.
 
-    static void getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                              const char               *buffer,
-                              int                       count);
+    static void getArrayInt40(bsls::Types::Int64 *array,
+                              const char         *buffer,
+                              int                 count);
         // Read the specified 'count' five-byte, two's complement integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -672,9 +675,9 @@ struct bdex_ByteStreamImpUtil {
         // each element value will be sign-extended to the size of the array
         // element on this platform.
 
-    static void getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                               const char                *buffer,
-                               int                        count);
+    static void getArrayUint40(bsls::Types::Uint64 *array,
+                               const char          *buffer,
+                               int                  count);
         // Read the specified 'count' five-byte, two's complement integers (in
         // network byte order) from the specified 'buffer' and store these
         // values sequentially in the the specified 'array' (in host byte
@@ -788,17 +791,16 @@ struct bdex_ByteStreamImpUtil {
                         // *** putting scalar integral values ***
 
 inline
-void bdex_ByteStreamImpUtil::putInt64(char                     *buffer,
-                                      bsls_PlatformUtil::Int64  value)
+void bdex_ByteStreamImpUtil::putInt64(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
     typedef const union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[7];
     buffer[1] = T(value).d_bytes[6];
     buffer[2] = T(value).d_bytes[5];
@@ -820,17 +822,16 @@ void bdex_ByteStreamImpUtil::putInt64(char                     *buffer,
 }
 
 inline
-void bdex_ByteStreamImpUtil::putInt56(char                     *buffer,
-                                      bsls_PlatformUtil::Int64  value)
+void bdex_ByteStreamImpUtil::putInt56(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
     typedef const union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[6];
     buffer[1] = T(value).d_bytes[5];
     buffer[2] = T(value).d_bytes[4];
@@ -850,17 +851,16 @@ void bdex_ByteStreamImpUtil::putInt56(char                     *buffer,
 }
 
 inline
-void bdex_ByteStreamImpUtil::putInt48(char                     *buffer,
-                                      bsls_PlatformUtil::Int64  value)
+void bdex_ByteStreamImpUtil::putInt48(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
     typedef const union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[5];
     buffer[1] = T(value).d_bytes[4];
     buffer[2] = T(value).d_bytes[3];
@@ -878,17 +878,16 @@ void bdex_ByteStreamImpUtil::putInt48(char                     *buffer,
 }
 
 inline
-void bdex_ByteStreamImpUtil::putInt40(char                     *buffer,
-                                      bsls_PlatformUtil::Int64  value)
+void bdex_ByteStreamImpUtil::putInt40(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
     typedef const union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[4];
     buffer[1] = T(value).d_bytes[3];
     buffer[2] = T(value).d_bytes[2];
@@ -913,7 +912,7 @@ void bdex_ByteStreamImpUtil::putInt32(char *buffer, int value)
         char d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[3];
     buffer[1] = T(value).d_bytes[2];
     buffer[2] = T(value).d_bytes[1];
@@ -936,7 +935,7 @@ void bdex_ByteStreamImpUtil::putInt24(char *buffer, int value)
         char d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[2];
     buffer[1] = T(value).d_bytes[1];
     buffer[2] = T(value).d_bytes[0];
@@ -957,7 +956,7 @@ void bdex_ByteStreamImpUtil::putInt16(char *buffer, int value)
         char d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[1];
     buffer[1] = T(value).d_bytes[0];
 #else
@@ -979,7 +978,7 @@ void bdex_ByteStreamImpUtil::putInt8(char *buffer, int value)
 //        char d_bytes[1];
 //    }& T;
 //
-//#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+//#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
 //    buffer[0] = T(value).d_bytes[0];
 //#else
 //    buffer[0] = T(value).d_bytes[sizeof value - 1];
@@ -990,7 +989,7 @@ void bdex_ByteStreamImpUtil::putInt8(char *buffer, int value)
         char d_bytes[1];
     }* T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = ((T)&value)->d_bytes[0];
 #else
     buffer[0] = ((T)&value)->d_bytes[sizeof value - 1];
@@ -1008,7 +1007,7 @@ void bdex_ByteStreamImpUtil::putFloat64(char *buffer, double value)
         char   d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[sizeof value - 1];
     buffer[1] = T(value).d_bytes[sizeof value - 2];
     buffer[2] = T(value).d_bytes[sizeof value - 3];
@@ -1039,7 +1038,7 @@ void bdex_ByteStreamImpUtil::putFloat32(char *buffer, float value)
         char  d_bytes[1];
     }& T;
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = T(value).d_bytes[sizeof value - 1];
     buffer[1] = T(value).d_bytes[sizeof value - 2];
     buffer[2] = T(value).d_bytes[sizeof value - 3];
@@ -1055,22 +1054,22 @@ void bdex_ByteStreamImpUtil::putFloat32(char *buffer, float value)
                         // *** getting scalar integral values ***
 
 inline
-void bdex_ByteStreamImpUtil::getInt64(bsls_PlatformUtil::Int64 *variable,
-                                      const char               *buffer)
+void bdex_ByteStreamImpUtil::getInt64(bsls::Types::Int64 *variable,
+                                      const char         *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
     if (sizeof *variable > 8) {
         *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[7] = buffer[0];
     T(*variable).d_bytes[6] = buffer[1];
     T(*variable).d_bytes[5] = buffer[2];
@@ -1092,22 +1091,22 @@ void bdex_ByteStreamImpUtil::getInt64(bsls_PlatformUtil::Int64 *variable,
 }
 
 inline
-void bdex_ByteStreamImpUtil::getUint64(bsls_PlatformUtil::Uint64 *variable,
-                                       const char                *buffer)
+void bdex_ByteStreamImpUtil::getUint64(bsls::Types::Uint64 *variable,
+                                       const char          *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Uint64 d_variable;
-        char                      d_bytes[1];
+        bsls::Types::Uint64 d_variable;
+        char                d_bytes[1];
     }& T;
 
     if (sizeof *variable > 8) {
         *variable = 0;  // zero extend
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[7] = buffer[0];
     T(*variable).d_bytes[6] = buffer[1];
     T(*variable).d_bytes[5] = buffer[2];
@@ -1129,20 +1128,20 @@ void bdex_ByteStreamImpUtil::getUint64(bsls_PlatformUtil::Uint64 *variable,
 }
 
 inline
-void bdex_ByteStreamImpUtil::getInt56(bsls_PlatformUtil::Int64 *variable,
-                                      const char               *buffer)
+void bdex_ByteStreamImpUtil::getInt56(bsls::Types::Int64 *variable,
+                                      const char         *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[6] = buffer[0];
     T(*variable).d_bytes[5] = buffer[1];
     T(*variable).d_bytes[4] = buffer[2];
@@ -1162,20 +1161,20 @@ void bdex_ByteStreamImpUtil::getInt56(bsls_PlatformUtil::Int64 *variable,
 }
 
 inline
-void bdex_ByteStreamImpUtil::getUint56(bsls_PlatformUtil::Uint64 *variable,
-                                       const char                *buffer)
+void bdex_ByteStreamImpUtil::getUint56(bsls::Types::Uint64 *variable,
+                                       const char          *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Uint64 d_variable;
-        char                      d_bytes[1];
+        bsls::Types::Uint64 d_variable;
+        char                d_bytes[1];
     }& T;
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[6] = buffer[0];
     T(*variable).d_bytes[5] = buffer[1];
     T(*variable).d_bytes[4] = buffer[2];
@@ -1195,20 +1194,20 @@ void bdex_ByteStreamImpUtil::getUint56(bsls_PlatformUtil::Uint64 *variable,
 }
 
 inline
-void bdex_ByteStreamImpUtil::getInt48(bsls_PlatformUtil::Int64 *variable,
-                                      const char               *buffer)
+void bdex_ByteStreamImpUtil::getInt48(bsls::Types::Int64 *variable,
+                                      const char         *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[5] = buffer[0];
     T(*variable).d_bytes[4] = buffer[1];
     T(*variable).d_bytes[3] = buffer[2];
@@ -1226,20 +1225,20 @@ void bdex_ByteStreamImpUtil::getInt48(bsls_PlatformUtil::Int64 *variable,
 }
 
 inline
-void bdex_ByteStreamImpUtil::getUint48(bsls_PlatformUtil::Uint64 *variable,
-                                       const char                *buffer)
+void bdex_ByteStreamImpUtil::getUint48(bsls::Types::Uint64 *variable,
+                                       const char          *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Uint64 d_variable;
-        char                      d_bytes[1];
+        bsls::Types::Uint64 d_variable;
+        char                d_bytes[1];
     }& T;
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[5] = buffer[0];
     T(*variable).d_bytes[4] = buffer[1];
     T(*variable).d_bytes[3] = buffer[2];
@@ -1257,20 +1256,20 @@ void bdex_ByteStreamImpUtil::getUint48(bsls_PlatformUtil::Uint64 *variable,
 }
 
 inline
-void bdex_ByteStreamImpUtil::getInt40(bsls_PlatformUtil::Int64 *variable,
-                                      const char               *buffer)
+void bdex_ByteStreamImpUtil::getInt40(bsls::Types::Int64 *variable,
+                                      const char         *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Int64 d_variable;
-        char                     d_bytes[1];
+        bsls::Types::Int64 d_variable;
+        char               d_bytes[1];
     }& T;
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[4] = buffer[0];
     T(*variable).d_bytes[3] = buffer[1];
     T(*variable).d_bytes[2] = buffer[2];
@@ -1286,20 +1285,20 @@ void bdex_ByteStreamImpUtil::getInt40(bsls_PlatformUtil::Int64 *variable,
 }
 
 inline
-void bdex_ByteStreamImpUtil::getUint40(bsls_PlatformUtil::Uint64 *variable,
-                                       const char                *buffer)
+void bdex_ByteStreamImpUtil::getUint40(bsls::Types::Uint64 *variable,
+                                       const char          *buffer)
 {
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
     typedef union Dummy {
-        bsls_PlatformUtil::Uint64 d_variable;
-        char                      d_bytes[1];
+        bsls::Types::Uint64 d_variable;
+        char                d_bytes[1];
     }& T;
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[4] = buffer[0];
     T(*variable).d_bytes[3] = buffer[1];
     T(*variable).d_bytes[2] = buffer[2];
@@ -1329,7 +1328,7 @@ void bdex_ByteStreamImpUtil::getInt32(int *variable, const char *buffer)
         *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[3] = buffer[0];
     T(*variable).d_bytes[2] = buffer[1];
     T(*variable).d_bytes[1] = buffer[2];
@@ -1358,7 +1357,7 @@ void bdex_ByteStreamImpUtil::getUint32(unsigned int *variable,
         *variable = 0;  // zero extend
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[3] = buffer[0];
     T(*variable).d_bytes[2] = buffer[1];
     T(*variable).d_bytes[1] = buffer[2];
@@ -1384,7 +1383,7 @@ void bdex_ByteStreamImpUtil::getInt24(int *variable, const char *buffer)
 
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[2] = buffer[0];
     T(*variable).d_bytes[1] = buffer[1];
     T(*variable).d_bytes[0] = buffer[2];
@@ -1409,7 +1408,7 @@ void bdex_ByteStreamImpUtil::getUint24(unsigned int *variable,
 
     *variable = 0;  // zero extend
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[2] = buffer[0];
     T(*variable).d_bytes[1] = buffer[1];
     T(*variable).d_bytes[0] = buffer[2];
@@ -1435,7 +1434,7 @@ void bdex_ByteStreamImpUtil::getInt16(short *variable, const char *buffer)
         *variable = (short)(0x80 & buffer[0] ? -1 : 0);  // sign extend
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[1] = buffer[0];
     T(*variable).d_bytes[0] = buffer[1];
 #else
@@ -1460,7 +1459,7 @@ void bdex_ByteStreamImpUtil::getUint16(unsigned short *variable,
         *variable = 0;  // zero extend
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[1] = buffer[0];
     T(*variable).d_bytes[0] = buffer[1];
 #else
@@ -1514,7 +1513,7 @@ void bdex_ByteStreamImpUtil::getFloat64(double *variable, const char *buffer)
         *variable = 0;  // zero fill mantissa
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[sizeof *variable - 1] = buffer[0];
     T(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
     T(*variable).d_bytes[sizeof *variable - 3] = buffer[2];
@@ -1550,7 +1549,7 @@ void bdex_ByteStreamImpUtil::getFloat32(float *variable, const char *buffer)
         *variable = 0;  // zero fill mantissa
     }
 
-#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     T(*variable).d_bytes[sizeof *variable - 1] = buffer[0];
     T(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
     T(*variable).d_bytes[sizeof *variable - 3] = buffer[2];

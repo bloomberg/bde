@@ -194,7 +194,7 @@ class baem_StopwatchScopedGuard {
 
   private:
     // DATA
-    bsls_Stopwatch  d_stopwatch;    // stopwatch
+    bsls::Stopwatch d_stopwatch;    // stopwatch
 
     Units           d_timeUnits;    // time units to record elapsed time in
 

@@ -134,10 +134,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
 #ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
 #endif
@@ -166,6 +162,13 @@ BDES_IDENT("$Id: $")
 #endif
 
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -281,7 +284,7 @@ struct bdem_BerUtil {
         // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
         // on success, and a non-zero value otherwise.  Note that the value
         // consists of the length and contents primitives.  Also note that only
-        // fundamental C++ types, 'bsl::string', 'bslstl_StringRef' and BDE
+        // fundamental C++ types, 'bsl::string', 'bslstl::StringRef' and BDE
         // date/time types are supported.
 };
 
@@ -387,9 +390,9 @@ struct bdem_BerUtil_Imp {
     static int getValue(bsl::streambuf *streamBuf,
                         bsl::string    *value,
                         int             length);
-    static int getValue(bsl::streambuf   *streamBuf,
-                        bslstl_StringRef *value,
-                        int               length);
+    static int getValue(bsl::streambuf    *streamBuf,
+                        bslstl::StringRef *value,
+                        int                length);
     static int getValue(bsl::streambuf *streamBuf,
                         bdet_Date      *value,
                         int             length);
@@ -493,7 +496,7 @@ struct bdem_BerUtil_Imp {
                         const bsl::string&            value,
                         const bdem_BerEncoderOptions *options);
     static int putValue(bsl::streambuf               *streamBuf,
-                        const bslstl_StringRef&       value,
+                        const bslstl::StringRef&      value,
                         const bdem_BerEncoderOptions *options);
     static int putValue(bsl::streambuf               *streamBuf,
                         const bdet_Date&              value,
@@ -855,12 +858,12 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
                                bdeut_Variant2<TYPE, TYPETZ> *value,
                                int                           length)
 {
-    BSLMF_ASSERT((bslmf_IsSame<bdet_Date, TYPE>::VALUE
-               && bslmf_IsSame<bdet_DateTz, TYPETZ>::VALUE)
-              || (bslmf_IsSame<bdet_Time, TYPE>::VALUE
-               && bslmf_IsSame<bdet_TimeTz, TYPETZ>::VALUE)
-              || (bslmf_IsSame<bdet_Datetime, TYPE>::VALUE
-               && bslmf_IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<bdet_Date, TYPE>::VALUE
+               && bslmf::IsSame<bdet_DateTz, TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdet_Time, TYPE>::VALUE
+               && bslmf::IsSame<bdet_TimeTz, TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdet_Datetime, TYPE>::VALUE
+               && bslmf::IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
 
     const int MAX_BINARY_TYPETZ_LENGTH =
                                      BinaryDateTimeFormat::maxLength<TYPETZ>();
@@ -963,7 +966,7 @@ int bdem_BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
         return BDEM_FAILURE;                                          // RETURN
     }
 
-#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
     return length == streamBuf->sputn((char *) &value + sizeof(TYPE) - length,
                                       length)
          ? BDEM_SUCCESS
@@ -1107,7 +1110,7 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 
 inline
 int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bslstl_StringRef&       value,
+                               const bslstl::StringRef&      value,
                                const bdem_BerEncoderOptions *)
 {
     return putStringValue(streamBuf,

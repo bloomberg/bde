@@ -19,11 +19,12 @@
 #include <bdesb_memoutstreambuf.h>
 #include <bdesb_fixedmeminstreambuf.h>
 
+#include <bslma_allocator.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
 #include <bsl_cstdio.h>
-#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -556,14 +557,14 @@ class MySequence {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequence(bslma_Allocator *basicAllocator = 0);
+    explicit MySequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    MySequence(const MySequence&   original,
-               bslma_Allocator    *basicAllocator = 0);
+    MySequence(const MySequence&  original,
+               bslma::Allocator  *basicAllocator = 0);
         // Create an object of type 'MySequence' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -727,18 +728,19 @@ int MySequence::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequence::MySequence(bslma_Allocator *basicAllocator)
+MySequence::MySequence(bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequence::MySequence(
-    const MySequence& original,
-    bslma_Allocator *basicAllocator)
+    const MySequence&  original,
+    bslma::Allocator  *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1260,7 +1262,7 @@ class MySequenceWithNullables {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithNullables(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithNullables(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullables' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1268,7 +1270,7 @@ class MySequenceWithNullables {
 
     MySequenceWithNullables(
                 const MySequenceWithNullables&  original,
-                bslma_Allocator                *basicAllocator = 0);
+                bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullables' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -1444,20 +1446,22 @@ int MySequenceWithNullables::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithNullables::MySequenceWithNullables(
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
-, d_attribute3(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
+, d_attribute3(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequenceWithNullables::MySequenceWithNullables(
     const MySequenceWithNullables& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
-, d_attribute3(original.d_attribute3, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute3(original.d_attribute3,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1996,15 +2000,15 @@ class MyChoice {
 
   private:
     union {
-        bsls_ObjectBuffer< int > d_selection1;
+        bsls::ObjectBuffer< int > d_selection1;
             // todo: provide annotation
-        bsls_ObjectBuffer< bsl::string > d_selection2;
+        bsls::ObjectBuffer< bsl::string > d_selection2;
             // todo: provide annotation
     };
 
     int                 d_selectionId;
 
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
 
   public:
     // TYPES
@@ -2056,13 +2060,13 @@ class MyChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MyChoice(bslma_Allocator *basicAllocator = 0);
+    explicit MyChoice(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    MyChoice(const MyChoice& original, bslma_Allocator *basicAllocator = 0);
+    MyChoice(const MyChoice& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -2290,18 +2294,18 @@ void MyChoice::makeSelection2(const bsl::string& value)
 
 // CREATORS
 inline
-MyChoice::MyChoice(bslma_Allocator *basicAllocator)
+MyChoice::MyChoice(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MyChoice::MyChoice(
-    const MyChoice& original,
-    bslma_Allocator *basicAllocator)
+    const MyChoice&   original,
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -2873,14 +2877,14 @@ class MySequenceWithArrays {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithArrays(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithArrays(bslma::Allocator  *basicAllocator = 0);
         // Create an object of type 'MySequenceWithArrays' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     MySequenceWithArrays(const MySequenceWithArrays&  original,
-                         bslma_Allocator             *basicAllocator = 0);
+                         bslma::Allocator            *basicAllocator = 0);
         // Create an object of type 'MySequenceWithArrays' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -3087,12 +3091,12 @@ int MySequenceWithArrays::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequenceWithArrays::MySequenceWithArrays(bslma_Allocator *basicAllocator)
-: d_attribute1(bslma_Default::allocator(basicAllocator))
-, d_attribute2(bslma_Default::allocator(basicAllocator))
-, d_attribute3(bslma_Default::allocator(basicAllocator))
-, d_attribute4(bslma_Default::allocator(basicAllocator))
-, d_attribute5(bslma_Default::allocator(basicAllocator))
+MySequenceWithArrays::MySequenceWithArrays(bslma::Allocator  *basicAllocator)
+: d_attribute1(bslma::Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
+, d_attribute3(bslma::Default::allocator(basicAllocator))
+, d_attribute4(bslma::Default::allocator(basicAllocator))
+, d_attribute5(bslma::Default::allocator(basicAllocator))
 , d_attribute6()
 , d_attribute7()
 {
@@ -3101,12 +3105,17 @@ MySequenceWithArrays::MySequenceWithArrays(bslma_Allocator *basicAllocator)
 inline
 MySequenceWithArrays::MySequenceWithArrays(
     const MySequenceWithArrays& original,
-    bslma_Allocator *basicAllocator)
-: d_attribute1(original.d_attribute1, bslma_Default::allocator(basicAllocator))
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
-, d_attribute3(original.d_attribute3, bslma_Default::allocator(basicAllocator))
-, d_attribute4(original.d_attribute4, bslma_Default::allocator(basicAllocator))
-, d_attribute5(original.d_attribute5, bslma_Default::allocator(basicAllocator))
+    bslma::Allocator  *basicAllocator)
+: d_attribute1(original.d_attribute1,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute3(original.d_attribute3,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute4(original.d_attribute4,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute5(original.d_attribute5,
+               bslma::Default::allocator(basicAllocator))
 , d_attribute6(original.d_attribute6)
 , d_attribute7(original.d_attribute7)
 {
@@ -3898,15 +3907,15 @@ class MySequenceWithAnonymousChoiceChoice {
 
   private:
     union {
-        bsls_ObjectBuffer< int > d_myChoice1;
+        bsls::ObjectBuffer< int > d_myChoice1;
             // todo: provide annotation
-        bsls_ObjectBuffer< bsl::string > d_myChoice2;
+        bsls::ObjectBuffer< bsl::string > d_myChoice2;
             // todo: provide annotation
     };
 
     int                 d_selectionId;
 
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
 
   public:
     // TYPES
@@ -3959,7 +3968,7 @@ class MySequenceWithAnonymousChoiceChoice {
 
     // CREATORS
     explicit MySequenceWithAnonymousChoiceChoice(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoiceChoice'
         // having the default value.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3967,7 +3976,7 @@ class MySequenceWithAnonymousChoiceChoice {
 
     MySequenceWithAnonymousChoiceChoice(
             const MySequenceWithAnonymousChoiceChoice&  original,
-            bslma_Allocator                            *basicAllocator = 0);
+            bslma::Allocator                           *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoiceChoice'
         // having the value of the specified 'original' object.  Use the
         // optionally specified 'basicAllocator' to supply memory.  If
@@ -4203,18 +4212,18 @@ void MySequenceWithAnonymousChoiceChoice::makeMyChoice2(
 // CREATORS
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
     const MySequenceWithAnonymousChoiceChoice& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_MY_CHOICE1: {
@@ -4787,7 +4796,7 @@ class MySequenceWithAnonymousChoice {
 
     // CREATORS
     explicit MySequenceWithAnonymousChoice(
-                    bslma_Allocator *basicAllocator = 0);
+                    bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4795,7 +4804,7 @@ class MySequenceWithAnonymousChoice {
 
     MySequenceWithAnonymousChoice(
                     const MySequenceWithAnonymousChoice&  original,
-                    bslma_Allocator                      *basicAllocator = 0);
+                    bslma::Allocator                     *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator'
@@ -4972,20 +4981,21 @@ int MySequenceWithAnonymousChoice::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_theChoice(bslma_Default::allocator(basicAllocator))
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_theChoice(bslma::Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
         const MySequenceWithAnonymousChoice& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_theChoice(original.d_theChoice, bslma_Default::allocator(basicAllocator))
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_theChoice(original.d_theChoice, bslma::Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -5599,7 +5609,7 @@ class MySequenceWithAttributes {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithAttributes(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithAttributes(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAttributes' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -5607,7 +5617,7 @@ class MySequenceWithAttributes {
 
     MySequenceWithAttributes(
                 const MySequenceWithAttributes&  original,
-                bslma_Allocator                 *basicAllocator = 0);
+                bslma::Allocator                *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAttributes' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -5791,22 +5801,23 @@ int MySequenceWithAttributes::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithAttributes::MySequenceWithAttributes(
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_element1()
-, d_element2(bslma_Default::allocator(basicAllocator))
+, d_element2(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequenceWithAttributes::MySequenceWithAttributes(
         const MySequenceWithAttributes& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 , d_element1(original.d_element1)
-, d_element2(original.d_element2, bslma_Default::allocator(basicAllocator))
+, d_element2(original.d_element2, bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -6472,14 +6483,14 @@ class MySimpleContent {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySimpleContent(bslma_Allocator *basicAllocator = 0);
+    explicit MySimpleContent(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySimpleContent' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
     MySimpleContent(const MySimpleContent&  original,
-                    bslma_Allocator        *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create an object of type 'MySimpleContent' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -6653,20 +6664,22 @@ int MySimpleContent::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySimpleContent::MySimpleContent(bslma_Allocator *basicAllocator)
+MySimpleContent::MySimpleContent(bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
-, d_theContent(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
+, d_theContent(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySimpleContent::MySimpleContent(
         const MySimpleContent& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
-, d_theContent(original.d_theContent, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
+, d_theContent(original.d_theContent,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -7271,14 +7284,14 @@ class MySimpleIntContent {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySimpleIntContent(bslma_Allocator *basicAllocator = 0);
+    explicit MySimpleIntContent(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySimpleIntContent' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     MySimpleIntContent(const MySimpleIntContent&  original,
-                       bslma_Allocator           *basicAllocator = 0);
+                       bslma::Allocator          *basicAllocator = 0);
         // Create an object of type 'MySimpleIntContent' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -7453,9 +7466,9 @@ int MySimpleIntContent::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySimpleIntContent::MySimpleIntContent(bslma_Allocator *basicAllocator)
+MySimpleIntContent::MySimpleIntContent(bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 , d_theContent()
 {
 }
@@ -7463,9 +7476,10 @@ MySimpleIntContent::MySimpleIntContent(bslma_Allocator *basicAllocator)
 inline
 MySimpleIntContent::MySimpleIntContent(
         const MySimpleIntContent& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 , d_theContent(original.d_theContent)
 {
 }
@@ -8071,15 +8085,15 @@ class MySequenceWithNillables {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithNillables(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithNillables(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNillables' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     MySequenceWithNillables(
-            const MySequenceWithNillables&   original,
-            bslma_Allocator                 *basicAllocator = 0);
+            const MySequenceWithNillables&  original,
+            bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNillables' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -8255,20 +8269,22 @@ int MySequenceWithNillables::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithNillables::MySequenceWithNillables(
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
-, d_attribute3(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
+, d_attribute3(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequenceWithNillables::MySequenceWithNillables(
         const MySequenceWithNillables& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
-, d_attribute3(original.d_attribute3, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute3(original.d_attribute3,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -8860,13 +8876,13 @@ class Address {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Address(bslma_Allocator *basicAllocator = 0);
+    explicit Address(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    Address(const Address& original, bslma_Allocator *basicAllocator = 0);
+    Address(const Address& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -9038,20 +9054,20 @@ int Address::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Address::Address(bslma_Allocator *basicAllocator)
-: d_street(bslma_Default::allocator(basicAllocator))
-, d_city(bslma_Default::allocator(basicAllocator))
-, d_state(bslma_Default::allocator(basicAllocator))
+Address::Address(bslma::Allocator *basicAllocator)
+: d_street(bslma::Default::allocator(basicAllocator))
+, d_city(bslma::Default::allocator(basicAllocator))
+, d_state(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 Address::Address(
-    const Address& original,
-    bslma_Allocator *basicAllocator)
-: d_street(original.d_street, bslma_Default::allocator(basicAllocator))
-, d_city(original.d_city, bslma_Default::allocator(basicAllocator))
-, d_state(original.d_state, bslma_Default::allocator(basicAllocator))
+    const Address&    original,
+    bslma::Allocator *basicAllocator)
+: d_street(original.d_street, bslma::Default::allocator(basicAllocator))
+, d_city(original.d_city, bslma::Default::allocator(basicAllocator))
+, d_state(original.d_state, bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -9625,13 +9641,13 @@ class Employee {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Employee(bslma_Allocator *basicAllocator = 0);
+    explicit Employee(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    Employee(const Employee& original, bslma_Allocator *basicAllocator = 0);
+    Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -9802,20 +9818,20 @@ int Employee::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Employee::Employee(bslma_Allocator *basicAllocator)
-: d_name(bslma_Default::allocator(basicAllocator))
-, d_homeAddress(bslma_Default::allocator(basicAllocator))
+Employee::Employee(bslma::Allocator *basicAllocator)
+: d_name(bslma::Default::allocator(basicAllocator))
+, d_homeAddress(bslma::Default::allocator(basicAllocator))
 , d_age()
 {
 }
 
 inline
 Employee::Employee(
-    const Employee& original,
-    bslma_Allocator *basicAllocator)
-: d_name(original.d_name, bslma_Default::allocator(basicAllocator))
+    const Employee&   original,
+    bslma::Allocator *basicAllocator)
+: d_name(original.d_name, bslma::Default::allocator(basicAllocator))
 , d_homeAddress(original.d_homeAddress,
-                bslma_Default::allocator(basicAllocator))
+                bslma::Default::allocator(basicAllocator))
 , d_age(original.d_age)
 {
 }
@@ -10452,18 +10468,18 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT1[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequence"XSI">\n"
+                                "<MySequence" XSI ">\n"
                                 "    <Attribute1>434</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequence>\n";
             const char EXPECTED_RESULT2[]
-                              = "<MySequence"XSI">\n"
+                              = "<MySequence" XSI ">\n"
                                 "    <Attribute1>434</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequence>\n";
             const char EXPECTED_RESULT3[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequence"XSI">\n"
+                                "<MySequence" XSI ">\n"
                                 "    <Attribute1>434</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequence>\n";
@@ -10507,18 +10523,18 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT1[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequence"XSI">"
+                                "<MySequence" XSI ">"
                                 "<Attribute1>434</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequence>";
             const char EXPECTED_RESULT2[]
-                              = "<MySequence"XSI">"
+                              = "<MySequence" XSI ">"
                                 "<Attribute1>434</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequence>";
             const char EXPECTED_RESULT3[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequence"XSI">"
+                                "<MySequence" XSI ">"
                                 "<Attribute1>434</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequence>";
@@ -10562,16 +10578,16 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT1[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice"XSI">\n"
+                                "<MyChoice" XSI ">\n"
                                 "    <Selection1>434</Selection1>\n"
                                 "</MyChoice>\n";
             const char EXPECTED_RESULT2[]
-                              = "<MyChoice"XSI">\n"
+                              = "<MyChoice" XSI ">\n"
                                 "    <Selection1>434</Selection1>\n"
                                 "</MyChoice>\n";
             const char EXPECTED_RESULT3[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice"XSI">\n"
+                                "<MyChoice" XSI ">\n"
                                 "    <Selection1>434</Selection1>\n"
                                 "</MyChoice>\n";
 
@@ -10614,16 +10630,16 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT1[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MyChoice"XSI">"
+                                "<MyChoice" XSI ">"
                                 "<Selection1>434</Selection1>"
                                 "</MyChoice>";
             const char EXPECTED_RESULT2[]
-                              = "<MyChoice"XSI">"
+                              = "<MyChoice" XSI ">"
                                 "<Selection1>434</Selection1>"
                                 "</MyChoice>";
             const char EXPECTED_RESULT3[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MyChoice"XSI">"
+                                "<MyChoice" XSI ">"
                                 "<Selection1>434</Selection1>"
                                 "</MyChoice>";
 
@@ -10666,22 +10682,22 @@ int main(int argc, char *argv[])
             mX.theContent() = "  Some Stuff ";
 
             const char EXPECTED_RESULT1[]
-                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
-                              "Attribute2=\"Hello World!\">"
-                              "  Some Stuff "
-                              "</MySimpleContent>\n";
+                          = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                            "<MySimpleContent" XSI "\n    Attribute1=\"true\" "
+                            "Attribute2=\"Hello World!\">"
+                            "  Some Stuff "
+                            "</MySimpleContent>\n";
             const char EXPECTED_RESULT2[]
-                            = "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
-                              "Attribute2=\"Hello World!\">"
-                              "  Some Stuff "
-                              "</MySimpleContent>\n";
+                          = "<MySimpleContent" XSI "\n    Attribute1=\"true\" "
+                            "Attribute2=\"Hello World!\">"
+                            "  Some Stuff "
+                            "</MySimpleContent>\n";
             const char EXPECTED_RESULT3[]
-                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
-                              "Attribute2=\"Hello World!\">"
-                              "  Some Stuff "
-                              "</MySimpleContent>\n";
+                          = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                            "<MySimpleContent" XSI "\n    Attribute1=\"true\" "
+                            "Attribute2=\"Hello World!\">"
+                            "  Some Stuff "
+                            "</MySimpleContent>\n";
 
             bsl::stringstream result1, result2, result3;
 
@@ -10723,18 +10739,18 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT1[]
                             = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                              "<MySimpleContent"XSI" Attribute1=\"true\" "
+                              "<MySimpleContent" XSI " Attribute1=\"true\" "
                               "Attribute2=\"Hello World!\">"
                               "  Some Stuff "
                               "</MySimpleContent>";
             const char EXPECTED_RESULT2[]
-                            = "<MySimpleContent"XSI" Attribute1=\"true\" "
+                            = "<MySimpleContent" XSI " Attribute1=\"true\" "
                               "Attribute2=\"Hello World!\">"
                               "  Some Stuff "
                               "</MySimpleContent>";
             const char EXPECTED_RESULT3[]
                             = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                              "<MySimpleContent"XSI" Attribute1=\"true\" "
+                              "<MySimpleContent" XSI " Attribute1=\"true\" "
                               "Attribute2=\"Hello World!\">"
                               "  Some Stuff "
                               "</MySimpleContent>";
@@ -11160,7 +11176,7 @@ int main(int argc, char *argv[])
 
         const char expectedXML[] =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-            "<root"XSI">\n"
+            "<root" XSI ">\n"
             "    <bool2>false</bool2>\n"
             "</root>\n";
 
@@ -11417,11 +11433,11 @@ int main(int argc, char *argv[])
             mX.theContent() = "  Some Stuff ";
 
             const char EXPECTED_RESULT[]
-                            = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent"XSI"\n    Attribute1=\"true\" "
-                              "Attribute2=\"Hello World!\">"
-                              "  Some Stuff "
-                              "</MySimpleContent>\n";
+                          = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                            "<MySimpleContent" XSI "\n    Attribute1=\"true\" "
+                            "Attribute2=\"Hello World!\">"
+                            "  Some Stuff "
+                            "</MySimpleContent>\n";
 
             if (veryVerbose) {
                 T_ P_(X) P(EXPECTED_RESULT)
@@ -11452,7 +11468,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                              "<MySimpleContent"XSI" Attribute1=\"true\" "
+                              "<MySimpleContent" XSI " Attribute1=\"true\" "
                               "Attribute2=\"Hello World!\">"
                               "  Some Stuff "
                               "</MySimpleContent>";
@@ -11485,11 +11501,11 @@ int main(int argc, char *argv[])
             mX.theContent() = 837;
 
             const char EXPECTED_RESULT[]
-                        = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                          "<MySimpleIntContent"XSI"\n    Attribute1=\"false\" "
-                          "Attribute2=\"Hello World!\">"
-                          "837"
-                          "</MySimpleIntContent>\n";
+                      = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                        "<MySimpleIntContent" XSI "\n    Attribute1=\"false\" "
+                        "Attribute2=\"Hello World!\">"
+                        "837"
+                        "</MySimpleIntContent>\n";
 
             if (veryVerbose) {
                 T_ P_(X) P(EXPECTED_RESULT)
@@ -11521,7 +11537,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                           "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                          "<MySimpleIntContent"XSI" Attribute1=\"false\" "
+                          "<MySimpleIntContent" XSI " Attribute1=\"false\" "
                           "Attribute2=\"Hello World!\">"
                           "837"
                           "</MySimpleIntContent>";
@@ -11573,7 +11589,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySequenceWithAttributes\n   "XSI" "
+                               "<MySequenceWithAttributes\n   " XSI " "
                                "Attribute1=\"34\">\n"
                                "    <Element1>45</Element1>\n"
                                "    <Element2>Hello</Element2>\n"
@@ -11610,7 +11626,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                             = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySequenceWithAttributes\n   "XSI" "
+                              "<MySequenceWithAttributes\n   " XSI " "
                               "Attribute1=\"34\"\n    Attribute2=\"World!\">\n"
                               "    <Element1>45</Element1>\n"
                               "    <Element2>Hello</Element2>\n"
@@ -11647,7 +11663,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                               "<MySequenceWithAttributes"XSI" "
+                               "<MySequenceWithAttributes" XSI " "
                                "Attribute1=\"34\" "
                                "Attribute2=\"World!\">"
                                "<Element1>45</Element1>"
@@ -11701,7 +11717,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice\n   "XSI">\n"
+                                "<MySequenceWithAnonymousChoice\n   " XSI ">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice1>67</MyChoice1>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
@@ -11737,7 +11753,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice\n   "XSI">\n"
+                                "<MySequenceWithAnonymousChoice\n   " XSI ">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice2>World!</MyChoice2>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
@@ -11773,7 +11789,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithAnonymousChoice"XSI">"
+                                "<MySequenceWithAnonymousChoice" XSI ">"
                                 "<Attribute1>34</Attribute1>"
                                 "<MyChoice2>World!</MyChoice2>"
                                 "<Attribute2>Hello</Attribute2>"
@@ -11827,7 +11843,7 @@ int main(int argc, char *argv[])
             const char *EXPECTED_RESULT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n   "XSI">\n"
+                                "<MySequenceWithNullables\n   " XSI ">\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -11836,7 +11852,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n   "XSI">\n"
+                                "<MySequenceWithNullables\n   " XSI ">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -11845,7 +11861,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n   "XSI">\n"
+                                "<MySequenceWithNullables\n   " XSI ">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequenceWithNullables>\n",
@@ -11901,7 +11917,7 @@ int main(int argc, char *argv[])
             const char *EXPECTED_RESULT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables"XSI">"
+                                "<MySequenceWithNullables" XSI ">"
                                 "<Attribute2>test string</Attribute2>"
                                 "<Attribute3>"
                                 "<Attribute1>987</Attribute1>"
@@ -11910,7 +11926,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables"XSI">"
+                                "<MySequenceWithNullables" XSI ">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute3>"
                                 "<Attribute1>987</Attribute1>"
@@ -11919,7 +11935,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables"XSI">"
+                                "<MySequenceWithNullables" XSI ">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequenceWithNullables>",
@@ -12018,7 +12034,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithArrays"XSI">\n"
+                                "<MySequenceWithArrays" XSI ">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute1>456</Attribute1>\n"
                                 "    <Attribute1>927</Attribute1>\n"
@@ -12097,7 +12113,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]=
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithArrays"XSI">"
+                                "<MySequenceWithArrays" XSI ">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute1>456</Attribute1>"
                                 "<Attribute1>927</Attribute1>"
@@ -12162,7 +12178,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice"XSI">\n"
+                                "<MyChoice" XSI ">\n"
                                 "    <Selection1>434</Selection1>\n"
                                 "</MyChoice>\n";
 
@@ -12199,7 +12215,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice"XSI">\n"
+                                "<MyChoice" XSI ">\n"
                                 "    <Selection2>test string</Selection2>\n"
                                 "</MyChoice>\n";
 
@@ -12253,7 +12269,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequence"XSI">\n"
+                                "<MySequence" XSI ">\n"
                                 "    <Attribute1>434</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequence>\n";
@@ -12291,7 +12307,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequence"XSI">"
+                                "<MySequence" XSI ">"
                                 "<Attribute1>434</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequence>";
@@ -12345,11 +12361,11 @@ int main(int argc, char *argv[])
                 //line  value  result
                 //----  -----  ------
                 { L_,   0,     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int"XSI">0</int>\n"                        },
+                               "<int" XSI ">0</int>\n"                       },
                 { L_,   1,     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int"XSI">1</int>\n"                        },
+                               "<int" XSI ">1</int>\n"                       },
                 { L_,   123,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int"XSI">123</int>\n"                      },
+                               "<int" XSI ">123</int>\n"                     },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -12387,17 +12403,17 @@ int main(int argc, char *argv[])
                 //line  value  result
                 //----  -----  ------
                 { L_,   "",    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string"XSI"></string>\n"                   },
+                               "<string" XSI "></string>\n"                  },
                 { L_,   "a",   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string"XSI">a</string>\n"                  },
+                               "<string" XSI ">a</string>\n"                 },
                 { L_,   "abc", "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string"XSI">abc</string>\n"                },
+                               "<string" XSI ">abc</string>\n"               },
                 { L_,   "\xc3\xb6" "abc",
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string"XSI">\xc3\xb6" "abc</string>\n"     },
+                               "<string" XSI ">\xc3\xb6" "abc</string>\n"    },
                 { L_,   "abc\xc3\xb6" "def",
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string"XSI">abc\xc3\xb6" "def</string>\n"  },
+                               "<string" XSI ">abc\xc3\xb6" "def</string>\n" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -12456,20 +12472,20 @@ int main(int argc, char *argv[])
 //                                    "<byte>100</byte>\n" },
                 { L_,   BASE64,    "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                             "<base64Binary"XSI">YWJjZA==</base64Binary>\n" },
+                             "<base64Binary" XSI ">YWJjZA==</base64Binary>\n"},
                 { L_,   HEX,       "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<hexBinary"XSI">61626364</hexBinary>\n" },
+                                   "<hexBinary" XSI ">61626364</hexBinary>\n"},
                 { L_,   TEXT,      "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<string"XSI">abcd</string>\n"           },
+                                   "<string" XSI ">abcd</string>\n"          },
                 { L_,   IS_LIST,   "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<list"XSI">97 98 99 100</list>\n"       },
+                                   "<list" XSI ">97 98 99 100</list>\n"      },
                 { L_,   LIST_OR_DEC,
                                    "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<list"XSI">97 98 99 100</list>\n"       },
+                                   "<list" XSI ">97 98 99 100</list>\n"      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -12531,7 +12547,7 @@ int main(int argc, char *argv[])
                 //----  ----       ------
                 { L_,   HEX,       "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-              "<hexBinary"XSI">04152726FFFFB554C023DFA4AD2BDCE9</hexBinary>\n"
+            "<hexBinary" XSI ">04152726FFFFB554C023DFA4AD2BDCE9</hexBinary>\n"
                 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;

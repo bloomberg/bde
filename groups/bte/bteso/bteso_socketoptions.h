@@ -217,7 +217,7 @@ class bteso_SocketOptions {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_SocketOptions,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();

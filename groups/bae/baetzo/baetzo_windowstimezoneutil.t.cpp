@@ -1442,19 +1442,20 @@ int main(int argc, char *argv[])
 
                  if (veryVerbose) { T_ P_(LINE)
                                        P_(BAD_ID)
-                                       P((void *)EXP_ADDR) }
+                                       P((const void *)EXP_ADDR) }
 
                  const char *winId = EXP_ADDR;
                  int         rc    = Obj::getZoneinfoId(&winId, BAD_ID);
                  LOOP2_ASSERT(LINE, BAD_ID,           0        != rc);
-                 LOOP2_ASSERT(LINE, (void *)EXP_ADDR, EXP_ADDR == winId);
+                 LOOP2_ASSERT(LINE, (const void *)EXP_ADDR, EXP_ADDR == winId);
              }
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
 #ifdef BDE_BUILD_TARGET_EXC
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             const char  *tzId = "America/Mexico_City";
             const char *winId;
@@ -1557,19 +1558,20 @@ int main(int argc, char *argv[])
 
                  if (veryVerbose) { T_ P_(LINE)
                                        P_(BAD_ID)
-                                       P((void *)EXP_ADDR) }
+                                       P((const void *)EXP_ADDR) }
 
                  const char *tzId = EXP_ADDR;
                  int         rc   = Obj::getZoneinfoId(&tzId, BAD_ID);
                  LOOP2_ASSERT(LINE, BAD_ID,           0        != rc);
-                 LOOP2_ASSERT(LINE, (void *)EXP_ADDR, EXP_ADDR == tzId);
+                 LOOP2_ASSERT(LINE, (const void *)EXP_ADDR, EXP_ADDR == tzId);
              }
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
 #ifdef BDE_BUILD_TARGET_EXC
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             const char *winId = "Central Standard Time (Mexico)";
             const char *tzId;

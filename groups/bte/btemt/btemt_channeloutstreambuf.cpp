@@ -18,8 +18,9 @@ BDES_IDENT_RCSID(btemt_channeloutstreambuf_cpp,"$Id$ $CSID$")
 
 #include <bcema_pooledbufferchain.h>
 
-#include <bsls_timeutil.h>
 #include <bsls_assert.h>
+#include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 // Note: on Windows -> WinDef.h:#define min(a,b) ...
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
@@ -67,7 +68,7 @@ int btemt_ChannelOutStreamBuf::sendDataOverChannel()
     d_dataMsg.setData(d_bufferChain_p, d_bufferChainFactory_p, d_allocator_p);
 
     d_timeOfLastSend = d_cacheLifespan
-                     ? bsls_TimeUtil::getTimer() / RESOLUTION
+                     ? bsls::TimeUtil::getTimer() / RESOLUTION
                      : 0;
     return 0;
 }
@@ -240,10 +241,10 @@ int btemt_ChannelOutStreamBuf::sync()
         rc = sendDataOverChannel();
     }
     else {
-        const bsls_PlatformUtil::Int64 now =
-                                       d_cacheLifespan
-                                       ? bsls_TimeUtil::getTimer() / RESOLUTION
-                                       : 0;
+        const bsls::Types::Int64 now =
+                                      d_cacheLifespan
+                                      ? bsls::TimeUtil::getTimer() / RESOLUTION
+                                      : 0;
         if (now - d_timeOfLastSend >= d_cacheLifespan) {
             rc = sendDataOverChannel();
         }
@@ -289,7 +290,7 @@ btemt_ChannelOutStreamBuf::btemt_ChannelOutStreamBuf(
         int                             lowWaterMark,
         int                             highWaterMark,
         int                             cacheLifespan,
-        bslma_Allocator                *basicAllocator)
+        bslma::Allocator               *basicAllocator)
 : d_allocator_p(basicAllocator)
 , d_bufferChainFactory_p(bufferChainFactory)
 , d_channelPool_p(channelPool)
@@ -305,7 +306,7 @@ btemt_ChannelOutStreamBuf::btemt_ChannelOutStreamBuf(
     d_dataMsg.setChannelId(channelId);
 
     d_timeOfLastSend = d_cacheLifespan
-                       ? bsls_TimeUtil::getTimer() / RESOLUTION
+                       ? bsls::TimeUtil::getTimer() / RESOLUTION
                        : 0;
 }
 

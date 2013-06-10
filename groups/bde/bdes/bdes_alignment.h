@@ -141,11 +141,11 @@ BDES_IDENT("$Id: $")
 //..
 // The definition of our 'allocateFromBuffer' function is as follows:
 //..
-//  static void *allocateFromBuffer(int                      *cursor,
-//                                  char                     *buffer,
-//                                  int                       bufferSize,
-//                                  int                       size,
-//                                  bsls_Alignment::Strategy  strategy)
+//  static void *allocateFromBuffer(int                       *cursor,
+//                                  char                      *buffer,
+//                                  int                        bufferSize,
+//                                  int                        size,
+//                                  bsls::Alignment::Strategy  strategy)
 //      // Allocate a memory block of the specified 'size' (in bytes) from the
 //      // specified 'buffer' having the specified 'bufferSize' at the
 //      // specified 'cursor' position, using the specified alignment
@@ -167,12 +167,12 @@ BDES_IDENT("$Id: $")
 //..
 // Then, based on the alignment 'strategy', we calculate the alignment value
 // that can satisfy the allocation request.  In the case of
-// 'bsls_Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
-// 'bsls_Alignment::BSLS_MAXIMUM', we use the platform-dependent
+// 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
+// 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
 // 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value:
 //..
 //      const int alignment =
-//                         strategy == bsls_Alignment::BSLS_NATURAL
+//                         strategy == bsls::Alignment::BSLS_NATURAL
 //                         ? my_AlignmentUtil::calculateAlignmentFromSize(size)
 //                         : my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT;
 //..
@@ -350,8 +350,8 @@ BDES_IDENT("$Id: $")
 //  int main()
 //  {
 //      enum {
-//          CHAR_ALIGNMENT  = bsls_AlignmentFromType<char>::VALUE,
-//          SHORT_ALIGNMENT = bsls_AlignmentFromType<short>::VALUE
+//          CHAR_ALIGNMENT  = bsls::AlignmentFromType<char>::VALUE,
+//          SHORT_ALIGNMENT = bsls::AlignmentFromType<short>::VALUE
 //      };
 //
 //      char *charPtr   = (char *)   allocateFromBuffer(3 * sizeof(char),
@@ -464,12 +464,12 @@ BDES_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #endif
 
-#define bdes_AlignmentOf      bsls_AlignmentFromType
-#define bdes_AlignmentToType  bsls_AlignmentToType
+#define bdes_AlignmentOf      bsls::AlignmentFromType
+#define bdes_AlignmentToType  bsls::AlignmentToType
 
 namespace BloombergLP {
 
-typedef bsls_Alignment bdes_Alignment;
+typedef bsls::Alignment bdes_Alignment;
 
 }  // close namespace BloombergLP
 

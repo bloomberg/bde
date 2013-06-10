@@ -1,9 +1,9 @@
-// bdef_vfunc2.t.cpp              -*-C++-*-
+// bdef_vfunc2.t.cpp                                                  -*-C++-*-
 
 #include <bdef_vfunc2.h>
 
-#include <bslma_testallocator.h>                // for testing only
 #include <bslma_default.h>
+#include <bslma_testallocator.h>                // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_c_stdlib.h>     // atoi()
@@ -11,14 +11,13 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The 'bdef_Vfunc2' class holds a pointer to an instance of a 'bdefr_Vfunc2'
-// (an abstact class), and manipulates it appropriately.  Our main objective
+// (an abstract class), and manipulates it appropriately.  Our main objective
 // is to make sure that the 'bdefr_Vfunc2' object is initialized correctly and
 // that its integer data (the reference count) is modified by the methods of
 // 'bdef_Vfunc2' as expected.
@@ -82,7 +81,7 @@ class FunctorRep : public bdefr_Vfunc2<A1, A2> {
     // It mimics the behavior of classes in 'bdefi' with one exception: it
     // allows to count the number of time the 'execute' function has been
     // called, which is used to verify that different functors, that are
-    // supposed to share the implementation (as a result of copy constrution
+    // supposed to share the implementation (as a result of copy construction
     // or assignment) indeed share the implementation.
 
     F  d_f;  // function pointer or function object (functor)
@@ -106,10 +105,10 @@ class FunctorRep : public bdefr_Vfunc2<A1, A2> {
 
   public:
     // CREATORS
-    inline FunctorRep(F                procedure,
-                      const D1&        embeddedArg1,
-                      const D2&        embeddedArg2,
-                      bslma_Allocator *basicAllocator);
+    inline FunctorRep(F                 procedure,
+                      const D1&         embeddedArg1,
+                      const D2&         embeddedArg2,
+                      bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking 2
@@ -131,10 +130,10 @@ class FunctorRep : public bdefr_Vfunc2<A1, A2> {
 
 template <class F, class A1, class A2, class D1, class D2>
 inline FunctorRep<F, A1, A2, D1, D2>::FunctorRep(
-                                             F                procedure,
-                                             const D1&        embeddedArg1,
-                                             const D2&        embeddedArg2,
-                                             bslma_Allocator *basicAllocator)
+                                             F                 procedure,
+                                             const D1&         embeddedArg1,
+                                             const D2&         embeddedArg2,
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure)
 , d_d1(embeddedArg1)
@@ -298,8 +297,8 @@ class FuncRep : public bdefr_Vfunc2<A1, A2> {
 
   public:
     // CREATORS
-    FuncRep(F                procedure,      const D1& embeddedArg1,
-            bslma_Allocator *basicAllocator)
+    FuncRep(F                 procedure,      const D1& embeddedArg1,
+            bslma::Allocator *basicAllocator)
     : bdefr_Vfunc2<A1, A2>(basicAllocator)
     , d_f(procedure)
     , d_d1(embeddedArg1)
@@ -336,7 +335,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -360,8 +359,8 @@ int main(int argc, char *argv[])
           // (1) Create the representation.
           typedef void (*BpFun)(MyGuiContext *,
                                 const MyGuiLocation&, int *);
-          bslma_Allocator *myAllocator =
-              bslma_Default::defaultAllocator();
+          bslma::Allocator *myAllocator =
+              bslma::Default::defaultAllocator();
 
           int globalCounter = 0;
 
@@ -390,12 +389,12 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT OPERATOR
         //
         //   We need to test the following six cases:
-        //    a. Assignment to uninitialized object from unitialized object.
-        //    b. Assignment to initialized object from unitialized object.
-        //    c. Assignment of unitialized object to self.
-        //    d. Assignment to uninitialized object from itialized object.
-        //    e. Assignment to initialized object from itialized object.
-        //    f. Assignment of itialized object to self.
+        //    a. Assignment to uninitialized object from uninitialized object.
+        //    b. Assignment to initialized object from uninitialized object.
+        //    c. Assignment of uninitialized object to self.
+        //    d. Assignment to uninitialized object from initialized object.
+        //    e. Assignment to initialized object from initialized object.
+        //    f. Assignment of initialized object to self.
         //
         //   We have the following specific concerns for each case:
         //    1. The assignment operator fully initializes the object
@@ -421,7 +420,7 @@ int main(int argc, char *argv[])
         //        'operator const void *() const'.
         //    2b. N/A.
         //    3b. Check the reference counter using the 'getCount' function.
-        //        Assign 'Obj1' to 'Obj3'.  Using 'bslma_TestAllocator' verify
+        //        Assign 'Obj1' to 'Obj3'.  Using 'bslma::TestAllocator' verify
         //        that the memory allocated for 'R' was deallocated.
         //
         //   Create an object 'Obj1' using the default constructor.
@@ -464,7 +463,7 @@ int main(int argc, char *argv[])
         //        operator()<A1, A2>(const A1&, const A2&) const'
         //    2f. N/A.
         //    3f. Check the reference counter using the 'getCount' function.
-        //        Using 'bslma_TestAllocator', test that memory was not freed
+        //        Using 'bslma::TestAllocator', test that memory was not freed
         //        and then allocated again.
         //
         // Testing:

@@ -45,7 +45,7 @@ using bsl::flush;
 // returned (in either a metric name or category name).
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2]  baem_MetricRegistry(bslma_Allocator *);
+// [ 2]  baem_MetricRegistry(bslma::Allocator *);
 // [ 2]  ~baem_MetricRegistry();
 // MANIPULATORS
 // [ 2]  baem_MetricId addId(const bdeut_StringRef& , const bdeut_StringRef& );
@@ -181,7 +181,7 @@ class ConcurrencyTest {
     bcep_FixedThreadPool      d_pool;
     bcemt_Barrier             d_barrier;
     baem_MetricRegistry      *d_registry_p;
-    bslma_Allocator          *d_allocator_p;
+    bslma::Allocator         *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -191,8 +191,8 @@ class ConcurrencyTest {
 
     // CREATORS
     ConcurrencyTest(int                  numThreads,
-                 baem_MetricRegistry *registry,
-                 bslma_Allocator     *basicAllocator)
+                    baem_MetricRegistry *registry,
+                    bslma::Allocator    *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_registry_p(registry)
@@ -225,7 +225,7 @@ void ConcurrencyTest::execute()
     Obj *mX = d_registry_p; const Obj *MX = mX;
 
     // Initialize testing constants.
-    bslma_TestAllocator cAlloc;
+    bslma::TestAllocator cAlloc;
     baem_MetricFormat formatA(&cAlloc);
     baem_MetricFormat formatB(&cAlloc);
     formatB.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
@@ -464,9 +464,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 16: {
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
 // metric "MetricA" belonging to the category "MyCategory" (i.e.,
 // "MyCategory.MetricA").
 //..
-    bslma_Allocator     *allocator = bslma_Default::allocator(0);
+    bslma::Allocator    *allocator = bslma::Default::allocator(0);
     baem_MetricRegistry  registry(allocator);
 
     baem_MetricId idA = registry.addId("MyCategory", "MetricA");
@@ -559,7 +559,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
         baem_MetricRegistry registry(&testAllocator);;
@@ -603,12 +603,13 @@ int main(int argc, char *argv[])
         };
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
-        {
+        bslma::TestAllocator  testAllocator;
+        BEGIN_BSLMA_EXCEPTION_TEST {
             if (veryVerbose) {
                 bsl::cout << "\tverify an explict category" << bsl::endl;
             }
 
-            Obj mX; const Obj& MX = mX;
+            Obj mX(&testAllocator); const Obj& MX = mX;
 
             // Create a set of metrics and keys prior to the test.
             for (int i = 0;  i < NUM_METRICS; ++i) {
@@ -666,7 +667,8 @@ int main(int argc, char *argv[])
                                  EXP_VALUE == id.description()->userData(j));
                 }
             }
-        }
+            ASSERT(0 == defaultAllocator.numBytesInUse());
+        } END_BSLMA_EXCEPTION_TEST
         {
             if (veryVerbose) {
                 bsl::cout << "\tverify a category prefix" << bsl::endl;
@@ -885,7 +887,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
-        bslma_TestAllocator cAlloc;
+        bslma::TestAllocator cAlloc;
         baem_MetricFormat formatA(&cAlloc);
         baem_MetricFormat formatB(&cAlloc);
         formatB.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
@@ -906,7 +908,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tVerify basic behavior." << endl;
 
-        bslma_TestAllocator  testAllocator;
+        bslma::TestAllocator  testAllocator;
         BEGIN_BSLMA_EXCEPTION_TEST {
             Obj mX(&testAllocator); const Obj& MX = mX;
             for (int i = 0; i < NUM_METRICS; ++i) {
@@ -1043,7 +1045,7 @@ int main(int argc, char *argv[])
                      << endl;
             }
             bsl::set<Id>         metrics;
-            bslma_TestAllocator  testAllocator;
+            bslma::TestAllocator testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
             BEGIN_BSLMA_EXCEPTION_TEST {
@@ -1076,7 +1078,7 @@ int main(int argc, char *argv[])
                      << endl;
             }
             bsl::set<Id>         metrics;
-            bslma_TestAllocator  testAllocator;
+            bslma::TestAllocator testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
             BEGIN_BSLMA_EXCEPTION_TEST {
@@ -1112,7 +1114,7 @@ int main(int argc, char *argv[])
                      << endl;
             }
             bsl::set<bsl::string> categories;
-            bslma_TestAllocator   testAllocator;
+            bslma::TestAllocator  testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
             BEGIN_BSLMA_EXCEPTION_TEST {
@@ -1144,7 +1146,7 @@ int main(int argc, char *argv[])
                      << endl;
             }
             bsl::set<bsl::string> categories;
-            bslma_TestAllocator   testAllocator;
+            bslma::TestAllocator  testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
             BEGIN_BSLMA_EXCEPTION_TEST {
@@ -1730,7 +1732,7 @@ int main(int argc, char *argv[])
         //   the modification.
         //
         // Testing:
-        //   baem_MetricRegistry(bslma_Allocator *);
+        //   baem_MetricRegistry(bslma::Allocator *);
         //   ~baem_MetricRegistry();
         //   baem_MetricId addId(const bdeut_StringRef& ,
         //                       const bdeut_StringRef& );

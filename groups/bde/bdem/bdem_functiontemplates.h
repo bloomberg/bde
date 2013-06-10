@@ -47,11 +47,10 @@ BDES_IDENT("$Id: $")
 //  enum my_ObjType { INT_OBJ, DATE_OBJ, STRING_OBJ };
 //
 //  struct my_ObjFuncs {
-//      void (*copyConstruct)(
-//                           void                                  *obj,
-//                           const void                            *rhs,
-//                           bdem_AggregateOption::AllocationMode  allocMode,
-//                           bslma_Allocator                       *allocator);
+//      void (*copyConstruct)(void                                 *obj,
+//                            const void                           *rhs,
+//                            bdem_AggregateOption::AllocationMode  allocMode,
+//                            bslma::Allocator                     *allocator);
 //
 //      void (*destroy)(void *obj);
 //  };
@@ -71,9 +70,9 @@ BDES_IDENT("$Id: $")
 //  // Object capable of holding an int, date, or string.
 //  class my_MultiObject {
 //      union {
-//          int                            d_int;
-//          bsls_ObjectBuffer<bdet_Date>   d_date;
-//          bsls_ObjectBuffer<bsl::string> d_string;
+//          int                             d_int;
+//          bsls::ObjectBuffer<bdet_Date>   d_date;
+//          bsls::ObjectBuffer<bsl::string> d_string;
 //      } d_buffer;
 //      const my_ObjFuncs *d_funcs;
 //
@@ -149,6 +148,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -159,10 +162,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -191,7 +190,7 @@ struct bdem_FunctionTemplates {
     void defaultConstruct(
                       void                                     *obj,
                       bdem_AggregateOption::AllocationStrategy  allocationMode,
-                      bslma_Allocator                          *allocator);
+                      bslma::Allocator                         *allocator);
         // Construct the a 'T' object using its default constructor.  The
         // 'allocationMode' is discarded in this implementation, making it
         // inappropriate for types that expect this constructor option.  Such
@@ -206,7 +205,7 @@ struct bdem_FunctionTemplates {
     void unsetConstruct(
                       void                                     *obj,
                       bdem_AggregateOption::AllocationStrategy  allocationMode,
-                      bslma_Allocator                          *allocator);
+                      bslma::Allocator                         *allocator);
         // Construct a 'T' object with an unset value as defined in
         // 'bdetu_unset'.  This function will fail to compile if instantiated
         // for a type that does not have an unset value specialization in
@@ -224,7 +223,7 @@ struct bdem_FunctionTemplates {
                       void                                     *obj,
                       const void                               *rhs,
                       bdem_AggregateOption::AllocationStrategy  allocationMode,
-                      bslma_Allocator                          *allocator);
+                      bslma::Allocator                         *allocator);
         // Construct a 'T' object as a copy of '*obj', using the copy
         // constructor for 'T'.  The 'allocationMode' is discarded in this
         // implementation, making it inappropriate for types that expect his
@@ -363,11 +362,11 @@ template <class T>
 void bdem_FunctionTemplates::defaultConstruct(
                       void                                     *obj,
                       bdem_AggregateOption::AllocationStrategy,
-                      bslma_Allocator                          *allocator)
+                      bslma::Allocator                         *allocator)
 {
     BSLS_ASSERT_SAFE(obj);
 
-    bslalg_ScalarPrimitives::defaultConstruct(static_cast<T *>(obj),
+    bslalg::ScalarPrimitives::defaultConstruct(static_cast<T *>(obj),
                                               allocator);
 }
 
@@ -375,7 +374,7 @@ template <class T>
 void bdem_FunctionTemplates::unsetConstruct(
                        void                                     *obj,
                        bdem_AggregateOption::AllocationStrategy,
-                       bslma_Allocator                          *allocator)
+                       bslma::Allocator                         *allocator)
 {
     BSLS_ASSERT_SAFE(obj);
 
@@ -383,7 +382,7 @@ void bdem_FunctionTemplates::unsetConstruct(
     // defined in 'bdetu_unset'.  For most other types, the default
     // constructor produces the appropriate unset value.
 
-    bslalg_ScalarPrimitives::defaultConstruct(static_cast<T *>(obj),
+    bslalg::ScalarPrimitives::defaultConstruct(static_cast<T *>(obj),
                                               allocator);
     bdetu_Unset<T>::makeUnset(static_cast<T *>(obj));
 }
@@ -393,12 +392,12 @@ void bdem_FunctionTemplates::copyConstruct(
                       void                                     *obj,
                       const void                               *rhs,
                       bdem_AggregateOption::AllocationStrategy,
-                      bslma_Allocator                          *allocator)
+                      bslma::Allocator                         *allocator)
 {
     BSLS_ASSERT_SAFE(obj);
     BSLS_ASSERT_SAFE(rhs);
 
-    bslalg_ScalarPrimitives::copyConstruct(static_cast<T *>(obj),
+    bslalg::ScalarPrimitives::copyConstruct(static_cast<T *>(obj),
                                            *static_cast<const T *>(rhs),
                                            allocator);
 }

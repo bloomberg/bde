@@ -176,16 +176,20 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDECS_CALENDAR
 #include <bdecs_calendar.h>
 #endif
 
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_ITERATOR
@@ -198,10 +202,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 
@@ -255,7 +255,7 @@ class bdecs_CalendarCache {
         // 'true' if this calendar cache object has a timeout value and 'false'
         // otherwise
 
-    bslma_Allocator                                   *d_allocator_p;
+    bslma::Allocator                                  *d_allocator_p;
         // memory allocator (held, not owned)
 
   private:
@@ -270,7 +270,7 @@ class bdecs_CalendarCache {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_CalendarCache,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // PUBLIC TYPES
     typedef bdecs_CalendarCacheIter                       ConstIterator;
@@ -281,7 +281,7 @@ class bdecs_CalendarCache {
 
     // CREATORS
     bdecs_CalendarCache(bdecs_CalendarLoader *loader,
-                        bslma_Allocator      *basicAllocator = 0);
+                        bslma::Allocator     *basicAllocator = 0);
         // Create an empty cache that will use the specified 'loader' to obtain
         // named calendars.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -291,14 +291,16 @@ class bdecs_CalendarCache {
 
     bdecs_CalendarCache(bdecs_CalendarLoader     *loader,
                         const bdet_TimeInterval&  timeout,
-                        bslma_Allocator          *basicAllocator = 0);
+                        bslma::Allocator         *basicAllocator = 0);
         // Create an empty cache that will use the specified 'loader' to obtain
         // named calendars.  Each entry in this calendar cache will become
-        // invalid after the specified timeout period has passed since that
+        // invalid after the specified 'timeout' period has passed since that
         // calendar was loaded.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless the
-        // loader remains valid throughout the lifetime of this cache.
+        // loader remains valid throughout the lifetime of this cache and the
+        // 'timeout' is small enough to fit in a 64-bit integer value in
+        // milliseconds.
 
     ~bdecs_CalendarCache();
         // Destroy this object.
@@ -306,13 +308,13 @@ class bdecs_CalendarCache {
     // MANIPULATORS
     const bdecs_Calendar *calendar(const char *calendarName);
         // Return the non-modifiable address of the calendar corresponding to
-        // the specified 'calendarName', if 'calendarName' can be loaded
-        // through the loader specified at construction, and 0 otherwise.  When
-        // retrieving the calendar object, this method first tries to locate a
-        // valid cache entry.  If no such entry is found, this method loads
-        // 'calendarName' using the loader of this cache.  If the loader fails
-        // and an invalid calendar is cached, that invalid calendar is
-        // returned.
+        // the specified 'calendarName' in this cache.  If the calendar entry
+        // doesn't exist, or if the calendar entry is invalid (i.e., it has
+        // timed out, or for which 'invalidate' has been called), then this
+        // method first loads 'calendarName' using the loader of this cache.
+        // If the loader fails and no previous calendar entry exists, then
+        // return 0.  If the loader fails and an invalid calendar entry exists,
+        // then return that invalid calendar.
 
     void invalidate(const char *calendarName);
         // Mark the cache entry for the specified 'calendarName' as invalid if

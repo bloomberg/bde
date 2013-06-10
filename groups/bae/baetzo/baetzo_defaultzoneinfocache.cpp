@@ -26,7 +26,7 @@ static const char LOG_CATEGORY[] = "BAETZO.DEFAULTZONEINFOCACHE";
 // Potential locations of TZ Database time-zone information.
 static const char *BAETZO_DATA_LOCATIONS[] = {
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    "/bb/data/datetime/zoneinfo/"
+    "/bb/data/datetime/zoneinfo/"  // Bloomberg-specific
   , "/usr/share/lib/zoneinfo/"
   , 0
 #else
@@ -47,7 +47,7 @@ baetzo_ZoneinfoCache *initSystemDefaultCache()
     // previously created (singleton) instance with no other effect.  This
     // methods is *not* thread safe.
 {
-    bslma_Allocator *allocator = bslma_Default::globalAllocator();
+    bslma::Allocator *allocator = bslma::Default::globalAllocator();
 
     static baetzo_DataFileLoader loader(allocator);
     loader.configureRootPath(

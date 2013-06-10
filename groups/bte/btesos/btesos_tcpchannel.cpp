@@ -57,12 +57,14 @@ int adjustVecBuffer(const VECTYPE        *buffers,
 
     vec->clear();
 
-    vec->push_back(VECTYPE((char*) buffers[idx].buffer() + offset,
-                                   buffers[idx].length() - offset));
+    vec->push_back(VECTYPE(
+                (char*) const_cast<void *>(buffers[idx].buffer()) + offset,
+                buffers[idx].length() - offset));
 
     for (int i = idx + 1; i < *numBuffers; ++i) {
-        vec->push_back(btes_Iovec((char*) buffers[i].buffer(),
-                       buffers[i].length()));
+        vec->push_back(
+                btes_Iovec((char*) const_cast<void *>(buffers[i].buffer()),
+                           buffers[i].length()));
     }
     *numBuffers -= idx;
 
@@ -105,7 +107,7 @@ void btesos_TcpChannel::initializeReadBuffer(int size)
 
 btesos_TcpChannel::btesos_TcpChannel(
                     bteso_StreamSocket<bteso_IPv4Address> *socket,
-                    bslma_Allocator                       *basicAllocator)
+                    bslma::Allocator                      *basicAllocator)
 : d_socket_p(socket)
 , d_isInvalidFlag(0)
 , d_readBuffer(basicAllocator)

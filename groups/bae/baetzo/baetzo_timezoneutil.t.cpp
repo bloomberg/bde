@@ -877,9 +877,9 @@ static bdet_Datetime toDatetime(const char *iso8601TimeString)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -889,40 +889,39 @@ int main(int argc, char *argv[])
     bael_LoggerManager& manager =
             bael_LoggerManager::initSingleton(&observer, configuration);
 
-    bslma_TestAllocator allocator, defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
-    bslma_TestAllocator *Z = &allocator;
+    bslma::TestAllocator allocator, defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator *Z = &allocator;
 
     baetzo_TestLoader     testLoader(Z);
     baetzo_ZoneinfoCache  testCache(&testLoader, Z);
-    ASSERT(0 == testLoader.setTimeZone(
-                                      "GMT", 
-                                      reinterpret_cast<const char *>(GMT_DATA),
-                                      sizeof(GMT_DATA)));
+    ASSERT(0 == testLoader.setTimeZone("GMT", 
+                         reinterpret_cast<const char *>(GMT_DATA),
+                         sizeof(GMT_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT",
-                                       reinterpret_cast<const char *>(ETC_GMT_DATA),
-                                       sizeof(ETC_GMT_DATA)));
+                         reinterpret_cast<const char *>(ETC_GMT_DATA),
+                         sizeof(ETC_GMT_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT+1",
-                                       reinterpret_cast<const char *>(ETC_GMTP1_DATA),
-                                       sizeof(ETC_GMTP1_DATA)));
+                         reinterpret_cast<const char *>(ETC_GMTP1_DATA),
+                         sizeof(ETC_GMTP1_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT+2",
-                                       reinterpret_cast<const char *>(ETC_GMTP2_DATA),
-                                       sizeof(ETC_GMTP2_DATA)));
+                         reinterpret_cast<const char *>(ETC_GMTP2_DATA),
+                         sizeof(ETC_GMTP2_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT-1",
-                                       reinterpret_cast<const char *>(ETC_GMTM1_DATA),
-                                       sizeof(ETC_GMTM1_DATA)));
+                         reinterpret_cast<const char *>(ETC_GMTM1_DATA),
+                         sizeof(ETC_GMTM1_DATA)));
     ASSERT(0 == testLoader.setTimeZone("America/New_York",
-                                       reinterpret_cast<const char *>(AMERICA_NEW_YORK_DATA),
-                                       sizeof(AMERICA_NEW_YORK_DATA)));
+                         reinterpret_cast<const char *>(AMERICA_NEW_YORK_DATA),
+                         sizeof(AMERICA_NEW_YORK_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Asia/Riyadh",
-                                       reinterpret_cast<const char *>(ASIA_RIYADH_DATA),
-                                       sizeof(ASIA_RIYADH_DATA)));
+                         reinterpret_cast<const char *>(ASIA_RIYADH_DATA),
+                         sizeof(ASIA_RIYADH_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Asia/Saigon",
-                                       reinterpret_cast<const char *>(ASIA_SAIGON_DATA),
-                                       sizeof(ASIA_SAIGON_DATA)));
+                         reinterpret_cast<const char *>(ASIA_SAIGON_DATA),
+                         sizeof(ASIA_SAIGON_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Europe/Rome",
-                                       reinterpret_cast<const char *>(EUROPE_ROME_DATA),
-                                       sizeof(EUROPE_ROME_DATA)));
+                         reinterpret_cast<const char *>(EUROPE_ROME_DATA),
+                         sizeof(EUROPE_ROME_DATA)));
 
     baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);
 
@@ -943,7 +942,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
                                   << "=====================" << endl;
-        bslma_Allocator *allocator = bslma_Default::allocator(0);
+        bslma::Allocator *allocator = bslma::Default::allocator(0);
 
         baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);
         {
@@ -1311,7 +1310,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                             "\t'validateLocalTime' class method" << endl;
@@ -1494,7 +1494,8 @@ int main(int argc, char *argv[])
 
                 const bdet_Datetime      TIME(TIME_TZ.localDatetime());
                 const baet_LocalDatetime LCL_TIME(TIME_TZ, SRC_TZID);
-                const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ, TGT_TZID, Z);
+                const baet_LocalDatetime EXP_LCL_TIME(EXP_TIME_TZ, TGT_TZID,
+                                                      Z);
 
                 if (veryVeryVerbose) {
                     P_(LINE) P_(SRC_TZID) P_(TIME_TZ) P(EXP_TIME_TZ)
@@ -1613,7 +1614,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                             "\t'convertLocalToLocalTime' class method" << endl;
@@ -1756,20 +1758,20 @@ int main(int argc, char *argv[])
                           << "CLASS METHOD 'addInterval'" << endl
                           << "==========================" << endl;
 
-        const bsls_Types::Int64 MS = 1;               // milliseconds
-        const bsls_Types::Int64 DY = 24LL * 60LL * 60LL * 1000LL ;
+        const bsls::Types::Int64 MS = 1;               // milliseconds
+        const bsls::Types::Int64 DY = 24LL * 60LL * 60LL * 1000LL ;
                                                       // milliseconds in a day
-        const bsls_Types::Int64 YR = 365LL * 24LL * 60LL * 60LL * 1000LL;
+        const bsls::Types::Int64 YR = 365LL * 24LL * 60LL * 60LL * 1000LL;
                                                       // milliseconds in a year
 
         if (verbose) cout << "\nCreate a table for testing" << endl;
         {
             static const struct{
-                int                d_line;
-                const char        *d_timeZoneId;
-                const char        *d_startTime;       // iso8601 w/ tz offset
-                bsls_Types::Int64  d_interval;
-                const char        *d_expectedResult;  // iso8601 w/ tz offset
+                int                 d_line;
+                const char         *d_timeZoneId;
+                const char         *d_startTime;       // iso8601 w/ tz offset
+                bsls::Types::Int64  d_interval;
+                const char         *d_expectedResult;  // iso8601 w/ tz offset
             } DATA[] = {
 
             // No transitions
@@ -1845,7 +1847,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'addInterval' class method." << endl;
             {
@@ -1985,7 +1988,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                              "\t'convertUtcToLocalTime' class method." << endl;
@@ -2212,7 +2216,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                                   "\t'convertLocalToUtc' class method" << endl;
@@ -2452,7 +2457,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\t'initLocalTime' class method" << endl;
             {
@@ -2683,7 +2689,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                                 "\t'loadLocalTimePeriod' class method" << endl;
@@ -2830,7 +2837,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout <<
                                 "\t'loadLocalTimePeriod' class method" << endl;

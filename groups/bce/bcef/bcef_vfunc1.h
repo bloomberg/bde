@@ -191,9 +191,9 @@ BDES_IDENT("$Id: $")
 //
 //     public:
 //       // CREATORS
-//       FuncRep(const F&         procedure,
-//               const D1&        embeddedArg1,
-//               bslma_Allocator *basicAllocator)
+//       FuncRep(const F&          procedure,
+//               const D1&         embeddedArg1,
+//               bslma::Allocator *basicAllocator)
 //           // Create a representation for a function object (functor) taking
 //           // one argument and returning 'void', using the specified
 //           // 'procedure' (i.e., free function, static member function, or
@@ -238,7 +238,7 @@ BDES_IDENT("$Id: $")
 //   // (1) Create the representation.
 //
 //   typedef void (*BpFun)(const MyGuiInformation*, int *);
-//   bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+//   bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 //
 //   int globalCounter = 0;
 //
@@ -309,7 +309,7 @@ class bcef_Vfunc1 {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcef_Vfunc1,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     bcef_Vfunc1();

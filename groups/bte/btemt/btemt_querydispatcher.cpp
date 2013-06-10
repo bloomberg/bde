@@ -27,13 +27,13 @@ BDES_IDENT_RCSID(btemt_querydispatcher_cpp,"$Id$ $CSID$")
 #include <bdef_memfn.h>
 #include <bdef_placeholder.h>
 
-#include <bsls_platformutil.h>
 #include <bdet_timeinterval.h>
 #include <bdetu_systemtime.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_set.h>
 #include <bsl_utility.h>
@@ -51,17 +51,17 @@ namespace {
 using namespace BloombergLP;
 
 void splitQueryId(int *handle, int *uniqueId,
-                  const bsls_PlatformUtil::Int64& queryId)
+                  const bsls::Types::Int64& queryId)
 {
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     if (handle) *handle = (int)(queryId >> 32); // signed shift
     if (uniqueId) *uniqueId = (int)(queryId & (Int64)0x00000000FFFFFFFF);
 }
 
-bsls_PlatformUtil::Int64 makeQueryId(int handle, int uniqueId)
+bsls::Types::Int64 makeQueryId(int handle, int uniqueId)
 {
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     Int64 queryId = handle;
     queryId <<= 32;
@@ -168,8 +168,8 @@ btemt_QueryDispatcher::btemt_QueryDispatcher(
     const bcemt_Attribute& threadAttributes,
     const bdef_Function<void (*)(const btemt_QueryDispatcherEvent&)>&
         dispatcherEventFunctor,
-    bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+    bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_threadPool(threadAttributes,
                config.minProcessingThreads(), config.maxProcessingThreads(),
                (int)config.idleTimeout(),
@@ -216,7 +216,7 @@ btemt_QueryDispatcher::~btemt_QueryDispatcher()
                         // =========
                         // CALLBACKS
                         // =========
-void btemt_QueryDispatcher::timeoutCb(bsls_PlatformUtil::Int64 queryId)
+void btemt_QueryDispatcher::timeoutCb(bsls::Types::Int64 queryId)
 {
 //    bsl::printf("timeoutCb queryId = %lld\n", queryId);
     bcema_SharedPtr<Entry> entry;
@@ -338,7 +338,7 @@ void btemt_QueryDispatcher::dispatcherV1Cb(
             bdet_TimeInterval elapsedTime =
                 bdetu_SystemTime::now() - entry->d_startTime;
             // convert elapsedTime(sec.nanosec) into microseconds
-            bsls_PlatformUtil::Int64 microSeconds =
+            bsls::Types::Int64 microSeconds =
                 elapsedTime.seconds() * 1000000 +
                 elapsedTime.nanoseconds() / 1000;
             d_sumElapsedResponseTime += microSeconds;
@@ -435,21 +435,21 @@ int btemt_QueryDispatcher::registerTimer(
 }
 
 // MANIPULATORS
-bsls_PlatformUtil::Int64 btemt_QueryDispatcher::query(
+bsls::Types::Int64 btemt_QueryDispatcher::query(
     btemt_Query *query,
     const bdef_Function<void (*)(int *, btemt_QueryResponse*)>& functor)
 {
     return timedQuery(query, functor, bdet_TimeInterval(0));
 }
 
-bsls_PlatformUtil::Int64 btemt_QueryDispatcher::query(
+bsls::Types::Int64 btemt_QueryDispatcher::query(
     btemt_Query *query, int processorId,
     const bdef_Function<void (*)(int *, btemt_QueryResponse*)>& functor)
 {
     return timedQuery(query, processorId, functor, bdet_TimeInterval(0));
 }
 
-bsls_PlatformUtil::Int64 btemt_QueryDispatcher::timedQuery(
+bsls::Types::Int64 btemt_QueryDispatcher::timedQuery(
     btemt_Query *query,
     const bdef_Function<void (*)(int *, btemt_QueryResponse*)>& functor,
     const bdet_TimeInterval& timeout)
@@ -461,7 +461,7 @@ bsls_PlatformUtil::Int64 btemt_QueryDispatcher::timedQuery(
     return timedQuery(query, processorId, functor, timeout);
 }
 
-bsls_PlatformUtil::Int64 btemt_QueryDispatcher::timedQuery(
+bsls::Types::Int64 btemt_QueryDispatcher::timedQuery(
     btemt_Query *query, int processorId,
     const bdef_Function<void (*)(int *, btemt_QueryResponse*)>& functor,
     const bdet_TimeInterval& timeout)
@@ -548,7 +548,7 @@ bsls_PlatformUtil::Int64 btemt_QueryDispatcher::timedQuery(
     }
 }
 
-void btemt_QueryDispatcher::cancel(bsls_PlatformUtil::Int64 queryId)
+void btemt_QueryDispatcher::cancel(bsls::Types::Int64 queryId)
 {
     int handle, uniqueId;
     splitQueryId(&handle, &uniqueId, queryId);
@@ -592,7 +592,7 @@ void btemt_QueryDispatcher::cancel(void *category)
     bsl::set<bsl::pair<void*, Int64> >::iterator itr =
         d_queryMap.lower_bound(bsl::pair<void*, Int64>(category,
 #if !defined(BSLS_PLATFORM_CMP_MSVC) \
- && !defined(BDES_PLATFORM_OS_FREEBSD)
+ && !defined(BSLS_PLATFORM_OS_FREEBSD)
                                                             INT64_MIN));
 #else
                                                             LLONG_MIN));
@@ -665,8 +665,8 @@ int btemt_QueryDispatcher::connect(const bteso_IPv4Address& address,
                         // =========
 void btemt_QueryDispatcher::printStatus(bsl::ostream& os) const
 {
-    bsls_PlatformUtil::Int64 avgResponseTime = successCount() ?
-        (bsls_PlatformUtil::Int64)d_sumElapsedResponseTime / successCount()
+    bsls::Types::Int64 avgResponseTime = successCount() ?
+        (bsls::Types::Int64)d_sumElapsedResponseTime / successCount()
         : 0;
     os << "{\n numbers of mininum and maximum threads in thread pool:"
        << "(" << d_threadPool.minThreads()

@@ -124,7 +124,7 @@ inline void performtest(const char *name, char *testsource, char *testdest)
         T& TS = *(T *) testsource;
         T& TD = *(T *) testdest;
         times(&startTime);
-        for (volatile int i = 0; i < iter; ++i) {
+        for (int i = 0; i < iter; ++i) {
             memcpy(&TD, &TS, sizeof(TS));
             avoidopt((int *) &i, &TD,  &TS);
             memcpy(&TD, &TS, sizeof(TS));
@@ -137,7 +137,7 @@ inline void performtest(const char *name, char *testsource, char *testdest)
             avoidopt((int *) &i, &TD,  &TS);
         }
         times(&endmemcpyTime);
-        for (volatile int i = 0; i < iter; ++i) {
+        for (int i = 0; i < iter; ++i) {
             bdeimp_BitwiseCopy<T>::copy(&TD, &TS);
             avoidopt((int *) &i, &TD,  &TS);
             bdeimp_BitwiseCopy<T>::copy(&TD, &TS);
@@ -456,9 +456,9 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 #ifdef BSLS_PLATFORM_OS_UNIX
         union Align {
-          char                               d_bytes[100000];
-          bsls_AlignmentUtil::MaxAlignedType d_align;   // only used for
-                                                        // alignment
+          char                                d_bytes[100000];
+          bsls::AlignmentUtil::MaxAlignedType d_align;   // only used for
+                                                         // alignment
         } testsource, testdest;
 
         struct tms startTime;
@@ -520,7 +520,7 @@ int main(int argc, char *argv[]) {
                 cout << "data: char[143] algorithm: memcpy\n";
 
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -543,7 +543,7 @@ int main(int argc, char *argv[]) {
                 cout << "data: char[43] algorithm: memcpy\n";
 
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -565,7 +565,7 @@ int main(int argc, char *argv[]) {
                 testChar10& TD = *(testChar10 *) &testdest;
                 cout << "data: char[10] not int aligned algorithm: memcpy\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -587,7 +587,7 @@ int main(int argc, char *argv[]) {
                 testChar10& TD = *(testChar10 *) &testdest;
                 times(&startTime);
                 cout << "data: char[10] algorithm: memcpy\n";
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -609,7 +609,7 @@ int main(int argc, char *argv[]) {
                 testChar4& TD = *(testChar4 *) &testdest;
                 cout << "data: char[4] not int aligned algorithm: memcpy\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -631,7 +631,7 @@ int main(int argc, char *argv[]) {
                 testChar4& TD = *(testChar4 *) &testdest;
                 cout << "data: char[4] algorithm: memcpy\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -653,7 +653,7 @@ int main(int argc, char *argv[]) {
                 testInt143& TD = *(testInt143 *) &testdest;
                 cout << "data: int[143] algorithm: memcpy\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 200000; ++i) {
+                for (int i = 0; i < 200000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -675,7 +675,7 @@ int main(int argc, char *argv[]) {
                 testInt10& TD = *(testInt10 *) &testdest;
                 cout << "data: int[10] algorithm: memcpy\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -697,7 +697,7 @@ int main(int argc, char *argv[]) {
                 testInt4& TD = *(testInt4 *) &testdest;
                 cout << "data: int[4] algorithm: memcpy\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -719,7 +719,7 @@ int main(int argc, char *argv[]) {
                 testInt& TD = *(testInt *) &testdest;
                 cout << "data: int[1] algorithm: memcpy\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     memcpy(&TD, &TS, sizeof(TS));
                     avoidopt((int *) &i, &TD,  &TS);
                     memcpy(&TD, &TS, sizeof(TS));
@@ -741,7 +741,7 @@ int main(int argc, char *argv[]) {
                 testChar143& TD = *(testChar143 *) &testdest;
                 cout << "data: char[143] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     bdeimp_BitwiseCopy<testChar143>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testChar143>::copy(&TD, &TS);
@@ -763,7 +763,7 @@ int main(int argc, char *argv[]) {
                 testChar43& TD = *(testChar43 *) &testdest;
                 cout << "data: char[43] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     bdeimp_BitwiseCopy<testChar43>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testChar43>::copy(&TD, &TS);
@@ -785,7 +785,7 @@ int main(int argc, char *argv[]) {
                 testChar10& TD = *(testChar10 *) &testdest;
                 cout << "data: char[10] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     bdeimp_BitwiseCopy<testChar10>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testChar10>::copy(&TD, &TS);
@@ -807,7 +807,7 @@ int main(int argc, char *argv[]) {
                 testChar4& TD = *(testChar4 *) &testdest;
                 cout << "data: char[4] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     bdeimp_BitwiseCopy<testChar4>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testChar4>::copy(&TD, &TS);
@@ -829,7 +829,7 @@ int main(int argc, char *argv[]) {
                 testInt143& TD = *(testInt143 *) &testdest;
                 cout << "data: int[143] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 200000; ++i) {
+                for (int i = 0; i < 200000; ++i) {
                     bdeimp_BitwiseCopy<testInt143>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testInt143>::copy(&TD, &TS);
@@ -851,7 +851,7 @@ int main(int argc, char *argv[]) {
                 testInt10& TD = *(testInt10 *) &testdest;
                 cout << "data: int[10] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     bdeimp_BitwiseCopy<testInt10>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testInt10>::copy(&TD, &TS);
@@ -873,7 +873,7 @@ int main(int argc, char *argv[]) {
                 testInt4& TD = *(testInt4 *) &testdest;
                 cout << "data: int[4] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     bdeimp_BitwiseCopy<testInt4>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testInt4>::copy(&TD, &TS);
@@ -895,7 +895,7 @@ int main(int argc, char *argv[]) {
                 testInt& TD = *(testInt *) &testdest;
                 cout << "data: int[1] algorithm: bitwiseCopy function\n";
                 times(&startTime);
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     bdeimp_BitwiseCopy<testInt>::copy(&TD, &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     bdeimp_BitwiseCopy<testInt>::copy(&TD, &TS);
@@ -916,7 +916,7 @@ int main(int argc, char *argv[]) {
                 times(&startTime);
                 int TS, TD;
                 cout << "control\n";
-                for (volatile int i = 0; i < 20000000; ++i) {
+                for (int i = 0; i < 20000000; ++i) {
                     avoidopt((int *) &i, &TD,  &TS);
                     avoidopt((int *) &i, &TD,  &TS);
                     avoidopt((int *) &i, &TD,  &TS);
@@ -967,9 +967,9 @@ int main(int argc, char *argv[]) {
         //
         // --------------------------------------------------------------------
         union Align {
-          char                               d_bytes[4096];
-          bsls_AlignmentUtil::MaxAlignedType d_align;   // only used for
-                                                        // alignment
+          char                                d_bytes[4096];
+          bsls::AlignmentUtil::MaxAlignedType d_align;   // only used for
+                                                         // alignment
         } testsource, testdest;
 
         if (verbose) cout << endl

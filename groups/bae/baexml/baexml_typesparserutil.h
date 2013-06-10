@@ -47,7 +47,7 @@ BDES_IDENT("$Id: $")
 //      [unsigned] short                    DEFAULT, DEC
 //      [unsigned] int                      DEFAULT, DEC
 //      [unsigned] long                     DEFAULT, DEC
-//      bsls_PlatformUtil::[Uint64|Int64]   DEFAULT, DEC
+//      bsls::Types::[Uint64|Int64]         DEFAULT, DEC
 //      float                               DEFAULT, DEC
 //      double                              DEFAULT, DEC
 //      bsl::string                         DEFAULT, TEXT, BASE64, HEX
@@ -79,7 +79,7 @@ BDES_IDENT("$Id: $")
 //      [unsigned] short                    DEC
 //      [unsigned] int                      DEC
 //      [unsigned] long                     DEC
-//      bsls_PlatformUtil::[Uint64|Int64]   DEC
+//      bsls::Types::[Uint64|Int64]         DEC
 //      bsl::string                         TEXT
 //      bsl::vector<char>                   BASE64
 //
@@ -152,8 +152,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -163,6 +163,13 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -319,9 +326,9 @@ struct baexml_TypesParserUtil_Imp {
                             const char *input,
                             int         inputLength,
                             bdeat_TypeCategory::Simple);
-    static int parseDecimal(bsls_PlatformUtil::Int64 *result,
-                            const char               *input,
-                            int                       inputLength,
+    static int parseDecimal(bsls::Types::Int64 *result,
+                            const char         *input,
+                            int                 inputLength,
                             bdeat_TypeCategory::Simple);
     static int parseDecimal(unsigned char *result,
                             const char    *input,
@@ -335,9 +342,9 @@ struct baexml_TypesParserUtil_Imp {
                             const char   *input,
                             int           inputLength,
                             bdeat_TypeCategory::Simple);
-    static int parseDecimal(bsls_PlatformUtil::Uint64 *result,
-                            const char                *input,
-                            int                        inputLength,
+    static int parseDecimal(bsls::Types::Uint64 *result,
+                            const char          *input,
+                            int                  inputLength,
                             bdeat_TypeCategory::Simple);
 
     static int parseDecimal(float       *result,
@@ -390,9 +397,9 @@ struct baexml_TypesParserUtil_Imp {
                             const char *input,
                             int         inputLength,
                             bdeat_TypeCategory::Simple);
-    static int parseDefault(bsls_PlatformUtil::Int64 *result,
-                            const char               *input,
-                            int                       inputLength,
+    static int parseDefault(bsls::Types::Int64 *result,
+                            const char         *input,
+                            int                 inputLength,
                             bdeat_TypeCategory::Simple);
     static int parseDefault(unsigned char *result,
                             const char    *input,
@@ -406,9 +413,9 @@ struct baexml_TypesParserUtil_Imp {
                             const char   *input,
                             int           inputLength,
                             bdeat_TypeCategory::Simple);
-    static int parseDefault(bsls_PlatformUtil::Uint64 *result,
-                            const char                *input,
-                            int                        inputLength,
+    static int parseDefault(bsls::Types::Uint64 *result,
+                            const char          *input,
+                            int                  inputLength,
                             bdeat_TypeCategory::Simple);
     static int parseDefault(float      *result,
                             const char *input,
@@ -558,7 +565,7 @@ struct baexml_TypesParserUtil_Imp_parseBase64Proxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         (void) object;
@@ -594,7 +601,7 @@ struct baexml_TypesParserUtil_Imp_parseDecimalProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         (void) object;
@@ -630,7 +637,7 @@ struct baexml_TypesParserUtil_Imp_parseDefaultProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         (void) object;
@@ -666,7 +673,7 @@ struct baexml_TypesParserUtil_Imp_parseHexProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         (void) object;
@@ -702,7 +709,7 @@ struct baexml_TypesParserUtil_Imp_parseListProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         (void) object;
@@ -738,7 +745,7 @@ struct baexml_TypesParserUtil_Imp_parseTextProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         (void) object;
@@ -1104,9 +1111,9 @@ int baexml_TypesParserUtil_Imp::parseDefault(int        *result,
 
 inline
 int baexml_TypesParserUtil_Imp::parseDefault(
-    bsls_PlatformUtil::Int64 *result,
-    const char               *input,
-    int                       inputLength,
+    bsls::Types::Int64 *result,
+    const char         *input,
+    int                 inputLength,
     bdeat_TypeCategory::Simple)
 {
     return parseDecimal(result, input, inputLength,
@@ -1145,9 +1152,9 @@ int baexml_TypesParserUtil_Imp::parseDefault(unsigned int *result,
 
 inline
 int baexml_TypesParserUtil_Imp::parseDefault(
-    bsls_PlatformUtil::Uint64 *result,
-    const char                *input,
-    int                        inputLength,
+    bsls::Types::Uint64 *result,
+    const char          *input,
+    int                  inputLength,
     bdeat_TypeCategory::Simple)
 {
     return parseDecimal(result, input, inputLength,

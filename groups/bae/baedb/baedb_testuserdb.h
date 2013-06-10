@@ -316,13 +316,13 @@ class baedb_TestUserDb : public baedb_UserDb {
         // information on 'bdex' streaming of container types.)
 
     // CREATORS
-    baedb_TestUserDb(bslma_Allocator *basicAllocator = 0);
+    baedb_TestUserDb(bslma::Allocator *basicAllocator = 0);
         // Create an empty user database.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // null, the currently installed default allocator is used.
 
     baedb_TestUserDb(const bdem_List&  inputUserRecords,
-                     bslma_Allocator  *basicAllocator = 0);
+                     bslma::Allocator *basicAllocator = 0);
         // Create a user database that contains the specified 'inputRecords'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is null, the currently installed default allocator
@@ -334,7 +334,7 @@ class baedb_TestUserDb : public baedb_UserDb {
 
     baedb_TestUserDb(const bdem_List&  inputFirmRecords,
                      const bdem_List&  inputUserRecords,
-                     bslma_Allocator  *basicAllocator = 0);
+                     bslma::Allocator *basicAllocator = 0);
         // Create a user database that contains the specified 'inputRecords'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is null, the currently installed default allocator
@@ -344,8 +344,8 @@ class baedb_TestUserDb : public baedb_UserDb {
         // Number" are greater than 0, and "Login ID" is not the empty string,
         // and the user records have unique keys.
 
-    baedb_TestUserDb(const char      *inputUserRecords,
-                     bslma_Allocator *basicAllocator = 0);
+    baedb_TestUserDb(const char       *inputUserRecords,
+                     bslma::Allocator *basicAllocator = 0);
         // Create a user database containing the records defined in the
         // specified 'inputRecords' string; 'inputRecords' must contain records
         // written in the '<LIST>' specification in the 'bdempu_aggregate'
@@ -361,7 +361,7 @@ class baedb_TestUserDb : public baedb_UserDb {
         // DEPRECATED: Use the 'bdem_List' versions above.
 
     baedb_TestUserDb(const baedb_TestUserDb&  original,
-                     bslma_Allocator         *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
         // Create a user database having the same value as the specified
         // 'original' database.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is null, the currently installed
@@ -719,7 +719,7 @@ int baedb_TestUserDb::maxSupportedBdexVersion()
 
 inline
 baedb_TestUserDb::baedb_TestUserDb(const baedb_TestUserDb&  original,
-                                   bslma_Allocator         *basicAllocator)
+                                   bslma::Allocator        *basicAllocator)
 : d_db(original.d_db, basicAllocator)
 {
 }

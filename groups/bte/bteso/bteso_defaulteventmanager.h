@@ -119,8 +119,8 @@ BDES_IDENT("$Id: $")
 #include <bteso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -160,7 +160,7 @@ class bteso_DefaultEventManager : public bteso_EventManager {
     // CREATORS
     explicit
     bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric     = 0,
-                              bslma_Allocator   *basicAllocator = 0);
+                              bslma::Allocator  *basicAllocator = 0);
         // Create a 'poll'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics

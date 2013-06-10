@@ -144,13 +144,13 @@ BCES_THREAD_LOCAL_VARIABLE(bael_AttributeContext*, g_threadLocalContext, 0);
 
 // CLASS MEMBERS
 bael_CategoryManager *bael_AttributeContext::s_categoryManager_p = 0;
-bslma_Allocator      *bael_AttributeContext::s_globalAllocator_p = 0;
+bslma::Allocator     *bael_AttributeContext::s_globalAllocator_p = 0;
 
 // PRIVATE CREATORS
 bael_AttributeContext
-::bael_AttributeContext(bslma_Allocator *basicAllocator)
+::bael_AttributeContext(bslma::Allocator *basicAllocator)
 : d_containerList(basicAllocator)
-, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
 }
 
@@ -179,9 +179,9 @@ void bael_AttributeContext::removeContext(void *arg)
 
     bael_AttributeContext *context = (bael_AttributeContext*)arg;
     if (context) {
-        bslma_Allocator *allocator = context->d_allocator_p;
+        bslma::Allocator *allocator = context->d_allocator_p;
 
-        // Note that we can't call 'bslma_Allocator::deleteObject' because the
+        // Note that we can't call 'bslma::Allocator::deleteObject' because the
         // destructor is private.
 
         context->~bael_AttributeContext();
@@ -192,7 +192,7 @@ void bael_AttributeContext::removeContext(void *arg)
 // CLASS METHODS
 void
 bael_AttributeContext::initialize(bael_CategoryManager *categoryManager,
-                                  bslma_Allocator      *globalAllocator)
+                                  bslma::Allocator     *globalAllocator)
 {
     if (s_globalAllocator_p) {
         bsl::fprintf(
@@ -202,7 +202,7 @@ bael_AttributeContext::initialize(bael_CategoryManager *categoryManager,
                  __LINE__);
         return;                                                       // RETURN
     }
-    s_globalAllocator_p = bslma_Default::globalAllocator(globalAllocator);
+    s_globalAllocator_p = bslma::Default::globalAllocator(globalAllocator);
     s_categoryManager_p = categoryManager;
 }
 
@@ -223,8 +223,8 @@ bael_AttributeContext *bael_AttributeContext::getContext()
         return g_threadLocalContext;                                  // RETURN
     }
 
-    bslma_Allocator *allocator =
-                          bslma_Default::globalAllocator(s_globalAllocator_p);
+    bslma::Allocator *allocator =
+                          bslma::Default::globalAllocator(s_globalAllocator_p);
     bael_AttributeContext *context =
                             new (*allocator) bael_AttributeContext(allocator);
     if (0 != bcemt_ThreadUtil::setSpecific(contextKey(), context)) {
@@ -244,8 +244,8 @@ bael_AttributeContext *bael_AttributeContext::getContext()
         (bael_AttributeContext*)bcemt_ThreadUtil::getSpecific(key);
 
     if (!context) {
-        bslma_Allocator *allocator =
-                           bslma_Default::globalAllocator(s_globalAllocator_p);
+        bslma::Allocator *allocator =
+                          bslma::Default::globalAllocator(s_globalAllocator_p);
         context = new (*allocator) bael_AttributeContext(allocator);
         if (0 != bcemt_ThreadUtil::setSpecific(key, context)) {
             bsl::fprintf(stderr,

@@ -57,7 +57,7 @@ using namespace BloombergLP;
 // [ 8] char& theModifiableChar();
 // [ 8] short& theModifiableShort();
 // [ 8] int& theModifiableInt();
-// [ 8] bsls_Types::Int64& theModifiableInt64();
+// [ 8] bsls::Types::Int64& theModifiableInt64();
 // [ 8] float& theModifiableFloat();
 // [ 8] double& theModifiableDouble();
 // [ 8] bsl::string& theModifiableString();
@@ -99,7 +99,7 @@ using namespace BloombergLP;
 // [ 8] const char& theChar() const;
 // [ 8] const short& theShort() const;
 // [ 8] const int& theInt() const;
-// [ 8] const bsls_Types::Int64& theInt64() const;
+// [ 8] const bsls::Types::Int64& theInt64() const;
 // [ 8] const float& theFloat() const;
 // [ 8] const double& theDouble() const;
 // [ 8] const bsl::string& theString() const;
@@ -113,7 +113,7 @@ using namespace BloombergLP;
 // [ 8] const bsl::vector<char>& theCharArray() const;
 // [ 8] const bsl::vector<short>& theShortArray() const;
 // [ 8] const bsl::vector<int>& theIntArray() const;
-// [ 8] const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
+// [ 8] const bsl::vector<bsls::Types::Int64>& theInt64Array() const;
 // [ 8] const bsl::vector<float>& theFloatArray() const;
 // [ 8] const bsl::vector<double>& theDoubleArray() const;
 // [ 8] const bsl::vector<bsl::string>& theStringArray() const;
@@ -230,7 +230,7 @@ typedef bdem_ConstElemRef                    CERef;
 typedef bdem_ElemType                        EType;
 typedef bdem_AggregateOption                 AggOption;
 
-typedef bsls_Types::Int64                    Int64;
+typedef bsls::Types::Int64                   Int64;
 
 typedef bdem_Choice                          Choice;
 typedef bdem_ChoiceArray                     ChoiceArray;
@@ -454,7 +454,7 @@ bdem_List::bdem_List()
 }
 
 bdem_List::bdem_List(const bdem_List&  original)
-: d_listImp((bdem_ListImp &) original,
+: d_listImp((const bdem_ListImp &) original,
              bdem_AggregateOption::BDEM_PASS_THROUGH)
 {
 }
@@ -584,12 +584,12 @@ const int              A02 = 10;
 const int              B02 = 20;
 const int              N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_Types::Int64
+const bsls::Types::Int64
                        A03 = -100;
-const bsls_Types::Int64
+const bsls::Types::Int64
                        B03 = -200;
-const bsls_Types::Int64
-                       N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
+const bsls::Types::Int64
+                       N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -661,15 +661,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_Types::Int64>    fA13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>    fA13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_Types::Int64>    fB13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>    fB13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_Types::Int64>     A13 = fA13();
-const  bsl::vector<bsls_Types::Int64>     B13 = fB13();
-const  bsl::vector<bsls_Types::Int64>     N13;
+const  bsl::vector<bsls::Types::Int64>     A13 = fA13();
+const  bsl::vector<bsls::Types::Int64>     B13 = fB13();
+const  bsl::vector<bsls::Types::Int64>     N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -1263,7 +1263,7 @@ static void ggCatalog(const char *s,
     }
 }
 
-static const void *getValueA(char spec)
+static void *getValueA(char spec)
     // Return the 'A' value corresponding to the specified 'spec'.  Valid
     // input consists of uppercase letters where the index of each letter is
     // in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
@@ -1272,27 +1272,27 @@ static const void *getValueA(char spec)
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_A[index];
+    return const_cast<void *>(VALUES_A[index]);
 }
 
-static const void *getValueB(char spec)
+static void *getValueB(char spec)
     // Return the 'B' value corresponding to the specified 'spec'.
 {
     char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_B[index];
+    return const_cast<void *>(VALUES_B[index]);
 }
 
-static const void *getValueN(char spec)
+static void *getValueN(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_N[index];
+    return const_cast<void *>(VALUES_N[index]);
 }
 
 static bool isUnset(const CERef& ref)
@@ -1415,8 +1415,8 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator defaultAllocator;  // default allocation
-    const bslma_DefaultAllocatorGuard DAG(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator;  // default allocation
+    const bslma::DefaultAllocatorGuard DAG(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
@@ -1669,7 +1669,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator alloc(veryVeryVerbose);
+        bslma::TestAllocator alloc(veryVeryVerbose);
 
         for (int i1 = 0; i1 < NUM_DATA; ++i1) {
             const int   LINE1  = DATA[i1].d_line;
@@ -1682,7 +1682,7 @@ int main(int argc, char *argv[])
                 const char   S1  = SPEC1[j1];
                 const CERef C1_A = CERef(getValueA(S1), getDescriptor(S1));
 
-                bslma_TestAllocator alloc(veryVeryVerbose);
+                bslma::TestAllocator alloc(veryVeryVerbose);
                 DescCatalog catalog(&alloc);  ggCatalog(SPEC1, catalog);
 
                 CHead mXCH(&catalog);
@@ -1761,7 +1761,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\t" << #TYPE << bsl::endl;                    \
         }                                                               \
         {                                                               \
-            bslma_TestAllocator alloc(veryVeryVerbose);                 \
+            bslma::TestAllocator alloc(veryVeryVerbose);                \
                                                                         \
             DescCatalog catalog(&alloc);                                \
             catalog.push_back(&Prop::d_ ## LTYPE ## Attr);              \
@@ -1822,7 +1822,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\t" << #TYPE << bsl::endl;                    \
         }                                                               \
         {                                                               \
-            bslma_TestAllocator alloc(veryVeryVerbose);                 \
+            bslma::TestAllocator alloc(veryVeryVerbose);                \
                                                                         \
             DescCatalog catalog(&alloc);                                \
             catalog.push_back(DESC);                                    \
@@ -1913,7 +1913,7 @@ int main(int argc, char *argv[])
             const char *SPEC  = DATA[i].d_catalogSpec;
             const int   LEN   = bsl::strlen(SPEC);
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
             DescCatalog catalog(&alloc);  ggCatalog(SPEC, catalog);
 
             CHead mXCH(&catalog);
@@ -1964,7 +1964,7 @@ int main(int argc, char *argv[])
         //   char& theModifiableChar();
         //   short& theModifiableShort();
         //   int& theModifiableInt();
-        //   bsls_Types::Int64& theModifiableInt64();
+        //   bsls::Types::Int64& theModifiableInt64();
         //   float& theModifiableFloat();
         //   double& theModifiableDouble();
         //   bsl::string& theModifiableString();
@@ -1996,7 +1996,7 @@ int main(int argc, char *argv[])
         //   const char& theChar() const;
         //   const short& theShort() const;
         //   const int& theInt() const;
-        //   const bsls_Types::Int64& theInt64() const;
+        //   const bsls::Types::Int64& theInt64() const;
         //   const float& theFloat() const;
         //   const double& theDouble() const;
         //   const bsl::string& theString() const;
@@ -2010,7 +2010,7 @@ int main(int argc, char *argv[])
         //   const vector<char>& theCharArray() const;
         //   const vector<short>& theShortArray() const;
         //   const vector<int>& theIntArray() const;
-        //   const vector<bsls_Types::Int64>& theInt64Array() const;
+        //   const vector<bsls::Types::Int64>& theInt64Array() const;
         //   const vector<float>& theFloatArray() const;
         //   const vector<double>& theDoubleArray() const;
         //   const vector<bdet_Datetime>& theDatetimeArray() const;
@@ -2037,7 +2037,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\t" #TYPE << bsl::endl;                       \
         }                                                               \
         {                                                               \
-            bslma_TestAllocator alloc(veryVeryVerbose);                 \
+            bslma::TestAllocator alloc(veryVeryVerbose);                \
                                                                         \
             DescCatalog catalog(&alloc);                                \
             catalog.push_back(&Prop::d_ ## LTYPE ## Attr);              \
@@ -2090,7 +2090,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\t" #TYPE << bsl::endl;                       \
         }                                                               \
         {                                                               \
-            bslma_TestAllocator alloc(veryVeryVerbose);                 \
+            bslma::TestAllocator alloc(veryVeryVerbose);                \
                                                                         \
             DescCatalog catalog(&alloc);                                \
             catalog.push_back(DESC);                                    \
@@ -2172,7 +2172,7 @@ int main(int argc, char *argv[])
               const char *SPEC  = DATA[i].d_catalogSpec;
               const int   LEN   = bsl::strlen(SPEC);
 
-              bslma_TestAllocator alloc(veryVeryVerbose);
+              bslma::TestAllocator alloc(veryVeryVerbose);
               DescCatalog catalog(&alloc);  ggCatalog(SPEC, catalog);
 
               CHead mXCH(&catalog);
@@ -2287,11 +2287,11 @@ int main(int argc, char *argv[])
                 EType::Type  JTYPE = getElemType(*JSPEC);
 
                 // explicit allocation
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 BEGIN_BSLMA_EXCEPTION_TEST {
                   bdema_SequentialAllocator  seqAllocator(&testAllocator);
-                  bslma_Allocator           *alloc = 0;
+                  bslma::Allocator          *alloc = 0;
 
                   if (i < 2) {
                       alloc = &testAllocator;
@@ -2967,7 +2967,7 @@ int main(int argc, char *argv[])
                     const CERef C1_A = CERef(getValueA(S1), getDescriptor(S1));
                     const CERef C1_B = CERef(getValueB(S1), getDescriptor(S1));
 
-                    bslma_TestAllocator alloc1(veryVeryVerbose);
+                    bslma::TestAllocator alloc1(veryVeryVerbose);
                     DescCatalog catalog1(&alloc1);  ggCatalog(SPEC1, catalog1);
                     CHead mX(&catalog1);
                     Obj &X = reinterpret_cast<Obj&>(mX);
@@ -2996,7 +2996,7 @@ int main(int argc, char *argv[])
 
                     // Stream a constructed obj to an empty obj
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
 
                         DescCatalog catalogA(&tmpAlloc);
                         catalogA = catalog1;
@@ -3067,7 +3067,7 @@ int main(int argc, char *argv[])
 
                     // Stream a constructed obj to a non-empty obj
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
 
                         DescCatalog catalogA(&tmpAlloc);
                         catalogA = catalog1;
@@ -3146,7 +3146,7 @@ int main(int argc, char *argv[])
 
                     // Stream from an empty and invalid stream
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
 
                         DescCatalog catalogA(&tmpAlloc);
                         ggCatalog(SPEC1, catalogA);
@@ -3252,7 +3252,7 @@ int main(int argc, char *argv[])
 
                     // Stream an empty obj to a constructed obj
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                         DescCatalog catalogY(&tmpAlloc);
                         ggCatalog(SPEC1, catalogY);
                         CHead mY(&catalogY);
@@ -3478,10 +3478,10 @@ int main(int argc, char *argv[])
                 const char S1 = SPEC1[j1];
                 const char S2 = SPEC2[j2];
 
-                bslma_TestAllocator alloc1(veryVeryVerbose);
+                bslma::TestAllocator alloc1(veryVeryVerbose);
                 DescCatalog catalog1(&alloc1);  ggCatalog(SPEC1, catalog1);
 
-                bslma_TestAllocator alloc2(veryVeryVerbose);
+                bslma::TestAllocator alloc2(veryVeryVerbose);
                 DescCatalog catalog2(&alloc2);  ggCatalog(SPEC2, catalog2);
 
                 CERef C1_A = CERef(getValueA(S1), getDescriptor(S1));
@@ -3647,7 +3647,7 @@ int main(int argc, char *argv[])
           const char *EXP_P4 = "{ VOID NULL }";
           const char *EXP_OP = "{ VOID NULL }";
 
-          bslma_TestAllocator t1(veryVeryVerbose);
+          bslma::TestAllocator t1(veryVeryVerbose);
           DescCatalog catalog(&t1);
           CHead mXCH(&catalog);
           Obj &X = reinterpret_cast<Obj&>(mXCH);
@@ -3706,7 +3706,7 @@ int main(int argc, char *argv[])
           const char *EXP_P4 = "{ VOID NULL }";
           const char *EXP_OP = "{ VOID NULL }";
 
-          bslma_TestAllocator t1(veryVeryVerbose);
+          bslma::TestAllocator t1(veryVeryVerbose);
           DescCatalog catalog(&t1);
           CHead mXCH(&catalog);
           Obj &X = reinterpret_cast<Obj&>(mXCH);
@@ -4406,7 +4406,7 @@ int main(int argc, char *argv[])
           }
           const CERef VALUE_REF(VALUE, DESC);
 
-          bslma_TestAllocator alloc(veryVeryVerbose);
+          bslma::TestAllocator alloc(veryVeryVerbose);
           DescCatalog catalog(&alloc);  ggCatalog(SPEC_S, catalog);
           CHead mXCH(&catalog);
           Obj &X = reinterpret_cast<Obj&>(mXCH);
@@ -4609,7 +4609,7 @@ int main(int argc, char *argv[])
             const char *SPEC = DATA[j].d_catalogSpec;
             const int   LEN  = bsl::strlen(SPEC);
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
             DescCatalog catalog(&alloc);  ggCatalog(SPEC, catalog);
 
             CHead mXCH(&catalog);
@@ -4894,8 +4894,8 @@ int main(int argc, char *argv[])
         const char SPEC[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef";
               int  LEN    = sizeof SPEC - 1;
 
-        bslma_TestAllocator  testAllocator;
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator;
+        bslma::Allocator     *Z = &testAllocator;
 
         if (verbose) {
           bsl::cout << "\nTesting 'getElemType'" << bsl::endl;
@@ -5175,7 +5175,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nBREATHING TEST"
                                << "\n==============" << bsl::endl;
 
-        bslma_TestAllocator t1;
+        bslma::TestAllocator t1;
 
         DescCatalog catalog(&t1);
         const int INT_IDX = catalog.size();

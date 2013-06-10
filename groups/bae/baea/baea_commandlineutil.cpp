@@ -1,5 +1,6 @@
 // baea_commandlineutil.cpp   -*-C++-*-
 #include <baea_commandlineutil.h>
+#include <baea_commandline.h>  // for testing only
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baea_commandlineutil_cpp,"$Id$ $CSID$")
@@ -22,7 +23,7 @@ int baea_CommandLineUtil::splitCommandLineArguments(
     BSLS_ASSERT(separator != 0);
 
     if (0 == argc) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     BSLS_ASSERT(argv != 0);

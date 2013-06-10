@@ -1455,20 +1455,25 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::readFrom(
                                  int                               numBytes,
                                  int                              *errorCode)
 {
-    int rc;
-    bteso_SocketImpUtil_Address<ADDRESS> address;
+    // 'recvfrom' may not assign 'address' in some instances, so we should
+    // ensure that 'address' has a reasonable default value (i.e., is not
+    // uninitialized memory).
+
+    bteso_SocketImpUtil_Address<ADDRESS> address(*fromAddress);
     bteso_SocketImpUtil_Util::ADDRLEN_T siLen = sizeof address.d_address;
 
-    rc = static_cast<int>(::recvfrom(socket, (char *) buffer, numBytes, 0,
+    int rc = static_cast<int>(::recvfrom(socket, (char *) buffer, numBytes, 0,
                                      (sockaddr *)&address.d_address, &siLen));
+
+    address.fromSocketAddress(fromAddress);
     if (rc >= 0) {
-        address.fromSocketAddress(fromAddress);
         return rc;
     }
     else {
         int errorNumber = bteso_SocketImpUtil_Util::getErrorCode();
-        if (errorNumber && errorCode)
+        if (errorNumber && errorCode) {
             *errorCode = errorNumber;
+        }
         return bteso_SocketImpUtil_Util::mapErrorCode(errorNumber);
     }
 }
@@ -1485,7 +1490,7 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::writeTo(
     bteso_SocketImpUtil_Address<ADDRESS> sockAddress(toAddress);
 
     if (!numBytes) return 0;
-    rc = static_cast<int>(::sendto(socket, (char *) buffer, numBytes, 0,
+    rc = static_cast<int>(::sendto(socket, (const char *) buffer, numBytes, 0,
                                    (sockaddr *)&sockAddress.d_address,
                                    sizeof sockAddress.d_address));
     int errorNumber = rc >= 0 ? 0 : bteso_SocketImpUtil_Util::getErrorCode();

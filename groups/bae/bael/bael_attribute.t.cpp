@@ -11,6 +11,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_iostream.h>
@@ -104,8 +105,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bael_Attribute Obj;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bael_Attribute     Obj;
+typedef bsls::Types::Int64 Int64;
 typedef bdex_TestInStream  StreamIn;
 typedef bdex_TestOutStream StreamOut;
 
@@ -227,42 +228,42 @@ Obj::Value createValue(int type, int v1, Int64 v2, const char *v3)
 //-----------------------------------------------------------------------------
 
 class MyAttributeValue {
-    int                                d_type;
-    bslma_Allocator *d_allocator_p;
+    int               d_type;
+    bslma::Allocator *d_allocator_p;
     union {
-        bsls_AlignmentUtil::MaxAlignedType d_align;
-        int                                d_int32Value;
-        bsls_PlatformUtil::Int64           d_int64Value;
-        char                               d_stringValue[sizeof(bsl::string)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+        int                                 d_int32Value;
+        bsls::Types::Int64                  d_int64Value;
+        char                                d_stringValue[sizeof(bsl::string)];
     };
 
   public:
-    MyAttributeValue(int value, bslma_Allocator *basicAllocator = 0)
+    MyAttributeValue(int value, bslma::Allocator *basicAllocator = 0)
     : d_type (0)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_int32Value = value;
     }
 
-    MyAttributeValue(bsls_PlatformUtil::Int64  value,
-                     bslma_Allocator          *basicAllocator = 0)
+    MyAttributeValue(bsls::Types::Int64  value,
+                     bslma::Allocator   *basicAllocator = 0)
     : d_type (1)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_int64Value = value;
     }
 
-    MyAttributeValue(const char *value, bslma_Allocator *basicAllocator = 0)
+    MyAttributeValue(const char *value, bslma::Allocator *basicAllocator = 0)
     : d_type (2)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         new (d_stringValue) bsl::string(value, basicAllocator);
     }
 
     MyAttributeValue(const MyAttributeValue&  rhs,
-                     bslma_Allocator         *basicAllocator = 0)
+                     bslma::Allocator        *basicAllocator = 0)
     : d_type(rhs.d_type)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         switch (d_type) {
           case 0: {
@@ -404,9 +405,9 @@ class MyAttribute {
         // undefined unless '0 <= size'.
 
     // CREATORS
-    MyAttribute(const char      *name,
-                   int              value,
-                   bslma_Allocator *basicAllocator = 0 );
+    MyAttribute(const char       *name,
+                int               value,
+                bslma::Allocator *basicAllocator = 0 );
         // Create a 'MyAttribute' object having the specified (literal)
         // 'name' and (32-bit integer) 'value'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -414,9 +415,9 @@ class MyAttribute {
         // 'name' is not managed by this object and therefore must remain
         // valid while in use by any 'MyAttribute' object.
 
-    MyAttribute(const char               *name,
-                   bsls_PlatformUtil::Int64  value,
-                   bslma_Allocator          *basicAllocator = 0 );
+    MyAttribute(const char         *name,
+                bsls::Types::Int64  value,
+                bslma::Allocator    *basicAllocator = 0 );
         // Create a 'MyAttribute' object having the specified (literal)
         // 'name' and (64-bit integer) 'value'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -424,9 +425,9 @@ class MyAttribute {
         // 'name' is not managed by this object and therefore must remain
         // valid while in use by any 'MyAttribute' object.
 
-    MyAttribute(const char      *name,
-                   const char      *value,
-                   bslma_Allocator *basicAllocator = 0 );
+    MyAttribute(const char       *name,
+                const char       *value,
+                bslma::Allocator *basicAllocator = 0 );
         // Create a 'MyAttribute' object having the specified (literal)
         // 'name' and (character string)'value'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -434,9 +435,9 @@ class MyAttribute {
         // 'name' is not managed by this object and therefore must remain
         // valid while in use by any 'MyAttribute' object.
 
-    MyAttribute(const char      *name,
-                   const Value&     value,
-                   bslma_Allocator *basicAllocator = 0 );
+    MyAttribute(const char       *name,
+                const Value&      value,
+                bslma::Allocator *basicAllocator = 0 );
         // Create a 'MyAttribute' object having the specified (literal)
         // 'name' and 'value'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -444,8 +445,8 @@ class MyAttribute {
         // this object and therefore must remain valid while in use by any
         // 'MyAttribute' object.
 
-    MyAttribute(const MyAttribute&     original,
-                   bslma_Allocator          *basicAllocator = 0);
+    MyAttribute(const MyAttribute&  original,
+                bslma::Allocator   *basicAllocator = 0);
         // Create a 'MyAttribute' object having the same (literal) name and
         // attribute value as the specified 'original' object.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -514,9 +515,9 @@ bsl::ostream& operator<<(bsl::ostream&         output,
 
 // CREATORS
 inline
-MyAttribute::MyAttribute(const char      *name,
-                               int              value,
-                               bslma_Allocator *basicAllocator)
+MyAttribute::MyAttribute(const char       *name,
+                         int               value,
+                         bslma::Allocator *basicAllocator)
 : d_name(name)
 , d_value(value, basicAllocator)
 , d_hashValue(-1)
@@ -524,9 +525,9 @@ MyAttribute::MyAttribute(const char      *name,
 }
 
 inline
-MyAttribute::MyAttribute(const char               *name,
-                               bsls_PlatformUtil::Int64 value,
-                               bslma_Allocator          *basicAllocator)
+MyAttribute::MyAttribute(const char         *name,
+                         bsls::Types::Int64  value,
+                         bslma::Allocator   *basicAllocator)
 : d_name(name)
 , d_value(value, basicAllocator)
 , d_hashValue(-1)
@@ -534,9 +535,9 @@ MyAttribute::MyAttribute(const char               *name,
 }
 
 inline
-MyAttribute::MyAttribute(const char      *name,
-                               const char      *value,
-                               bslma_Allocator *basicAllocator)
+MyAttribute::MyAttribute(const char       *name,
+                         const char       *value,
+                         bslma::Allocator *basicAllocator)
 : d_name(name)
 , d_value(value, basicAllocator)
 , d_hashValue(-1)
@@ -544,9 +545,9 @@ MyAttribute::MyAttribute(const char      *name,
 }
 
 inline
-MyAttribute::MyAttribute(const char      *name,
-                               const Value&     value,
-                               bslma_Allocator *basicAllocator)
+MyAttribute::MyAttribute(const char       *name,
+                         const Value&      value,
+                         bslma::Allocator *basicAllocator)
 : d_name(name)
 , d_value(value, basicAllocator)
 , d_hashValue(-1)
@@ -555,7 +556,7 @@ MyAttribute::MyAttribute(const char      *name,
 
 inline
 MyAttribute::MyAttribute(const MyAttribute&  original,
-                               bslma_Allocator       *basicAllocator)
+                         bslma::Allocator   *basicAllocator)
 : d_name(original.d_name)
 , d_value(original.d_value, basicAllocator)
 , d_hashValue(original.d_hashValue)
@@ -679,7 +680,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -706,7 +707,7 @@ int main(int argc, char *argv[])
                           << endl;
         bael_Attribute a1("day", "Sunday");
         bael_Attribute a2("day", 7);
-        bael_Attribute a3("day", static_cast<bsls_PlatformUtil::Int64>(7));
+        bael_Attribute a3("day", static_cast<bsls::Types::Int64>(7));
 
         ASSERT(0 == bsl::strcmp("day", a1.name()));
         ASSERT(0 == bsl::strcmp("day", a2.name()));
@@ -718,8 +719,8 @@ int main(int argc, char *argv[])
         ASSERT(true     == a2.value().is<int>());
         ASSERT(7        == a2.value().the<int>());
 
-        ASSERT(true     == a3.value().is<bsls_PlatformUtil::Int64>());
-        ASSERT(7        == a3.value().the<bsls_PlatformUtil::Int64>());
+        ASSERT(true     == a3.value().is<bsls::Types::Int64>());
+        ASSERT(7        == a3.value().the<bsls::Types::Int64>());
 
         char buffer[] = "Hello";
         bael_Attribute a4(buffer, 1);                   // BAD IDEA!!!
@@ -860,13 +861,13 @@ int main(int argc, char *argv[])
                           << endl;
 
         static const struct {
-            int                d_line;       // line number
-            const char        *d_name;       // attribute name
-            int                d_type;       // type of attribute value
-            bsls_Types::Int64  d_ivalue;     // integer attribute value
-            const char        *d_svalue;     // string attribute value
-            int                d_hashSize;   // hashtable size
-            int                d_hashValue;  // expected hash value
+            int                 d_line;       // line number
+            const char         *d_name;       // attribute name
+            int                 d_type;       // type of attribute value
+            bsls::Types::Int64  d_ivalue;     // integer attribute value
+            const char         *d_svalue;     // string attribute value
+            int                 d_hashSize;   // hashtable size
+            int                 d_hashValue;  // expected hash value
         } HDATA[] = {
             // line  name  type  ivalue   svalue  hsize       hash value
             // ----  ----  ----  ------   ------  -----       ----------

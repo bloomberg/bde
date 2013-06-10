@@ -77,8 +77,8 @@ public:
 
     // PUBLIC DATA MEMBERS
     union {
-        char                               d_arena[ARENA_SIZE];
-        bsls_AlignmentUtil::MaxAlignedType d_align;  // for alignment
+        char                                d_arena[ARENA_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;  // for alignment
     }                 d_cb;
 
     bdet_TimeInterval d_timeout;
@@ -315,14 +315,14 @@ btesos_TcpTimedCbChannel_RReg::~btesos_TcpTimedCbChannel_RReg() {
                 (bdef_Function<void (*)(const char *, int, int)> *)
                         (void *) d_cb.d_arena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         BSLS_ASSERT(d_callbackType == VFUNC2);
         bdef_Function<void (*)(int, int)> *cb =
                 (bdef_Function<void (*)(int, int)> *)(void *)d_cb.d_arena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
 }
 
@@ -332,7 +332,8 @@ inline
 void btesos_TcpTimedCbChannel_RReg::invoke(int status, int asyncStatus) const {
     BSLS_ASSERT(VFUNC2 == d_callbackType);
     bdef_Function<void (*)(int, int)> *cb =
-        (bdef_Function<void (*)(int, int)> *) (void *) d_cb.d_arena;
+        (bdef_Function<void (*)(int, int)> *)
+        (void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(status, asyncStatus);
 }
 
@@ -340,7 +341,7 @@ inline
 void btesos_TcpTimedCbChannel_RReg::invoke(const char *buffer,
                                           int status, int asyncStatus) const {
     BSLS_ASSERT(VFUNC3 == d_callbackType);
-    BReadCb *cb = (BReadCb *)(void *)d_cb.d_arena;
+    BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(buffer, status, asyncStatus);
 }
 
@@ -2088,7 +2089,7 @@ void btesos_TcpTimedCbChannel::writeTimerCb()
 btesos_TcpTimedCbChannel::btesos_TcpTimedCbChannel(
         bteso_StreamSocket<bteso_IPv4Address> *sSocket,
         bteso_TimerEventManager               *manager,
-        bslma_Allocator                       *basicAllocator)
+        bslma::Allocator                      *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(manager)
 , d_wManager_p(manager)
@@ -2161,7 +2162,7 @@ btesos_TcpTimedCbChannel::btesos_TcpTimedCbChannel(
         bteso_StreamSocket<bteso_IPv4Address> *sSocket,
         bteso_TimerEventManager               *rManager,
         bteso_TimerEventManager               *wManager,
-        bslma_Allocator                       *basicAllocator)
+        bslma::Allocator                      *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(rManager)
 , d_wManager_p(wManager)
@@ -3573,9 +3574,11 @@ int btesos_TcpTimedCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + numBytes);
                 }
 
-                bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
-                            (char*)(buffers[idx].buffer()) + offset,
-                            buffers[idx].length() - offset);
+                bsl::memcpy(
+                        &d_writeBuffer[d_writeBufferOffset],
+                        (char*) const_cast<void *>(buffers[idx].buffer())
+                            + offset,
+                        buffers[idx].length() - offset);
 
                 if (idx < numBuffers - 1) {
                     int len = btes_IovecUtil::gather(
@@ -3849,7 +3852,8 @@ int btesos_TcpTimedCbChannel::timedBufferedWritev(
                 }
 
                 bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
-                            (char*)(buffers[idx].buffer()) + offset,
+                            (char*) const_cast<void *>(buffers[idx].buffer())
+                                + offset,
                             buffers[idx].length() - offset);
 
                 if (idx < numBuffers - 1) {

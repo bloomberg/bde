@@ -8,8 +8,8 @@ BDES_IDENT_RCSID(btes_iovecutil_cpp,"$Id$ $CSID$")
 #include <bcema_blob.h>
 #include <bcema_pooledblobbufferfactory.h>
 #include <bslma_allocator.h>
-#include <bsls_platformutil.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>
 
@@ -134,12 +134,12 @@ bcema_PooledBufferChain *genericChain(const IOVEC                    *vecs,
     BSLS_ASSERT(offset >= 0);
     BSLS_ASSERT(numVecs > 0);
 
-    bsls_PlatformUtil::Int64 totalLength = 0;
+    bsls::Types::Int64 totalLength = 0;
     bcema_PooledBufferChain *chain = factory->allocate(0);
     const IOVEC *cur = &vecs[0];
 
     for (int i = 0; i < numVecs; ++i, ++cur) {
-        bsls_PlatformUtil::Int64 newLength  = totalLength + cur->length();
+        bsls::Types::Int64 newLength  = totalLength + cur->length();
         if (totalLength <= offset && offset < newLength) {
             BSLS_ASSERT(0 == chain->length());
 
@@ -174,14 +174,16 @@ int genericGather(char        *buffer,
     int numCopied = 0;
     while(numBuffers-- && 0 < length) {
         if (buffers->length() < length) {
-            bsl::memcpy(buffer, (char*)buffers->buffer(), buffers->length());
+            bsl::memcpy(buffer,
+                        (const char*)buffers->buffer(),
+                        buffers->length());
             numCopied += buffers->length();
             length -= buffers->length();
             buffer += buffers->length();
             ++buffers;
         }
         else {
-            bsl::memcpy(buffer, (char*)buffers->buffer(), length);
+            bsl::memcpy(buffer, (const char*)buffers->buffer(), length);
             numCopied += length;
             length = 0;
         }
@@ -245,14 +247,18 @@ int genericScatter(const IOVEC *buffers,
     int numCopied = 0;
     while(numBuffers-- && 0 < length) {
         if (buffers->length() < length) {
-            bsl::memcpy((char*)buffers->buffer(), buffer, buffers->length());
+            bsl::memcpy((char*) const_cast<void *>(buffers->buffer()),
+                        buffer,
+                        buffers->length());
             numCopied += buffers->length();
             length -= buffers->length();
             buffer += buffers->length();
             ++buffers;
         }
         else {
-            bsl::memcpy((char*)buffers->buffer(), buffer, length);
+            bsl::memcpy((char*) const_cast<void *>(buffers->buffer()),
+                        buffer,
+                        length);
             numCopied += length;
             length = 0;
         }
@@ -286,7 +292,7 @@ bcema_Blob *btes_IovecUtil::blob(const btes_Iovec        *vecs,
                                  int                      numVecs,
                                  int                      offset,
                                  bcema_BlobBufferFactory *factory,
-                                 bslma_Allocator         *allocator)
+                                 bslma::Allocator        *allocator)
 {
     bcema_Blob *blob = new(*allocator) bcema_Blob(factory, allocator);
     appendToBlob(blob, vecs, numVecs, offset);
@@ -296,7 +302,7 @@ bcema_Blob *btes_IovecUtil::blob(const btes_Iovec        *vecs,
 bcema_Blob *btes_IovecUtil::blob(const btes_Iovec        *vecs,
                                  int                      numVecs,
                                  bcema_BlobBufferFactory *factory,
-                                 bslma_Allocator         *allocator)
+                                 bslma::Allocator        *allocator)
 {
     bcema_Blob *blob = new(*allocator) bcema_Blob(factory, allocator);
     appendToBlob(blob, vecs, numVecs, 0);

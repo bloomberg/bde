@@ -10,8 +10,8 @@
 #include <bdesb_fixedmemoutstreambuf.h>
 #include <bdesb_fixedmeminput.h>
 #include <bdesb_fixedmemoutput.h>
-#include <bsls_platformutil.h>                  // for testing only
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy(), memcmp(), strlen()
@@ -45,14 +45,14 @@ using namespace bsl;  // automatically added by script
 // [23] getVersion(int& variable);
 // [22] getArrayFloat64(double *array, int numValues);
 // [21] getArrayFloat32(float *array, int numValues);
-// [20] getArrayInt64(bsls_PlatformUtil::Int64 *array, int numValues);
-// [20] getArrayUint64(bsls_PlatformUtil::Uint64 *array, int numValues);
-// [19] getArrayInt56(bsls_PlatformUtil::Int64 *array, int numValues);
-// [19] getArrayUint56(bsls_PlatformUtil::Uint64 *array, int numValues);
-// [18] getArrayInt48(bsls_PlatformUtil::Int64 *array, int numValues);
-// [18] getArrayUint48(bsls_PlatformUtil::Uint64 *array, int numValues);
-// [17] getArrayInt40(bsls_PlatformUtil::Int64 *array, int numValues);
-// [17] getArrayUint40(bsls_PlatformUtil::Uint64 *array, int numValues);
+// [20] getArrayInt64(bsls::Types::Int64 *array, int numValues);
+// [20] getArrayUint64(bsls::Types::Uint64 *array, int numValues);
+// [19] getArrayInt56(bsls::Types::Int64 *array, int numValues);
+// [19] getArrayUint56(bsls::Types::Uint64 *array, int numValues);
+// [18] getArrayInt48(bsls::Types::Int64 *array, int numValues);
+// [18] getArrayUint48(bsls::Types::Uint64 *array, int numValues);
+// [17] getArrayInt40(bsls::Types::Int64 *array, int numValues);
+// [17] getArrayUint40(bsls::Types::Uint64 *array, int numValues);
 // [16] getArrayInt32(int *array, int numValues);
 // [16] getArrayUint32(unsigned int *array, int numValues);
 // [15] getArrayInt24(int *array, int numValues);
@@ -65,14 +65,14 @@ using namespace bsl;  // automatically added by script
 // [13] getArrayUint8(unsigned char *array, int numValues);
 // [12] getFloat64(double& variable);
 // [11] getFloat32(float& variable);
-// [10] getInt64(bsls_PlatformUtil::Int64& variable);
-// [10] getUint64(bsls_PlatformUtil::Uint64& variable);
-// [ 9] getInt56(bsls_PlatformUtil::Int64& variable);
-// [ 9] getUint56(bsls_PlatformUtil::Uint64& variable);
-// [ 8] getInt48(bsls_PlatformUtil::Int64& variable);
-// [ 8] getUint48(bsls_PlatformUtil::Uint64& variable);
-// [ 7] getInt40(bsls_PlatformUtil::Int64& variable);
-// [ 7] getUint40(bsls_PlatformUtil::Uint64& variable);
+// [10] getInt64(bsls::Types::Int64& variable);
+// [10] getUint64(bsls::Types::Uint64& variable);
+// [ 9] getInt56(bsls::Types::Int64& variable);
+// [ 9] getUint56(bsls::Types::Uint64& variable);
+// [ 8] getInt48(bsls::Types::Int64& variable);
+// [ 8] getUint48(bsls::Types::Uint64& variable);
+// [ 7] getInt40(bsls::Types::Int64& variable);
+// [ 7] getUint40(bsls::Types::Uint64& variable);
 // [ 6] getInt32(int& variable);
 // [ 6] getUint32(unsigned int& variable);
 // [ 5] getInt24(int& variable);
@@ -663,8 +663,8 @@ int main(int argc, char *argv[])
         // GET 64-BIT INTEGER ARRAYS TEST:
         //
         // Testing:
-        //   getArrayInt64(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint64(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt64(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint64(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -673,8 +673,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayInt64." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -688,7 +688,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt64(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -714,8 +714,8 @@ int main(int argc, char *argv[])
             ASSERT(!x);
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt64(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -759,8 +759,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayUint64." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -774,7 +774,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint64(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -800,8 +800,8 @@ int main(int argc, char *argv[])
             ASSERT(!x);
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -815,7 +815,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint64(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -846,8 +846,8 @@ int main(int argc, char *argv[])
         // GET 56-BIT INTEGER ARRAYS TEST:
         //
         // Testing:
-        //   getArrayInt56(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint56(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt56(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint56(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -856,8 +856,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayInt56." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt56(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -897,8 +897,8 @@ int main(int argc, char *argv[])
             ASSERT(!x);
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -912,7 +912,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt56(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -942,8 +942,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayUint56." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -957,7 +957,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint56(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -983,8 +983,8 @@ int main(int argc, char *argv[])
             ASSERT(!x);
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -998,7 +998,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint56(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1029,8 +1029,8 @@ int main(int argc, char *argv[])
         // GET 48-BIT INTEGER ARRAYS TEST:
         //
         // Testing:
-        //   getArrayInt48(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint48(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt48(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint48(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1039,8 +1039,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayInt48." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1054,7 +1054,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt48(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1081,8 +1081,8 @@ int main(int argc, char *argv[])
 
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1096,7 +1096,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt48(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1126,8 +1126,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayUint48." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1141,7 +1141,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint48(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1167,8 +1167,8 @@ int main(int argc, char *argv[])
             ASSERT(!x);
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1182,7 +1182,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint48(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1213,8 +1213,8 @@ int main(int argc, char *argv[])
         // GET 40-BIT INTEGER ARRAYS TEST:
         //
         // Testing:
-        //   getArrayInt40(bsls_PlatformUtil::Int64 *array, int numValues);
-        //   getArrayUint40(bsls_PlatformUtil::Uint64 *array, int numValues);
+        //   getArrayInt40(bsls::Types::Int64 *array, int numValues);
+        //   getArrayUint40(bsls::Types::Uint64 *array, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1223,8 +1223,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayInt40." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1238,7 +1238,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt40(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1264,8 +1264,8 @@ int main(int argc, char *argv[])
             ASSERT(!x);
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Int64 V = 0xFF;
+            const bsls::Types::Int64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Int64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1279,7 +1279,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 ar[] = { V, V, V };
+            bsls::Types::Int64 ar[] = { V, V, V };
             x.getArrayInt40(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1309,8 +1309,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting getArrayUint40." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 1, 2, 3 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1324,7 +1324,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint40(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -1350,8 +1350,8 @@ int main(int argc, char *argv[])
             ASSERT(!x);
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = { 4, 5, 6 };
-            const bsls_PlatformUtil::Uint64 V = 0xFF;
+            const bsls::Types::Uint64 DATA[] = { 4, 5, 6 };
+            const bsls::Types::Uint64 V = 0xFF;
 
             char workSpace[100];
             bdesb_FixedMemOutStreamBuf osb(workSpace, 100);
@@ -1365,7 +1365,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 ar[] = { V, V, V };
+            bsls::Types::Uint64 ar[] = { V, V, V };
             x.getArrayUint40(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             x.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -2430,8 +2430,8 @@ int main(int argc, char *argv[])
         // GET 64-BIT INTEGERS TEST:
         //
         // Testing:
-        //   getInt64(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint64(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt64(bsls::Types::Int64 val &variable);
+        //   getUint64(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2451,7 +2451,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt64(val);           x.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
             x.getInt64(val);           x.getInt8(marker);
@@ -2475,7 +2475,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt64(val);           x.getInt8(marker);
             ASSERT(4 == val);          ASSERT('\xFD' == marker);
             x.getInt64(val);           x.getInt8(marker);
@@ -2503,7 +2503,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint64(val);           x.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
             x.getUint64(val);           x.getInt8(marker);
@@ -2527,7 +2527,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint64(val);           x.getInt8(marker);
             ASSERT(4 == val);           ASSERT('\xFD' == marker);
             x.getUint64(val);           x.getInt8(marker);
@@ -2545,8 +2545,8 @@ int main(int argc, char *argv[])
         // GET 56-BIT INTEGERS TEST:
         //
         // Testing:
-        //   getInt56(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint56(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt56(bsls::Types::Int64 val &variable);
+        //   getUint56(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2566,7 +2566,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt56(val);           x.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
             x.getInt56(val);           x.getInt8(marker);
@@ -2590,7 +2590,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt56(val);           x.getInt8(marker);
             ASSERT(4 == val);          ASSERT('\xFD' == marker);
             x.getInt56(val);           x.getInt8(marker);
@@ -2618,7 +2618,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint56(val);           x.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
             x.getUint56(val);           x.getInt8(marker);
@@ -2642,7 +2642,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint56(val);           x.getInt8(marker);
             ASSERT(4 == val);           ASSERT('\xFD' == marker);
             x.getUint56(val);           x.getInt8(marker);
@@ -2660,8 +2660,8 @@ int main(int argc, char *argv[])
         // GET 48-BIT INTEGERS TEST:
         //
         // Testing:
-        //   getInt48(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint48(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt48(bsls::Types::Int64 val &variable);
+        //   getUint48(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2681,7 +2681,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt48(val);           x.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
             x.getInt48(val);           x.getInt8(marker);
@@ -2705,7 +2705,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt48(val);           x.getInt8(marker);
             ASSERT(4 == val);          ASSERT('\xFD' == marker);
             x.getInt48(val);           x.getInt8(marker);
@@ -2733,7 +2733,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint48(val);           x.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
             x.getUint48(val);           x.getInt8(marker);
@@ -2757,7 +2757,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint48(val);           x.getInt8(marker);
             ASSERT(4 == val);           ASSERT('\xFD' == marker);
             x.getUint48(val);           x.getInt8(marker);
@@ -2775,8 +2775,8 @@ int main(int argc, char *argv[])
         // GET 40-BIT INTEGERS TEST:
         //
         // Testing:
-        //   getInt40(bsls_PlatformUtil::Int64 val &variable);
-        //   getUint40(bsls_PlatformUtil::Uint64 val &variable);
+        //   getInt40(bsls::Types::Int64 val &variable);
+        //   getUint40(bsls::Types::Uint64 val &variable);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2796,7 +2796,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt40(val);           x.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
             x.getInt40(val);           x.getInt8(marker);
@@ -2820,7 +2820,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Int64 val;
+            bsls::Types::Int64 val;
             x.getInt40(val);           x.getInt8(marker);
             ASSERT(4 == val);          ASSERT('\xFD' == marker);
             x.getInt40(val);           x.getInt8(marker);
@@ -2848,7 +2848,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint40(val);           x.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
             x.getUint40(val);           x.getInt8(marker);
@@ -2872,7 +2872,7 @@ int main(int argc, char *argv[])
             bdex_ByteInStreamFormatter x(&isb);
             if (veryVerbose) { P(x) }
             char marker;
-            bsls_PlatformUtil::Uint64 val;
+            bsls::Types::Uint64 val;
             x.getUint40(val);           x.getInt8(marker);
             ASSERT(4 == val);           ASSERT('\xFD' == marker);
             x.getUint40(val);           x.getInt8(marker);
@@ -3499,7 +3499,7 @@ int main(int argc, char *argv[])
           cout << "\nCreate bdex_ByteInStreamFormatter x2 w/ an initial value."
                << endl;
 
-            bdesb_FixedMemInStreamBuf sb2((char *)"\x00\x01\x02\x03\x04", 5);
+            bdesb_FixedMemInStreamBuf sb2("\x00\x01\x02\x03\x04", 5);
             bdex_ByteInStreamFormatter x2(&sb2);
 
             if (verbose) cout << "\nTry getInt8() with x2." << endl;
@@ -3549,7 +3549,7 @@ int main(int argc, char *argv[])
                 workSpace[i] = (char)(i * (i + 1) / 2);
             }
 
-            bsls_Stopwatch timer; timer.start();
+            bsls::Stopwatch timer; timer.start();
             for (int i = 0; i <= NUM_OUT_ITERS; ++i) {
                 char marker = 0;
                 bdesb_FixedMemOutStreamBuf  sbo(workSpace, SIZE);
@@ -3572,7 +3572,7 @@ int main(int argc, char *argv[])
                 workSpace[i] = (char)(i * (i + 1) / 2);
             }
 
-            bsls_Stopwatch timer; timer.start();
+            bsls::Stopwatch timer; timer.start();
             for (int i = 0; i <= NUM_OUT_ITERS; ++i) {
                 int marker = 0;
                 bdesb_FixedMemOutStreamBuf  sbo(workSpace, SIZE);

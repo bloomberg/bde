@@ -28,7 +28,7 @@ void bael_RuleSet::printMask(bsl::ostream& stream,
 }
 
 // CREATORS
-bael_RuleSet::bael_RuleSet(bslma_Allocator *basicAllocator)
+bael_RuleSet::bael_RuleSet(bslma::Allocator *basicAllocator)
 : d_ruleHashtable(maxNumRules(),              // initial size
                   RuleHash(),                 // hash functor
                   bsl::equal_to<bael_Rule>(), // equal functor
@@ -45,7 +45,7 @@ bael_RuleSet::bael_RuleSet(bslma_Allocator *basicAllocator)
 }
 
 bael_RuleSet::bael_RuleSet(const bael_RuleSet&  original,
-                           bslma_Allocator     *basicAllocator)
+                           bslma::Allocator    *basicAllocator)
 : d_ruleHashtable(maxNumRules(),              // initial size
                   RuleHash(),                 // hash functor
                   bsl::equal_to<bael_Rule>(), // equal functor

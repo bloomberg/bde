@@ -2,41 +2,41 @@ Source: bde-core
 Section: unknown
 Priority: extra
 Maintainer: Mike Giroux <mgiroux@bloomberg.net>
-Build-Depends: bde-tools, producemake, rssuite-tools
+Build-Depends: bde-tools, producemake, rssuite-tools, bsl-internal-bdemeta, libbsl-dev
 Standards-Version: 3.8.4
 
+Package: bde-core-bdemeta
+Architecture: all
+Description: bde-core bde metadata
+ bde metadata for the bde-core source package
+
 Package: libbae-dev
-Depends: libbsl-dev (= ${binary:Version}), libbce-dev (= ${binary:Version}), libbde-dev (= ${binary:Version})
+Depends: libbsl-dev, libbce-dev (= ${binary:Version}), libbde-dev (= ${binary:Version})
 Architecture: any
 Description: BAE
  groups/bae static library and headers
 
 Package: libbce-dev
-Depends: libbsl-dev (= ${binary:Version}), libbde-dev (= ${binary:Version})
+Depends: libbsl-dev, libbde-dev (= ${binary:Version})
 Architecture: any
 Description: BCE
  groups/bce static library and headers
 
 Package: libbde-dev
-Depends: libbsl-dev (= ${binary:Version})
+Depends: libbsl-dev
 Architecture: any
 Description: BDE
  groups/bde static library and headers
 
-Package: libbsl-rs${shlib:RSSUITE}
-Architecture: any
-Description: BSL
- groups/bde shared library runtime files Robo Shared Library Suite
-
-Package: libbsl-dev
-Depends: libbsl-rs${shlib:RSSUITE} (= ${binary:Version})
-Architecture: any
-Description: BSL
- groups/bsl development files
-
 Package: libbte-dev
-Depends: libbsl-dev (= ${binary:Version}), libbce-dev (= ${binary:Version}), libbde-dev (= ${binary:Version})
+Depends: libbsl-dev, libbce-dev (= ${binary:Version}), libbde-dev (= ${binary:Version})
 Architecture: any
 Description: BTE
  groups/bte static library and headers
+
+Package: libbbe-dev
+Depends: libbsl-dev, libbde-dev (= ${binary:Version})
+Architecture: any
+Description: BBE
+ groups/bbe static library and headers
 

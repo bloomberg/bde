@@ -51,6 +51,7 @@ BDES_IDENT("$Id: $")
 //                         |              isFileLoggingEnabled
 //                         |              isStdoutLoggingPrefixEnabled
 //                         |              isUserFieldsLoggingEnabled
+//                         |              recordQueueLength
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
@@ -323,12 +324,12 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetimeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -382,7 +383,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     mutable bcemt_Mutex           d_mutex;           // serialize operations
 
-    bslma_Allocator              *d_allocator_p;     // memory allocator (held,
+    bslma::Allocator             *d_allocator_p;     // memory allocator (held,
                                                      // not owned)
 
   private:
@@ -413,7 +414,7 @@ class bael_AsyncFileObserver : public bael_Observer {
     // CREATORS
     explicit bael_AsyncFileObserver(
               bael_Severity::Level  stdoutThreshold = bael_Severity::BAEL_WARN,
-              bslma_Allocator      *basicAllocator  = 0);
+              bslma::Allocator     *basicAllocator  = 0);
         // Create a file observer that asynchronously publishes log records
         // both to a log file, and possibly also to 'stdout' if a record's
         // severity us at least as severe as the optionally specified
@@ -433,7 +434,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     bael_AsyncFileObserver(bael_Severity::Level  stdoutThreshold,
                            bool                  publishInLocalTime,
-                           bslma_Allocator      *basicAllocator = 0);
+                           bslma::Allocator     *basicAllocator = 0);
         // Create a file observer that asynchronously publishes log records
         // both to a log file, and possibly also to 'stdout', if a record's
         // severity is at least as severe as the specified 'stdoutThreshold',
@@ -453,15 +454,15 @@ class bael_AsyncFileObserver : public bael_Observer {
                          bael_Severity::Level  stdoutThreshold,
                          bool                  publishInLocalTime,
                          int                   maxRecordQueueSize,
-                         bslma_Allocator      *basicAllocator = 0);
+                         bslma::Allocator     *basicAllocator = 0);
     bael_AsyncFileObserver(
                          bael_Severity::Level  stdoutThreshold,
                          bool                  publishInLocalTime,
                          int                   maxRecordQueueSize,
                          bael_Severity::Level  dropRecordsOnFullQueueThreshold,
-                         bslma_Allocator      *basicAllocator = 0);
+                         bslma::Allocator     *basicAllocator = 0);
         // Create a file observer that asynchronously publishes log records by
-        // enqueing them onto a record queue having the specified
+        // enqueuing them onto a record queue having the specified
         // 'maxRecordQueue' length, where an independent publication thread
         // will later write them both to a log file and possibly also to
         // 'stdout', if the records's severities are at least as severe as the
@@ -593,7 +594,8 @@ class bael_AsyncFileObserver : public bael_Observer {
         // this async file observer attempts perform a log file rotation.  The
         // behavior is undefined if the supplied function calls either
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
-        // async file observer.
+        // async file observer (i.e., the supplied callback should *not*
+        // attempt to write to the 'bael' log).
 
     void setStdoutThreshold(bael_Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file
@@ -625,6 +627,10 @@ class bael_AsyncFileObserver : public bael_Observer {
         // thread and return to the caller.
 
     // ACCESSORS
+    int recordQueueLength() const;
+        // Return the number of log records currently in this observer's log
+        // record queue.
+
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
         // Return 'true' if file logging is enabled for this async file
@@ -803,6 +809,13 @@ bdet_DatetimeInterval bael_AsyncFileObserver::rotationLifetime() const
 {
     return d_fileObserver.rotationLifetime();
 }
+
+inline
+int bael_AsyncFileObserver::recordQueueLength() const
+{
+    return d_recordQueue.length();
+}
+
 
 inline
 int bael_AsyncFileObserver::rotationSize() const

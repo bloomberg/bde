@@ -33,8 +33,8 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>    // atoi()
 #include <bsl_cstring.h>    // strlen(), strcmp(), memset(), memcpy(), memcmp()
@@ -172,7 +172,7 @@ typedef BloombergLP::bael_Severity           Sev;
 typedef BloombergLP::bael_Category           Cat;
 typedef BloombergLP::bael_CategoryHolder     Holder;
 typedef BloombergLP::bael_Log_Stream         LogStream;
-typedef BloombergLP::bslma_TestAllocator     TestAllocator;
+typedef BloombergLP::bslma::TestAllocator    TestAllocator;
 typedef BloombergLP::bael_CategoryManager    CategoryManager;
 typedef BloombergLP::bael_ThresholdAggregate Thresholds;
 
@@ -792,7 +792,7 @@ void *workerThread9(void *arg)
     // - the event it will cause
 
     using namespace BloombergLP;
-    int id = (int)(bsls_PlatformUtil::IntPtr)arg;
+    int id = (int)(bsls::Types::IntPtr)arg;
 
     categoryMutex.lock();
     BAEL_LOG_SET_CATEGORY("main category");
@@ -854,8 +854,8 @@ struct ThreadFunctor {
     void operator()() {
         BAEL_LOG_SET_CATEGORY( "CATEGORY_5" );
 
-        bsls_PlatformUtil::Int64 id =
-                         (bsls_PlatformUtil::Int64) bcemt_ThreadUtil::selfId();
+        bsls::Types::Int64 id =
+                               (bsls::Types::Int64) bcemt_ThreadUtil::selfId();
 
         while( true )
         {
@@ -1987,7 +1987,7 @@ int main(int argc, char *argv[])
 
         TestAllocator ta(veryVeryVerbose); const TestAllocator& TA = ta;
         TestAllocator da(veryVeryVerbose); const TestAllocator& DA = da;
-        bslma_DefaultAllocatorGuard guard(&da);
+        bslma::DefaultAllocatorGuard guard(&da);
 
         CategoryManager CM(&ta);
         BloombergLP::bael_LoggerManagerConfiguration lmc;
@@ -2839,10 +2839,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::bael_LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
-        BloombergLP::bsls_PlatformUtil::Int64 t =
-                         BloombergLP::bsls_TimeUtil::getTimer();
+        BloombergLP::bsls::Types::Int64 t =
+                         BloombergLP::bsls::TimeUtil::getTimer();
         executeInParallel(NUM_THREADS, workerThread13);
-        t = BloombergLP::bsls_TimeUtil::getTimer() - t;
+        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -2904,10 +2904,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::bael_LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
-        BloombergLP::bsls_PlatformUtil::Int64 t =
-                          BloombergLP::bsls_TimeUtil::getTimer();
+        BloombergLP::bsls::Types::Int64 t =
+                          BloombergLP::bsls::TimeUtil::getTimer();
         executeInParallel(NUM_THREADS, workerThread12);
-        t = BloombergLP::bsls_TimeUtil::getTimer() - t;
+        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -2968,10 +2968,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::bael_LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
-        BloombergLP::bsls_PlatformUtil::Int64 t =
-                      BloombergLP::bsls_TimeUtil::getTimer();
+        BloombergLP::bsls::Types::Int64 t =
+                      BloombergLP::bsls::TimeUtil::getTimer();
         executeInParallel(NUM_THREADS, workerThread11);
-        t = BloombergLP::bsls_TimeUtil::getTimer() - t;
+        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -3033,10 +3033,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::bael_LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
-        BloombergLP::bsls_PlatformUtil::Int64 t =
-                     BloombergLP::bsls_TimeUtil::getTimer();
+        BloombergLP::bsls::Types::Int64 t =
+                     BloombergLP::bsls::TimeUtil::getTimer();
         executeInParallel(NUM_THREADS, workerThread10);
-        t = BloombergLP::bsls_TimeUtil::getTimer() - t;
+        t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
             bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
@@ -3770,8 +3770,8 @@ int main(int argc, char *argv[])
                                << "Testing 'printf-style' Macros" << bsl::endl
                                << "=============================" << bsl::endl;
 
-        static bslma_TestAllocator testAllocator(veryVerbose);
-        static bslma_DefaultAllocatorGuard taGuard(&testAllocator);
+        static bslma::TestAllocator testAllocator(veryVerbose);
+        static bslma::DefaultAllocatorGuard taGuard(&testAllocator);
 
         const int MAX_ARGS = 9;
 

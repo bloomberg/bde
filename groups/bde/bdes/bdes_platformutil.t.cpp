@@ -2,7 +2,10 @@
 
 #include <bdes_platformutil.h>
 
+#include <bslmf_issame.h>    // bsl::is_same
+
 #include <bsls_platform.h>     // for testing only
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 
@@ -73,6 +76,10 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+
+#define LOOP2_ASSERT(I,J,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n"; \
+               aSsErT(1, #X, __LINE__); }}
 
 //=============================================================================
 //                      SEMI-STANDARD TEST OUTPUT MACROS
@@ -699,6 +706,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "MAXIMUM ALIGNMENT TEST" << endl
                                   << "======================" << endl;
 
+// TBD The 'roundUpToMaximalAlignment' method has been removed.
+#if 0
         typedef bdes_PlatformUtil U;
 
         struct ShortAlign       { char c; short  d_short;           };
@@ -715,9 +724,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef U::MaxAlign                        LegacyMaxAlign;
+    typedef U::MaxAlign                         LegacyMaxAlign;
 #else
-    typedef bsls_AlignmentUtil::MaxAlignedType LegacyMaxAlign;
+    typedef bsls::AlignmentUtil::MaxAlignedType LegacyMaxAlign;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         struct MaxAlignAlign    { char c; LegacyMaxAlign d_maxAlign;};
@@ -756,6 +765,7 @@ int main(int argc, char *argv[])
         for (i = maxAlignment + 1; i <= 2 * maxAlignment; ++i) {
             ASSERT(2 * maxAlignment == U::roundUpToMaximalAlignment(i));
         }
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -763,10 +773,8 @@ int main(int argc, char *argv[])
         //   Concerns:
         //     Since the size_type is generated, it is possible that the
         //     typedef statements concerned for those types were wrong.  We
-        //     must ensure that:
-        //     - 'size_type' is a signed integer type
-        //     - a size_type is at least as wide as an int.
-        //     - a size_type can contain the difference between two pointers.
+        //     must ensure that 'bdes_PlatformUtil::size_type' is the same type
+        //     as 'bsls::Types::size_type'.
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
@@ -783,19 +791,11 @@ int main(int argc, char *argv[])
 
         typedef bdes_PlatformUtil Util;
 
-        // Must be at least as wide as an int.
-        ASSERT(sizeof(Util::size_type) >= sizeof(int));
+        // Note that extra parentheses are needed below to prevent the 'ASSERT'
+        // macro from being confused by the comma between the template
+        // parameters.
 
-        // Must be convertible (without error or warning) from a difference of
-        // two pointers.  Use some arbitrary values for this.
-        Util::size_type zero     = bsl::ptrdiff_t(0);
-        Util::size_type minusOne = bsl::ptrdiff_t(-1);
-        Util::size_type posValue = bsl::ptrdiff_t(1048576);
-
-        // Must be signed.
-        ASSERT(0 == zero);
-        ASSERT(minusOne < 0);
-        ASSERT(0 <  posValue);
+        ASSERT((bsl::is_same<Util::size_type, bsls::Types::size_type>::value));
 
       } break;
       case 2: {
@@ -877,6 +877,8 @@ int main(int argc, char *argv[])
             << "Testing little-endian & big-endian functions/macros." << endl
             << "====================================================" << endl;
 
+// TBD The 'isBigEndian' method has been removed.
+#if 0
         typedef bdes_PlatformUtil Util;
 
         if (verbose) cout << "This platform is " <<
@@ -898,6 +900,7 @@ int main(int argc, char *argv[])
         ASSERT(BDES_PLATFORMUTIL_IS_BIG_ENDIAN == Util::isBigEndian());
 #else
         ASSERT(BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN == Util::isLittleEndian());
+#endif
 #endif
       } break;
       default: {

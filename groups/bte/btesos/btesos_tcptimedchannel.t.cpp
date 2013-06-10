@@ -334,7 +334,7 @@ struct TestCommand {
 };
 
 char globalBuffer[HELPER_READ]; // To help read from the peer side.
-bslma_TestAllocator testAllocator;
+bslma::TestAllocator testAllocator;
 //=============================================================================
 //                    HELPER FUNCTIONS/CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -564,7 +564,9 @@ static inline
 void fillBuffers(VECBUFFER *vecBuffers, int numBuffers, char ch)
 {
     for (int i = 0; i < numBuffers; ++i) {
-        memset((char*)vecBuffers[i].buffer(), ch, vecBuffers[i].length());
+        memset((char*) const_cast<void *>(vecBuffers[i].buffer()),
+               ch,
+               vecBuffers[i].length());
     }
 }
 
@@ -677,7 +679,8 @@ static int testExecutionHelper(
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
     } break;
     case RB: {  //
-        rCode = channel->bufferedRead((const char**) &buffer,
+        const char * cbuffer = buffer;
+        rCode = channel->bufferedRead(&cbuffer,
                                       command->numToProcess.d_numBytes,
                                       command->flag.d_interruptFlags);
         if (command->d_expStatus > 0) {
@@ -686,8 +689,9 @@ static int testExecutionHelper(
     } break;
     case RBA: {  //
         int augStatus = 0;
+        const char * cbuffer = buffer;
         rCode = channel->bufferedRead(&augStatus,
-                                      (const char**) &buffer,
+                                      &cbuffer,
                                       command->numToProcess.d_numBytes,
                                       command->flag.d_interruptFlags);
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
@@ -696,8 +700,8 @@ static int testExecutionHelper(
         }
     } break;
     case TRB: {  //
-        buffer = 0;
-        rCode = channel->timedBufferedRead((const char**) &buffer,
+        const char * cbuffer = 0;
+        rCode = channel->timedBufferedRead(&cbuffer,
                                  command->numToProcess.d_numBytes,
                                 *command->d_timeout + bdetu_SystemTime::now(),
                                  command->flag.d_interruptFlags);
@@ -707,9 +711,9 @@ static int testExecutionHelper(
     } break;
     case TRBA: {  //
         int augStatus = -9;
-        buffer = 0;
+        const char * cbuffer = 0;
         rCode = channel->timedBufferedRead(&augStatus,
-                                (const char**) &buffer,
+                                &cbuffer,
                                 command->numToProcess.d_numBytes,
                                *command->d_timeout + bdetu_SystemTime::now(),
                                 command->flag.d_interruptFlags);
@@ -747,32 +751,34 @@ static int testExecutionHelper(
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
     } break;
    case RBR: {  //
-        buffer = 0;
-        rCode = channel->bufferedReadRaw((const char**) &buffer,
+        const char * cbuffer = 0;
+        rCode = channel->bufferedReadRaw(&cbuffer,
                                          command->numToProcess.d_numBytes,
                                          command->flag.d_interruptFlags);
     } break;
     case RBRA: {  //
         int augStatus = 0;
-        buffer = 0;
+        const char * cbuffer = 0;
         rCode = channel->bufferedReadRaw(&augStatus,
-                                         (const char**) &buffer,
+                                         &cbuffer,
                                          command->numToProcess.d_numBytes,
                                          command->flag.d_interruptFlags);
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
     } break;
    case TRBR: {  //
-        buffer = 0;
-        rCode = channel->timedBufferedReadRaw((const char**) &buffer,
+        const char * cbuffer = 0;
+        rCode = channel->timedBufferedReadRaw(
+                                 &cbuffer,
                                  command->numToProcess.d_numBytes,
                                 *command->d_timeout + bdetu_SystemTime::now(),
                                  command->flag.d_interruptFlags);
     } break;
     case TRBRA: {  //
         int augStatus = 0;
-        buffer = 0;
-        rCode = channel->timedBufferedReadRaw(&augStatus,
-                                 (const char**) &buffer,
+        const char * cbuffer = 0;
+        rCode = channel->timedBufferedReadRaw(
+                                 &augStatus,
+                                 &cbuffer,
                                  command->numToProcess.d_numBytes,
                                 *command->d_timeout + bdetu_SystemTime::now(),
                                  command->flag.d_interruptFlags);

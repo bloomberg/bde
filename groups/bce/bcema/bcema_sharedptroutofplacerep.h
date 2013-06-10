@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 //     // . . .
 //
 //     // MANIPULATORS
-//     MyType *createObject(bslma_Allocator *basicAllocator = 0);
+//     MyType *createObject(bslma::Allocator *basicAllocator = 0);
 //         // Create a 'MyType' object.  Optionally specify a
 //         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //         // 0, the currently installed default allocator is used.
@@ -119,8 +119,8 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      MySharedDatetimePtr(bdet_Datetime   *ptr,
-//                          bslma_Allocator *basicAllocator = 0);
+//      MySharedDatetimePtr(bdet_Datetime    *ptr,
+//                          bslma::Allocator *basicAllocator = 0);
 //          // Create a 'MySharedDatetimePtr' object to managed the specified
 //          // 'ptr'.  Optionally specify an 'basicAllocator' to allocate and
 //          // deallocate the internal representation and to destroy 'ptr' when
@@ -152,12 +152,12 @@ BDES_IDENT("$Id: $")
 //..
 // Finally, we define the implementation.
 //..
-//  MySharedDatetimePtr::MySharedDatetimePtr(bdet_Datetime   *ptr,
-//                                           bslma_Allocator *basicAllocator)
+//  MySharedDatetimePtr::MySharedDatetimePtr(bdet_Datetime    *ptr,
+//                                           bslma::Allocator *basicAllocator)
 //  {
 //      d_ptr_p = ptr;
 //      d_rep_p =
-//              bcema_SharedPtrOutofplaceRep<bdet_Datetime, bslma_Allocator*>::
+//            bcema_SharedPtrOutofplaceRep<bdet_Datetime, bslma::Allocator *>::
 //                      makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 //  }
 //
@@ -217,12 +217,20 @@ BDES_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -262,7 +270,7 @@ struct bcema_SharedPtrOutofplaceRep_DeleterType {
 
         BCEMA_ALLOCATOR_PTR = 0,     // Used to indicate that a deleter is a
                                      // pointer that follows the
-                                     // 'bslma_Allocator' protocol.
+                                     // 'bslma::Allocator' protocol.
 
         BCEMA_FACTORY_PTR = 1,       // Used to indicate that a deleter is a
                                      // pointer to a factory object that
@@ -303,10 +311,10 @@ class bcema_SharedPtrOutofplaceRep : public bcema_SharedPtrRep {
         // shared object.
 
     // DATA
-    Deleter          d_deleter;     // deleter for this out-of-place instance
-    TYPE            *d_ptr_p;       // pointer to out-of-place instance (held,
-                                    // not owned)
-    bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+    Deleter           d_deleter;     // deleter for this out-of-place instance
+    TYPE             *d_ptr_p;       // pointer to out-of-place instance (held,
+                                     // not owned)
+    bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -316,25 +324,25 @@ class bcema_SharedPtrOutofplaceRep : public bcema_SharedPtrRep {
 
     // PRIVATE CREATORS
     bcema_SharedPtrOutofplaceRep(
-                              TYPE            *ptr,
-                              const DELETER&   deleter,
-                              bslma_Allocator *basicAllocator,
-                              bslmf_MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
+                             TYPE             *ptr,
+                             const DELETER&    deleter,
+                             bslma::Allocator *basicAllocator,
+                             bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
     bcema_SharedPtrOutofplaceRep(
-                                TYPE            *ptr,
-                                const DELETER&   deleter,
-                                bslma_Allocator *basicAllocator,
-                                bslmf_MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
+                               TYPE             *ptr,
+                               const DELETER &   deleter,
+                               bslma::Allocator *basicAllocator,
+                               bslmf::MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
     bcema_SharedPtrOutofplaceRep(
-                         TYPE            *ptr,
-                         const DELETER&   deleter,
-                         bslma_Allocator *basicAllocator,
-                         bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
+                        TYPE             *ptr,
+                        const DELETER&    deleter,
+                        bslma::Allocator *basicAllocator,
+                        bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
     bcema_SharedPtrOutofplaceRep(
-                      TYPE            *ptr,
-                      const DELETER&   deleter,
-                      bslma_Allocator *basicAllocator,
-                      bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
+                     TYPE             *ptr,
+                     const DELETER&    deleter,
+                     bslma::Allocator *basicAllocator,
+                     bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
         // Create a 'bcema_SharedPtrOutofplaceRep' that manages the lifetime of
         // the specified 'ptr', using the specified 'deleter' to destroy 'ptr',
         // and using the specified 'basicAllocator' to supply memory.  Note
@@ -352,11 +360,11 @@ class bcema_SharedPtrOutofplaceRep : public bcema_SharedPtrRep {
         // deallocates this representation object.
 
   public:
-    // MANIPULATORS
+    // CLASS METHODS
     static bcema_SharedPtrOutofplaceRep<TYPE, DELETER> *makeOutofplaceRep(
-                                          TYPE            *ptr,
-                                          const DELETER&   deleter,
-                                          bslma_Allocator *basicAllocator = 0);
+                                         TYPE             *ptr,
+                                         const DELETER&    deleter,
+                                         bslma::Allocator *basicAllocator = 0);
         // Return the address of a newly created 'bcema_SharedPtrOutofplaceRep'
         // object that manages the lifetime of the specified 'ptr', using the
         // specified 'deleter' to destroy 'ptr'.  Optionally, specify a
@@ -365,6 +373,7 @@ class bcema_SharedPtrOutofplaceRep : public bcema_SharedPtrRep {
         // parameterized 'DELETER' type will be used to deallocate the memory
         // pointed to by 'ptr'.
 
+    // MANIPULATORS
     virtual void disposeRep();
         // Destroy this representation object and deallocate the associated
         // memory.  This method is automatically invoked by 'releaseRef' and
@@ -407,10 +416,10 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
         // deleter.
 
         BCEMA_USES_ALLOC =
-           bslalg_HasTrait<DELETER, bslalg_TypeTraitUsesBslmaAllocator>::VALUE,
+         bslalg::HasTrait<DELETER, bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
 
-        BCEMA_IS_PTR = bslmf_IsPointer<DELETER>::VALUE
-                   && !bslmf_IsFunctionPointer<DELETER>::VALUE,
+        BCEMA_IS_OBJ_PTR = bsl::is_pointer<DELETER>::VALUE
+                       && !bslmf::IsFunctionPointer<DELETER>::VALUE
     };
 
     typedef bcema_SharedPtrOutofplaceRep_DeleterType DeleterType;
@@ -423,12 +432,14 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
         // This enumeration contains the return value of the meta-function.
         VALUE = BCEMA_USES_ALLOC
                 ? DeleterType::BCEMA_FUNCTOR_WITH_ALLOC
-                : !BCEMA_IS_PTR
+                : !BCEMA_IS_OBJ_PTR
                   ? DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC
                   : DeleterType::BCEMA_FACTORY_PTR
     };
 
-    typedef DELETER Type;
+    typedef typename bsl::conditional<bsl::is_function<DELETER>::value,
+                                      DELETER *,
+                                      DELETER>::type Type;
         // 'Type' represents the type of the deleter used to destroy the shared
         // object.
 };
@@ -451,7 +462,7 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp<DELETER, true> {
         VALUE = DeleterType::BCEMA_ALLOCATOR_PTR
     };
 
-    typedef bslma_Allocator *Type;
+    typedef bslma::Allocator *Type;
         // 'Type' represents the type of the deleter used to destroy the shared
         // object.
 };
@@ -466,7 +477,7 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator {
     // PRIVATE TYPES
     typedef bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp<
                     DELETER,
-                    bslmf_IsConvertible<DELETER, bslma_Allocator *>::VALUE>
+                    bslmf::IsConvertible<DELETER, bslma::Allocator *>::VALUE>
         ImpType;
 
   public:
@@ -495,37 +506,37 @@ struct bcema_SharedPtrOutofplaceRep_DeleterHelper {
         // deleter used to destroy the shared object.
 
   private:
-    // PRIVATE CLASS  METHODS
+    // PRIVATE CLASS METHODS
     template <class TYPE, class DELETER>
     static void deleteObject(TYPE     *ptr,
                              DELETER&  deleter,
-                             bslmf_MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
+                             bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
         // Delete the specified 'ptr' using the specified 'deleter' that
-        // implements the 'bslma_Allocator' protocol, which provides a
+        // implements the 'bslma::Allocator' protocol, which provides a
         // 'deleteObject' function that can be invoked to delete 'ptr'.
 
     template <class TYPE, class DELETER>
     static void deleteObject(TYPE     *ptr,
                              DELETER&  deleter,
-                             bslmf_MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
+                             bslmf::MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
         // Delete the specified 'ptr' using the specified 'deleter' that
         // provides a 'deleteObject' function that can be invoked to delete
         // 'ptr'.
 
     template <class TYPE, class DELETER>
     static void deleteObject(
-                         TYPE     *ptr,
-                         DELETER&  deleter,
-                         bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
+                        TYPE     *ptr,
+                        DELETER&  deleter,
+                        bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
         // Delete the specified 'ptr' using the specified 'deleter' that is a
         // functor that takes an allocator at construction and can be invoked
         // to delete 'ptr'.
 
     template <class TYPE, class DELETER>
     static void deleteObject(
-                      TYPE     *ptr,
-                      DELETER&  deleter,
-                      bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
+                     TYPE     *ptr,
+                     DELETER&  deleter,
+                     bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
         // Delete the specified 'ptr' using the specified 'deleter' that is a
         // functor that does not take an allocator at construction and can be
         // invoked to delete 'ptr'.
@@ -587,11 +598,11 @@ struct bcema_SharedPtrOutofplaceRep_InitGuard {
 // CREATORS
 template <class TYPE, class DELETER>
 bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::bcema_SharedPtrOutofplaceRep(
-                               TYPE            *ptr,
-                               const DELETER&   deleter,
-                               bslma_Allocator *basicAllocator,
-                               bslmf_MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>)
-: d_deleter(bslma_Default::allocator(deleter))
+                              TYPE             *ptr,
+                              const DELETER&    deleter,
+                              bslma::Allocator *basicAllocator,
+                              bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>)
+: d_deleter(bslma::Default::allocator(deleter))
 , d_ptr_p(ptr)
 , d_allocator_p(basicAllocator)
 {
@@ -599,10 +610,10 @@ bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::bcema_SharedPtrOutofplaceRep(
 
 template <class TYPE, class DELETER>
 bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::bcema_SharedPtrOutofplaceRep(
-                                 TYPE            *ptr,
-                                 const DELETER&   deleter,
-                                 bslma_Allocator *basicAllocator,
-                                 bslmf_MetaInt<DeleterType::BCEMA_FACTORY_PTR>)
+                                TYPE             *ptr,
+                                const DELETER&    deleter,
+                                bslma::Allocator *basicAllocator,
+                                bslmf::MetaInt<DeleterType::BCEMA_FACTORY_PTR>)
 : d_deleter(deleter)
 , d_ptr_p(ptr)
 , d_allocator_p(basicAllocator)
@@ -611,10 +622,10 @@ bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::bcema_SharedPtrOutofplaceRep(
 
 template <class TYPE, class DELETER>
 bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::bcema_SharedPtrOutofplaceRep(
-                          TYPE            *ptr,
-                          const DELETER&   deleter,
-                          bslma_Allocator *basicAllocator,
-                          bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>)
+                         TYPE             *ptr,
+                         const DELETER&    deleter,
+                         bslma::Allocator *basicAllocator,
+                         bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>)
 : d_deleter(deleter, basicAllocator)
 , d_ptr_p(ptr)
 , d_allocator_p(basicAllocator)
@@ -623,10 +634,10 @@ bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::bcema_SharedPtrOutofplaceRep(
 
 template <class TYPE, class DELETER>
 bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::bcema_SharedPtrOutofplaceRep(
-                       TYPE            *ptr,
-                       const DELETER&   deleter,
-                       bslma_Allocator *basicAllocator,
-                       bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>)
+                      TYPE             *ptr,
+                      const DELETER&    deleter,
+                      bslma::Allocator *basicAllocator,
+                      bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>)
 : d_deleter(deleter)
 , d_ptr_p(ptr)
 , d_allocator_p(basicAllocator)
@@ -642,9 +653,9 @@ bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::~bcema_SharedPtrOutofplaceRep()
 template <class TYPE, class DELETER>
 bcema_SharedPtrOutofplaceRep<TYPE, DELETER> *
                bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::makeOutofplaceRep(
-                                               TYPE            *ptr,
-                                               const DELETER&   deleter,
-                                               bslma_Allocator *basicAllocator)
+                                              TYPE             *ptr,
+                                              const DELETER&    deleter,
+                                              bslma::Allocator *basicAllocator)
 {
     bcema_SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER> guard(ptr, deleter);
 
@@ -654,13 +665,13 @@ bcema_SharedPtrOutofplaceRep<TYPE, DELETER> *
     bcema_SharedPtrOutofplaceRep<TYPE, DELETER> *rep = 0;
 
     if (ptr) {
-        basicAllocator = bslma_Default::allocator(basicAllocator);
+        basicAllocator = bslma::Default::allocator(basicAllocator);
         rep = new (*basicAllocator)
                                    bcema_SharedPtrOutofplaceRep<TYPE, DELETER>(
-                                          ptr,
-                                          deleter,
-                                          basicAllocator,
-                                          bslmf_MetaInt<BCEMA_DELETER_TYPE>());
+                                         ptr,
+                                         deleter,
+                                         basicAllocator,
+                                         bslmf::MetaInt<BCEMA_DELETER_TYPE>());
     }
 
     guard.release();
@@ -718,9 +729,9 @@ TYPE *bcema_SharedPtrOutofplaceRep<TYPE, DELETER>::ptr() const
 template <class TYPE, class DELETER>
 inline
 void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
-                               TYPE     *ptr,
-                               DELETER&  deleter,
-                               bslmf_MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>)
+                              TYPE     *ptr,
+                              DELETER&  deleter,
+                              bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>)
 {
     deleter->deleteObject(ptr);
 }
@@ -728,9 +739,9 @@ void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
 template <class TYPE, class DELETER>
 inline
 void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
-                                 TYPE     *ptr,
-                                 DELETER&  deleter,
-                                 bslmf_MetaInt<DeleterType::BCEMA_FACTORY_PTR>)
+                                TYPE     *ptr,
+                                DELETER&  deleter,
+                                bslmf::MetaInt<DeleterType::BCEMA_FACTORY_PTR>)
 {
     deleter->deleteObject(ptr);
 }
@@ -738,9 +749,9 @@ void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
 template <class TYPE, class DELETER>
 inline
 void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
-                          TYPE     *ptr,
-                          DELETER&  deleter,
-                          bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>)
+                         TYPE     *ptr,
+                         DELETER&  deleter,
+                         bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>)
 {
     deleter(ptr);
 }
@@ -748,9 +759,9 @@ void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
 template <class TYPE, class DELETER>
 inline
 void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
-                       TYPE     *ptr,
-                       DELETER&  deleter,
-                       bslmf_MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>)
+                      TYPE     *ptr,
+                      DELETER&  deleter,
+                      bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>)
 {
     deleter(ptr);
 }
@@ -765,9 +776,9 @@ void bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
            bcema_SharedPtrOutofplaceRep_DeleterDiscriminator<DELETER>::VALUE };
 
     bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
-                                          ptr,
-                                          deleter,
-                                          bslmf_MetaInt<BCEMA_DELETER_TYPE>());
+                                         ptr,
+                                         deleter,
+                                         bslmf::MetaInt<BCEMA_DELETER_TYPE>());
 }
 
                // ---------------------------------------------
@@ -806,7 +817,9 @@ bcema_SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>
         return;                                                       // RETURN
     }
 
-    DELETER tempDeleter(d_deleter);
+    typename bsl::conditional<bsl::is_function<DELETER>::value,
+                              DELETER *,
+                              DELETER>::type tempDeleter(d_deleter);
     bcema_SharedPtrOutofplaceRep_DeleterHelper::deleteObject(d_ptr_p,
                                                              tempDeleter);
 }

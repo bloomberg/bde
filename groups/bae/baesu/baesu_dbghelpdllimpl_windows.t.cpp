@@ -91,7 +91,7 @@ static void aSsErT(int c, const char *s, int i)
 //                        GLOBAL TYPEDEFS, VARIABLES AND FUNCTIONS
 // ============================================================================
 
-typedef bsls_Types::UintPtr UintPtr;
+typedef bsls::Types::UintPtr UintPtr;
 
 enum { FIRST_LINE = __LINE__ };
 
@@ -144,13 +144,13 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-    bslma_TestAllocator ta("test", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:
       case 5: {

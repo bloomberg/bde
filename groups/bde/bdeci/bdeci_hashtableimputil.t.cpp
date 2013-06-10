@@ -2,8 +2,6 @@
 
 #include <bdeci_hashtableimputil.h>
 
-#include <bsls_platformutil.h>
-
 #include <bsl_c_stdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>

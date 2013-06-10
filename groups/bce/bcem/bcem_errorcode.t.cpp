@@ -129,11 +129,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator defaultAllocator(veryVeryVerbose);
-    bslma_Default::setDefaultAllocatorRaw(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator(veryVeryVerbose);
+    bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
-    bslma_TestAllocator globalAllocator(veryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator(veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
@@ -244,36 +244,36 @@ if (veryVerbose)
 #define NL "\n"
          //line level spl    enumerator value          expected result
          //---- ----- --- ----------------------       -----------------
-          { L_,    0,   4, Obj::BCEM_SUCCESS,           "SUCCESS"NL         },
-          { L_,    0,   4, Obj::BCEM_UNKNOWN_ERROR,     "UNKNOWN_ERROR"NL   },
-          { L_,    0,   4, Obj::BCEM_NOT_A_RECORD,      "NOT_A_RECORD"NL    },
-          { L_,    0,   4, Obj::BCEM_NOT_A_SEQUENCE,    "NOT_A_SEQUENCE"NL  },
-          { L_,    0,   4, Obj::BCEM_NOT_A_CHOICE,      "NOT_A_CHOICE"NL    },
-          { L_,    0,   4, Obj::BCEM_NOT_AN_ARRAY,      "NOT_AN_ARRAY"NL    },
-          { L_,    0,   4, Obj::BCEM_BAD_FIELDNAME,     "BAD_FIELDNAME"NL   },
-          { L_,    0,   4, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID"NL     },
-          { L_,    0,   4, Obj::BCEM_BAD_FIELDINDEX,    "BAD_FIELDINDEX"NL  },
-          { L_,    0,   4, Obj::BCEM_BAD_ARRAYINDEX,    "BAD_ARRAYINDEX"NL  },
-          { L_,    0,   4, Obj::BCEM_NOT_SELECTED,      "NOT_SELECTED"NL    },
-          { L_,    0,   4, Obj::BCEM_BAD_CONVERSION,    "BAD_CONVERSION"NL  },
-          { L_,    0,   4, Obj::BCEM_BAD_ENUMVALUE,     "BAD_ENUMVALUE"NL   },
-          { L_,    0,   4, Obj::BCEM_NON_CONFORMANT,    "NON_CONFORMANT"NL  },
-          { L_,    0,   4, Obj::BCEM_AMBIGUOUS_ANON,    "AMBIGUOUS_ANON"NL  },
+          { L_,    0,   4, Obj::BCEM_SUCCESS,           "SUCCESS" NL         },
+          { L_,    0,   4, Obj::BCEM_UNKNOWN_ERROR,     "UNKNOWN_ERROR" NL   },
+          { L_,    0,   4, Obj::BCEM_NOT_A_RECORD,      "NOT_A_RECORD" NL    },
+          { L_,    0,   4, Obj::BCEM_NOT_A_SEQUENCE,    "NOT_A_SEQUENCE" NL  },
+          { L_,    0,   4, Obj::BCEM_NOT_A_CHOICE,      "NOT_A_CHOICE" NL    },
+          { L_,    0,   4, Obj::BCEM_NOT_AN_ARRAY,      "NOT_AN_ARRAY" NL    },
+          { L_,    0,   4, Obj::BCEM_BAD_FIELDNAME,     "BAD_FIELDNAME" NL   },
+          { L_,    0,   4, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID" NL     },
+          { L_,    0,   4, Obj::BCEM_BAD_FIELDINDEX,    "BAD_FIELDINDEX" NL  },
+          { L_,    0,   4, Obj::BCEM_BAD_ARRAYINDEX,    "BAD_ARRAYINDEX" NL  },
+          { L_,    0,   4, Obj::BCEM_NOT_SELECTED,      "NOT_SELECTED" NL    },
+          { L_,    0,   4, Obj::BCEM_BAD_CONVERSION,    "BAD_CONVERSION" NL  },
+          { L_,    0,   4, Obj::BCEM_BAD_ENUMVALUE,     "BAD_ENUMVALUE" NL   },
+          { L_,    0,   4, Obj::BCEM_NON_CONFORMANT,    "NON_CONFORMANT" NL  },
+          { L_,    0,   4, Obj::BCEM_AMBIGUOUS_ANON,    "AMBIGUOUS_ANON" NL  },
 
           { L_,    0,   4, (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT NL  },
           { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL  },
           { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL  },
           { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL  },
 
-          { L_,    0,  -1, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID"     },
-          { L_,    0,   0, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID"NL   },
-          { L_,    0,   2, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID"NL   },
-          { L_,    1,   1, Obj::BCEM_BAD_FIELDID,       " BAD_FIELDID"NL  },
-          { L_,    1,   2, Obj::BCEM_BAD_FIELDID,       "  BAD_FIELDID"NL },
-          { L_,   -1,   2, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID"NL   },
-          { L_,   -2,   1, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID"NL   },
-          { L_,    2,   1, Obj::BCEM_BAD_FIELDID,       "  BAD_FIELDID"NL },
-          { L_,    1,   3, Obj::BCEM_BAD_FIELDID,       "   BAD_FIELDID"NL},
+          { L_,    0,  -1, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID"      },
+          { L_,    0,   0, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID" NL   },
+          { L_,    0,   2, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID" NL   },
+          { L_,    1,   1, Obj::BCEM_BAD_FIELDID,       " BAD_FIELDID" NL  },
+          { L_,    1,   2, Obj::BCEM_BAD_FIELDID,       "  BAD_FIELDID" NL },
+          { L_,   -1,   2, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID" NL   },
+          { L_,   -2,   1, Obj::BCEM_BAD_FIELDID,       "BAD_FIELDID" NL   },
+          { L_,    2,   1, Obj::BCEM_BAD_FIELDID,       "  BAD_FIELDID" NL },
+          { L_,    1,   3, Obj::BCEM_BAD_FIELDID,       "   BAD_FIELDID" NL},
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

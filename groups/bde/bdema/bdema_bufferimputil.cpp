@@ -15,11 +15,11 @@ namespace BloombergLP {
 
 // CLASS METHODS
 void *bdema_BufferImpUtil::allocateFromBuffer(
-                                          int                      *cursor,
-                                          char                     *buffer,
-                                          int                       bufferSize,
-                                          int                       size,
-                                          bsls_Alignment::Strategy  strategy)
+                                         int                       *cursor,
+                                         char                      *buffer,
+                                         int                        bufferSize,
+                                         int                        size,
+                                         bsls::Alignment::Strategy  strategy)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
@@ -28,11 +28,11 @@ void *bdema_BufferImpUtil::allocateFromBuffer(
     BSLS_ASSERT(0 <= *cursor);
     BSLS_ASSERT(*cursor <= bufferSize);
 
-    const int alignment = strategy == bsls_Alignment::BSLS_NATURAL
-                        ? bsls_AlignmentUtil::calculateAlignmentFromSize(size)
-                        : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    const int alignment = strategy == bsls::Alignment::BSLS_NATURAL
+                        ? bsls::AlignmentUtil::calculateAlignmentFromSize(size)
+                        : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
-    const int offset = bsls_AlignmentUtil::calculateAlignmentOffset(
+    const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
                                                               alignment);
 
@@ -47,20 +47,20 @@ void *bdema_BufferImpUtil::allocateFromBuffer(
 }
 
 void *bdema_BufferImpUtil::allocateFromBufferRaw(
-                                            int                      *cursor,
-                                            char                     *buffer,
-                                            int                       size,
-                                            bsls_Alignment::Strategy  strategy)
+                                           int                       *cursor,
+                                           char                      *buffer,
+                                           int                        size,
+                                           bsls::Alignment::Strategy  strategy)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
 
-    const int alignment = strategy == bsls_Alignment::BSLS_NATURAL
-                        ? bsls_AlignmentUtil::calculateAlignmentFromSize(size)
-                        : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    const int alignment = strategy == bsls::Alignment::BSLS_NATURAL
+                        ? bsls::AlignmentUtil::calculateAlignmentFromSize(size)
+                        : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
-    const int offset = bsls_AlignmentUtil::calculateAlignmentOffset(
+    const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
                                                               alignment);
 

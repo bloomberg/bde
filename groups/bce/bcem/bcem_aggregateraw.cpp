@@ -229,12 +229,12 @@ class NullTerminatedString {
     // all, practical uses of this class without incurring a memory allocation.
 
     // DATA
-    char             d_buffer[128];  // buffer large enough for *most* uses
+    char              d_buffer[128];  // buffer large enough for *most* uses
 
-    char            *d_string_p;     // address of 'd_buffer', or allocated
-                                     // string if 128 is not sufficient
+    char             *d_string_p;     // address of 'd_buffer', or allocated
+                                      // string if 128 is not sufficient
 
-    bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
     // NOT IMPLEMENTED
     NullTerminatedString(const NullTerminatedString&);
@@ -242,11 +242,11 @@ class NullTerminatedString {
 
   public:
     // CREATORS
-    NullTerminatedString(const char      *string,
-                         int              length,
-                         bslma_Allocator *basicAllocator = 0)
+    NullTerminatedString(const char       *string,
+                         int               length,
+                         bslma::Allocator *basicAllocator = 0)
     : d_string_p(d_buffer)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         if (length >= (int)sizeof d_buffer) {
             d_string_p = (char *)d_allocator_p->allocate(length + 1);
@@ -299,7 +299,7 @@ struct ArrayInserter::SignChecker<unsigned int> {
 };
 
 template <>
-struct ArrayInserter::SignChecker<bsls_Types::Uint64> {
+struct ArrayInserter::SignChecker<bsls::Types::Uint64> {
     // TBD REMOVE
     enum {
         IS_SIGNED = 0
@@ -411,9 +411,11 @@ int bcem_AggregateRaw::descendIntoArrayItem(
 
             itemType                   = ref.type();
             itemPtr                    = ref.dataRaw();
-            const bdem_FieldDef& field = d_recordDef_p->field(0);
-            d_recordDef_p              = field.recordConstraint();
-            d_fieldDef_p               = &field;
+            if (d_recordDef_p) {
+                const bdem_FieldDef& field = d_recordDef_p->field(0);
+                d_recordDef_p              = field.recordConstraint();
+                d_fieldDef_p               = &field;
+            }
             d_parentType               = bdem_ElemType::BDEM_ROW;
             d_parentData_p             = row;
             d_indexInParent            = 0;
@@ -576,11 +578,15 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
         d_indexInParent = fieldIndex;
         *d_isTopLevelAggregateNull_p = 0;  // don't care
 
-        const bdem_FieldDef& field = d_recordDef_p->field(fieldIndex);
-        d_dataType    = field.elemType();
-        d_recordDef_p = field.recordConstraint();
-        d_fieldDef_p  = &field;
-        d_value_p     = row[fieldIndex].dataRaw();
+        if (d_recordDef_p) {
+            const bdem_FieldDef& field = d_recordDef_p->field(fieldIndex);
+            d_recordDef_p = field.recordConstraint();
+            d_fieldDef_p  = &field;
+        }
+
+        bdem_ElemRef dataRef = row[fieldIndex];
+        d_dataType = dataRef.type();
+        d_value_p  = dataRef.dataRaw();
       } break;
 
       case bdem_ElemType::BDEM_CHOICE:
@@ -620,11 +626,15 @@ bcem_AggregateRaw::descendIntoFieldByIndex(
         *d_isTopLevelAggregateNull_p = 0;  // don't care
 
         // Descend into current selection
-        const bdem_FieldDef& field = d_recordDef_p->field(selectorIndex);
-        d_dataType    = field.elemType();
-        d_recordDef_p = field.recordConstraint();
-        d_fieldDef_p  = &field;
-        d_value_p     = choiceItem.selection().dataRaw();
+        if (d_recordDef_p) {
+            const bdem_FieldDef& field = d_recordDef_p->field(selectorIndex);
+            d_recordDef_p              = field.recordConstraint();
+            d_fieldDef_p               = &field;
+        }
+
+        bdem_ElemRef dataRef = choiceItem.selection();
+        d_dataType = dataRef.type();
+        d_value_p  = dataRef.dataRaw();
       } break;
 
       default: {
@@ -847,7 +857,7 @@ int bcem_AggregateRaw::makeSelectionByIndexRaw(
 
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
                               const char           *value,
-                              bslmf_MetaInt<1>) const
+                              bslmf::MetaInt<1>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -882,7 +892,7 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
 
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes     *errorDescription,
                               const bdem_ConstElemRef&  value,
-                              bslmf_MetaInt<1>) const
+                              bslmf::MetaInt<1>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -916,7 +926,7 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes     *errorDescription,
         }
         return toEnum(errorDescription,
                       value.theString().c_str(),
-                      bslmf_MetaInt<1>());                            // RETURN
+                      bslmf::MetaInt<1>());                           // RETURN
       } break;
       default: {
         bsl::ostringstream oss;
@@ -938,12 +948,12 @@ int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes     *errorDescription,
 
     // Got here if value is numeric and has been converted to int.
 
-    return toEnum(errorDescription, intValue, bslmf_MetaInt<0>());
+    return toEnum(errorDescription, intValue, bslmf::MetaInt<0>());
 }
 
 int bcem_AggregateRaw::toEnum(bcem_ErrorAttributes *errorDescription,
                               const int&            value,
-                              bslmf_MetaInt<0>) const
+                              bslmf::MetaInt<0>) const
 {
     BSLS_ASSERT_SAFE(errorDescription);
 
@@ -1057,28 +1067,6 @@ bcem_AggregateRaw::bcem_AggregateRaw(const bcem_AggregateRaw& original)
 , d_isTopLevelAggregateNull_p(original.d_isTopLevelAggregateNull_p)
 {
 }
-
-#ifdef BDE_BUILD_TARGET_SAFE
-bcem_AggregateRaw::~bcem_AggregateRaw()
-{
-    // Assert invariants (see member variable description in class definition)
-    if (d_dataType != bdem_ElemType::BDEM_VOID) {
-        BSLS_ASSERT(d_schema_p || (!d_recordDef_p && !d_fieldDef_p));
-
-        BSLS_ASSERT(!d_schema_p || (d_recordDef_p || d_fieldDef_p));
-
-        BSLS_ASSERT(! d_recordDef_p || &d_recordDef_p->schema() == d_schema_p);
-
-        // Cannot easily test that 'd_fieldDef_p' is within 'd_schema_p'
-        BSLS_ASSERT(! d_fieldDef_p
-                    || d_fieldDef_p->elemType() == d_dataType
-                    || d_fieldDef_p->elemType() ==
-                            bdem_ElemType::toArrayType(d_dataType));
-        BSLS_ASSERT(! d_fieldDef_p
-                    || d_recordDef_p  == d_fieldDef_p->recordConstraint());
-    }
-}
-#endif
 
 // MANIPULATORS
 bcem_AggregateRaw& bcem_AggregateRaw::operator=(const bcem_AggregateRaw& rhs)
@@ -1223,9 +1211,9 @@ int bcem_AggregateRaw::asInt() const
     return convertScalar<int>();
 }
 
-bsls_Types::Int64 bcem_AggregateRaw::asInt64() const
+bsls::Types::Int64 bcem_AggregateRaw::asInt64() const
 {
-    return convertScalar<bsls_Types::Int64>();
+    return convertScalar<bsls::Types::Int64>();
 }
 
 float bcem_AggregateRaw::asFloat() const
@@ -1674,8 +1662,6 @@ int bcem_AggregateRaw::length() const
         result = ((bdem_ChoiceArray *)d_value_p)->length();
       } break;
       default: {
-        BSLS_ASSERT_SAFE(bdem_ElemType::isArrayType(d_dataType));
-
         bcem_AggregateRaw_ArraySizer sizer;
         result = bcem_AggregateRaw_Util::visitArray(d_value_p,
                                                     d_dataType,
@@ -2642,30 +2628,34 @@ bool bcem_AggregateRaw_Util::isConformant(const void           *object,
     if (recordDef) {
         switch (type) {
           case bdem_ElemType::BDEM_LIST: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_List*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_List*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_ROW: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_Row*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_Row*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_TABLE: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_Table*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_Table*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_CHOICE: {
-            result = bcem_AggregateRaw_Util::isConformant((bdem_Choice*)object,
-                                                          recordDef);
+            result = bcem_AggregateRaw_Util::isConformant(
+                    (const bdem_Choice*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM: {
             result = bcem_AggregateRaw_Util::isConformant(
-                                                 (bdem_ChoiceArrayItem*)object,
-                                                 recordDef);
+                    (const bdem_ChoiceArrayItem*)object,
+                    recordDef);
           } break;
           case bdem_ElemType::BDEM_CHOICE_ARRAY: {
             result = bcem_AggregateRaw_Util::isConformant(
-                                                     (bdem_ChoiceArray*)object,
-                                                     recordDef);
+                    (const bdem_ChoiceArray*)object,
+                    recordDef);
           } break;
           default: {
             result = false;

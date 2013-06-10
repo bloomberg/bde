@@ -4,11 +4,14 @@
 #include <bcem_aggregate.h>
 #include <bcema_sharedptr.h>
 
+#include <bdeat_enumeratorinfo.h>
+
 #include <bdem_schema.h>
 #include <bdetu_unset.h>
 #include <bdeut_nullablevalue.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
@@ -20,6 +23,11 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
+
+// Add test cases for:
+// CustomizedTypes
+// Nullable<vector<char> >
+// NullableTypes where makeValue was not called
 
 using bsl::cout;
 using bsl::cerr;
@@ -38,7 +46,7 @@ using bsl::flush;
 // of each test case, the phrase "primitive types" is understood as the
 // following types: 'bool', 'char', 'short', 'int', 'float', 'double',
 // 'unsigned char', 'unsigned short', 'unsigned int', 'bsl::string',
-// 'bsls_PlatformUtil::Int64', 'bsls_PlatformUtil::Uint64', 'bdet_DateTz',
+// 'bsls::Types::Int64', 'bsls::Types::Uint64', 'bdet_DateTz',
 // 'bdet_DatetimeTz', 'bdet_TimeTz', 'bdet_Date', 'bdet_Datetime', and
 // 'bdet_Time'.
 //-----------------------------------------------------------------------------
@@ -53,8 +61,8 @@ using bsl::flush;
 // [ 2] fromAggregate(unsigned short)
 // [ 2] fromAggregate(unsigned int)
 // [ 2] fromAggregate(bsl::string)
-// [ 2] fromAggregate(bsls_PlatformUtil::Int64)
-// [ 2] fromAggregate(bsls_PlatformUtil::Uint64)
+// [ 2] fromAggregate(bsls::Types::Int64)
+// [ 2] fromAggregate(bsls::Types::Uint64)
 // [ 2] fromAggregate(bdet_DateTz)
 // [ 2] fromAggregate(bdet_DatetimeTz)
 // [ 2] fromAggregate(bdet_TimeTz)
@@ -71,8 +79,8 @@ using bsl::flush;
 // [ 2] toAggregate(unsigned short)
 // [ 2] toAggregate(unsigned int)
 // [ 2] toAggregate(bsl::string)
-// [ 2] toAggregate(bsls_PlatformUtil::Int64)
-// [ 2] toAggregate(bsls_PlatformUtil::Uint64)
+// [ 2] toAggregate(bsls::Types::Int64)
+// [ 2] toAggregate(bsls::Types::Uint64)
 // [ 2] toAggregate(bdet_DateTz)
 // [ 2] toAggregate(bdet_DatetimeTz)
 // [ 2] toAggregate(bdet_TimeTz)
@@ -89,8 +97,8 @@ using bsl::flush;
 // [ 3] fromAggregate(bdeut_NullableValue<unsigned short>)
 // [ 3] fromAggregate(bdeut_NullableValue<unsigned int>)
 // [ 3] fromAggregate(bdeut_NullableValue<bsl::string>)
-// [ 3] fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-// [ 3] fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+// [ 3] fromAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+// [ 3] fromAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
 // [ 3] fromAggregate(bdeut_NullableValue<bdet_DateTz>)
 // [ 3] fromAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
 // [ 3] fromAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -107,8 +115,8 @@ using bsl::flush;
 // [ 3] toAggregate(bdeut_NullableValue<unsigned short>)
 // [ 3] toAggregate(bdeut_NullableValue<unsigned int>)
 // [ 3] toAggregate(bdeut_NullableValue<bsl::string>)
-// [ 3] toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-// [ 3] toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+// [ 3] toAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+// [ 3] toAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
 // [ 3] toAggregate(bdeut_NullableValue<bdet_DateTz>)
 // [ 3] toAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
 // [ 3] toAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -125,8 +133,8 @@ using bsl::flush;
 // [ 4] fromAggregate(bsl::vector<unsigned short>)
 // [ 4] fromAggregate(bsl::vector<unsigned int>)
 // [ 4] fromAggregate(bsl::vector<bsl::string>)
-// [ 4] fromAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-// [ 4] fromAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+// [ 4] fromAggregate(bsl::vector<bsls::Types::Int64>)
+// [ 4] fromAggregate(bsl::vector<bsls::Types::Uint64>)
 // [ 4] fromAggregate(bsl::vector<bdet_DateTz>)
 // [ 4] fromAggregate(bsl::vector<bdet_DatetimeTz>)
 // [ 4] fromAggregate(bsl::vector<bdet_TimeTz>)
@@ -143,8 +151,8 @@ using bsl::flush;
 // [ 4] toAggregate(bsl::vector<unsigned short>)
 // [ 4] toAggregate(bsl::vector<unsigned int>)
 // [ 4] toAggregate(bsl::vector<bsl::string>)
-// [ 4] toAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-// [ 4] toAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+// [ 4] toAggregate(bsl::vector<bsls::Types::Int64>)
+// [ 4] toAggregate(bsl::vector<bsls::Types::Uint64>)
 // [ 4] toAggregate(bsl::vector<bdet_DateTz>)
 // [ 4] toAggregate(bsl::vector<bdet_DatetimeTz>)
 // [ 4] toAggregate(bsl::vector<bdet_TimeTz>)
@@ -247,17 +255,17 @@ static const unsigned short    NLUS_MAX = NLUS::max();
 static const unsigned int      NLUI_MIN = NLUI::min();
 static const unsigned int      NLUI_MAX = NLUI::max();
 
-static const bsls_PlatformUtil::Int64 NLI64_MIN =
-    bsl::numeric_limits<bsls_PlatformUtil::Int64>::min();
+static const bsls::Types::Int64 NLI64_MIN =
+    bsl::numeric_limits<bsls::Types::Int64>::min();
 
-static const bsls_PlatformUtil::Int64 NLI64_MAX =
-    bsl::numeric_limits<bsls_PlatformUtil::Int64>::max();
+static const bsls::Types::Int64 NLI64_MAX =
+    bsl::numeric_limits<bsls::Types::Int64>::max();
 
-static const bsls_PlatformUtil::Uint64 NLUI64_MIN =
-    bsl::numeric_limits<bsls_PlatformUtil::Uint64>::min();
+static const bsls::Types::Uint64 NLUI64_MIN =
+    bsl::numeric_limits<bsls::Types::Uint64>::min();
 
-static const bsls_PlatformUtil::Uint64 NLUI64_MAX =
-    bsl::numeric_limits<bsls_PlatformUtil::Uint64>::max();
+static const bsls::Types::Uint64 NLUI64_MAX =
+    bsl::numeric_limits<bsls::Types::Uint64>::max();
 
 template <typename TYPE>
 struct NullTraits {
@@ -278,8 +286,8 @@ enum {
   , ID_VAL8   // unsigned short
   , ID_VAL9   // unsigned int
   , ID_VAL10  // string
-  , ID_VAL11  // bsls_PlatformUtil::Int64
-  , ID_VAL12  // bsls_PlatformUtil::Uint64
+  , ID_VAL11  // bsls::Types::Int64
+  , ID_VAL12  // bsls::Types::Uint64
   , ID_VAL13  // bdet_DateTz
   , ID_VAL14  // bdet_DatetimeTz
   , ID_VAL15  // bdet_TimeTz
@@ -426,14 +434,14 @@ class Person {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Person(bslma_Allocator *basicAllocator = 0);
+    explicit Person(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Person' having the default value.  Use the
         // optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Person(const Person& original,
-           bslma_Allocator *basicAllocator = 0);
+           bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Person' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -662,14 +670,14 @@ class Company {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Company(bslma_Allocator *basicAllocator = 0);
+    explicit Company(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Company' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Company(const Company& original,
-            bslma_Allocator *basicAllocator = 0);
+            bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Company' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -840,12 +848,12 @@ class Entity {
 
     // DATA MEMBERS
     union {
-        bsls_ObjectBuffer< Company > d_corp;
-        bsls_ObjectBuffer< Person >  d_human;
+        bsls::ObjectBuffer< Company > d_corp;
+        bsls::ObjectBuffer< Person >  d_human;
     };
 
-    int              d_selectionId;
-    bslma_Allocator *d_allocator_p;
+    int               d_selectionId;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TYPES
@@ -889,14 +897,14 @@ class Entity {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Entity(bslma_Allocator *basicAllocator = 0);
+    explicit Entity(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Entity' having the default value.  Use the
         // optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Entity(const Entity& original,
-          bslma_Allocator *basicAllocator = 0);
+          bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Entity' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1070,6 +1078,246 @@ struct Messages {
 };
 
 }  // close namespace test
+
+namespace test {
+
+                                 // =================
+                                 // struct Enumerated
+                                 // =================
+
+struct Enumerated {
+
+  // TYPES
+  public:
+    enum Value {
+        NA      = -1
+      , UNKNOWN = 0
+      , VALUE_1 = 1
+      , VALUE_2 = 2
+      , VALUE_3 = 3
+    };
+
+    enum {
+        NUM_ENUMERATORS = 5
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
+
+    static int fromString(Value        *result,
+                          const char   *string,
+                          int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
+
+    static int fromString(Value              *result,
+                          const std::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
+
+    static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
+
+    template <class STREAM>
+    static STREAM& bdexStreamIn(STREAM&  stream,
+                                Value&   value,
+                                int      version);
+        // Assign to the specified 'value' the value read from the specified
+        // input 'stream' using the specified 'version' format and return a
+        // reference to the modifiable 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'stream' becomes invalid
+        // during this operation, the 'value' is valid, but its value is
+        // undefined.  If the specified 'version' is not supported, 'stream' is
+        // marked invalid, but 'value' is unaltered.  Note that no version is
+        // read from 'stream'.  (See the package-group-level documentation for
+        // more information on 'bdex' streaming of container types.)
+
+    static std::ostream& print(std::ostream& stream, Value value);
+        // Write to the specified 'stream' the string representation of
+        // the specified enumeration 'value'.  Return a reference to
+        // the modifiable 'stream'.
+
+    template <class STREAM>
+    static STREAM& bdexStreamOut(STREAM&  stream,
+                                 Value    value,
+                                 int      version);
+        // Write the specified 'value' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.  Optionally specify
+        // an explicit 'version' format; by default, the maximum supported
+        // version is written to 'stream' and used as the format.  If 'version'
+        // is specified, that format is used but *not* written to 'stream'.  If
+        // 'version' is not supported, 'stream' is left unmodified.  (See the
+        // package-group-level documentation for more information on 'bdex'
+        // streaming of container types).
+};
+
+// FREE OPERATORS
+inline
+std::ostream& operator<<(std::ostream& stream, Enumerated::Value rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace test
+
+// TRAITS
+BDEAT_DECL_ENUMERATION_TRAITS(test::Enumerated)
+
+namespace test {
+
+                            // ====================
+                            // class CustomizedType
+                            // ====================
+
+class CustomizedType {
+
+    // INSTANCE DATA
+    int d_value;
+
+    // FRIENDS
+    friend bool operator==(const CustomizedType& lhs,
+                           const CustomizedType& rhs);
+    friend bool operator!=(const CustomizedType& lhs,
+                           const CustomizedType& rhs);
+
+    // PRIVATE CLASS METHODS
+    static int checkRestrictions(const int& value);
+        // Check if the specified 'value' satisfies the restrictions of this
+        // class (i.e., "CustomizedType").  Return 0 if successful (i.e., the
+        // restrictions are satisfied) and non-zero otherwise.
+
+  public:
+    // TYPES
+    typedef int BaseType;
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    // CREATORS
+    CustomizedType();
+        // Create an object of type 'CustomizedType' having the default value.
+
+    CustomizedType(const CustomizedType& original);
+        // Create an object of type 'CustomizedType' having the value of the
+        // specified 'original' object.
+
+    explicit CustomizedType(const int& value);
+        // Create an object of type 'CustomizedType' having the specified
+        // 'value'.
+
+    ~CustomizedType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    CustomizedType& operator=(const CustomizedType& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    int fromAggregate(const bcem_Aggregate& aggregate);
+        // Store the value of the specified 'aggregate' into this object.
+        // Return 0 on success, and a non-zero value otherwise.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    int fromInt(const int& value);
+        // Convert from the specified 'value' to this type.  Return 0 if
+        // successful and non-zero otherwise.
+
+    // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int toAggregate(bcem_Aggregate *result) const;
+        // Load the specified 'result' with the value of this object.  Return
+        // 0 on success, and a non-zero value otherwise.
+
+    int maxSupportedBdexVersion() const;
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    const int& toInt() const;
+        // Convert this value to 'int'.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const CustomizedType& lhs, const CustomizedType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const CustomizedType& lhs, const CustomizedType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const CustomizedType& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace test
+
+// TRAITS
+
+BDEAT_DECL_CUSTOMIZEDTYPE_TRAITS(test::CustomizedType)
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1507,9 +1755,9 @@ int Entity::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Entity::Entity(bslma_Allocator *basicAllocator)
+Entity::Entity(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1669,6 +1917,178 @@ bool Entity::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
+
+                                 // ----------------
+                                 // class Enumerated
+                                 // ----------------
+
+// CLASS METHODS
+inline
+int Enumerated::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1
+}
+
+inline
+int Enumerated::fromString(Value *result, const std::string& string)
+{
+    return fromString(result, string.c_str(), string.length());
+}
+
+inline
+std::ostream& Enumerated::print(std::ostream&     stream,
+                                Enumerated::Value value)
+{
+    return stream << toString(value);
+}
+
+template <class STREAM>
+STREAM& Enumerated::bdexStreamIn(STREAM&            stream,
+                                 Enumerated::Value& value,
+                                 int                version)
+{
+    switch(version) {
+      case 1: {
+        int readValue;
+        stream.getInt32(readValue);
+        if (stream) {
+            if (fromInt(&value, readValue)) {
+               stream.invalidate();   // bad value in stream
+            }
+        }
+      } break;
+      default: {
+        stream.invalidate();          // unrecognized version number
+      } break;
+    }
+    return stream;
+}
+
+template <class STREAM>
+STREAM& Enumerated::bdexStreamOut(STREAM&           stream,
+                                  Enumerated::Value value,
+                                  int               version)
+{
+    switch (version) {
+      case 1: {
+        stream.putInt32(value);  // Write the value as an int
+      } break;
+    }
+    return stream;
+}
+
+                            // --------------------
+                            // class CustomizedType
+                            // --------------------
+
+// CREATORS
+inline
+CustomizedType::CustomizedType()
+: d_value()
+{
+}
+
+inline
+CustomizedType::CustomizedType(const CustomizedType& original)
+: d_value(original.d_value)
+{
+}
+
+inline
+CustomizedType::CustomizedType(const int& value)
+: d_value(value)
+{
+    BSLS_ASSERT_SAFE(checkRestrictions(value) == 0);
+}
+
+inline
+CustomizedType::~CustomizedType()
+{
+}
+
+// MANIPULATORS
+inline
+CustomizedType& CustomizedType::operator=(const CustomizedType& rhs)
+{
+    d_value = rhs.d_value;
+    return *this;
+}
+
+template <class STREAM>
+STREAM& CustomizedType::bdexStreamIn(STREAM& stream, int version)
+{
+    int temp;
+
+    bdex_InStreamFunctions::streamIn(stream, temp, version);
+
+    if (!stream) {
+        return stream;
+    }
+
+    if (fromInt(temp)!=0) {
+        stream.invalidate();
+    }
+
+    return stream;
+}
+
+inline
+int CustomizedType::fromAggregate(const bcem_Aggregate& aggregate)
+{
+    return fromInt(aggregate.asInt());
+}
+
+inline
+void CustomizedType::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_value);
+}
+
+inline
+int CustomizedType::fromInt(const int& value)
+{
+    int ret = checkRestrictions(value);
+    if (0 == ret) {
+        d_value = value;
+    }
+
+    return ret;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& CustomizedType::bdexStreamOut(STREAM& stream, int version) const
+{
+    return bdex_OutStreamFunctions::streamOut(stream, d_value, version);
+}
+
+inline
+int CustomizedType::toAggregate(bcem_Aggregate *result) const
+{
+    return result->setValue(toInt()).isError();
+}
+
+inline
+int CustomizedType::maxSupportedBdexVersion() const
+{
+    return bdex_VersionFunctions::maxSupportedVersion(d_value);
+}
+
+inline
+std::ostream& CustomizedType::print(std::ostream& stream,
+                                 int           level,
+                                 int           spacesPerLevel) const
+{
+    return bdeu_PrintMethods::print(stream, d_value, level, spacesPerLevel);
+}
+
+inline
+const int& CustomizedType::toInt() const
+{
+    return d_value;
+}
+
+
 
 }  // close namespace test
 
@@ -1920,7 +2340,7 @@ const bdeat_AttributeInfo *Person::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Person::Person(bslma_Allocator *basicAllocator)
+Person::Person(bslma::Allocator *basicAllocator)
 : d_lastName(basicAllocator)
 , d_firstName(basicAllocator)
 , d_age()
@@ -1930,7 +2350,7 @@ Person::Person(bslma_Allocator *basicAllocator)
 
 Person::Person(
         const Person& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_lastName(original.d_lastName, basicAllocator)
 , d_firstName(original.d_firstName, basicAllocator)
 , d_age(original.d_age)
@@ -2168,7 +2588,7 @@ const bdeat_AttributeInfo *Company::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Company::Company(bslma_Allocator *basicAllocator)
+Company::Company(bslma::Allocator *basicAllocator)
 : d_name(basicAllocator)
 , d_accountNum()
 {
@@ -2176,7 +2596,7 @@ Company::Company(bslma_Allocator *basicAllocator)
 
 Company::Company(
         const Company& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_accountNum(original.d_accountNum)
 {
@@ -2370,9 +2790,9 @@ const bdeat_SelectionInfo *Entity::lookupSelectionInfo(int id)
 inline
 Entity::Entity(
     const Entity& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_CORP: {
@@ -2428,7 +2848,7 @@ int Entity::fromAggregate(const bcem_Aggregate& aggregate)
                                                selectorId);
       } break;
       default: {
-        rc = bcem_Aggregate::BCEM_ERR_BAD_CONVERSION;
+        rc = bcem_ErrorCode::BCEM_BAD_CONVERSION;
       }
     }
 
@@ -2640,6 +3060,160 @@ int Entity::toAggregate(bcem_Aggregate *result) const
     return rc;
 }
 
+
+                                 // ----------------
+                                 // class Enumerated
+                                 // ----------------
+
+// CONSTANTS
+
+const char Enumerated::CLASS_NAME[] = "Enumerated";
+
+const bdeat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
+    {
+        Enumerated::NA,
+        "NA",
+        sizeof("NA") - 1,
+        ""
+    },
+    {
+        Enumerated::UNKNOWN,
+        "UNKNOWN",
+        sizeof("UNKNOWN") - 1,
+        ""
+    },
+    {
+        Enumerated::VALUE_1,
+        "1",
+        sizeof("1") - 1,
+        ""
+    },
+    {
+        Enumerated::VALUE_2,
+        "2",
+        sizeof("2") - 1,
+        ""
+    },
+    {
+        Enumerated::VALUE_3,
+        "3",
+        sizeof("3") - 1,
+        ""
+    }
+};
+
+// CLASS METHODS
+
+int Enumerated::fromInt(Enumerated::Value *result, int number)
+{
+    switch (number) {
+      case Enumerated::NA:
+      case Enumerated::UNKNOWN:
+      case Enumerated::VALUE_1:
+      case Enumerated::VALUE_2:
+      case Enumerated::VALUE_3:
+        *result = (Enumerated::Value)number;
+        return 0;
+      default:
+        return -1;
+    }
+}
+
+int Enumerated::fromString(Enumerated::Value *result,
+                           const char        *string,
+                           int                stringLength)
+{
+
+    switch(stringLength) {
+        case 1: {
+            switch(string[0]) {
+                case '1': {
+                    *result = Enumerated::VALUE_1;
+                    return 0;
+                } break;
+                case '2': {
+                    *result = Enumerated::VALUE_2;
+                    return 0;
+                } break;
+                case '3': {
+                    *result = Enumerated::VALUE_3;
+                    return 0;
+                } break;
+            }
+        } break;
+        case 2: {
+            if (string[0]=='N'
+             && string[1]=='A')
+            {
+                *result = Enumerated::NA;
+                return 0;
+            }
+        } break;
+        case 7: {
+            if (string[0]=='U'
+             && string[1]=='N'
+             && string[2]=='K'
+             && string[3]=='N'
+             && string[4]=='O'
+             && string[5]=='W'
+             && string[6]=='N')
+            {
+                *result = Enumerated::UNKNOWN;
+                return 0;
+            }
+        } break;
+    }
+
+    return -1;
+}
+
+const char *Enumerated::toString(Enumerated::Value value)
+{
+    switch (value) {
+      case NA: {
+        return "NA";
+      } break;
+      case UNKNOWN: {
+        return "UNKNOWN";
+      } break;
+      case VALUE_1: {
+        return "1";
+      } break;
+      case VALUE_2: {
+        return "2";
+      } break;
+      case VALUE_3: {
+        return "3";
+      } break;
+    }
+
+    BSLS_ASSERT(!"invalid enumerator");
+    return 0;
+}
+
+                            // --------------------
+                            // class CustomizedType
+                            // --------------------
+
+// PRIVATE CLASS METHODS
+
+int CustomizedType::checkRestrictions(const int& value)
+{
+    if (1 > value) {
+        return -1;
+    }
+
+    if (100 < value) {
+        return -1;
+    }
+
+    return 0;
+}
+
+// CONSTANTS
+
+const char CustomizedType::CLASS_NAME[] = "CustomizedType";
+
 }  // close namespace test
 }  // close namespace BloombergLP
 
@@ -2755,6 +3329,65 @@ int loadPrimitives(bcem_Aggregate *result)
         || result->setFieldById(ID_VAL16, myDate).errorCode()
         || result->setFieldById(ID_VAL17, myDatetime).errorCode()
         || result->setFieldById(ID_VAL18, myTime).errorCode();
+}
+
+int loadEnumeration(bcem_Aggregate *result)
+{
+    bcema_SharedPtr<bdem_Schema> schema_sp;
+    schema_sp.createInplace();
+
+    bdem_EnumerationDef *enumDef = schema_sp->createEnumeration("enumeration");
+    enumDef->addEnumerator("NA",      -1);
+    enumDef->addEnumerator("UNKNOWN",  0);
+    enumDef->addEnumerator("1",        1);
+    enumDef->addEnumerator("2",        2);
+    enumDef->addEnumerator("3",        3);
+
+    bdem_RecordDef *rd = schema_sp->createRecord("all_enumerations");
+    bdem_FieldDefAttributes  fa;
+
+    // Non-nullable elements
+    fa.reset(bdem_ElemType::BDEM_STRING); fa.setIsNullable(false);
+    rd->appendField(fa, enumDef, "Enumerated1", 1);
+    fa.reset(bdem_ElemType::BDEM_INT);
+    rd->appendField(fa, enumDef, "Enumerated2", 2);
+
+    // Nullable elements
+    fa.reset(bdem_ElemType::BDEM_STRING); fa.setIsNullable(true);
+    rd->appendField(fa, enumDef, "Enumerated3", 3);
+    fa.reset(bdem_ElemType::BDEM_INT);
+    rd->appendField(fa, enumDef, "Enumerated4", 4);
+
+    // Vector of non-nullable elements
+    fa.reset(bdem_ElemType::BDEM_STRING_ARRAY); fa.setIsNullable(false);
+    rd->appendField(fa, enumDef, "Enumerated5", 5);
+    fa.reset(bdem_ElemType::BDEM_INT_ARRAY);
+    rd->appendField(fa, enumDef, "Enumerated6", 6);
+
+    // Vector of Nullable elements
+    bdem_RecordDef *base = schema_sp->createRecord(0);
+    fa.reset(bdem_ElemType::BDEM_STRING); fa.setIsNullable(true);
+    fa.setFormattingMode(bdeat_FormattingMode::BDEAT_NILLABLE);
+    base->appendField(fa, enumDef);
+    fa.reset(bdem_ElemType::BDEM_TABLE); fa.setIsNullable(false);
+    rd->appendField(fa, base, "Enumerated7", 7);
+
+    base = schema_sp->createRecord(0);
+    fa.reset(bdem_ElemType::BDEM_INT); fa.setIsNullable(true);
+    fa.setFormattingMode(bdeat_FormattingMode::BDEAT_NILLABLE);
+    base->appendField(fa, enumDef);
+    fa.reset(bdem_ElemType::BDEM_TABLE); fa.setIsNullable(false);
+    rd->appendField(fa, base, "Enumerated8", 8);
+
+    bcem_Aggregate aggregate(schema_sp, "all_enumerations");
+    *result = aggregate;
+    result->field("Enumerated1").makeValue();
+    result->field("Enumerated2").makeValue();
+    result->field("Enumerated5").makeValue();
+    result->field("Enumerated6").makeValue();
+    result->field("Enumerated7").makeValue();
+    result->field("Enumerated8").makeValue();
+    return 0;
 }
 
 int loadNullables(bcem_Aggregate *result)
@@ -2977,8 +3610,8 @@ int loadArrays(bcem_Aggregate *result)
     bcem_Aggregate aggregate(schema_sp, "arrays");
     *result = aggregate;
 
-    typedef bsls_PlatformUtil::Int64  Int64;
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
 
     typedef bsl::vector<bool>            VB;
     typedef bsl::vector<char>            VC;
@@ -3118,8 +3751,8 @@ int loadArraysOfNullableValues(bcem_Aggregate *result)
     bcem_Aggregate aggregate(schema_sp, "arrays");
     *result = aggregate;
 
-    typedef bsls_PlatformUtil::Int64  Int64;
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
 
     typedef bsl::vector<bool>            VB;
     typedef bsl::vector<char>            VC;
@@ -3191,7 +3824,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Simple example illustrating how one might use an aggregate.
@@ -3250,7 +3883,7 @@ int main(int argc, char *argv[])
 
         // Manually create the bdem schema.
 
-        bslma_Allocator *allocator = bslma_Default::defaultAllocator();
+        bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 
         bcema_SharedPtr<bdem_Schema> schema(new (*allocator) bdem_Schema());
 
@@ -3297,6 +3930,313 @@ int main(int argc, char *argv[])
         }
 
       } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: ENUMERATIONS
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   fromAggregate(Enumerated::Value);
+        //   fromAggregate(NullableValue<Enumerated::Value>);
+        //   fromAggregate(vector<Enumerated::Value>);
+        //   fromAggregate(vector<NullableValue<Enumerated::Value> >);
+        //   toAggregate(Enumerated::Value);
+        //   toAggregate(NullableValue<Enumerated::Value>);
+        //   toAggregate(vector<Enumerated::Value>);
+        //   toAggregate(vector<NullableValue<Enumerated::Value> >);
+        // --------------------------------------------------------------------
+
+        using namespace test;
+
+        if (verbose) {
+            cout << "Testing Enumerations" << endl
+                 << "====================" << endl;
+        }
+
+        {
+            bcem_Aggregate AGG;
+            ASSERT(0 == loadEnumeration(&AGG));
+
+            const int               ID_INVALID = 100;
+            Enumerated::Value       val = (Enumerated::Value) 0;
+            const Enumerated::Value VAL = (Enumerated::Value) 0;
+
+            bcem_Aggregate agg = AGG.clone();
+
+            if (verbose) { P(agg); }
+
+            ASSERT(VAL == val);
+            ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
+            ASSERT(0 != Util::fromAggregate(&val, agg, ID_INVALID));
+            ASSERT(0 != Util::toAggregate(&agg, ID_INVALID, VAL));
+            ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
+            ASSERT(VAL == val);
+        }
+
+        if (verbose) cout << "\tTesting scalar non-nullable enums.\n" << endl;
+        {
+            bcem_Aggregate AGG;
+            ASSERT(0 == loadEnumeration(&AGG));
+
+            for (int id = 1; id < 3; ++id) {
+                for (int i = -1; i < Enumerated::NUM_ENUMERATORS - 1; ++i) {
+                    Enumerated::Value       val = (Enumerated::Value) i;
+                    const Enumerated::Value VAL = (Enumerated::Value) i;
+
+                    bcem_Aggregate agg = AGG.clone();
+
+                    if (verbose) { P(agg); }
+
+                    ASSERT(0 == Util::toAggregate(&agg, id, VAL));
+                    ASSERT(false == agg.fieldById(id).isNul2());
+                    ASSERT((int) VAL == agg.fieldById(id).asInt());
+                    val = (Enumerated::Value) 10;
+                    ASSERT(VAL != val);
+                    ASSERT(0 == Util::fromAggregate(&val, agg, id));
+                    ASSERT(VAL == val);
+                    ASSERT(true != bcem_Aggregate::areEquivalent(AGG, agg));
+                    ASSERT(false == agg.fieldById(id).isNul2());
+
+                    if (verbose) { P(agg); }
+                }
+            }
+        }
+
+        if (verbose) cout << "\tTesting scalar nullable enums.\n" << endl;
+        {
+            bcem_Aggregate AGG;
+            ASSERT(0 == loadEnumeration(&AGG));
+
+            for (int id = 3; id < 5; ++id) {
+                for (int i = -1; i < Enumerated::NUM_ENUMERATORS - 1; ++i) {
+                    bdeut_NullableValue<Enumerated::Value> val;
+                    val.makeValue((Enumerated::Value) i);
+                    const bdeut_NullableValue<Enumerated::Value> VAL(val);
+
+                    bcem_Aggregate agg = AGG.clone();
+
+                    if (verbose) { P(agg); }
+
+                    ASSERT(0 == Util::toAggregate(&agg, id, VAL));
+                    ASSERT(false == agg.fieldById(id).isNul2());
+                    ASSERT((int) VAL.value() == agg.fieldById(id).asInt());
+                    val = (Enumerated::Value) 10;
+                    ASSERT(VAL != val);
+                    ASSERT(0 == Util::fromAggregate(&val, agg, id));
+                    ASSERT(VAL == val);
+                    ASSERT(true != bcem_Aggregate::areEquivalent(AGG, agg));
+                    ASSERT(false == agg.fieldById(id).isNul2());
+
+                    const bdeut_NullableValue<Enumerated::Value> VAL2;
+
+                    ASSERT(VAL2 != val);
+                    ASSERT(false == bcem_Aggregate::areEquivalent(AGG, agg));
+                    ASSERT(false == agg.fieldById(id).isNul2());
+                    ASSERT(0 != Util::fromAggregate(&val, agg, ID_INVALID));
+                    ASSERT(0 != Util::toAggregate(&agg, ID_INVALID, VAL2));
+                    ASSERT(false == bcem_Aggregate::areEquivalent(AGG, agg));
+                    ASSERT(false == agg.fieldById(id).isNul2());
+                    ASSERT(VAL2 != val);
+
+                    ASSERT(0 == Util::toAggregate(&agg, id, VAL2));
+                    ASSERT(true == agg.fieldById(id).isNul2());
+                    ASSERT(VAL2 != val);
+                    ASSERT(0 == Util::fromAggregate(&val, agg, id));
+                    ASSERT(VAL2 == val);
+                    ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
+                    ASSERT(true == agg.fieldById(id).isNul2());
+
+                    if (verbose) { P(agg); }
+                }
+            }
+        }
+
+        if (verbose) cout << "\tTesting vector of scalar non-nullable enums.\n"
+                          << endl;
+        {
+            bcem_Aggregate AGG;
+            ASSERT(0 == loadEnumeration(&AGG));
+
+            const int ID_INVALID = 100;
+            for (int id = 5; id < 7; ++id) {
+                bsl::vector<Enumerated::Value> val;
+                bsl::vector<Enumerated::Value> val2;
+                const bsl::vector<Enumerated::Value>& VAL = val2;
+                for (int i = -1; i < Enumerated::NUM_ENUMERATORS - 1; ++i) {
+                    val.push_back((Enumerated::Value) i);
+                    val2.push_back((Enumerated::Value) i);
+                }
+
+                bcem_Aggregate agg = AGG.clone();
+
+                if (verbose) { P(agg); }
+
+                ASSERT(0 == agg.fieldById(id).length());
+                ASSERT(0 == Util::toAggregate(&agg, id, VAL));
+                ASSERT(false == agg.fieldById(id).isNul2());
+                ASSERT(VAL.size() == agg.fieldById(id).length());
+                const int LEN = VAL.size();
+                for (int i = 0; i < LEN; ++i) {
+                    ASSERT((int) VAL[i] == agg.fieldById(id)[i].asInt());
+                }
+
+                val.clear();
+                ASSERT(VAL != val);
+                ASSERT(0 == Util::fromAggregate(&val, agg, id));
+                ASSERT(VAL == val);
+                ASSERT(true != bcem_Aggregate::areEquivalent(AGG, agg));
+                ASSERT(VAL.size() == agg.fieldById(id).length());
+                for (int i = 0; i < LEN; ++i) {
+                    ASSERT((int) VAL[i] == agg.fieldById(id)[i].asInt());
+                }
+
+                if (verbose) { P(agg); }
+            }
+        }
+
+        if (verbose) cout << "\tTesting vector of scalar nullable enums.\n"
+                          << endl;
+        {
+            bcem_Aggregate AGG;
+            ASSERT(0 == loadEnumeration(&AGG));
+
+            const int ID_INVALID = 100;
+            for (int id = 5; id < 7; ++id) {
+                bsl::vector<bdeut_NullableValue<Enumerated::Value> > val;
+                bsl::vector<bdeut_NullableValue<Enumerated::Value> > val2;
+                const bsl::vector<bdeut_NullableValue<Enumerated::Value> >&
+                                                                    VAL = val2;
+                for (int i = -1; i < Enumerated::NUM_ENUMERATORS - 1; ++i) {
+                    bdeut_NullableValue<Enumerated::Value> value;
+                    value.makeValue((Enumerated::Value) i);
+                    val.push_back(value);
+                    val2.push_back(value);
+                }
+                bdeut_NullableValue<Enumerated::Value> value;
+                val.insert(val.begin() + 1, value);
+                val.push_back(value);
+                val2.insert(val2.begin() + 1, value);
+                val2.push_back(value);
+
+                bcem_Aggregate agg = AGG.clone();
+
+                if (verbose) { P(agg); }
+
+                const int UNSET_INT = bdetu_Unset<int>::unsetValue();
+
+                ASSERT(0 == agg.fieldById(id).length());
+                ASSERT(0 == Util::toAggregate(&agg, id, VAL));
+                ASSERT(false == agg.fieldById(id).isNul2());
+                ASSERT(VAL.size() == agg.fieldById(id).length());
+                const int LEN = VAL.size();
+                for (int i = 0; i < LEN; ++i) {
+                    const bdeut_NullableValue<Enumerated::Value>& V = VAL[i];
+                    if (!V.isNull()) {
+                        ASSERT((int) VAL[i].value() ==
+                                                 agg.fieldById(id)[i].asInt());
+                    }
+                    else {
+                        LOOP2_ASSERT(i, agg,
+                                    UNSET_INT == agg.fieldById(id)[i].asInt());
+                    }
+                }
+
+                val.clear();
+                ASSERT(VAL != val);
+                int rc = Util::fromAggregate(&val, agg, id);
+                // TBD: This fails because a scalar element in a vector cannot
+                // be null and instead set to its unset value.  So the null
+                // element is actually an unset string which has no
+                // corresponding conversion to the enumeration.
+//                 ASSERT(0 == rc);
+                ASSERT(true != bcem_Aggregate::areEquivalent(AGG, agg));
+                ASSERT(VAL.size() == agg.fieldById(id).length());
+                for (int i = 0; i < LEN; ++i) {
+                    const bdeut_NullableValue<Enumerated::Value>& V = VAL[i];
+                    if (!V.isNull()) {
+                        ASSERT((int) VAL[i].value() ==
+                                                 agg.fieldById(id)[i].asInt());
+                    }
+                    else {
+                        LOOP2_ASSERT(i, agg,
+                                    UNSET_INT == agg.fieldById(id)[i].asInt());
+                    }
+                }
+
+                if (verbose) { P(agg); }
+            }
+        }
+
+        if (verbose) cout << "\tTesting vector of scalar nillable enums.\n"
+                          << endl;
+        {
+            bcem_Aggregate AGG;
+            ASSERT(0 == loadEnumeration(&AGG));
+
+            const int ID_INVALID = 100;
+            for (int id = 7; id < 9; ++id) {
+                bsl::vector<bdeut_NullableValue<Enumerated::Value> > val;
+                bsl::vector<bdeut_NullableValue<Enumerated::Value> > val2;
+                const bsl::vector<bdeut_NullableValue<Enumerated::Value> >&
+                                                                    VAL = val2;
+                for (int i = -1; i < Enumerated::NUM_ENUMERATORS - 1; ++i) {
+                    bdeut_NullableValue<Enumerated::Value> value;
+                    value.makeValue((Enumerated::Value) i);
+                    val.push_back(value);
+                    val2.push_back(value);
+                }
+                bdeut_NullableValue<Enumerated::Value> value;
+                val.insert(val.begin() + 1, value);
+                val.push_back(value);
+                val2.insert(val2.begin() + 1, value);
+                val2.push_back(value);
+
+                bcem_Aggregate agg = AGG.clone();
+
+                if (verbose) { P(agg); }
+
+                const int UNSET_INT = bdetu_Unset<int>::unsetValue();
+
+                ASSERT(0 == agg.fieldById(id).length());
+                ASSERT(0 == Util::toAggregate(&agg, id, VAL));
+                ASSERT(false == agg.fieldById(id).isNul2());
+                ASSERT(VAL.size() == agg.fieldById(id).length());
+                const int LEN = VAL.size();
+                for (int i = 0; i < LEN; ++i) {
+                    const bdeut_NullableValue<Enumerated::Value>& V = VAL[i];
+                    if (!V.isNull()) {
+                        ASSERT((int) VAL[i].value() ==
+                                                 agg.fieldById(id)[i].asInt());
+                    }
+                    else {
+                        LOOP2_ASSERT(i, agg, agg.fieldById(id)[i].isNul2());
+                    }
+                }
+
+                val.clear();
+                ASSERT(VAL != val);
+                ASSERT(0 == Util::fromAggregate(&val, agg, id));
+                ASSERT(VAL == val);
+                ASSERT(true != bcem_Aggregate::areEquivalent(AGG, agg));
+                ASSERT(VAL.size() == agg.fieldById(id).length());
+                for (int i = 0; i < LEN; ++i) {
+                    const bdeut_NullableValue<Enumerated::Value>& V = VAL[i];
+                    if (!V.isNull()) {
+                        ASSERT((int) VAL[i].value() ==
+                                                 agg.fieldById(id)[i].asInt());
+                    }
+                    else {
+                        LOOP2_ASSERT(i, agg, agg.fieldById(id)[i].isNul2());
+                    }
+                }
+
+                if (verbose) { P(agg); }
+            }
+        }
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: NULLABLE PRIMITIVE TYPES ARE CONVERTIBLE TO
@@ -3342,8 +4282,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bdeut_NullableValue<unsigned short>)
         //   fromAggregate(bdeut_NullableValue<unsigned int>)
         //   fromAggregate(bdeut_NullableValue<bsl::string>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   fromAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -3360,8 +4300,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bdeut_NullableValue<unsigned short>)
         //   toAggregate(bdeut_NullableValue<unsigned int>)
         //   toAggregate(bdeut_NullableValue<bsl::string>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   toAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   toAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   toAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -3721,7 +4661,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64 Int64;
+            typedef bsls::Types::Int64 Int64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Int64>           VAL(NLI64::min() + 1);
@@ -3753,8 +4693,8 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64  Int64;
-            typedef bsls_PlatformUtil::Uint64 Uint64;
+            typedef bsls::Types::Int64  Int64;
+            typedef bsls::Types::Uint64 Uint64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Uint64>          VAL(NLUI64::min());
@@ -4064,8 +5004,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bsl::vector<unsigned short>)
         //   fromAggregate(bsl::vector<unsigned int>)
         //   fromAggregate(bsl::vector<bsl::string>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Int64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Uint64>)
         //   fromAggregate(bsl::vector<bdet_DateTz>)
         //   fromAggregate(bsl::vector<bdet_DatetimeTz>)
         //   fromAggregate(bsl::vector<bdet_TimeTz>)
@@ -4082,8 +5022,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bsl::vector<unsigned short>)
         //   toAggregate(bsl::vector<unsigned int>)
         //   toAggregate(bsl::vector<bsl::string>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bsl::vector<bsls::Types::Int64>)
+        //   toAggregate(bsl::vector<bsls::Types::Uint64>)
         //   toAggregate(bsl::vector<bdet_DateTz>)
         //   toAggregate(bsl::vector<bdet_DatetimeTz>)
         //   toAggregate(bsl::vector<bdet_TimeTz>)
@@ -4430,15 +5370,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Int64> > VAL;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Int64> > VAL;
             VAL.push_back(NLI64_MIN+1);
             VAL.push_back(NLI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLI64_MIN+1);
             VAL.push_back(NLI64_MAX);
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Int64> > val(
-                                                                         VAL);
+            bsl::vector< bdeut_NullableValue<bsls::Types::Int64> > val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -4467,15 +5406,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Uint64> > VAL;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Uint64> > VAL;
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Uint64> > val(
-                                                                          VAL);
+            bsl::vector< bdeut_NullableValue<bsls::Types::Uint64> > val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -4737,8 +5675,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bsl::vector<unsigned short>)
         //   fromAggregate(bsl::vector<unsigned int>)
         //   fromAggregate(bsl::vector<bsl::string>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Int64>)
+        //   fromAggregate(bsl::vector<bsls::Types::Uint64>)
         //   fromAggregate(bsl::vector<bdet_DateTz>)
         //   fromAggregate(bsl::vector<bdet_DatetimeTz>)
         //   fromAggregate(bsl::vector<bdet_TimeTz>)
@@ -4755,8 +5693,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bsl::vector<unsigned short>)
         //   toAggregate(bsl::vector<unsigned int>)
         //   toAggregate(bsl::vector<bsl::string>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bsl::vector<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bsl::vector<bsls::Types::Int64>)
+        //   toAggregate(bsl::vector<bsls::Types::Uint64>)
         //   toAggregate(bsl::vector<bdet_DateTz>)
         //   toAggregate(bsl::vector<bdet_DatetimeTz>)
         //   toAggregate(bsl::vector<bdet_TimeTz>)
@@ -5091,14 +6029,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector<bsls_PlatformUtil::Int64>   VAL;
+            bsl::vector<bsls::Types::Int64>   VAL;
             VAL.push_back(NLI64_MIN);
             VAL.push_back(NLI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLI64_MIN);
             VAL.push_back(NLI64_MAX);
 
-            bsl::vector<bsls_PlatformUtil::Int64>   val(VAL);
+            bsl::vector<bsls::Types::Int64>   val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -5127,14 +6065,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadArrays(&agg));
 
             bcem_Aggregate             AGG = agg.clone();
-            bsl::vector<bsls_PlatformUtil::Uint64>   VAL;
+            bsl::vector<bsls::Types::Uint64>   VAL;
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
             VAL.push_back(0);
             VAL.push_back(NLUI64_MIN);
             VAL.push_back(NLUI64_MAX);
 
-            bsl::vector<bsls_PlatformUtil::Uint64>   val(VAL);
+            bsl::vector<bsls::Types::Uint64>   val(VAL);
 
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.empty());
@@ -5394,8 +6332,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(bdeut_NullableValue<unsigned short>)
         //   fromAggregate(bdeut_NullableValue<unsigned int>)
         //   fromAggregate(bdeut_NullableValue<bsl::string>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   fromAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   fromAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   fromAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   fromAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -5412,8 +6350,8 @@ int main(int argc, char *argv[])
         //   toAggregate(bdeut_NullableValue<unsigned short>)
         //   toAggregate(bdeut_NullableValue<unsigned int>)
         //   toAggregate(bdeut_NullableValue<bsl::string>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Int64>)
-        //   toAggregate(bdeut_NullableValue<bsls_PlatformUtil::Uint64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Int64>)
+        //   toAggregate(bdeut_NullableValue<bsls::Types::Uint64>)
         //   toAggregate(bdeut_NullableValue<bdet_DateTz>)
         //   toAggregate(bdeut_NullableValue<bdet_DatetimeTz>)
         //   toAggregate(bdeut_NullableValue<bdet_TimeTz>)
@@ -5771,7 +6709,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64 Int64;
+            typedef bsls::Types::Int64 Int64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Int64>           VAL(NLI64::min() + 1);
@@ -5803,8 +6741,8 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadNullables(&agg));
 
-            typedef bsls_PlatformUtil::Int64  Int64;
-            typedef bsls_PlatformUtil::Uint64 Uint64;
+            typedef bsls::Types::Int64  Int64;
+            typedef bsls::Types::Uint64 Uint64;
 
             bcem_Aggregate                       AGG = agg.clone();
             bdeut_NullableValue<Uint64>          VAL(NLUI64::min());
@@ -6056,8 +6994,8 @@ int main(int argc, char *argv[])
         //   fromAggregate(unsigned short)
         //   fromAggregate(unsigned int)
         //   fromAggregate(bsl::string)
-        //   fromAggregate(bsls_PlatformUtil::Int64)
-        //   fromAggregate(bsls_PlatformUtil::Uint64)
+        //   fromAggregate(bsls::Types::Int64)
+        //   fromAggregate(bsls::Types::Uint64)
         //   fromAggregate(bdet_DateTz)
         //   fromAggregate(bdet_DatetimeTz)
         //   fromAggregate(bdet_TimeTz)
@@ -6074,8 +7012,8 @@ int main(int argc, char *argv[])
         //   toAggregate(unsigned short)
         //   toAggregate(unsigned int)
         //   toAggregate(bsl::string)
-        //   toAggregate(bsls_PlatformUtil::Int64)
-        //   toAggregate(bsls_PlatformUtil::Uint64)
+        //   toAggregate(bsls::Types::Int64)
+        //   toAggregate(bsls::Types::Uint64)
         //   toAggregate(bdet_DateTz)
         //   toAggregate(bdet_DatetimeTz)
         //   toAggregate(bdet_TimeTz)
@@ -6382,7 +7320,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadPrimitives(&agg));
 
-            typedef bsls_PlatformUtil::Int64 Int64;
+            typedef bsls::Types::Int64 Int64;
 
             bcem_Aggregate        AGG = agg.clone();
             const Int64           VAL = NLI64::min();
@@ -6410,7 +7348,7 @@ int main(int argc, char *argv[])
             bcem_Aggregate agg;
             ASSERT(0 == loadPrimitives(&agg));
 
-            typedef bsls_PlatformUtil::Uint64 Uint64;
+            typedef bsls::Types::Uint64 Uint64;
 
             bcem_Aggregate        AGG = agg.clone();
             const Uint64          VAL = NLUI64::min();
@@ -6664,11 +7602,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bsls_PlatformUtil::Int64 v11;
+            bsls::Types::Int64 v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bsls_PlatformUtil::Uint64 v12;
+            bsls::Types::Uint64 v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 
@@ -6747,11 +7685,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bdeut_NullableValue<bsls_PlatformUtil::Int64> v11;
+            bdeut_NullableValue<bsls::Types::Int64> v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bdeut_NullableValue<bsls_PlatformUtil::Uint64> v12;
+            bdeut_NullableValue<bsls::Types::Uint64> v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 
@@ -6830,11 +7768,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bsl::vector<bsls_PlatformUtil::Int64> v11;
+            bsl::vector<bsls::Types::Int64> v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bsl::vector<bsls_PlatformUtil::Uint64> v12;
+            bsl::vector<bsls::Types::Uint64> v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 
@@ -6913,11 +7851,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::fromAggregate(&v10, agg, ID_VAL10));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL10, v10));
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Int64> > v11;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Int64> > v11;
             ASSERT(0 == Util::fromAggregate(&v11, agg, ID_VAL11));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL11, v11));
 
-            bsl::vector< bdeut_NullableValue<bsls_PlatformUtil::Uint64> > v12;
+            bsl::vector< bdeut_NullableValue<bsls::Types::Uint64> > v12;
             ASSERT(0 == Util::fromAggregate(&v12, agg, ID_VAL12));
             ASSERT(0 == Util::toAggregate(&agg, ID_VAL12, v12));
 

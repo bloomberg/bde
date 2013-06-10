@@ -5,7 +5,7 @@
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
-BDES_IDENT_RCSID(baea_serializableobjectproxyutil_h,"$Id$ $CSID$")
+BDES_IDENT("$Id: $")
 BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide utilities for configuring a 'baea_SerializableObjectProxy'.
@@ -51,7 +51,7 @@ BDES_IDENT_PRAGMA_ONCE
 //..
 //  class MyChoiceType {
 //    union {
-//      bsls_ObjectBuffer<MySequenceType> d_mySequence;  // selection 0
+//      bsls::ObjectBuffer<MySequenceType> d_mySequence;  // selection 0
 //      // ...
 //    };
 //    // ...
@@ -269,14 +269,15 @@ class baea_SerializableObjectProxyUtil {
         // 'baea_SerializableObjectProxyFunctions::StringSetter'.
 
     template<typename NULLABLE>
-    static void makeValueFn(void *object);
-        // Make the specified 'object' (assumed to be of the parameterized
-        // 'NULLABLE' type) non-null.  The behavior is undefined unless
-        // 'NULLABLE' is 'bdeut_NullableValue' or
-        // 'bdeut_NullableAllocatedValue', and 'object' refers to a 'NULLABLE'
-        // object.  'NULLABLE' shall be a 'bdeat' Nullable type.  Note that
+    static void toggleValueFn(void *object);
+        // Toggle the null state of the specified 'object' (assumed to be of 
+        // the parameterized 'NULLABLE' type), so that if it is currently 
+        // null, it is made non-null; and it is made null otherwise.  
+        // 'NULLABLE' shall be an instantiation of 'bdeut_NullableValue' or
+        // 'bdeut_NullableAllocatedValue'.  The behavior is undefined unless
+        // 'object' is the address of a valid 'NULLABLE' object.  Note that
         // this method is an implementation of
-        // 'baea_SerializableObjectProxyFunctions::ValueMaker'.
+        // 'baea_SerializableObjectProxyFunctions::NullToggler'.
 
     template<typename NULLABLE>
     static void *fetchValueFn(void *object);
@@ -326,17 +327,20 @@ class baea_SerializableObjectProxyUtil {
         // 'baea_SerializableObjectProxyFunctions::ElementLoader'.
 
     template<typename CHOICE>
-    static void choiceManipulatorFn(
+    static int choiceManipulatorFn(
                             baea_SerializableObjectProxy    *proxy,
                             void                            *object,
                             const bdeat_SelectionInfo      **selectionInfoPtr);
         // Configure the specified 'proxy' to represent the current selection
         // of the specified Choice 'object' (assumed to be of the parameterized
         // 'CHOICE'), and load, into the specified 'selectionInfoPtr', the
-        // address of the 'bdeat_SelectionInfo' for that selection.  'CHOICE'
-        // shall be a 'bdeat' Choice type.  The behavior is undefined unless
-        // 'object' refers to a 'CHOICE' object.  Note that this is an
-        // implementation of
+        // address of the 'bdeat_SelectionInfo' for that selection.  
+        // Return 0 on success, and a non-zero value otherwise.  This operation
+        // will not succeed if 'object' is an unselected Choice.  In the case
+        // of an error, 'proxy' and 'selectInfoPtr' are left in a valid but
+        // unspecified state.  'CHOICE' shall be a 'bdeat' Choice type.  The 
+        // behavior is undefined unless 'object' is the address of a valid
+        // 'CHOICE' object.  Note that this is an implementation of 
         // 'baea_SerializableObjectProxyFunctions::SelectionLoader'.
 
     template<typename CHOICE>
@@ -680,9 +684,15 @@ int baea_SerializableObjectProxyUtil::enumStringSetter(
 }
 
 template <typename NULLABLE>
-void baea_SerializableObjectProxyUtil::makeValueFn(void *object)
+void baea_SerializableObjectProxyUtil::toggleValueFn(void *object)
 {
-    ((NULLABLE *)object)->makeValue();
+    NULLABLE* nullableObj = (NULLABLE*)object;
+    if (nullableObj->isNull()) {
+        nullableObj->makeValue();
+    }
+    else {
+        nullableObj->reset();
+    }
 }
 
 template<typename NULLABLE>
@@ -724,16 +734,18 @@ void baea_SerializableObjectProxyUtil::sequenceManipulatorFn(
 }
 
 template<typename TYPE>
-void baea_SerializableObjectProxyUtil::choiceManipulatorFn(
+int baea_SerializableObjectProxyUtil::choiceManipulatorFn(
                                baea_SerializableObjectProxy  *proxy,
                                void                          *object,
                                const bdeat_SelectionInfo    **selectionInfoPtr)
 {
     baea_SerializableObjectProxyUtil_ChoiceManipulatorProxy
                                                        manipulatorProxy(proxy);
-    bdeat_ChoiceFunctions::accessSelection(*(const TYPE *)object,
-                                           manipulatorProxy);
+
+    int rc = bdeat_ChoiceFunctions::accessSelection(*(const TYPE *)object,
+                                                    manipulatorProxy);
     *selectionInfoPtr = manipulatorProxy.selectionInfoPtr();
+    return rc;
 }
 
 template<typename TYPE>
@@ -795,7 +807,7 @@ void baea_SerializableObjectProxyUtil::makeDecodeProxy(
     proxy->loadNullableForDecoding(
                            object,
                            &makeDecodeProxyRaw<TYPE>,
-                           &makeValueFn<bdeut_NullableAllocatedValue<TYPE> >,
+                           &toggleValueFn<bdeut_NullableAllocatedValue<TYPE> >,
                            &fetchValueFn<bdeut_NullableAllocatedValue<TYPE> >);
 }
 
@@ -808,7 +820,7 @@ void baea_SerializableObjectProxyUtil::makeDecodeProxy(
 {
     proxy->loadNullableForDecoding(object,
                                    &makeDecodeProxyRaw<TYPE>,
-                                   &makeValueFn<bdeut_NullableValue<TYPE> >,
+                                   &toggleValueFn<bdeut_NullableValue<TYPE> >,
                                    &fetchValueFn<bdeut_NullableValue<TYPE> >);
 }
 
@@ -1070,7 +1082,8 @@ int baea_SerializableObjectProxyUtil_ChoiceAccessorProxy::operator()(
                                           const SELECTED_TYPE&       selection,
                                           const bdeat_SelectionInfo& info)
 {
-    d_proxy_p->loadChoiceForEncoding((void *)&selection,
+    d_proxy_p->loadChoiceForEncoding((void *) const_cast<SELECTED_TYPE *>(
+                                                                   &selection),
                                      &info,
                                      d_className,
                                      &baea_SerializableObjectProxyUtil::
@@ -1136,8 +1149,8 @@ int baea_SerializableObjectProxyUtil_SequenceAccessorProxy::operator()(
                                                    const bdeat_AttributeInfo&)
 {
     baea_SerializableObjectProxyUtil::makeEncodeProxyRaw<ELEMENT_TYPE>(
-                                                             d_proxy_p,
-                                                             (void *)&element);
+                              d_proxy_p,
+                              (void *) const_cast<ELEMENT_TYPE *>(&element));
     return 0;
 }
 
@@ -1162,8 +1175,8 @@ int baea_SerializableObjectProxyUtil_SequenceManipulatorProxy::operator() (
                                                    const bdeat_AttributeInfo&)
 {
     baea_SerializableObjectProxyUtil::makeDecodeProxyRaw<ELEMENT_TYPE>(
-                                                             d_proxy_p,
-                                                             (void *)&element);
+        d_proxy_p,
+        (void *) const_cast<ELEMENT_TYPE *>(&element));
     return 0;
 }
 

@@ -9,7 +9,7 @@
 #include <bdet_time.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -139,6 +139,11 @@ const unsigned char X[] = { 0xC2, 0xA9, 0 }; // Unicode U+00A9
 const unsigned char Y[] = { 0xE2, 0x89, 0xA0, 0 }; // Unicode U+2260
 const unsigned char Z[] = { 0xC2, 0xA9, 0xE2, 0x89, 0xA0, 0 }; // U+00A9 U+2260
 
+enum Test {
+    TEST_A = 23,
+    TEST_B = 500
+};
+
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -218,24 +223,25 @@ class ScalarData {
   private:
     typedef bdem_ElemType::Type Type;
     typedef bdem_ElemType       Et;
-    Type                                    d_type;
+
+    Type               d_type;
 //    union { // can't use union for non-builtin types
-        char                                d_char;
-        short                               d_short;
-        int                                 d_int;
-        bsls_PlatformUtil::Int64            d_int64;
-        float                               d_float;
-        double                              d_double;
-        bsl::string                         d_string;
-        bdet_Datetime                       d_datetime;
-        bdet_Date                           d_date;
-        bdet_Time                           d_time;
+    char               d_char;
+    short              d_short;
+    int                d_int;
+    bsls::Types::Int64 d_int64;
+    float              d_float;
+    double             d_double;
+    bsl::string        d_string;
+    bdet_Datetime      d_datetime;
+    bdet_Date          d_date;
+    bdet_Time          d_time;
 //    };
   public:
     ScalarData(char c) : d_type(Et::BDEM_CHAR), d_char(c) {}
     ScalarData(short s) : d_type(Et::BDEM_SHORT), d_short(s) {}
     ScalarData(int i) : d_type(Et::BDEM_INT), d_int(i) {}
-    ScalarData(bsls_PlatformUtil::Int64 i)
+    ScalarData(bsls::Types::Int64 i)
         : d_type(Et::BDEM_INT64), d_int64(i) {}
     ScalarData(float f) : d_type(Et::BDEM_FLOAT), d_float(f) {}
     ScalarData(double d) : d_type(Et::BDEM_DOUBLE), d_double(d) {}
@@ -258,7 +264,7 @@ class ScalarData {
         // corresponding to the d_type.
     friend bsl::ostream& operator<<(bsl::ostream& os, const ScalarData& data);
         // Output only ScalarData of type short, int,
-        // bsls_PlatformUtil::Int64, float, double.  Other types result in
+        // bsls::Types::Int64, float, double.  Other types result in
         // undefined behavior
 };
 
@@ -403,7 +409,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0
-      case 23: {
+      case 24: {
   bsl::ostringstream os;
   baexml_Formatter f(os, 0, 4, 5);
 //..
@@ -466,7 +472,7 @@ int main(int argc, char *argv[])
 //</Apples>
 //..
       } break;
-      case 22: {
+      case 23: {
         bsl::cout << "Wrap Column 0" << bsl::endl;
         baexml_Formatter mX(bsl::cout.rdbuf(), 0, 4, 0);
         mX.openElement("Oranges");
@@ -503,7 +509,7 @@ int main(int argc, char *argv[])
 
       } break;
 #endif
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -682,6 +688,167 @@ int main(int argc, char *argv[])
 //..
       } break;
 
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING that add* functions invalidate the stream on failure
+        //
+        // Concerns:
+        //: 1 That the add* functions, 'addData', 'addListData', and
+        //:   'addAttribute' invalidate the stream on error.
+        //
+        // Plan:
+        //: 1 Create a 'ostringstream' object, ss.
+        //:
+        //: 2 Create a 'baexml_Formatter' object and associate 'ss' with it.
+        //:
+        //: 3 Invoke one of the functions under test passing either an invalid
+        //:   value or an incorrect formatting mode.
+        //:
+        //: 4 Verify that 'ss' is invalid after the call.
+        //:
+        //: 5 Repeat steps 1-4 for all the functions under test and for all
+        //:   the error conditions.
+        //
+        // Testing:
+        //   void addData(const TYPE& value, int formattingMode);
+        //   void addListData(const TYPE& value, int formattingMode);
+        //   void addAttribute(name, const TYPE& value, int formattingMode);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "\nTESTING that add* functions invalidate the "
+                      << "stream on failure" << bsl::endl;
+        }
+
+        // addData
+        {
+            // non-generated enum
+            {
+                Test value = TEST_A;
+
+                bsl::ostringstream ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addData(value);
+                ASSERT(!ss.good());
+            }
+
+            // non-UTF strings
+            {
+                const unsigned char *valuePtr = T1;
+                bsl::string          value((const char *)valuePtr);
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addData(value);
+                ASSERT(!ss.good());
+            }
+
+            // invalid formatting mode
+            {
+                int value = 1;
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addData(value, 0xFFFFFFFF);
+                ASSERT(!ss.good());
+            }
+        }
+
+        // addListData
+        {
+            // non-generated enum
+            {
+                Test value = TEST_A;
+
+                bsl::ostringstream ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value);
+                ASSERT(!ss.good());
+            }
+
+            // non-UTF strings
+            {
+                const unsigned char *valuePtr = T1;
+                bsl::string          value((const char *)valuePtr);
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value);
+                ASSERT(!ss.good());
+            }
+
+            // invalid formatting mode
+            {
+                int value = 1;
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value, 0xFFFFFFFF);
+                ASSERT(!ss.good());
+            }
+        }
+
+        // addAttribute
+        {
+            // non-generated enum
+            {
+                Test value = TEST_A;
+
+                bsl::ostringstream ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.addAttribute("test", value);
+                ASSERT(!ss.good());
+            }
+
+            // non-UTF strings
+            {
+                const unsigned char *valuePtr = T1;
+                bsl::string          value((const char *)valuePtr);
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.addAttribute("test", value);
+                ASSERT(!ss.good());
+            }
+
+            // invalid formatting mode
+            {
+                int value = 1;
+
+                bsl::ostringstream   ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.addAttribute("test", value, 0xFFFFFFFF);
+                ASSERT(!ss.good());
+            }
+        }
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // reset
@@ -1010,9 +1177,9 @@ int main(int argc, char *argv[])
               { L_, "Int", (int)0, "0" },
               { L_, "Int", (int)INT_MAX, 0 },
               { L_, "Int", (int)INT_MIN, 0 },
-              { L_, "Int64", (bsls_PlatformUtil::Int64)0, 0 },
-              { L_, "Int64", (bsls_PlatformUtil::Int64)LONG_MAX, 0 },
-              { L_, "Int64", (bsls_PlatformUtil::Int64)LONG_MIN, 0 },
+              { L_, "Int64", (bsls::Types::Int64)0, 0 },
+              { L_, "Int64", (bsls::Types::Int64)LONG_MAX, 0 },
+              { L_, "Int64", (bsls::Types::Int64)LONG_MIN, 0 },
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
               { L_, "Float", (float)0.000000000314159, "3.14159e-010" },
@@ -1106,15 +1273,16 @@ int main(int argc, char *argv[])
               const char          *d_name;
               const unsigned char *d_originalValue;
               const unsigned char *d_displayedValue;
+              bool                 d_isValid;
           } DATA[] = {
-              { L_, "EscapableStringR", R1, R2 },
-              { L_, "EscapableStringS", S1, S2 },
-              { L_, "TruncatingControlCharsT", T1, T2 },
-              { L_, "TruncatingControlCharsU", U1, U2 },
-              { L_, "TruncatingControlCharsV", V1, V2 },
-              { L_, "UTF8StringX", X, X },
-              { L_, "UTF8StringY", Y, Y },
-              { L_, "UTF8StringZ", Z, Z },
+              { L_, "EscapableStringR",        R1, R2, true   },
+              { L_, "EscapableStringS",        S1, S2, true   },
+              { L_, "TruncatingControlCharsT", T1, T2, false  },
+              { L_, "TruncatingControlCharsU", U1, U2, false  },
+              { L_, "TruncatingControlCharsV", V1, V2, false  },
+              { L_, "UTF8StringX",              X,  X, false  },
+              { L_, "UTF8StringY",              Y,  Y, false  },
+              { L_, "UTF8StringZ",              Z,  Z, false  },
           };
           enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
 
@@ -1127,29 +1295,15 @@ int main(int argc, char *argv[])
               const char *NAME      = DATA[i].d_name;
               const char *ORIGINAL  = (const char *) DATA[i].d_originalValue;
               const char *DISPLAYED = (const char *) DATA[i].d_displayedValue;
+              const bool  VALID     = DATA[i].d_isValid;
+
               formatter.openElement(NAME);
               ss.str(bsl::string());
 
               formatter.addAttribute(NAME, ORIGINAL);
 
-              LOOP_ASSERT(LINE, ss.str() ==
-                          bsl::string(" ") + NAME + "=\"" + DISPLAYED + "\"");
-              formatter.flush(); // add a '>' to close the opening tag
-              ss.str(bsl::string());
-
-              formatter.addData(ORIGINAL);
-
-              LOOP_ASSERT(LINE, ss.str() == DISPLAYED);
-              formatter.closeElement(NAME);
-              formatter.openElement(NAME);
-              formatter.flush(); // add a '>' to close the opening tag
-              ss.str(bsl::string());
-
-              formatter.addListData(ORIGINAL);
-
-              LOOP_ASSERT(LINE, ss.str() == DISPLAYED);
+              LOOP_ASSERT(LINE, VALID == ss.good());
           }
-
       } break;
       case 13: {
         // --------------------------------------------------------------------

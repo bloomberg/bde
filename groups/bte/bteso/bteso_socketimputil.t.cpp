@@ -14,6 +14,7 @@
 #include <bsl_cstdlib.h>             // atoi()
 #include <bsl_cstring.h>             // memset()
 #include <bsl_iostream.h>
+#include <bsl_utility.h>
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
 // for getsockname
@@ -377,8 +378,8 @@ int main(int argc, char *argv[])
         const char buf1[] = { 90, 91 };
         const char buf2[] = { 10, 20, 1, 2 };
         btes_Ovec vec[2];
-        vec[0].setBuffer((void *) buf1, sizeof(buf1));
-        vec[1].setBuffer((void *) buf2, sizeof(buf2));
+        vec[0].setBuffer((void *) const_cast<char *>(buf1), sizeof(buf1));
+        vec[1].setBuffer((void *) const_cast<char *>(buf2), sizeof(buf2));
 
         rc = T::writev(s[0], vec, 2);
         ASSERT(rc == sizeof(buf1) + sizeof(buf2));

@@ -54,7 +54,7 @@ using namespace bsl;  // automatically added by script
 //   of putting the object into white-box state) to using the constructor
 //   with capacity, so our set of primary constructors will be:
 //
-//    o bdesb_MemOutStreamBuf(bslma_Allocator *basicAllocator = 0);
+//    o bdesb_MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
 //   We can bring a 'bdesb_MemOutStreamBuf' to any achievable white-box
@@ -76,7 +76,7 @@ using namespace bsl;  // automatically added by script
 //    o streamsize length();
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 3] bdesb_MemOutStreamBuf(bslma_Allocator *basicAllocator = 0);
+// [ 3] bdesb_MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
 // [ 6] bdesb_MemOutStreamBuf(int numElements, *ba = 0);
 // [ 6] ~bdesb_MemOutStreamBuf();
 // MANIPULATORS
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
 
         {
             // Reset after default construct.
-            bslma_TestAllocator alloc;
+            bslma::TestAllocator alloc;
             Obj mSB(&alloc);  const Obj& SB = mSB;
             ASSERT(0 == SB.length());
             ASSERT(0 == alloc.numBlocksTotal());
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
 
         {
             // Reset after initial capacity
-            bslma_TestAllocator alloc;
+            bslma::TestAllocator alloc;
             Obj mSB(50, &alloc);  const Obj& SB = mSB;
             ASSERT(0 == SB.length());
             ASSERT(1 == alloc.numBlocksInUse());
@@ -420,7 +420,7 @@ int main(int argc, char *argv[])
 
         {
             // Reset after output
-            bslma_TestAllocator alloc;
+            bslma::TestAllocator alloc;
             Obj mSB(&alloc);  const Obj& SB = mSB;
 
             mSB.sputn(DATA1, DATA1_LEN);
@@ -826,7 +826,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE = DATA[i].d_line;
 
-                bslma_TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 Obj mSB(&ta);
                 mSB.sputc('Z');
                 LOOP_ASSERT(LINE, INITIAL_BUFSIZE == ta.numBytesInUse());
@@ -880,7 +880,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE = DATA[i].d_line;
 
-                bslma_TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 Obj mSB(1, &ta);
                 LOOP_ASSERT(LINE, 1 == ta.numBytesInUse());
                 if (veryVerbose) cout << "\tRequesting capacity of "
@@ -908,18 +908,19 @@ int main(int argc, char *argv[])
         // Concerns:
         //   - That the initial capacity for the constructed streambuf is
         //     equal to the requested initial capacity.
-        //   - That the specified or bslma_Default::defaultAllocator is used.
+        //   - That the specified or bslma::Default::defaultAllocator is used.
         //   - That the destructor cleans up properly, in particular, returns
         //     the allocated memory.
         //
         // Plan:
-        //   - Use 'bslma_TestAllocator' to verify that specified allocator
+        //   - Use 'bslma::TestAllocator' to verify that specified allocator
         //      is used.
-        //   - Use 'bslma_TestAllocator' to verify initial memory request size.
+        //   - Use 'bslma::TestAllocator' to verify initial memory request
+        //     size.
         //   - Write out the requested-initial-capacity number of bytes,
         //      and verify that no reallocation is done.
-        //   - Install a 'bslma_TestAllocator' in 'bslma_DefaultAllocator' to
-        //      verify that 'bslma_Default::defaultAllocator()' is used by
+        //   - Install a 'bslma::TestAllocator' in 'bslma::DefaultAllocator' to
+        //      verify that 'bslma::Default::defaultAllocator()' is used by
         //      default.
         //   - Allow the destructor to execute and verify (from TestAllocator)
         //      that all memory has been released.
@@ -945,15 +946,15 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nExplicitly specify allocator." << endl;
         {
-            bslma_TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             const int NUM_BLOCKS_DEFAULT = da.numBlocksInUse();
             ASSERT(0 == NUM_BLOCKS_DEFAULT);
-            bslma_DefaultAllocatorGuard dag(&da);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int CAPACITY = DATA[ti];
 
-                bslma_TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 const int NUM_BLOCKS = ta.numBlocksInUse();
                 ASSERT(0 == NUM_BLOCKS);
                 {
@@ -969,15 +970,15 @@ int main(int argc, char *argv[])
             }
         }
         {
-            bslma_TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             const int NUM_BLOCKS_DEFAULT = da.numBlocksInUse();
             ASSERT(0 == NUM_BLOCKS_DEFAULT);
-            bslma_DefaultAllocatorGuard dag(&da);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int CAPACITY = DATA[ti];
 
-                bslma_TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 const int NUM_BLOCKS = ta.numBlocksInUse();
                 ASSERT(0 == NUM_BLOCKS);
                 {
@@ -998,11 +999,11 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int CAPACITY = DATA[ti];
 
-                bslma_TestAllocator da(veryVeryVerbose);
+                bslma::TestAllocator da(veryVeryVerbose);
                 const int NUM_BLOCKS = da.numBlocksInUse();
                 ASSERT(0 == NUM_BLOCKS);
                 {
-                    bslma_DefaultAllocatorGuard dag(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj mSB(CAPACITY);
                     ASSERT(NUM_BLOCKS + 1 == da.numBlocksInUse());
@@ -1014,19 +1015,19 @@ int main(int argc, char *argv[])
             }
         }
         {
-            bslma_TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             const int NUM_BLOCKS_DEFAULT = da.numBlocksInUse();
             ASSERT(0 == NUM_BLOCKS_DEFAULT);
-            bslma_DefaultAllocatorGuard dag(&da);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int CAPACITY = DATA[ti];
 
-                bslma_TestAllocator da(veryVeryVerbose);
+                bslma::TestAllocator da(veryVeryVerbose);
                 const int NUM_BLOCKS = da.numBlocksInUse();
                 ASSERT(0 == NUM_BLOCKS);
                 {
-                    bslma_DefaultAllocatorGuard dag(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj mSB(CAPACITY);
                     ASSERT(NUM_BLOCKS + 1 == da.numBlocksInUse());
@@ -1208,7 +1209,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEmpty streambuf." << endl;
         {
-            bslma_TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             const Obj SB(&da);
             ASSERT(0 == SB.length());
             ASSERT(SB.data() == da.lastAllocatedAddress());
@@ -1381,7 +1382,8 @@ int main(int argc, char *argv[])
         //   Ensure that this constructor is "wired-up" and defaults properly.
         //
         // Concerns:
-        //   - That the default allocator comes from 'bslma_Default::allocator'
+        //   - That the default allocator comes from
+        //     'bslma::Default::allocator'
         //   - That changing the default allocator after construction has
         //      no effect on an existing 'bdesb_MemOutStreamBuf' object.
         //   - That the primary constructor initializes the streambuf to
@@ -1389,7 +1391,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   - To ensure that the basic constructor takes its allocator by
-        //      default from 'bslma_Default::allocator', install a separate
+        //      default from 'bslma::Default::allocator', install a separate
         //      object of 'bdem_TestAllocator' as the default allocator and
         //      use its object-specific statistics to verify that it is in
         //      fact the source of default allocations and deallocations.
@@ -1397,7 +1399,7 @@ int main(int argc, char *argv[])
         //      on existing table objects, swap it out and then continue to
         //      allocate additional objects.
         //   - To ensure that initial capacity is INITIAL_BUFSIZE, use the
-        //      'bslma_TestAllocator' and show that right after stream buffer
+        //      'bslma::TestAllocator' and show that right after stream buffer
         //      construction, INITIAL_BUFSIZE bytes have been explicitly
         //      requested.  As additional evidence, write out INITIAL_BUFSIZE
         //      chars; show that no new blocks have been requested; then write
@@ -1416,7 +1418,7 @@ int main(int argc, char *argv[])
         //   - Brute-Force Implementation Technique
         //
         // Testing:
-        //   bdesb_MemOutStreamBuf(bslma_Allocator *basicAllocator = 0);
+        //   bdesb_MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
         //
         // --------------------------------------------------------------------
 
@@ -1428,33 +1430,33 @@ int main(int argc, char *argv[])
               "\nEnsure bdem_Default::allocator() is used by default." << endl;
         {
 
-            bslma_TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
 
             if (verbose) cout <<
                        "\tInstall test allocator 'da' as the default." << endl;
 
             {
-                const bslma_DefaultAllocatorGuard dag(&da);
+                const bslma::DefaultAllocatorGuard dag(&da);
 
                 ASSERT(0 == da.numBlocksInUse());
                 Obj x;
                 const int NBT = da.numBlocksInUse();
                 ASSERT(0 == NBT);
 
-                bslma_TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 ASSERT(0 == ta.numBlocksInUse());
 
                 Obj y(&ta);
                 ASSERT(NBT == da.numBlocksInUse());
                 ASSERT(NBT == ta.numBlocksInUse());
 
-                bslma_TestAllocator oa(veryVeryVerbose);
+                bslma::TestAllocator oa(veryVeryVerbose);
                            // Installing this other allocator should have no
                            // effect on subsequent use of pre-existing objects.
                 if (verbose) cout <<
                        "\tInstall test allocator 'oa' as the default." << endl;
                 {
-                    const bslma_DefaultAllocatorGuard oag(&oa);
+                    const bslma::DefaultAllocatorGuard oag(&oa);
 
                     ASSERT(0 == oa.numBlocksInUse());
                     Obj z;
@@ -1510,9 +1512,9 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
-            bslma_TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             {
-                const bslma_DefaultAllocatorGuard dag(&da);
+                const bslma::DefaultAllocatorGuard dag(&da);
 
                 ASSERT(0 == da.numBlocksTotal());
                 Obj x;

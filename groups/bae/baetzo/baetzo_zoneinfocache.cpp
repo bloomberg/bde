@@ -76,7 +76,7 @@ const baetzo_Zoneinfo *baetzo_ZoneinfoCache::getZoneinfo(
         baetzo_Zoneinfo *newTimeZonePtr =
                            new (*d_allocator_p) baetzo_Zoneinfo(d_allocator_p);
 
-        bslma_RawDeleterProctor<baetzo_Zoneinfo, bslma_Allocator>
+        bslma::RawDeleterProctor<baetzo_Zoneinfo, bslma::Allocator>
                                         proctor(newTimeZonePtr, d_allocator_p);
 
         *rc = d_loader_p->loadTimeZone(newTimeZonePtr, timeZoneId);

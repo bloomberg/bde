@@ -23,7 +23,7 @@ BDES_IDENT("$Id: $")
 //   char
 //   short
 //   int
-//   bsls_PlatformUtil::Int64
+//   bsls::Types::Int64
 //   float
 //   double
 //   bsl::string
@@ -272,8 +272,8 @@ BDES_IDENT("$Id: $")
 #include <bdet_timetz.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -284,6 +284,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -371,8 +378,8 @@ struct bdepu_ArrayParserImpUtil {
         // corresponding 'parseArray' function.
 
     static void generateInt64Array(
-                          bsl::vector<char>                            *buffer,
-                          const bsl::vector<bsls_PlatformUtil::Int64>&  value);
+                                bsl::vector<char>                      *buffer,
+                                const bsl::vector<bsls::Types::Int64>&  value);
         // Append the specified 'value' to the specified 'buffer'.  The
         // 'buffer' is formatted as a space-terminated list of <INT64> (as
         // defined above) surrounded by "[ " and ']'.  Note that 'value' is
@@ -578,10 +585,9 @@ struct bdepu_ArrayParserImpUtil {
         //   3. parsing of a particular array element failed
         //..
 
-    static int parseInt64Array(
-                         const char                            **endPos,
-                         bsl::vector<bsls_PlatformUtil::Int64>  *result,
-                         const char                             *inputString);
+    static int parseInt64Array(const char                      **endPos,
+                               bsl::vector<bsls::Types::Int64>  *result,
+                               const char                       *inputString);
         // Parse the specified 'inputString' for a sequence of elements
         // matching the regular expression [<WS>*(<INT64><WS>+)*], where <WS>
         // is short for <WHITESPACE> (see above) and <INT64> represents a value

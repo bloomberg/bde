@@ -286,7 +286,7 @@ class baexml_ElementAttribute {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baexml_PrefixStack,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // PUBLIC CREATORS
     baexml_ElementAttribute();

@@ -11,7 +11,7 @@ BDES_IDENT("$Id: $")
 // 'btemt_QueryDispatcher', 'btemt_QueryProcessor', and server.
 //
 //@CLASSES:
-//         btemt_Query: query as submitted to 'btemt_QueryDispatcher' 
+//         btemt_Query: query as submitted to 'btemt_QueryDispatcher'
 //  btemt_QueryRequest: query as received by 'btemt_QueryProcessor'
 //   btemt_QueryResult: response from  server for 'btemt_QueryProcessor'
 // btemt_QueryResponse: server response as received by 'btemt_QueryDispatcher'
@@ -60,21 +60,28 @@ BDES_IDENT("$Id: $")
 #include <bdem_list.h>
 #endif
 
+#ifndef INCLUDED_BDEMA_MANAGEDPTR
+#include <bdema_managedptr.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
-#ifndef INCLUDED_BDEMA_MANAGEDPTR
-#include <bdema_managedptr.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -174,7 +181,7 @@ class btemt_QueryRequest {
     // to prepare query response.  This is not a value-semantic object as it
     // implements 'bsl::auto_ptr' semantics (see 'bdema_managedptr').
 
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     bdema_ManagedPtr<bdem_List> d_query;
                                     // query data.
@@ -357,7 +364,7 @@ class btemt_QueryResponse {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
   private:
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     bdema_ManagedPtr<bdem_List> d_queryResponse;
                                     // query response data.
@@ -568,7 +575,7 @@ const bdem_List& btemt_QueryRequest::query() const
 }
 
 inline
-bsls_PlatformUtil::Int64 btemt_QueryRequest::queryId() const
+bsls::Types::Int64 btemt_QueryRequest::queryId() const
 {
     return d_queryId;
 }
@@ -708,7 +715,7 @@ const bdem_List& btemt_QueryResponse::queryResponse() const
 }
 
 inline
-bsls_PlatformUtil::Int64 btemt_QueryResponse::queryId() const
+bsls::Types::Int64 btemt_QueryResponse::queryId() const
 {
     return d_queryId;
 }

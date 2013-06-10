@@ -2,13 +2,21 @@
 
 #include <bdeut_nullablevalue.h>
 
+#include <bslalg_constructorproxy.h>
 #include <bslma_testallocator.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
+
 #include <bdex_testinstream.h>
 #include <bdex_testoutstream.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -25,13 +33,16 @@ using bsl::atoi;
 // This component implements a wrapper for a value-semantic type, and itself
 // exhibits value-semantic properties.
 //
+// Global Concerns:
+//   o No memory is allocated from the global-allocator
+//
 //-----------------------------------------------------------------------------
 // TYPEDEFS
 // [ 3] typedef TYPE ValueType;
 //
 // CREATORS
 // [ 3] bdeut_NullableValue();
-// [ 3] bdeut_NullableValue(bslma_Allocator *basicAllocator);
+// [ 3] bdeut_NullableValue(bslma::Allocator *basicAllocator);
 // [ 6] bdeut_NullableValue(const bdeut_NullableValue& original);
 // [ 6] bdeut_NullableValue(const bdeut_NullableValue& original, *ba);
 // [ 9] bdeut_NullableValue(const TYPE& value);
@@ -52,6 +63,9 @@ using bsl::atoi;
 // [ 8] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [10] void reset();
 // [10] TYPE& value();
+// [14] TYPE valueOr(const TYPE& ) const;
+// [15] const TYPE *valueOr(const TYPE *) const;
+// [16] const TYPE* valueOrNull() const;
 //
 // ACCESSORS
 // [ 8] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -63,20 +77,27 @@ using bsl::atoi;
 // FREE OPERATORS
 // [ 5] operator==(const bdeut_NullableValue<LHS_TYPE>&,<RHS_TYPE>&);
 // [ 5] operator!=(const bdeut_NullableValue<LHS_TYPE>&,<RHS_TYPE>&);
+// [17] operator==(const bdeut_NullableValue<TYPE>&,const TYPE&);
+// [17] operator==(const TYPE&,const bdeut_NullableValue<TYPE>&,);
+// [17] operator!=(const bdeut_NullableValue<TYPE>&,const TYPE&);
+// [17] operator!=(const TYPE&,const bdeut_NullableValue<TYPE>&,);
 // [ 4] operator<<(bsl::ostream&,const bdeut_NullableValue<TYPE>&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [14] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -85,8 +106,27 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
+}
+
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+#define TEST_TYPES                                                            \
+        signed char,                                                          \
+        size_t,                                                               \
+        bsltf::TemplateTestFacility::ObjectPtr,                               \
+        bsltf::TemplateTestFacility::FunctionPtr,                             \
+        bsltf::TemplateTestFacility::MethodPtr,                               \
+        bsltf::EnumeratedTestType::Enum,                                      \
+        bsltf::UnionTestType,                                                 \
+        bsltf::SimpleTestType,                                                \
+        bsltf::AllocTestType,                                                 \
+        bsltf::BitwiseMoveableTestType,                                       \
+        bsltf::AllocBitwiseMoveableTestType
+    // This list of test types is a combination of
+    // BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE and *_USER_DEFINED,
+    // minus 'NonTypicalOverloadsTestType' which does not work with
+    // 'bslalg::ConstructorProxy'.
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -127,6 +167,15 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
+// ============================================================================
+//                       GLOBAL TEST VALUES
+// ----------------------------------------------------------------------------
+
+static bool         verbose;
+static bool     veryVerbose;
+static bool veryVeryVerbose;
+static bool testAllocatorVerbosity;
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -148,7 +197,7 @@ class Recipient {
     MessageType d_msgType;
 
     // FRIENDS
-    friend bool operator==(const Recipient& lhs, const Recipient& rhs);
+    friend bool operator==(const Recipient&, const Recipient&);
 
   public:
     explicit Recipient(const MessageType& msgType) : d_msgType(msgType)
@@ -157,11 +206,13 @@ class Recipient {
     {
     }
 
-    void operator=(const MessageType& msgType) {
+    void operator=(const MessageType& msgType)
+    {
         d_msgType = msgType;
     }
 
-    MessageType getMsgType() {
+    MessageType getMsgType()
+    {
         return d_msgType;
     }
 };
@@ -175,11 +226,13 @@ struct Swappable {
     int d_value;
     static int d_swap_called;
 
-    static void swap_reset() {
+    static void swap_reset()
+    {
         d_swap_called = 0;
     }
 
-    static int swap_called() {
+    static int swap_called()
+    {
         return d_swap_called;
     }
 
@@ -187,18 +240,485 @@ struct Swappable {
         : d_value(v)
     {}
 
-    bool operator==(const Swappable& rhs) const {
+    bool operator==(const Swappable& rhs) const
+    {
         return d_value == rhs.d_value;
     }
 };
 
 int Swappable::d_swap_called = 0;
 
-void swap(Swappable& lhs, Swappable& rhs) {
+void swap(Swappable& lhs, Swappable& rhs)
+{
     ++Swappable::d_swap_called;
 
     bsl::swap(lhs.d_value, rhs.d_value);
 }
+
+
+template <class TEST_TYPE>
+class TestDriver {
+    // This templatized struct provide a namespace for testing
+    // 'bdeut_NullableValue'.  The parameterized 'TEST_TYPE' specifies the type
+    // contained in the nullable-value.
+
+
+  private:
+    // PRIVATE TYPES
+    typedef bdeut_NullableValue<TEST_TYPE> Obj;
+        // Type under test.
+
+    typedef bslalg::ConstructorProxy<Obj> ObjWithAllocator;
+        // Wrapper for 'Obj' whose constructor takes an allocator.
+
+    typedef bsltf::TestValuesArray<TEST_TYPE> TestValues;
+        // Array of test values of 'TEST_TYPE'.
+
+  public:
+    static void testCase14();
+        // Test 'T valueOr(const T&)'
+
+    static void testCase15();
+        // Test 'const T *valueOr(const T*)'
+
+    static void testCase16();
+        // Test 'valueOrNull'
+
+    static void testCase17();
+        // Test comparisons with the contained 'TYPE'.
+};
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase14()
+{
+    // ------------------------------------------------------------------------
+    // TESTING: 'T valueOr(const T&)'
+    // Concerns:
+    //: 1 'valueOr' returns the supplied value if the nullable value is null
+    //:
+    //: 2 'valueOr' returns the contained value value if the nullable
+    //:   value is not-null
+    //:
+    //: 3 'valueOr' returns by value.
+    //:
+    //: 4 'valueOr' can be called on a 'const' object.
+    //
+    // Plan:
+    //: 1 Create a member-function pointer matching the expected signature,
+    //:   and assign 'valueOr' to the function (C-3)
+    //:
+    //: 2 Call 'valueOr' for a null nullable value and verify that it
+    //:   returns the supplied value. (C-2)
+    //:
+    //: 3 For a series of test values, assign the nullable value to the test
+    //:   value, and call 'valueOr' and verify the return value is the test
+    //:   value (C-2, C-4)
+    //
+    // Testing:
+    //   TYPE valueOr(const TYPE&) const;
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = VALUES.size();
+
+    bslma::TestAllocator da("default", testAllocatorVerbosity);
+    bslma::TestAllocator oa("object", testAllocatorVerbosity);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) {
+        cout << "\tCompile time verification the function returns by value\n";
+    }
+    {
+        typedef TEST_TYPE (Obj::* MemberFunction)(const TEST_TYPE& type) const;
+        MemberFunction memberFunction = &Obj::valueOr;
+        (void **)&memberFunction;
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify null nullable-values return 0\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+
+            ASSERT(VALUES[i] == x.valueOr(VALUES[i]));
+            ASSERT(VALUES[i] == X.valueOr(VALUES[i]));
+
+            ASSERT(true == X.isNull());
+
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify non-null nullable-values return underlying value\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            ASSERT(0 == oa.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+
+            ASSERT(VALUES[i] == x.valueOr(VALUES[i]));
+            ASSERT(VALUES[i] == X.valueOr(VALUES[i]));
+
+            x = VALUES[0];
+
+            bslma::TestAllocatorMonitor oam(&oa);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            ASSERT(VALUES[0] == x.valueOr(VALUES[i]));
+            ASSERT(VALUES[0] == X.valueOr(VALUES[i]));
+
+            ASSERT(i == 0 || VALUES[i] != x.valueOr(VALUES[i]));
+            ASSERT(i == 0 || VALUES[i] != X.valueOr(VALUES[i]));
+
+            bool usesAllocator = bslma::UsesBslmaAllocator<TEST_TYPE>::value;
+            ASSERT(usesAllocator ? dam.isTotalUp() : dam.isTotalSame());
+            ASSERT(oam.isInUseSame());
+
+            x.reset();
+        }
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+    }
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase15()
+{
+    // ------------------------------------------------------------------------
+    // TESTING: 'const T* valueOr(const T*)'
+    // Concerns:
+    //: 1 'valueOr' returns the supplied value if the nullable value is null
+    //:
+    //: 2 'valueOr' returns the contained value value if the nullable
+    //:   value is not-null
+    //:
+    //: 3 'valueOr' returns an address.
+    //:
+    //: 4 'valueOr' can be called on a 'const' object.
+    //:
+    //: 5 No memory is requested of any allocator (global, default, this
+    //:   object, supplied object)
+    //
+    // Plan:
+    //: 1 Create a member-function pointer matching the expected signature,
+    //:   and assign 'valueOr' to the function (C-3)
+    //:
+    //: 2 Call 'valueOr' for a null nullable value and verify that it
+    //:   returns a reference to the supplied value. (C-2)
+    //:
+    //: 3 For a series of test values, assign the nullable value to the test
+    //:   value, and call 'valueOr' and verify the return value is a
+    //:   reference to the contained value (C-2, C-4)
+    //
+    // Testing:
+    //   const TYPE *valueOr(const TYPE*) const;
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = VALUES.size();
+
+    bslma::TestAllocator da("default", testAllocatorVerbosity);
+    bslma::TestAllocator oa("object", testAllocatorVerbosity);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) {
+        cout << "\tCompile time verify the function returns an address\n";
+    }
+    {
+        typedef const TEST_TYPE *
+                             (Obj::* MemberFunction)(const TEST_TYPE *) const;
+        MemberFunction memberFunction = &Obj::valueOr;
+        (void **)&memberFunction;
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify null nullable-values return 0\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+
+            ASSERT(VALUES[i] == *x.valueOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.valueOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] == x.valueOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.valueOr(&VALUES[i]));
+
+            ASSERT(true == X.isNull());
+
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify non-null nullable-values return underlying value\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            ASSERT(0 == oa.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+
+            ASSERT(VALUES[i] == *x.valueOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.valueOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] == x.valueOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.valueOr(&VALUES[i]));
+
+            x = VALUES[0];
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            ASSERT(VALUES[0] == *x.valueOr(&VALUES[i]));
+            ASSERT(VALUES[0] == *X.valueOr(&VALUES[i]));
+
+            ASSERT(i == 0 || VALUES[i] != *x.valueOr(&VALUES[i]));
+            ASSERT(i == 0 || VALUES[i] != *X.valueOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] != x.valueOr(&VALUES[i]));
+            ASSERT(&VALUES[i] != X.valueOr(&VALUES[i]));
+
+            ASSERT(&X.value() == x.valueOr(&VALUES[i]));
+            ASSERT(&X.value() == X.valueOr(&VALUES[i]));
+
+
+            ASSERT(oam.isInUseSame());
+            ASSERT(0 == da.numBlocksInUse());
+
+            x.reset();
+        }
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+    }
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase16()
+{
+    // ------------------------------------------------------------------------
+    // TESTING: 'valueOrNull'
+    // Concerns:
+    //: 1 'valueOrNull' returns 0 if the nullable value is null
+    //:
+    //: 2 'valueOrNull' returns a the address of the non-modifiable value if
+    //:   the nullable value is not-null
+    //:
+    //: 3 The returned address, if not 0, remains valid until the
+    //:   nullable-value is destroyed.
+    //:
+    //: 4 No memory allocation is performed.
+    //:
+    //: 5 'valueOrNull' can be called on a 'const' object.
+    //
+    // Plan:
+    //: 1 Call 'valueOrNull' for a null nullable value and verify that it
+    //:   returns 0. (C-1)
+    //:
+    //: 2 For a series of test values, assign the nullable value to the test
+    //:   value, and call 'valueOrNull' and verify the return value. (C-2,
+    //:   C-3, C-4, C-5)
+    //
+    // Testing:
+    //   const TYPE* valueOrNull() const;
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = VALUES.size();
+
+    bslma::TestAllocator da("default", testAllocatorVerbosity);
+    bslma::TestAllocator oa("object", testAllocatorVerbosity);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+    if (veryVerbose) {
+        cout << "\tVerify null nullable-values return 0\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        ASSERT(0 == x.valueOrNull());
+        ASSERT(0 == X.valueOrNull());
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        x = VALUES[0];
+
+        ASSERT(0 != x.valueOrNull());
+        ASSERT(0 != X.valueOrNull());
+
+        x.reset();
+
+        ASSERT(0 == x.valueOrNull());
+        ASSERT(0 == X.valueOrNull());
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify non-null nullable-values return underlying value\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            ASSERT(0 == x.valueOrNull());
+            ASSERT(0 == X.valueOrNull());
+
+            ASSERT(0 == oa.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+
+
+            x = VALUES[i];
+
+            ASSERT(0 != x.valueOrNull());
+            ASSERT(0 != X.valueOrNull());
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            ASSERT(X.valueOrNull() == x.valueOrNull());
+            ASSERT(&X.value()      == X.valueOrNull());
+
+            const TEST_TYPE *valuePtr = X.valueOrNull();
+
+            ASSERT(VALUES[i] == *valuePtr);
+
+
+            ASSERT(oam.isInUseSame());
+            ASSERT(0 == da.numBlocksInUse());
+
+            x.reset();
+        }
+    }
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase17()
+{
+    // ------------------------------------------------------------------------
+    // TESTING: Comparison with the contained 'TYPE'
+    // Concerns:
+    //: 1 Comparing a value with a null value always returns that
+    //:   the values are not the same.
+    //:
+    //: 2 Comparing a value with a nullable value having the same value
+    //:   returns the values are the same.
+    //:
+    //: 3 Comparing a value with a nullable value having a different value
+    //:   returns the values are not the same.
+    //:
+    //: 4 Both operators can be called for 'const' objects.
+    //:
+    //: 5 No memory is allocated
+    //
+    // Plan:
+    //: 1 Create a null nullable-value and verify it does not compare equal
+    //:   (using the 4 different operator variants) to any test-value. (C-1)
+    //:
+    //: 2 Create a non-null nullable-value for a series of test values and
+    //:   verify it does not compares equal (using the 4 different operator
+    //:   variants) only to the same test-value. (C-2, C-3)
+    //
+    // Testing:
+    //   bool operator==(const bdeut_NullableValue<TYPE>& , const TYPE&);
+    //   bool operator==(const TYPE& , const bdeut_NullableValue<TYPE>&);
+    //   bool operator!=(const bdeut_NullableValue<TYPE>& , const TYPE&);
+    //   bool operator!=(const TYPE& , const bdeut_NullableValue<TYPE>&);
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = VALUES.size();
+
+    bslma::TestAllocator da("default", testAllocatorVerbosity);
+    bslma::TestAllocator oa("object", testAllocatorVerbosity);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) {
+        cout << "\tVerify null nullable-values are different from any value\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+
+            ASSERT(!(VALUES[i] == X));
+            ASSERT( (VALUES[i] != X));
+
+            ASSERT(!(X == VALUES[i]));
+            ASSERT( (X != VALUES[i]));
+        }
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify non-null nullable-values compare equal "
+             << "to a value of the contained type\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            for (int j = 0; j < NUM_VALUES; ++j) {
+
+            ASSERT(0 == oa.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+
+            x = VALUES[i];
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            bool areSame = i == j;
+
+            ASSERT( areSame == (VALUES[j] == X));
+            ASSERT(!areSame == (VALUES[j] != X));
+
+            ASSERT( areSame == (X == VALUES[j]));
+            ASSERT(!areSame == (X != VALUES[j]));
+
+            ASSERT(oam.isInUseSame());
+            ASSERT(0 == da.numBlocksInUse());
+
+            x.reset();
+            }
+        }
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+    }
+}
+
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -209,36 +729,28 @@ void swap(Swappable& lhs, Swappable& rhs) {
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
-//-----------------------------------------------------------------------------
-//
-// LANGUAGE SPECIFICATION
-// ----------------------
-//
-//
-// Spec String       Description
-// ----------------- ----------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
-    int testAllocatorVerbosity = argc > 5;  // always the last
+
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    testAllocatorVerbosity = argc > 5;  // always the last
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator  testAllocator(testAllocatorVerbosity);
-    bslma_TestAllocator *ALLOC = &testAllocator;
+    bslma::TestAllocator  testAllocator(testAllocatorVerbosity);
+    bslma::TestAllocator *ALLOC = &testAllocator;
+    bslma::TestAllocator globalAllocator(testAllocatorVerbosity);
+
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -269,6 +781,52 @@ int main(int argc, char *argv[])
     nullableInt.reset();
     ASSERT(nullableInt.isNull());
 //..
+
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // Comparison with the contained 'TYPE'
+        // --------------------------------------------------------------------
+
+          if (verbose) cout << "\nTesting: Comparison with contained 'TYPE'"
+                            << "\n=========================================\n";
+
+        RUN_EACH_TYPE(TestDriver, testCase17, TEST_TYPES);
+
+      } break;
+
+      case 16: {
+        // --------------------------------------------------------------------
+        // valueOrNull
+        // --------------------------------------------------------------------
+
+          if (verbose) cout << "\nTesting: valueOrNull"
+                            << "\n====================\n";
+
+        RUN_EACH_TYPE(TestDriver, testCase16, TEST_TYPES);
+
+
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // valueOr
+        // --------------------------------------------------------------------
+
+          if (verbose) cout << "\nTesting: const T *valueOr(const T*)"
+                            << "\n===================================\n";
+
+          RUN_EACH_TYPE(TestDriver, testCase15, TEST_TYPES);
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // valueOr
+        // --------------------------------------------------------------------
+
+          if (verbose) cout << "\nTesting: T valueOr(const T&)"
+                            << "\n===================================\n";
+
+        RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES);
 
       } break;
       case 13: {
@@ -1361,7 +1919,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   typedef TYPE ValueType;
         //   bdeut_NullableValue();
-        //   bdeut_NullableValue(bslma_Allocator *basicAllocator);
+        //   bdeut_NullableValue(bslma::Allocator *basicAllocator);
         //   ~bdeut_NullableValue();
         //   TYPE& makeValue();
         //   TYPE& makeValue(const TYPE& rhs);
@@ -1543,18 +2101,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST 2: Using 'int'"
                           << "\n=============================" << endl;
 
-        static const struct {
-            int         d_lineNum;  // source line number
-            const char *d_str;      // source string
-            int         d_length;   // length of source input
-        } DATA[] = {
-            //line  source                   length
-            //----  ------                   ------
-            { L_,   "",                      0        },
-            { L_,   "\x00\x01\x02\x03\x04",  5        },
-            { L_,   "\x01\x02\x03\x04\x05",  5        },
-            { L_,   "\x02\x03\x04\x05\x06",  5        },
-        };
 
         typedef int                            ValueType;
         typedef bdeut_NullableValue<ValueType> Obj;
@@ -1772,19 +2318,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST 1: Using 'bsl::string'"
                           << "\n=====================================" << endl;
 
-        static const struct {
-            int         d_lineNum;  // source line number
-            const char *d_str;      // source string
-            int         d_length;   // length of source input
-        } DATA[] = {
-            //line  source                   length
-            //----  ------                   ------
-            { L_,   "",                      0        },
-            { L_,   "\x00\x01\x02\x03\x04",  5        },
-            { L_,   "\x01\x02\x03\x04\x05",  5        },
-            { L_,   "\x02\x03\x04\x05\x06",  5        },
-        };
-
         typedef bsl::string                    ValueType;
         typedef bdeut_NullableValue<ValueType> Obj;
 
@@ -1964,6 +2497,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

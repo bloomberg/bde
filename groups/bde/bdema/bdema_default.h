@@ -14,14 +14,14 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bdema_Default: namespace for default/global allocator management utilities
 //
-//@SEE_ALSO: bdema_allocator, bdema_newdeleteallocator
+//@SEE_ALSO: bslma_allocator, bslma_newdeleteallocator
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component provides a set of utility functions that manage
 // the addresses of two distinguished memory allocators: the *default*
 // allocator and the *global* allocator.  Each of these allocators are of type
-// derived from 'bdema_Allocator'.  Note that for brevity, in the following we
+// derived from 'bslma::Allocator'.  Note that for brevity, in the following we
 // will generally refer to "the address of the default allocator" as simply
 // "the default allocator" (and similarly for the global allocator).
 //
@@ -107,9 +107,9 @@ BDES_IDENT("$Id: $")
 // operators 'new' and 'delete':
 //..
 //  // my_countingallocator.h
-//  #include <bdema_allocator.h>
+//  #include <bslma_allocator.h>
 //
-//  class my_CountingAllocator : public bdema_Allocator {
+//  class my_CountingAllocator : public bslma::Allocator {
 //      // This concrete allocator maintains: (1) a count of the number of
 //      // blocks allocated that have not yet been deallocated, and (2) a count
 //      // of the cumulative number of blocks ever allocated.
@@ -210,7 +210,7 @@ BDES_IDENT("$Id: $")
 // trivial class, 'my_Id', that uses an allocator.  'my_Id' simply encapsulates
 // a C-style (null-terminated) id string that is accessible through the 'id'
 // method.  Note that each constructor is declared to take an *optional*
-// 'bdema_Allocator *' as its last argument.  Also note that the expression:
+// 'bslma::Allocator *' as its last argument.  Also note that the expression:
 //..
 //    bdema_Default::allocator(basicAllocator)
 //..
@@ -221,7 +221,7 @@ BDES_IDENT("$Id: $")
 // Otherwise, the explicitly supplied allocator is used:
 //..
 //  // my_id.h
-//  #include <bdema_allocator.h>
+//  #include <bslma_allocator.h>
 //  #include <bdema_default.h>
 //
 //  class my_Id {
@@ -229,21 +229,21 @@ BDES_IDENT("$Id: $")
 //      // of the default allocator.
 //
 //      // DATA
-//      char            *d_buffer_p;     // allocated (*owned*)
-//      bdema_Allocator *d_allocator_p;  // allocator (held, not owned)
+//      char             *d_buffer_p;     // allocated (*owned*)
+//      bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 //
 //      // NOT IMPLEMENTED (in order to reduce example size)
 //      my_Id& operator=(const my_Id&);
 //
 //    public:
 //      // CREATORS
-//      explicit my_Id(const char *id, bdema_Allocator *basicAllocator = 0);
+//      explicit my_Id(const char *id, bslma::Allocator *basicAllocator = 0);
 //          // Create an Id object having the specified 'id'.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
 //          // is used.
 //
-//      my_Id(const my_Id& original, bdema_Allocator *basicAllocator = 0);
+//      my_Id(const my_Id& original, bslma::Allocator *basicAllocator = 0);
 //          // Create an Id object initialized to the value of the specified
 //          // 'original' Id object.  Optionally specify a 'basicAllocator'
 //          // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -259,7 +259,7 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_Id::my_Id(const char *id, bdema_Allocator *basicAllocator)
+//  my_Id::my_Id(const char *id, bslma::Allocator *basicAllocator)
 //  : d_allocator_p(bdema_Default::allocator(basicAllocator))
 //  {
 //      d_buffer_p = (char *)d_allocator_p->allocate(std::strlen(id) + 1);
@@ -267,7 +267,7 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  my_Id::my_Id(const my_Id& original, bdema_Allocator *basicAllocator)
+//  my_Id::my_Id(const my_Id& original, bslma::Allocator *basicAllocator)
 //  : d_allocator_p(bdema_Default::allocator(basicAllocator))
 //  {
 //      const char *id = original.id();
@@ -368,9 +368,9 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_IdPair(const char      *id,
-//                const char      *alias,
-//                bdema_Allocator *basicAllocator = 0);
+//      my_IdPair(const char       *id,
+//                const char       *alias,
+//                bslma::Allocator *basicAllocator = 0);
 //          // Create an Id pair having the specified 'id' and 'alias' ids.
 //          // Optionally specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -389,9 +389,9 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_IdPair::my_IdPair(const char      *id,
-//                       const char      *alias,
-//                       bdema_Allocator *basicAllocator)
+//  my_IdPair::my_IdPair(const char       *id,
+//                       const char       *alias,
+//                       bslma::Allocator *basicAllocator)
 //  : d_id(id, bdema_Default::allocator(basicAllocator))
 //  , d_alias(alias)  // drat! (forgot to pass along 'basicAllocator')
 //  {
@@ -514,13 +514,13 @@ BDES_IDENT("$Id: $")
 //      my_Id d_id;  // allocating
 //
 //      // NOT IMPLEMENTED
-//      my_Singleton(const my_Singleton&, bdema_Allocator * = 0);
+//      my_Singleton(const my_Singleton&, bslma::Allocator * = 0);
 //      my_Singleton& operator=(const my_Singleton&);
 //
 //    private:
 //      // PRIVATE CREATORS
-//      explicit my_Singleton(const char      *id,
-//                            bdema_Allocator *basicAllocator = 0);
+//      explicit my_Singleton(const char       *id,
+//                            bslma::Allocator *basicAllocator = 0);
 //          // Create a singleton having the specified 'id'.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed global allocator
@@ -531,8 +531,8 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CLASS METHODS
-//      static void initSingleton(const char      *id,
-//                                bdema_Allocator *basicAllocator = 0);
+//      static void initSingleton(const char       *id,
+//                                bslma::Allocator *basicAllocator = 0);
 //          // Initialize the singleton with the specified 'id'.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed global allocator
@@ -557,7 +557,8 @@ BDES_IDENT("$Id: $")
 //
 //  // PRIVATE CREATORS
 //  inline
-//  my_Singleton::my_Singleton(const char *id, bdema_Allocator *basicAllocator)
+//  my_Singleton::my_Singleton(const char       *id,
+//                             bslma::Allocator *basicAllocator)
 //  : d_id(id, bdema_Default::globalAllocator(basicAllocator))
 //  {
 //  }
@@ -584,10 +585,10 @@ BDES_IDENT("$Id: $")
 //  my_Singleton *my_Singleton::d_singleton_p;
 //
 //  // CLASS METHODS
-//  void my_Singleton::initSingleton(const char      *id,
-//                                   bdema_Allocator *basicAllocator)
+//  void my_Singleton::initSingleton(const char       *id,
+//                                   bslma::Allocator *basicAllocator)
 //  {
-//      static bsls_AlignedBuffer<sizeof(my_Singleton)> singleton;
+//      static bsls::AlignedBuffer<sizeof(my_Singleton)> singleton;
 //      d_singleton_p = new (singleton.buffer()) my_Singleton(id,
 //                                                            basicAllocator);
 //  }
@@ -646,10 +647,11 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-    // No symbols are defined here (see 'bslma_default' component).
-    // No alias for the 'bdema_Default' type is defined here, instead it is
-    // defined in 'bslma_default' so that clients that rely on it via
-    // transitive includes may still have that alias defined.
+                        // ====================
+                        // struct bdema_Default
+                        // ====================
+
+typedef bslma::Default bdema_Default;
 
 }  // close namespace BloombergLP
 

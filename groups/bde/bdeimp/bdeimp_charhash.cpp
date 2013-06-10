@@ -4,8 +4,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdeimp_charhash_cpp,"$Id$ $CSID$")
 
-#include <bsls_platformutil.h>                  // for testing only
-
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002

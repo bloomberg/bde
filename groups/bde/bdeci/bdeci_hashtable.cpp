@@ -1,4 +1,4 @@
-// bdeci_hashtable.cpp              -*-C++-*-
+// bdeci_hashtable.cpp                                                -*-C++-*-
 #include <bdeci_hashtable.h>
 
 #include <bdes_ident.h>
@@ -28,8 +28,6 @@ BDES_IDENT_RCSID(bdeci_hashtable_cpp,"$Id$ $CSID$")
 // The chosen definition of value makes streaming inconvenient.  To effectively
 // stream with minimal modification, the hashtable sizes provided by
 // 'bdeci_HashtableImpUtil' can be added to the definition of the value.
-
-#include <bsls_platformutil.h>                  // for testing only
 
 // ---------------------------------------------------------------------------
 // NOTICE:

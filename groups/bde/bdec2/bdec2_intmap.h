@@ -24,16 +24,16 @@ BDES_IDENT("$Id: $")
 // of type 'int' to 'T' values.  Iterators and manipulators provide efficient
 // access and filtering (i.e., selectively removing) of members, respectively.
 //
-// 'T' may not be 'bslma_Allocator' or 'bslma_Allocator *' and may not be
+// 'T' may not be 'bslma::Allocator' or 'bslma::Allocator *' and may not be
 // 'const'.  The type 'T' must have a public copy constructor, a public
 // destructor, and the assignment operator.
 //
-// 'T' may optionally have a 'bslma_Allocator *' argument to its copy
+// 'T' may optionally have a 'bslma::Allocator *' argument to its copy
 // constructor.  If this is the case, the
-// 'bslalg_TypeTraitUsesBslmaAllocator' trait must be used.  In this case,
+// 'bslalg::TypeTraitUsesBslmaAllocator' trait must be used.  In this case,
 // the signature for thecopy constructor should be
 //..
-//     T(const T& original, bslma_Allocator *basicAllocator = 0);
+//     T(const T& original, bslma::Allocator *basicAllocator = 0);
 //..
 // Otherwise the signatures for the copy constructor should be:
 //..
@@ -199,30 +199,30 @@ struct bdec2_IntMap_Node {
     // This 'struct' implements the storage and functionality required for a
     // map node.
 
-    int                      d_key;
-    bsls_ObjectBuffer<VALUE> d_valueStorage;
+    int                       d_key;
+    bsls::ObjectBuffer<VALUE> d_valueStorage;
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdec2_IntMap_Node,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
-    bdec2_IntMap_Node(int                               key,
-                      const VALUE&                      value,
-                      bslma_Allocator                  *allocator)
+    bdec2_IntMap_Node(int               key,
+                      const VALUE&      value,
+                      bslma::Allocator *allocator)
     : d_key(key)
     {
-        bslalg_ScalarPrimitives::copyConstruct(&d_valueStorage.object(),
+        bslalg::ScalarPrimitives::copyConstruct(&d_valueStorage.object(),
                                                 value,
                                                 allocator);
     }
 
     bdec2_IntMap_Node(const bdec2_IntMap_Node<VALUE>&  original,
-                      bslma_Allocator                 *allocator = 0)
+                      bslma::Allocator                *allocator = 0)
     : d_key(original.d_key)
     {
         BSLS_ASSERT_SAFE(allocator);  // allocator is *required*
 
-        bslalg_ScalarPrimitives::copyConstruct(&d_valueStorage.object(),
+        bslalg::ScalarPrimitives::copyConstruct(&d_valueStorage.object(),
                                                 original.value(),
                                                 allocator);
     }
@@ -290,7 +290,7 @@ class bdec2_IntMap {
     // DATA
     bdeci_Hashtable<bdec2_IntMap_Node<VALUE>,
                     bdec2_IntMap_Hash<VALUE> >  d_hashtable;    // hash table
-    bslma_Allocator                            *d_allocator_p;  // holds memory
+    bslma::Allocator                           *d_allocator_p;  // holds memory
                                                                 // allocator
 
     // FRIENDS
@@ -336,14 +336,14 @@ class bdec2_IntMap {
 
     // CREATORS
     explicit
-    bdec2_IntMap(bslma_Allocator *basicAllocator = 0);
+    bdec2_IntMap(bslma::Allocator *basicAllocator = 0);
         // Create an empty map.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     explicit
     bdec2_IntMap(const InitialCapacity&  numElements,
-                 bslma_Allocator        *basicAllocator = 0);
+                 bslma::Allocator       *basicAllocator = 0);
         // Create an empty map with sufficient initial capacity to accommodate
         // up to the specified 'numElements' values without subsequent
         // reallocation.  Optionally specify a 'basicAllocator' used to
@@ -351,10 +351,10 @@ class bdec2_IntMap {
         // default allocator is used.  The behavior is undefined unless
         // 0 <= numElements.
 
-    bdec2_IntMap(const int       *keys,
-                 const VALUE     *values,
-                 int              numElements,
-                 bslma_Allocator *basicAllocator = 0);
+    bdec2_IntMap(const int        *keys,
+                 const VALUE      *values,
+                 int               numElements,
+                 bslma::Allocator *basicAllocator = 0);
         // Create a map initialized to having the specified 'numElements'
         // associations from respective elements of the specified 'keys' array
         // and the specified 'values' array.  Optionally specify a
@@ -363,7 +363,7 @@ class bdec2_IntMap {
         // undefined unless 0 <= numElements.
 
     bdec2_IntMap(const bdec2_IntMap<VALUE>&  original,
-                 bslma_Allocator            *basicAllocator = 0);
+                 bslma::Allocator           *basicAllocator = 0);
         // Create a map initialized to the value of the specified 'original'
         // map.  Optionally specify a 'basicAllocator' used to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
@@ -645,32 +645,32 @@ class bdec2_IntMapManip {
 
 // CREATORS
 template <class VALUE>
-bdec2_IntMap<VALUE>::bdec2_IntMap(bslma_Allocator *basicAllocator)
+bdec2_IntMap<VALUE>::bdec2_IntMap(bslma::Allocator *basicAllocator)
 : d_hashtable(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <class VALUE>
 bdec2_IntMap<VALUE>::bdec2_IntMap(const InitialCapacity&  numElements,
-                                  bslma_Allocator        *basicAllocator)
+                                  bslma::Allocator       *basicAllocator)
 : d_hashtable((typename bdeci_Hashtable<bdec2_IntMap_Node<VALUE>,
                               bdec2_IntMap_Hash<VALUE> >::
                                              InitialCapacity)(numElements.d_i),
               basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <class VALUE>
 bdec2_IntMap<VALUE>
              ::bdec2_IntMap(const bdec2_IntMap<VALUE>&  original,
-                            bslma_Allocator            *basicAllocator)
+                            bslma::Allocator           *basicAllocator)
 : d_hashtable((typename bdeci_Hashtable<bdec2_IntMap_Node<VALUE>,
                               bdec2_IntMap_Hash<VALUE> >::
                           InitialCapacity)(original.d_hashtable.numElements()),
               basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_hashtable = original.d_hashtable;
 }
@@ -974,15 +974,15 @@ int bdec2_IntMap<VALUE>::maxSupportedVersion()
 
 // CREATORS
 template <class VALUE>
-bdec2_IntMap<VALUE>::bdec2_IntMap(const int       *keys,
-                                  const VALUE     *values,
-                                  int              numElements,
-                                  bslma_Allocator *basicAllocator)
+bdec2_IntMap<VALUE>::bdec2_IntMap(const int        *keys,
+                                  const VALUE      *values,
+                                  int               numElements,
+                                  bslma::Allocator *basicAllocator)
 : d_hashtable(bdeci_Hashtable<bdec2_IntMap_Node<VALUE>,
                               bdec2_IntMap_Hash<VALUE> >::
                                                   InitialCapacity(numElements),
               basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     for (int i = 0; i < numElements; ++i) {
         add(keys[i], values[i]);

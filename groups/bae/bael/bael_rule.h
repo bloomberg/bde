@@ -121,12 +121,12 @@ BDES_IDENT("$Id: $")
 #include <bdex_outstreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -190,7 +190,7 @@ class bael_Rule {
         // and containers.)
 
     // CREATORS
-    explicit bael_Rule(bslma_Allocator  *basicAllocator = 0);
+    explicit bael_Rule(bslma::Allocator *basicAllocator = 0);
         // Create a 'bael_Rule' object whose pattern is an empty string and
         // whose thresholds levels are all 0.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -203,7 +203,7 @@ class bael_Rule {
               int                    passLevel,
               int                    triggerLevel,
               int                    triggerAllLevel,
-              bslma_Allocator       *basicAllocator = 0);
+              bslma::Allocator      *basicAllocator = 0);
         // Create a 'bael_Rule' object whose pattern is the specified
         // 'pattern' and whose thresholds levels are the specified
         // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
@@ -215,7 +215,7 @@ class bael_Rule {
         // predicates.
 
     bael_Rule(const bael_Rule&  original,
-              bslma_Allocator  *basicAllocator = 0);
+              bslma::Allocator *basicAllocator = 0);
         // Create a 'bael_Rule' object that has the same value as that of the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -365,7 +365,7 @@ int bael_Rule::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-bael_Rule::bael_Rule(bslma_Allocator *basicAllocator)
+bael_Rule::bael_Rule(bslma::Allocator *basicAllocator)
 : d_pattern("", basicAllocator)
 , d_thresholds(0, 0, 0, 0)
 , d_predicateSet(basicAllocator)
@@ -375,12 +375,12 @@ bael_Rule::bael_Rule(bslma_Allocator *basicAllocator)
 }
 
 inline
-bael_Rule::bael_Rule(const bdeut_StringRef& pattern,
-                     int                    recordLevel,
-                     int                    passLevel,
-                     int                    triggerLevel,
-                     int                    triggerAllLevel,
-                     bslma_Allocator       *basicAllocator)
+bael_Rule::bael_Rule(const bdeut_StringRef&  pattern,
+                     int                     recordLevel,
+                     int                     passLevel,
+                     int                     triggerLevel,
+                     int                     triggerAllLevel,
+                     bslma::Allocator       *basicAllocator)
 : d_pattern(pattern.data(), pattern.length(), basicAllocator)
 , d_thresholds(recordLevel, passLevel, triggerLevel, triggerAllLevel)
 , d_predicateSet(basicAllocator)
@@ -391,7 +391,7 @@ bael_Rule::bael_Rule(const bdeut_StringRef& pattern,
 
 inline
 bael_Rule::bael_Rule(const bael_Rule&  original,
-                     bslma_Allocator  *basicAllocator)
+                     bslma::Allocator *basicAllocator)
 : d_pattern(original.d_pattern, basicAllocator)
 , d_thresholds(original.d_thresholds)
 , d_predicateSet(original.d_predicateSet)

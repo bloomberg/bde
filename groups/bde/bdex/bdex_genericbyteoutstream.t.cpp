@@ -4,11 +4,12 @@
 
 #include <bdex_outstreamfunctions.h>
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bsls_platformutil.h>                  // for testing only
-#include <bsls_stopwatch.h>                     // for testing only
 #include <bdesb_fixedmemoutput.h>               // for testing only
 #include <bdesb_fixedmemoutstreambuf.h>         // for testing only
+
+#include <bslma_testallocator.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsls_assert.h>
 
@@ -48,14 +49,14 @@ using namespace bsl;  // automatically added by script
 // [23] void invalidate();
 // [22] putLength(int length);
 // [22] putVersion(int version);
-// [ 9] putInt64(bsls_PlatformUtil::Int64 value);
-// [ 9] putUint64(bsls_PlatformUtil::Int64 value);
-// [ 8] putInt56(bsls_PlatformUtil::Int64 value);
-// [ 8] putUint56(bsls_PlatformUtil::Int64 value);
-// [ 7] putInt48(bsls_PlatformUtil::Int64 value);
-// [ 8] putUint48(bsls_PlatformUtil::Int64 value);
-// [ 7] putInt40(bsls_PlatformUtil::Int64 value);
-// [ 7] putUint40(bsls_PlatformUtil::Int64 value);
+// [ 9] putInt64(bsls::Types::Int64 value);
+// [ 9] putUint64(bsls::Types::Int64 value);
+// [ 8] putInt56(bsls::Types::Int64 value);
+// [ 8] putUint56(bsls::Types::Int64 value);
+// [ 7] putInt48(bsls::Types::Int64 value);
+// [ 8] putUint48(bsls::Types::Int64 value);
+// [ 7] putInt40(bsls::Types::Int64 value);
+// [ 7] putUint40(bsls::Types::Int64 value);
 // [ 5] putInt32(int value);
 // [ 5] putUint32(int value);
 // [ 4] putInt24(int value);
@@ -66,14 +67,14 @@ using namespace bsl;  // automatically added by script
 // [ 2] putUint8(int value);
 // [11] putFloat64(double value);
 // [10] putFloat32(float value);
-// [19] putArrayInt64(const bsls_PlatformUtil::Int64 *array, int count);
-// [19] putArrayUint64(const bsls_PlatformUtil::Uint64 *array, int count);
-// [18] putArrayInt56(const bsls_PlatformUtil::Int64 *array, int count);
-// [18] putArrayUint56(const bsls_PlatformUtil::Uint64 *array, int count);
-// [17] putArrayInt48(const bsls_PlatformUtil::Int64 *array, int count);
-// [17] putArrayUint48(const bsls_PlatformUtil::Uint64 *array, int count);
-// [16] putArrayInt40(const bsls_PlatformUtil::Int64 *array, int count);
-// [16] putArrayUint40(const bsls_PlatformUtil::Uint64 *array, int count);
+// [19] putArrayInt64(const bsls::Types::Int64 *array, int count);
+// [19] putArrayUint64(const bsls::Types::Uint64 *array, int count);
+// [18] putArrayInt56(const bsls::Types::Int64 *array, int count);
+// [18] putArrayUint56(const bsls::Types::Uint64 *array, int count);
+// [17] putArrayInt48(const bsls::Types::Int64 *array, int count);
+// [17] putArrayUint48(const bsls::Types::Uint64 *array, int count);
+// [16] putArrayInt40(const bsls::Types::Int64 *array, int count);
+// [16] putArrayUint40(const bsls::Types::Uint64 *array, int count);
 // [15] putArrayInt32(const int *array, int count);
 // [15] putArrayUint32(const unsigned int *array, int count);
 // [14] putArrayInt24(const int *array, int count);
@@ -332,7 +333,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
 
     switch (test) { case 0:
       case 26: {
@@ -537,7 +538,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putInt64." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             {
                 char buffer[sizeof(T)];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -553,7 +554,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putUint64." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             {
                 char buffer[sizeof(T)];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -569,7 +570,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putInt56." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             {
                 char buffer[sizeof(T) - 1];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -585,7 +586,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putUint56." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             {
                 char buffer[sizeof(T) - 1];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -601,7 +602,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putInt48." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             {
                 char buffer[sizeof(T) - 2];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -617,7 +618,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putUint48." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             {
                 char buffer[sizeof(T) - 2];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -633,7 +634,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putInt40." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             {
                 char buffer[sizeof(T) - 3];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -649,7 +650,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putUint40." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             {
                 char buffer[sizeof(T) - 3];
                 bdesb_FixedMemOutput sb(buffer, sizeof buffer);
@@ -813,7 +814,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayInt64." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T)];
@@ -830,7 +831,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayUint64." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T)];
@@ -847,7 +848,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayInt56." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T) - 1];
@@ -864,7 +865,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayUint56." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T) - 1];
@@ -881,7 +882,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayInt48." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T) - 2];
@@ -898,7 +899,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayUint48." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T) - 2];
@@ -915,7 +916,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayInt40." << endl;
         {
-            typedef bsls_PlatformUtil::Int64 T;
+            typedef bsls::Types::Int64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T) - 3];
@@ -932,7 +933,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting putArrayUint40." << endl;
         {
-            typedef bsls_PlatformUtil::Uint64 T;
+            typedef bsls::Types::Uint64 T;
             T mA[1] = { 0 };
             {
                 char buffer[sizeof(T) - 3];
@@ -1322,7 +1323,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayInt64." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {1, 2, 3};
+            const bsls::Types::Int64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1343,7 +1344,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {4, 5, 6};
+            const bsls::Types::Int64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1368,7 +1369,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayUint64." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {1, 2, 3};
+            const bsls::Types::Uint64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1389,7 +1390,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {4, 5, 6};
+            const bsls::Types::Uint64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1427,7 +1428,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayInt56." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {1, 2, 3};
+            const bsls::Types::Int64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1448,7 +1449,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {4, 5, 6};
+            const bsls::Types::Int64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1473,7 +1474,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayUint56." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {1, 2, 3};
+            const bsls::Types::Uint64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1494,7 +1495,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {4, 5, 6};
+            const bsls::Types::Uint64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1532,7 +1533,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayInt48." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {1, 2, 3};
+            const bsls::Types::Int64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1553,7 +1554,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {4, 5, 6};
+            const bsls::Types::Int64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1578,7 +1579,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayUint48." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {1, 2, 3};
+            const bsls::Types::Uint64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1599,7 +1600,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {4, 5, 6};
+            const bsls::Types::Uint64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1637,7 +1638,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayInt40." << endl;
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {1, 2, 3};
+            const bsls::Types::Int64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1658,7 +1659,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Int64 DATA[] = {4, 5, 6};
+            const bsls::Types::Int64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1683,7 +1684,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putArrayUint40." << endl;
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {1, 2, 3};
+            const bsls::Types::Uint64 DATA[] = {1, 2, 3};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -1704,7 +1705,7 @@ int main(int argc, char *argv[])
                            NUM_BITS));
         }
         {
-            const bsls_PlatformUtil::Uint64 DATA[] = {4, 5, 6};
+            const bsls::Types::Uint64 DATA[] = {4, 5, 6};
             char workSpace[100];
             bdesb_FixedMemOutput sb(workSpace, 100);
             Obj x(&sb);
@@ -2309,8 +2310,8 @@ int main(int argc, char *argv[])
         // PUT 64-BIT INTEGERS TEST:
         //
         // Testing:
-        //   putInt64(bsls_PlatformUtil::Int64 value);
-        //   putUint64(bsls_PlatformUtil::Uint64 value);
+        //   putInt64(bsls::Types::Int64 value);
+        //   putUint64(bsls::Types::Uint64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2398,8 +2399,8 @@ int main(int argc, char *argv[])
         // PUT 56-BIT INTEGERS TEST:
         //
         // Testing:
-        //   putInt56(bsls_PlatformUtil::Int64 value);
-        //   putUint56(bsls_PlatformUtil::Uint64 value);
+        //   putInt56(bsls::Types::Int64 value);
+        //   putUint56(bsls::Types::Uint64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2487,8 +2488,8 @@ int main(int argc, char *argv[])
         // PUT 48-BIT INTEGERS TEST:
         //
         // Testing:
-        //   putInt48(bsls_PlatformUtil::Int64 value);
-        //   putUint48(bsls_PlatformUtil::Uint64 value);
+        //   putInt48(bsls::Types::Int64 value);
+        //   putUint48(bsls::Types::Uint64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2576,8 +2577,8 @@ int main(int argc, char *argv[])
         // PUT 40-BIT INTEGERS TEST:
         //
         // Testing:
-        //   putInt40(bsls_PlatformUtil::Int64 value);
-        //   putUint40(bsls_PlatformUtil::Uint64 value);
+        //   putInt40(bsls::Types::Int64 value);
+        //   putUint40(bsls::Types::Uint64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3086,7 +3087,7 @@ int main(int argc, char *argv[])
                 workSpace[i] = (char)(i * (i + 1) / 2);
             }
 
-            bsls_Stopwatch timer; timer.start();
+            bsls::Stopwatch timer; timer.start();
             for (int i = 0; i <= NUM_OUT_ITERS; ++i) {
                 bdesb_FixedMemOutput sb(workSpace, SIZE);
                 bdex_GenericByteOutStream<bdesb_FixedMemOutput> x1(&sb);
@@ -3106,7 +3107,7 @@ int main(int argc, char *argv[])
                 workSpace[i] = (char)(i * (i + 1) / 2);
             }
 
-            bsls_Stopwatch timer; timer.start();
+            bsls::Stopwatch timer; timer.start();
             for (int i = 0; i <= NUM_OUT_ITERS; ++i) {
                 bdesb_FixedMemOutput sb(workSpace, SIZE);
                 bdex_GenericByteOutStream<bdesb_FixedMemOutput> x1(&sb);
@@ -3131,7 +3132,7 @@ int main(int argc, char *argv[])
                 workSpace[i] = (char)(i * (i + 1) / 2);
             }
 
-            bsls_Stopwatch timer; timer.start();
+            bsls::Stopwatch timer; timer.start();
             for (int i = 0; i <= NUM_OUT_ITERS; ++i) {
                 bdesb_FixedMemOutput sb(workSpace, SIZE);
                 Obj x1(&sb);
@@ -3151,7 +3152,7 @@ int main(int argc, char *argv[])
                 workSpace[i] = (char)(i * (i + 1) / 2);
             }
 
-            bsls_Stopwatch timer; timer.start();
+            bsls::Stopwatch timer; timer.start();
             for (int i = 0; i <= NUM_OUT_ITERS; ++i) {
                 bdesb_FixedMemOutput sb(workSpace, SIZE);
                 Obj x1(&sb);

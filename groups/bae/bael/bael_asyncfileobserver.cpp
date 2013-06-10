@@ -84,14 +84,14 @@ int bael_AsyncFileObserver::stopThread()
 // CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                                          bael_Severity::Level  stdoutThreshold,
-                                         bslma_Allocator      *basicAllocator)
+                                         bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_dropCount(-1)
-, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
@@ -104,14 +104,14 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bael_Severity::Level  stdoutThreshold,
                                       bool                  publishInLocalTime,
-                                      bslma_Allocator      *basicAllocator)
+                                      bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_dropCount(-1)
-, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
@@ -126,14 +126,14 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bael_Severity::Level  stdoutThreshold,
                                       bool                  publishInLocalTime,
                                       int                   maxRecordQueueSize,
-                                      bslma_Allocator      *basicAllocator)
+                                      bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_dropCount(-1)
-, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
@@ -148,14 +148,14 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                          bool                  publishInLocalTime,
                          int                   maxRecordQueueSize,
                          bael_Severity::Level  dropRecordsOnFullQueueThreshold,
-                         bslma_Allocator      *basicAllocator)
+                         bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(dropRecordsOnFullQueueThreshold)
 , d_dropCount(-1)
-, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(

@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator;
+    bslma::TestAllocator testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifdef BSLS_PLATFORM_OS_UNIX

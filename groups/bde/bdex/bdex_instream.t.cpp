@@ -341,8 +341,8 @@ class MyInStream : public bdex_InStream {
     MyInStream() { }
     ~MyInStream() { }
 
-    typedef bsls_PlatformUtil::Int64 Int64;
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
 
     bdex_InStream& getLength(int&)              { d_fun =  10; return *this; }
     bdex_InStream& getVersion(int&)             { d_fun =  11; return *this; }
@@ -487,8 +487,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting scalar input operators." << endl;
 
-        bsls_PlatformUtil::Int64 i64 = 0;
-        bsls_PlatformUtil::Uint64 ui64 = 0;
+        bsls::Types::Int64  i64  = 0;
+        bsls::Types::Uint64 ui64 = 0;
         int i = 0;
         unsigned int ui = 0;
         short int si = 0;
@@ -626,18 +626,18 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting scalar input functions." << endl;
         {
-            bsls_PlatformUtil::Int64  i64 = 0;
-            bsls_PlatformUtil::Uint64 ui64 = 0;
-            int                       i = 0;
-            unsigned int              ui = 0;
-            short int                 si = 0;
-            unsigned short int        usi = 0;
-            char                      c = 0;
-            signed char               sc = 0;
-            unsigned char             uc = 0;
-            double                    d = 0;
-            float                     f = 0;
-            bsl::string               str;
+            bsls::Types::Int64  i64  = 0;
+            bsls::Types::Uint64 ui64 = 0;
+            int                 i    = 0;
+            unsigned int        ui   = 0;
+            short int           si   = 0;
+            unsigned short int  usi  = 0;
+            char                c    = 0;
+            signed char         sc   = 0;
+            unsigned char       uc   = 0;
+            double              d    = 0;
+            float               f    = 0;
+            bsl::string         str;
 
             ASSERT(&myS == &s.getInt64(i64));   ASSERT(-64 == myS.fun());
             ASSERT(&myS == &s.getUint64(ui64)); ASSERT(+64 == myS.fun());
@@ -664,8 +664,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting arrayed input functions." << endl;
 
-        bsls_PlatformUtil::Int64 ai64[1];
-        bsls_PlatformUtil::Uint64 aui64[1];
+        bsls::Types::Int64  ai64[1];
+        bsls::Types::Uint64 aui64[1];
         int ai[1];
         unsigned int aui[1];
         short as[1];

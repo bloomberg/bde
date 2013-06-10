@@ -120,15 +120,15 @@ BDES_IDENT("$Id: $")
 //      // objects.  No specific allocation strategy (such as pooling) is
 //      // implemented.
 //
-//      bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+//      bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 //
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(my_EchoSessionFactory,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      my_EchoSessionFactory(bslma_Allocator *basicAllocator = 0);
+//      my_EchoSessionFactory(bslma::Allocator *basicAllocator = 0);
 //          // Create a new 'my_EchoSessionFactory' object.  Optionally specify
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -218,8 +218,8 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  my_EchoSessionFactory::my_EchoSessionFactory(
-//                                             bslma_Allocator *basicAllocator)
-//  : d_allocator_p(bslma_Default::allocator(basicAllocator))
+//                                            bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //  }
 //
@@ -272,7 +272,7 @@ BDES_IDENT("$Id: $")
 //      bcemt_Mutex                   *d_coutLock_p;      // mutex protecting
 //                                                        // bsl::cout
 //
-//      bslma_Allocator               *d_allocator_p;     // memory allocator
+//      bslma::Allocator              *d_allocator_p;     // memory allocator
 //                                                        // (held)
 //
 //      // PRIVATE MANIPULATORS
@@ -293,14 +293,14 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(my_EchoServer,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      my_EchoServer(bcemt_Mutex     *coutLock,
-//                    int              portNumber,
-//                    int              numConnections,
-//                    bool             reuseAddressFlag,
-//                    bslma_Allocator *basicAllocator = 0);
+//      my_EchoServer(bcemt_Mutex      *coutLock,
+//                    int               portNumber,
+//                    int               numConnections,
+//                    bool              reuseAddressFlag,
+//                    bslma::Allocator *basicAllocator = 0);
 //          // Create an echo server that listens for incoming connections on
 //          // the specified 'portNumber' managing up to the specified
 //          // 'numConnections' simultaneous connections.  Pass the specified
@@ -375,13 +375,13 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  // CREATORS
-//  my_EchoServer::my_EchoServer(bcemt_Mutex     *lock,
-//                               int              portNumber,
-//                               int              numConnections,
-//                               bslma_Allocator *basicAllocator)
+//  my_EchoServer::my_EchoServer(bcemt_Mutex      *lock,
+//                               int               portNumber,
+//                               int               numConnections,
+//                               bslma::Allocator *basicAllocator)
 //  : d_sessionFactory(basicAllocator)
 //  , d_coutLock_p(lock)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      d_config.setMaxThreads(4);                  // 4 I/O threads
 //      d_config.setMaxConnections(numConnections);
@@ -691,7 +691,7 @@ class btemt_SessionPool {
     bces_AtomicInt                 d_numSessions;        // number of allocated
                                                          // sessions
 
-    bslma_Allocator               *d_allocator_p;        // allocator (held)
+    bslma::Allocator              *d_allocator_p;        // allocator (held)
 
     // PRIVATE MANIPULATORS
     void channelStateCb(int   channelId,
@@ -740,18 +740,18 @@ class btemt_SessionPool {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(btemt_SessionPool,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     btemt_SessionPool(
                     const btemt_ChannelPoolConfiguration&  config,
                     const SessionPoolStateCallback&        poolStateCallback,
-                    bslma_Allocator                       *basicAllocator = 0);
+                    bslma::Allocator                      *basicAllocator = 0);
     btemt_SessionPool(
                     const btemt_ChannelPoolConfiguration&  config,
                     const SessionPoolStateCallback&        poolStateCallback,
                     bool                                   useBlobForDataReads,
-                    bslma_Allocator                       *basicAllocator = 0);
+                    bslma::Allocator                      *basicAllocator = 0);
         // Create a new session pool according to the specified 'config' and
         // with the specified 'poolStateCallback' to be invoked when the pool
         // state changes.  Optionally use 'useBlobForDataReads' to specify

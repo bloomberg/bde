@@ -130,7 +130,7 @@ class btes_Iovec {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(btes_Iovec, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(btes_Iovec, bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     btes_Iovec(void *buffer, int length);
@@ -185,7 +185,7 @@ class btes_Ovec {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(btes_Ovec, bslalg_TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(btes_Ovec, bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     btes_Ovec(const void *buffer, int length);
@@ -331,7 +331,7 @@ inline btes_Ovec::btes_Ovec(const void *buffer, int length)
     d_buffer.iov_base = (void *) buffer;
     d_buffer.iov_len = length;
 #else
-    d_buffer.iov_base = (caddr_t) buffer;
+    d_buffer.iov_base = (caddr_t) const_cast<void *>(buffer);
     d_buffer.iov_len = length;
 #endif
 }
@@ -354,7 +354,7 @@ inline void btes_Ovec::setBuffer(const void *buffer, int length)
     d_buffer.iov_base = (void *) buffer;
     d_buffer.iov_len = length;
 #else
-    d_buffer.iov_base = (caddr_t) buffer;
+    d_buffer.iov_base = (caddr_t) const_cast<void *>(buffer);
     d_buffer.iov_len = length;
 #endif
 }

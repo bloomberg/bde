@@ -113,8 +113,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_Types::Int64 Int64;
-typedef bsls_Types::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 int epochAddressIsNotZero = 0;
 int epochBuffer[10] = {0,0,0,0,0,0,0,0,0,0}; // some zeroes
@@ -2057,7 +2057,7 @@ int main(int argc, char *argv[])
         //   From:
         //     1) All relevant fields are recovered properly.
         //     2) The millisecond field is always set to 0.
-        //     3) 'bsls_Types::Int64' values producing invalid 'bdet_Datetime'
+        //     3) 'bsls::Types::Int64' values producing invalid 'bdet_Datetime'
         //         values fail:
         //         a) time_t < -6213579600   (01/01/0001 - 00:00:00)
         //         b) time_t > 2253402300799 (12/31/9999 - 23:59:59)
@@ -2084,12 +2084,12 @@ int main(int argc, char *argv[])
         //
         //        A) First, REUSE the table used to test
         //           'convertToTimeT64' to reverse every successful
-        //           conversion to 'bsls_Types::Int64', and compare that result
-        //           against the initial input (except in cases where
+        //           conversion to 'bsls::Types::Int64', and compare that
+        //           result against the initial input (except in cases where
         //           milliseconds were initially non-zero).
         //
         //        B) Second, create a separate table that explicitly converts
-        //           valid 'bsls_Types::Int64' to 'bdet_Datetime' values
+        //           valid 'bsls::Types::Int64' to 'bdet_Datetime' values
         //           with input and individual output fields represented as
         //           separate columns.  For each result, that yields a status
         //           equal to 0 (in a separate column) verify that the input is
@@ -2112,13 +2112,13 @@ int main(int argc, char *argv[])
         //
         //        Use a loop-based approach to verify that pseudo-randomly
         //        selected, non-repeating datetime values that can be
-        //        converted to and then from 'bsls_Types::Int64' objects result
-        //        in exactly the same object.  Note that the intermediate
-        //        'bsls_Types' instance is initialized to a different "garbage"
-        //        value on each iteration.
+        //        converted to and then from 'bsls::Types::Int64' objects
+        //        result in exactly the same object.  Note that the
+        //        intermediate 'bsls::Types' instance is initialized to a
+        //        different "garbage" value on each iteration.
         //
         // Testing:
-        //   bsls_Types::Int64 convertToTimeT64(constDatetime& d);
+        //   bsls::Types::Int64 convertToTimeT64(constDatetime& d);
         //   void convertFromTimeT64(Datetime *r, Int64 t);
         //   bdet_Datetime convertFromTimeT64(Int64 time);
         // --------------------------------------------------------------------
@@ -2131,7 +2131,7 @@ int main(int argc, char *argv[])
 
         {
 
-        if (verbose) cout << "\nbdet_Datetime => bsls_Types::Int64" << endl;
+        if (verbose) cout << "\nbdet_Datetime => bsls::Types::Int64" << endl;
 
         static const struct {
             int d_lineNum;      // source line number
@@ -2144,7 +2144,7 @@ int main(int argc, char *argv[])
             int d_second;       // input
             int d_millisecond;  // input
 
-            bsls_Types::Int64  d_time;      // output
+            bsls::Types::Int64  d_time;      // output
 
         } DATA[] = {
                // <---------- input ---------->   <--expected->
@@ -2289,7 +2289,7 @@ int main(int argc, char *argv[])
             const int  SECOND = DATA[ti].d_second;
             const int    MSEC = DATA[ti].d_millisecond;
 
-            const bsls_Types::Int64 TIME = DATA[ti].d_time;
+            const bsls::Types::Int64 TIME = DATA[ti].d_time;
 
             if (veryVerbose) {
                 cout << "\n--------------------------------------" << endl;
@@ -2307,7 +2307,7 @@ int main(int argc, char *argv[])
   //v-----------^
     const bsl::time_t CONTROL = INITIAL_VALUES[vi];
     if (veryVeryVerbose) { P(CONTROL); }
-    bsls_Types::Int64 result = CONTROL;
+    bsls::Types::Int64 result = CONTROL;
 
     if (veryVerbose) { cout << "Before: "; P(result); }
     // This is necessary since the version of 'convertToTimeT64'
@@ -2363,7 +2363,7 @@ int main(int argc, char *argv[])
         static const struct {
             int d_lineNum;               // source line number
 
-            bsls_Types::Int64 d_input;   // initial time_t value
+            bsls::Types::Int64 d_input;   // initial time_t value
 
             int d_status;                // expected success
 
@@ -2466,7 +2466,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
 
-            const bsls_Types::Int64  INPUT  = DATA[ti].d_input;
+            const bsls::Types::Int64  INPUT  = DATA[ti].d_input;
 
             const int  STATUS = DATA[ti].d_status;
 
@@ -2491,7 +2491,7 @@ int main(int argc, char *argv[])
                 // If the conversion is meaningful double check
                 if (!STATUS) {
                     bdet_Datetime dt(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND);
-                    bsls_Types::Int64 tt;
+                    bsls::Types::Int64 tt;
                     tt = bdetu_Epoch::convertToTimeT64(dt);
                     LOOP3_ASSERT(LINE, tt, INPUT, tt == INPUT);
                 }
@@ -2600,7 +2600,7 @@ int main(int argc, char *argv[])
     tmpDup = bdetu_Epoch::convertFromTimeT64(currentValue);
     if (veryVeryVerbose) { cout << " After: "; P(tmpDup); }
 
-    bsls_Types::Int64 result    = LLONG_MIN; // out of bounds
+    bsls::Types::Int64 result = LLONG_MIN;  // out of bounds
 
     if (veryVeryVerbose) { cout<<"Before: "; P(result); }
     result = bdetu_Epoch::convertToTimeT64(tmpDup);

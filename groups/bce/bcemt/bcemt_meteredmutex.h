@@ -140,11 +140,11 @@ BDES_IDENT("$Id: $")
 //    int main()
 //    {
 //        executeInParallel(NUM_THREADS, strategy1);
-//        bsls_PlatformUtil::Int64 waitTimeForStrategy1 =
+//        bsls::Types::Int64 waitTimeForStrategy1 =
 //                oddMutex.waitTime() + evenMutex.waitTime();
 //
 //        executeInParallel(NUM_THREADS, strategy2);
-//        bsls_PlatformUtil::Int64 waitTimeForStrategy2 =
+//        bsls::Types::Int64 waitTimeForStrategy2 =
 //                                 globalMutex.waitTime();
 //
 //        ASSERT(waitTimeForStrategy2 > waitTimeForStrategy1);
@@ -174,13 +174,20 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TIMEUTIL
 #include <bsls_timeutil.h>
 #endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -196,11 +203,11 @@ class bcemt_MeteredMutex {
     // waited for the mutex.
 
     // DATA
-    bcemt_Mutex              d_mutex;          // underlying mutex
-    bces_AtomicInt64         d_waitTime;       // wait time
-    bces_AtomicInt64         d_holdTime;       // hold time
-    bsls_PlatformUtil::Int64 d_startHoldTime;  // starting point of hold time
-    bces_AtomicInt64         d_lastResetTime;  // last reset time
+    bcemt_Mutex        d_mutex;          // underlying mutex
+    bces_AtomicInt64   d_waitTime;       // wait time
+    bces_AtomicInt64   d_holdTime;       // hold time
+    bsls::Types::Int64 d_startHoldTime;  // starting point of hold time
+    bces_AtomicInt64   d_lastResetTime;  // last reset time
 
     // NOT IMPLEMENTED
     bcemt_MeteredMutex(const bcemt_MeteredMutex&);
@@ -245,20 +252,20 @@ class bcemt_MeteredMutex {
         // calling thread currently owns the lock.
 
     // ACCESSORS
-    bsls_PlatformUtil::Int64 holdTime() const;
+    bsls::Types::Int64 holdTime() const;
         // Return the hold time (in nanoseconds) accumulated since the
         // most recent call to 'resetMetrics' (or `bcemt_MeteredMutex`
         // if 'resetMetrics' was never called).
 
-    bsls_PlatformUtil::Int64 lastResetTime() const;
+    bsls::Types::Int64 lastResetTime() const;
         // Return the time in nanoseconds (referenced to an arbitrary but
         // fixed origin) of the most recent invocation to 'resetMetrics' (or
         // creation time if 'resetMetrics' was never invoked).  User can
         // calculate the difference (in nanoseconds) between the current time
         // and the last reset time by expression
-        // 'bsls_TimeUtil::getTimer() - clientMutex.lastResetTime()'.
+        // 'bsls::TimeUtil::getTimer() - clientMutex.lastResetTime()'.
 
-    bsls_PlatformUtil::Int64 waitTime() const;
+    bsls::Types::Int64 waitTime() const;
         // Return the wait time (in nanoseconds), accumulated since the
         // most recent call to 'resetMetrics' (or `bcemt_MeteredMutex`
         // if 'resetMetrics' was never called).
@@ -274,7 +281,7 @@ class bcemt_MeteredMutex {
 // CREATORS
 inline
 bcemt_MeteredMutex::bcemt_MeteredMutex()
-: d_lastResetTime(bsls_TimeUtil::getTimer())
+: d_lastResetTime(bsls::TimeUtil::getTimer())
 {
 }
 
@@ -287,18 +294,18 @@ bcemt_MeteredMutex::~bcemt_MeteredMutex()
 inline
 void bcemt_MeteredMutex::lock()
 {
-    bsls_PlatformUtil::Int64 t1 = bsls_TimeUtil::getTimer();
+    bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     d_mutex.lock();
-    d_startHoldTime = bsls_TimeUtil::getTimer();
+    d_startHoldTime = bsls::TimeUtil::getTimer();
     d_waitTime += (d_startHoldTime - t1);
 }
 
 inline
 int bcemt_MeteredMutex::tryLock()
 {
-    bsls_PlatformUtil::Int64 t1 = bsls_TimeUtil::getTimer();
+    bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     int returnStatus = d_mutex.tryLock();
-    bsls_PlatformUtil::Int64 t2 = bsls_TimeUtil::getTimer();
+    bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
     d_waitTime += t2 - t1;
     if (returnStatus == 0) {
         d_startHoldTime = t2;
@@ -309,25 +316,25 @@ int bcemt_MeteredMutex::tryLock()
 inline
 void bcemt_MeteredMutex::unlock()
 {
-    d_holdTime += (bsls_TimeUtil::getTimer() - d_startHoldTime);
+    d_holdTime += (bsls::TimeUtil::getTimer() - d_startHoldTime);
     d_mutex.unlock();
 }
 
 // ACCESSORS
 inline
-bsls_PlatformUtil::Int64 bcemt_MeteredMutex::holdTime() const
+bsls::Types::Int64 bcemt_MeteredMutex::holdTime() const
 {
     return d_holdTime;
 }
 
 inline
-bsls_PlatformUtil::Int64 bcemt_MeteredMutex::lastResetTime() const
+bsls::Types::Int64 bcemt_MeteredMutex::lastResetTime() const
 {
     return d_lastResetTime;
 }
 
 inline
-bsls_PlatformUtil::Int64 bcemt_MeteredMutex::waitTime() const
+bsls::Types::Int64 bcemt_MeteredMutex::waitTime() const
 {
     return d_waitTime;
 }

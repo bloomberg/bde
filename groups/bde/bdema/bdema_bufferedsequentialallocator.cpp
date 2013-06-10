@@ -20,7 +20,7 @@ bdema_BufferedSequentialAllocator::~bdema_BufferedSequentialAllocator()
 }
 
 // MANIPULATORS
-void *bdema_BufferedSequentialAllocator::allocate(bsls_Types::size_type size)
+void *bdema_BufferedSequentialAllocator::allocate(bsls::Types::size_type size)
 {
     BSLS_ASSERT(0 <= size);
 

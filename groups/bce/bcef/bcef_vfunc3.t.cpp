@@ -119,7 +119,7 @@ class FunctorRep : public bcefr_Vfunc3<A1, A2, A3> {
                       const D4&        embeddedArg4,
                       const D5&        embeddedArg5,
                       const D6&        embeddedArg6,
-                      bslma_Allocator *basicAllocator);
+                      bslma::Allocator*basicAllocator);
         // Create a representation for a function object (functor) taking three
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -150,7 +150,7 @@ inline FunctorRep<F, A1, A2, A3, D1, D2, D3, D4, D5, D6>::FunctorRep(
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
                                              const D6&        embeddedArg6,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator*basicAllocator)
 : bcefr_Vfunc3<A1, A2, A3>(basicAllocator)
 , d_f(procedure)
 , d_d1(embeddedArg1)
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
         //        'operator const void *() const'.
         //    2b. N/A.
         //    3b. Check the reference counter using the 'getCount' function.
-        //        Assign 'Obj1' to 'Obj3'.  Using 'bslma_TestAllocator' verify
+        //        Assign 'Obj1' to 'Obj3'.  Using 'bslma::TestAllocator' verify
         //        that the memory allocated for 'R' was deallocated.
         //
         //   Create an object 'Obj1' using the default constructor.
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
         //        operator()'
         //    2f. N/A.
         //    3f. Check the reference counter using the 'getCount' function.
-        //        Using 'bslma_TestAllocator', test that memory was not freed
+        //        Using 'bslma::TestAllocator', test that memory was not freed
         //        and then allocated again.
         //
         // Testing:
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
             ObjRep *rep1 = new(testAllocator)
                 ParmMatchingFunctorImp(checkParameterMatching, &a4, &a5, &a6,
                                        &a7, &a8, &a9, &testAllocator);
-            int numDeallocations = testAllocator.numDeallocation();
+            int numDeallocations = testAllocator.numDeallocations();
 
             Obj x2(rep1);
             Obj x3(rep1);
@@ -439,11 +439,11 @@ int main(int argc, char *argv[])
 
             if (veryVerbose)
                 cout << "            Decreased to '0'." << endl;
-            ASSERT(numDeallocations == testAllocator.numDeallocation());
+            ASSERT(numDeallocations == testAllocator.numDeallocations());
             x3 = x1;
-            ASSERT(numDeallocations + 1 == testAllocator.numDeallocation());
+            ASSERT(numDeallocations + 1 == testAllocator.numDeallocations());
             ASSERT(sizeof(ParmMatchingFunctorImp) ==
-                   testAllocator.lastAllocateNumBytes());
+                   testAllocator.lastAllocatedNumBytes());
         }
 
         if (verbose) cout << "    Testing an assignment to self." << endl;
@@ -577,12 +577,12 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "            When counter decreases to '0'." << endl;
 
-            int numDeallocations = testAllocator.numDeallocation();
+            int numDeallocations = testAllocator.numDeallocations();
             x1 = x3;
             ASSERT(3 == getCount(rep2));
-            ASSERT(numDeallocations + 1 == testAllocator.numDeallocation());
+            ASSERT(numDeallocations + 1 == testAllocator.numDeallocations());
             ASSERT(sizeof(ParmMatchingFunctorImp) ==
-                   testAllocator.lastAllocateNumBytes());
+                   testAllocator.lastAllocatedNumBytes());
         }
 
         if (verbose) cout << "    Testing assignment to self." << endl;
@@ -601,8 +601,8 @@ int main(int argc, char *argv[])
                 ParmMatchingFunctorImp(checkParameterMatching, &a4, &a5, &a6,
                                        &a7, &a8, &a9, &testAllocator);
             Obj x1(rep1);
-            int numAlloc = testAllocator.numAllocation();
-            int numDealloc = testAllocator.numDeallocation();
+            int numAlloc = testAllocator.numAllocations();
+            int numDealloc = testAllocator.numDeallocations();
             x1 = x1;
             if (veryVerbose)
                 cout << "        Testing that ref. counter did not change."
@@ -611,8 +611,8 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "        Testing that memory was not newed/deleted."
                      << endl;
-            ASSERT(numAlloc == testAllocator.numAllocation());
-            ASSERT(numDealloc == testAllocator.numDeallocation());
+            ASSERT(numAlloc == testAllocator.numAllocations());
+            ASSERT(numDealloc == testAllocator.numDeallocations());
 
             if (veryVerbose)
               cout << "        Testing that functor initialization is visible."

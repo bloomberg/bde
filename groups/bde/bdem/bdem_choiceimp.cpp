@@ -37,12 +37,13 @@ createCatalog(const bdem_ElemType::Type    *selectionTypes,
 
     typedef bdem_ChoiceHeader::DescriptorCatalog DescriptorCatalog;
 
-    bslma_Allocator *internalAllocator = allocatorManager->internalAllocator();
+    bslma::Allocator *internalAllocator =
+                                         allocatorManager->internalAllocator();
 
     DescriptorCatalog *result =
                  new (*internalAllocator) DescriptorCatalog(internalAllocator);
 
-    bslma_RawDeleterProctor<DescriptorCatalog, bslma_Allocator>
+    bslma::RawDeleterProctor<DescriptorCatalog, bslma::Allocator>
                                      catalogProctor(result, internalAllocator);
 
     result->reserve(numSelectionTypes);
@@ -70,7 +71,8 @@ copyCatalog(const bdem_ChoiceHeader::DescriptorCatalog&  original,
 
     typedef bdem_ChoiceHeader::DescriptorCatalog DescriptorCatalog;
 
-    bslma_Allocator *internalAllocator = allocatorManager->internalAllocator();
+    bslma::Allocator *internalAllocator =
+                                         allocatorManager->internalAllocator();
 
     DescriptorCatalog *result =
                  new (*internalAllocator) DescriptorCatalog(original,
@@ -88,7 +90,7 @@ void destroyCatalog(bdem_ChoiceHeader::DescriptorCatalog *catalog,
 
     if (!(bdem_AggregateOption::BDEM_NODESTRUCT_FLAG &
                                      allocatorManager->allocationStrategy())) {
-        bslma_Allocator *allocator = allocatorManager->internalAllocator();
+        bslma::Allocator *allocator = allocatorManager->internalAllocator();
         allocator->deleteObject(catalog);
     }
 }
@@ -105,7 +107,7 @@ struct bdem_ChoiceImp_AttrFuncs {
     void defaultConstruct(
                   void                                     *obj,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc);
+                  bslma::Allocator                         *alloc);
         // Construct a choice object into raw memory.  The prototype for this
         // function must match the defaultConstruct function pointer in
         // bdem_Descriptor.
@@ -115,7 +117,7 @@ struct bdem_ChoiceImp_AttrFuncs {
                   void                                     *obj,
                   const void                               *rhs,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc);
+                  bslma::Allocator                         *alloc);
         // Copy construct a choice object into raw memory.  The prototype for
         // this function must match the copyConstruct function pointer in
         // bdem_Descriptor.
@@ -144,7 +146,7 @@ void
 bdem_ChoiceImp_AttrFuncs::defaultConstruct(
                   void                                     *obj,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc)
+                  bslma::Allocator                         *alloc)
 {
     BSLS_ASSERT(obj);
 
@@ -156,7 +158,7 @@ bdem_ChoiceImp_AttrFuncs::copyConstruct(
                   void                                     *obj,
                   const void                               *rhs,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc)
+                  bslma::Allocator                         *alloc)
 {
     BSLS_ASSERT(obj);
     BSLS_ASSERT(rhs);
@@ -203,7 +205,7 @@ const bdem_Descriptor bdem_ChoiceImp::d_choiceAttr =
 {
     bdem_ElemType::BDEM_CHOICE,
     sizeof(bdem_ChoiceImp),
-    bsls_AlignmentFromType<bdem_ChoiceImp>::VALUE,
+    bsls::AlignmentFromType<bdem_ChoiceImp>::VALUE,
     &bdem_ChoiceImp_AttrFuncs::defaultConstruct,
     &bdem_ChoiceImp_AttrFuncs::copyConstruct,
     &bdem_FunctionTemplates::destroy<bdem_ChoiceImp>,
@@ -216,7 +218,7 @@ const bdem_Descriptor bdem_ChoiceImp::d_choiceAttr =
 };
 
 // CREATORS
-bdem_ChoiceImp::bdem_ChoiceImp(bslma_Allocator *basicAllocator)
+bdem_ChoiceImp::bdem_ChoiceImp(bslma::Allocator *basicAllocator)
 : d_allocatorManager(bdem_AggregateOption::BDEM_PASS_THROUGH, basicAllocator)
 , d_header(createCatalog(0, 0, 0, &d_allocatorManager),
            d_allocatorManager.allocationStrategy())
@@ -225,7 +227,7 @@ bdem_ChoiceImp::bdem_ChoiceImp(bslma_Allocator *basicAllocator)
 
 bdem_ChoiceImp::bdem_ChoiceImp(
     bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-    bslma_Allocator                          *basicAllocator)
+    bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_header(createCatalog(0, 0, 0, &d_allocatorManager),
            d_allocatorManager.allocationStrategy())
@@ -237,7 +239,7 @@ bdem_ChoiceImp::bdem_ChoiceImp(
                   int                                       numSelectionTypes,
                   const bdem_Descriptor *const              attrLookupTbl[],
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_header(createCatalog(selectionTypes,
                          numSelectionTypes,
@@ -251,18 +253,18 @@ bdem_ChoiceImp::bdem_ChoiceImp(
 bdem_ChoiceImp::bdem_ChoiceImp(
                   const bdem_ChoiceHeader&                  choiceHeader,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_header(copyCatalog(*choiceHeader.catalog(), &d_allocatorManager),
            d_allocatorManager.allocationStrategy())
 {
     DescriptorCatalog *catalog =
                           const_cast<DescriptorCatalog *>(d_header.catalog());
-    bslma_Allocator   *internalAllocator =
+    bslma::Allocator  *internalAllocator =
                                         d_allocatorManager.internalAllocator();
 
     // Proctor for the catalog
-    bslma_RawDeleterProctor<DescriptorCatalog, bslma_Allocator>
+    bslma::RawDeleterProctor<DescriptorCatalog, bslma::Allocator>
                                     catalogProctor(catalog, internalAllocator);
 
     d_header = choiceHeader;
@@ -271,18 +273,18 @@ bdem_ChoiceImp::bdem_ChoiceImp(
 }
 
 bdem_ChoiceImp::bdem_ChoiceImp(const bdem_ChoiceImp&  original,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_allocatorManager(bdem_AggregateOption::BDEM_PASS_THROUGH, basicAllocator)
 , d_header(copyCatalog(*original.d_header.catalog(), &d_allocatorManager),
            d_allocatorManager.allocationStrategy())
 {
     DescriptorCatalog *catalog =
                           const_cast<DescriptorCatalog *>(d_header.catalog());
-    bslma_Allocator   *internalAllocator =
+    bslma::Allocator  *internalAllocator =
                                         d_allocatorManager.internalAllocator();
 
     // Proctor for the catalog
-    bslma_RawDeleterProctor<DescriptorCatalog, bslma_Allocator>
+    bslma::RawDeleterProctor<DescriptorCatalog, bslma::Allocator>
                                     catalogProctor(catalog, internalAllocator);
 
     d_header = original.d_header;
@@ -293,18 +295,18 @@ bdem_ChoiceImp::bdem_ChoiceImp(const bdem_ChoiceImp&  original,
 bdem_ChoiceImp::bdem_ChoiceImp(
                   const bdem_ChoiceImp&                     original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_header(copyCatalog(*original.d_header.catalog(), &d_allocatorManager),
            d_allocatorManager.allocationStrategy())
 {
     DescriptorCatalog *catalog =
                           const_cast<DescriptorCatalog *>(d_header.catalog());
-    bslma_Allocator   *internalAllocator =
+    bslma::Allocator  *internalAllocator =
                                         d_allocatorManager.internalAllocator();
 
     // Proctor for the catalog
-    bslma_RawDeleterProctor<DescriptorCatalog, bslma_Allocator>
+    bslma::RawDeleterProctor<DescriptorCatalog, bslma::Allocator>
                                     catalogProctor(catalog, internalAllocator);
 
     d_header = original.d_header;

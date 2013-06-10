@@ -31,9 +31,9 @@
 #include <bdetu_systemtime.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
@@ -102,9 +102,10 @@ static void aSsErT(int c, const char *s, int i)
 
 #define MAX_TMPFILENAME (L_tmpnam+64)
 
-#if defined(BSLS_PLATFORM_OS_AIX) ||   \
-    defined(BSLS_PLATFORM_OS_HPUX) ||  \
-    defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_AIX)    || \
+    defined(BSLS_PLATFORM_OS_HPUX)   || \
+    defined(BSLS_PLATFORM_OS_DARWIN) || \
+    defined(BSLS_PLATFORM_OS_CYGWIN)
 #define tmpnam_r tmpnam
 #endif
 
@@ -189,7 +190,7 @@ void getTmpFileName(char* filename, int testCase) {
        const char* tmpdirName = getenv("TMPDIR");
 #endif
        if (0 == tmpdirName) {
-          tmpdirName = "/bb/data/tmp";
+          tmpdirName = "/bb/data/tmp";  // Bloomberg-specific
        }
 
        snprintf(filename, MAX_TMPFILENAME,
@@ -299,8 +300,8 @@ public:
       : d_journal(journal), d_plan(plan), d_elapsedSec(elapsedSec) {}
 
    void operator()() {
-      bdet_TimeInterval start, stop;
-      bsls_PlatformUtil::Int64 elapsed;
+      bdet_TimeInterval  start, stop;
+      bsls::Types::Int64 elapsed;
       enum {MICROSECS_PER_SEC     = 1000000};
 
       bdetu_SystemTime::loadSystemTimeDefault(&start);
@@ -484,7 +485,7 @@ int case5(Obj* mX, const char* data) {
       cout << "Checking getRecordData..." << endl;
    }
    int datalen = strlen(data)+1;
-   ASSERT(0 == mX->addRecord(&handle, (void*)data, datalen));
+   ASSERT(0 == mX->addRecord(&handle, const_cast<char *>(data), datalen));
    ASSERT(datalen == mX->getRecordData(b1, handle));
    ASSERT(datalen == mX->getRecordData(b2, handle));
 
@@ -528,7 +529,7 @@ int case5(Obj* mX, const char* data) {
    BSLS_ASSERT(mydatalen <= datalen);
 
    // Test reuse of the handle
-   ASSERT(0 == mX->addRecord(&handle, (void*)mydata, mydatalen));
+   ASSERT(0 == mX->addRecord(&handle, const_cast<char *>(mydata), mydatalen));
    b1 = new bcema_Blob;
    ASSERT(mydatalen == mX->getRecordData(b1, handle));
    ASSERT(0 != b1->length());
@@ -583,7 +584,7 @@ public:
     virtual int removeRecord(int handle) = 0;
     virtual int readRecord(char* buf, int size, int record) = 0;
     virtual void setMappingLimit(int megs) = 0;
-    virtual void printStats(bsls_PlatformUtil::Int64 totalDataSize) = 0;
+    virtual void printStats(bsls::Types::Int64 totalDataSize) = 0;
     virtual void reopen() = 0;
     virtual ~BaseJournal();
 };
@@ -605,7 +606,7 @@ public:
     virtual int removeRecord(int handle);
     virtual int readRecord(char* buf, int size, int record);
     virtual void setMappingLimit(int megs);
-    virtual void printStats(bsls_PlatformUtil::Int64 totalDataSize);
+    virtual void printStats(bsls::Types::Int64 totalDataSize);
     virtual void reopen();
     virtual ~OldJournalWrapper();
 };
@@ -652,7 +653,7 @@ OldJournalWrapper::~OldJournalWrapper()
     d_journal.close();
 }
 
-void OldJournalWrapper::printStats(bsls_PlatformUtil::Int64 totalDataSize)
+void OldJournalWrapper::printStats(bsls::Types::Int64 totalDataSize)
 {
 
 }
@@ -673,7 +674,7 @@ public:
     virtual int removeRecord(int handle);
     virtual int readRecord(char* buf, int size, int record);
     virtual void setMappingLimit(int megs);
-    virtual void printStats(bsls_PlatformUtil::Int64 totalDataSize);
+    virtual void printStats(bsls::Types::Int64 totalDataSize);
     virtual void reopen();
     virtual ~NewJournalWrapper();
 };
@@ -719,7 +720,7 @@ void NewJournalWrapper::setMappingLimit(int megs)
     d_mappingManager.setMappingLimit(megs<<20);
 }
 
-void NewJournalWrapper::printStats(bsls_PlatformUtil::Int64 totalDataSize)
+void NewJournalWrapper::printStats(bsls::Types::Int64 totalDataSize)
 {
     printf("mmap calls:%d file size:%dM "
         "data size:%dM overhead:%d%%",
@@ -736,7 +737,7 @@ void NewJournalWrapper::printStats(bsls_PlatformUtil::Int64 totalDataSize)
 void caseNeg10Test(baecs_Journal *mX, int numRecords, int recordSize)
 {
     char *buffer =
-       (char*)bslma_Default::allocator()->allocate(
+       (char*)bslma::Default::allocator()->allocate(
                                                  recordSize * mX->blockSize());
     bsl::memset(buffer, 0xAB, recordSize * mX->blockSize());
     bsl::vector<baecs_Journal::RecordHandle> handles;
@@ -747,7 +748,7 @@ void caseNeg10Test(baecs_Journal *mX, int numRecords, int recordSize)
         ASSERT(baecs_Journal::BAECS_INVALID_RECORD_HANDLE != h);
         handles.push_back(h);
     }
-    bslma_Default::allocator()->deallocate(buffer);
+    bslma::Default::allocator()->deallocate(buffer);
 
     bsl::vector<int> bCounts, pCounts;
 
@@ -790,8 +791,7 @@ struct JournalBenchmark
     bces_AtomicInt      d_nAdd;
     bces_AtomicInt      d_nRemove;
     bces_AtomicInt      d_nRead;
-    bsls_PlatformUtil::Int64
-                        d_totalSize;
+    bsls::Types::Int64  d_totalSize;
     bdet_TimeInterval   d_timer;
     bdet_TimeInterval   d_now;
     int                 d_minSize;
@@ -1112,7 +1112,7 @@ class Case16 {
     bces_AtomicInt                      d_numRecordsRemoved;
     bces_AtomicInt                      d_haltFlag;
     int                                 d_mode;
-    bslma_Allocator                    *d_allocator_p;
+    bslma::Allocator                   *d_allocator_p;
     bcep_TimerEventScheduler            d_eventScheduler;
     bcep_TimerEventScheduler::Handle    d_commitHandle;
 
@@ -1121,7 +1121,7 @@ class Case16 {
     void consumerThread();
     void commitAll();
 public:
-    Case16(int numJournals, bslma_Allocator *allocator = 0);
+    Case16(int numJournals, bslma::Allocator *allocator = 0);
     ~Case16();
 
     void close();
@@ -1138,7 +1138,7 @@ public:
 
 };
 
-Case16::Case16(int numJournals, bslma_Allocator *allocator)
+Case16::Case16(int numJournals, bslma::Allocator *allocator)
 : d_mappingManager(MAPPING_LIMIT, 2, allocator)
 , d_numJournals(numJournals)
 , d_journals(allocator)
@@ -1194,7 +1194,7 @@ void Case16::removeFiles()
 void Case16::addBlob(const bcema_Blob &blob) {
     Obj* newJournal = d_journals[fastrand(d_numJournals)].ptr();
     H newHandle;
-    bsls_Stopwatch w;
+    bsls::Stopwatch w;
     w.start();
     ASSERT(0 == newJournal->addRecord(&newHandle, blob));
     w.stop();
@@ -2412,7 +2412,7 @@ int main(int argc, char *argv[]) {
                                 lengths[i % NUM_LENGTHS]);
                 }
                 bdetu_SystemTime::loadSystemTimeDefault(&stop);
-                bsls_PlatformUtil::Int64 elapsed =
+                bsls::Types::Int64 elapsed =
                    (stop - start).totalMicroseconds();
                 double rate1 = ((double)NUM_ITERATIONS / elapsed) *
                    MICROSECS_PER_SEC;
@@ -2671,9 +2671,9 @@ int main(int argc, char *argv[]) {
              mX.userData()[i] = '0' + (i - loopStart);
           }
 
-          mX.addRecord(&h1, (void*)BUF1, (int)strlen(BUF1)+1);
-          mX.addRecord(&dum, (void*)BUF2, (int)strlen(BUF2)+1);
-          mX.addRecord(&dum, (void*)BUF3, (int)strlen(BUF3)+1);
+          mX.addRecord(&h1, const_cast<char *>(BUF1), (int)strlen(BUF1)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF2), (int)strlen(BUF2)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF3), (int)strlen(BUF3)+1);
           mX.confirmRecord(h1);
           mX.commit();
 
@@ -2825,9 +2825,9 @@ int main(int argc, char *argv[]) {
           const char *BUF3 = "klm";
 
           ASSERT(0 == mX.create(argv[3], MODE_RW_AUTOCOMMIT));
-          mX.addRecord(&h1, (void*)BUF1, (int)strlen(BUF1)+1);
-          mX.addRecord(&dum, (void*)BUF2, (int)strlen(BUF2)+1);
-          mX.addRecord(&dum, (void*)BUF3, (int)strlen(BUF3)+1);
+          mX.addRecord(&h1, const_cast<char *>(BUF1), (int)strlen(BUF1)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF2), (int)strlen(BUF2)+1);
+          mX.addRecord(&dum, const_cast<char *>(BUF3), (int)strlen(BUF3)+1);
           mX.confirmRecord(h1);
           cout << 'A' << endl;
           bcemt_ThreadUtil::sleep(bdet_TimeInterval(4));
@@ -3018,7 +3018,8 @@ int main(int argc, char *argv[]) {
              ASSERT(0 == mX.create(filename, MODE_RW_AUTOCOMMIT));
 
              H dum;
-             ASSERT(0 == mX.addRecord(&dum, (void*)BUF1, strlen(BUF1)+1));
+             ASSERT(0 == mX.addRecord(&dum, const_cast<char *>(BUF1),
+                                      strlen(BUF1)+1));
              if (0 != case5(&mX, BUF2)) {
                 cout << "(Error occured in first case5 run)" << endl;
              }
@@ -3833,7 +3834,8 @@ int main(int argc, char *argv[]) {
 
           for (int i = 0; i < NUM_RECORDS; ++i) {
               baecs_Journal::RecordHandle handle;
-              mX.addRecord(&handle, (void*)"foo", (unsigned)3);
+              char foo[] = "foo";
+              mX.addRecord(&handle, foo, (unsigned)3);
               ASSERT(baecs_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
               mX.commit();
           }

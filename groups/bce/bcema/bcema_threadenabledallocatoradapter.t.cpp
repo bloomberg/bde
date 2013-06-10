@@ -31,18 +31,18 @@ using namespace bsl;  // automatically added by script
 // The 'bcema_ThreadEnabledAllocatorAdapter' class consists of one
 // constructor, a destructor, and four manipulators.  The manipulators are
 // used to allocate, deallocate, and reserve memory.  Since this component is
-// a memory manager, the 'bdema_testallocator' component is used extensively
+// a memory manager, the 'bslma_testallocator' component is used extensively
 // to verify expected behaviors.  Note that the copying of objects is
 // explicitly disallowed since the copy constructor and assignment operator
 // are declared 'private' and left unimplemented.  So we are primarily
 // concerned that the internal memory management system functions as expected
 // and that the manipulators operator correctly.  Note that memory allocation
-// must be tested for exception neutrality (also via the 'bdema_testallocator'
+// must be tested for exception neutrality (also via the 'bslma_testallocator'
 // component).  Several small helper functions are also used to facilitate
 // testing.
 //-----------------------------------------------------------------------------
-// [2] bcema_ThreadEnabledAllocatorAdapter(int              numPools,
-//                                         bslma_Allocator *ba = 0);
+// [2] bcema_ThreadEnabledAllocatorAdapter(int               numPools,
+//                                         bslma::Allocator *ba = 0);
 // [2] ~bcema_ThreadEnabledAllocatorAdapter();
 // [3] void *allocate(int size);
 // [4] void deallocate(void *address);
@@ -101,10 +101,10 @@ typedef bcema_ThreadEnabledAllocatorAdapter Obj;
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class NoopAllocator : public bslma_Allocator {
-    // The NoopAllocator is an empty implementation of the 'bslma_Allocator'
+class NoopAllocator : public bslma::Allocator{
+    // The NoopAllocator is an empty implementation of the 'bslma::Allocator'
     // protocol that tracks the methods called and verifies the
-    // 'bslma_Allocator' protocol.
+    // 'bslma::Allocator' protocol.
 
   private:
     char const **d_lastMethod;  // the last method called on this instance
@@ -183,7 +183,7 @@ extern "C" void *workerThread(void *arg) {
     const int *allocSizes = args->d_sizes;
     const int  numAllocs  = args->d_numSizes;
 
-    bsl::vector<char *> blocks(bslma_Default::allocator(0));
+    bsl::vector<char *> blocks(bslma::Default::allocator(0));
     blocks.resize(numAllocs);
 
     g_barrier.wait();
@@ -220,7 +220,7 @@ extern "C" void *workerThread(void *arg) {
         // DATA
         mutable bcemt_Mutex  d_mutex;       // synchronize access
         bsl::vector<T>       d_elements;    // underlying list of strings
-        bslma_Allocator     *d_allocator_p; // allocator (held, not owned)
+        bslma::Allocator    *d_allocator_p; // allocator (held, not owned)
 
         // NOT IMPLEMENTED
         ThreadEnabledVector(const ThreadEnabledVector&);
@@ -229,12 +229,12 @@ extern "C" void *workerThread(void *arg) {
       public:
 
         // CREATORS
-        ThreadEnabledVector(bslma_Allocator *basicAllocator = 0)
+        ThreadEnabledVector(bslma::Allocator *basicAllocator = 0)
             // Create a thread enabled vector.  Optionally specify
             // 'basicAllocator', used to supply memory.  If 'basicAllocator'
             // is 0, the currently installed default allocator will be used.
         : d_elements(basicAllocator)
-        , d_allocator_p(bslma_Default::allocator(basicAllocator))
+        , d_allocator_p(bslma::Default::allocator(basicAllocator))
         {
         }
 
@@ -281,7 +281,7 @@ extern "C" void *workerThread(void *arg) {
 // We use this-thread enabled vector to create a Rolodex class.  However, we
 // use the 'bcema_ThreadEnabledAllocatorAdapter' to prevent our two
 // (thread-enabled) vectors from attempting synchronous memory allocations
-// from our (potentially) non-thread safe 'bslma_Allocator'.  Note that we
+// from our (potentially) non-thread safe 'bslma::Allocator'.  Note that we
 // define a local class 'Rolodex_PrivateData' in order to guarantee that
 // 'd_allocatorAdapter' and 'd_mutex' are initialized before the
 // thread-enabled vectors that depend on them.
@@ -297,7 +297,7 @@ extern "C" void *workerThread(void *arg) {
         bcema_ThreadEnabledAllocatorAdapter
                               d_allocatorAdapter;  // adapter for allocator
 
-        Rolodex_PrivateData(bslma_Allocator *basicAllocator = 0)
+        Rolodex_PrivateData(bslma::Allocator *basicAllocator = 0)
             // Create an empty Rolodex private data object.  Optionally
             // specify 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default
@@ -322,7 +322,7 @@ extern "C" void *workerThread(void *arg) {
 
       public:
         // CREATORS
-        Rolodex(bslma_Allocator *basicAllocator = 0)
+        Rolodex(bslma::Allocator *basicAllocator = 0)
             // Create an empty rolodex for storing names and addresses.
             // Optionally specify 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default
@@ -393,8 +393,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     switch (test) { case 0:
       case 3: {
@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
                                   << "================" << endl;
         bcemt_ThreadUtil::Handle threads[NUM_THREADS];
 
-        bslma_TestAllocator talloc(false);
+        bslma::TestAllocator talloc(false);
         bcemt_Mutex         mutex;
         Obj                 mX(&mutex, &talloc);
 
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
 
         WorkerArgs args;
         args.d_allocator = &mX;
-        args.d_sizes     = (int *)&SIZES;
+        args.d_sizes     = (const int *)&SIZES;
         args.d_numSizes  = NUM_SIZES;
 
         for (int i = 0; i < NUM_THREADS; ++i) {

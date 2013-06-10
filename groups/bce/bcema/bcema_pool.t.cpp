@@ -390,11 +390,11 @@ void stretchRemoveAll(Obj *object, int numElements)
 // my_doublearray2.h
 
 class my_DoubleArray2 {
-    double         **d_array_p;     // dynamically allocated array
-    int              d_size;        // physical capacity of this array
-    int              d_length;      // logical length of this array
-    bcema_Pool       d_pool;        // memory manager for array elements
-    bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
+    double           **d_array_p;     // dynamically allocated array
+    int                d_size;        // physical capacity of this array
+    int                d_length;      // logical length of this array
+    bcema_Pool         d_pool;        // memory manager for array elements
+    bslma::Allocator  *d_allocator_p; // holds (but does not own) allocator
 
   private:
     void increaseSize();
@@ -434,11 +434,11 @@ static int nextSize(int size)
 }
 
 inline
-static void reallocate(double        ***array,
-                       int             *size,
-                       int              newSize,
-                       int              length,
-                       bslma::Allocator *basicAllocator)
+static void reallocate(double           ***array,
+                       int                *size,
+                       int                 newSize,
+                       int                 length,
+                       bslma::Allocator   *basicAllocator)
     // Reallocate memory in the specified 'array' using the specified
     // 'basicAllocator' and update the specified size to the specified
     // 'newSize'.  The specified 'length' number of leading elements are
@@ -581,10 +581,10 @@ void *workerThread(void *arg) {
 
     barrier.wait();
     for (int i = 0; i < NUM_OBJECTS; ++i) {
-        volatile int *buffer = (int*)mX->allocate();
+        int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
             printf("Thread %d: Allocated %p\n", bcemt_ThreadUtil::self(),
-                   (void *)buffer);
+                   buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
         LOOP_ASSERT(i, buffer);
@@ -996,7 +996,7 @@ int main(int argc, char *argv[]) {
               } break;
               case 1: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 pool.deleteObjectRaw(pLCC);
               } break;
               case 2: {
@@ -1004,12 +1004,12 @@ int main(int argc, char *argv[]) {
               } break;
               case 3: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 pool.deleteObject(pLCC);
               } break;
               case 4: {
                 const RightChild *pRCC = pMDC;
-                ASSERT((void*) pRCC != (void*) pMDC);
+                ASSERT((const void*) pRCC != (const void*) pMDC);
                 pool.deleteObject(pRCC);
               } break;
               case 5: {
@@ -1453,7 +1453,7 @@ int main(int argc, char *argv[]) {
         bslma::TestAllocator taX;    const bslma::TestAllocator& TAX = taX;
         Obj mX(OBJECT_SIZE, &taX);  ASSERT(OBJECT_SIZE == mX.blockSize());
 
-        bslma::TestAllocator taexp;    const bslma::TestAllocator& TAEXP = taexp;
+        bslma::TestAllocator taexp;  const bslma::TestAllocator& TAEXP = taexp;
         Obj mExp(OBJECT_SIZE,
                  bsls::BlockGrowth::BSLS_GEOMETRIC,
                  MAX_BLOCKS_PER_CHUNK,

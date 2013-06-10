@@ -19,8 +19,8 @@
 // some crazy thing defines ERROR to 0 !!!
 #undef ERROR
 #endif
-#include <bsls_platformutil.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 #include <bdesb_fixedmeminstreambuf.h>
 #include <bdesb_fixedmemoutstreambuf.h>
 #include <bdex_byteinstreamformatter.h>
@@ -123,7 +123,7 @@ using namespace bdef_PlaceHolders;
 //              int                             minBytesToSend,
 //              int                             maxBuffers,
 //              int                             msBetweenSends,
-//              bslma_Allocator                *basicAllocator = 0);
+//              bslma::Allocator               *basicAllocator = 0);
 // [ 2] ~btemt_ChannelOutStreamBuf();
 //
 // MANIPULATORS
@@ -259,7 +259,7 @@ class my_ServerPool {
     int d_maxThreads;     // maximum number of worker threads
     int d_isRunning;      // 1 if channel pool threads are active
 
-    bslma_Allocator       *d_allocator_p;  // memory allocator (held)
+    bslma::Allocator      *d_allocator_p;  // memory allocator (held)
     btemt_ChannelPool     *d_pool_p;       // channel pool (owned)
     ChannelCallback        d_chanCb;       // user channel callback
     DataReadCallback       d_dataCb;       // user data callback
@@ -278,9 +278,9 @@ class my_ServerPool {
 
   public:
     // CREATORS
-    my_ServerPool(int              maxClients,
-                  int              maxThreads,
-                  bslma_Allocator *basicAllocator = 0);
+    my_ServerPool(int               maxClients,
+                  int               maxThreads,
+                  bslma::Allocator *basicAllocator = 0);
         // Create a server pool object which can process process any number
         // of connections up to the specified 'maxClients', and service those
         // connections using any number of threads up to the specified
@@ -369,13 +369,13 @@ void my_ServerPool::dataCb(
 
 // CREATORS
 my_ServerPool::my_ServerPool(
-        int              maxClients,
-        int              maxThreads,
-        bslma_Allocator *basicAllocator)
+        int               maxClients,
+        int               maxThreads,
+        bslma::Allocator *basicAllocator)
 : d_maxClients(maxClients)
 , d_maxThreads(maxThreads)
 , d_isRunning(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     ASSERT(0 < maxClients);
     ASSERT(0 < maxThreads);
@@ -444,7 +444,7 @@ int my_ServerPool::start(
     bcema_PooledBufferChainFactory *factory = new (*d_allocator_p)
                      bcema_PooledBufferChainFactory(bufferSize, d_allocator_p);
 
-    bslma_RawDeleterProctor<bcema_PooledBufferChainFactory, bslma_Allocator>
+    bslma::RawDeleterProctor<bcema_PooledBufferChainFactory, bslma::Allocator>
                                                deleter(factory, d_allocator_p);
 
     bsl::pair<MapType::iterator,bool> result =
@@ -584,7 +584,7 @@ void case14DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -659,8 +659,8 @@ void case13ChannelStateCallback(
         }
 
         ASSERT(arg);
-        BufferFactory   *factory = static_cast<BufferFactory*>(arg);
-        bslma_Allocator *deleter = bslma_Default::allocator();
+        BufferFactory    *factory = static_cast<BufferFactory*>(arg);
+        bslma::Allocator *deleter = bslma::Default::allocator();
         deleter->deleteObject(factory);
         barrier->wait();
       }  break;
@@ -687,7 +687,7 @@ void case13ChannelStateCallback(
             CACHE_LIFESPAN  = 0
         };
 
-        bslma_Allocator *allocator = bslma_Default::allocator();
+        bslma::Allocator *allocator = bslma::Default::allocator();
         BufferFactory   *factory = new (*allocator)
                                          BufferFactory(BUFFER_SIZE, allocator);
         {
@@ -755,7 +755,7 @@ void case12DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -852,7 +852,7 @@ void case11DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -945,7 +945,7 @@ void case10DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1018,12 +1018,10 @@ void case10DataCallback(
     ASSERT(LOW_WATER_MARK - 1 == X.length());
     ASSERT(0 == buffersSent);
 
-    const bsls_PlatformUtil::Int64 START =
-                                        bsls_TimeUtil::getTimer() / RESOLUTION;
+    const bsls::Types::Int64 START = bsls::TimeUtil::getTimer() / RESOLUTION;
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
         mX.pubsync();
-        const bsls_PlatformUtil::Int64 NOW =
-                                        bsls_TimeUtil::getTimer() / RESOLUTION;
+        const bsls::Types::Int64 NOW = bsls::TimeUtil::getTimer() / RESOLUTION;
         if (NOW - START < CACHE_LIFESPAN) {
             // Only raise an error if we can *guarantee** that the condition
             // should not have occurred.  Long delays in nightly builds can
@@ -1042,8 +1040,7 @@ void case10DataCallback(
     bcemt_ThreadUtil::microSleep(LEFTOVER % MICROSECS_PER_SEC,
                                  LEFTOVER / MICROSECS_PER_SEC);
 
-    const bsls_PlatformUtil::Int64 END =
-                                        bsls_TimeUtil::getTimer() / RESOLUTION;
+    const bsls::Types::Int64 END = bsls::TimeUtil::getTimer() / RESOLUTION;
     ASSERT(CACHE_LIFESPAN < END - START);
 
     mX.pubsync();
@@ -1058,7 +1055,7 @@ void case9DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1126,7 +1123,7 @@ void case8DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1228,7 +1225,7 @@ void case7DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1393,7 +1390,7 @@ void case6DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1534,7 +1531,7 @@ void case4DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1634,7 +1631,7 @@ void case2DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1741,7 +1738,7 @@ void case1DataCallback(
     btemt_DataMsg      msg,
     void              *arg,
     btemt_ChannelPool *pool,
-    bslma_Allocator   *allocator)
+    bslma::Allocator  *allocator)
 {
     ASSERT(consumed);
     ASSERT(needed);
@@ -1831,7 +1828,7 @@ class my_DataServer {
     double d_dataProbability;   // probability of generating data
     int    d_bufferSize;        // size of pooled buffers
 
-    bslma_Allocator       *d_allocator_p;  // memory allocator (held)
+    bslma::Allocator      *d_allocator_p;  // memory allocator (held)
     btemt_ChannelPool     *d_pool_p;       // channel pool (owned)
     bdem_Schema            d_schema;       // protocol schema
     MapType                d_clients;      // map channel IDs to streambufs
@@ -1873,10 +1870,10 @@ class my_DataServer {
 
   public:
     // CREATORS
-    my_DataServer(int              maxClients,
-                  int              maxThreads,
-                  double           dataProbability,
-                  bslma_Allocator *basicAllocator = 0);
+    my_DataServer(int               maxClients,
+                  int               maxThreads,
+                  double            dataProbability,
+                  bslma::Allocator *basicAllocator = 0);
         // Create a server pool object which can process process any number
         // of connections up to the specified 'maxClients', and service
         // those connections using any number of threads up to the
@@ -2090,16 +2087,16 @@ void my_DataServer::updatePushTimer(int channelId)
 
 // CREATORS
 my_DataServer::my_DataServer(
-        int              maxClients,
-        int              maxThreads,
-        double           dataProbability,
-        bslma_Allocator *basicAllocator)
+        int               maxClients,
+        int               maxThreads,
+        double            dataProbability,
+        bslma::Allocator *basicAllocator)
 : d_maxClients(maxClients)
 , d_maxThreads(maxThreads)
 , d_isRunning(0)
 , d_pushClockId(0)
 , d_dataProbability(dataProbability)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     ASSERT(0 < maxClients);
     ASSERT(0 < maxThreads);
@@ -2144,7 +2141,7 @@ my_DataServer::my_DataServer(
     d_factory_p = new (*d_allocator_p)
                bcema_PooledBufferChainFactory(d_bufferSize, d_allocator_p);
 
-    bslma_RawDeleterProctor<bcema_PooledBufferChainFactory, bslma_Allocator>
+    bslma::RawDeleterProctor<bcema_PooledBufferChainFactory, bslma::Allocator>
                                           deleter(d_factory_p, d_allocator_p);
 
     btemt_ChannelPoolConfiguration cpc;
@@ -2217,10 +2214,10 @@ class my_DataSet {
     // This class is a container for a set of integer values, and its
     // minimum and maximum.
 
-    bslma_Allocator *d_allocator_p;    // held
-    bsl::vector<int> d_values;         // list of values received
-    int              d_min;            // minimum value
-    int              d_max;            // maximum value
+    bslma::Allocator *d_allocator_p;  // held
+    bsl::vector<int>  d_values;       // list of values received
+    int               d_min;          // minimum value
+    int               d_max;          // maximum value
 
   private:
     // not implemented
@@ -2229,7 +2226,7 @@ class my_DataSet {
 
   public:
     // CREATORS
-    my_DataSet(bslma_Allocator *basicAllocator = 0);
+    my_DataSet(bslma::Allocator *basicAllocator = 0);
         // Create a 'my_DataSet' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator'
         // is 0, the default memory allocator is used.
@@ -2252,8 +2249,8 @@ class my_DataSet {
 };
 
 // CREATORS
-my_DataSet::my_DataSet(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+my_DataSet::my_DataSet(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_values(d_allocator_p)
 , d_min(INT_MAX)
 , d_max(INT_MIN)
@@ -2311,8 +2308,8 @@ void ue2ChannelStateCallback(
         // must retrieve 'dataSet' from 'arg', bound in the 'CHANNEL_UP'
         // branch, rather than call 'channelContext'.
 
-        bslma_Allocator *deleter = bslma_Default::allocator();
-        my_DataSet      *dataSet = static_cast<my_DataSet*>(arg);
+        bslma::Allocator *deleter = bslma::Default::allocator();
+        my_DataSet       *dataSet = static_cast<my_DataSet*>(arg);
         ASSERT(dataSet);
         deleter->deleteObject(dataSet);
       }  break;
@@ -2331,8 +2328,8 @@ void ue2ChannelStateCallback(
                    << MTENDL;
         }
 
-        bslma_Allocator *allocator = bslma_Default::allocator();
-        my_DataSet      *dataSet = new (*allocator) my_DataSet(allocator);
+        bslma::Allocator *allocator = bslma::Default::allocator();
+        my_DataSet       *dataSet = new (*allocator) my_DataSet(allocator);
         pool->setChannelContext(channelId, dataSet);
         channels->push_back(channelId);
         barrier->wait();
@@ -2408,7 +2405,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma_TestAllocator' object where applicable.
+        //   objects with a 'bslma::TestAllocator' object where applicable.
         //   Additionally, replace all calls to 'assert' in the usage example
         //   with calls to 'ASSERT'.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
@@ -2968,8 +2965,8 @@ int main(int argc, char *argv[])
                            << MTENDL;
                 }
 
-                const bsls_PlatformUtil::Int64 START =
-                                    bsls_TimeUtil::getTimer() / RESOLUTION;
+                const bsls::Types::Int64 START =
+                                    bsls::TimeUtil::getTimer() / RESOLUTION;
 
                 // Initiate test.
                 char buffer[sizeof BUFFER_SIZE + sizeof CACHE_LIFESPAN];
@@ -2987,9 +2984,9 @@ int main(int argc, char *argv[])
                 } while (0 != *(message.end() - 1));
                 message.erase(message.end() - 1);
 
-                const bsls_PlatformUtil::Int64 END =
-                                    bsls_TimeUtil::getTimer() / RESOLUTION;
-                const bsls_PlatformUtil::Int64 EPSILON = 300;  // 300 ms
+                const bsls::Types::Int64 END =
+                                    bsls::TimeUtil::getTimer() / RESOLUTION;
+                const bsls::Types::Int64 EPSILON = 300;  // 300 ms
                 const int DELTA =  END - START - CACHE_LIFESPAN;
                 if (DELTA < EPSILON) {
                     retries = 0; // Reset for next iteration (and trigger ++i).
@@ -3692,7 +3689,7 @@ int main(int argc, char *argv[])
         //           int                             minBytesToSend,
         //           int                             maxBuffers,
         //           int                             msBetweenSends,
-        //           bslma_Allocator                *basicAllocator = 0);
+        //           bslma::Allocator               *basicAllocator = 0);
         //   ~btemt_ChannelOutStreamBuf();
         //   void setSendNotificationCb(const Callback& callback);
         // --------------------------------------------------------------------
@@ -3982,7 +3979,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma_TestAllocator' object where applicable.
+        //   objects with a 'bslma::TestAllocator' object where applicable.
         //   Additionally, replace all calls to 'assert' in the usage example
         //   with calls to 'ASSERT'.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above

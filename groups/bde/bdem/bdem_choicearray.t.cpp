@@ -84,30 +84,30 @@ using namespace bsl;  // automatically added by script
 // CREATORS
 // [ 3]  bdem_ChoiceArray(const vector<EType::Type>&  typesCatalog,
 //                        AggOption::AllocationStrategy allocMode,
-//                        bslma_Allocator            *basicAlloc = 0);
-// [ 8]  bdem_ChoiceArray(bslma_Allocator *basicAllocator = 0);
+//                        bslma::Allocator           *basicAlloc = 0);
+// [ 8]  bdem_ChoiceArray(bslma::Allocator *basicAllocator = 0);
 // [ 8]  bdem_ChoiceArray(
 //                  bdem_AggregateOption::AllocationStrategy  allocMode,
-//                  bslma_Allocator  *basicAllocator = 0);
+//                  bslma::Allocator  *basicAllocator = 0);
 // [ 8]  bdem_ChoiceArray(
 //                        const bdem_ElemType::Type       typesCatalog[],
 //                        int                             typesCatalogLen,
-//                        bslma_Allocator                 *basicAllocator = 0);
+//                        bslma::Allocator               *basicAllocator = 0);
 // [ 8]  bdem_ChoiceArray(
 //                        const bdem_ElemType::Type        typesCatalog[],
 //                        int                              typesCatalogLen,
 //                        bdem_AggregateOption::AllocationStrategy  allocMode,
-//                        bslma_Allocator                 *basicAllocator = 0);
+//                        bslma::Allocator                *basicAllocator = 0);
 // [ 8] bdem_ChoiceArray(
 //                       const bsl::vector<bdem_ElemType::Type>&  typesCatalog,
 //                       bdem_AggregateOption::AllocationStrategy  allocMode,
-//                       bslma_Allocator                  *basicAllocator =
+//                       bslma::Allocator                 *basicAllocator =
 //                       0);
 // [ 9]  bdem_ChoiceArray(const bdem_ChoiceArrayImp& original,
-//                        bslma_Allocator *);
+//                        bslma::Allocator *);
 // [ 9]  bdem_ChoiceArray(const bdem_ChoiceArrayImp& original,
 //                        bdem_AllocationStrategy,
-//                        bslma_Allocator *);
+//                        bslma::Allocator *);
 // [ 3]  ~bdem_ChoiceArray();
 // MANIPULATORS
 // [ 4]  void appendItem(const bdem_Choice& src);
@@ -231,7 +231,7 @@ typedef bdem_ChoiceArrayItem          Item;
 
 typedef bsl::vector<EType::Type>      Catalog;
 
-typedef bsls_Types::Int64             Int64;
+typedef bsls::Types::Int64            Int64;
 
 typedef bdet_Datetime                 Datetime;
 typedef bdet_Date                     Date;
@@ -351,7 +351,7 @@ bdem_List::bdem_List()
 }
 
 bdem_List::bdem_List(const bdem_List&  original)
-: d_listImp((bdem_ListImp &) original,
+: d_listImp((const bdem_ListImp &) original,
             bdem_AggregateOption::BDEM_PASS_THROUGH)
 {
 }
@@ -481,12 +481,12 @@ const int              A02 = 10;
 const int              B02 = 20;
 const int              N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_Types::Int64
+const bsls::Types::Int64
                        A03 = -100;
-const bsls_Types::Int64
+const bsls::Types::Int64
                        B03 = -200;
-const bsls_Types::Int64
-                       N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
+const bsls::Types::Int64
+                       N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -558,15 +558,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_Types::Int64>    fA13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>    fA13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_Types::Int64>    fB13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>    fB13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_Types::Int64>     A13 = fA13();
-const  bsl::vector<bsls_Types::Int64>     B13 = fB13();
-const  bsl::vector<bsls_Types::Int64>     N13;
+const  bsl::vector<bsls::Types::Int64>     A13 = fA13();
+const  bsl::vector<bsls::Types::Int64>     B13 = fB13();
+const  bsl::vector<bsls::Types::Int64>     N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -1114,7 +1114,7 @@ static Catalog ggCatalog(const char *s)
     return catalog;
 }
 
-static const void *getValueA(char spec)
+static void *getValueA(char spec)
     // Return the 'A' value corresponding to the specified 'spec'.  Valid
     // input consists of uppercase letters where the index of each letter is
     // in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
@@ -1123,27 +1123,27 @@ static const void *getValueA(char spec)
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_A[index];
+    return const_cast<void *>(VALUES_A[index]);
 }
 
-static const void *getValueB(char spec)
+static void *getValueB(char spec)
     // Return the 'B' value corresponding to the specified 'spec'.
 {
     const char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_B[index];
+    return const_cast<void *>(VALUES_B[index]);
 }
 
-static const void *getValueN(char spec)
+static void *getValueN(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     const char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_N[index];
+    return const_cast<void *>(VALUES_N[index]);
 }
 
 static CERef getConstERefA(char spec)
@@ -1357,21 +1357,21 @@ int main(int argc, char *argv[])
         // Plan: It suffices to assert that the traits is defined.  One way is
         //   by using 'BSLALG_DECLARE_NESTED_TRAITS' and another is by sniffing
         //   that there is an implicit conversion construction from
-        //   'bslma_Allocator*'.  We also want to discourage the second way, as
-        //   that constructor should be made explicit.
+        //   'bslma::Allocator*'.  We also want to discourage the second way,
+        //   as that constructor should be made explicit.
         //
         // Testing:
         //   bdema allocator model
-        //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
+        //   correct declaration of bslalg::TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting allocator traits"
                           << "\n========================" << endl;
 
         typedef bdem_ChoiceArray Obj;
 
-        ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bslma::Allocator*, Obj>::VALUE));
         ASSERT((1 ==
-             bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+           bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
       } break;
       case 19: {
@@ -1592,8 +1592,8 @@ int main(int argc, char *argv[])
 
             const Strategy STRATEGY = STRATEGY_DATA[i];
 
-            bslma_TestAllocator ta1("TestAllocator 1", veryVeryVeryVerbose);
-            bslma_TestAllocator ta2("TestAllocator 2", veryVeryVeryVerbose);
+            bslma::TestAllocator ta1("TestAllocator 1", veryVeryVeryVerbose);
+            bslma::TestAllocator ta2("TestAllocator 2", veryVeryVeryVerbose);
 
             Obj    mX(STRATEGY, &ta1); const Obj&    X = mX;
             ObjImp mY(STRATEGY, &ta2); const ObjImp& Y = mY;
@@ -1664,7 +1664,7 @@ int main(int argc, char *argv[])
                           << "test specs." << bsl::endl;
             }
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             // iterate over the sample test data
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1718,7 +1718,7 @@ int main(int argc, char *argv[])
                           << " ChoiceArrays based on data from a table of "
                           << "test specs" << bsl::endl;
             }
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             // iterate over the sample test data
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1771,7 +1771,7 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         }
         {
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             // iterate over the sample test data
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1877,7 +1877,7 @@ int main(int argc, char *argv[])
                           << "arrays based on data from a table test specs"
                           << bsl::endl;
             }
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             // iterate over element over our selection of test data
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1971,7 +1971,7 @@ int main(int argc, char *argv[])
                      << bsl::endl;
             }
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             const char *testSpec = "ABCDEFG";
             const int specLength = strlen(testSpec);
 
@@ -2037,7 +2037,7 @@ int main(int argc, char *argv[])
                 bsl::cout << "\tTest insertItem(i,ChoiceArrayItem) for "
                           << "aliasing issues."  << bsl::endl;
             }
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             // iterate over element over our selection of test data
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -2216,8 +2216,8 @@ int main(int argc, char *argv[])
                 }
 
                 const int K = 4; // maximum # of elements to append
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
-                bslma_TestAllocator &tAlloc = testAllocator;
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator &tAlloc = testAllocator;
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const char *SPEC  = DATA[i].d_catalogSpec;
                     const int   LEN   = bsl::strlen(SPEC);
@@ -2259,8 +2259,8 @@ int main(int argc, char *argv[])
                           << " arrays based on data from a table of test specs"
                           << bsl::endl;
             }
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
-            bslma_TestAllocator &tAlloc = testAllocator;
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator &tAlloc = testAllocator;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const char *SPEC  = DATA[i].d_catalogSpec;
@@ -2303,7 +2303,7 @@ int main(int argc, char *argv[])
                           << "issues"
                           << endl;
             }
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             // iterate over element over our selection of test data
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -2391,8 +2391,8 @@ int main(int argc, char *argv[])
         }
         {
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
-            bslma_TestAllocator &tAlloc = testAllocator;
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator &tAlloc = testAllocator;
             // iterate U over catalogs in S
             for (int i = 0; i < NUM_DATA; ++i) {
                 const char *SPEC  = DATA[i].d_catalogSpec;
@@ -2456,7 +2456,7 @@ int main(int argc, char *argv[])
 
         {
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             Catalog cat = ggCatalog(SPECIFICATIONS);
 
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -2575,8 +2575,8 @@ int main(int argc, char *argv[])
                 const char *SPECU      = DATA[uI].d_catalogSpec;
                 const int  LENU      = bsl::strlen(SPECU);
 
-                bslma_TestAllocator tAlloc(veryVeryVerbose);
-                const bslma_DefaultAllocatorGuard dag1(&tAlloc);
+                bslma::TestAllocator tAlloc(veryVeryVerbose);
+                const bslma::DefaultAllocatorGuard dag1(&tAlloc);
                 for (int vI = 0; vI < NUM_DATA; ++vI) {
                     const char *SPECV      = DATA[vI].d_catalogSpec;
                     const int  LENV        = bsl::strlen(SPECV);
@@ -2631,7 +2631,7 @@ int main(int argc, char *argv[])
                 const char *SPEC      = DATA[uI].d_catalogSpec;
                 const int   LEN       = bsl::strlen(SPEC);
 
-                bslma_TestAllocator tAlloc(veryVeryVerbose);
+                bslma::TestAllocator tAlloc(veryVeryVerbose);
 
                 if (veryVerbose) {
                     bsl::cout << "\tTesting table spec '" << SPEC << "'"
@@ -2723,8 +2723,8 @@ int main(int argc, char *argv[])
 
           {
 
-              bslma_TestAllocator tAlloc(veryVeryVerbose);
-              const bslma_DefaultAllocatorGuard dag1(&tAlloc);
+              bslma::TestAllocator tAlloc(veryVeryVerbose);
+              const bslma::DefaultAllocatorGuard dag1(&tAlloc);
 
               for (int VERSION = 1; VERSION <= MAX_VERSION; ++VERSION) {
                   // iterate U over catalogs in S
@@ -2824,8 +2824,8 @@ int main(int argc, char *argv[])
                   // TEST 4. INCOMPLETE DATA
                   // Streaming in from an incomplete stream
                   {
-                      bslma_TestAllocator tAlloc(veryVeryVerbose);
-                      const bslma_DefaultAllocatorGuard dag1(&tAlloc);
+                      bslma::TestAllocator tAlloc(veryVeryVerbose);
+                      const bslma::DefaultAllocatorGuard dag1(&tAlloc);
 
                       Catalog cat = ggCatalog("A");
                       Obj mA(cat,&tAlloc);     const Obj& A = mA;
@@ -2943,7 +2943,7 @@ int main(int argc, char *argv[])
         // TESTING COPY CONSTRUCTOR:
         //
         // Concerns:
-        //   - That the specified or bslma_Default::defaultAllocator is used.
+        //   - That the specified or bslma::Default::defaultAllocator is used.
         //   - That the specified or default (BDEM_PASS_THROUGH) strategy is
         //     used.
         //   - Any value must be able to be copy constructed without affecting
@@ -2978,10 +2978,10 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdem_ChoiceArray(const bdem_ChoiceArrayImp& original,
-        //                  bslma_Allocator *);
+        //                  bslma::Allocator *);
         //   bdem_ChoiceArray(const bdem_ChoiceArrayImp& original,
         //                   bdem_AllocationStrategy,
-        //                   bslma_Allocator *);
+        //                   bslma::Allocator *);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2994,13 +2994,13 @@ int main(int argc, char *argv[])
 
             // a simple catalog to work with
             const Catalog cat = ggCatalog(SPECIFICATIONS);
-            bslma_TestAllocator badAlloc,alloc1,alloc2;
+            bslma::TestAllocator badAlloc,alloc1,alloc2;
 
             // Set a default alloc guard
             Obj orig(cat,&badAlloc);  const Obj& ORIG = orig;
             const int OB = badAlloc.numBytesInUse();
 
-            const bslma_DefaultAllocatorGuard dag1(&alloc1);
+            const bslma::DefaultAllocatorGuard dag1(&alloc1);
 
             ASSERT(0 == alloc1.numBytesInUse());
             ASSERT(0 == alloc2.numBytesInUse());
@@ -3041,14 +3041,14 @@ int main(int argc, char *argv[])
             // a simple catalog to work with
             const Catalog cat = ggCatalog(SPECIFICATIONS);
 
-            bslma_TestAllocator alloc1,alloc2;
-            bslma_TestAllocator alloc2B, badAlloc1, badAlloc2;
+            bslma::TestAllocator alloc1,alloc2;
+            bslma::TestAllocator alloc2B, badAlloc1, badAlloc2;
 
             Obj orig(cat,&badAlloc1); const Obj& ORIG = orig;
             const int badAllocBytes = badAlloc1.numBytesInUse();
 
             // Set a default alloc guard
-            const bslma_DefaultAllocatorGuard dag1(&badAlloc2);
+            const bslma::DefaultAllocatorGuard dag1(&badAlloc2);
 
             // create an array using the BDEM_PASS_THROUGH mode
             Obj a1(ORIG,&alloc1);
@@ -3095,9 +3095,9 @@ int main(int argc, char *argv[])
                               << bsl::endl;
                 }
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
                 // Set a default alloc guard
-                const bslma_DefaultAllocatorGuard dag1(&testAllocator);
+                const bslma::DefaultAllocatorGuard dag1(&testAllocator);
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
                 BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
@@ -3184,7 +3184,7 @@ int main(int argc, char *argv[])
         //   haven't already been tested.
         //
         // Concerns:
-        //   - That the specified or bslma_Default::defaultAllocator is used.
+        //   - That the specified or bslma::Default::defaultAllocator is used.
         //   - That the specified or default (BDEM_PASS_THROUGH) strategy is
         //     used.
         //   - That the value is initialized properly.
@@ -3209,23 +3209,23 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //
-        //    bdem_ChoiceArray(bslma_Allocator *basicAllocator = 0);
+        //    bdem_ChoiceArray(bslma::Allocator *basicAllocator = 0);
         //    bdem_ChoiceArray(
         //          bdem_AggregateOption::AllocationStrategy  allocMode,
-        //          bslma_Allocator  *basicAllocator = 0);
+        //          bslma::Allocator                    *basicAllocator = 0);
         //    bdem_ChoiceArray(
         //          const bdem_ElemType::Type            typesCatalog[],
         //          int                                  typesCatalogLen,
-        //          bslma_Allocator                      *basicAllocator = 0);
+        //          bslma::Allocator                    *basicAllocator = 0);
         //    bdem_ChoiceArray(
         //          const bdem_ElemType::Type            typesCatalog[],
         //          int                                  typesCatalogLen,
         //          bdem_AggregateOption::AllocationStrategy  allocMode,
-        //          bslma_Allocator                     *basicAllocator = 0);
+        //          bslma::Allocator                    *basicAllocator = 0);
         //    bdem_ChoiceArray(
         //          const bsl::vector<bdem_ElemType::Type>&   typesCatalog,
         //          bdem_AggregateOption::AllocationStrategy  allocMode,
-        //          bslma_Allocator                     *basicAllocator = 0);
+        //          bslma::Allocator                    *basicAllocator = 0);
         //
         // --------------------------------------------------------------------
 
@@ -3237,11 +3237,11 @@ int main(int argc, char *argv[])
 
             // a simple catalog to work with
             const Catalog cat = ggCatalog(SPECIFICATIONS);
-            bslma_TestAllocator alloc1,alloc2;
+            bslma::TestAllocator alloc1,alloc2;
 
             // Set a default alloc guard
 
-            const bslma_DefaultAllocatorGuard dag1(&alloc1);
+            const bslma::DefaultAllocatorGuard dag1(&alloc1);
 
             ASSERT(0 == alloc1.numBytesInUse());
             ASSERT(0 == alloc2.numBytesInUse());
@@ -3300,11 +3300,11 @@ int main(int argc, char *argv[])
             // a simple catalog to work with
             const Catalog cat = ggCatalog(SPECIFICATIONS);
 
-            bslma_TestAllocator alloc1,alloc2,alloc3,alloc4,alloc5;
-            bslma_TestAllocator alloc2B,alloc3B, badAlloc;
+            bslma::TestAllocator alloc1,alloc2,alloc3,alloc4,alloc5;
+            bslma::TestAllocator alloc2B,alloc3B, badAlloc;
 
             // Set a default alloc guard
-            const bslma_DefaultAllocatorGuard dag1(&badAlloc);
+            const bslma::DefaultAllocatorGuard dag1(&badAlloc);
 
             // create an array using the BDEM_PASS_THROUGH mode
             Obj a1(&alloc1);
@@ -3350,8 +3350,8 @@ int main(int argc, char *argv[])
                                        << "correctly and the new array is "
                                        << "constructed using it." << bsl::endl;
 
-            bslma_TestAllocator testAllocator;
-            bslma_TestAllocator &ta = testAllocator;
+            bslma::TestAllocator testAllocator;
+            bslma::TestAllocator &ta = testAllocator;
             {
                 BEGIN_BSLMA_EXCEPTION_TEST {
                     // test variants with no catalog
@@ -3436,8 +3436,8 @@ int main(int argc, char *argv[])
                           << bsl::endl;
             }
 
-            bslma_TestAllocator testAllocator1(veryVeryVerbose);
-            bslma_TestAllocator tempAlloc(veryVeryVerbose);
+            bslma::TestAllocator testAllocator1(veryVeryVerbose);
+            bslma::TestAllocator tempAlloc(veryVeryVerbose);
             bdema_SequentialAllocator  testAllocator2(&tempAlloc);
 
             // create a structure holding our variations of allocators
@@ -3446,8 +3446,8 @@ int main(int argc, char *argv[])
             const struct {
                     const AggOption::AllocationStrategy  strat1;
                     const AggOption::AllocationStrategy  strat2;
-                    bslma_Allocator *alloc1;
-                    bslma_Allocator *alloc2;
+                    bslma::Allocator *alloc1;
+                    bslma::Allocator *alloc2;
             } ALLOC[] = {
                 {
                     BDEM_PASS_THROUGH,
@@ -3487,8 +3487,8 @@ int main(int argc, char *argv[])
                     ALLOC[allocI].strat1;
                 const AggOption::AllocationStrategy strat2 =
                     ALLOC[allocI].strat2;
-                bslma_Allocator *alloc1 = ALLOC[allocI].alloc1;
-                bslma_Allocator *alloc2 = ALLOC[allocI].alloc2;
+                bslma::Allocator *alloc1 = ALLOC[allocI].alloc1;
+                bslma::Allocator *alloc2 = ALLOC[allocI].alloc2;
 
                 for (int testI = 0; testI < NUM_DATA; ++testI) {
                     // for each test in the DATA table
@@ -3878,7 +3878,7 @@ int main(int argc, char *argv[])
             const char  VAL_SPEC = DATA[i].d_valueSpec;
             const char *OP_EXP   = DATA[i].d_outputOpExpOutput;
 
-            bslma_TestAllocator alloc1(veryVeryVerbose);
+            bslma::TestAllocator alloc1(veryVeryVerbose);
             Catalog cat = ggCatalog(SPEC);
             Obj mX(cat, BDEM_PASS_THROUGH,&alloc1);    const Obj& X = mX;
 
@@ -3956,7 +3956,7 @@ int main(int argc, char *argv[])
                       <<"=======================================" << bsl::endl;
         }
         {
-            bslma_TestAllocator tAlloc;
+            bslma::TestAllocator tAlloc;
             if (verbose) {
                 bsl::cout << "\tTESTING 'populateData'" << bsl::endl;
             }
@@ -4081,11 +4081,11 @@ int main(int argc, char *argv[])
                     AggOption::AllocationStrategy mode =
                         (AggOption::AllocationStrategy) k;
 
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                     BEGIN_BSLMA_EXCEPTION_TEST {
                       bdema_SequentialAllocator  seqAlloc(&testAllocator);
-                      bslma_Allocator           *alloc = &testAllocator;
+                      bslma::Allocator           *alloc = &testAllocator;
 
                       if (AggOption::BDEM_SUBORDINATE == mode) {
                           alloc = &seqAlloc;
@@ -4196,7 +4196,7 @@ int main(int argc, char *argv[])
                      << endl;
             }
             // don't use aggregate types in the test spec
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             // iterate over element over our selection of test data
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -4293,7 +4293,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bdem_ChoiceArray(const vector<EType::Type>&  typesCatalog,
         //                    AggOption::AllocationStrategy allocMode,
-        //                    bslma_Allocator            *basicAlloc = 0);
+        //                    bslma::Allocator           *basicAlloc = 0);
         //   ~bdem_ChoiceArray();
         //   int numSelections() const;
         //   bdem_ElemType::Type selectionType(int selectionIndex) const;
@@ -4310,10 +4310,10 @@ int main(int argc, char *argv[])
 
             // a simple catalog to work with
             const Catalog cat = ggCatalog(SPECIFICATIONS);
-            bslma_TestAllocator alloc1,alloc2;
+            bslma::TestAllocator alloc1,alloc2;
 
             // Set a default alloc guard
-            const bslma_DefaultAllocatorGuard dag1(&alloc1);
+            const bslma::DefaultAllocatorGuard dag1(&alloc1);
 
             ASSERT(0 == alloc1.numBlocksTotal());
             ASSERT(0 == alloc2.numBlocksTotal());
@@ -4340,10 +4340,10 @@ int main(int argc, char *argv[])
             // a simple catalog to work with
             const Catalog cat = ggCatalog(SPECIFICATIONS);
 
-            bslma_TestAllocator alloc1,alloc2, alloc3;
+            bslma::TestAllocator alloc1,alloc2, alloc3;
 
             // Set a default alloc guard
-            const bslma_DefaultAllocatorGuard dag1(&alloc3);
+            const bslma::DefaultAllocatorGuard dag1(&alloc3);
             int NA1,NA2,NB1,NB2;
 
             {
@@ -4381,8 +4381,8 @@ int main(int argc, char *argv[])
                                        << "correctly and the new array is "
                                        << "constructed using it." << bsl::endl;
 
-            bslma_TestAllocator testAllocator;
-            bslma_TestAllocator &ta = testAllocator;
+            bslma::TestAllocator testAllocator;
+            bslma::TestAllocator &ta = testAllocator;
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE  = DATA[i].d_line;
                 const char *SPEC  = DATA[i].d_catalogSpec;
@@ -4435,7 +4435,7 @@ int main(int argc, char *argv[])
         const char SPEC[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef";
               int  LEN    = sizeof(SPEC) - 1;
 
-        bslma_TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         if (verbose)  bsl::cout << "\nTesting 'getElemType'" << bsl::endl;
         {
@@ -4710,11 +4710,11 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\tSizeof bdem_ChoiceArray :"
                                << sizeof(bdem_ChoiceArray) << bsl::endl;
 
-        bslma_TestAllocator defaultAllocator;  // default allocation
-        const bslma_DefaultAllocatorGuard DAG(&defaultAllocator);
+        bslma::TestAllocator defaultAllocator;  // default allocation
+        const bslma::DefaultAllocatorGuard DAG(&defaultAllocator);
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
-        bslma_TestAllocator &alloc = testAllocator;
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator &alloc = testAllocator;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (veryVerbose)
@@ -4892,8 +4892,8 @@ int main(int argc, char *argv[])
                     const char *SPEC  = DATA[i].d_catalogSpec;
                     const int   LEN   = bsl::strlen(SPEC);
 
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
-                    bslma_TestAllocator &alloc = testAllocator;
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::TestAllocator &alloc = testAllocator;
                     Catalog catalog = ggCatalog(SPEC);
 
 //                 BEGIN_BSLMA_EXCEPTION_TEST { // removed for performance

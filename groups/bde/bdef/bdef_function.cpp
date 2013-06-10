@@ -92,7 +92,7 @@ BDES_IDENT_RCSID(bdef_function_cpp,"$Id$ $CSID$")
 //..
 //      if (isAllocator<FUNC>::VALUE) {
 //          // Code that would be valid only if 'FUNC' is convertible to
-//          // 'bslma_Allocator *'.
+//          // 'bslma::Allocator *'.
 //      } else {
 //          // Code that would be valid only if 'FUNC' is invocable in a way
 //          // compatible with the 'PROTOTYPE'.
@@ -103,8 +103,8 @@ BDES_IDENT_RCSID(bdef_function_cpp,"$Id$ $CSID$")
 //
 // Special care was taken to ensure that multiple dispatch was avoided, by
 // collapsing all the compile-time decisions into a single (enumerated) list of
-// possibilities.  Branching was performed by using an extra 'bslmf_Tag<VALUE>'
-// argument for overload resolution.
+// possibilities.  Branching was performed by using an extra
+// 'bslmf::Tag<VALUE>' argument for overload resolution.
 //
 ///Const-correctness:
 ///------------------
@@ -185,11 +185,11 @@ BDES_IDENT_RCSID(bdef_function_cpp,"$Id$ $CSID$")
 // deallocation/reallocation that would still be done when the 'FUNC' type is
 // not-assignable and not in-place.
 
-#include <bsl_algorithm.h>
-
 #include <bdef_memfn.h>            // for testing only
 
 #include <bsls_assert.h>
+
+#include <bsl_algorithm.h>
 
 namespace BloombergLP {
                           // ------------------------
@@ -198,9 +198,9 @@ namespace BloombergLP {
 
 // CREATORS
 bdef_Function_Rep::bdef_Function_Rep(const bdef_Function_Rep&  original,
-                                     bslma_Allocator          *allocator)
+                                     bslma::Allocator         *allocator)
 : d_manager_p(original.d_manager_p)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     if (d_manager_p) {
         (void)(*d_manager_p)(this,
@@ -257,7 +257,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
             // pointer swap.
 
             bsl::swap(other.d_arena.d_func_p, d_arena.d_func_p);
-            return;
+            return;                                                   // RETURN
         }
 
         // Else 'this' is empty, transfer 'other' to this.
@@ -272,7 +272,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
             d_manager_p            = other.d_manager_p;
             other.d_arena.d_func_p = func;
             other.d_manager_p      = 0;
-            return;
+            return;                                                   // RETURN
         }
 
         // Else need to know 'FUNC' type for the transfer, invoke manager.
@@ -285,7 +285,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
         (void)(*other.d_manager_p)(&other, (const void *)0, BDEF_DESTROY);
         other.d_arena.d_func_p = func;
         other.d_manager_p      = 0;
-        return;
+        return;                                                       // RETURN
     }
 
     // Else 'this' is not empty.
@@ -303,7 +303,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
             other.d_manager_p = d_manager_p;
             d_arena.d_func_p   = func;
             d_manager_p        = 0;
-            return;
+            return;                                                   // RETURN
         }
 
         // Need to know 'FUNC' type for the transfer, invoke manager.
@@ -314,7 +314,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
         (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
         d_arena.d_func_p   = func;
         d_manager_p        = 0;
-        return;
+        return;                                                       // RETURN
     }
 
     // Else neither 'this' nor 'other' are empty (nor function pointers).
@@ -328,7 +328,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
 
             bsl::swap(d_arena.d_object_p, other.d_arena.d_object_p);
             bsl::swap(d_manager_p, other.d_manager_p);
-            return;
+            return;                                                   // RETURN
         }
     }
     else {
@@ -339,7 +339,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
 
         tempThis.swap(other);
         tempOther.swap(*this);
-        return;
+        return;                                                       // RETURN
     }
 
     // Exhausted all possibilities for optimizations, do a three-way swap.
@@ -349,6 +349,7 @@ void bdef_Function_Rep::swap(bdef_Function_Rep& other)
     // at this point.
 
     // need equal allocators to make moves no-throw
+
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
     bdef_Function_Rep temp(other.d_allocator_p);
@@ -381,7 +382,7 @@ void bdef_Function_Rep::transferTo(bdef_Function_Rep *target)
         target->d_arena.d_func_p = d_arena.d_func_p;
         target->d_manager_p      = 0;
         d_arena.d_func_p         = 0;
-        return;
+        return;                                                       // RETURN
     }
 
     // Else do transfer.  Move-construct will optimize if possible, or simply

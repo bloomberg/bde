@@ -19,9 +19,8 @@ BDES_IDENT_RCSID(baenet_httpparserutil_cpp,"$Id$ $CSID$")
 #include <bdeu_string.h>
 #include <bdeut_stringref.h>
 
-#include <bsls_platformutil.h>
-
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_streambuf.h>
 
@@ -1100,10 +1099,10 @@ static const char hexCharTable[256]=
 
 // === streambuf based parsing ======
 
-void makeRoom(char                         **str,
-              bsls_PlatformUtil::size_type  *size,
-              int                            length,
-              bdema_SequentialAllocator     *alloc)
+void makeRoom(char                      **str,
+              bsls::Types::size_type     *size,
+              int                         length,
+              bdema_SequentialAllocator  *alloc)
 {
     BSLS_ASSERT(alloc);
     BSLS_ASSERT(str);
@@ -1113,8 +1112,8 @@ void makeRoom(char                         **str,
 
     if (length >= *size) {
         // relocate
-        bsls_PlatformUtil::size_type  newSize = length * GROWTH_FACTOR;
-        char                         *newStr  = (char *)alloc->
+        bsls::Types::size_type  newSize = length * GROWTH_FACTOR;
+        char                   *newStr  = (char *)alloc->
                                                    allocateAndExpand(&newSize);
 
         BSLS_ASSERT(newStr);
@@ -1125,13 +1124,13 @@ void makeRoom(char                         **str,
     }
 }
 
-int appendLine(char                         **str,
-               int                           *strLen,
-               bsls_PlatformUtil::size_type  *size,
-               int                           *accumNumBytesConsumed,
-               bdema_SequentialAllocator     *alloc,
-               bsl::streambuf                *source,
-               int                            maxNumBytesConsumed)
+int appendLine(char                      **str,
+               int                        *strLen,
+               bsls::Types::size_type     *size,
+               int                        *accumNumBytesConsumed,
+               bdema_SequentialAllocator  *alloc,
+               bsl::streambuf             *source,
+               int                         maxNumBytesConsumed)
 {
     BSLS_ASSERT(alloc);
     BSLS_ASSERT(str);
@@ -1243,10 +1242,9 @@ int parseChars(bdeut_StringRef           *result,
         return BAENET_ELEMENT_NOT_FOUND;
     }
 
-    bsls_PlatformUtil::size_type  size = 1;
-    int                           len  = 0;
-    char                         *s    = (char *)alloc->
-                                                      allocateAndExpand(&size);
+    bsls::Types::size_type  size = 1;
+    int                     len  = 0;
+    char                   *s    = (char *)alloc->allocateAndExpand(&size);
     BSLS_ASSERT(s);
 
     do {
@@ -1357,10 +1355,9 @@ int parseEnclosedString(bdeut_StringRef            *result,
     int  ret = BAENET_SUCCESS;
     const char *p = *begin;
 
-    bsls_PlatformUtil::size_type  size = 1;
-    int                           len  = 0;
-    char                         *s    = (char *)alloc->
-                                                      allocateAndExpand(&size);
+    bsls::Types::size_type  size = 1;
+    int                     len  = 0;
+    char                   *s    = (char *)alloc->allocateAndExpand(&size);
     BSLS_ASSERT(s);
 
     ++p;
@@ -1911,10 +1908,9 @@ int baenet_HttpParserUtil::parseLine(
     BSLS_ASSERT(alloc);
     BSLS_ASSERT(source);
 
-    bsls_PlatformUtil::size_type  size = 1;
-    int                           len  = 0;
-    char                         *s    = (char *)alloc->
-                                                      allocateAndExpand(&size);
+    bsls::Types::size_type  size = 1;
+    int                     len  = 0;
+    char                   *s    = (char *)alloc->allocateAndExpand(&size);
     BSLS_ASSERT(s);
 
     int ret = appendLine(&s, &len, &size, accumNumBytesConsumed,
@@ -2011,11 +2007,10 @@ int baenet_HttpParserUtil::parseFieldValueUnstructured(
         return BAENET_REACHED_EOF;
     }
 
-    int                           ret  = BAENET_SUCCESS;
-    bsls_PlatformUtil::size_type  size = 1;
-    int                           len  = 0;
-    char                         *s    = (char *)alloc->
-                                                      allocateAndExpand(&size);
+    int                     ret  = BAENET_SUCCESS;
+    bsls::Types::size_type  size = 1;
+    int                     len  = 0;
+    char                   *s    = (char *)alloc->allocateAndExpand(&size);
     BSLS_ASSERT(s);
 
     // Keep looping until we find CRLF ^WSP or CRLF <end>.

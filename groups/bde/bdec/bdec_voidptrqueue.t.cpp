@@ -2,10 +2,11 @@
 
 #include <bdec_voidptrqueue.h>
 
-#include <bsls_platformutil.h>                  // for testing only
-#include <bslma_bufferallocator.h>              // for testing only
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
+
 #include <bdex_testoutstream.h>                 // for testing only
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testinstreamexception.h>         // for testing only
@@ -42,7 +43,7 @@ using namespace bsl;  // automatically added by script
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
-// [ 2] bdec_VoidPtrQueue(bslma_Allocator *ba = 0);
+// [ 2] bdec_VoidPtrQueue(bslma::Allocator *ba = 0);
 // [11] bdec_VoidPtrQueue(unsigned int iLen, *ba = 0);
 // [11] bdec_VoidPtrQueue(int iLen, void *iVal, *ba = 0);
 // [17] bdec_VoidPtrQueue(const InitialCapacity& ne, *ba = 0);
@@ -361,7 +362,7 @@ bdec_VoidPtrQueue& gg(bdec_VoidPtrQueue *object, const char *spec)
 bdec_VoidPtrQueue g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    bdec_VoidPtrQueue object((bslma_Allocator *)0);
+    bdec_VoidPtrQueue object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -415,7 +416,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     switch (test) { case 0:  // Zero is always the leading case.
       case 18: {
         // --------------------------------------------------------------------
@@ -533,13 +534,13 @@ int main(int argc, char *argv[])
         //   objects with increasing initial capacity.  Verify that each object
         //   has the same value as a control default object.  Then, append as
         //   many values as the requested initial capacity, and use
-        //   'bslma_TestAllocator' to verify that no additional allocations
+        //   'bslma::TestAllocator' to verify that no additional allocations
         //   have occurred.  Perform each test in the standard 'bdema'
         //   exception-testing macro block.
         //
         //   Repeat the constructor test initially specifying no allocator and
         //   again, specifying a static buffer allocator.  These tests (without
-        //   specifying a 'bslma_TestAllocator') cannot confirm correct
+        //   specifying a 'bslma::TestAllocator') cannot confirm correct
         //   capacity-reserving behavior, but can test for rudimentary correct
         //   object behavior via the destructor and Purify, and, in
         //   'veryVerbose' mode, via the print statements.
@@ -550,7 +551,7 @@ int main(int argc, char *argv[])
         //   of elements, and confirm that the test object has the same value
         //   as a separately constructed control object.  Then, append as many
         //   values as required to bring the test object's length to the
-        //   specified number of elements, and use 'bslma_TestAllocator' to
+        //   specified number of elements, and use 'bslma::TestAllocator' to
         //   verify that no additional allocations have occurred.  Perform each
         //   test in the standard 'bdema' exception-testing macro block.
         //
@@ -566,7 +567,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\nTesting 'bdec_VoidPtrQueue(capacity, ba)' Constructor" << endl;
-        if (verbose) cout << "\twith a 'bslma_TestAllocator':" << endl;
+        if (verbose) cout << "\twith a 'bslma::TestAllocator':" << endl;
         {
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 9;
@@ -610,7 +611,7 @@ int main(int argc, char *argv[])
             cout << "\twith a buffer allocator (exercise only):" << endl;
         {
             char memory[1024];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 9;
             for (int ne = 0; ne <= MAX_NUM_ELEMS; ++ne) {
@@ -3612,9 +3613,11 @@ int main(int argc, char *argv[])
         //   For each constructor we will create objects
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
-        //        (using a 'bslma_BufferAllocator') and never destroyed.
+        //        (using a 'bdema_BufferedSequentialAllocator') and never
+        //        destroyed.
         //   and use basic accessors to verify
         //      - length
         //      - element value at each index position { 0 .. length - 1 }.
@@ -3684,7 +3687,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
             char memory[4096];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             const Element DEFAULT_VALUE = (void *)0x0;  // ADJUST
             const int MAX_LENGTH = 10;
             for (int length = 0; length <= MAX_LENGTH; ++length) {
@@ -3760,7 +3763,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
             char memory[4096];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             const Element VALUE = (void *)0x4;  // ADJUST
             const int MAX_LENGTH = 10;
             for (int length = 0; length <= MAX_LENGTH; ++length) {
@@ -3836,7 +3839,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tIn place using a buffer allocator." <<endl;
             {
                 char memory[4096];
-                bslma_BufferAllocator a(memory, sizeof memory);
+                bdema_BufferedSequentialAllocator a(memory, sizeof memory);
                 for (int ne = 0; ne <= NUM_ELEMENTS; ++ne) {
                     if (verbose) P(ne);
                     Obj *doNotDelete =
@@ -4151,14 +4154,15 @@ int main(int argc, char *argv[])
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
-        //     - When passing in a null pointer: (bslma_Allocator *)0.
+        //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
-        //       (using a 'bslma_BufferAllocator') and never destroyed.
+        //       (using a 'bdema_BufferedSequentialAllocator') and never
+        //        destroyed.
         //     - After the (dynamically allocated) source object is
         //       deleted and its footprint erased (see concern 4).
         //
@@ -4219,7 +4223,7 @@ int main(int argc, char *argv[])
                         }
 
                         {                         // Null allocator.
-                            const Obj Y1(X, (bslma_Allocator *) 0);
+                            const Obj Y1(X, (bslma::Allocator *) 0);
                             if (veryVerbose) { cout << "\t\t\t"; P(Y1); }
                             LOOP_ASSERT(SPEC, W == Y1);
                             LOOP_ASSERT(SPEC, W == X);
@@ -4236,7 +4240,8 @@ int main(int argc, char *argv[])
 
                         {                         // Buffer Allocator.
                             char memory[1024];
-                            bslma_BufferAllocator a(memory, sizeof memory);
+                            bdema_BufferedSequentialAllocator a(memory,
+                                                                sizeof memory);
                             Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
                             if (veryVerbose) { cout << "\t\t\t"; P(*Y); }
                             LOOP_ASSERT(SPEC, W == *Y);
@@ -5115,9 +5120,11 @@ int main(int argc, char *argv[])
         //   constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
-        //        (using a 'bslma_BufferAllocator') and never destroyed.
+        //        (using a 'bdema_BufferedSequentialAllocator') and never
+        //        destroyed.
         //
         //   To address concerns 3a - 3c, construct a series of independent
         //   objects, ordered by increasing length.  In each test, allow the
@@ -5125,7 +5132,7 @@ int main(int argc, char *argv[])
         //   destructor asserts internal object invariants appropriately.
         //   After the final append operation in each test, use the (untested)
         //   basic accessors to cross-check the value of the object
-        //   and the 'bslma_TestAllocator' to confirm whether a resize has
+        //   and the 'bslma::TestAllocator' to confirm whether a resize has
         //   occurred.
         //
         //   To address concerns 4a - 4c, construct a similar test, replacing
@@ -5149,7 +5156,7 @@ int main(int argc, char *argv[])
         //
         //   The first test acts as a "control" in that 'removeAll' is not
         //   called; if only the second test produces an error, we know that
-        //   'removeAll' is to blame.  We will rely on 'bslma_TestAllocator'
+        //   'removeAll' is to blame.  We will rely on 'bslma::TestAllocator'
         //   and purify to address concern 2, and on the object invariant
         //   assertions in the destructor to address concerns 3d and 4d.
         //
@@ -5168,7 +5175,7 @@ int main(int argc, char *argv[])
         //   allocation was performed.
         //
         // Testing:
-        //   bdec_VoidPtrQueue(bslma_Allocator *ba);
+        //   bdec_VoidPtrQueue(bslma::Allocator *ba);
         //   ~bdec_VoidPtrQueue();
         //   void removeAll();
         //   BOOTSTRAP: void popFront();
@@ -5184,7 +5191,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
             ASSERT(0 == X.length());
         }
@@ -5211,7 +5218,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
             char memory[1024];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             void *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(&a);
             ASSERT(doNotDelete);
 

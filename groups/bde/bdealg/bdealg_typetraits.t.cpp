@@ -16,13 +16,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#else
-#define bdealg_TypeTraits bslalg_TypeTraits
-#define bdealg_HasTrait bslalg_HasTrait
-#define BDEALG_DECLARE_NESTED_TRAITS(T, TRAITS)                               \
-    BSLALG_DECLARE_NESTED_TRAITS(T, TRAITS)
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+#define bdealg_HasTrait bslalg::HasTrait
 
 //=============================================================================
 //                             TEST PLAN
@@ -109,27 +103,27 @@ unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= bdealg_HasTrait<TYPE, bslalg_TypeTraitBitwiseMoveable>::VALUE
+    result |= bdealg_HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
             ? TRAIT_BITWISEMOVEABLE
             : 0;
-    result |= bdealg_HasTrait<TYPE, bslalg_TypeTraitBitwiseCopyable>::VALUE
+    result |= bdealg_HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
             ? TRAIT_BITWISECOPYABLE
             : 0;
     result |= bdealg_HasTrait<TYPE,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
             ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
             : 0;
     result |= bdealg_HasTrait<TYPE,
-                              bslalg_TypeTraitBitwiseEqualityComparable>::VALUE
+                             bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
             ? TRAIT_BITWISEEQUALITYCOMPARABLE
             : 0;
-    result |= bdealg_HasTrait<TYPE, bslalg_TypeTraitPair>::VALUE
+    result |= bdealg_HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
             ? TRAIT_PAIR
             : 0;
-    result |= bdealg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE
+    result |= bdealg_HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
             ? TRAIT_USESBDEMAALLOCATOR
             : 0;
-    result |= bdealg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
+    result |= bdealg_HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
     return result;
@@ -185,21 +179,21 @@ struct my_Class2
 {
     // Class template that has nested type traits
     BSLALG_DECLARE_NESTED_TRAITS2(my_Class2,
-                    BloombergLP::bslalg_TypeTraitBitwiseCopyable,
-                    BloombergLP::bslalg_TypeTraitHasTrivialDefaultConstructor);
+                   BloombergLP::bslalg::TypeTraitBitwiseCopyable,
+                   BloombergLP::bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
 // OBSOLETE: auto-detect of bdema traits is no longer supported
 // struct my_Class3
 // {
 //     // Class with no declared traits but implicitly uses allocator.
-//     my_Class3(bslma_Allocator*);
+//     my_Class3(bslma::Allocator*);
 // };
 
 struct my_Class4
 {
     // Class with no special traits but has conversion from 'void*'.
-    // Used to check against false positives for 'bslma_Allocator*' traits.
+    // Used to check against false positives for 'bslma::Allocator*' traits.
     my_Class4(void*);
 };
 
@@ -207,17 +201,17 @@ struct my_Class5
 {
     // Class with no special traits but has conversion from anything.  Used
     // the check against false positives for nested traits and
-    // 'bslma_Allocator*' traits.
+    // 'bslma::Allocator*' traits.
     template <class T> my_Class5(const T& t);
     template <class T> my_Class5(const volatile T& t);
 
 #if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_OS_LINUX)
     // Workaround for AIX xlC 6.0 and and Linux gcc compilers.  Without this
     // declaration, the compiler tries to instantiate the templated
-    // constructors when probing for 'bslma_Allocator*' conversions.  This
+    // constructors when probing for 'bslma::Allocator*' conversions.  This
     // declaration short-circuits the traits-sniffing logic so that it will
-    // not probe for conversion from 'bslma_Allocator*'.
-    BDEALG_DECLARE_NESTED_TRAITS(my_Class5, bslalg_TypeTraitNil);
+    // not probe for conversion from 'bslma::Allocator*'.
+    BDEALG_DECLARE_NESTED_TRAITS(my_Class5, bslalg::TypeTraitNil);
 #endif
 };
 
@@ -248,51 +242,52 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 ///- - - - - - - - - -
 // Suppose we want to implement a generic container of a parameterized 'TYPE',
 // which may or may not follow the 'bdema' allocator model.  If it does, our
-// container should pass an extra 'bslma_Allocator*' argument to copy construct
-// a value; but if it does not, then passing this extra argument is going to
-// generate a compile-time error.  It thus appears we need two implementations
-// of our container.  This can be done more succinctly by encapsulating into
-// the constructor some utilities which will, through a single interface,
-// determine whether 'TYPE' has the trait 'bslalg_TypeTraitUsesBslmaAllocator'
-// and copy-construct it accordingly.
+// container should pass an extra 'bslma::Allocator*' argument to copy
+// construct a value; but if it does not, then passing this extra argument is
+// going to generate a compile-time error.  It thus appears we need two
+// implementations of our container.  This can be done more succinctly by
+// encapsulating into the constructor some utilities which will, through a
+// single interface, determine whether 'TYPE' has the trait
+// 'bslalg::TypeTraitUsesBslmaAllocator' and copy-construct it accordingly.
 //
 // The container contains a single data member of the parameterized 'TYPE'.
 // Since we are going to initialize this data member manually, we do not want
 // it to be automatically constructed by the compiler.  For this reason, we
-// encapsulate it in a 'bsls_ObjectBuffer'.
+// encapsulate it in a 'bsls::ObjectBuffer'.
 //..
-    // my_genericcontainer.hpp          -*-C++-*-
+    // my_genericcontainer.h                                          -*-C++-*-
 
     template <class TYPE>
     class MyGenericContainer {
         // This generic container type contains a single object, always
         // initialized, which can be replaced and accessed.  This container
         // always takes an allocator argument and thus follows the
-        // 'bslalg_TypeTraitUsesBslmaAllocator' protocol.
+        // 'bslalg::TypeTraitUsesBslmaAllocator' protocol.
 
         // PRIVATE DATA MEMBERS
-        bsls_ObjectBuffer<TYPE> d_object;
+        bsls::ObjectBuffer<TYPE> d_object;
 //..
 // Since the container offers a uniform interface that always takes an extra
 // allocator argument, regardless of whether 'TYPE' does or not, we can declare
-// it to have the 'bslalg_TypeTraitUsesBslmaAllocator' trait:
+// it to have the 'bslalg::TypeTraitUsesBslmaAllocator' trait:
 //..
       public:
         // TRAITS
         BDEALG_DECLARE_NESTED_TRAITS(MyGenericContainer,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 //..
 // For simplicity, we let the container contain only a single element, and
 // require that an element always be initialized.
 //..
         // CREATORS
-        MyGenericContainer(const TYPE& object, bslma_Allocator *allocator = 0);
+        MyGenericContainer(const TYPE&       object,
+                           bslma::Allocator *allocator = 0);
             // Create an container containing the specified 'object', using the
             // optionally specified 'allocator' to allocate memory.  If
             // 'allocator' is 0, the currently installed allocator is used.
 
         MyGenericContainer(const MyGenericContainer&  container,
-                           bslma_Allocator           *allocator = 0);
+                           bslma::Allocator          *allocator = 0);
             // Create an container containing the same object as the specified
             // 'container', using the optionally specified 'allocator' to
             // allocate memory.  If 'allocator' is 0, the currently installed
@@ -331,9 +326,9 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
         // allocator pass-through mechanism in a generic container.
 
         template <class TYPE>
-        static void copyConstruct(TYPE            *location,
-                                  const TYPE&      value,
-                                  bslma_Allocator *allocator,
+        static void copyConstruct(TYPE             *location,
+                                  const TYPE&       value,
+                                  bslma::Allocator *allocator,
                                   bsl::true_type)
             // Create a copy of the specified 'value' at the specified
             // 'location', using the specified 'allocator' to allocate memory.
@@ -343,13 +338,13 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 //..
 // For types that don't use an allocator, we offer the following overload which
 // will be selected if the type trait of 'TYPE' cannot be converted to
-// 'bslalg_TypeTraitUsesBslmaAllocator'.  In that case, note that the type
-// traits always inherits from 'bslalg_TypeTraitNil'.
+// 'bslalg::TypeTraitUsesBslmaAllocator'.  In that case, note that the type
+// traits always inherits from 'bslalg::TypeTraitNil'.
 //..
         template <class TYPE>
-        static void copyConstruct(TYPE            *location,
-                                  const TYPE&      value,
-                                  bslma_Allocator *allocator,
+        static void copyConstruct(TYPE             *location,
+                                  const TYPE&       value,
+                                  bslma::Allocator *allocator,
                                   bsl::false_type)
             // Create a copy of the specified 'value' at the specified
             // 'location'.  Note that the specified 'allocator' is ignored.
@@ -361,9 +356,9 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 // the appropriately (compiler-)chosen overload:
 //..
         template <class TYPE>
-        static void copyConstruct(TYPE            *location,
-                                  const TYPE&      value,
-                                  bslma_Allocator *allocator)
+        static void copyConstruct(TYPE             *location,
+                                  const TYPE&       value,
+                                  bslma::Allocator *allocator)
             // Create a copy of the specified 'value' at the specified
             // 'location', optionally using the specified 'allocator' to supply
             // memory if the parameterized 'TYPE' possesses the
@@ -381,8 +376,8 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 //..
     // CREATORS
     template <typename TYPE>
-    MyGenericContainer<TYPE>::MyGenericContainer(const TYPE&      object,
-                                                 bslma_Allocator *allocator)
+    MyGenericContainer<TYPE>::MyGenericContainer(const TYPE&       object,
+                                                 bslma::Allocator *allocator)
     {
         my_GenericContainerUtil::copyConstruct(&d_object.object(),
                                                object,
@@ -392,7 +387,7 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
     template <typename TYPE>
     MyGenericContainer<TYPE>::MyGenericContainer(
                                           const MyGenericContainer&  container,
-                                          bslma_Allocator           *allocator)
+                                          bslma::Allocator          *allocator)
     {
         my_GenericContainerUtil::copyConstruct(&d_object.object(),
                                                container.object(),
@@ -429,10 +424,10 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 // We can check that our container actually forwards the correct allocator to
 // its contained instance with a very simple test apparatus, consisting of two
 // classes which have exactly the same signature and implementation except that
-// one has the 'bslalg_TypeTraitUsesBslmaAllocator' trait and the other has
+// one has the 'bslalg::TypeTraitUsesBslmaAllocator' trait and the other has
 // not:
 //..
-    bslma_Allocator *allocSlot;
+    bslma::Allocator *allocSlot;
 
     struct MyTestTypeWithBdemaAllocatorTraits {
         // Class with declared traits.  Calling copy constructor without an
@@ -440,14 +435,14 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 
         // TRAITS
         BDEALG_DECLARE_NESTED_TRAITS(MyTestTypeWithBdemaAllocatorTraits,
-                                     bslalg_TypeTraitUsesBslmaAllocator);
+                                     bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
         MyTestTypeWithBdemaAllocatorTraits() {}
 
         MyTestTypeWithBdemaAllocatorTraits(
-                         const MyTestTypeWithBdemaAllocatorTraits&,
-                         bslma_Allocator                            *allocator)
+                          const MyTestTypeWithBdemaAllocatorTraits&,
+                          bslma::Allocator                          *allocator)
         {
             allocSlot = allocator;
         }
@@ -462,8 +457,8 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
         MyTestTypeWithNoBdemaAllocatorTraits() {}
 
         MyTestTypeWithNoBdemaAllocatorTraits(
-                      const MyTestTypeWithNoBdemaAllocatorTraits &,
-                      bslma_Allocator                               *allocator)
+                        const MyTestTypeWithNoBdemaAllocatorTraits&,
+                        bslma::Allocator                            *allocator)
         {
             allocSlot = allocator;
         }
@@ -475,8 +470,8 @@ namespace BDEALG_TYPETRAITS_USAGE_EXAMPLE {
 //..
     int usageExample()
     {
-        bslma_TestAllocator ta0;
-        bslma_TestAllocator ta1;
+        bslma::TestAllocator ta0;
+        bslma::TestAllocator ta1;
 //..
 // With 'MyTestTypeWithNoBdemaAllocatorTraits', the slot should never be set.
 //..
@@ -584,8 +579,8 @@ int main(int argc, char *argv[])
         TRAIT_TEST(unsigned short, TRAIT_EQPOD);
         TRAIT_TEST(int, TRAIT_EQPOD);
         TRAIT_TEST(unsigned int, TRAIT_EQPOD);
-        TRAIT_TEST(bsls_Types::Int64, TRAIT_EQPOD);
-        TRAIT_TEST(bsls_Types::Uint64, TRAIT_EQPOD);
+        TRAIT_TEST(bsls::Types::Int64, TRAIT_EQPOD);
+        TRAIT_TEST(bsls::Types::Uint64, TRAIT_EQPOD);
         TRAIT_TEST(float, TRAIT_EQPOD);
         TRAIT_TEST(double, TRAIT_EQPOD);
         TRAIT_TEST(char*, TRAIT_EQPOD);

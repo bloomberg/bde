@@ -17,10 +17,10 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Gang Chen (gchen20), Mike Verschell (hverschell)
 //
 //@DESCRIPTION: This component provides a default implementation of the
-// 'bael_AttributeContainer' protocol, providing a 'hash_set' based container
-// of 'bael_Attribute' values.  Each attribute within the default attribute
-// container holds a (case-sensitive) name and a value, which may be an 'int',
-// a 64-bit integer, or a 'bsl::string'.
+// 'bael_AttributeContainer' protocol, providing an 'unordered_set'-based
+// container of 'bael_Attribute' values.  Each attribute within the default
+// attribute container holds a (case-sensitive) name and a value, which may be
+// an 'int', a 64-bit integer, or a 'bsl::string'.
 //
 ///Thread Safety
 ///-------------
@@ -97,16 +97,16 @@ BDES_IDENT("$Id: $")
 #include <bael_attributecontainer.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
 
-#ifndef INCLUDED_BSL_HASH_SET
-#include <bsl_hash_set.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_UNORDERED_SET
+#include <bsl_unordered_set.h>
 #endif
 
 namespace BloombergLP {
@@ -139,14 +139,14 @@ class bael_DefaultAttributeContainer : public bael_AttributeContainer {
                                                   // attribute map
 
     // DATA
-    bsl::hash_set<bael_Attribute, AttributeHash>
+    bsl::unordered_set<bael_Attribute, AttributeHash>
                                  d_attributeSet;  // hash table that stores
                                                   // all the attributes
                                                   // managed by this object
 
   public:
     // TYPES
-    typedef bsl::hash_set<bael_Attribute, AttributeHash>::const_iterator
+    typedef bsl::unordered_set<bael_Attribute, AttributeHash>::const_iterator
                                  const_iterator;  // type of iterator for
                                                   // iterating through the
                                                   // non-modifiable attributes
@@ -154,7 +154,7 @@ class bael_DefaultAttributeContainer : public bael_AttributeContainer {
 
     // CREATORS
     explicit bael_DefaultAttributeContainer(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an empty 'bael_DefaultAttributeContainer' object.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator
@@ -162,7 +162,7 @@ class bael_DefaultAttributeContainer : public bael_AttributeContainer {
 
     bael_DefaultAttributeContainer(
                     const bael_DefaultAttributeContainer&  original,
-                    bslma_Allocator                       *basicAllocator = 0);
+                    bslma::Allocator                      *basicAllocator = 0);
         // Create a 'bael_DefaultAttributeContainer' object having the same
         // value as the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -255,7 +255,7 @@ bsl::ostream& operator<<(
 // CREATORS
 inline
 bael_DefaultAttributeContainer::bael_DefaultAttributeContainer(
-                                               bslma_Allocator* basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attributeSet(s_initialSize,                    // initial size
                  AttributeHash(),                  // hash functor
                  bsl::equal_to<bael_Attribute>(),  // equal functor
@@ -265,10 +265,9 @@ bael_DefaultAttributeContainer::bael_DefaultAttributeContainer(
 
 inline
 bael_DefaultAttributeContainer::bael_DefaultAttributeContainer(
-                        const bael_DefaultAttributeContainer&   original,
-                        bslma_Allocator                        *basicAllocator)
-: d_attributeSet(original.d_attributeSet,
-                 basicAllocator)
+                         const bael_DefaultAttributeContainer&  original,
+                         bslma::Allocator                      *basicAllocator)
+: d_attributeSet(original.d_attributeSet, basicAllocator)
 {
 }
 

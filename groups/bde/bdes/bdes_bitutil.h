@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a utility 'struct', 'bdes_BitUtil',
 // which serves as a namespace for a collection of efficient, bit-level
 // procedures on the built-in 32- and 64-bit integer types, 'int' and
-// 'bsls_Types::Int64', respectively.  These class-'static' methods fall
+// 'bsls::Types::Int64', respectively.  These class-'static' methods fall
 // into three categories:
 //
 //: 1 Mask Generators -- e.g., 'eqMask', 'gtMask', 'leMask', 'oneMask'
@@ -30,10 +30,10 @@ BDES_IDENT("$Id: $")
 //..
 //  numSetOne(int)
 //..
-// has a corresponding routine that takes a 'bsls_Types::Int64', and whose name
-// is suffixed with "64", e.g.,
+// has a corresponding routine that takes a 'bsls::Types::Int64', and whose
+// name is suffixed with "64", e.g.,
 //..
-//  numSetOne64(bsls_Types::Int64)
+//  numSetOne64(bsls::Types::Int64)
 //..
 // Note that, in C and C++, shifting a value by the number of bits in that
 // value's type (e.g., shifting an 'int' value by 32) is undefined behavior.
@@ -431,10 +431,10 @@ BDES_IDENT("$Id: $")
 //..
 // 'sizeInBits' will return the size of an object in bits, rather than bytes:
 //..
-//  char              thisChar   = 0;
-//  short             thisShort  = 0;
-//  int               thisInt    = 0;
-//  bsls_Types::Int64 thisBigInt = 0;
+//  char               thisChar   = 0;
+//  short              thisShort  = 0;
+//  int                thisInt    = 0;
+//  bsls::Types::Int64 thisBigInt = 0;
 //
 //  assert( 8 == bdes_BitUtil::sizeInBits(thisChar));
 //  assert(16 == bdes_BitUtil::sizeInBits(thisShort));
@@ -456,11 +456,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-// TBD remove after verifying dev build (through api)
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -485,6 +480,13 @@ BDES_IDENT("$Id: $")
 #endif
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace BloombergLP {
 
                                // ===================
@@ -494,17 +496,17 @@ namespace BloombergLP {
 struct bdes_BitUtil {
     // This utility 'struct' provides a namespace for a set of pure, bit-level
     // procedures that operate on the built-in 32- and 64-bit integer types
-    // 'int' and 'bsls_Types::Int64', respectively.  The class-'static' methods
-    // are organized into three regions: (1) Mask Generators, e.g., 'eqMask';
-    // (2) Manipulators, e.g., 'andEq'; and (3) Accessors, e.g., 'extractZero'.
-    // In general, each method that takes an 'int' -- e.g., 'numSetOne(int)' --
-    // also has a corresponding routine that takes a 'bsls_Types::Int64', and
-    // whose name is suffixed with "64" -- e.g.,
-    // 'numSetOne64(bsls_Types::Int64)'.
+    // 'int' and 'bsls::Types::Int64', respectively.  The class-'static'
+    // methods are organized into three regions: (1) Mask Generators, e.g.,
+    // 'eqMask'; (2) Manipulators, e.g., 'andEq'; and (3) Accessors, e.g.,
+    // 'extractZero'.  In general, each method that takes an 'int' -- e.g.,
+    // 'numSetOne(int)' -- also has a corresponding routine that takes a
+    // 'bsls::Types::Int64', and whose name is suffixed with "64" -- e.g.,
+    // 'numSetOne64(bsls::Types::Int64)'.
 
     // TYPES
-    typedef bsls_Types::Int64  Int64;
-    typedef bsls_Types::Uint64 Uint64;
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
         // 'Int64' and 'Uint64' are aliases for the native 64-bit signed
         // integer type and 64-bit unsigned integer type, respectively.
 
@@ -1813,7 +1815,7 @@ int bdes_BitUtil::eqMask(int index)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::eqMask64(int index)
+bsls::Types::Int64 bdes_BitUtil::eqMask64(int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <= static_cast<int>(BDES_BITS_PER_INT64));
@@ -1837,7 +1839,7 @@ int bdes_BitUtil::geMask(int index)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::geMask64(int index)
+bsls::Types::Int64 bdes_BitUtil::geMask64(int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <= static_cast<int>(BDES_BITS_PER_INT64));
@@ -1862,7 +1864,7 @@ int bdes_BitUtil::gtMask(int index)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::gtMask64(int index)
+bsls::Types::Int64 bdes_BitUtil::gtMask64(int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <= static_cast<int>(BDES_BITS_PER_INT64));
@@ -1888,7 +1890,7 @@ int bdes_BitUtil::leMask(int index)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::leMask64(int index)
+bsls::Types::Int64 bdes_BitUtil::leMask64(int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <= static_cast<int>(BDES_BITS_PER_INT64));
@@ -1913,7 +1915,7 @@ int bdes_BitUtil::ltMask(int index)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::ltMask64(int index)
+bsls::Types::Int64 bdes_BitUtil::ltMask64(int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <= static_cast<int>(BDES_BITS_PER_INT64));
@@ -1937,7 +1939,7 @@ int bdes_BitUtil::neMask(int index)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::neMask64(int index)
+bsls::Types::Int64 bdes_BitUtil::neMask64(int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <= static_cast<int>(BDES_BITS_PER_INT64));
@@ -2111,7 +2113,7 @@ int bdes_BitUtil::oneMask(int index, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::oneMask64(int index, int numBits)
+bsls::Types::Int64 bdes_BitUtil::oneMask64(int index, int numBits)
 {
     BSLS_ASSERT_SAFE(              0 <= index);
     BSLS_ASSERT_SAFE(              0 <= numBits);
@@ -2131,7 +2133,7 @@ int bdes_BitUtil::zeroMask(int index, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::zeroMask64(int index, int numBits)
+bsls::Types::Int64 bdes_BitUtil::zeroMask64(int index, int numBits)
 {
     BSLS_ASSERT_SAFE(              0 <= index);
     BSLS_ASSERT_SAFE(              0 <= numBits);
@@ -2205,9 +2207,9 @@ int bdes_BitUtil::rangeOne(int srcInteger, int srcIndex, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::rangeOne64(Int64 srcInteger,
-                                           int   srcIndex,
-                                           int   numBits)
+bsls::Types::Int64 bdes_BitUtil::rangeOne64(Int64 srcInteger,
+                                            int   srcIndex,
+                                            int   numBits)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -2239,9 +2241,9 @@ int bdes_BitUtil::rangeZero(int srcInteger, int srcIndex, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::rangeZero64(Int64 srcInteger,
-                                            int   srcIndex,
-                                            int   numBits)
+bsls::Types::Int64 bdes_BitUtil::rangeZero64(Int64 srcInteger,
+                                             int   srcIndex,
+                                             int   numBits)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -2271,7 +2273,7 @@ unsigned bdes_BitUtil::roundUpToBinaryPower(unsigned srcInteger)
 }
 
 inline
-bsls_Types::Uint64 bdes_BitUtil::roundUpToBinaryPower64(Uint64 srcInteger)
+bsls::Types::Uint64 bdes_BitUtil::roundUpToBinaryPower64(Uint64 srcInteger)
 {
     int    index = find1AtLargestIndex64(srcInteger);
     Uint64 ret   = BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 <= index)
@@ -3152,9 +3154,9 @@ int bdes_BitUtil::extractOne(int srcInteger, int srcIndex, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::extractOne64(Int64 srcInteger,
-                                             int   srcIndex,
-                                             int   numBits)
+bsls::Types::Int64 bdes_BitUtil::extractOne64(Int64 srcInteger,
+                                              int   srcIndex,
+                                              int   numBits)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -3186,10 +3188,10 @@ int bdes_BitUtil::extractOne(int srcInteger,
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::extractOne64(Int64 srcInteger,
-                                             int   srcIndex,
-                                             int   numBits,
-                                             int   offset)
+bsls::Types::Int64 bdes_BitUtil::extractOne64(Int64 srcInteger,
+                                              int   srcIndex,
+                                              int   numBits,
+                                              int   offset)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -3218,9 +3220,9 @@ int bdes_BitUtil::extractZero(int srcInteger, int srcIndex, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::extractZero64(Int64 srcInteger,
-                                              int   srcIndex,
-                                              int   numBits)
+bsls::Types::Int64 bdes_BitUtil::extractZero64(Int64 srcInteger,
+                                               int   srcIndex,
+                                               int   numBits)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -3261,10 +3263,10 @@ int bdes_BitUtil::extractZero(int srcInteger,
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::extractZero64(Int64 srcInteger,
-                                              int   srcIndex,
-                                              int   numBits,
-                                              int   offset)
+bsls::Types::Int64 bdes_BitUtil::extractZero64(Int64 srcInteger,
+                                               int   srcIndex,
+                                               int   numBits,
+                                               int   offset)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -3583,7 +3585,7 @@ int bdes_BitUtil::intAbs(int srcInteger)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::intAbs64(Int64 srcInteger)
+bsls::Types::Int64 bdes_BitUtil::intAbs64(Int64 srcInteger)
 {
     return srcInteger ^ ((-srcInteger ^ srcInteger)
                        & -static_cast<int>(srcInteger < 0));
@@ -3597,7 +3599,7 @@ int bdes_BitUtil::intMax(int srcIntegerX, int srcIntegerY)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::intMax64(Int64 srcIntegerX, Int64 srcIntegerY)
+bsls::Types::Int64 bdes_BitUtil::intMax64(Int64 srcIntegerX, Int64 srcIntegerY)
 {
     return srcIntegerX ^ ((srcIntegerY ^ srcIntegerX)
                         & -static_cast<int>(srcIntegerY > srcIntegerX));
@@ -3611,7 +3613,7 @@ int bdes_BitUtil::intMin(int srcIntegerX, int srcIntegerY)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::intMin64(Int64 srcIntegerX, Int64 srcIntegerY)
+bsls::Types::Int64 bdes_BitUtil::intMin64(Int64 srcIntegerX, Int64 srcIntegerY)
 {
     return srcIntegerX ^ ((srcIntegerY ^ srcIntegerX)
                         & -static_cast<int>(srcIntegerY < srcIntegerX));
@@ -3684,9 +3686,9 @@ int bdes_BitUtil::merge(int zeroSrcInteger, int oneSrcInteger, int mask)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::merge64(Int64 zeroSrcInteger,
-                                        Int64 oneSrcInteger,
-                                        Int64 mask)
+bsls::Types::Int64 bdes_BitUtil::merge64(Int64 zeroSrcInteger,
+                                         Int64 oneSrcInteger,
+                                         Int64 mask)
 {
     return zeroSrcInteger ^ ((zeroSrcInteger ^ oneSrcInteger) & mask);
 }
@@ -3713,7 +3715,7 @@ int bdes_BitUtil::setBitOne(int srcInteger, int srcIndex)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::setBitOne64(Int64 srcInteger, int srcIndex)
+bsls::Types::Int64 bdes_BitUtil::setBitOne64(Int64 srcInteger, int srcIndex)
 {
     BSLS_ASSERT_SAFE(       0 <= srcIndex);
     BSLS_ASSERT_SAFE(srcIndex <  BDES_BITS_PER_INT64);
@@ -3738,9 +3740,9 @@ int bdes_BitUtil::setBitValue(int srcInteger, int srcIndex, int value)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::setBitValue64(Int64 srcInteger,
-                                              int   srcIndex,
-                                              int   value)
+bsls::Types::Int64 bdes_BitUtil::setBitValue64(Int64 srcInteger,
+                                               int   srcIndex,
+                                               int   value)
 {
     BSLS_ASSERT_SAFE(       0 <= srcIndex);
     BSLS_ASSERT_SAFE(srcIndex <  BDES_BITS_PER_INT64);
@@ -3766,7 +3768,7 @@ int bdes_BitUtil::setBitZero(int srcInteger, int srcIndex)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::setBitZero64(Int64 srcInteger, int srcIndex)
+bsls::Types::Int64 bdes_BitUtil::setBitZero64(Int64 srcInteger, int srcIndex)
 {
     BSLS_ASSERT_SAFE(       0 <= srcIndex);
     BSLS_ASSERT_SAFE(srcIndex <  BDES_BITS_PER_INT64);
@@ -3785,9 +3787,9 @@ int bdes_BitUtil::setOne(int srcInteger, int srcIndex, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::setOne64(Int64 srcInteger,
-                                         int   srcIndex,
-                                         int   numBits)
+bsls::Types::Int64 bdes_BitUtil::setOne64(Int64 srcInteger,
+                                          int   srcIndex,
+                                          int   numBits)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -3814,10 +3816,10 @@ int bdes_BitUtil::setValue(int srcInteger,
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::setValue64(Int64 srcInteger,
-                                           int   srcIndex,
-                                           Int64 value,
-                                           int   numBits)
+bsls::Types::Int64 bdes_BitUtil::setValue64(Int64 srcInteger,
+                                            int   srcIndex,
+                                            Int64 value,
+                                            int   numBits)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -3840,9 +3842,9 @@ int bdes_BitUtil::setValueUpTo(int srcInteger, int srcIndex, int value)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::setValueUpTo64(Int64 srcInteger,
-                                               int   srcIndex,
-                                               Int64 value)
+bsls::Types::Int64 bdes_BitUtil::setValueUpTo64(Int64 srcInteger,
+                                                int   srcIndex,
+                                                Int64 value)
 {
     BSLS_ASSERT_SAFE(0        <= srcIndex);
     BSLS_ASSERT_SAFE(srcIndex <  BDES_BITS_PER_INT64);
@@ -3861,9 +3863,9 @@ int bdes_BitUtil::setZero(int srcInteger, int srcIndex, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::setZero64(Int64 srcInteger,
-                                          int   srcIndex,
-                                          int   numBits)
+bsls::Types::Int64 bdes_BitUtil::setZero64(Int64 srcInteger,
+                                           int   srcIndex,
+                                           int   numBits)
 {
     BSLS_ASSERT_SAFE(                 0 <= srcIndex);
     BSLS_ASSERT_SAFE(                 0 <= numBits);
@@ -4128,7 +4130,7 @@ int bdes_BitUtil::abs32(int srcInteger)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::abs64(Int64 srcInteger)
+bsls::Types::Int64 bdes_BitUtil::abs64(Int64 srcInteger)
 {
     return intAbs64(srcInteger);
 }
@@ -4140,7 +4142,7 @@ int bdes_BitUtil::max32(int srcIntegerX, int srcIntegerY)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::max64(Int64 srcIntegerX, Int64 srcIntegerY)
+bsls::Types::Int64 bdes_BitUtil::max64(Int64 srcIntegerX, Int64 srcIntegerY)
 {
     return intMax64(srcIntegerX, srcIntegerY);
 }
@@ -4152,7 +4154,7 @@ int bdes_BitUtil::min32(int srcIntegerX, int srcIntegerY)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::min64(Int64 srcIntegerX, Int64 srcIntegerY)
+bsls::Types::Int64 bdes_BitUtil::min64(Int64 srcIntegerX, Int64 srcIntegerY)
 {
     return intMin64(srcIntegerX, srcIntegerY);
 }
@@ -4314,7 +4316,7 @@ int bdes_BitUtil::maskZero(int index, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::maskZero64(int index, int numBits)
+bsls::Types::Int64 bdes_BitUtil::maskZero64(int index, int numBits)
 {
     return zeroMask64(index, numBits);
 }
@@ -4326,7 +4328,7 @@ int bdes_BitUtil::maskOne(int index, int numBits)
 }
 
 inline
-bsls_Types::Int64 bdes_BitUtil::maskOne64(int index, int numBits)
+bsls::Types::Int64 bdes_BitUtil::maskOne64(int index, int numBits)
 {
     return oneMask64(index, numBits);
 }

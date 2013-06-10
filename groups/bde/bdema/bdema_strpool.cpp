@@ -59,7 +59,7 @@ void *bdema_StrPool::allocateImp(int numBytes)
 }
 
 // CREATORS
-bdema_StrPool::bdema_StrPool(bslma_Allocator *basicAllocator)
+bdema_StrPool::bdema_StrPool(bslma::Allocator *basicAllocator)
 : d_blockSize(INITIAL_BLOCKSIZE)
 , d_block_p(0)
 , d_cursor(INITIAL_BLOCKSIZE)

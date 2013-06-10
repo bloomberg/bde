@@ -65,7 +65,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_StrPool(bslma_Allocator *basicAllocator = 0);
+//      my_StrPool(bslma::Allocator *basicAllocator = 0);
 //          // Create a string pool.  Optionally specify a 'basicAllocator'
 //          // used to supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -140,7 +140,7 @@ BDES_IDENT("$Id: $")
 //  }
 //
 //  // CREATORS
-//  my_StrPool::my_StrPool(bslma_Allocator *basicAllocator)
+//  my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
 //  : d_block_p(0)
 //  , d_blockSize(INITIAL_SIZE)
 //  , d_blockList(basicAllocator)  // the blocklist knows about 'bslma_default'
@@ -177,8 +177,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -202,13 +202,13 @@ class bdema_InfrequentDeleteBlockList {
         // blocks, and thereby enabling constant-time additions to the list of
         // blocks.
 
-        Block                              *d_next_p;  // next pointer
-        bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+        Block                               *d_next_p;  // next pointer
+        bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
     };
 
     // DATA
-    Block           *d_head_p;       // address of first block of memory (or 0)
-    bslma_Allocator *d_allocator_p;  // memory allocator; held, but not owned
+    Block            *d_head_p;       // address of 1st block of memory (or 0)
+    bslma::Allocator *d_allocator_p;  // memory allocator; held, but not owned
 
   private:
     // NOT IMPLEMENTED
@@ -218,7 +218,7 @@ class bdema_InfrequentDeleteBlockList {
 
   public:
     // CREATORS
-    bdema_InfrequentDeleteBlockList(bslma_Allocator *basicAllocator = 0);
+    bdema_InfrequentDeleteBlockList(bslma::Allocator *basicAllocator = 0);
         // Create an empty block list suitable for managing memory blocks of
         // varying sizes.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -255,9 +255,9 @@ class bdema_InfrequentDeleteBlockList {
 // CREATORS
 inline
 bdema_InfrequentDeleteBlockList::bdema_InfrequentDeleteBlockList(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_head_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

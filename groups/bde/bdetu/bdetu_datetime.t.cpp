@@ -88,8 +88,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 

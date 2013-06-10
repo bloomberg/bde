@@ -370,7 +370,7 @@ bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle  handle,
     }
     #else
     if (0 == setsockopt(handle, level, option,
-                        (void*)&value, sizeof value )) {
+                        (const void*)&value, sizeof value )) {
         return 0;
     }
     else {
@@ -445,7 +445,7 @@ bteso_SocketOptUtil::getOption(T                          *result,
 {
      #if defined (BSLS_PLATFORM_OS_AIX) ||     \
          defined (BSLS_PLATFORM_OS_LINUX) ||   \
-         defined (BDES_PLATFORM_OS_FREEBSD) || \
+         defined (BSLS_PLATFORM_OS_FREEBSD) || \
          defined (BSLS_PLATFORM_OS_CYGWIN) ||  \
          defined (BSLS_PLATFORM_OS_DARWIN) ||  \
          defined (BSLS_PLATFORM_OS_SOLARIS)

@@ -635,7 +635,7 @@ pcre_free = new_free;
 pcre_stack_malloc = stack_malloc;
 pcre_stack_free = stack_free;
 #else
-bslma_Allocator *allocator = bslma_Default::defaultAllocator();
+bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 #endif
 
 /* Heading line, then prompt for first regex if stdin */
@@ -1067,10 +1067,8 @@ while (!done)
       rre->options = byteflip(rre->options, sizeof(rre->options));
       rre->top_bracket = byteflip(rre->top_bracket, sizeof(rre->top_bracket));
       rre->top_backref = byteflip(rre->top_backref, sizeof(rre->top_backref));
-      rre->first_byte = rre->options & PCRE_FIRSTSET
-                      ? byteflip(rre->first_byte, sizeof(rre->first_byte)) : 0;
-      rre->req_byte = rre->options & PCRE_REQCHSET
-                    ? byteflip(rre->req_byte, sizeof(rre->req_byte)) : 0;
+      rre->first_byte = byteflip(rre->first_byte, sizeof(rre->first_byte));
+      rre->req_byte = byteflip(rre->req_byte, sizeof(rre->req_byte));
       rre->name_table_offset = byteflip(rre->name_table_offset,
         sizeof(rre->name_table_offset));
       rre->name_entry_size = byteflip(rre->name_entry_size,
@@ -1148,7 +1146,7 @@ while (!done)
         while (namecount-- > 0)
           {
           fprintf(outfile, "  %s %*s%3d\n", nametable + 2,
-            nameentrysize - 3 - (int)strlen((char *)nametable + 2), "",
+            nameentrysize - 3 - (int)strlen((const char *)nametable + 2), "",
             GET2(nametable, 0));
           nametable += nameentrysize;
           }
@@ -1938,7 +1936,7 @@ while (!done)
 #endif
   if (tables != NULL)
     {
-    free((void *)tables);
+    free(const_cast<unsigned char *>(tables));
     setlocale(LC_CTYPE, "C");
     }
   }

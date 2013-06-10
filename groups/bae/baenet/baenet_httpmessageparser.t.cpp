@@ -11,6 +11,8 @@
 #include <bcema_pooledblobbufferfactory.h>
 #include <bcema_sharedptr.h>
 
+#include <bdesb_fixedmeminstreambuf.h>  // for testing only
+
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
@@ -91,15 +93,15 @@ class TestEntityProcessor : public baenet_HttpEntityProcessor {
     // PRIVATE TYPES
 
     // PRIVATE DATA MEMBERS
-    bsl::ostream    *d_stream_p;
-    bslma_Allocator *d_allocator_p;
+    bsl::ostream     *d_stream_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // CREATORS
-    explicit TestEntityProcessor(bsl::ostream    *stream,
-                                 bslma_Allocator *basicAllocator = 0)
+    explicit TestEntityProcessor(bsl::ostream     *stream,
+                                 bslma::Allocator *basicAllocator = 0)
     : d_stream_p(stream)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
@@ -1009,6 +1011,13 @@ int main(int argc, char *argv[])
                 }
 
                 int ret = parser.addData(bsl::cerr, &osb);
+                LOOP_ASSERT(i, 0 == ret);
+            }
+        }
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bdesb_FixedMemInStreamBuf fmisb(DATA[i], strlen(DATA[i]));
+                int ret = parser.addData(bsl::cerr, &fmisb);
                 LOOP_ASSERT(i, 0 == ret);
             }
         }

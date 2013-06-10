@@ -53,31 +53,31 @@ using namespace BloombergLP;
 // [ 8] static int maxSupportedBdexVersion();
 //
 // CREATORS
-// [10] bdem_Choice(bslma_Allocator *alloc = 0);
+// [10] bdem_Choice(bslma::Allocator *alloc = 0);
 // [10] bdem_Choice(AggOptionAllocationStrategy  mode,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [10] bdem_Choice(const bdem_ElemType::Type    typesCatalog[],
 //                  int                          typesCatalogLen,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [10] bdem_Choice(const bdem_ElemType::Type    typesCatalog[],
 //                  int                          typesCatalogLen,
 //                  AggOptionAllocationStrategy  allocMode,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [10] bdem_Choice(const TypesCatalog&          typesCatalog,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [10] bdem_Choice(const TypesCatalog&          typesCatalog,
 //                  AggOptionAllocationStrategy  allocMode,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [ 6] bdem_Choice(const bdem_Choice&           original,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [ 6] bdem_Choice(const bdem_Choice&           original,
 //                  AggOptionAllocationStrategy  allocMode,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [ 6] bdem_Choice(const bdem_ChoiceArrayItem&  original,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [ 6] bdem_Choice(const bdem_ChoiceArrayItem&  original,
 //                  AggOptionAllocationStrategy  allocMode,
-//                  bslma_Allocator             *alloc = 0);
+//                  bslma::Allocator            *alloc = 0);
 // [10] ~bdem_Choice();
 //
 // MANIPULATORS
@@ -90,7 +90,7 @@ using namespace BloombergLP;
 // [12] char& theChar();
 // [12] short& theShort();
 // [12] int& theInt();
-// [12] bsls_Types::Int64& theInt64();
+// [12] bsls::Types::Int64& theInt64();
 // [12] float& theFloat();
 // [12] double& theDouble();
 // [12] bsl::string& theString();
@@ -104,7 +104,7 @@ using namespace BloombergLP;
 // [12] bsl::vector<char>& theCharArray();
 // [12] bsl::vector<short>& theShortArray();
 // [12] bsl::vector<int>& theIntArray();
-// [12] bsl::vector<bsls_Types::Int64>& theInt64Array();
+// [12] bsl::vector<bsls::Types::Int64>& theInt64Array();
 // [12] bsl::vector<float>& theFloatArray();
 // [12] bsl::vector<double>& theDoubleArray();
 // [12] bsl::vector<bsl::string>& theStringArray();
@@ -169,7 +169,7 @@ using namespace BloombergLP;
 // [12]  const char& theChar() const;
 // [12]  const short& theShort() const;
 // [12]  const int& theInt() const;
-// [12]  const bsls_Types::Int64& theInt64() const;
+// [12]  const bsls::Types::Int64& theInt64() const;
 // [12]  const float& theFloat() const;
 // [12]  const double& theDouble() const;
 // [12]  const bsl::string& theString() const;
@@ -183,7 +183,7 @@ using namespace BloombergLP;
 // [12]  const bsl::vector<char>& theCharArray() const;
 // [12]  const bsl::vector<short>& theShortArray() const;
 // [12]  const bsl::vector<int>& theIntArray() const;
-// [12]  const bsl::vector<bsls_Types::Int64>& theInt64Array() const;
+// [12]  const bsl::vector<bsls::Types::Int64>& theInt64Array() const;
 // [12]  const bsl::vector<float>& theFloatArray() const;
 // [12]  const bsl::vector<double>& theDoubleArray() const;
 // [12]  const bsl::vector<bsl::string>& theStringArray() const;
@@ -283,7 +283,7 @@ typedef bdem_ConstElemRef        CERef;
 typedef bdem_ElemType            EType;
 typedef bdem_AggregateOption     AggOption;
 
-typedef bsls_Types::Int64        Int64;
+typedef bsls::Types::Int64       Int64;
 
 typedef bdet_Datetime            Datetime;
 typedef bdet_Date                Date;
@@ -451,7 +451,7 @@ bdem_List::bdem_List()
 }
 
 bdem_List::bdem_List(const bdem_List&  original)
-: d_listImp((bdem_ListImp &) original,
+: d_listImp((const bdem_ListImp &) original,
             bdem_AggregateOption::BDEM_PASS_THROUGH)
 {
 }
@@ -581,12 +581,12 @@ const int              A02 = 10;
 const int              B02 = 20;
 const int              N02 = bdetu_Unset<int>::unsetValue();
 
-const bsls_Types::Int64
+const bsls::Types::Int64
                        A03 = -100;
-const bsls_Types::Int64
+const bsls::Types::Int64
                        B03 = -200;
-const bsls_Types::Int64
-                       N03 = bdetu_Unset<bsls_Types::Int64>::unsetValue();
+const bsls::Types::Int64
+                       N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float            A04 = -1.5;
 const float            B04 = -2.5;
@@ -658,15 +658,15 @@ const  bsl::vector<int>                          A12 = fA12();
 const  bsl::vector<int>                          B12 = fB12();
 const  bsl::vector<int>                          N12;
 
-static bsl::vector<bsls_Types::Int64>           fA13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>          fA13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(A03); return t; }
-static bsl::vector<bsls_Types::Int64>           fB13() {
-       bsl::vector<bsls_Types::Int64> t;
+static bsl::vector<bsls::Types::Int64>          fB13() {
+       bsl::vector<bsls::Types::Int64> t;
                                      t.push_back(B03); return t; }
-const  bsl::vector<bsls_Types::Int64>            A13 = fA13();
-const  bsl::vector<bsls_Types::Int64>            B13 = fB13();
-const  bsl::vector<bsls_Types::Int64>            N13;
+const  bsl::vector<bsls::Types::Int64>           A13 = fA13();
+const  bsl::vector<bsls::Types::Int64>           B13 = fB13();
+const  bsl::vector<bsls::Types::Int64>           N13;
 
 static bsl::vector<float>                       fA14() {
        bsl::vector<float> t;         t.push_back(A04); return t; }
@@ -1252,7 +1252,7 @@ static TypesCatalog ggCatalog(const char *s)
     return catalog;
 }
 
-static const void *getValueA(char spec)
+static void *getValueA(char spec)
     // Return the 'A' value corresponding to the specified 'spec'.  Valid
     // input consists of uppercase letters where the index of each letter is
     // in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
@@ -1261,27 +1261,27 @@ static const void *getValueA(char spec)
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_A[index];
+    return const_cast<void *>(VALUES_A[index]);
 }
 
-static const void *getValueB(char spec)
+static void *getValueB(char spec)
     // Return the 'B' value corresponding to the specified 'spec'.
 {
     char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_B[index];
+    return const_cast<void *>(VALUES_B[index]);
 }
 
-static const void *getValueN(char spec)
+static void *getValueN(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_N[index];
+    return const_cast<void *>(VALUES_N[index]);
 }
 
 static CERef getConstERefA(char spec)
@@ -1531,21 +1531,21 @@ int main(int argc, char *argv[])
         // Plan: It suffices to assert that the traits is defined.  One way is
         //   by using 'BSLALG_DECLARE_NESTED_TRAITS' and another is by sniffing
         //   that there is an implicit conversion construction from
-        //   'bslma_Allocator*'.  We also want to discourage the second way, as
-        //   that constructor should be made explicit.
+        //   'bslma::Allocator*'.  We also want to discourage the second way,
+        //   as that constructor should be made explicit.
         //
         // Testing:
         //   bdema allocator model
-        //   correct declaration of bslalg_TypeTraitUsesBslmaAllocator
+        //   correct declaration of bslalg::TypeTraitUsesBslmaAllocator
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << "\nTesting allocator traits"
                                << "\n========================" << bsl::endl;
 
         typedef bdem_Choice Obj;
 
-        ASSERT((0 == bslmf_IsConvertible<bslma_Allocator*, Obj>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bslma::Allocator*, Obj>::VALUE));
         ASSERT((1 ==
-             bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+           bslalg::HasTrait<Obj, bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
       } break;
       case 13: {
@@ -1601,7 +1601,7 @@ int main(int argc, char *argv[])
         #define SET_THE_TYPE(TYPE, ETYPE, NUM) {                              \
           if (verbose) bsl::cout << "\ttheModifiable" << #TYPE << bsl::endl;  \
           {                                                                   \
-            bslma_TestAllocator alloc(veryVeryVerbose);                       \
+            bslma::TestAllocator alloc(veryVeryVerbose);                      \
                                                                               \
             Obj mX(&alloc); const Obj& X = mX;                                \
             mX.addSelection(EType::ETYPE);                                    \
@@ -1717,7 +1717,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = bsl::strlen(SPEC);
 
                 const TypesCatalog CATALOG = ggCatalog(SPEC);
-                bslma_TestAllocator alloc(veryVeryVerbose);
+                bslma::TestAllocator alloc(veryVeryVerbose);
 
                 Obj mX(CATALOG, &alloc); const Obj& X = mX;
                 for (int j = 0; j < LEN; ++j) {
@@ -1768,7 +1768,7 @@ int main(int argc, char *argv[])
         //   const char& theChar() const;
         //   const short& theShort() const;
         //   const int& theInt() const;
-        //   const bsls_Types::Int64& theInt64() const;
+        //   const bsls::Types::Int64& theInt64() const;
         //   const float& theFloat() const;
         //   const double& theDouble() const;
         //   const bsl::string& theString() const;
@@ -1782,7 +1782,7 @@ int main(int argc, char *argv[])
         //   const vector<char>& theCharArray() const;
         //   const vector<short>& theShortArray() const;
         //   const vector<int>& theIntArray() const;
-        //   const vector<bsls_Types::Int64>& theInt64Array() const;
+        //   const vector<bsls::Types::Int64>& theInt64Array() const;
         //   const vector<float>& theFloatArray() const;
         //   const vector<double>& theDoubleArray() const;
         //   const vector<bsl::string>& theStringArray() const;
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
         //   char& theChar() const;
         //   short& theShort() const;
         //   int& theInt() const;
-        //   bsls_Types::Int64& theInt64() const;
+        //   bsls::Types::Int64& theInt64() const;
         //   float& theFloat() const;
         //   double& theDouble() const;
         //   bsl::string& theString() const;
@@ -1813,7 +1813,7 @@ int main(int argc, char *argv[])
         //   vector<char>& theCharArray() const;
         //   vector<short>& theShortArray() const;
         //   vector<int>& theIntArray() const;
-        //   vector<bsls_Types::Int64>& theInt64Array() const;
+        //   vector<bsls::Types::Int64>& theInt64Array() const;
         //   vector<float>& theFloatArray() const;
         //   vector<double>& theDoubleArray() const;
         //   vector<bsl::string>& theStringArray() const;
@@ -1829,7 +1829,7 @@ int main(int argc, char *argv[])
         #define THE_TYPE(TYPE, ETYPE, NUM) {                                  \
           if (verbose) bsl::cout << "\tthe" << #TYPE << bsl::endl;            \
           {                                                                   \
-            bslma_TestAllocator alloc(veryVeryVerbose);                       \
+            bslma::TestAllocator alloc(veryVeryVerbose);                      \
                                                                               \
             Obj mX(&alloc); const Obj& X = mX;                                \
             mX.addSelection(EType::ETYPE);                                    \
@@ -1944,7 +1944,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = bsl::strlen(SPEC);
 
                 const TypesCatalog CATALOG = ggCatalog(SPEC);
-                bslma_TestAllocator alloc(veryVeryVerbose);
+                bslma::TestAllocator alloc(veryVeryVerbose);
 
                 Obj mX(CATALOG, &alloc); const Obj& X = mX;
                 for (int j = 0; j < LEN; ++j) {
@@ -2067,7 +2067,7 @@ int main(int argc, char *argv[])
             const CERef C1_A = getConstERefA(S1);
             const TypesCatalog CATALOG1 = ggCatalog(SPEC1);
 
-            bslma_TestAllocator alloc1(veryVeryVerbose);
+            bslma::TestAllocator alloc1(veryVeryVerbose);
             Obj mX(CATALOG1, &alloc1); const Obj& X = mX;
             Obj mY(CATALOG1, &alloc1); const Obj& Y = mY;
             Obj mZ(CATALOG1, &alloc1); const Obj& Z = mZ;
@@ -2144,26 +2144,26 @@ int main(int argc, char *argv[])
         //   object uses the correct allocator for memory allocations.
         //
         // Testing:
-        //   bdem_Choice(bslma_Allocator               *alloc = 0);
+        //   bdem_Choice(bslma::Allocator              *alloc = 0);
         //   bdem_Choice(AggOption::AllocationStrategy  allocMode,
-        //               bslma_Allocator               *alloc = 0);
+        //               bslma::Allocator              *alloc = 0);
         //   bdem_Choice(const bdem_ElemType::Type      typesCatalog[],
         //               int                            typesCatalogLen,
-        //               bslma_Allocator               *alloc = 0);
+        //               bslma::Allocator              *alloc = 0);
         //   bdem_Choice(const bdem_ElemType::Type      typesCatalog[],
         //               int                            typesCatalogLen,
         //               AggOption::AllocationStrategy  allocMode,
-        //               bslma_Allocator               *alloc = 0);
+        //               bslma::Allocator              *alloc = 0);
         //   bdem_Choice(const TypesCatalog&            typesCatalog,
-        //               bslma_Allocator               *alloc = 0);
+        //               bslma::Allocator              *alloc = 0);
         //   bdem_Choice(const TypesCatalog&            typesCatalog,
         //               AggOption::AllocationStrategy  allocMode,
-        //               bslma_Allocator               *alloc = 0);
+        //               bslma::Allocator              *alloc = 0);
         //   bdem_Choice(const bdem_ChoiceArrayItem&    original,
-        //               bslma_Allocator               *alloc = 0);
+        //               bslma::Allocator              *alloc = 0);
         //   bdem_Choice(const bdem_ChoiceArrayItem&    original,
         //               AggOption::AllocationStrategy  allocMode,
-        //               bslma_Allocator               *alloc = 0);
+        //               bslma::Allocator              *alloc = 0);
         //   ~bdem_Choice();
         // --------------------------------------------------------------------
 
@@ -2264,8 +2264,8 @@ int main(int argc, char *argv[])
             const int   LEN   = bsl::strlen(SPEC);
 
             const TypesCatalog CATALOG = ggCatalog(SPEC);
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&testAllocator);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&testAllocator);
 
             if (veryVerbose) { P(SPEC); }
 
@@ -2474,12 +2474,12 @@ int main(int argc, char *argv[])
               AggOption::AllocationStrategy mode =
                   (AggOption::AllocationStrategy) i;
 
-              bslma_TestAllocator testAllocator(veryVeryVerbose);
+              bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             BEGIN_BSLMA_EXCEPTION_TEST {
 
               bdema_SequentialAllocator  seqAlloc(&testAllocator);
-              bslma_Allocator           *alloc = &testAllocator;
+              bslma::Allocator          *alloc = &testAllocator;
 
               if (veryVerbose) { P(mode); }
 
@@ -2487,7 +2487,7 @@ int main(int argc, char *argv[])
                   alloc = &seqAlloc;
               }
 
-              bslma_DefaultAllocatorGuard guard(alloc);
+              bslma::DefaultAllocatorGuard guard(alloc);
 
               Obj mA(mode); const Obj& A = mA;
               LOOP_ASSERT(LINE, 0  == A.numSelections());
@@ -2816,7 +2816,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { P(SEL) P(randomType) }
 
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
             Obj mX(CATALOG, &alloc); const Obj& X = mX;
             mX.makeSelection(SEL).replaceValue(VALUE);
 
@@ -2956,7 +2956,7 @@ int main(int argc, char *argv[])
                     const CERef C1_A = getConstERefA(S1);
                     const TypesCatalog CATALOG1 = ggCatalog(SPEC1);
 
-                    bslma_TestAllocator alloc1(veryVeryVerbose);
+                    bslma::TestAllocator alloc1(veryVeryVerbose);
                     Obj mX(CATALOG1, &alloc1);  const Obj& X = mX;
                     Obj mY(CATALOG1, &alloc1);  const Obj& Y = mY;
 
@@ -2978,7 +2978,7 @@ int main(int argc, char *argv[])
 
                     // Stream a constructed obj to an empty obj.
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                         Obj mA(&tmpAlloc);  const Obj& A = mA;
                         Obj mB(&tmpAlloc);  const Obj& B = mB;
                         Obj mC(&tmpAlloc);  const Obj& C = mC;
@@ -3041,7 +3041,8 @@ int main(int argc, char *argv[])
 
                             const TypesCatalog CATALOG2 = ggCatalog(SPEC2);
 
-                            bslma_TestAllocator testAllocator(veryVeryVerbose);
+                            bslma::TestAllocator testAllocator(
+                                                              veryVeryVerbose);
 
                             BEGIN_BSLMA_EXCEPTION_TEST {
                                 Obj mA(CATALOG2, &testAllocator);
@@ -3118,7 +3119,7 @@ int main(int argc, char *argv[])
 
                     // Stream from an empty and invalid stream.
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                         Obj mA(X, &tmpAlloc);  const Obj& A = mA;
                         Obj mB(X, &tmpAlloc);  const Obj& B = mB;
                         Obj mC(Y, &tmpAlloc);  const Obj& C = mC;
@@ -3190,7 +3191,7 @@ int main(int argc, char *argv[])
 
                     // Stream an empty obj to a constructed obj.
                     {
-                        bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                        bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                         Obj mA(X, &tmpAlloc);  const Obj& A = mA;
                         Obj mB(X, &tmpAlloc);  const Obj& B = mB;
                         Obj mC(&tmpAlloc);     const Obj& C = mC;  // empty obj
@@ -3309,7 +3310,7 @@ int main(int argc, char *argv[])
 
                 const TypesCatalog CATALOG1 = ggCatalog(SPEC1);
 
-                bslma_TestAllocator alloc1(veryVeryVerbose);
+                bslma::TestAllocator alloc1(veryVeryVerbose);
                 Obj mX(CATALOG1, &alloc1); const Obj& X = mX;
                 Obj mY(CATALOG1, &alloc1); const Obj& Y = mY;
                 Obj mN(CATALOG1, &alloc1); const Obj& N = mN;
@@ -3328,7 +3329,7 @@ int main(int argc, char *argv[])
 
                 // Assign a constructed obj to an empty obj
                 {
-                    bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                    bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                     Obj mA(&tmpAlloc); const Obj& A = mA;
                     Obj mB(&tmpAlloc); const Obj& B = mB;
 
@@ -3348,7 +3349,7 @@ int main(int argc, char *argv[])
 
                 // Assign a constructed (null) obj to an empty obj
                 {
-                    bslma_TestAllocator tmpAlloc(veryVeryVerbose);
+                    bslma::TestAllocator tmpAlloc(veryVeryVerbose);
                     Obj mA(&tmpAlloc); const Obj& A = mA;
                     Obj mB(&tmpAlloc); const Obj& B = mB;
 
@@ -3383,12 +3384,13 @@ int main(int argc, char *argv[])
                             AggOption::AllocationStrategy mode =
                                             (AggOption::AllocationStrategy) k;
 
-                            bslma_TestAllocator testAllocator(veryVeryVerbose);
+                            bslma::TestAllocator testAllocator(
+                                                              veryVeryVerbose);
 
                           BEGIN_BSLMA_EXCEPTION_TEST {
 
                             bdema_SequentialAllocator seqAlloc(&testAllocator);
-                            bslma_Allocator          *alloc = &testAllocator;
+                            bslma::Allocator         *alloc = &testAllocator;
 
                             if (AggOption::BDEM_SUBORDINATE == mode) {
                                 alloc = &seqAlloc;
@@ -3625,13 +3627,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) { bsl::cout << "Copy construct empty objects"
                                      << bsl::endl; }
         {
-            bslma_TestAllocator alloc1(veryVeryVerbose);
+            bslma::TestAllocator alloc1(veryVeryVerbose);
 
             Obj mX(&alloc1); const Obj& X = mX;
 
             {
-                bslma_TestAllocator alloc(veryVeryVerbose);
-                bslma_DefaultAllocatorGuard guard(&alloc);
+                bslma::TestAllocator alloc(veryVeryVerbose);
+                bslma::DefaultAllocatorGuard guard(&alloc);
                 const int BYTES = alloc1.numBytesInUse();
                 Obj mA(mX); const Obj& A = mA;
                 Obj mB(mX, &alloc); const Obj& B = mB;
@@ -3650,12 +3652,12 @@ int main(int argc, char *argv[])
                 AggOption::AllocationStrategy mode =
                                               (AggOption::AllocationStrategy)i;
 
-                bslma_TestAllocator testAllocator(veryVeryVerbose);
+                bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                 bdema_SequentialAllocator seqAlloc(
-                                       &bslma_NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
-                bslma_Allocator *alloc;
+                bslma::Allocator *alloc;
                 if (AggOption::BDEM_SUBORDINATE == mode) {
                     alloc = &seqAlloc;
                 }
@@ -3663,7 +3665,7 @@ int main(int argc, char *argv[])
                     alloc = &testAllocator;
                 }
 
-                bslma_DefaultAllocatorGuard guard(alloc);
+                bslma::DefaultAllocatorGuard guard(alloc);
 
                 const int BYTES = alloc1.numBytesInUse();
                 Obj mA(mX, mode);               const Obj& A = mA;
@@ -3693,7 +3695,7 @@ int main(int argc, char *argv[])
                 CERef VAL_A = getConstERefA(S);
                 CERef VAL_B = getConstERefB(S);
 
-                bslma_TestAllocator origAlloc(veryVeryVerbose);
+                bslma::TestAllocator origAlloc(veryVeryVerbose);
                 Obj mX(CATALOG, &origAlloc); const Obj& X = mX;
                 Obj mY(CATALOG, &origAlloc); const Obj& Y = mY;
 
@@ -3703,8 +3705,8 @@ int main(int argc, char *argv[])
 
                 // Test copy construction using default allocation strategy.
                 {
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
-                    bslma_DefaultAllocatorGuard guard(&testAllocator);
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::DefaultAllocatorGuard guard(&testAllocator);
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     const int BYTES = origAlloc.numBytesInUse();
@@ -3826,14 +3828,14 @@ int main(int argc, char *argv[])
                     AggOption::AllocationStrategy mode =
                                               (AggOption::AllocationStrategy)k;
 
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
 
                     bdema_SequentialAllocator seqAlloc(
-                                       &bslma_NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
-                    bslma_Allocator *alloc;
+                    bslma::Allocator *alloc;
                     if (AggOption::BDEM_SUBORDINATE == mode) {
                         alloc = &seqAlloc;
                     }
@@ -3841,7 +3843,7 @@ int main(int argc, char *argv[])
                         alloc = &testAllocator;
                     }
 
-                    bslma_DefaultAllocatorGuard guard(alloc);
+                    bslma::DefaultAllocatorGuard guard(alloc);
 
                     const int BYTES = origAlloc.numBytesInUse();
                     Obj mA(mX, mode);              const Obj& A = mA;
@@ -4094,8 +4096,8 @@ int main(int argc, char *argv[])
 
                         if (veryVerbose) { P(SPEC1); P(SPEC2); }
 
-                        bslma_TestAllocator alloc1(veryVeryVerbose);
-                        bslma_TestAllocator alloc2(veryVeryVerbose);
+                        bslma::TestAllocator alloc1(veryVeryVerbose);
+                        bslma::TestAllocator alloc2(veryVeryVerbose);
 
                         Obj mX(CATALOG1, &alloc1); const Obj& X = mX;
                         mX.makeSelection(j1).replaceValue(C1_A);
@@ -5178,7 +5180,7 @@ int main(int argc, char *argv[])
             }
             const CERef VALUE_REF(VALUE, DESC);
 
-            bslma_TestAllocator alloc1(veryVeryVerbose);
+            bslma::TestAllocator alloc1(veryVeryVerbose);
 
             Obj mX(&TYPE, 1, &alloc1); const Obj& X = mX;
             mX.makeSelection(0).replaceValue(VALUE_REF);
@@ -5258,7 +5260,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdem_Choice(const vector<EType::Type>&  typesCatalog,
-        //               bslma_Allocator            *basicAlloc = 0);
+        //               bslma::Allocator           *basicAlloc = 0);
         //   ~bdem_Choice();
         //   bdem_ElemRef  makeSelection(int index);
         //   bdem_ChoiceArrayItem& item();
@@ -5375,11 +5377,11 @@ int main(int argc, char *argv[])
               AggOption::AllocationStrategy mode =
                   (AggOption::AllocationStrategy) k;
 
-              bslma_TestAllocator testAllocator(veryVeryVerbose);
+              bslma::TestAllocator testAllocator(veryVeryVerbose);
 
             BEGIN_BSLMA_EXCEPTION_TEST {
               bdema_SequentialAllocator  seqAlloc(&testAllocator);
-              bslma_Allocator           *alloc = &testAllocator;
+              bslma::Allocator           *alloc = &testAllocator;
 
               if (AggOption::BDEM_SUBORDINATE == mode) {
                   alloc = &seqAlloc;
@@ -5550,7 +5552,7 @@ int main(int argc, char *argv[])
         const char SPEC[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef";
               int  LEN    = sizeof(SPEC) - 1;
 
-        bslma_TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         if (verbose)  bsl::cout << "\nTesting 'getElemType'" << bsl::endl;
         {
@@ -5820,7 +5822,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) { bsl::cout << "\tDefault construct Obj mX"
                                          << bsl::endl; }
-            bslma_TestAllocator alloc(veryVeryVerbose);
+            bslma::TestAllocator alloc(veryVeryVerbose);
 
             Obj mX(&alloc); const Obj& X = mX;
             ASSERT(0  == X.numSelections());

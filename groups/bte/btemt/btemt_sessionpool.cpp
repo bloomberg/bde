@@ -60,10 +60,10 @@ struct btemt_SessionPool_Handle {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(btemt_SessionPool_Handle,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    btemt_SessionPool_Handle(bslma_Allocator *basicAllocator = 0)
+    btemt_SessionPool_Handle(bslma::Allocator *basicAllocator = 0)
     : d_sessionStateCB(basicAllocator)
     {
     }
@@ -481,7 +481,7 @@ void btemt_SessionPool::sessionAllocationCb(int             result,
 btemt_SessionPool::btemt_SessionPool(
                       const btemt_ChannelPoolConfiguration&  config,
                       SessionPoolStateCallback const&        poolStateCallback,
-                      bslma_Allocator                       *allocator)
+                      bslma::Allocator                      *allocator)
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
@@ -491,7 +491,7 @@ btemt_SessionPool::btemt_SessionPool(
 , d_blobBufferFactory(config.maxIncomingMessageSize(), allocator)
 , d_useBlobForDataReads(false)
 , d_numSessions(0)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     btemt_ChannelPoolConfiguration defaultValues;
     if (d_config.readTimeout() == defaultValues.readTimeout()) {
@@ -508,7 +508,7 @@ btemt_SessionPool::btemt_SessionPool(
                     const btemt_ChannelPoolConfiguration&  config,
                     SessionPoolStateCallback const&        poolStateCallback,
                     bool                                   useBlobForDataReads,
-                    bslma_Allocator                       *allocator)
+                    bslma::Allocator                      *allocator)
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
@@ -518,7 +518,7 @@ btemt_SessionPool::btemt_SessionPool(
 , d_blobBufferFactory(config.maxIncomingMessageSize(), allocator)
 , d_useBlobForDataReads(useBlobForDataReads)
 , d_numSessions(0)
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     btemt_ChannelPoolConfiguration defaultValues;
     if (d_config.readTimeout() == defaultValues.readTimeout()) {

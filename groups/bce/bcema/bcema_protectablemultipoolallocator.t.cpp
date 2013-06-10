@@ -2,8 +2,10 @@
 
 #include <bcema_protectablemultipoolallocator.h>
 
-#include <bslma_testallocatorexception.h>         // for testing only
 #include <bdema_testprotectableblockdispenser.h>  // for testing only
+
+#include <bslma_testallocatorexception.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>                         // atoi()
 #include <bsl_cstring.h>                         // memcpy(), memset()
@@ -22,13 +24,13 @@ using namespace bsl;  // automatically added by script
 // The 'bcema_ProtectableMultipoolAllocator' class consists of one
 // constructor, a destructor, and six manipulators.  The manipulators are used
 // to allocate, deallocate, reserve, and protect memory.  Since this component
-// is a memory manager, the 'bdema_testallocator' component is used
+// is a memory manager, the 'bslma_testallocator' component is used
 // extensively to verify expected behaviors.  Note that the copying of objects
 // is explicitly disallowed since the copy constructor and assignment operator
 // are declared 'private' and left unimplemented.  So we are primarily
 // concerned that the internal memory management system functions as expected
 // and that the manipulators operator correctly.  Note that memory allocation
-// must be tested for exception neutrality (also via the 'bdema_testallocator'
+// must be tested for exception neutrality (also via the 'bslma_testallocator'
 // component).  Several small helper functions are also used to facilitate
 // testing.
 //-----------------------------------------------------------------------------
@@ -105,7 +107,7 @@ static void aSsErT(int c, const char *s, int i) {
         try {
 
 #define END_BDEMA_EXCEPTION_TEST                                          \
-        } catch (bslma_TestAllocatorException& e) {                       \
+        } catch (bslma::TestAllocatorException& e) {                      \
             if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \
                 --bdemaExceptionLimit;                                    \
                 cout << "(*** " << bdemaExceptionCounter << ')';          \
@@ -148,14 +150,14 @@ typedef bdema_ProtectableBlockList          PBList;
 typedef bdema_ProtectableBlockDispenser     PBDisp;
 typedef bdema_TestProtectableBlockDispenser TestDisp;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 // Warning: keep this in sync with bdema_Multipool.h!
 struct Header {
     // Stores pool number of this item.
     union {
-        int                                d_pool;   // pool for this item
-        bsls_AlignmentUtil::MaxAlignedType d_dummy;  // force maximum alignment
+        int                                 d_pool;   // pool for this item
+        bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. alignment
     } d_header;
 };
 
@@ -265,6 +267,9 @@ int testProtectedSet(Obj *testAlloc, char *data, char val)
     g_testingAlloc = testAlloc;
 
     signal(SIGSEGV, segfaultHandler);
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+    signal(SIGBUS, segfaultHandler);
+#endif
 
     // protect the memory
     g_testingAlloc->protect();
@@ -277,7 +282,12 @@ int testProtectedSet(Obj *testAlloc, char *data, char val)
     // global segmentation fault variables
     g_testingAlloc = NULL;
     g_inTest       = false;
+
     signal(SIGSEGV, SIG_DFL);
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+    signal(SIGBUS, SIG_DFL);
+#endif
+
     return (g_fault) ? 0 : 1;
 }
 
@@ -307,8 +317,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    int ACTUAL_PG_SIZE =
-                       bdema_NativeProtectableBlockDispenser::pageSize();
+    int ACTUAL_PG_SIZE = bdema_NativeProtectableBlockDispenser::pageSize();
     int PG_SIZE        = TestDisp::BDEMA_DEFAULT_PAGE_SIZE;
     int HEADER_SIZE    = PBList::blockHeaderSize();
 
@@ -342,7 +351,7 @@ int main(int argc, char *argv[])
 //..
 //     #include <bsls_alignmentutil.h>
 
-        const int MIN_SIZE = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        const int MIN_SIZE = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         struct Small {
             char x[MIN_SIZE];
@@ -428,7 +437,7 @@ int main(int argc, char *argv[])
         //   'reserveCapacity' for each of the three pools with the tabulated
         //   number of elements.  Allocate as many objects as required to
         //   bring the size of the pool under test to the specified number of
-        //   elements and use 'bslma_TestAllocator' to verify that no
+        //   elements and use 'bslma::TestAllocator' to verify that no
         //   additional allocations have occurred.  Perform each test in the
         //   standard 'bdema' exception-testing macro block.
         //
@@ -499,7 +508,7 @@ int main(int argc, char *argv[])
         //   scribble over the extent of all allocated objects.  This
         //   ensures that no portion of the object is used by the multi-pool
         //   for bookkeeping.  Make use of the facilities available in
-        //   'bslma_TestAllocator' to monitor memory usage.  Verify with
+        //   'bslma::TestAllocator' to monitor memory usage.  Verify with
         //   appropriate assertions that all memory is indeed relinquished
         //   to the memory allocator following each 'release'.
         //
@@ -569,7 +578,7 @@ int main(int argc, char *argv[])
         //   scribble over the extent of all allocated objects.  This
         //   ensures that no portion of the object is used by the multi-pool
         //   for bookkeeping.  Make use of the facilities available in
-        //   'bslma_TestAllocator' to monitor memory usage.  Verify with
+        //   'bslma::TestAllocator' to monitor memory usage.  Verify with
         //   appropriate assertions that no demands are put on the memory
         //   allocation beyond those attributable to start-up.
         //
@@ -802,7 +811,7 @@ int main(int argc, char *argv[])
                                 i,
                                 j,
                                 k,
-                                0 == bsls_PlatformUtil::IntPtr(p) % MAX_ALIGN);
+                                0 == bsls::Types::IntPtr(p) % MAX_ALIGN);
 
                         scribble(p, OBJ_SIZE);
                         const int pCalculatedPool =
@@ -821,7 +830,7 @@ int main(int argc, char *argv[])
                                 i,
                                 j,
                                 k,
-                                0 == bsls_PlatformUtil::IntPtr(q) % MAX_ALIGN);
+                                0 == bsls::Types::IntPtr(q) % MAX_ALIGN);
 
                         scribble(q, OBJ_SIZE);
                         const int qCalculatedPool =
@@ -866,7 +875,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the constructor: 1) without
         //   exceptions and 2) in the presence of exceptions during memory
-        //   allocations using a 'bslma_TestAllocator' and varying its
+        //   allocations using a 'bslma::TestAllocator' and varying its
         //   *allocation* *limit*.  When the object goes out of scope, verify
         //   that the destructor properly deallocates all memory that had been
         //   allocated to it.
@@ -880,7 +889,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bcema_ProtectableMultipoolAllocator(int numPools,
-        //                                      bslma_Allocator *ba = 0);
+        //                                       bslma::Allocator *ba = 0);
         //   ~bcema_ProtectableMultipoolAllocator();
         // --------------------------------------------------------------------
         if (verbose) cout << endl << "Testing 'constructor' and 'destructor'"

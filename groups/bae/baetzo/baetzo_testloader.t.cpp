@@ -65,7 +65,7 @@ using namespace bsl;
 //:   or object allocator.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baetzo_TestLoader(bslma_Allocator *basicAllocator = 0);
+// [ 2] baetzo_TestLoader(bslma::Allocator *basicAllocator = 0);
 // [ 2] ~baetzo_TestLoader();
 //
 // MANIPULATORS
@@ -789,7 +789,7 @@ struct LogVerbosityGuard {
 bsl::string fmtZoneinfoIdent1(const baetzo_Zoneinfo&  zoneinfo,
                               int                     level,
                               int                     spacesPerLevel,
-                              bslma_Allocator        *basicAllocator = 0)
+                              bslma::Allocator       *basicAllocator = 0)
     // Return the result of invoking the 'print' method of the specified
     // 'zoneinfo' object at the specified 'level' plus 1 at the specified
     // 'spacesPerLevel' and indentation of the first line suppressed.
@@ -828,13 +828,13 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    bslma_TestAllocator          globalAllocator("gA", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator          globalAllocator("gA", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator          allocator("zA", veryVeryVeryVerbose);
-    bslma_TestAllocator         *Z = &allocator;
-    bslma_TestAllocator          defaultAllocator("dA", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard  guard(&defaultAllocator);
+    bslma::TestAllocator          allocator("zA", veryVeryVeryVerbose);
+    bslma::TestAllocator         *Z = &allocator;
+    bslma::TestAllocator          defaultAllocator("dA", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard  guard(&defaultAllocator);
 
     switch (test) { case 0:
       case 5: {
@@ -901,10 +901,10 @@ int main(int argc, char *argv[])
         bdet_Datetime edtTransition(bdet_Date(year, 3,  edtDay), edtTime);
         bdet_Datetime estTransition(bdet_Date(year, 11, estDay), estTime);
 
-        bsls_Types::Int64 edtTransitionT =
+        bsls::Types::Int64 edtTransitionT =
                        bdetu_Epoch::convertToTimeT64(edtTransition);
 
-        bsls_Types::Int64 estTransitionT =
+        bsls::Types::Int64 estTransitionT =
                        bdetu_Epoch::convertToTimeT64(estTransition);
 //..
 // Now, having created values representing the daylight savings time
@@ -1044,11 +1044,11 @@ int main(int argc, char *argv[])
             const bdet_Datetime LONDON_DATETIME = bdet_Datetime(2009, 2, 1, 1);
             const bdet_Datetime TOKYO_DATETIME  = bdet_Datetime(2009, 2, 1, 1);
 
-            const bsls_Types::Int64 NY_INT64     =
+            const bsls::Types::Int64 NY_INT64     =
                                     bdetu_Epoch::convertToTimeT64(NY_DATETIME);
-            const bsls_Types::Int64 LONDON_INT64 =
+            const bsls::Types::Int64 LONDON_INT64 =
                                 bdetu_Epoch::convertToTimeT64(LONDON_DATETIME);
-            const bsls_Types::Int64 TOKYO_INT64  =
+            const bsls::Types::Int64 TOKYO_INT64  =
                                  bdetu_Epoch::convertToTimeT64(TOKYO_DATETIME);
 
             newYork.addTransition(NY_INT64, nyType);
@@ -1095,7 +1095,7 @@ int main(int argc, char *argv[])
             baetzo_LocalTimeDescriptor nyType(-10, true, "NYTIME", Z);
             const bdet_Datetime        NY_DATETIME =
                                                  bdet_Datetime(2009, 12, 1, 1);
-            const bsls_Types::Int64    NY_INT64 =
+            const bsls::Types::Int64   NY_INT64 =
                                     bdetu_Epoch::convertToTimeT64(NY_DATETIME);
             baetzo_Zoneinfo            newYork(Z);
             newYork.setIdentifier("America/New_York");
@@ -1319,11 +1319,11 @@ int main(int argc, char *argv[])
             const bdet_Datetime LONDON_DATETIME = bdet_Datetime(2009, 2, 1, 1);
             const bdet_Datetime TOKYO_DATETIME  = bdet_Datetime(2009, 2, 1, 1);
 
-            const bsls_Types::Int64 NY_INT64     =
+            const bsls::Types::Int64 NY_INT64     =
                                     bdetu_Epoch::convertToTimeT64(NY_DATETIME);
-            const bsls_Types::Int64 LONDON_INT64 =
+            const bsls::Types::Int64 LONDON_INT64 =
                                 bdetu_Epoch::convertToTimeT64(LONDON_DATETIME);
-            const bsls_Types::Int64 TOKYO_INT64  =
+            const bsls::Types::Int64 TOKYO_INT64  =
                                  bdetu_Epoch::convertToTimeT64(TOKYO_DATETIME);
 
             newYork.addTransition(NY_INT64,     nyType);
@@ -1398,7 +1398,7 @@ int main(int argc, char *argv[])
 
             const bdet_Datetime NY_DATETIME_PRIME  =
                                                  bdet_Datetime(2001, 9, 11, 2);
-            const bsls_Types::Int64 NY_INT64_PRIME =
+            const bsls::Types::Int64 NY_INT64_PRIME =
                               bdetu_Epoch::convertToTimeT64(NY_DATETIME_PRIME);
             newYorkPrime.addTransition(NY_INT64_PRIME, nyTypePrime);
 
@@ -1424,24 +1424,27 @@ int main(int argc, char *argv[])
         {
             int                       rc;
 
-            bdesb_FixedMemInStreamBuf bufNewYork((char*) AMERICA_NEW_YORK_DATA,
-                                                sizeof(AMERICA_NEW_YORK_DATA));
+            bdesb_FixedMemInStreamBuf bufNewYork(
+                    (const char*) AMERICA_NEW_YORK_DATA,
+                    sizeof(AMERICA_NEW_YORK_DATA));
             bsl::istream              streamNewYork(&bufNewYork);
             baetzo_Zoneinfo           newYork;
             rc = baetzo_ZoneinfoBinaryReader::read(&newYork, streamNewYork);
             ASSERT(0 == rc);
             newYork.setIdentifier(AMERICA_NEW_YORK_ID);
 
-            bdesb_FixedMemInStreamBuf bufRome((char*) EUROPE_ROME_DATA,
-                                              sizeof(EUROPE_ROME_DATA));
+            bdesb_FixedMemInStreamBuf bufRome(
+                    (const char*) EUROPE_ROME_DATA,
+                    sizeof(EUROPE_ROME_DATA));
             bsl::istream              streamRome(&bufRome);
             baetzo_Zoneinfo           rome;
             rc = baetzo_ZoneinfoBinaryReader::read(&rome, streamRome);
             ASSERT(0 == rc);
             rome.setIdentifier(EUROPE_ROME_ID);
 
-            bdesb_FixedMemInStreamBuf bufSaigon((char*) ASIA_SAIGON_DATA,
-                                                sizeof(ASIA_SAIGON_DATA));
+            bdesb_FixedMemInStreamBuf bufSaigon(
+                    (const char*) ASIA_SAIGON_DATA,
+                    sizeof(ASIA_SAIGON_DATA));
             bsl::istream              streamSaigon(&bufSaigon);
             baetzo_Zoneinfo           saigon;
             rc = baetzo_ZoneinfoBinaryReader::read(&saigon, streamSaigon);
@@ -1515,7 +1518,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
 
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             Obj obj;
 
@@ -1594,7 +1598,7 @@ int main(int argc, char *argv[])
         //:   and (c) passing the address of a test allocator distinct from the
         //:   default.  For each of these three iterations: (C-1,2,3)
         //:
-        //:   1 Create three 'bslma_TestAllocator' objects, and install one as
+        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
         //:     as the current default allocator (note that a ubiquitous test
         //:     allocator is already installed as the global allocator).
         //:
@@ -1625,7 +1629,7 @@ int main(int argc, char *argv[])
         //:   8 In a separate block, test for exception-neutrality using the
         //:     standard 'BSLMA_TESTALLOCATOR_EXCEPTION*' macros.  (C-6)
         //
-        // Testing: baetzo_TestLoader(bslma_Allocator *basicAllocator = 0);
+        // Testing: baetzo_TestLoader(bslma::Allocator *basicAllocator = 0);
         //   ~baetzo_TestLoader(); void setTimeZone(const baetzo_Zoneinfo& tz);
         // --------------------------------------------------------------------
 
@@ -1642,8 +1646,8 @@ int main(int argc, char *argv[])
         // Add some bogus data
         baetzo_LocalTimeDescriptor nyType(-10, true, "NYTIME", Z);
 
-        const bdet_Datetime     NY_DATETIME = bdet_Datetime(2009, 12, 1, 1);
-        const bsls_Types::Int64 NY_INT64    =
+        const bdet_Datetime      NY_DATETIME = bdet_Datetime(2009, 12, 1, 1);
+        const bsls::Types::Int64 NY_INT64    =
                                     bdetu_Epoch::convertToTimeT64(NY_DATETIME);
 
         newYork.addTransition(NY_INT64, nyType);
@@ -1657,14 +1661,14 @@ int main(int argc, char *argv[])
 
             if (verbose) P(CONFIG);
 
-            bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
-            bslma_TestAllocator da("default",   veryVeryVeryVerbose);
-            bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma_DefaultAllocatorGuard guard(&da);
+            bslma::DefaultAllocatorGuard guard(&da);
 
-            Obj                 *objPtr;
-            bslma_TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
 
             switch (CONFIG) {
               case 'a': {
@@ -1686,9 +1690,9 @@ int main(int argc, char *argv[])
 
             if (verbose) Q("Object Constructed");
 
-            Obj&                  mX = *objPtr;  const Obj& X = mX;
-            bslma_TestAllocator&  oa = *objAllocatorPtr;
-            bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // -----------------------------------------------------
             // QOA: Default allocated 'TestLoaders' do not allocate.
@@ -1759,10 +1763,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
 
         {
-            bslma_TestAllocator da("default",  veryVeryVeryVerbose);
-            bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            bslma_DefaultAllocatorGuard guard(&da);
+            bslma::DefaultAllocatorGuard guard(&da);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1809,11 +1813,11 @@ int main(int argc, char *argv[])
         const bdet_Datetime LONDON_DATETIME = bdet_Datetime(2009, 12, 1, 1);
         const bdet_Datetime TOKYO_DATETIME  = bdet_Datetime(2009, 12, 1, 1);
 
-        const bsls_Types::Int64 NY_INT64     =
+        const bsls::Types::Int64 NY_INT64     =
                                     bdetu_Epoch::convertToTimeT64(NY_DATETIME);
-        const bsls_Types::Int64 LONDON_INT64 =
+        const bsls::Types::Int64 LONDON_INT64 =
                                 bdetu_Epoch::convertToTimeT64(LONDON_DATETIME);
-        const bsls_Types::Int64 TOKYO_INT64  =
+        const bsls::Types::Int64 TOKYO_INT64  =
                                  bdetu_Epoch::convertToTimeT64(TOKYO_DATETIME);
 
         newYork.addTransition(NY_INT64, nyType);
@@ -1846,8 +1850,8 @@ int main(int argc, char *argv[])
             cout << "\tTest loading binary data." << endl;
         }
         ASSERT(0 == x.setTimeZone(ASIA_BANGKOK_ID,
-                                  reinterpret_cast<const char  *>(ASIA_BANGKOK_DATA),
-                                  sizeof(ASIA_BANGKOK_DATA)));
+                            reinterpret_cast<const char  *>(ASIA_BANGKOK_DATA),
+                            sizeof(ASIA_BANGKOK_DATA)));
         ASSERT(0 == x.loadTimeZone(&value, ASIA_BANGKOK_ID));
 
         // Bangkok data file has 1 transition, +1 for the first 'bdet_Datetime'
@@ -1857,8 +1861,8 @@ int main(int argc, char *argv[])
         {
             LogVerbosityGuard guard;
             ASSERT(0 != x.setTimeZone(ASIA_BANGKOK_ID,
-                                      reinterpret_cast<const char  *>(ASIA_BANGKOK_DATA),
-                                      15));
+                            reinterpret_cast<const char  *>(ASIA_BANGKOK_DATA),
+                            15));
         }
       } break;
       default: {

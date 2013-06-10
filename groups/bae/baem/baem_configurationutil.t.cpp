@@ -204,8 +204,8 @@ typedef baem_MetricDescription::UserDataKey Key;
 //..
                 const baem_MetricDescription& description = 
                                                 *gIt->metricId().description();
-                unsigned int *thresholdPtr = 
-                         (unsigned int *)description.userData(d_thresholdKey);
+                const unsigned int *thresholdPtr = 
+                    (const unsigned int *)description.userData(d_thresholdKey);
                 if (thresholdPtr && gIt->total() > *thresholdPtr) {
                     bsl::cout << "WARNING: " << gIt->metricId() 
                               << " = "       << gIt->total() 
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
     };
     const int NUM_TYPES = sizeof ALL_TYPES / sizeof *ALL_TYPES;
 
-    bslma_TestAllocator cAlloc;
+    bslma::TestAllocator cAlloc;
     baem_MetricFormat formatA(&cAlloc);
     baem_MetricFormat formatB(&cAlloc);
     formatB.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
@@ -260,9 +260,9 @@ int main(int argc, char *argv[])
     };
     const int NUM_FORMATS = sizeof FORMATS / sizeof *FORMATS;
 
-    bslma_TestAllocator testAlloc; bslma_TestAllocator *Z = &testAlloc;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 8: {
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
 //  {
 //
         // ...
-        bslma_Allocator *allocator = bslma_Default::allocator(0);
+        bslma::Allocator *allocator = bslma::Default::allocator(0);
         baem_DefaultMetricsManagerScopedGuard managerGuard;
 //..
 // Now we create a user data key for our threshold information:

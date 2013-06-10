@@ -18,20 +18,35 @@ namespace BloombergLP {
              // class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>
              // --------------------------------------------------------
 
+// CREATORS
+bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::bcemt_SemaphoreImpl(
+                                                                     int count)
+{
+    int result = ::sem_init(&d_sem, 0, count);
+
+    (void) result;
+    BSLS_ASSERT(result == 0);
+}
+
 // MANIPULATORS
 void bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::post(int number)
 {
     for (int i = 0; i < number; i++) {
-        ::sem_post(&d_sem);
+        post();
     }
 }
 
 void
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::wait()
 {
-    while (::sem_wait(&d_sem) != 0 && EINTR == errno) {
-        ;
-    }
+    sem_t * sem_p = &d_sem;
+    int result = 0;
+
+    do {
+        result = ::sem_wait(sem_p);
+    } while (result != 0 && errno == EINTR);
+
+    BSLS_ASSERT(result == 0);
 }
 
 }  // close namespace BloombergLP

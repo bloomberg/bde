@@ -18,7 +18,7 @@ namespace BloombergLP {
 // CREATORS
 baenet_HttpMessageGenerator::baenet_HttpMessageGenerator(
                                     bcema_BlobBufferFactory *blobBufferFactory,
-                                    bslma_Allocator         *basicAllocator)
+                                    bslma::Allocator        *basicAllocator)
 : d_blobBufferFactory_p(blobBufferFactory)
 , d_messageDataCallback(basicAllocator)
 , d_transferEncoding(baenet_HttpTransferEncoding::BAENET_IDENTITY)

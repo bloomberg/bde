@@ -107,8 +107,8 @@ class btesos_TcpTimedCbConnector_Reg {
 
     // PRIVATE DATA MEMBERS
     union {
-        char                               d_callbackArena[ARENA_SIZE];
-        bsls_AlignmentUtil::MaxAlignedType d_align;  // for alignment
+        char                                d_callbackArena[ARENA_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;  // for alignment
     }                 d_cb;
 
     int               d_isTimedChannel;
@@ -210,14 +210,14 @@ btesos_TcpTimedCbConnector_Reg::~btesos_TcpTimedCbConnector_Reg()
             (bdef_Function<void (*)(btesc_TimedCbChannel*, int)> *)
                                                   (void *)d_cb.d_callbackArena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         bdef_Function<void (*)(btesc_TimedCbChannel*, int)> *cb =
              (bdef_Function<void (*)(btesc_TimedCbChannel*, int)>*)
                 (void *)d_cb.d_callbackArena;
 
-        bslalg_ScalarDestructionPrimitives::destroy(cb);
+        bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
 }
 
@@ -269,7 +269,7 @@ const bdef_Function<void (*)(btesc_CbChannel*, int)>&
 btesos_TcpTimedCbConnector_Reg::callback() const {
     BSLS_ASSERT(0 == d_isTimedChannel);
     return *(bdef_Function<void (*)(btesc_CbChannel*, int)>*)
-                (void *)d_cb.d_callbackArena;
+                (void *) const_cast<char *>(d_cb.d_callbackArena);
 }
 
 inline
@@ -277,7 +277,7 @@ const bdef_Function<void (*)(btesc_TimedCbChannel*, int)>&
 btesos_TcpTimedCbConnector_Reg::timedCallback() const {
     BSLS_ASSERT(1 == d_isTimedChannel);
     return *(bdef_Function<void (*)(btesc_TimedCbChannel*, int)>*)
-                                                  (void *)d_cb.d_callbackArena;
+                            (void *) const_cast<char *>(d_cb.d_callbackArena);
 }
 
 // ============================================================================
@@ -660,7 +660,7 @@ void btesos_TcpTimedCbConnector::deallocateCb(btesc_CbChannel *channel) {
 btesos_TcpTimedCbConnector::btesos_TcpTimedCbConnector(
                   bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
                   bteso_TimerEventManager                      *manager,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(btesos_TcpTimedCbConnector_Reg), basicAllocator)
 , d_channelPool(CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
@@ -686,7 +686,7 @@ btesos_TcpTimedCbConnector::btesos_TcpTimedCbConnector(
                   bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
                   bteso_TimerEventManager                      *manager,
                   int                                           numChannels,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(btesos_TcpTimedCbConnector_Reg), basicAllocator)
 , d_channelPool(CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)

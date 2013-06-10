@@ -23,7 +23,7 @@ int createCacheData(
            int                                            *errorCode,
            const bdet_Datetime&                            currentTime,
            bteso_IpResolutionCache::ResolveByNameCallback  resolverCallback,
-           bslma_Allocator                                *basicAllocator)
+           bslma::Allocator                               *basicAllocator)
     // Load, into the specified 'result', a shared pointer to a newly created
     // 'bteso_IpResolutionCache_Data' object (using the specified
     // 'basicAllocator' to supply memory) containing the IPv4 addresses of the
@@ -74,13 +74,13 @@ class bteso_IpResolutionCache_Data {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_IpResolutionCache,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATOR
     bteso_IpResolutionCache_Data(
                     const bsl::vector<bteso_IPv4Address>&  ipAddresses,
                     const bdet_Datetime&                   creationTime,
-                    bslma_Allocator                       *basicAllocator = 0);
+                    bslma::Allocator                      *basicAllocator = 0);
         // Create an object storing the specified 'ipAddresses', and having the
         // specified 'creationTime'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -104,7 +104,7 @@ class bteso_IpResolutionCache_Data {
 bteso_IpResolutionCache_Data::bteso_IpResolutionCache_Data(
                      const bsl::vector<bteso_IPv4Address>&  addresses,
                      const bdet_Datetime&                   creationTime,
-                     bslma_Allocator                       *basicAllocator)
+                     bslma::Allocator                      *basicAllocator)
 : d_addresses(addresses, basicAllocator)
 , d_creationTime(creationTime)
 {
@@ -128,23 +128,23 @@ const bdet_Datetime& bteso_IpResolutionCache_Data::creationTime() const
 
 // CREATORS
 bteso_IpResolutionCache::bteso_IpResolutionCache(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_cache(basicAllocator)
 , d_timeToLive(0, 1)
 , d_rwLock()
 , d_resolverCallback(bteso_ResolveUtil::defaultResolveByNameCallback())
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bteso_IpResolutionCache::bteso_IpResolutionCache(
                                        ResolveByNameCallback  resolverCallback,
-                                       bslma_Allocator       *basicAllocator)
+                                       bslma::Allocator      *basicAllocator)
 : d_cache(basicAllocator)
 , d_timeToLive(0, 1)
 , d_rwLock()
 , d_resolverCallback(resolverCallback)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(resolverCallback);
 }

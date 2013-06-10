@@ -72,15 +72,20 @@ struct baem_MetricsManager_PublicationHelper {
     // private template operations in the header.  Note that this class is a
     // friend of 'baem_MetricsManager'.
 
-    typedef bsl::map<baem_Publisher *, baem_MetricSample> SampleCache;
+    typedef bcema_SharedPtrUtil::PtrLess<baem_Publisher> PublisherSpLess;
+
+    typedef bsl::map<bcema_SharedPtr<baem_Publisher>,
+                     baem_MetricSample,
+                     PublisherSpLess> SampleCache;
         // An alias for a mapping of 'baem_Publisher' to the
         // 'baem_MetricSample' for that publisher.
 
     // CLASS METHODS
-    static void updateSampleCache(SampleCache                   *sampleCache,
-                                  baem_Publisher                *publisher,
-                                  const baem_MetricSampleGroup&  sampleGroup,
-                                  const bdet_DatetimeTz&         timeStamp);
+    static void updateSampleCache(
+                        SampleCache                            *sampleCache,
+                        const bcema_SharedPtr<baem_Publisher>&  publisher,
+                        const baem_MetricSampleGroup&           sampleGroup,
+                        const bdet_DatetimeTz&                  timeStamp);
         // Update the specified 'sampleCache' entry for the specified
         // 'publisher' with the specified 'sampleGroup' collected at the
         // specified 'timeStamp'.  If a 'baem_MetricSample' does not already
@@ -150,7 +155,7 @@ class MapProctor {
     // erases an element from a templatized container object.  The templatized
     // type 'CONTAINER' may be any type that supports an 'erase' operation
     // taking a 'CONTAINER::iterator' object, however it was explicitly
-    // intended to support 'bsl::map' and 'bsl::hash_map' objects.  On
+    // intended to support 'bsl::map' and 'bsl::unordered_map' objects.  On
     // construction, a 'MapProctor' is provided the address of a 'CONTAINER'
     // object and an iterator (i.e., 'CONTAINER::iterator') into that object.
     // On destruction, if 'release()' has not been called, a 'MapProctor'
@@ -198,7 +203,7 @@ class MapProctor {
         // 'false' or 'insertResult.first' is a valid iterator into 'map' and
         // remains valid for the lifetime of this object.  Note that the type
         // of 'insertResult' matches the return type of 'bsl::map::insert()'
-        // and 'bsl::hash_map::insert()'.
+        // and 'bsl::unordered_map::insert()'.
 
     ~MapProctor();
         // If 'active()' is 'true', erase the element indicated by the
@@ -279,7 +284,7 @@ class baem_MetricsManager_PublisherRegistry {
     PublisherSet        d_generalPublishers;   // set of publishers publishing
                                                // for 'all' categories
 
-    bslma_Allocator    *d_allocator_p;         // allocator (held, not owned)
+    bslma::Allocator   *d_allocator_p;         // allocator (held, not owned)
 
     // NOT IMPLEMENTED
     baem_MetricsManager_PublisherRegistry(
@@ -303,10 +308,10 @@ class baem_MetricsManager_PublisherRegistry {
 
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricsManager_PublisherRegistry,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricsManager_PublisherRegistry(bslma_Allocator *basicAllocator);
+    baem_MetricsManager_PublisherRegistry(bslma::Allocator *basicAllocator);
         // Create an empty publisher registry.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -426,10 +431,10 @@ class baem_MetricsManager_CallbackRegistry {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricsManager_CallbackRegistry,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricsManager_CallbackRegistry(bslma_Allocator *basicAllocator = 0);
+    baem_MetricsManager_CallbackRegistry(bslma::Allocator *basicAllocator = 0);
         // Create an empty callback registry.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -487,10 +492,10 @@ class baem_MetricsManager_CallbackRegistry {
                 // --------------------------------------------
 
 void baem_MetricsManager_PublicationHelper::updateSampleCache(
-                               SampleCache                   *sampleCache,
-                               baem_Publisher                *publisher,
-                               const baem_MetricSampleGroup&  sampleGroup,
-                               const bdet_DatetimeTz&         timeStamp)
+                        SampleCache                            *sampleCache,
+                        const bcema_SharedPtr<baem_Publisher>&  publisher,
+                        const baem_MetricSampleGroup&           sampleGroup,
+                        const bdet_DatetimeTz&                  timeStamp)
 {
     SampleCache::iterator it = sampleCache->find(publisher);
     if (it == sampleCache->end()) {
@@ -559,8 +564,6 @@ void baem_MetricsManager_PublicationHelper::publish(
     if (categoriesBegin == categoriesEnd) {
         return;                                                       // RETURN
     }
-
-    typedef bsl::map<baem_Publisher *, baem_MetricSample>  SampleCache;
     typedef bsl::vector<bcema_SharedPtr<bsl::vector<baem_MetricRecord> > >
                                                            RecordBuffer;
 
@@ -618,8 +621,7 @@ void baem_MetricsManager_PublicationHelper::publish(
         baem_MetricsManager_PublisherRegistry::general_iterator gIt =
                                          manager->d_publishers->beginGeneral();
         for (; gIt != manager->d_publishers->endGeneral(); ++gIt) {
-            updateSampleCache(&sampleCache, gIt->ptr(),
-                              sampleGroup, timeStamp);
+            updateSampleCache(&sampleCache, *gIt, sampleGroup, timeStamp);
         }
 
         baem_MetricsManager_PublisherRegistry::specific_iterator sIt =
@@ -627,17 +629,23 @@ void baem_MetricsManager_PublicationHelper::publish(
         baem_MetricsManager_PublisherRegistry::specific_iterator sEnd =
                                      manager->d_publishers->upperBound(*catIt);
         for (; sIt != sEnd; ++sIt) {
-            updateSampleCache(&sampleCache, sIt->second.ptr(),
+            updateSampleCache(&sampleCache, sIt->second,
                               sampleGroup, timeStamp);
         }
     }
+
+    // SampleCache does not hold any pointers to internal state of
+    // MetricsManager, so we can release the lock.  This frees the
+    // implementations of the concrete 'publish' methods from any deadlock
+    // concerns.
+    propertiesGuard.release()->unlock();
 
     // We now have a 'sampleCache' containing a map from a publisher to the
     // sample to publish for that publisher.  Iterate over the 'sampleCache'
     // and publish those samples.
     SampleCache::iterator smplIt;
     for (smplIt = sampleCache.begin(); smplIt != sampleCache.end(); ++smplIt) {
-        baem_Publisher     *publisher = smplIt->first;
+        baem_Publisher     *publisher = smplIt->first.ptr();
         baem_MetricSample&  sample    = smplIt->second;
 
         publisher->publish(sample);
@@ -691,11 +699,11 @@ void MapProctor<CONTAINER>::release()
                // -------------------------------------------
 
 baem_MetricsManager_PublisherRegistry::baem_MetricsManager_PublisherRegistry(
-                                              bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_specificPublishers(basicAllocator)
 , d_registry(basicAllocator)
 , d_generalPublishers(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -882,7 +890,7 @@ int baem_MetricsManager_PublisherRegistry::findSpecificPublishers(
 
 // CREATORS
 baem_MetricsManager_CallbackRegistry::baem_MetricsManager_CallbackRegistry(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_nextHandle(0)
 , d_callbacks(basicAllocator)
 , d_handles(basicAllocator)
@@ -976,7 +984,7 @@ int baem_MetricsManager_CallbackRegistry::findCallbacks(
                          // -------------------------
 
 // CREATORS
-baem_MetricsManager::baem_MetricsManager(bslma_Allocator *basicAllocator)
+baem_MetricsManager::baem_MetricsManager(bslma::Allocator *basicAllocator)
 : d_metricRegistry(basicAllocator)
 , d_collectors(&d_metricRegistry, basicAllocator)
 , d_callbacks(0)
@@ -985,7 +993,7 @@ baem_MetricsManager::baem_MetricsManager(bslma_Allocator *basicAllocator)
 , d_prevResetTimes(basicAllocator)
 , d_publishLock()
 , d_rwLock()
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_callbacks.load(
              new (*d_allocator_p) baem_MetricsManager_CallbackRegistry(

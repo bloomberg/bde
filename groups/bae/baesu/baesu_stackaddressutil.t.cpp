@@ -13,6 +13,8 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
+#ifndef BSLS_PLATFORM_OS_CYGWIN
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 // 'getStackAddresses' will not be able to trace through our stack frames if
 // we're optimized on Windows
@@ -94,7 +96,7 @@ static void aSsErT(int c, const char *s, int i)
 // GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_Types::UintPtr UintPtr;
+typedef bsls::Types::UintPtr UintPtr;
 int verbose;
 int veryVerbose;
 
@@ -349,12 +351,12 @@ CASE3_FUNC(3, 4)
 CASE3_FUNC(4, 5)
 
 #if    defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_32_BIT)
-# define FUNC_ADDRESS(p) (((UintPtr *) (UintPtr) (p))[1])
+# define FUNC_ADDRESS_NUM(p) (((UintPtr *) (UintPtr) (p))[1])
 #elif (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT)) \
     || defined(BSLS_PLATFORM_OS_AIX)
-# define FUNC_ADDRESS(p) (((UintPtr *) (UintPtr) (p))[0])
+# define FUNC_ADDRESS_NUM(p) (((UintPtr *) (UintPtr) (p))[0])
 #else
-# define FUNC_ADDRESS(p) ((UintPtr) (p))
+# define FUNC_ADDRESS_NUM(p) ((UintPtr) (p))
 #endif
 
 int func0()
@@ -366,12 +368,12 @@ int func0()
     void *buffer[BUFFER_LENGTH];
     AddressEntry entries[BUFFER_LENGTH];
 
-    UintPtr funcAddrs[] = { FUNC_ADDRESS(&func0),
-                            FUNC_ADDRESS(&func1),
-                            FUNC_ADDRESS(&func2),
-                            FUNC_ADDRESS(&func3),
-                            FUNC_ADDRESS(&func4),
-                            FUNC_ADDRESS(&func5) };
+    UintPtr funcAddrs[] = { FUNC_ADDRESS_NUM(&func0),
+                            FUNC_ADDRESS_NUM(&func1),
+                            FUNC_ADDRESS_NUM(&func2),
+                            FUNC_ADDRESS_NUM(&func3),
+                            FUNC_ADDRESS_NUM(&func4),
+                            FUNC_ADDRESS_NUM(&func5) };
     enum { NUM_FUNC_ADDRS = sizeof funcAddrs / sizeof *funcAddrs };
 
     bsl::memset(buffer, 0, sizeof(buffer));
@@ -604,7 +606,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) cout << "\tgetStackAddresses" << endl;
             {
@@ -693,7 +696,7 @@ int main(int argc, char *argv[])
         const int iterations = 100 * 1000;
 #endif
 
-        bsls_Stopwatch sw;
+        bsls::Stopwatch sw;
         TD::funcPtr = &baesu_StackAddressUtil::getStackAddresses;
 
         sw.start(true);
@@ -718,6 +721,15 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#else
+
+int main()
+{
+    return -1;
+}
+
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:

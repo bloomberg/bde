@@ -461,13 +461,20 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -531,56 +538,56 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
 
                         // *** scalar integer values ***
 
-    virtual bdex_OutStream& putInt64(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putInt64(bsls::Types::Int64 value);
         // Format the least significant 64 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant eight bytes of 'value' in network byte
         // order.
 
-    virtual bdex_OutStream& putUint64(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putUint64(bsls::Types::Int64 value);
         // Format the least significant 64 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant eight bytes of 'value' in network byte
         // order.
 
-    virtual bdex_OutStream& putInt56(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putInt56(bsls::Types::Int64 value);
         // Format the least significant 56 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant seven bytes of 'value' in network byte
         // order.
 
-    virtual bdex_OutStream& putUint56(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putUint56(bsls::Types::Int64 value);
         // Format the least significant 56 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant seven bytes of 'value' in network byte
         // order.
 
-    virtual bdex_OutStream& putInt48(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putInt48(bsls::Types::Int64 value);
         // Format the least significant 48 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant six bytes of 'value' in network byte
         // order.
 
-    virtual bdex_OutStream& putUint48(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putUint48(bsls::Types::Int64 value);
         // Format the least significant 48 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant six bytes of 'value' in network byte
         // order.
 
-    virtual bdex_OutStream& putInt40(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putInt40(bsls::Types::Int64 value);
         // Format the least significant 40 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
         // Write the least significant five bytes of 'value' in network byte
         // order.
 
-    virtual bdex_OutStream& putUint40(bsls_PlatformUtil::Int64 value);
+    virtual bdex_OutStream& putUint40(bsls::Types::Int64 value);
         // Format the least significant 40 bits of the specified 'value' to
         // this output stream and return a reference to this modifiable stream.
         //
@@ -675,7 +682,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
                         // *** arrays of integer values ***
 
     virtual bdex_OutStream&
-    putArrayInt64(const bsls_PlatformUtil::Int64 *array, int length);
+    putArrayInt64(const bsls::Types::Int64 *array, int length);
         // Format as an atomic sequence the least significant 64 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -685,8 +692,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // in network byte order.
 
     virtual bdex_OutStream&
-    putArrayUint64(const bsls_PlatformUtil::Uint64 *array,
-                   int                              length);
+    putArrayUint64(const bsls::Types::Uint64 *array, int length);
         // Format as an atomic sequence the least significant 64 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -696,8 +702,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // in network byte order.
 
     virtual bdex_OutStream&
-    putArrayInt56(const bsls_PlatformUtil::Int64 *array,
-                  int                             length);
+    putArrayInt56(const bsls::Types::Int64 *array, int length);
         // Format as an atomic sequence the least significant 56 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -707,8 +712,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // in network byte order.
 
     virtual bdex_OutStream&
-    putArrayUint56(const bsls_PlatformUtil::Uint64 *array,
-                   int                              length);
+    putArrayUint56(const bsls::Types::Uint64 *array, int length);
         // Format as an atomic sequence the least significant 56 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -718,8 +722,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // in network byte order.
 
     virtual bdex_OutStream&
-    putArrayInt48(const bsls_PlatformUtil::Int64 *array,
-                  int                             length);
+    putArrayInt48(const bsls::Types::Int64 *array, int length);
         // Format as an atomic sequence the least significant 48 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -729,8 +732,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // in network byte order.
 
     virtual bdex_OutStream&
-    putArrayUint48(const bsls_PlatformUtil::Uint64 *array,
-                   int                              length);
+    putArrayUint48(const bsls::Types::Uint64 *array, int length);
         // Format as an atomic sequence the least significant 48 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -740,8 +742,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // in network byte order.
 
     virtual bdex_OutStream&
-    putArrayInt40(const bsls_PlatformUtil::Int64 *array,
-                  int                             length);
+    putArrayInt40(const bsls::Types::Int64 *array, int length);
         // Format as an atomic sequence the least significant 40 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -751,8 +752,7 @@ class bdex_OutStreamAdapter : public bdex_OutStream {
         // in network byte order.
 
     virtual bdex_OutStream&
-    putArrayUint40(const bsls_PlatformUtil::Uint64 *array,
-                   int                              length);
+    putArrayUint40(const bsls::Types::Uint64 *array, int length);
         // Format as an atomic sequence the least significant 40 bits of each
         // of the specified 'length' leading entries in the specified 'array'
         // to this output stream and return a reference to this modifiable
@@ -937,7 +937,7 @@ bdex_OutStream& bdex_OutStreamAdapter<STREAM>::putVersion(int value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putInt64(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putInt64(bsls::Types::Int64 value)
 {
     d_stream_p->putInt64(value);
     return *this;
@@ -946,7 +946,7 @@ bdex_OutStreamAdapter<STREAM>::putInt64(bsls_PlatformUtil::Int64 value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putUint64(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putUint64(bsls::Types::Int64 value)
 {
     d_stream_p->putUint64(value);
     return *this;
@@ -955,7 +955,7 @@ bdex_OutStreamAdapter<STREAM>::putUint64(bsls_PlatformUtil::Int64 value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putInt56(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putInt56(bsls::Types::Int64 value)
 {
     d_stream_p->putInt56(value);
     return *this;
@@ -964,7 +964,7 @@ bdex_OutStreamAdapter<STREAM>::putInt56(bsls_PlatformUtil::Int64 value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putUint56(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putUint56(bsls::Types::Int64 value)
 {
     d_stream_p->putUint56(value);
     return *this;
@@ -973,7 +973,7 @@ bdex_OutStreamAdapter<STREAM>::putUint56(bsls_PlatformUtil::Int64 value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putInt48(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putInt48(bsls::Types::Int64 value)
 {
     d_stream_p->putInt48(value);
     return *this;
@@ -982,7 +982,7 @@ bdex_OutStreamAdapter<STREAM>::putInt48(bsls_PlatformUtil::Int64 value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putUint48(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putUint48(bsls::Types::Int64 value)
 {
     d_stream_p->putUint48(value);
     return *this;
@@ -991,7 +991,7 @@ bdex_OutStreamAdapter<STREAM>::putUint48(bsls_PlatformUtil::Int64 value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putInt40(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putInt40(bsls::Types::Int64 value)
 {
     d_stream_p->putInt40(value);
     return *this;
@@ -1000,7 +1000,7 @@ bdex_OutStreamAdapter<STREAM>::putInt40(bsls_PlatformUtil::Int64 value)
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putUint40(bsls_PlatformUtil::Int64 value)
+bdex_OutStreamAdapter<STREAM>::putUint40(bsls::Types::Int64 value)
 {
     d_stream_p->putUint40(value);
     return *this;
@@ -1108,9 +1108,8 @@ bdex_OutStream& bdex_OutStreamAdapter<STREAM>::putString(
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putArrayInt64(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             length)
+bdex_OutStreamAdapter<STREAM>::putArrayInt64(const bsls::Types::Int64 *array,
+                                             int                       length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1123,8 +1122,8 @@ template <class STREAM>
 inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint64(
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              length)
+                                             const bsls::Types::Uint64 *array,
+                                             int                        length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1136,9 +1135,8 @@ bdex_OutStreamAdapter<STREAM>::putArrayUint64(
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putArrayInt56(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             length)
+bdex_OutStreamAdapter<STREAM>::putArrayInt56(const bsls::Types::Int64 *array,
+                                             int                       length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1151,8 +1149,8 @@ template <class STREAM>
 inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint56(
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              length)
+                                             const bsls::Types::Uint64 *array,
+                                             int                        length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1164,9 +1162,8 @@ bdex_OutStreamAdapter<STREAM>::putArrayUint56(
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putArrayInt48(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             length)
+bdex_OutStreamAdapter<STREAM>::putArrayInt48(const bsls::Types::Int64 *array,
+                                             int                       length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1179,8 +1176,8 @@ template <class STREAM>
 inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint48(
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              length)
+                                             const bsls::Types::Uint64 *array,
+                                             int                        length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1192,9 +1189,8 @@ bdex_OutStreamAdapter<STREAM>::putArrayUint48(
 template <class STREAM>
 inline
 bdex_OutStream&
-bdex_OutStreamAdapter<STREAM>::putArrayInt40(
-                                        const bsls_PlatformUtil::Int64 *array,
-                                        int                             length)
+bdex_OutStreamAdapter<STREAM>::putArrayInt40(const bsls::Types::Int64 *array,
+                                             int                       length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1207,8 +1203,8 @@ template <class STREAM>
 inline
 bdex_OutStream&
 bdex_OutStreamAdapter<STREAM>::putArrayUint40(
-                                       const bsls_PlatformUtil::Uint64 *array,
-                                       int                              length)
+                                             const bsls::Types::Uint64 *array,
+                                             int                        length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);

@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//  bdesu_FileUtil: struct that scopes file system utilities
+//  bdesu_FileUtil: struct which scopes file system utilities
 //
 //@SEE_ALSO: bdesu_pathutil
 //
@@ -23,19 +23,14 @@ BDES_IDENT("$Id: $")
 ///--------------------------------------
 // Locking has the following caveats for the following operating systems:
 //:
-//: o On Posix:
+//: o On Posix, closing a file releases all locks on all file descriptors
+//:   referring to that file within the current process.  [Doc 1] [Doc 2]
 //:
-//:   o Closing a file releases all locks on all file descriptors referring to
-//:     that file within the current process.
+//: o On Posix, the child of a fork does not inherit the locks of the parent
+//:   process.  [Doc 1] [Doc 2]
 //:
-//:   o The child of a 'fork' does not inherit the locks of the parent process.
-//:
-//:   o References:
-//:     o 'http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html'
-//:     o 'http://www.manpagez.com/man/2/fcntl'
-//:
-//: o On at least some flavors of Unix, a file descriptor opened in read-only
-//:   mode cannot be locked for writing.
+//: o On at least some flavors of Unix, you can't lock a file for writing using
+//:   file descriptor opened in read-only mode.
 //
 ///Platform-Specific Atomicity Caveats
 ///-----------------------------------
@@ -205,9 +200,10 @@ struct bdesu_FileUtil {
 #else
     typedef int     FileDescriptor;
 #if defined(BSLS_PLATFORM_OS_FREEBSD) \
- || defined(BSLS_PLATFORM_OS_DARWIN)
-    // 'off_t' is 64-bit on Darwin/FreeBSD (even when running 32-bit) so they
-    // do not have a 'off64_t' type.
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+    // 'off_t' is 64-bit on Darwin/FreeBSD/cygwin (even when running 32-bit),
+    // so they do not have an 'off64_t' type.
 
     typedef off_t Offset;
 #else
@@ -461,12 +457,12 @@ struct bdesu_FileUtil {
     static int sync(char *addr, int numBytes, bool sync);
         // Synchronize the contents of the specified 'numBytes' of mapped
         // memory beginning at the specified 'addr' with the underlying file
-        // on disk.  If 'sync' is true, block until all writes to
-        // nonvolatile media have actually completed; otherwise, return once
-        // they have been scheduled.  Return 0 on success, and a nonzero
-        // value otherwise.  The behavior is undefined if 'addr' is not
-        // aligned on a page boundary, if 'numBytes' is not a multiple of
-        // 'pageSize()', or if 'numBytes' is 0.
+        // on disk.  If the specified 'sync' flag is true, block until all
+        // writes to nonvolatile media have actually completed; otherwise,
+        // return once they have been scheduled.  Return 0 on success, and a
+        // non-zero value otherwise.  The behavior is undefined unless 'addr'
+        // is aligned on a page boundary, 'numBytes' is a multiple of
+        // 'pageSize()', and '0 <= numBytes'.
 
     static Offset seek(FileDescriptor fd, Offset offset, int whence);
         // Set the file pointer associated with the specified 'fd' file

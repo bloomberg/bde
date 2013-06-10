@@ -12,9 +12,9 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bcem_ErrorAttributes: type for descriptive errors
 //
-//@SEE_ALSO: bcem_aggregate, bcem_aggregateraw
+//@SEE_ALSO: bcem_aggregate, bcem_aggregateraw, bcem_errorcode
 //
-//@AUTHOR: David Schumann (dschumann1)
+//@AUTHOR: David Schumann (dschumann1), Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides a simply-constrained value-semantic
 // class, 'bcem_ErrorAttributes', combining an enumerated error code with
@@ -90,7 +90,7 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // 'bcem_ErrorAttributes' is a vocabulary type for communicating errors from
-// operations on a 'bcem_Aggregate' objects.  In this example, we elide the
+// operations on 'bcem_Aggregate' objects.  In this example, we elide the
 // actual function invocation and instead focus on handling the error
 // condition:
 //..
@@ -125,12 +125,8 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSL_CLIMITS
-#include <bsl_climits.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -149,20 +145,31 @@ namespace BloombergLP {
 
 class bcem_ErrorAttributes {
     // This value-semantic attribute class provides an enumerated error code
-    // and a human-readable message to describe errors arising from the
-    // the usage of dynamically-typed objects.
+    // and a human-readable message to describe errors arising from the usage
+    // of dynamically-typed objects.  See the Attributes section under
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for 'bdex' serialization
+    //: o is *exception-neutral* (agnostic)
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    bsl::string          d_description;                // description of error
-    bcem_ErrorCode::Code d_code;                       // error code
+    bsl::string          d_description;  // description of error
+    bcem_ErrorCode::Code d_code;         // error code
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcem_ErrorAttributes,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit bcem_ErrorAttributes(bslma_Allocator *basicAllocator = 0);
+    explicit bcem_ErrorAttributes(bslma::Allocator *basicAllocator = 0);
         // Create a 'bcem_ErrorAttributes' object having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -170,14 +177,14 @@ class bcem_ErrorAttributes {
 
     bcem_ErrorAttributes(bcem_ErrorCode::Code  code,
                          const char           *description,
-                         bslma_Allocator      *basicAllocator = 0);
+                         bslma::Allocator     *basicAllocator = 0);
         // Create a 'bcem_ErrorAttributes' object having the specified 'code'
         // and 'description'.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     bcem_ErrorAttributes(const bcem_ErrorAttributes&  original,
-                         bslma_Allocator             *basicAllocator = 0);
+                         bslma::Allocator            *basicAllocator = 0);
         // Create a 'bcem_ErrorAttributes' object having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -189,8 +196,9 @@ class bcem_ErrorAttributes {
 
     // MANIPULATORS
     // bcem_ErrorAttributes& operator=(const bcem_ErrorAttributes& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // Note that the compiler generated default is used.
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that the compiler generated default is used.
 
     void setCode(bcem_ErrorCode::Code value);
         // Set the 'code' attribute of this object to the specified 'value'.
@@ -201,8 +209,7 @@ class bcem_ErrorAttributes {
 
     // ACCESSORS
     bcem_ErrorCode::Code code() const;
-        // Return a reference providing non-modifiable access to the 'code'
-        // attribute of this object.
+        // Return the 'code' attribute of this object.
 
     const bsl::string& description() const;
         // Return a reference providing non-modifiable access to the
@@ -231,7 +238,7 @@ bool operator==(const bcem_ErrorAttributes& lhs,
                 const bcem_ErrorAttributes& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'bcem_ErrorAttributes' objects have
-    // the same value if all of the corresponding values of their 'code', and
+    // the same value if all of the corresponding values of their 'code' and
     // 'description' attributes are the same.
 
 bool operator!=(const bcem_ErrorAttributes& lhs,
@@ -239,7 +246,7 @@ bool operator!=(const bcem_ErrorAttributes& lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'bcem_ErrorAttributes' objects
     // do not have the same value if any of the corresponding values of their
-    // 'code', or 'description' attributes are not the same.
+    // 'code' or 'description' attributes are not the same.
 
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          const bcem_ErrorAttributes& object);
@@ -261,7 +268,7 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
 
 // CREATORS
 inline
-bcem_ErrorAttributes::bcem_ErrorAttributes(bslma_Allocator *basicAllocator)
+bcem_ErrorAttributes::bcem_ErrorAttributes(bslma::Allocator *basicAllocator)
 : d_description(basicAllocator)
 , d_code(bcem_ErrorCode::BCEM_SUCCESS)
 {
@@ -270,7 +277,7 @@ bcem_ErrorAttributes::bcem_ErrorAttributes(bslma_Allocator *basicAllocator)
 inline
 bcem_ErrorAttributes::bcem_ErrorAttributes(
                                    const bcem_ErrorAttributes&  original,
-                                   bslma_Allocator             *basicAllocator)
+                                   bslma::Allocator            *basicAllocator)
 : d_description(original.d_description, basicAllocator)
 , d_code(original.d_code)
 {
@@ -280,7 +287,7 @@ inline
 bcem_ErrorAttributes::bcem_ErrorAttributes(
                                           bcem_ErrorCode::Code  code,
                                           const char           *description,
-                                          bslma_Allocator      *basicAllocator)
+                                          bslma::Allocator     *basicAllocator)
 : d_description(description, basicAllocator)
 , d_code(code)
 {

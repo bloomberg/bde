@@ -31,8 +31,6 @@ BDES_IDENT_RCSID(bdec_ptrqueue_cpp,"$Id$ $CSID$")
 //                               |___ d_back         |___ d_front
 //..
 
-#include <bsls_platformutil.h>                  // for testing only
-
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002

@@ -1,13 +1,9 @@
-// bdema_bufferallocator.cpp    -*-C++-*-
+// bdema_bufferallocator.cpp                                          -*-C++-*-
+
 #include <bdema_bufferallocator.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdema_bufferallocator_cpp,"$Id$ $CSID$")
-
-
-namespace BloombergLP {
-
-}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -3,6 +3,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
+#include <bsls_types.h>
 
 #include <bsl_climits.h>  // 'INT_MAX'
 #include <bsl_cstdio.h>   // 'fprintf'
@@ -28,7 +29,7 @@ int bdema_SequentialPool::calculateNextBufferSize(int size) const
     int nextSize = 0 == bufferSize
                    ? INITIAL_SIZE : bufferSize;
 
-    if (bsls_BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
+    if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
         return nextSize;
     }
 
@@ -48,17 +49,17 @@ int bdema_SequentialPool::calculateNextBufferSize(int size) const
 }
 
 // CREATORS
-bdema_SequentialPool::bdema_SequentialPool(bslma_Allocator *basicAllocator)
+bdema_SequentialPool::bdema_SequentialPool(bslma::Allocator *basicAllocator)
 : d_buffer()
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(bsls_BlockGrowth::Strategy  growthStrategy,
-                     bslma_Allocator            *basicAllocator)
+bdema_SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                     bslma::Allocator            *basicAllocator)
 : d_buffer()
 , d_growthStrategy(growthStrategy)
 , d_maxBufferSize(INT_MAX)
@@ -67,19 +68,19 @@ bdema_SequentialPool(bsls_BlockGrowth::Strategy  growthStrategy,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(bsls_Alignment::Strategy  alignmentStrategy,
-                     bslma_Allocator          *basicAllocator)
+bdema_SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
+                     bslma::Allocator          *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(bsls_BlockGrowth::Strategy  growthStrategy,
-                     bsls_Alignment::Strategy    alignmentStrategy,
-                     bslma_Allocator            *basicAllocator)
+bdema_SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                     bsls::Alignment::Strategy    alignmentStrategy,
+                     bslma::Allocator            *basicAllocator)
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
 , d_maxBufferSize(INT_MAX)
@@ -88,10 +89,10 @@ bdema_SequentialPool(bsls_BlockGrowth::Strategy  growthStrategy,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(int              initialSize,
-                     bslma_Allocator *basicAllocator)
+bdema_SequentialPool(int               initialSize,
+                     bslma::Allocator *basicAllocator)
 : d_buffer()
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {
@@ -106,9 +107,9 @@ bdema_SequentialPool(int              initialSize,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(int                         initialSize,
-                     bsls_BlockGrowth::Strategy  growthStrategy,
-                     bslma_Allocator            *basicAllocator)
+bdema_SequentialPool(int                          initialSize,
+                     bsls::BlockGrowth::Strategy  growthStrategy,
+                     bslma::Allocator            *basicAllocator)
 : d_buffer()
 , d_growthStrategy(growthStrategy)
 , d_maxBufferSize(INT_MAX)
@@ -121,11 +122,11 @@ bdema_SequentialPool(int                         initialSize,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(int                       initialSize,
-                     bsls_Alignment::Strategy  alignmentStrategy,
-                     bslma_Allocator          *basicAllocator)
+bdema_SequentialPool(int                        initialSize,
+                     bsls::Alignment::Strategy  alignmentStrategy,
+                     bslma::Allocator          *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {
@@ -136,10 +137,10 @@ bdema_SequentialPool(int                       initialSize,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(int                         initialSize,
-                     bsls_BlockGrowth::Strategy  growthStrategy,
-                     bsls_Alignment::Strategy    alignmentStrategy,
-                     bslma_Allocator            *basicAllocator)
+bdema_SequentialPool(int                          initialSize,
+                     bsls::BlockGrowth::Strategy  growthStrategy,
+                     bsls::Alignment::Strategy    alignmentStrategy,
+                     bslma::Allocator            *basicAllocator)
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
 , d_maxBufferSize(INT_MAX)
@@ -151,13 +152,12 @@ bdema_SequentialPool(int                         initialSize,
     d_buffer.replaceBuffer(buffer, initialSize);
 }
 
-
 bdema_SequentialPool::
-bdema_SequentialPool(int              initialSize,
-                     int              maxBufferSize,
-                     bslma_Allocator *basicAllocator)
+bdema_SequentialPool(int               initialSize,
+                     int               maxBufferSize,
+                     bslma::Allocator *basicAllocator)
 : d_buffer()
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBufferSize(maxBufferSize)
 , d_blockList(basicAllocator)
 {
@@ -174,10 +174,10 @@ bdema_SequentialPool(int              initialSize,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(int                         initialSize,
-                     int                         maxBufferSize,
-                     bsls_BlockGrowth::Strategy  growthStrategy,
-                     bslma_Allocator            *basicAllocator)
+bdema_SequentialPool(int                          initialSize,
+                     int                          maxBufferSize,
+                     bsls::BlockGrowth::Strategy  growthStrategy,
+                     bslma::Allocator            *basicAllocator)
 : d_buffer()
 , d_growthStrategy(growthStrategy)
 , d_maxBufferSize(maxBufferSize)
@@ -191,12 +191,12 @@ bdema_SequentialPool(int                         initialSize,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(int                       initialSize,
-                     int                       maxBufferSize,
-                     bsls_Alignment::Strategy  alignmentStrategy,
-                     bslma_Allocator          *basicAllocator)
+bdema_SequentialPool(int                        initialSize,
+                     int                        maxBufferSize,
+                     bsls::Alignment::Strategy  alignmentStrategy,
+                     bslma::Allocator          *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBufferSize(maxBufferSize)
 , d_blockList(basicAllocator)
 {
@@ -208,11 +208,11 @@ bdema_SequentialPool(int                       initialSize,
 }
 
 bdema_SequentialPool::
-bdema_SequentialPool(int                         initialSize,
-                     int                         maxBufferSize,
-                     bsls_BlockGrowth::Strategy  growthStrategy,
-                     bsls_Alignment::Strategy    alignmentStrategy,
-                     bslma_Allocator            *basicAllocator)
+bdema_SequentialPool(int                          initialSize,
+                     int                          maxBufferSize,
+                     bsls::BlockGrowth::Strategy  growthStrategy,
+                     bsls::Alignment::Strategy    alignmentStrategy,
+                     bslma::Allocator            *basicAllocator)
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
 , d_maxBufferSize(maxBufferSize)
@@ -226,7 +226,7 @@ bdema_SequentialPool(int                         initialSize,
 }
 
 // MANIPULATORS
-void *bdema_SequentialPool::allocate(bsls_PlatformUtil::size_type size)
+void *bdema_SequentialPool::allocate(bsls::Types::size_type size)
 {
     // TBD: Change this block to 'BSLS_ASSERT(1 <= size)' after robo is clean.
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
@@ -258,8 +258,7 @@ void *bdema_SequentialPool::allocate(bsls_PlatformUtil::size_type size)
     return d_buffer.allocateRaw(size);
 }
 
-void *bdema_SequentialPool::allocateAndExpand(
-                                            bsls_PlatformUtil::size_type *size)
+void *bdema_SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
 {
     BSLS_ASSERT(size);
     BSLS_ASSERT(0 < *size);

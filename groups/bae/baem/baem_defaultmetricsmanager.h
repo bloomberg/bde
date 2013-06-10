@@ -93,12 +93,12 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -121,7 +121,7 @@ struct baem_DefaultMetricsManager {
     static baem_MetricsManager *s_singleton_p; // metrics manager default
                                                // instance
 
-    static bslma_Allocator     *s_allocator_p; // allocator used to initialize
+    static bslma::Allocator    *s_allocator_p; // allocator used to initialize
                                                // the singleton
   public:
     // CLASS METHODS
@@ -132,7 +132,7 @@ struct baem_DefaultMetricsManager {
         // has already been destroyed.  Note that this operation is logically
         // equivalent to 'manager ? manager : instance()'.
 
-    static baem_MetricsManager *create(bslma_Allocator *basicAllocator = 0);
+    static baem_MetricsManager *create(bslma::Allocator *basicAllocator = 0);
         // Create the default 'baem_MetricsManager' instance and return the
         // address of the modifiable created instance.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -146,8 +146,8 @@ struct baem_DefaultMetricsManager {
         // and add it to the default metrics manager in order to publish
         // metrics.
 
-    static baem_MetricsManager *create(bsl::ostream&    stream,
-                                       bslma_Allocator *basicAllocator = 0);
+    static baem_MetricsManager *create(bsl::ostream&     stream,
+                                       bslma::Allocator *basicAllocator = 0);
         // Create the default 'baem_MetricsManager' instance and configure it
         // with a 'baem_StreamPublisher' that will publish recorded metrics to
         // the specified 'stream', then return the address of the modifiable
@@ -192,8 +192,9 @@ class baem_DefaultMetricsManagerScopedGuard {
 
   public:
     // CREATORS
-    baem_DefaultMetricsManagerScopedGuard(bsl::ostream&    stream,
-                                          bslma_Allocator *basicAllocator = 0);
+    baem_DefaultMetricsManagerScopedGuard(
+                                         bsl::ostream&     stream,
+                                         bslma::Allocator *basicAllocator = 0);
         // Create a scoped guard which invokes
         // 'baem_DefaultMetricsManager::create()' to create a default metrics
         // manager instance that is configured with a stream publisher that
@@ -204,7 +205,8 @@ class baem_DefaultMetricsManagerScopedGuard {
         // 'baem_DefaultMetricsManager::instance()' is 0 prior to creating
         // the guard.
 
-    baem_DefaultMetricsManagerScopedGuard(bslma_Allocator *basicAllocator = 0);
+    baem_DefaultMetricsManagerScopedGuard(
+                                         bslma::Allocator *basicAllocator = 0);
         // Create a scoped guard which invokes the
         // 'baem_DefaultMetricsManager::create' method.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator'
@@ -259,15 +261,15 @@ baem_MetricsManager *baem_DefaultMetricsManager::manager(
 // CREATORS
 inline
 baem_DefaultMetricsManagerScopedGuard::baem_DefaultMetricsManagerScopedGuard(
-                                               bsl::ostream&    stream,
-                                               bslma_Allocator *basicAllocator)
+                                              bsl::ostream&     stream,
+                                              bslma::Allocator *basicAllocator)
 {
     baem_DefaultMetricsManager::create(stream, basicAllocator);
 }
 
 inline
 baem_DefaultMetricsManagerScopedGuard::baem_DefaultMetricsManagerScopedGuard(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 {
     baem_DefaultMetricsManager::create(basicAllocator);
 }

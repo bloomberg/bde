@@ -51,11 +51,11 @@ BDES_IDENT("$Id: $")
 // The 'numMemoryPools' parameter supplied at construction specifies the
 // number of pools.  Each pool dispenses memory blocks of a different fixed
 // size.  The 'i'th pool, for 'i' in  '[ 0 .. numMemoryPools - 1 ]', manages
-// blocks of size 'bsls_Alignment::MAX_ALIGNMENT * 2 ^ i'.  Thus the smallest
-// pooled block size is always 'bsls_Alignment::MAX_ALIGNMENT'; each
+// blocks of size 'bsls::Alignment::MAX_ALIGNMENT * 2 ^ i'.  Thus the smallest
+// pooled block size is always 'bsls::Alignment::MAX_ALIGNMENT'; each
 // subsequent pool doubles the size of the blocks managed up to a maximum
 // pooled block size of
-// 'bsls_Alignment::MAX_ALIGNMENT * 2 ^ (numMemoryPools - 1)'.  Any allocation
+// 'bsls::Alignment::MAX_ALIGNMENT * 2 ^ (numMemoryPools - 1)'.  Any allocation
 // request larger than this maximum size will not be pooled, but will instead
 // be handled directly by a call to the underlying allocator (indicated at
 // construction).  The allocated memory will still be managed by the
@@ -185,9 +185,16 @@ BDES_IDENT("$Id: $")
 #include <bslma_deleterhelper.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -244,7 +251,7 @@ class bcema_ProtectableMultipool {
 
   public:
     // PUBLIC TYPES:
-    typedef bsls_PlatformUtil::size_type size_type;  // type for allocate size
+    typedef bsls::Types::size_type size_type;  // type for allocate size
 
     // CREATORS
     bcema_ProtectableMultipool(
@@ -255,7 +262,7 @@ class bcema_ProtectableMultipool {
         // protectable blocks of memory.  If 'blockDispenser' is 0, the
         // 'bdema_NativeProtectableBlockDispenser::singleton' is used.  The
         // 'i'th pool, for 'i' in '[ 0 .. numMemoryPools - 1 ]', manages blocks
-        // of size 'bsls_Alignment::MAX_ALIGNMENT * 2 ^ i'.  Memory requests
+        // of size 'bsls::Alignment::MAX_ALIGNMENT * 2 ^ i'.  Memory requests
         // larger than the maximum pooled block size are managed directly by
         // the underlying allocator.  The behavior is undefined unless
         // '1 <= numMemoryPools'.  Note that, in order to indicate specific
@@ -348,7 +355,7 @@ class bcema_ProtectableMultipool {
         // Return the maximum size of an object that will be pooled by this
         // multipool.  This value is defined to be:
         //..
-        //    bsls_Alignment::MAX_ALIGNMENT * 2 ^ (numPools() - 1)
+        //    bsls::Alignment::MAX_ALIGNMENT * 2 ^ (numPools() - 1)
         //..
 };
 
@@ -371,14 +378,14 @@ template<class TYPE>
 inline
 void bcema_ProtectableMultipool::deleteObject(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObject(object, this);
+    bslma::DeleterHelper::deleteObject(object, this);
 }
 
 template <class TYPE>
 inline
 void bcema_ProtectableMultipool::deleteObjectRaw(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObjectRaw(object, this);
+    bslma::DeleterHelper::deleteObjectRaw(object, this);
 }
 
 inline

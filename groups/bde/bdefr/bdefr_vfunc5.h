@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $")
 //   class ConcreteDerivedClass : public bdefr_Vfunc5 <A1, A2, A3, A4, A5>
 //   {
 //     public:
-//       ConcreteDerivedClass(bslma_Allocator *basicAllocator)
+//       ConcreteDerivedClass(bslma::Allocator *basicAllocator)
 //       : bdefr_Vfunc5(basicAllocator) { }
 //
 //       virtual void execute(const A1& argument1,
@@ -130,7 +130,7 @@ BDES_IDENT("$Id: $")
 //
 //   typedef ConcreteDerivedClass<int, int, int, int, int> DerivedObj;
 //   typedef bdefr_Vfunc5<int, int, int, int, int> Obj;
-//   bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+//   bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 //
 //   Obj *x = new(myAllocator) DerivedObj(myAllocator);
 //   {
@@ -158,8 +158,8 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -180,8 +180,9 @@ class bdefr_Vfunc5 {
     // allows the derived classes to declare the destructor 'private', and
     // limit an object instantiation to the heap.
 
-    int d_count;                    // dumb data (number of active references)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) memory allocator
+    int d_count;                     // dumb data (number of active references)
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) memory
+                                     // allocator
 
   private:
     bdefr_Vfunc5(const bdefr_Vfunc5&);                  // not implemented
@@ -203,7 +204,7 @@ class bdefr_Vfunc5 {
         // 'object' holds a valid memory allocator.
 
     // CREATORS
-    bdefr_Vfunc5(bslma_Allocator *basicAllocator);
+    bdefr_Vfunc5(bslma::Allocator *basicAllocator);
         // Create the base portion of a functor object that holds the specified
         // 'basicAllocator' and that has its reference count set to 0.
 
@@ -245,7 +246,7 @@ void bdefr_Vfunc5<A1, A2, A3, A4, A5>::deleteObject(bdefr_Vfunc5 *object)
 // CREATORS
 template <class A1, class A2, class A3, class A4, class A5>
 inline bdefr_Vfunc5<A1, A2, A3, A4, A5>::bdefr_Vfunc5(
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : d_count(0)
 , d_allocator_p(basicAllocator)
 {

@@ -62,9 +62,9 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // baem_MetricSample
 // CREATORS
-// [11]  baem_MetricSample(bslma_Allocator *);
+// [11]  baem_MetricSample(bslma::Allocator *);
 // [13]  baem_MetricSample(const baem_MetricSample&  ,
-//                         bslma_Allocator          *);
+//                         bslma::Allocator         *);
 // [11]  ~baem_MetricSample();
 // MANIPULATORS
 // [14]  baem_MetricSample& operator=(const baem_MetricSample& );
@@ -302,9 +302,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAllocator, defaultAllocator;
-    bslma_Allocator *Z = &testAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAllocator, defaultAllocator;
+    bslma::Allocator *Z = &testAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     baem_Category cat_A("A", true);
     Desc desc_A(&cat_A, "A"); const Desc *DESC_A = &desc_A;
@@ -376,7 +376,7 @@ int main(int argc, char *argv[])
 // 'baem_MetricRegistry' object (such as the one owned by a
 // 'baem_MetricsManager').
 //..
-    bslma_Allocator     *allocator = bslma_Default::allocator(0);
+    bslma::Allocator    *allocator = bslma::Default::allocator(0);
 
     baem_Category myCategory("MyCategory");
     baem_MetricDescription descA(&myCategory, "MetricA");
@@ -976,7 +976,7 @@ int main(int argc, char *argv[])
         // Testing:
         //  baem_MetricSample
         //  -----------------
-        //  baem_MetricSample(bslma_Allocator *basicAllocator = 0);
+        //  baem_MetricSample(bslma::Allocator *basicAllocator = 0);
         //  ~baem_MetricSample();
         //
         //  void appendGroup(const baem_MetricSampleGroup& );

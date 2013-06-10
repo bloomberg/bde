@@ -46,7 +46,7 @@ BDES_IDENT("$Id: $")
 // collectors for three different metric categories, "A", "B", and "C", that
 // we will use to generate metric values for publication.
 //..
-//  bslma_Allocator          *allocator = bslma_Default::allocator(0);
+//  bslma::Allocator         *allocator = bslma::Default::allocator(0);
 //  bcep_TimerEventScheduler  timer(allocator);
 //  baem_MetricsManager       manager(allocator);
 //
@@ -152,6 +152,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -170,10 +174,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -238,7 +238,7 @@ class baem_PublicationScheduler {
                                               // ('d_categories', 'd_clocks',
                                               // and 'd_defaultInterval')
 
-    bslma_Allocator          *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator         *d_allocator_p;  // allocator (held, not owned)
 
 
     // NOT IMPLEMENTED
@@ -277,12 +277,12 @@ class baem_PublicationScheduler {
   public:
     // PUBLIC TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_PublicationScheduler,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     baem_PublicationScheduler(baem_MetricsManager      *metricsManager,
                               bcep_TimerEventScheduler *eventScheduler,
-                              bslma_Allocator          *basicAllocator = 0);
+                              bslma::Allocator         *basicAllocator = 0);
         // Create a publication scheduler that will use the specified
         // 'metricsManager' to publish metrics, and the specified
         // 'eventScheduler' to supply timer events.  Optionally specify a

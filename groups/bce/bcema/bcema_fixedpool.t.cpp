@@ -128,11 +128,11 @@ class my_JobQueue {
    bcemt_Mutex       d_lock;
    bsl::deque<Job*>  d_queue;
    bcema_FixedPool   d_pool;
-   bslma_Allocator  *d_allocator_p;
+   bslma::Allocator *d_allocator_p;
 
  public:
    my_JobQueue(int maxJobs,
-               bslma_Allocator *basicAllocator=0);
+               bslma::Allocator *basicAllocator=0);
   ~my_JobQueue();
 
    void enqueueJob(const Job& job);
@@ -141,10 +141,10 @@ class my_JobQueue {
 };
 
 my_JobQueue::my_JobQueue(int maxJobs,
-                         bslma_Allocator* basicAllocator)
+                         bslma::Allocator * basicAllocator)
 : d_queue(basicAllocator)
 , d_pool(sizeof(Job), maxJobs, basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -258,10 +258,10 @@ void *workerThread(void *arg) {
 
     barrier.wait();
     for (int i = 0; i < NUM_OBJECTS; ++i) {
-        volatile int *buffer = (int*)mX->allocate();
+        int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
             printf("Thread %d: Allocated %p\n", bcemt_ThreadUtil::self(),
-                   (void *)buffer);
+                   buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
         LOOP_ASSERT(i, buffer);
@@ -459,7 +459,7 @@ int main(int argc, char *argv[]) {
              << "Testing dataOffset and nodeSize calculations" << endl
              << "============================================" << endl;
 
-        bslma_TestAllocator a;
+        bslma::TestAllocator a;
         for (int i=1; i<=1000; ++i) {
             Obj mX(i, 1, &a);
             char *mem = (char *)mX.allocate();
@@ -491,7 +491,7 @@ int main(int argc, char *argv[]) {
         //   deleteObject()
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator alloc, *Z = &alloc;
+        bslma::TestAllocator alloc, *Z = &alloc;
 
         bool finished = false;
         const MostDerived *repeater = 0;    // verify we're re-using the memory
@@ -523,7 +523,7 @@ int main(int argc, char *argv[]) {
               } break;
               case 1: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 fp.deleteObjectRaw(pLCC);
               } break;
               case 2: {
@@ -531,12 +531,12 @@ int main(int argc, char *argv[]) {
               } break;
               case 3: {
                 const LeftChild *pLCC = pMDC;
-                ASSERT((void*) pLCC == (void*) pMDC);
+                ASSERT((const void*) pLCC == (const void*) pMDC);
                 fp.deleteObject(pLCC);
               } break;
               case 4: {
                 const RightChild *pRCC = pMDC;
-                ASSERT((void*) pRCC != (void*) pMDC);
+                ASSERT((const void*) pRCC != (const void*) pMDC);
                 fp.deleteObject(pRCC);
               } break;
               case 5: {
@@ -647,8 +647,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'deleteObject':" << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
-            const bslma_TestAllocator& A = a;
+            bslma::TestAllocator a(veryVeryVerbose);
+            const bslma::TestAllocator& A = a;
 
             const int OBJECT_SIZE = sizeof(my_Class1);
             ASSERT(sizeof(my_Class2) == OBJECT_SIZE);
@@ -696,7 +696,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'deleteObject' on polymorphic types:"
                           << endl;
         {
-            bslma_TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator a(veryVeryVerbose);
 
             const int OBJECT_SIZE = sizeof(my_MostDerived);
             ASSERT(sizeof(my_MostDerived) == OBJECT_SIZE);
@@ -797,7 +797,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'reserveCapacity'." << endl;
 
-        bslma_TestAllocator a;    const bslma_TestAllocator& A = a;
+        bslma::TestAllocator a;    const bslma::TestAllocator& A = a;
         {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
@@ -865,7 +865,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'my_JobQueue'." << endl;
 
-        bslma_TestAllocator a;
+        bslma::TestAllocator a;
         {
             my_JobQueue q(10, &a);
             double result;
@@ -919,8 +919,8 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         const int NUM_REQUESTS = 100;
-        bslma_TestAllocator taX;    const bslma_TestAllocator& TAX = taX;
-        bslma_TestAllocator taY;    const bslma_TestAllocator& TAY = taY;
+        bslma::TestAllocator taX;    const bslma::TestAllocator& TAX = taX;
+        bslma::TestAllocator taY;    const bslma::TestAllocator& TAY = taY;
 
         for (int di = 0; di < NUM_DATA; ++di) {
             const int LINE = DATA[di].d_line;
@@ -961,7 +961,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'release' and destructor." << endl;
 
-        bslma_TestAllocator a;    const bslma_TestAllocator& A = a;
+        bslma::TestAllocator a;    const bslma::TestAllocator& A = a;
         {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout <<
                   "\nTesting 'addressFromIndex()/indexFromAddress()'." << endl;
 
-        bslma_TestAllocator a;    const bslma_TestAllocator& A = a;
+        bslma::TestAllocator a;    const bslma::TestAllocator& A = a;
         {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;

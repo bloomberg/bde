@@ -33,12 +33,12 @@ namespace BloombergLP {
 namespace {
 
 // TYPES
-typedef bsls_Types::Int64            Int64;
+typedef bsls::Types::Int64            Int64;
 
 // HELPER FUNCTIONS
 template <typename DATATYPE>
 inline
-bcema_SharedPtr<DATATYPE> makeValuePtrInplace(bslma_Allocator *basicAllocator)
+bcema_SharedPtr<DATATYPE> makeValuePtrInplace(bslma::Allocator *basicAllocator)
     // Return a shared pointer to an object of type 'DATATYPE' using the
     // "in-place" construction facility of 'bcema_SharedPtr' to
     // default-construct 'DATATYPE'.  The allocator is used to create the
@@ -52,7 +52,7 @@ bcema_SharedPtr<DATATYPE> makeValuePtrInplace(bslma_Allocator *basicAllocator)
 template <typename DATATYPE>
 inline
 bcema_SharedPtr<DATATYPE>
-makeValuePtrInplaceWithAlloc(bslma_Allocator *basicAllocator)
+makeValuePtrInplaceWithAlloc(bslma::Allocator *basicAllocator)
     // Return a shared pointer to an object of type 'DATATYPE' using the
     // "in-place" construction facility of 'bcema_SharedPtr' to
     // default-construct 'DATATYPE'.  The allocator is used to create the
@@ -115,9 +115,9 @@ class bcem_Aggregate_RepProctor {
 
 bcema_SharedPtr<void>
 bcem_Aggregate::makeValuePtr(bdem_ElemType::Type  type,
-                             bslma_Allocator     *basicAllocator)
+                             bslma::Allocator    *basicAllocator)
 {
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     switch (type) {
       case bdem_ElemType::BDEM_CHAR: {
@@ -260,14 +260,15 @@ bcema_SharedPtr<void> bcem_Aggregate::dataPtr() const
         return bcema_SharedPtr<void>();                               // RETURN
     }
     d_valueRep_p->acquireRef();
-    return bcema_SharedPtr<void>((void *)d_aggregateRaw.data(), d_valueRep_p);
+    return bcema_SharedPtr<void>(const_cast<void *>(d_aggregateRaw.data()),
+                                 d_valueRep_p);
 }
 
 void bcem_Aggregate::init(
                      const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
                      const bdem_RecordDef                      *recordDefPtr,
                      bdem_ElemType::Type                        elemType,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 == d_schemaRep_p);
     BSLS_ASSERT_SAFE(0 == d_valueRep_p);
@@ -283,7 +284,7 @@ void bcem_Aggregate::init(
                  : bdem_ElemType::BDEM_LIST;
     }
 
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     bcema_SharedPtr<void> valuePtr;
     switch (elemType) {
@@ -374,7 +375,7 @@ void bcem_Aggregate::init(
     isNull_sp.createInplace(allocator, 0);
     d_isTopLevelAggregateNullRep_p = isNull_sp.rep();
     d_isTopLevelAggregateNullRep_p->acquireRef();
-    d_aggregateRaw.setTopLevelAggregateNullnessPointer(isNull_sp.ptr());
+    d_aggregateRaw.setTopLevelAggregateNullness(isNull_sp.ptr());
 
     valueRepProtctor.release();
     schemaRepProctor.release();
@@ -383,7 +384,7 @@ void bcem_Aggregate::init(
 void bcem_Aggregate::init(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
                   bdem_ElemType::Type                           elemType,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 {
     bcema_SharedPtr<const bdem_Schema> schemaPtr(recordDefPtr,
                                                  &recordDefPtr->schema());
@@ -394,7 +395,7 @@ void bcem_Aggregate::init(
                      const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
                      const char                                *recName,
                      bdem_ElemType::Type                        elemType,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 {
     const bdem_RecordDef *record = schemaPtr->lookupRecord(recName);
     if (! record) {
@@ -411,9 +412,9 @@ void bcem_Aggregate::init(
 
 const bcem_Aggregate
 bcem_Aggregate::makeError(bcem_ErrorCode::Code  errorCode,
-                          const char                *msg, ...) const
+                          const char           *msg, ...) const
 {
-    if (0 == errorCode || isError()) {
+    if (bcem_ErrorCode::BCEM_SUCCESS == errorCode || isError()) {
 
         // Return this object if success is being returned or this object is
         // already an error.
@@ -771,11 +772,13 @@ const bcem_Aggregate bcem_Aggregate::fieldById(int fieldId) const
     }
 }
 
-const bcem_Aggregate bcem_Aggregate::fieldByIndex(int index) const
+const bcem_Aggregate bcem_Aggregate::fieldByIndex(int fieldIndex) const
 {
     bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
-    if (0 == d_aggregateRaw.fieldByIndex(&field, &errorDescription, index)) {
+    if (0 == d_aggregateRaw.fieldByIndex(&field,
+                                         &errorDescription,
+                                         fieldIndex)) {
         return bcem_Aggregate(field,
                               d_schemaRep_p,
                               d_valueRep_p,
@@ -785,7 +788,6 @@ const bcem_Aggregate bcem_Aggregate::fieldByIndex(int index) const
         return makeError(errorDescription);                           // RETURN
     }
 }
-
 
 const bcem_Aggregate bcem_Aggregate::anonymousField(int n) const
 {
@@ -920,7 +922,7 @@ bool bcem_Aggregate::isUnset() const
         isUnsetFlag = true;
       } break;
       case bdem_ElemType::BDEM_TABLE: {
-        const bdem_Table *table = (bdem_Table *) data();
+        const bdem_Table *table = (const bdem_Table *) data();
         if (recordConstraint()) {
             isUnsetFlag = 0 == table->numRows();
         }
@@ -929,7 +931,7 @@ bool bcem_Aggregate::isUnset() const
         }
       } break;
       case bdem_ElemType::BDEM_CHOICE: {
-        const bdem_Choice *choice = (bdem_Choice *) data();
+        const bdem_Choice *choice = (const bdem_Choice *) data();
         if (recordConstraint()) {
             isUnsetFlag = choice->selector() < 0;
         }
@@ -939,11 +941,11 @@ bool bcem_Aggregate::isUnset() const
         }
       } break;
       case bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM: {
-        const bdem_ChoiceArrayItem *item = (bdem_ChoiceArrayItem *) data();
+        const bdem_ChoiceArrayItem *item = (const bdem_ChoiceArrayItem *) data();
         isUnsetFlag = item->selector() < 0;
       } break;
       case bdem_ElemType::BDEM_CHOICE_ARRAY: {
-        const bdem_ChoiceArray *choiceArray = (bdem_ChoiceArray *) data();
+        const bdem_ChoiceArray *choiceArray = (const bdem_ChoiceArray *) data();
         if (recordConstraint()) {
             isUnsetFlag = 0 == choiceArray->length();
         }
@@ -965,7 +967,7 @@ bool bcem_Aggregate::isUnset() const
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 const bcem_Aggregate
-bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
+bcem_Aggregate::clone(bslma::Allocator *basicAllocator) const
 {
     bcem_Aggregate returnVal(this->cloneData(basicAllocator));
 
@@ -1032,10 +1034,10 @@ bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
 }
 
 const bcem_Aggregate
-bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
+bcem_Aggregate::cloneData(bslma::Allocator *basicAllocator) const
 {
     bcema_SharedPtr<void> valuePtr;
-    bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     switch (dataType()) {
       case bdem_ElemType::BDEM_ROW: {
@@ -1052,7 +1054,7 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
 
         // Perform a row-to-list assignment to make a copy of this row.
 
-        parentList = *(bdem_Row *)data();
+        parentList = *(const bdem_Row *)data();
 
         // Get a shared pointer to the row within the parent list
 
@@ -1073,7 +1075,7 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
 
         // Perform an item-to-choice assignment to make a copy of this item.
 
-        parentChoice = *(bdem_ChoiceArrayItem *)data();
+        parentChoice = *(const bdem_ChoiceArrayItem *)data();
 
         // Get a shared pointer to the item within the parent choice
 
@@ -1123,8 +1125,7 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
         bcema_SharedPtr<int> isNull_sp;
         isNull_sp.createInplace(allocator, isNul2());
 
-        returnVal.d_aggregateRaw.setTopLevelAggregateNullnessPointer(
-                                                              isNull_sp.ptr());
+        returnVal.d_aggregateRaw.setTopLevelAggregateNullness(isNull_sp.ptr());
 
         bcema_SharedPtrRep *isNullRep = isNull_sp.rep();
         bsl::swap(returnVal.d_isTopLevelAggregateNullRep_p, isNullRep);

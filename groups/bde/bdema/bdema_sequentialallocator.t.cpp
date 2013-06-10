@@ -3,12 +3,13 @@
 
 #include <bdema_sequentialpool.h>
 
+#include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-#include <bslma_allocator.h>
 
 #include <bsls_alignment.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -22,7 +23,7 @@ using namespace bsl;
 //                             Overview
 //                             --------
 // A 'bdema_SequentialAllocator' adopts the 'bdema_SequentialPool' mechanism to
-// a 'bslma_ManagedAllocator' protocol.  The primary concern is that the
+// a 'bdema_ManagedAllocator' protocol.  The primary concern is that the
 // allocator correctly proxies the memory allocation requests to the sequential
 // pool it adopts.
 //
@@ -144,21 +145,21 @@ enum { DEFAULT_SIZE = 256 };
 //-----------------------------------------------------------------------------
 // Allocators are often supplied, at construction, to objects requiring
 // dynamically-allocated memory.  For example, consider the following
-// 'my_DoubleStack' class whose constructor takes a 'bslma_Allocator':
+// 'my_DoubleStack' class whose constructor takes a 'bslma::Allocator':
 //..
 //  // my_doublestack.h
 //  // ...
 //
-//  class bslma_Allocator;
+//  class bslma::Allocator;
 
     class my_DoubleStack {
         // This class implements a stack that stores 'double' values.
 
         // DATA
-        double          *d_stack_p;      // dynamically-allocated array
-        int              d_size;         // physical capacity of stack
-        int              d_length;       // next available index in stack
-        bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+        double           *d_stack_p;      // dynamically-allocated array
+        int               d_size;         // physical capacity of stack
+        int               d_length;       // next available index in stack
+        bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
       private:
         // PRIVATE MANIPULATORS
@@ -167,7 +168,7 @@ enum { DEFAULT_SIZE = 256 };
 
       public:
         // CREATORS
-        my_DoubleStack(bslma_Allocator *basicAllocator = 0);
+        my_DoubleStack(bslma::Allocator *basicAllocator = 0);
             // Create a stack that stores 'double'.  Optionally specify
             // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
             // the currently installed default allocator is used.
@@ -212,10 +213,10 @@ enum { DEFAULT_SIZE = 256 };
     }
 
     // CREATORS
-    my_DoubleStack::my_DoubleStack(bslma_Allocator *basicAllocator)
+    my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
     : d_size(1)
     , d_length(0)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_stack_p = static_cast<double *>(
                           d_allocator_p->allocate(d_size * sizeof *d_stack_p));
@@ -269,19 +270,19 @@ int main(int argc, char *argv[])
     // three test allocators.
 
     // Object Test Allocator.
-    bslma_TestAllocator objectAllocator("Object Allocator",
-                                        veryVeryVeryVerbose);
+    bslma::TestAllocator objectAllocator("Object Allocator",
+                                         veryVeryVeryVerbose);
 
     // Default Test Allocator.
-    bslma_TestAllocator defaultAllocator("Default Allocator",
-                                         veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("Default Allocator",
+                                          veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // Global Test Allocator.
-    bslma_TestAllocator  globalAllocator("Global Allocator",
+    bslma::TestAllocator globalAllocator("Global Allocator",
                                          veryVeryVeryVerbose);
-    bslma_Allocator *originalGlobalAllocator =
-                           bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::Allocator *originalGlobalAllocator =
+                          bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 8: {
@@ -446,12 +447,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TRUNCATE TEST" << endl
                                   << "=============" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting 'truncate'." << endl;
 
@@ -585,12 +586,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'allocateAndExpand' TEST" << endl
                                   << "========================" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting 'expand'." << endl;
 
@@ -654,17 +655,17 @@ int main(int argc, char *argv[])
             int numBytesUsed = objectAllocator.numBytesInUse();
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
-            bsls_PlatformUtil::size_type size = 1;
+            bsls::Types::size_type size = 1;
             void *addr2 = sa.allocateAndExpand(&size);
 
             // Check for correct memory address.
-            if (bsls_Alignment::BSLS_NATURAL == STRAT) {
+            if (bsls::Alignment::BSLS_NATURAL == STRAT) {
                 ASSERT((char *)addr1 + INITIALSIZE == (char *)addr2);
             }
             else {
-                int offset = bsls_AlignmentUtil::calculateAlignmentOffset(
-                                       (char *)addr1 + INITIALSIZE,
-                                       bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
+                                      (char *)addr1 + INITIALSIZE,
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
                 ASSERT((char *)addr1 + INITIALSIZE + offset == (char *)addr2);
             }
 
@@ -687,7 +688,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             // No effect when 0 is passed in.
-            bsls_PlatformUtil::size_type size = 0;
+            bsls::Types::size_type size = 0;
             sa.allocateAndExpand(&size);
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
@@ -719,7 +720,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For concern 1 and 2, construct a sequential allocator using a
-        //   'bslma_TestAllocator', and allocate several memory blocks such
+        //   'bslma::TestAllocator', and allocate several memory blocks such
         //   that there are multiple dynamic allocations.  Finally, invoke
         //   'release' and verify, using the test allocator, that there
         //   is no outstanding memory allocated.  Then, allocate memory again
@@ -732,8 +733,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'release' TEST" << endl
                                   << "==============" << endl;
 
-#define CON bsls_BlockGrowth::BSLS_CONSTANT
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define CON bsls::BlockGrowth::BSLS_CONSTANT
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting allocated memory are deallocated after"
                              " 'release'." << endl;
@@ -765,7 +766,7 @@ int main(int argc, char *argv[])
             void *addr1 = sa.allocate(1);
             void *addr2 = sa.allocate(2);
 
-            ASSERT((char *)addr1 + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+            ASSERT((char *)addr1 + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
                                                              == (char *)addr2);
 
             // Testing growth strategy.
@@ -782,7 +783,7 @@ int main(int argc, char *argv[])
             ASSERT(objectAllocator.numBytesInUse()
                                               >= numBytesUsed + DEFAULT_SIZE);
             ASSERT(objectAllocator.numBytesInUse() <= numBytesUsed +
-                        DEFAULT_SIZE + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                       DEFAULT_SIZE + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
         }
 
 #undef CON
@@ -883,23 +884,23 @@ int main(int argc, char *argv[])
                                511, 512, 1023, 1024, 1025 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-#define GEO bsls_BlockGrowth::BSLS_GEOMETRIC
-#define CON bsls_BlockGrowth::BSLS_CONSTANT
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define GEO bsls::BlockGrowth::BSLS_GEOMETRIC
+#define CON bsls::BlockGrowth::BSLS_CONSTANT
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         // block growth strategy
-        const bsls_BlockGrowth::Strategy GS[2] = { GEO, CON };
+        const bsls::BlockGrowth::Strategy GS[2] = { GEO, CON };
         const int NUM_GS = sizeof GS / sizeof *GS;
 
         // alignment strategy
-        const bsls_Alignment::Strategy   AS[2] = { NAT, MAX };
+        const bsls::Alignment::Strategy   AS[2] = { NAT, MAX };
         const int NUM_AS = sizeof AS / sizeof *AS;
 
         if (verbose) cout << "\nTesting 'Obj(Alloc *a = 0)'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -921,8 +922,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'Obj(GS g, Alloc *a = 0)'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -946,8 +947,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'Obj(AS a, Alloc *a = 0)'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -988,8 +989,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'Obj(GS g, AS a, Alloc *a = 0)'."
                           << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1030,8 +1031,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'Obj(int i, Alloc *a = 0)'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1054,8 +1055,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'Obj(int i, GS g, Alloc *a = 0)'."
                           << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1080,8 +1081,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'Obj(int i, AS a, Alloc *a = 0)'."
                           << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1122,8 +1123,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<"\nTesting 'Obj(int i, GS g, AS a, Alloc *a = 0)'."
                           << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1160,8 +1161,8 @@ int main(int argc, char *argv[])
                             int alignmentOffset =
                                                 (char *)addr2b - (char *)addr2;
 
-                            LOOP3_ASSERT(addr1, addr1b, alignmentOffset, (char *)addr1 + alignmentOffset
-                                                            == (char *)addr1b);
+                            LOOP3_ASSERT(addr1, addr1b, alignmentOffset,
+                            (char *)addr1 + alignmentOffset == (char *)addr1b);
                         }
                     }
                 }
@@ -1171,8 +1172,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'Obj(int i, int m, Alloc *a = 0)'."
                           << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1195,8 +1196,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nTesting 'Obj(int i, int m, GS g, Alloc *a = 0)'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1223,8 +1224,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                   "\nTesting 'Obj(int i, int m, AS a, Alloc *a = 0)'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1268,8 +1269,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nTesting 'Obj(int i, int m, GS g, AS a, Alloc *a = 0)'." << endl;
         {
-            bslma_TestAllocator ta(veryVeryVeryVerbose);
-            bslma_TestAllocator tb(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator tb(veryVeryVeryVerbose);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
@@ -1344,7 +1345,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   First, initialize a 'bdema_SequentialAllocator' with a
-        //   'bslma_TestAllocator' (concern 1).  Then, allocate a block of
+        //   'bslma::TestAllocator' (concern 1).  Then, allocate a block of
         //   memory, and verify that it comes from the test allocator.
         //   Allocate another block of memory, and verify that no dynamic
         //   allocation is triggered (concern 3).  Verify the alignment and

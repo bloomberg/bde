@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bcema_DefaultDeleter: concrete default 'bdema'-based deleter
 //
-//@SEE_ALSO: bdema_allocator, bcema_deleter
+//@SEE_ALSO: bslma_allocator, bcema_deleter
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -43,7 +43,7 @@ BDES_IDENT("$Id: $")
 // given 'basicAllocator'.  Note that we assume that 'my_Obj' does not require
 // an allocator for any of its members:
 //..
-//  void f(bslma_Allocator *basicAllocator)
+//  void f(bslma::Allocator *basicAllocator)
 //  {
 //      my_Obj *object = new(*basicAllocator) my_Obj;
 //..
@@ -99,7 +99,7 @@ class bcema_DefaultDeleter : public bcema_Deleter<TYPE> {
     // currently installed default allocator if an allocator is not provided.
 
     // DATA
-    bslma_Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
 
     // NOT IMPLEMENTED
     bcema_DefaultDeleter(const bcema_DefaultDeleter<TYPE>&);
@@ -107,7 +107,7 @@ class bcema_DefaultDeleter : public bcema_Deleter<TYPE> {
 
   public:
     // CREATORS
-    bcema_DefaultDeleter(bslma_Allocator *basicAllocator = 0);
+    bcema_DefaultDeleter(bslma::Allocator *basicAllocator = 0);
         // Create a default deleter.  Optionally specify a 'basicAllocator'
         // used to manage the memory footprint of objects passed to the
         // 'deleteObject' method.  If 'basicAllocator' is 0, the currently
@@ -134,8 +134,8 @@ class bcema_DefaultDeleter : public bcema_Deleter<TYPE> {
 template <class TYPE>
 inline
 bcema_DefaultDeleter<TYPE>::bcema_DefaultDeleter(
-                                               bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 

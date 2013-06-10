@@ -61,8 +61,8 @@ using namespace bsl;  // automatically added by script
 
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bcec_Queue(bslma_Allocator *basicAllocator = 0);
-// [ 1] bcec_Queue(int highWaterMark, bslma_Allocator *basicAllocator = 0);
+// [ 1] bcec_Queue(bslma::Allocator *basicAllocator = 0);
+// [ 1] bcec_Queue(int highWaterMark, bslma::Allocator *basicAllocator = 0);
 // [ 1] ~bcec_Queue();
 //
 // MANIPULATORS
@@ -1283,7 +1283,7 @@ void f(const bcema_SharedPtr<int>&)
 void pusherThread(Control *control)
 {
     bcema_SharedPtr<int> sp;
-    sp.createInplace(bslma_Default::allocator(), 12345);
+    sp.createInplace(bslma::Default::allocator(), 12345);
 
     bdef_Function<void(*)()> funct = bdef_BindUtil::bind(&f, sp);
 
@@ -1380,7 +1380,7 @@ void f(const bcema_SharedPtr<int>&)
 void pusherThread(Control *control)
 {
     bcema_SharedPtr<int> sp;
-    sp.createInplace(bslma_Default::allocator(), 12345);
+    sp.createInplace(bslma::Default::allocator(), 12345);
 
     bdef_Function<void(*)()> funct = bdef_BindUtil::bind(&f, sp);
 
@@ -1478,7 +1478,7 @@ void f(const bcema_SharedPtr<int>&)
 void pusherThread(Control *control)
 {
     bcema_SharedPtr<int> sp;
-    sp.createInplace(bslma_Default::allocator(), 12345);
+    sp.createInplace(bslma::Default::allocator(), 12345);
 
     bdef_Function<void(*)()> funct = bdef_BindUtil::bind(&f, sp);
 
@@ -1641,7 +1641,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     bcema_TestAllocator da(veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard defaultAllocatorGuard(&da);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 19: {
@@ -2703,7 +2703,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bcec_Queue(int highWaterMark,
-        //              bslma_Allocator *basicAllocator = 0);
+        //              bslma::Allocator *basicAllocator = 0);
         //   int highWaterMark() const;
         //   void pushBack(const T& item);
         //   void pushFront(const T& item);

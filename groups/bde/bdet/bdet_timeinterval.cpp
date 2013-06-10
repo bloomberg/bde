@@ -17,8 +17,8 @@ struct bdet_TimeInterval_Assertions {
 };
 
 // CREATORS
-bdet_TimeInterval::bdet_TimeInterval(bsls_PlatformUtil::Int64 seconds,
-                                     int                      nanoseconds)
+bdet_TimeInterval::bdet_TimeInterval(bsls::Types::Int64 seconds,
+                                     int                nanoseconds)
 {
     d_seconds = seconds;
     if (nanoseconds >= BDET_NANOSECS_PER_SEC
@@ -42,13 +42,13 @@ bdet_TimeInterval::bdet_TimeInterval(bsls_PlatformUtil::Int64 seconds,
 bdet_TimeInterval::bdet_TimeInterval(double seconds)
 {
     if (seconds < 0) {
-        d_seconds = -bsls_PlatformUtil::Int64(-seconds);
+        d_seconds = -bsls::Types::Int64(-seconds);
 #ifdef BSLS_PLATFORM_OS_LINUX
         const volatile double nanoseconds =
 #else
         const double nanoseconds =
 #endif
-                              ((double)d_seconds - seconds) * BDET_NANOSECS_PER_SEC;
+                         ((double)d_seconds - seconds) * BDET_NANOSECS_PER_SEC;
         d_nanoseconds = -(int)(nanoseconds + 0.5);
         if (d_nanoseconds == -BDET_NANOSECS_PER_SEC) {
             --d_seconds;
@@ -56,13 +56,13 @@ bdet_TimeInterval::bdet_TimeInterval(double seconds)
         }
     }
     else {
-        d_seconds = (bsls_PlatformUtil::Int64)seconds;
+        d_seconds = (bsls::Types::Int64)seconds;
 #ifdef BSLS_PLATFORM_OS_LINUX
         const volatile double nanoseconds =
 #else
         const double nanoseconds =
 #endif
-                              (seconds - (double)d_seconds) * BDET_NANOSECS_PER_SEC;
+                         (seconds - (double)d_seconds) * BDET_NANOSECS_PER_SEC;
         d_nanoseconds = (int)(nanoseconds + 0.5);
         if (d_nanoseconds == BDET_NANOSECS_PER_SEC) {
             ++d_seconds;
@@ -117,7 +117,7 @@ bdet_TimeInterval& bdet_TimeInterval::operator+=(const bdet_TimeInterval& rhs)
 }
 
 bdet_TimeInterval&
-bdet_TimeInterval::addSeconds(bsls_PlatformUtil::Int64 seconds)
+bdet_TimeInterval::addSeconds(bsls::Types::Int64 seconds)
 {
     d_seconds += seconds;
     if (d_seconds > 0 && d_nanoseconds < 0) {
@@ -133,10 +133,11 @@ bdet_TimeInterval::addSeconds(bsls_PlatformUtil::Int64 seconds)
 }
 
 bdet_TimeInterval&
-bdet_TimeInterval::addMilliseconds(bsls_PlatformUtil::Int64 milliseconds)
+bdet_TimeInterval::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     d_seconds += milliseconds / BDET_MILLISECS_PER_SEC;
-    d_nanoseconds += int(milliseconds % BDET_MILLISECS_PER_SEC) * BDET_MICROSECS_PER_SEC;
+    d_nanoseconds +=
+           int(milliseconds % BDET_MILLISECS_PER_SEC) * BDET_MICROSECS_PER_SEC;
 
     if (d_nanoseconds >= BDET_NANOSECS_PER_SEC ||
         d_nanoseconds <= -BDET_NANOSECS_PER_SEC) {
@@ -156,10 +157,11 @@ bdet_TimeInterval::addMilliseconds(bsls_PlatformUtil::Int64 milliseconds)
 }
 
 bdet_TimeInterval&
-bdet_TimeInterval::addMicroseconds(bsls_PlatformUtil::Int64 microseconds)
+bdet_TimeInterval::addMicroseconds(bsls::Types::Int64 microseconds)
 {
     d_seconds += microseconds / BDET_MICROSECS_PER_SEC;
-    d_nanoseconds += int(microseconds % BDET_MICROSECS_PER_SEC) * BDET_MILLISECS_PER_SEC;
+    d_nanoseconds +=
+           int(microseconds % BDET_MICROSECS_PER_SEC) * BDET_MILLISECS_PER_SEC;
 
     if (d_nanoseconds >= BDET_NANOSECS_PER_SEC ||
         d_nanoseconds <= -BDET_NANOSECS_PER_SEC) {
@@ -179,7 +181,7 @@ bdet_TimeInterval::addMicroseconds(bsls_PlatformUtil::Int64 microseconds)
 }
 
 bdet_TimeInterval&
-bdet_TimeInterval::addNanoseconds(bsls_PlatformUtil::Int64 nanoseconds)
+bdet_TimeInterval::addNanoseconds(bsls::Types::Int64 nanoseconds)
 {
     d_seconds += nanoseconds / BDET_NANOSECS_PER_SEC;
     d_nanoseconds += int(nanoseconds % BDET_NANOSECS_PER_SEC);
@@ -201,14 +203,15 @@ bdet_TimeInterval::addNanoseconds(bsls_PlatformUtil::Int64 nanoseconds)
     return *this;
 }
 
-void bdet_TimeInterval::addInterval(bsls_PlatformUtil::Int64 seconds,
-                                    int                      nanoseconds)
+void bdet_TimeInterval::addInterval(bsls::Types::Int64 seconds,
+                                    int                nanoseconds)
 {
     d_seconds += seconds;
-    bsls_PlatformUtil::Int64 nanosecs = d_nanoseconds;
+    bsls::Types::Int64 nanosecs = d_nanoseconds;
     nanosecs += nanoseconds;
 
-    if (nanosecs >= BDET_NANOSECS_PER_SEC || nanosecs <= -BDET_NANOSECS_PER_SEC) {
+    if (nanosecs >= BDET_NANOSECS_PER_SEC
+     || nanosecs <= -BDET_NANOSECS_PER_SEC) {
         d_seconds += nanosecs / BDET_NANOSECS_PER_SEC;
         d_nanoseconds = int(nanosecs % BDET_NANOSECS_PER_SEC);
     }
@@ -226,11 +229,12 @@ void bdet_TimeInterval::addInterval(bsls_PlatformUtil::Int64 seconds,
     }
 }
 
-void bdet_TimeInterval::setInterval(bsls_PlatformUtil::Int64 seconds,
-                                    int                      nanoseconds)
+void bdet_TimeInterval::setInterval(bsls::Types::Int64 seconds,
+                                    int                nanoseconds)
 {
     d_seconds = seconds;
-    if (nanoseconds >= BDET_NANOSECS_PER_SEC || nanoseconds <= -BDET_NANOSECS_PER_SEC) {
+    if (nanoseconds >= BDET_NANOSECS_PER_SEC
+     || nanoseconds <= -BDET_NANOSECS_PER_SEC) {
         d_seconds += nanoseconds / BDET_NANOSECS_PER_SEC;
         d_nanoseconds = int(nanoseconds % BDET_NANOSECS_PER_SEC);
     }

@@ -67,7 +67,7 @@ class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> {
     // proxy for the 'sem_t' pthread type, and related operations.
 
     // DATA
-    sem_t d_sem;  // TBD doc
+    sem_t d_sem;                // native semaphore handle
 
     // NOT IMPLEMENTED
     bcemt_SemaphoreImpl(const bcemt_SemaphoreImpl&);
@@ -112,23 +112,22 @@ class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> {
 
 // CREATORS
 inline
-bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::bcemt_SemaphoreImpl(
-                                                                     int count)
-{
-    ::sem_init(&d_sem, 0, count);
-}
-
-inline
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::~bcemt_SemaphoreImpl()
 {
-    ::sem_destroy(&d_sem);
+    int result = ::sem_destroy(&d_sem);
+
+    (void) result;
+    BSLS_ASSERT(result == 0);
 }
 
 // MANIPULATORS
 inline
 void bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::post()
 {
-    ::sem_post(&d_sem);
+    int result = ::sem_post(&d_sem);
+
+    (void) result;
+    BSLS_ASSERT(result == 0);
 }
 
 inline
@@ -141,10 +140,12 @@ int bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::tryWait()
 inline
 int bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::getValue() const
 {
-    int value;
-    const int rc = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
-    (void) rc;
-    BSLS_ASSERT_SAFE(0 == rc);
+    int value = 0;
+    int result = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
+
+    (void) result;
+    BSLS_ASSERT_SAFE(result == 0);
+
     return value;
 }
 

@@ -16,10 +16,9 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bael_recordattributes.h>
 #include <bael_severity.h>
 
+#include <bdema_bufferedsequentialallocator.h>
 #include <bdem_list.h>
-
 #include <bdet_datetime.h>
-
 #include <bdeu_print.h>
 
 #include <bsls_platform.h>
@@ -62,7 +61,7 @@ static void appendToString(bsl::string *result, int value)
     *result += buffer;
 }
 
-static void appendToString(bsl::string *result, bsls_Types::Uint64 value)
+static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
     // Convert the specified 'value' into ASCII characters and append it to the
     // specified 'result.
 {
@@ -87,15 +86,15 @@ static void appendToString(bsl::string *result, bsls_Types::Uint64 value)
 
 // CREATORS
 bael_RecordStringFormatter::bael_RecordStringFormatter(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
 , d_timestampOffset(0)
 {
 }
 
 bael_RecordStringFormatter::bael_RecordStringFormatter(
-                                               const char      *format,
-                                               bslma_Allocator *basicAllocator)
+                                              const char       *format,
+                                              bslma::Allocator *basicAllocator)
 : d_formatSpec(format, basicAllocator)
 , d_timestampOffset(0)
 {
@@ -103,7 +102,7 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 
 bael_RecordStringFormatter::bael_RecordStringFormatter(
                                   const bdet_DatetimeInterval&  offset,
-                                  bslma_Allocator              *basicAllocator)
+                                  bslma::Allocator             *basicAllocator)
 : d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
 , d_timestampOffset(offset)
 {
@@ -112,7 +111,7 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 bael_RecordStringFormatter::bael_RecordStringFormatter(
                                   const char                   *format,
                                   const bdet_DatetimeInterval&  offset,
-                                  bslma_Allocator              *basicAllocator)
+                                  bslma::Allocator             *basicAllocator)
 : d_formatSpec(format, basicAllocator)
 , d_timestampOffset(offset)
 {
@@ -120,7 +119,7 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 
 bael_RecordStringFormatter::bael_RecordStringFormatter(
                              const bael_RecordStringFormatter&  original,
-                             bslma_Allocator                   *basicAllocator)
+                             bslma::Allocator                  *basicAllocator)
 : d_formatSpec(original.d_formatSpec, basicAllocator)
 , d_timestampOffset(original.d_timestampOffset)
 {
@@ -156,8 +155,19 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     const char* iter = d_formatSpec.data();
     const char* end  = iter + d_formatSpec.length();
 
-    bsl::string output;
-    output.reserve(1024);
+    // Create a buffer on the stack for formatting the record.  Note that the
+    // size of the buffer should be slightly larger than the amount we reserve
+    // in order to ensure only a single allocation occurs.
+
+    const int BUFFER_SIZE        = 512;
+    const int STRING_RESERVATION = BUFFER_SIZE - 
+                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+    char fixedBuffer[BUFFER_SIZE];
+    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 
+                                                      BUFFER_SIZE);
+    bsl::string output(&stringAllocator);
+    output.reserve(STRING_RESERVATION);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
@@ -175,7 +185,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
               } break;
               case 'd': {
                 char buffer[32];
-                int length = timestamp.printToBuffer(buffer, sizeof buffer);
+                timestamp.printToBuffer(buffer, sizeof buffer);
 
                 output += buffer;
               } break;
@@ -244,7 +254,7 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += fixedFields.category();
               } break;
               case 'm': {
-                bslstl_StringRef message = fixedFields.messageRef();
+                bslstl::StringRef message = fixedFields.messageRef();
                 output.append(message.data(), message.length());
               } break;
               case 'x': {

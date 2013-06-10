@@ -654,7 +654,7 @@ int bteso_SocketImpUtil::write(const bteso_SocketHandle::Handle& socket,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(numBytes >= 0);
 
-    rc = ::send(socket, (char *)buffer, numBytes, 0);
+    rc = ::send(socket, (const char *)buffer, numBytes, 0);
     int errorNumber = rc >= 0 ? 0 : bteso_SocketImpUtil_Util::getErrorCode();
     if (errorNumber && errorCode)
         *errorCode = errorNumber;

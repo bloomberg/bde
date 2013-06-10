@@ -36,18 +36,18 @@ using namespace bsl;  // automatically added by script
 // The 'bcema_ProtectableblockdispenserAdapter' class consists of
 // one constructor, a destructor, and four manipulators.  The manipulators are
 // used to allocate, deallocate, and reserve memory.  Since this component is
-// a memory manager, the 'bdema_testallocator' component is used extensively
+// a memory manager, the 'bslma_testallocator' component is used extensively
 // to verify expected behaviors.  Note that the copying of objects is
 // explicitly disallowed since the copy constructor and assignment operator
 // are declared 'private' and left unimplemented.  So we are primarily
 // concerned that the internal memory management system functions as expected
 // and that the manipulators operator correctly.  Note that memory allocation
-// must be tested for exception neutrality (also via the 'bdema_testallocator'
+// must be tested for exception neutrality (also via the 'bslma_testallocator'
 // component).  Several small helper functions are also used to facilitate
 // testing.
 //-----------------------------------------------------------------------------
-// [2] bcema_ProtectableblockdispenserAdapter(int              numPools,
-//                                         bslma_Allocator *ba = 0);
+// [2] bcema_ProtectableblockdispenserAdapter(int               numPools,
+//                                            bslma::Allocator *ba = 0);
 // [2] ~bcema_ProtectableblockdispenserAdapter();
 // [3] void *allocate(int size);
 // [4] void deallocate(void *address);
@@ -228,7 +228,7 @@ extern "C" void *workerThread(void *arg) {
     const int  numAllocs  = args->d_numSizes;
 
     bsl::vector<bdema_MemoryBlockDescriptor>
-                                           blocks(bslma_Default::allocator(0));
+                                          blocks(bslma::Default::allocator(0));
 
     blocks.resize(numAllocs);
 
@@ -354,7 +354,7 @@ extern "C" void *workerThread(void *arg) {
             // Return the fixed allocation size of this pool.  This value is
             // equal to the 'objectSize' supplied at construction rounded up
             // to the next multiple of
-            // 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT' (in order to ensure
+            // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' (in order to ensure
             // aligned allocations).
     };
 
@@ -393,7 +393,8 @@ extern "C" void *workerThread(void *arg) {
                                  int                              objectSize,
                                  bdema_ProtectableBlockDispenser *dispenser)
 
-    : d_objectSize(roundUp(objectSize, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT))
+    : d_objectSize(roundUp(objectSize,
+                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT))
     , d_numPooledObjects(0)
     , d_freeList_p(0)
     , d_blockList(dispenser)
@@ -464,7 +465,7 @@ extern "C" void *workerThread(void *arg) {
         // satisfies the requested size.  The
         // 'ThreadEnabledProtectableMultipool'  is optionally
         // supplied both a 'bdema_ProtectableBlockDispenser' and a
-        // 'bslma_Allocator' at construction.  The protectable block dispenser
+        // 'bslma::Allocator' at construction.  The protectable block dispenser
         // provides protectable memory that is dispensed to clients of this
         // multipool on calls to the 'allocate' operation; the allocator is
         // used to provide (non-protectable) memory for internal use (the
@@ -475,8 +476,8 @@ extern "C" void *workerThread(void *arg) {
        union Header {
            // Stores the pool number of this item.
 
-           int                                d_pool;   // pool index
-           bsls_AlignmentUtil::MaxAlignedType d_dummy;  // force alignment
+           int                                 d_pool;   // pool index
+           bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force alignment
         };
 
         // DATA
@@ -495,7 +496,7 @@ extern "C" void *workerThread(void *arg) {
                                                  // corresponding to
                                                  // d_poolSizes
 
-        bslma_Allocator          *d_allocator_p; // allocate 'd_pools_p' array
+        bslma::Allocator         *d_allocator_p; // allocate 'd_pools_p' array
                                                  // and 'd_poolSizes'
       private:
         // PRIVATE MANIPULATORS
@@ -516,12 +517,12 @@ extern "C" void *workerThread(void *arg) {
         ThreadEnabledProtectableMultipool(
                           int                              numMemoryPools,
                           int                             *poolSizes,
-                          bslma_Allocator                 *basicAllocator = 0);
+                          bslma::Allocator                *basicAllocator = 0);
         ThreadEnabledProtectableMultipool(
                           int                              numMemoryPools,
                           int                             *poolSizes,
                           bdema_ProtectableBlockDispenser *dispenser,
-                          bslma_Allocator                 *basicAllocator = 0);
+                          bslma::Allocator                *basicAllocator = 0);
             // Create a multipool having the specified 'numMemoryPools'
             // dispensing fixed size blocks of the specified 'poolSizes'.
             // Optionally specify a 'dispenser' used to supply protectable
@@ -534,7 +535,7 @@ extern "C" void *workerThread(void *arg) {
             // default allocator is used.  The 'i'th pool, for 'i' in
             // '[ 0 .. numMemoryPools - 1 ]' manages blocks of size
             // 'poolSizes[i]' rounded up to the nearest multiple of
-            // 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.  The behavior is
+            // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  The behavior is
             // undefined unless '1 <= numMemoryPools', and 'poolSizes' has
             // 'numMemoryPools' elements, none of which is 0.  Note that the
             // indicated 'basicAllocator' is used to supply memory for
@@ -591,11 +592,11 @@ extern "C" void *workerThread(void *arg) {
         d_pools_p = (ThreadEnabledProtectablePool *)
                      d_allocator_p->allocate(d_numPools * sizeof(*d_pools_p));
 
-        bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+        bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                      d_pools_p, d_allocator_p);
 
-        int size = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
-        bslma_AutoDestructor<ThreadEnabledProtectablePool>
+        int size = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        bslma::AutoDestructor<ThreadEnabledProtectablePool>
                                                        autoDtor(d_pools_p, 0);
         for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
             new (d_pools_p + i) ThreadEnabledProtectablePool(
@@ -610,12 +611,12 @@ extern "C" void *workerThread(void *arg) {
     ThreadEnabledProtectableMultipool::ThreadEnabledProtectableMultipool(
                           int                              numMemoryPools,
                           int                             *poolSizes,
-                          bslma_Allocator                 *basicAllocator)
+                          bslma::Allocator                *basicAllocator)
     : d_dispenser(&d_mutex, 0)
     , d_pools_p(0)
     , d_poolSizes(basicAllocator)
     , d_numPools(numMemoryPools)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         init(poolSizes);
     }
@@ -624,12 +625,12 @@ extern "C" void *workerThread(void *arg) {
                           int                              numMemoryPools,
                           int                             *poolSizes,
                           bdema_ProtectableBlockDispenser *dispenser,
-                          bslma_Allocator                 *basicAllocator)
+                          bslma::Allocator                *basicAllocator)
     : d_dispenser(&d_mutex, dispenser)
     , d_pools_p(0)
     , d_poolSizes(basicAllocator)
     , d_numPools(numMemoryPools)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         init(poolSizes);
     }
@@ -702,8 +703,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     switch (test) { case 0:
       case 3: {
@@ -726,8 +727,8 @@ int main(int argc, char *argv[])
                           << endl << "=====================" << endl;
 
         const int BLOCKSIZE = 2 * TestDisp::BDEMA_DEFAULT_PAGE_SIZE;
-        const int ALIGN     = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
-        const int HEADER = bdema_ProtectableBlockList::blockHeaderSize();
+        const int ALIGN     = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        const int HEADER    = bdema_ProtectableBlockList::blockHeaderSize();
 
         {
             TestDisp TD(BLOCKSIZE, veryVeryVerbose);
@@ -815,7 +816,7 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::Handle threads[NUM_THREADS];
 
         const int   BLOCKSIZE = TestDisp::BDEMA_DEFAULT_PAGE_SIZE;
-        const int   ALIGN     = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        const int   ALIGN     = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
         TestDisp    dispenser(BLOCKSIZE, false);
         bcemt_Mutex mutex;
         Obj         mX(&mutex, &dispenser);
@@ -827,7 +828,7 @@ int main(int argc, char *argv[])
 
         WorkerArgs args;
         args.d_dispenser = &mX;
-        args.d_sizes     = (int *)&SIZES;
+        args.d_sizes     = (const int *)&SIZES;
         args.d_numSizes  = NUM_SIZES;
 
         for (int i = 0; i < NUM_THREADS; ++i) {

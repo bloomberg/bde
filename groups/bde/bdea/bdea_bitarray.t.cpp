@@ -14,12 +14,11 @@
 
 #include <bslalg_swaputil.h>
 
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
-#include <bsls_platform.h>                      // for testing only
-#include <bsls_platformutil.h>                  // for testing only
+#include <bsls_platform.h>
 
 #include <bsl_iostream.h>
 #include <bsl_new.h>         // placement syntax
@@ -42,14 +41,14 @@ using namespace bsl;  // automatically added by script
 // 'g' and 'gg'.  Additional helper functions are provided to facilitate
 // perturbation of internal state (e.g., capacity).  Note that each
 // manipulator must support aliasing, and those that perform memory allocation
-// must be tested for exception neutrality via the 'bdema_testallocator'
+// must be tested for exception neutrality via the 'bslma_testallocator'
 // component.  Exception neutrality involving streaming is verified using
 // 'bdex_testinstream' (and 'bdex_testoutstream').
 //
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
-// [ 2] bdea_BitArray(bslma_Allocator *ba = 0);
+// [ 2] bdea_BitArray(bslma::Allocator *ba = 0);
 // [11] bdea_BitArray(int iLen, *ba = 0);
 // [11] bdea_BitArray(int iLen, bool iVal, *ba = 0);
 // [17] bdea_BitArray(const InitialCapacity& ne, *ba = 0);
@@ -267,7 +266,7 @@ void outerP(const char *leader, const Obj &X)
      bsl::vector<TYPE>  d_values;       // data elements
      bdea_BitArray      d_nullFlags;    // 'true' indicates i'th element is
                                         // null
-     bslma_Allocator   *d_allocator_p;  // held, but not owned
+     bslma::Allocator  *d_allocator_p;  // held, but not owned
 
      // NOT IMPLEMENTED
      NullableVector(const NullableVector& original);
@@ -276,7 +275,7 @@ void outerP(const char *leader, const Obj &X)
    public:
      // CREATORS
      // ...
-     NullableVector(int initialLength, bslma_Allocator *basicAllocator = 0);
+     NullableVector(int initialLength, bslma::Allocator *basicAllocator = 0);
          // Construct a vector having the specified 'initialLength' null
          // elements.  Optionally specify a 'basicAllocator' used to supply
          // memory.  If 'basicAllocator' is 0, the currently supplied default
@@ -359,11 +358,11 @@ void outerP(const char *leader, const Obj &X)
 
      // CREATORS
      template <typename TYPE>
-     NullableVector<TYPE>::NullableVector(int              initialLength,
-                                          bslma_Allocator *basicAllocator)
+     NullableVector<TYPE>::NullableVector(int               initialLength,
+                                          bslma::Allocator *basicAllocator)
      : d_values(initialLength, TYPE(), basicAllocator)
      , d_nullFlags(initialLength, true, basicAllocator)
-     , d_allocator_p(bslma_Default::allocator(basicAllocator))
+     , d_allocator_p(bslma::Default::allocator(basicAllocator))
      {
      }
 
@@ -553,7 +552,7 @@ bdea_BitArray& gg(bdea_BitArray *object, const char *spec)
 bdea_BitArray g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    bdea_BitArray object((bslma_Allocator *)0);
+    bdea_BitArray object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -591,7 +590,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     char LONG_SPEC_1[33];
     char LONG_SPEC_2[65];
@@ -3414,13 +3413,13 @@ int main(int argc, char *argv[])
         //   objects with increasing initial capacity.  Verify that each object
         //   has the same value as a control default object.  Then, append as
         //   many values as the requested initial capacity, and use
-        //   'bslma_TestAllocator' to verify that no additional allocations
+        //   'bslma::TestAllocator' to verify that no additional allocations
         //   have occurred.  Perform each test in the standard 'bdema'
         //   exception-testing macro block.
         //
         //   Repeat the constructor test initially specifying no allocator and
         //   again, specifying a static buffer allocator.  These tests (without
-        //   specifying a 'bslma_TestAllocator') cannot confirm correct
+        //   specifying a 'bslma::TestAllocator') cannot confirm correct
         //   capacity-reserving behavior, but can test for rudimentary correct
         //   object behavior via the destructor and Purify, and, in
         //   'veryVerbose' mode, via the print statements.
@@ -3431,7 +3430,7 @@ int main(int argc, char *argv[])
         //   of elements, and confirm that the test object has the same value
         //   as a separately constructed control object.  Then, append as many
         //   values as required to bring the test object's length to the
-        //   specified number of elements, and use 'bslma_TestAllocator' to
+        //   specified number of elements, and use 'bslma::TestAllocator' to
         //   verify that no additional allocations have occurred.  Perform each
         //   test in the standard 'bdema' exception-testing macro block.
         //
@@ -3449,7 +3448,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\nTesting 'bdea_BitArray(capacity, ba)' Constructor" << endl;
-        if (verbose) cout << "\twith a 'bslma_TestAllocator':" << endl;
+        if (verbose) cout << "\twith a 'bslma::TestAllocator':" << endl;
         {
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 70;
@@ -3527,8 +3526,8 @@ int main(int argc, char *argv[])
                 const Obj::InitialCapacity NE(ne);
                 for (int length = 0; length <= MAX_LENGTH; ++length) {
                     if (verbose) P(length);
-                    bslma_TestAllocator ga(veryVeryVerbose);
-                    bslma_DefaultAllocatorGuard dag(&ga);
+                    bslma::TestAllocator ga(veryVeryVerbose);
+                    bslma::DefaultAllocatorGuard dag(&ga);
                     Obj mX(NE, length);  const Obj &X = mX;
                     const int NUM_BYTES = ga.numBytesInUse();
                     if (veryVerbose) P(X);
@@ -3551,7 +3550,7 @@ int main(int argc, char *argv[])
                 const Obj::InitialCapacity NE(ne);
                 for (int length = 0; length <= MAX_LENGTH; ++length) {
                     if (verbose) P(length);
-                    bslma_TestAllocator ta(veryVeryVerbose);
+                    bslma::TestAllocator ta(veryVeryVerbose);
                     Obj mX(NE, length, &ta);  const Obj &X = mX;
                     const int NUM_BYTES = ta.numBytesInUse();
                     if (veryVerbose) P(X);
@@ -3572,8 +3571,8 @@ int main(int argc, char *argv[])
                 const Obj::InitialCapacity NE(ne);
                 for (int length = 0; length <= MAX_LENGTH; ++length) {
                     if (verbose) P(length);
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
-                    bslma_TestAllocator& ta = testAllocator;
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::TestAllocator& ta = testAllocator;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     Obj mX(NE, length, &ta);  const Obj &X = mX;
@@ -3602,8 +3601,8 @@ int main(int argc, char *argv[])
                 const Obj::InitialCapacity NE(ne);
                 for (int length = 0; length <= MAX_LENGTH; ++length) {
                     if (verbose) P(length);
-                    bslma_TestAllocator ga(veryVeryVerbose);
-                    bslma_DefaultAllocatorGuard dag(&ga);
+                    bslma::TestAllocator ga(veryVeryVerbose);
+                    bslma::DefaultAllocatorGuard dag(&ga);
                     Obj mX(NE, length, VALUE);  const Obj &X = mX;
                     const int NUM_BYTES = ga.numBytesInUse();
                     if (veryVerbose) P(X);
@@ -3633,7 +3632,7 @@ int main(int argc, char *argv[])
                 const Obj::InitialCapacity NE(ne);
                 for (int length = 0; length <= MAX_LENGTH; ++length) {
                     if (verbose) P(length);
-                    bslma_TestAllocator ta(veryVeryVerbose);
+                    bslma::TestAllocator ta(veryVeryVerbose);
                     Obj mX(NE, length, VALUE, &ta);  const Obj &X = mX;
                     const int NUM_BYTES = ta.numBytesInUse();
                     if (veryVerbose) P(X);
@@ -3661,8 +3660,8 @@ int main(int argc, char *argv[])
                 const Obj::InitialCapacity NE(ne);
                 for (int length = 0; length <= MAX_LENGTH; ++length) {
                     if (verbose) P(length);
-                    bslma_TestAllocator testAllocator(veryVeryVerbose);
-                    bslma_TestAllocator& ta = testAllocator;
+                    bslma::TestAllocator testAllocator(veryVeryVerbose);
+                    bslma::TestAllocator& ta = testAllocator;
 
                   BEGIN_BSLMA_EXCEPTION_TEST {
                     Obj mX(NE, length, VALUE, &ta);  const Obj &X = mX;
@@ -5925,7 +5924,8 @@ int main(int argc, char *argv[])
         //   For each constructor we will create objects
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
         //      (using a 'bdema_BufferedSequentialAllocator') and never
         //      destroyed.
@@ -6763,7 +6763,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nAssign cross product of values with varied representations."
                           << endl;
-        
+
         {
             static const char *SPECS[] = {
                 "",      "0",      "01",     "011",    "0110",   "01100",
@@ -6966,7 +6966,7 @@ int main(int argc, char *argv[])
                 Obj Y1(g("10")), Y2(Y1);
 
                 X1.swap(Y1);
-                bslalg_SwapUtil::swap(&X2, &Y2);
+                bslalg::SwapUtil::swap(&X2, &Y2);
 
                 ASSERT(X1 == X2);
                 ASSERT(Y1 == Y2);
@@ -7070,11 +7070,11 @@ int main(int argc, char *argv[])
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
-        //     - When passing in a null pointer: (bslma_Allocator *)0.
+        //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
         //       (using a 'bdema_BufferedSequentialAllocator') and never
@@ -7146,7 +7146,7 @@ int main(int argc, char *argv[])
                     }
 
                     {                                   // Null allocator.
-                        const Obj Y1(X, (bslma_Allocator *) 0);
+                        const Obj Y1(X, (bslma::Allocator *) 0);
                         if (veryVerbose) { cout << "\t\t\t"; P(Y1); }
                         LOOP2_ASSERT(SPEC, N, W == Y1);
                         LOOP2_ASSERT(SPEC, N, W == X);
@@ -8186,7 +8186,8 @@ int main(int argc, char *argv[])
         //   constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
         //        (using a 'bdema_BufferedSequentialAllocator') and never
         //        destroyed.
@@ -8197,7 +8198,7 @@ int main(int argc, char *argv[])
         //   further modification, so that the destructor asserts internal
         //   object invariants appropriately.  After the final append operation
         //   in each test, use the (untested) basic accessors to cross-check
-        //   the value of the object and the 'bslma_TestAllocator' to confirm
+        //   the value of the object and the 'bslma::TestAllocator' to confirm
         //   whether a resize has occurred.
         //
         //   To address concerns 4a-4c, construct a similar test, replacing
@@ -8221,12 +8222,12 @@ int main(int argc, char *argv[])
         //
         //   The first test acts as a "control" in that 'removeAll' is not
         //   called; if only the second test produces an error, we know that
-        //   'removeAll' is to blame.  We will rely on 'bslma_TestAllocator'
+        //   'removeAll' is to blame.  We will rely on 'bslma::TestAllocator'
         //   and purify to address concern 2, and on the object invariant
         //   assertions in the destructor to address concerns 3e and 4d.
         //
         // Testing:
-        //   bdea_BitArray(bslma_Allocator *ba);
+        //   bdea_BitArray(bslma::Allocator *ba);
         //   ~bdea_BitArray();
         //   BOOTSTRAP: void append(bool value); // no aliasing
         //   void removeAll();
@@ -8240,7 +8241,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
             ASSERT(0 == X.length());
         }
@@ -8771,8 +8772,8 @@ int main(int argc, char *argv[])
                 "\n 1) Create an object X5 (default ctor, default allocator)."
                                                        "\t\t\t{ X5: }" << endl;
         {
-            bslma_TestAllocator ga(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard dag(&ga);
+            bslma::TestAllocator ga(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&ga);
             Obj mX5;  const Obj& X5 = mX5;
             if (verbose) { cout << '\t';  P(X5); }
 
@@ -8809,8 +8810,8 @@ int main(int argc, char *argv[])
             ASSERT(false == X6[5]);         ASSERT(false == X6[7]);
         }
         {
-            bslma_TestAllocator ga(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard dag(&ga);
+            bslma::TestAllocator ga(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&ga);
             // Obj mX6(8, 0);  const Obj& X6 = mX6; <-- note: causes error
             Obj mX6(8, false);  const Obj& X6 = mX6;
             if (verbose) { cout << '\t';  P(X6); }

@@ -270,7 +270,7 @@ namespace BloombergLP  {
                   // class baexml_MiniReader::Node
                   // -----------------------------
 
-baexml_MiniReader::Node::Node(bslma_Allocator *basicAllocator)
+baexml_MiniReader::Node::Node(bslma::Allocator *basicAllocator)
 : d_type          (BAEXML_NODE_TYPE_NONE)
 , d_qualifiedName (0)
 , d_prefix        (0)
@@ -287,8 +287,8 @@ baexml_MiniReader::Node::Node(bslma_Allocator *basicAllocator)
 {
 }
 
-baexml_MiniReader::Node::Node(const Node& other,
-                              bslma_Allocator *basicAllocator)
+baexml_MiniReader::Node::Node(const Node&       other,
+                              bslma::Allocator *basicAllocator)
 : d_type          (other.d_type)
 , d_qualifiedName (other.d_qualifiedName)
 , d_prefix        (other.d_prefix)
@@ -361,7 +361,7 @@ baexml_MiniReader::Node::addAttribute(const Attribute& attr)
                           // -----------------------
 
 // CREATORS
-baexml_MiniReader::baexml_MiniReader(bslma_Allocator *basicAllocator)
+baexml_MiniReader::baexml_MiniReader(bslma::Allocator *basicAllocator)
 : d_state           (ST_CLOSED)
 , d_flags           (0)
 , d_readSize        (BAEXML_DEFAULT_BUFSIZE)
@@ -396,8 +396,8 @@ baexml_MiniReader::baexml_MiniReader(bslma_Allocator *basicAllocator)
     d_parseBuf.resize(d_readSize);
 }
 
-baexml_MiniReader::baexml_MiniReader(int              bufSize,
-                                     bslma_Allocator *basicAllocator)
+baexml_MiniReader::baexml_MiniReader(int               bufSize,
+                                     bslma::Allocator *basicAllocator)
 : d_state           (ST_CLOSED)
 , d_flags           (0)
 , d_readSize        (bufSize)
@@ -1475,7 +1475,7 @@ int
 baexml_MiniReader::updateElementInfo()
 {
     Node& node = currentNode();
-    char* colon = (char*) bsl::strchr(node.d_qualifiedName, ':');
+    char* colon = const_cast<char *>(bsl::strchr(node.d_qualifiedName, ':'));
 
     if (colon == 0) {
         //only localName

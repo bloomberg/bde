@@ -550,7 +550,7 @@ BDES_IDENT("$Id: $")
 //  char                        baea_CommandLineOptionType::BAEA_CHAR
 //  short                       baea_CommandLineOptionType::BAEA_SHORT
 //  int                         baea_CommandLineOptionType::BAEA_INT
-//  bsls_PlatformUtil::Int64    baea_CommandLineOptionType::BAEA_INT64
+//  bsls::Types::Int64          baea_CommandLineOptionType::BAEA_INT64
 //  float                       baea_CommandLineOptionType::BAEA_FLOAT
 //  double                      baea_CommandLineOptionType::BAEA_DOUBLE
 //  bsl::string                 baea_CommandLineOptionType::BAEA_STRING
@@ -560,7 +560,7 @@ BDES_IDENT("$Id: $")
 //  bsl::vector<char>           baea_CommandLineOptionType::BAEA_CHAR_ARRAY
 //  bsl::vector<short>          baea_CommandLineOptionType::BAEA_SHORT_ARRAY
 //  bsl::vector<int>            baea_CommandLineOptionType::BAEA_INT_ARRAY
-//  bsl::vector<bsls_PlatformUtil::Int64>
+//  bsl::vector<bsls::Types::Int64>
 //                              baea_CommandLineOptionType::BAEA_INT64_ARRAY
 //  bsl::vector<float>          baea_CommandLineOptionType::BAEA_FLOAT_ARRAY
 //  bsl::vector<double>         baea_CommandLineOptionType::BAEA_DOUBLE_ARRAY
@@ -786,6 +786,10 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -794,8 +798,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -810,10 +814,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #ifdef OPTIONAL
@@ -821,6 +821,13 @@ BDES_IDENT("$Id: $")
 #endif
 #endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -874,18 +881,18 @@ class baea_CommandLineOccurrenceInfo {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baea_CommandLineOccurrenceInfo,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    baea_CommandLineOccurrenceInfo(bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOccurrenceInfo(bslma::Allocator *basicAllocator = 0);
         // Construct an object such that the associated option is optional and
         // has no default value.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    baea_CommandLineOccurrenceInfo(OccurrenceType   type,
-                                   bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOccurrenceInfo(OccurrenceType    type,
+                                   bslma::Allocator *basicAllocator = 0);
         // Construct an object such that the associated option has the
         // specified 'type' as its occurrence type and has no default value.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -893,76 +900,76 @@ class baea_CommandLineOccurrenceInfo {
         // used.
 
     explicit
-    baea_CommandLineOccurrenceInfo(char             defaultValue,
-                                   bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOccurrenceInfo(char              defaultValue,
+                                   bslma::Allocator *basicAllocator = 0);
     explicit
-    baea_CommandLineOccurrenceInfo(short            defaultValue,
-                                   bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOccurrenceInfo(short             defaultValue,
+                                   bslma::Allocator *basicAllocator = 0);
     explicit
-    baea_CommandLineOccurrenceInfo(int              defaultValue,
-                                   bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOccurrenceInfo(int               defaultValue,
+                                   bslma::Allocator *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
-                                 bsls_PlatformUtil::Int64  defaultValue,
-                                 bslma_Allocator          *basicAllocator = 0);
+                                 bsls::Types::Int64  defaultValue,
+                                 bslma::Allocator   *basicAllocator = 0);
     explicit
-    baea_CommandLineOccurrenceInfo(float            defaultValue,
-                                   bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOccurrenceInfo(float             defaultValue,
+                                   bslma::Allocator *basicAllocator = 0);
     explicit
-    baea_CommandLineOccurrenceInfo(double           defaultValue,
-                                   bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOccurrenceInfo(double            defaultValue,
+                                   bslma::Allocator *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(const bsl::string&  defaultValue,
-                                   bslma_Allocator    *basicAllocator = 0);
+                                   bslma::Allocator   *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(const bdet_Datetime&  defaultValue,
-                                   bslma_Allocator      *basicAllocator = 0);
+                                   bslma::Allocator     *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(const bdet_Date&  defaultValue,
-                                   bslma_Allocator  *basicAllocator = 0);
+                                   bslma::Allocator *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(const bdet_Time&  defaultValue,
-                                   bslma_Allocator  *basicAllocator = 0);
+                                   bslma::Allocator *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                                  const bsl::vector<char>&  defaultValue,
-                                 bslma_Allocator          *basicAllocator = 0);
+                                 bslma::Allocator         *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                                 const bsl::vector<short>&  defaultValue,
-                                bslma_Allocator           *basicAllocator = 0);
+                                bslma::Allocator          *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                                   const bsl::vector<int>&  defaultValue,
-                                  bslma_Allocator         *basicAllocator = 0);
+                                  bslma::Allocator        *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
-             const bsl::vector<bsls_PlatformUtil::Int64>&  defaultValue,
-             bslma_Allocator                              *basicAllocator = 0);
+                   const bsl::vector<bsls::Types::Int64>&  defaultValue,
+                   bslma::Allocator                       *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                                 const bsl::vector<float>&  defaultValue,
-                                bslma_Allocator           *basicAllocator = 0);
+                                bslma::Allocator          *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                                const bsl::vector<double>&  defaultValue,
-                               bslma_Allocator            *basicAllocator = 0);
+                               bslma::Allocator           *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                           const bsl::vector<bsl::string>&  defaultValue,
-                          bslma_Allocator                 *basicAllocator = 0);
+                          bslma::Allocator                *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                         const bsl::vector<bdet_Datetime>&  defaultValue,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                             const bsl::vector<bdet_Date>&  defaultValue,
-                            bslma_Allocator               *basicAllocator = 0);
+                            bslma::Allocator              *basicAllocator = 0);
     explicit
     baea_CommandLineOccurrenceInfo(
                             const bsl::vector<bdet_Time>&  defaultValue,
-                            bslma_Allocator               *basicAllocator = 0);
+                            bslma::Allocator              *basicAllocator = 0);
         // Construct an object such that the associated option is optional and
         // has the specified 'defaultValue'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -970,7 +977,7 @@ class baea_CommandLineOccurrenceInfo {
 
     baea_CommandLineOccurrenceInfo(
                     const baea_CommandLineOccurrenceInfo&  original,
-                    bslma_Allocator                       *basicAllocator = 0);
+                    bslma::Allocator                      *basicAllocator = 0);
         // Construct a 'baea_CommandLineOccurrenceInfo' object having the value
         // of the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -1079,7 +1086,7 @@ struct baea_CommandLineOptionType {
     static char                       * const BAEA_CHAR;
     static short                      * const BAEA_SHORT;
     static int                        * const BAEA_INT;
-    static bsls_PlatformUtil::Int64   * const BAEA_INT64;
+    static bsls::Types::Int64         * const BAEA_INT64;
     static float                      * const BAEA_FLOAT;
     static double                     * const BAEA_DOUBLE;
     static bsl::string                * const BAEA_STRING;
@@ -1089,7 +1096,7 @@ struct baea_CommandLineOptionType {
     static bsl::vector<char>          * const BAEA_CHAR_ARRAY;
     static bsl::vector<short>         * const BAEA_SHORT_ARRAY;
     static bsl::vector<int>           * const BAEA_INT_ARRAY;
-    static bsl::vector<bsls_PlatformUtil::Int64>
+    static bsl::vector<bsls::Types::Int64>
                                       * const BAEA_INT64_ARRAY;
     static bsl::vector<float>         * const BAEA_FLOAT_ARRAY;
     static bsl::vector<double>        * const BAEA_DOUBLE_ARRAY;
@@ -1121,7 +1128,7 @@ struct baea_CommandLineConstraint {
                                    bsl::ostream&)>    IntConstraint;
         // Functor type constraining an integer.
 
-    typedef bdef_Function<bool (*)(const bsls_PlatformUtil::Int64 *,
+    typedef bdef_Function<bool (*)(const bsls::Types::Int64 *,
                                    bsl::ostream&)>    Int64Constraint;
         // Functor type constraining a 64-bit integer.
 
@@ -1180,24 +1187,24 @@ class baea_CommandLineTypeInfo {
     bcema_SharedPtr<baea_CommandLine_Constraint>
                          d_constraint_p;      // constraint on the option value
 
-    bslma_Allocator     *d_allocator_p;       // memory allocator (held)
+    bslma::Allocator    *d_allocator_p;       // memory allocator (held)
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baea_CommandLineTypeInfo,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    baea_CommandLineTypeInfo(bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineTypeInfo(bslma::Allocator *basicAllocator = 0);
         // Construct an object having 'string' type for the associated option.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  No variable is linked and no constraint is put on the value.
 
     explicit
-    baea_CommandLineTypeInfo(bool            *variable,
-                             bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineTypeInfo(bool             *variable,
+                             bslma::Allocator *basicAllocator = 0);
         // Construct a flag accepting 'bool' as the type for the associated
         // option (i.e., for the linked variable).  If the specified 'variable'
         // is not 0, then link it with the option.  Optionally specify a
@@ -1207,11 +1214,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(char                         *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(char                         *variable,
                              const baea_CommandLineConstraint::CharConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'char' type for the associated option.
         // If the specified 'variable' is not 0, then link it with the option.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -1222,11 +1229,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(short                        *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(short                        *variable,
                              const baea_CommandLineConstraint::ShortConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'short' type for the associated option.
         // If the specified 'variable' is not 0, then link it with the option.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -1237,11 +1244,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(int                          *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(int                          *variable,
                              const baea_CommandLineConstraint::IntConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'int' type for the associated option.  If
         // the specified 'variable' is not 0, then link it with the option.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -1251,13 +1258,13 @@ class baea_CommandLineTypeInfo {
         // constraint.
 
     explicit
-    baea_CommandLineTypeInfo(bsls_PlatformUtil::Int64     *variable,
-                             bslma_Allocator              *basicAllocator = 0);
-    baea_CommandLineTypeInfo(bsls_PlatformUtil::Int64     *variable,
+    baea_CommandLineTypeInfo(bsls::Types::Int64    *variable,
+                             bslma::Allocator      *basicAllocator = 0);
+    baea_CommandLineTypeInfo(bsls::Types::Int64    *variable,
                              const baea_CommandLineConstraint::
                                          Int64Constraint&  constraint,
-                             bslma_Allocator              *basicAllocator = 0);
-        // Construct an object having 'bsls_PlatformUtil::Int64' type for the
+                             bslma::Allocator      *basicAllocator = 0);
+        // Construct an object having 'bsls::Types::Int64' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1267,11 +1274,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(float                        *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(float                        *variable,
                              const baea_CommandLineConstraint::
                                          FloatConstraint&  constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'float' type for the associated option.
         // If the specified 'variable' is not 0, then link it with the option.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -1282,11 +1289,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(double                       *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(double                       *variable,
                              const baea_CommandLineConstraint::
                                         DoubleConstraint&  constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'double' type for the associated option.
         // If the specified 'variable' is not 0, then link it with the option.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -1297,11 +1304,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::string                  *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::string                  *variable,
                              const baea_CommandLineConstraint::
                                         StringConstraint&  constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::string' type for the associated
         // option.  If the specified 'variable' is not 0, then link it with
         // the option.  Optionally specify a 'basicAllocator' used to supply
@@ -1312,11 +1319,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bdet_Datetime                *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bdet_Datetime                *variable,
                              const baea_CommandLineConstraint::
                                       DatetimeConstraint&  constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bdet_Datetime' type for the associated
         // option.  If the specified 'variable' is not 0, then link it with
         // the option.  Optionally specify a 'basicAllocator' used to supply
@@ -1327,11 +1334,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bdet_Date                    *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bdet_Date                    *variable,
                              const baea_CommandLineConstraint::DateConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bdet_Date' type for the associated
         // option.  If the specified 'variable' is not 0, then link it with
         // the option.  Optionally specify a 'basicAllocator' used to supply
@@ -1342,11 +1349,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bdet_Time                    *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bdet_Time                    *variable,
                              const baea_CommandLineConstraint::TimeConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bdet_Time' type for the associated
         // option.  If the specified 'variable' is not 0, then link it with
         // the option.  Optionally specify a 'basicAllocator' used to supply
@@ -1357,11 +1364,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<char>            *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<char>            *variable,
                              const baea_CommandLineConstraint::CharConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<char>' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1372,11 +1379,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<short>           *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<short>           *variable,
                              const baea_CommandLineConstraint::ShortConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<short>' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1387,11 +1394,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<int>             *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<int>             *variable,
                              const baea_CommandLineConstraint::IntConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<int>' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1402,14 +1409,14 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(
-                    bsl::vector<bsls_PlatformUtil::Int64> *variable,
-                    bslma_Allocator                       *basicAllocator = 0);
+                   bsl::vector<bsls::Types::Int64> *variable,
+                   bslma::Allocator                *basicAllocator = 0);
     baea_CommandLineTypeInfo(
-                    bsl::vector<bsls_PlatformUtil::Int64> *variable,
-                    const baea_CommandLineConstraint::Int64Constraint&
-                                                           constraint,
-                    bslma_Allocator                       *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<bsls_PlatformUtil::Int64>'
+                   bsl::vector<bsls::Types::Int64> *variable,
+                   const baea_CommandLineConstraint::Int64Constraint&
+                                                    constraint,
+                   bslma::Allocator                *basicAllocator = 0);
+        // Construct an object having 'bsl::vector<bsls::Types::Int64>'
         // type for the associated option.  If the specified 'variable' is not
         // 0, then link it with the option.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -1419,11 +1426,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<float>           *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<float>           *variable,
                              const baea_CommandLineConstraint::FloatConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<float>' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1434,11 +1441,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<double>       *variable,
-                             bslma_Allocator           *basicAllocator = 0);
+                             bslma::Allocator          *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<double>       *variable,
                              const baea_CommandLineConstraint::
                                      DoubleConstraint&  constraint,
-                             bslma_Allocator           *basicAllocator = 0);
+                             bslma::Allocator          *basicAllocator = 0);
         // Construct an object having 'bsl::vector<double>' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1449,11 +1456,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<bsl::string>     *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<bsl::string>     *variable,
                              const baea_CommandLineConstraint::
                                         StringConstraint&  constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<bsl::string>' type for
         // the associated option.  If the specified 'variable' is not 0, then
         // link it with the option.  Optionally specify a 'basicAllocator'
@@ -1464,11 +1471,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<bdet_Datetime>   *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<bdet_Datetime>   *variable,
                              const baea_CommandLineConstraint::
                                       DatetimeConstraint&  constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<bdet_Datetime>' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1479,11 +1486,11 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<bdet_Date>       *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(bsl::vector<bdet_Date>       *variable,
                              const baea_CommandLineConstraint::DateConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<bdet_Date>' type for the
         // associated option.  If the specified 'variable' is not 0, then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1494,12 +1501,12 @@ class baea_CommandLineTypeInfo {
 
     explicit
     baea_CommandLineTypeInfo(bsl::vector<bdet_Time>       *variable,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
     baea_CommandLineTypeInfo(
                              bsl::vector<bdet_Time>       *variable,
                              const baea_CommandLineConstraint::TimeConstraint&
                                                            constraint,
-                             bslma_Allocator              *basicAllocator = 0);
+                             bslma::Allocator             *basicAllocator = 0);
         // Construct an object having 'bsl::vector<bdet_Time>' type for the
         // associated option.  If the specified 'variable' is not 0,  then link
         // it with the option.  Optionally specify a 'basicAllocator' used to
@@ -1510,7 +1517,7 @@ class baea_CommandLineTypeInfo {
 
     baea_CommandLineTypeInfo(
                           const baea_CommandLineTypeInfo&  original,
-                          bslma_Allocator                 *basicAllocator = 0);
+                          bslma::Allocator                *basicAllocator = 0);
         // Create an object having the value of the specified 'original'
         // object.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -1579,7 +1586,7 @@ class baea_CommandLineTypeInfo {
     void setLinkedVariable(char                                  *variable);
     void setLinkedVariable(short                                 *variable);
     void setLinkedVariable(int                                   *variable);
-    void setLinkedVariable(bsls_PlatformUtil::Int64              *variable);
+    void setLinkedVariable(bsls::Types::Int64                    *variable);
     void setLinkedVariable(float                                 *variable);
     void setLinkedVariable(double                                *variable);
     void setLinkedVariable(bsl::string                           *variable);
@@ -1589,7 +1596,7 @@ class baea_CommandLineTypeInfo {
     void setLinkedVariable(bsl::vector<char>                     *variable);
     void setLinkedVariable(bsl::vector<short>                    *variable);
     void setLinkedVariable(bsl::vector<int>                      *variable);
-    void setLinkedVariable(bsl::vector<bsls_PlatformUtil::Int64> *variable);
+    void setLinkedVariable(bsl::vector<bsls::Types::Int64>       *variable);
     void setLinkedVariable(bsl::vector<float>                    *variable);
     void setLinkedVariable(bsl::vector<double>                   *variable);
     void setLinkedVariable(bsl::vector<bsl::string>              *variable);
@@ -1773,9 +1780,9 @@ operator<<(bsl::ostream& stream, const baea_CommandLineOptionInfo& rhs);
 class baea_CommandLineOption {
     // This 'class', constructible from and implicitly convertible to
     // 'baea_CommandLineOptionInfo', provides the same attributes, but also
-    // uses a 'bslma_Allocator' and thus can be stored in a container.  A minor
-    // subtlety arises in the 'name' attribute, whereby any suffix starting
-    // with an '=' sign in the 'name' attribute of a
+    // uses a 'bslma::Allocator' and thus can be stored in a container.  A
+    // minor subtlety arises in the 'name' attribute, whereby any suffix
+    // starting with an '=' sign in the 'name' attribute of a
     // 'baea_CommandLineOptionInfo' is removed in order to derive the 'name' of
     // the 'baea_CommandLineOption'.
     //
@@ -1791,10 +1798,10 @@ class baea_CommandLineOption {
     // an object as both source and destination) is supported in all cases.
 
     // DATA
-    bsls_ObjectBuffer<baea_CommandLineOptionInfo>
+    bsls::ObjectBuffer<baea_CommandLineOptionInfo>
                           d_optionInfo;   // underlying option info
 
-    bslma_Allocator      *d_allocator_p;  // memory allocator (held, not owned)
+    bslma::Allocator     *d_allocator_p;  // memory allocator (held, not owned)
 
   private:
     // PRIVATE MANIPULATORS
@@ -1805,11 +1812,11 @@ class baea_CommandLineOption {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baea_CommandLineOption,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    baea_CommandLineOption(bslma_Allocator *basicAllocator = 0);
+    baea_CommandLineOption(bslma::Allocator *basicAllocator = 0);
         // Create a default (empty) command-line option.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -1817,7 +1824,7 @@ class baea_CommandLineOption {
     explicit
     baea_CommandLineOption(
                         const baea_CommandLineOptionInfo&  optionInfo,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a command-line option containing the value of the specified
         // 'optionInfo'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -1825,7 +1832,7 @@ class baea_CommandLineOption {
 
     baea_CommandLineOption(
                         const baea_CommandLineOption&      original,
-                        bslma_Allocator                   *basicAllocator = 0);
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a 'baea_CommandLineOption' object having the same value
         // as the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -2127,17 +2134,17 @@ class baea_CommandLine {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baea_CommandLine,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     template <int LENGTH>
     baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bsl::ostream&                      stream,
-                     bslma_Allocator                   *basicAllocator = 0);
+                     bslma::Allocator                  *basicAllocator = 0);
     template <int LENGTH>
     baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bsl::ostream&                stream,
-                     bslma_Allocator             *basicAllocator = 0);
+                     bslma::Allocator            *basicAllocator = 0);
         // Create an object with the command-line options described by the
         // specified 'specTable'.  The 'specTable' *must* *be* a statically-
         // created array.  If the tag, description, or name specified for an
@@ -2149,10 +2156,10 @@ class baea_CommandLine {
 
     template <int LENGTH>
     baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[LENGTH],
-                     bslma_Allocator                   *basicAllocator = 0);
+                     bslma::Allocator                  *basicAllocator = 0);
     template <int LENGTH>
     baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[LENGTH],
-                     bslma_Allocator             *basicAllocator = 0);
+                     bslma::Allocator            *basicAllocator = 0);
         // Create an object with the command-line options described by the
         // specified 'specTable'.  The 'specTable' *must* *be* a statically-
         // created array.  If the tag, description, or name specified for an
@@ -2164,7 +2171,7 @@ class baea_CommandLine {
 
     baea_CommandLine(const baea_CommandLineOptionInfo *specTable,
                      int                               length,
-                     bslma_Allocator                  *basicAllocator = 0);
+                     bslma::Allocator                 *basicAllocator = 0);
         // Create an object with the command-line options described by the
         // specified 'specTable' of the specified 'length'.  The 'specTable'
         // need not be a statically-created array.  If the tag, description, or
@@ -2177,7 +2184,7 @@ class baea_CommandLine {
     baea_CommandLine(const baea_CommandLineOptionInfo *specTable,
                      int                               length,
                      bsl::ostream&                     stream,
-                     bslma_Allocator                  *basicAllocator = 0);
+                     bslma::Allocator                 *basicAllocator = 0);
         // Create an object with the command-line options described by the
         // specified 'specTable' of the specified 'length'.  The 'specTable'
         // need not be a statically-created array.  If the tag, description, or
@@ -2188,7 +2195,7 @@ class baea_CommandLine {
         // the currently installed default allocator is used.
 
     baea_CommandLine(const baea_CommandLine&  original,
-                     bslma_Allocator         *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
         // Create a command-line object having the value of the specified
         // 'original' command line, if the 'original' is parsed, and otherwise
         // having a state such that parsing command-line arguments results in
@@ -2303,10 +2310,10 @@ class baea_CommandLine {
         // behavior is undefined unless the option is of type 'int' and
         // 'isParsed' returns 'true'.
 
-    bsls_PlatformUtil::Int64 theInt64(const bsl::string& name) const;
+    bsls::Types::Int64 theInt64(const bsl::string& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless the option is of type
-        // 'bsls_PlatformUtil::Int64' and 'isParsed' returns 'true'.
+        // 'bsls::Types::Int64' and 'isParsed' returns 'true'.
 
     float theFloat(const bsl::string& name) const;
         // Return the value of the option having the specified 'name'.  The
@@ -2353,11 +2360,11 @@ class baea_CommandLine {
         // the specified 'name'.  The behavior is undefined unless the option
         // is of type 'bsl::vector<int>' and 'isParsed' returns 'true'.
 
-    const bsl::vector<bsls_PlatformUtil::Int64>& theInt64Array(
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(
                                                 const bsl::string& name) const;
         // Return a reference to the non-modifiable value of the option having
         // the specified 'name'.  The behavior is undefined unless the option
-        // is of type 'bsl::vector<bsls_PlatformUtil::Int64>' and 'isParsed'
+        // is of type 'bsl::vector<bsls::Types::Int64>' and 'isParsed'
         // returns 'true'.
 
     const bsl::vector<float>& theFloatArray(const bsl::string& name) const;
@@ -2450,7 +2457,7 @@ template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
                          const baea_CommandLineOptionInfo (&specTable)[LENGTH],
                          bsl::ostream&                      stream,
-                         bslma_Allocator                   *basicAllocator)
+                         bslma::Allocator                  *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2473,7 +2480,7 @@ template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
                                baea_CommandLineOptionInfo (&specTable)[LENGTH],
                                bsl::ostream&                stream,
-                               bslma_Allocator             *basicAllocator)
+                               bslma::Allocator            *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2495,7 +2502,7 @@ baea_CommandLine::baea_CommandLine(
 template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
                          const baea_CommandLineOptionInfo (&specTable)[LENGTH],
-                         bslma_Allocator                   *basicAllocator)
+                         bslma::Allocator                  *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2517,7 +2524,7 @@ baea_CommandLine::baea_CommandLine(
 template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
                                baea_CommandLineOptionInfo (&specTable)[LENGTH],
-                               bslma_Allocator             *basicAllocator)
+                               bslma::Allocator            *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)

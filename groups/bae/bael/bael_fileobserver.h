@@ -264,12 +264,12 @@ BDES_IDENT("$Id: $")
 #include <bdet_datetimeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -333,7 +333,7 @@ class bael_FileObserver : public bael_Observer {
     // CREATORS
     explicit bael_FileObserver(
               bael_Severity::Level  stdoutThreshold = bael_Severity::BAEL_WARN,
-              bslma_Allocator      *basicAllocator  = 0);
+              bslma::Allocator     *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally-specified
         // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
@@ -347,7 +347,7 @@ class bael_FileObserver : public bael_Observer {
 
     bael_FileObserver(bael_Severity::Level  stdoutThreshold,
                       bool                  publishInLocalTime,
-                      bslma_Allocator      *basicAllocator = 0);
+                      bslma::Allocator     *basicAllocator = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the specified
         // 'stdoutThreshold' level.  If the specified 'publishInLocalTime' flag
@@ -524,7 +524,9 @@ class bael_FileObserver : public bael_Observer {
         // this file observer attempts perform a log file rotation.  The
         // behavior is undefined if the supplied function calls either
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
-        // file observer.
+        // file observer (i.e., the supplied callback should *not* attempt to
+        // write to the 'bael' log).
+
 
     void setStdoutThreshold(bael_Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file

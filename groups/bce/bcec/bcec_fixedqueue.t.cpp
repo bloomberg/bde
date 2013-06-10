@@ -21,17 +21,14 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_algorithm.h>
 
 #include <bsl_c_stdlib.h>            // atoi()
-
-#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
-#include <strstrea.h>
-#else
 #include <bsl_strstream.h>
-#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -587,7 +584,7 @@ void f(const bcema_SharedPtr<int>&)
 void workerThread(Control *control)
 {
     bcema_SharedPtr<int> sp;
-    sp.createInplace(bslma_Default::allocator(), 12345);
+    sp.createInplace(bslma::Default::allocator(), 12345);
 
     bdef_Function<void(*)()> funct = bdef_BindUtil::bind(&f, sp);
 
@@ -750,7 +747,7 @@ void f(const bcema_SharedPtr<int>&)
 void pusherThread(Control *control)
 {
     bcema_SharedPtr<int> sp;
-    sp.createInplace(bslma_Default::allocator(), 12345);
+    sp.createInplace(bslma::Default::allocator(), 12345);
 
     bdef_Function<void(*)()> funct = bdef_BindUtil::bind(&f, sp);
 
@@ -1075,7 +1072,7 @@ int main(int argc, char *argv[])
                                           &queue,
                                           &stop),
                       NUM_PUSHPOP_THREADS);
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
         timer.start();
 
         while (timer.elapsedTime() < TEST_DURATION) {
@@ -1111,7 +1108,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         {
             enum {
@@ -1230,7 +1227,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         {
             enum {
@@ -1303,7 +1300,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         {
             enum {
@@ -1437,7 +1434,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVerbose);
         bcema_TestAllocator da(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard defaultAllocGuard(&da);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         {
             CountedDelete cd;
@@ -1567,7 +1564,7 @@ int main(int argc, char *argv[])
                                    NUM_PUSHERS);
             mtQueue.disable();
             mtQueue.removeAll();
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             while (timer.elapsedTime() * 1000 < EMPTY_VERIFY_MS) {
                 ASSERT(mtQueue.isEmpty());
@@ -1607,7 +1604,7 @@ int main(int argc, char *argv[])
             }
 
             queue.removeAll();
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             double elapsed;
             while ((elapsed = timer.elapsedTime() * 1000) < EMPTY_VERIFY_MS) {
@@ -1654,7 +1651,7 @@ int main(int argc, char *argv[])
             }
 
             queue.removeAll();
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             double elapsed;
             for (int i = 0; (elapsed = timer.elapsedTime() * 1000) <
@@ -2191,7 +2188,7 @@ int main(int argc, char *argv[])
         BenchData* producerData = new BenchData[numProducers];
         BenchData* consumerData = new BenchData[numConsumers];
         bcec_FixedQueue<void*> queue(queueSize);
-        //bsls_PlatformUtil::Int64 timeStart = bsls_TimeUtil::getTimer();
+        //bsls::Types::Int64 timeStart = bsls::TimeUtil::getTimer();
         for(int i=0; i<numConsumers; i++) {
             consumerData[i].queue = &queue;
             consumerData[i].count = 0;
@@ -2209,23 +2206,23 @@ int main(int argc, char *argv[])
                                      (void*)(producerData+i));
         }
         for(int j=0; j<samples; j++) {
-            bsls_PlatformUtil::Int64 timeStart = bsls_TimeUtil::getTimer();
-            bsls_PlatformUtil::Int64 timeStartCPU = ::clock();
+            bsls::Types::Int64 timeStart = bsls::TimeUtil::getTimer();
+            bsls::Types::Int64 timeStartCPU = ::clock();
             int* consumerCount = new int[numConsumers];
             for(int i=0; i<numConsumers; i++) {
                 consumerCount[i] = consumerData[i].count;
             }
-            bsls_PlatformUtil::Int64 throughput;
-            bsls_PlatformUtil::Int64 throughputCPU;
+            bsls::Types::Int64 throughput;
+            bsls::Types::Int64 throughputCPU;
             for(int i=0; i<seconds; i++) {
                 bcemt_ThreadUtil::microSleep(1000000);
-                bsls_PlatformUtil::Int64 totalMessages = 0;
+                bsls::Types::Int64 totalMessages = 0;
                 for(int i=0; i<numConsumers;i++) {
                     totalMessages += (consumerData[i].count-consumerCount[i]);
                 }
-                bsls_PlatformUtil::Int64 elapsed_us =
-                                (bsls_TimeUtil::getTimer() - timeStart) / 1000;
-                bsls_PlatformUtil::Int64 elapsed_usCPU =
+                bsls::Types::Int64 elapsed_us =
+                               (bsls::TimeUtil::getTimer() - timeStart) / 1000;
+                bsls::Types::Int64 elapsed_usCPU =
                                                       ::clock() - timeStartCPU;
                 throughput = (totalMessages*1000000/elapsed_us);
                 throughputCPU = (totalMessages*1000000/elapsed_usCPU);
@@ -2295,7 +2292,7 @@ int main(int argc, char *argv[])
 
             int result;
             queue.removeAll();
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             double elapsed;
             for (int i = 0; (elapsed = timer.elapsedTime() * 1000) <
@@ -2616,7 +2613,7 @@ int main(int argc, char *argv[])
                                           numIterations,
                                           workSpin),
                       numPushpopThreads);
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
 
         barrier.wait();
         timer.start(true);

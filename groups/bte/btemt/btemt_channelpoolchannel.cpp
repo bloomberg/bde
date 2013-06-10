@@ -40,7 +40,7 @@ int btemt_ChannelPoolChannel::addReadQueueEntry(
                                              const bdet_TimeInterval& timeOut)
 {
     if (d_closed) {
-        return -2;
+        return -6;
     }
 
     BSLS_ASSERT(0 < numBytes);
@@ -136,7 +136,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                            bcema_PooledBufferChainFactory *bufferChainFactory,
                            bcema_PooledBlobBufferFactory  *blobBufferFactory,
                            bcema_PoolAllocator            *spAllocator,
-                           bslma_Allocator                *allocator,
+                           bslma::Allocator               *allocator,
                            bool                            useBlobForDataReads)
 : d_pooledBufferChainPendingData()
 , d_useBlobForDataReads(useBlobForDataReads)
@@ -154,7 +154,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_channelId(channelId)
 , d_peerAddress()
 , d_localAddress()
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     // Cache these addresses since the btemt_ChannelPool channel can have
     // disappeared when we get SESSION_DOWN.
@@ -175,7 +175,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                                            d_blobBufferFactory_p->bufferSize(),
                                            d_allocator_p),
                                     d_allocator_p);
-	}
+    }
 }
 
 btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
@@ -183,7 +183,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                             btemt_ChannelPool              *channelPool,
                             bcema_PooledBufferChainFactory *bufferChainFactory,
                             bcema_PoolAllocator            *spAllocator,
-                            bslma_Allocator                *allocator,
+                            bslma::Allocator               *allocator,
                             bcema_PooledBlobBufferFactory  *blobBufferFactory)
 : d_pooledBufferChainPendingData()
 , d_useBlobForDataReads(false)
@@ -201,7 +201,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_channelId(channelId)
 , d_peerAddress()
 , d_localAddress()
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     // Cache these addresses since the btemt_ChannelPool channel can have
     // disappeared when we get SESSION_DOWN.
@@ -224,7 +224,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                             btemt_ChannelPool              *channelPool,
                             bcema_PooledBlobBufferFactory  *blobBufferFactory,
                             bcema_PoolAllocator            *spAllocator,
-                            bslma_Allocator                *allocator,
+                            bslma::Allocator               *allocator,
                             bcema_PooledBufferChainFactory *bufferChainFactory)
 : d_pooledBufferChainPendingData()
 , d_useBlobForDataReads(true)
@@ -242,7 +242,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_channelId(channelId)
 , d_peerAddress()
 , d_localAddress()
-, d_allocator_p(bslma_Default::allocator(allocator))
+, d_allocator_p(bslma::Default::allocator(allocator))
 {
     // Cache these addresses since the btemt_ChannelPool channel can have
     // disappeared when we get SESSION_DOWN.

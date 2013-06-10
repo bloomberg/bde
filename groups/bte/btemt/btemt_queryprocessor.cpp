@@ -21,6 +21,7 @@ BDES_IDENT_RCSID(btemt_queryprocessor_cpp,"$Id$ $CSID$")
 
 #include <bslma_rawdeleterproctor.h>
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 
@@ -216,7 +217,7 @@ void btemt_QueryProcessor::serverFunctorWrapCb(
 void btemt_QueryProcessor::writeQueryResultCb(
     btemt_QueryResult *queryResult,
     int channelId,
-    const bsls_PlatformUtil::Int64& queryId)
+    const bsls::Types::Int64& queryId)
 {
     btemt_DataMsg msg(d_outFactory.allocate(0),
                       &d_outFactory,
@@ -249,7 +250,7 @@ btemt_QueryProcessor::btemt_QueryProcessor(
                 btemt_QueryRequest*,
                 bdef_Function<void (*)(btemt_QueryResult*)>)>&
                 serverFunctor,
-            bslma_Allocator *basicAllocator)
+            bslma::Allocator *basicAllocator)
 : d_threadPool_p(NULL)
 , d_externalThreadPoolFlag(0)
 , d_channelPool_p(NULL)
@@ -258,7 +259,7 @@ btemt_QueryProcessor::btemt_QueryProcessor(
 , d_serverFunctor(serverFunctor, basicAllocator)
 , d_channelAllocatorId(0)
 , d_channelAllocators(bsl::less<int>(), basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     bdef_Function<void (*)(int, int, int)> poolEventFunctor(
             bdef_MemFnUtil::memFn(&btemt_QueryProcessor::poolCb, this)
@@ -279,7 +280,7 @@ btemt_QueryProcessor::btemt_QueryProcessor(
                         configuration.maxProcessingThreads(),
                         configuration.idleTimeout());
 
-    bslma_RawDeleterProctor<bcep_ThreadPool, bslma_Allocator>
+    bslma::RawDeleterProctor<bcep_ThreadPool, bslma::Allocator>
         deleter(d_threadPool_p, d_allocator_p);
 
     d_channelPool_p = new (*d_allocator_p)
@@ -302,7 +303,7 @@ btemt_QueryProcessor::btemt_QueryProcessor(
                 btemt_QueryRequest*,
                 bdef_Function<void (*)(btemt_QueryResult*)>)>&
                 serverFunctor,
-            bslma_Allocator *basicAllocator)
+            bslma::Allocator *basicAllocator)
 : d_threadPool_p(procPool)
 , d_externalThreadPoolFlag(1)
 , d_channelPool_p(NULL)
@@ -311,7 +312,7 @@ btemt_QueryProcessor::btemt_QueryProcessor(
 , d_serverFunctor(serverFunctor, basicAllocator)
 , d_channelAllocatorId(0)
 , d_channelAllocators(bsl::less<int>(), basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     bdef_Function<void (*)(int, int, int)> poolEventFunctor(
             bdef_MemFnUtil::memFn(&btemt_QueryProcessor::poolCb, this)

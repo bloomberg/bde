@@ -9,9 +9,12 @@
 #include <bcemt_threadgroup.h>
 
 #include <bdef_bind.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bdetu_systemtime.h>
 #include <bdetu_time.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
@@ -46,7 +49,7 @@ using namespace bsl;  // automatically added by script
 // case 8.  Concurrent access (a concern due to the reuse of nodes in the free
 // list) is also a concern and tested in case 11.
 //-----------------------------------------------------------------------------
-// [3 ] bcec_TimeQueue(bslma_Allocator *allocator=0);
+// [3 ] bcec_TimeQueue(bslma::Allocator *allocator=0);
 // [3 ] ~bcec_TimeQueue();
 // [5 ] int popFront(bcec_TimeQueueItem<DATA> *buffer);
 // [6 ] int popFront(bcec_TimeQueueItem<DATA> *buffer,...
@@ -65,6 +68,8 @@ using namespace bsl;  // automatically added by script
 // [9 ] CONCERN: Respect the 'bdema' allocator model
 // [10] CONCERN: Callbacks and 'DATA' destructors invoked while holding lock
 // [11] CONCURRENCY TEST
+// [12] CONCERN: The queue can be used after a call to 'drain'.
+// [13] CONCERN: Memory Pooling
 // [14] Usage example
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -146,19 +151,19 @@ class TestString {
     // default-constructed 'TestString' is guaranteed *not* to trigger an
     // allocation.  This class is used in test cases 9 and 11.
 
-    bslma_Allocator *d_allocator_p;  // held, not owned
-    bsl::string     *d_string_p;     // owned
+    bslma::Allocator *d_allocator_p;  // held, not owned
+    bsl::string      *d_string_p;     // owned
 
     static bsl::string s_emptyString;
   public:
     // TYPES
     BSLALG_DECLARE_NESTED_TRAITS(TestString,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit TestString(bslma_Allocator *allocator = 0);
-    explicit TestString(const char *s, bslma_Allocator *allocator = 0);
-    explicit TestString(const bsl::string& s, bslma_Allocator *allocator = 0);
+    explicit TestString(bslma::Allocator *allocator = 0);
+    explicit TestString(const char *s, bslma::Allocator *allocator = 0);
+    explicit TestString(const bsl::string& s, bslma::Allocator *allocator = 0);
         // Create a string, optionally initialized with 's', using 'allocator'
         // to supply memory.  If allocator is null, the currently-installed
         // default allocator is used.
@@ -196,20 +201,20 @@ bool operator!=(const TestString& s1, const TestString& s2);
 bsl::string TestString::s_emptyString; // default-initialized
 
 // CREATORS
-TestString::TestString(bslma_Allocator *alloc)
-: d_allocator_p(bslma_Default::allocator(alloc))
+TestString::TestString(bslma::Allocator *alloc)
+: d_allocator_p(bslma::Default::allocator(alloc))
 , d_string_p(0)
 {
 }
 
-TestString::TestString(const char *s, bslma_Allocator *alloc)
-: d_allocator_p(bslma_Default::allocator(alloc))
+TestString::TestString(const char *s, bslma::Allocator *alloc)
+: d_allocator_p(bslma::Default::allocator(alloc))
 {
     d_string_p = new(*d_allocator_p) bsl::string(s, d_allocator_p);
 }
 
-TestString::TestString(const bsl::string& s, bslma_Allocator *alloc)
-: d_allocator_p(bslma_Default::allocator(alloc))
+TestString::TestString(const bsl::string& s, bslma::Allocator *alloc)
+: d_allocator_p(bslma::Default::allocator(alloc))
 {
     d_string_p = new(*d_allocator_p) bsl::string(s, d_allocator_p);
 }
@@ -351,7 +356,7 @@ void *testAddUpdatePopRemoveAll(void *arg)
     return NULL;
 }
 
-void *testLength(void *arg)
+void *testLength(void *)
     // Invoke 'length' in a loop.
 {
     barrier.wait();
@@ -469,7 +474,7 @@ void threadFunc(bcec_TimeQueue<int> *timeQueue,
     timers.resize(sendCount);
 
     bsl::vector<bcec_TimeQueueItem<int> > resubmit;
-    bsls_Stopwatch sw;
+    bsls::Stopwatch sw;
 
     for(int i=0; i<numIterations; i++) {
         if( verbose ) {
@@ -633,8 +638,8 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         int                             d_ioTimeout;
         bcemt_Mutex                     d_timerMonitorMutex;
         bcemt_Condition                 d_timerChangedCond;
-        bcemt_ThreadUtil::Handle        d_timerThreadHandle;
         bcemt_ThreadUtil::Handle        d_connectionThreadHandle;
+        bcemt_ThreadUtil::Handle        d_timerThreadHandle;
         volatile bool                   d_done;
 
       protected:
@@ -682,7 +687,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
       public:
         // CREATORS
-        my_Server(int ioTimeout, bslma_Allocator *allocator=0);
+        my_Server(int ioTimeout, bslma::Allocator *allocator=0);
             // Construct a 'my_Server' object with a timeout value of
             // 'ioTimeout' seconds.  Use the specified 'allocator' for all
             // memory allocation for data members of 'my_Server'.
@@ -697,7 +702,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 // The constructor is simple: it initializes the internal 'bcec_TimeQueue' and
 // sets the I/O timeout value.  The virtual destructor does nothing.
 //..
-    my_Server::my_Server(int ioTimeout, bslma_Allocator *allocator)
+    my_Server::my_Server(int ioTimeout, bslma::Allocator *allocator)
     : d_timeQueue(allocator)
     , d_ioTimeout(ioTimeout)
     , d_connectionThreadHandle(bcemt_ThreadUtil::invalidHandle())
@@ -943,9 +948,9 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
       public:
         // CREATORS
-        my_TestServer(int              ioTimeout,
-                      int              verbose = 0,
-                      bslma_Allocator *allocator = 0)
+        my_TestServer(int               ioTimeout,
+                      int               verbose = 0,
+                      bslma::Allocator *allocator = 0)
         : my_Server(ioTimeout,allocator)
         , d_verbose(verbose)
         {
@@ -1056,7 +1061,7 @@ int main(int argc, char *argv[])
 
     bcema_TestAllocator ta(veryVeryVerbose);
     bcema_TestAllocator defaultAlloc(veryVeryVerbose);
-    bslma_DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
+    bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
@@ -1090,141 +1095,65 @@ int main(int argc, char *argv[])
         }
 
       } break;
-    case 13: {
+      case 13: {
         // --------------------------------------------------------------------
-        // 'poolTimerMemory' PERFORMANCE TESTING
+        // CONCERN: Memory Pooling.
+        //
+        // Note that this is a white-box test added when the 'poolTimerMemory'
+        // flag was removed.  See drqs 35794413.  
         //
         // Concerns:
-        //: 1 Using the 'poolTimerMemory' flag while constructing a time
-        //:   queue provides a performance benefit.
+        //  1. That memory using when adding an element to a queue, is
+        //     returned to a pool when the element is remmoved, and re-used for
+        //     later elements.
         //
         // Plan:
-        //: 1 Specify two constant values, 'NUM_INNER_ITERATIONS' and
-        //:   'NUM_OUTER_TRANSITIONS' specifying the number of timers to be
-        //:   registered in a batch and how many such batches should be
-        //:   registered respectively.
-        //:
-        //: 2 Starting from 'now' construct a set of random timers ('timers')
-        //:   that will be registered with the time queue.
-        //:
-        //: 3 Identify intermediate times ('popTimes') when timers will be
-        //:   popped from the time queue.
-        //:
-        //: 4 Create a time queue, 'X', without specifying the
-        //:   'poolTimerMemory' flag, and specifying a test allocator.  For
-        //:   each value from [0..NUM_OUTER_ITERATIONS]:
-        //:
-        //:   1 Start a stop watch to record the time taken.
-        //:
-        //:   2 Add 'NUM_INNER_ITERATIONS' timers from the 'timers' vector.
-        //:
-        //:   3 Sleep for a certain interval to let the timers expire.
-        //:
-        //:   4 Pop all timers that have expired.
-        //:
-        //:   5 Stop the stop watch and record elapsed time.
-        //:
-        //: 5 Repeat Plan-4.1-5 for a time queue created by specifying the
-        //:   'poolTimerMemory' flag.
-        //:
-        //: 6 In verbose mode print out the time taken by both time queues and
-        //:   also the memory allocation characteristics as specified by their
-        //:   respective test allocators.
+        //  1. Create a 'bcec_timequeue' with a test allocator, add elements
+        //     and verify that memory is allocated.  Remove those elements
+        //     and add the same number of new elements, and verify that no
+        //     additional memory is allocated.
         //
-        // Testing:
-        //   'poolTimerMemory' flag performance testing
         // --------------------------------------------------------------------
 
-        if (verbose)
+        if (verbose) {
             cout << endl
-                 << "Performance test using 'poolTimerMemory' flag" << endl
-                 << "=============================================" << endl;
-
-        const char VA[] = "A";
-
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-        // Specifying larger number of iterations causes these platforms to
-        // take a really long time to complete the test.
-
-        const int NUM_OUTER_ITERATIONS = 1000;
-        const int NUM_INNER_ITERATIONS = 50;
-#else
-        const int NUM_OUTER_ITERATIONS = 10000;
-        const int NUM_INNER_ITERATIONS = 100;
-#endif
-        bslma_TestAllocator na1, na2;
-
-        const int NUM_TOTAL_ITERATIONS =
-                                   NUM_OUTER_ITERATIONS * NUM_INNER_ITERATIONS;
-
-        bdet_TimeInterval         TIME = bdetu_SystemTime::now();
-        int                       isNewTop;
-        bdet_TimeInterval         newMinTime;
-        int                       newLength;
-        vector<int>               handles(NUM_TOTAL_ITERATIONS);
-        vector<Item>              items(NUM_TOTAL_ITERATIONS);
-        vector<bdet_TimeInterval> timers(NUM_TOTAL_ITERATIONS, TIME);
-        vector<bdet_TimeInterval> popTimes(NUM_OUTER_ITERATIONS, TIME);
-
-        srand(time(0));
-
-        for (int i = 0, k = 0; i < NUM_OUTER_ITERATIONS; ++i) {
-            for (int j = 0; j < NUM_INNER_ITERATIONS; ++j, ++k) {
-                timers[k].addMilliseconds(rand() % NUM_TOTAL_ITERATIONS);
-            }
-            popTimes[i].addMilliseconds(i * NUM_INNER_ITERATIONS);
+                 << "CONCERN: Memory Pooling" << endl
+                 << "=======================" << endl;
         }
 
-        bsls_Stopwatch s;
-        s.start();
+        bslma::TestAllocator ta;
+        
         {
-            Obj mX(&na1); const Obj& X = mX;
-            for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
-                for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
-                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
-                }
-
-                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
-
-                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
+            if (verbose) {
+                cout << "\tAdd, remove, and re-add itesm to the queue" << endl;
             }
-        }
-        s.stop();
 
-        if (veryVerbose) {
-            P(s.elapsedTime())
-        }
+            bdet_TimeInterval futureTime = bdetu_SystemTime::now() +
+                                           bdet_TimeInterval(600, 0);
 
-        s.reset();
-        s.start();
-        {
-            Obj mX(true, &na2); const Obj& X = mX;
-            for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
-                for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
-                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
-                }
+            
+            Obj x(&ta); 
 
-                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
-
-                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
+            {
+                bslma::TestAllocatorMonitor tam(&ta);
+                x.add(futureTime, "test data 1");
+                x.add(futureTime, "test data 2");
+                x.removeAll();
+            
+                ASSERT(tam.isInUseUp());
+                ASSERT(tam.isTotalUp());
             }
-        }
-        s.stop();
-
-        if (veryVerbose) {
-            P(s.elapsedTime())
-        }
-
-        if (veryVerbose) {
-            P(na1.numBlocksTotal());
-            P(na1.numBytesTotal());
-            P(na1.numBlocksMax());
-            P(na1.numBytesMax());
-            P(na2.numBlocksTotal());
-            P(na2.numBytesTotal());
-            P(na2.numBlocksMax());
-            P(na2.numBytesMax());
-        }
+            {
+                bslma::TestAllocatorMonitor tam(&ta);
+                x.add(futureTime, "test data 3");
+                x.add(futureTime, "test data 4");
+          
+                ASSERT(tam.isInUseSame());
+                ASSERT(tam.isTotalSame());
+            }
+            x.removeAll();
+            
+        }       
       } break;
       case 12: {
           // ------------------------------------------------------------------
@@ -2678,8 +2607,8 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bcec_TimeQueue(bslma_Allocator *allocator=0);
-        //   bcec_TimeQueue(bool poolTimerMem, bslma_Allocator *allocator=0);
+        //   bcec_TimeQueue(bslma::Allocator *allocator=0);
+        //   bcec_TimeQueue(bool poolTimerMem, bslma::Allocator *allocator=0);
         //   ~bcec_TimeQueue();
         //   void* add(const bdet_TimeInterval& time, const DATA& data, ...
         //   int length() const;
@@ -2729,6 +2658,15 @@ int main(int argc, char *argv[])
             Obj mF(24, &ta);        const Obj& F = mF;
             Obj mG(10, true);       const Obj& G = mG;
             Obj mH(17, false, &ta); const Obj& H = mH;
+
+            (const Obj&)A;  // Suppress unused variable warning
+            (const Obj&)B;  // Suppress unused variable warning
+            (const Obj&)C;  // Suppress unused variable warning
+            (const Obj&)D;  // Suppress unused variable warning
+            (const Obj&)E;  // Suppress unused variable warning
+            (const Obj&)F;  // Suppress unused variable warning
+            (const Obj&)G;  // Suppress unused variable warning
+            (const Obj&)H;  // Suppress unused variable warning
 
             Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
             const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;
@@ -2800,6 +2738,15 @@ int main(int argc, char *argv[])
             Obj mG(10, true);       const Obj& G = mG;
             Obj mH(17, false, &ta); const Obj& H = mH;
 
+            (const Obj&)A;  // Suppress unused variable warning
+            (const Obj&)B;  // Suppress unused variable warning
+            (const Obj&)C;  // Suppress unused variable warning
+            (const Obj&)D;  // Suppress unused variable warning
+            (const Obj&)E;  // Suppress unused variable warning
+            (const Obj&)F;  // Suppress unused variable warning
+            (const Obj&)G;  // Suppress unused variable warning
+            (const Obj&)H;  // Suppress unused variable warning
+
             Obj *OBJS[] = { &mA, &mB, &mC, &mD, &mE, &mF, &mG, &mH };
             const int NUM_OBJS = sizeof OBJS / sizeof *OBJS;
 
@@ -2867,7 +2814,7 @@ int main(int argc, char *argv[])
             const bdet_TimeInterval  TIME(1);
             const char              *STRDATA = "Unused";
             const int                HANDLE = 0xffff;
-            const Obj::Key           KEY((void*)&HANDLE);
+            const Obj::Key           KEY((const void*)&HANDLE);
 
             // CREATORS, ACCESSORS
             if (verbose) cout << "\t\tDefault constructor.\n";
@@ -2929,7 +2876,7 @@ int main(int argc, char *argv[])
             const TestString         STRDATA("Unused", &ta2);
             const TestString         STRDATA2("Another unused", &ta2);
             const int                HANDLE = 0xffff;
-            const Obj::Key           KEY((void*)&HANDLE);
+            const Obj::Key           KEY((const void*)&HANDLE);
 
             const int NUM_ALLOC2 = ta2.numAllocations();
 
@@ -3202,6 +3149,147 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) { P(ta); }
 
       } break;
+    case -1: {
+        // --------------------------------------------------------------------
+        // 'poolTimerMemory' PERFORMANCE TESTING
+        //
+        // Concerns:
+        //: 1 Using the 'poolTimerMemory' flag while constructing a time
+        //:   queue provides a performance benefit.
+        //
+        // Plan:
+        //: 1 Specify two constant values, 'NUM_INNER_ITERATIONS' and
+        //:   'NUM_OUTER_TRANSITIONS' specifying the number of timers to be
+        //:   registered in a batch and how many such batches should be
+        //:   registered respectively.
+        //:
+        //: 2 Starting from 'now' construct a set of random timers ('timers')
+        //:   that will be registered with the time queue.
+        //:
+        //: 3 Identify intermediate times ('popTimes') when timers will be
+        //:   popped from the time queue.
+        //:
+        //: 4 Create a time queue, 'X', without specifying the
+        //:   'poolTimerMemory' flag, and specifying a test allocator.  For
+        //:   each value from [0..NUM_OUTER_ITERATIONS]:
+        //:
+        //:   1 Start a stop watch to record the time taken.
+        //:
+        //:   2 Add 'NUM_INNER_ITERATIONS' timers from the 'timers' vector.
+        //:
+        //:   3 Sleep for a certain interval to let the timers expire.
+        //:
+        //:   4 Pop all timers that have expired.
+        //:
+        //:   5 Stop the stop watch and record elapsed time.
+        //:
+        //: 5 Repeat Plan-4.1-5 for a time queue created by specifying the
+        //:   'poolTimerMemory' flag.
+        //:
+        //: 6 In verbose mode print out the time taken by both time queues and
+        //:   also the memory allocation characteristics as specified by their
+        //:   respective test allocators.
+        //
+        // Testing:
+        //   'poolTimerMemory' flag performance testing
+        // --------------------------------------------------------------------
+
+        // The 'poolTimerMemory' option is now deprecated.  However this test,
+        // is not a "test" in that it has no asserts, and might still be
+        // utilized to verify the performance of the 'bcec_TimeQueue'.
+
+        if (verbose)
+            cout << endl
+                 << "Performance test using 'poolTimerMemory' flag" << endl
+                 << "=============================================" << endl;
+
+        const char VA[] = "A";
+
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
+        // Specifying larger number of iterations causes these platforms to
+        // take a really long time to complete the test.
+
+        const int NUM_OUTER_ITERATIONS = 1000;
+        const int NUM_INNER_ITERATIONS = 50;
+#else
+        const int NUM_OUTER_ITERATIONS = 10000;
+        const int NUM_INNER_ITERATIONS = 100;
+#endif
+        bslma::TestAllocator na1, na2;
+
+        const int NUM_TOTAL_ITERATIONS =
+                                   NUM_OUTER_ITERATIONS * NUM_INNER_ITERATIONS;
+
+        bdet_TimeInterval         TIME = bdetu_SystemTime::now();
+        int                       isNewTop;
+        bdet_TimeInterval         newMinTime;
+        int                       newLength;
+        vector<int>               handles(NUM_TOTAL_ITERATIONS);
+        vector<Item>              items(NUM_TOTAL_ITERATIONS);
+        vector<bdet_TimeInterval> timers(NUM_TOTAL_ITERATIONS, TIME);
+        vector<bdet_TimeInterval> popTimes(NUM_OUTER_ITERATIONS, TIME);
+
+        srand(time(0));
+
+        for (int i = 0, k = 0; i < NUM_OUTER_ITERATIONS; ++i) {
+            for (int j = 0; j < NUM_INNER_ITERATIONS; ++j, ++k) {
+                timers[k].addMilliseconds(rand() % NUM_TOTAL_ITERATIONS);
+            }
+            popTimes[i].addMilliseconds(i * NUM_INNER_ITERATIONS);
+        }
+
+        bsls::Stopwatch s;
+        s.start();
+        {
+            Obj mX(&na1); 
+            for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
+                for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
+                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
+                }
+
+                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+
+                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
+            }
+        }
+        s.stop();
+
+        if (veryVerbose) {
+            P(s.elapsedTime())
+        }
+
+        s.reset();
+        s.start();
+        {
+            Obj mX(true, &na2);
+            for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
+                for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
+                    handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
+                }
+
+                bcemt_ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+
+                mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
+            }
+        }
+        s.stop();
+
+        if (veryVerbose) {
+            P(s.elapsedTime())
+        }
+
+        if (veryVerbose) {
+            P(na1.numBlocksTotal());
+            P(na1.numBytesTotal());
+            P(na1.numBlocksMax());
+            P(na1.numBytesMax());
+            P(na2.numBlocksTotal());
+            P(na2.numBytesTotal());
+            P(na2.numBlocksMax());
+            P(na2.numBytesMax());
+        }
+      } break;
+
       case -100: {
         // --------------------------------------------------------------------
         // The router simulation (kind of) test
