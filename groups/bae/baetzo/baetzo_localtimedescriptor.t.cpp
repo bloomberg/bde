@@ -1117,7 +1117,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocatorMonitor oam(&oa);
 
-            bslalg_SwapUtil::swap(&mX, &mY);
+            bslalg::SwapUtil::swap(&mX, &mY);
 
             LOOP2_ASSERT(YY, X, YY == X);
             LOOP2_ASSERT(XX, Y, XX == Y);
