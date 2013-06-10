@@ -2738,13 +2738,7 @@ template <class TYPE>
 inline
 bcema_SharedPtr<TYPE>::operator BoolType() const
 {
-#if 1
     return bsls::UnspecifiedBool<bcema_SharedPtr>::makeValue(d_ptr_p);
-#else
-    return d_ptr_p
-           ? &bcema_SharedPtr_UnspecifiedBoolHelper::d_member
-           : 0;
-#endif
 }
 
 template <class TYPE>
