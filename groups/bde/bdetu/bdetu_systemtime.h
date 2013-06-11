@@ -7,10 +7,10 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide utilities to retrieve the system time.
+//@PURPOSE: Provide utilities to get the current UTC and local times.
 //
 //@CLASSES:
-//   bdetu_SystemTime: namespace for stateful system-time procedures
+//   bdetu_SystemTime: namespace for system-time and local time procedures
 //
 //@SEE_ALSO: bdet_timeinterval
 //
@@ -36,6 +36,32 @@ BDES_IDENT("$Id: $")
 // functions.  By default, the callback used is 'loadLocalTimeOffsetDefault'.
 // Clients can override the default callback function by calling the '
 // 'setLoadLocalTimeOffsetCallback' function.
+//
+///Thread Safety
+///-------------
+// The functions that return the current time and local time offset values are
+// *thread-safe*:
+//: o 'now'
+//: o 'nowAsDatetimeUtc'
+//: o 'nowAsDatetime'
+//: o 'nowAsDatetimeGMT'
+//: o 'nowAsDatetimeLocal'
+//: o 'localTimeOffset'
+//: o 'loadCurrentTime'
+//: o 'loadLocalTimeOffset'
+//: o 'loadLocalTimeOffsetDefault'
+//: o 'loadSystemTimeDefault'
+//
+// The functions that set and get the callback functions are not *thread-safe*
+// and must not be called concurrently with any of the functions that obtain
+// time and offset values.
+//: o 'setLoadLocalTimeOffsetCallback'
+//: o 'setSystemTimeCallback'
+//: o 'currentCallback'
+//: o 'currentLoadLocalTimeOffsetCallback'
+//: o 'currentSystemTimeCallback'
+// User-defined callback functions must be *thread-safe* in multithreaded
+// builds.
 //
 ///Usage
 ///-----
@@ -304,18 +330,16 @@ namespace BloombergLP {
                             // ======================
 
 struct bdetu_SystemTime {
-    // This 'struct' provides a namespace for stateful system-time-retrieval
-    // procedures.  These methods are alias-safe and exception-neutral.  These
-    // procedures are *not* thread-safe.  The behavior is undefined if an
-    // application attempts to set a callback mechanism via
-    // 'setSystemTimeCallback' or 'setLoadLocalTimeOffsetCallback' in a
-    // multi-threaded environment after threads have been started.  The
-    // behavior is also undefined if an application attempts to retrieve the
-    // system time by calling either 'now', 'nowAsDatetimeUtc', or
-    // 'loadCurrentTime' methods while another thread attempts to setup a new
-    // callback mechanism.  To avoid runtime issues in a multi-threaded
-    // environment, 'setSystemTimeCallback' should be called at most once in
-    // 'main' before any threads have been started.
+    // This 'struct' provides a namespace for system time procedures.
+    //
+    // The functions provided are:
+    //: o *exception-neutral* (agnostic)
+    //:
+    //: o *thread-safe*: "now" methods, the "load" methods, and the default
+    //:   callbacks.  See {Thread Safety}.
+    //:
+    //: o non-*thread-safe*: the "set" and "get" callback methods. See {Thread
+    //:   Safety}.
 
     // TYPES
     typedef void (*LoadLocalTimeOffsetCallback)(
@@ -323,14 +347,16 @@ struct bdetu_SystemTime {
                                      const bdet_Datetime&   utcDatetime);
         // 'LoadLocalTimeOffsetCallback' is an alias for the type of a function
         // that loads to the specified 'offsetInSecondsPtr' the offset of the
-        // local time from UTC time for the specified 'utcDatetime'.  Note that
-        // the installed callback function must have geographic information
+        // local time from UTC time for the specified 'utcDatetime'.  This
+        // function must be thread-safe in multithreaded builds.  Note that the
+        // installed callback function must have geographic information
         // specifying the local timezone.
 
     typedef void (*SystemTimeCallback)(bdet_TimeInterval *result);
         // 'SystemTimeCallback' is a callback function pointer for a callback
         // function that returns 'void' and takes as arguments a
-        // 'bdet_TimeInterval' object 'result'.
+        // 'bdet_TimeInterval' object 'result'.  This function must be
+        // thread-safe in multithreaded builds.
 
   private:
     static LoadLocalTimeOffsetCallback s_loadLocalTimeOffsetCallback_p;
@@ -371,7 +397,7 @@ struct bdetu_SystemTime {
 
     static bdet_Datetime nowAsDatetimeLocal();
         // Return a 'bdet_Datetime' value representing the current system time
-        // in the local time zone using the currently installed system-time and
+        // in the local time zone using the currently installed system time and
         // local time offset callbacks.
 
     static bdet_DatetimeInterval localTimeOffset();
