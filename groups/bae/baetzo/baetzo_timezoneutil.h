@@ -198,6 +198,10 @@ BDES_IDENT("$Id: $")
 //:   later time is arbitrary, but is consistent with common implementations of
 //:   the C standard library.
 //
+///Thread Safety
+///-------------
+// The functions provided by 'baetzo_TimeZoneUtil' are *thread-safe*.
+//
 ///Usage
 ///-----
 // The following usage examples demonstrate how to use various functions
@@ -462,6 +466,13 @@ struct baetzo_TimeZoneUtil {
     // This 'struct' provides a namespace for utility functions that convert
     // time values to, from, and between, their corresponding local time
     // representations in (possibly) different time zones.
+    //
+    // These utility functions are:
+    //: o *alias-safe*
+    //: o *exception-neutral* (agnostic)
+    //: o *thread-safe*
+    // For terminology see {'bsldoc_glossary'}.
+
 
     // CLASS METHODS
     static int convertUtcToLocalTime(baet_LocalDatetime   *result,
