@@ -3722,7 +3722,7 @@ int main(int argc, char **argv)
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                 LOOP2_ASSERT(LINE, len,
-                               0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                 LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
@@ -3816,7 +3816,7 @@ int main(int argc, char **argv)
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                 LOOP2_ASSERT(LINE, len,
-                               0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                 LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
@@ -3911,7 +3911,7 @@ int main(int argc, char **argv)
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                 LOOP2_ASSERT(LINE, len,
-                               0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                 LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
@@ -4002,7 +4002,7 @@ int main(int argc, char **argv)
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                 LOOP2_ASSERT(LINE, len,
-                               0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                 LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
@@ -4167,7 +4167,7 @@ int main(int argc, char **argv)
                     LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                     LOOP2_ASSERT(LINE, len,
-                                       0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                     LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
@@ -4286,7 +4286,7 @@ int main(int argc, char **argv)
                     LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                     LOOP2_ASSERT(LINE, len,
-                                       0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                     LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
@@ -4403,7 +4403,7 @@ int main(int argc, char **argv)
                     LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                     LOOP2_ASSERT(LINE, len,
-                                       0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                     LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
@@ -4524,7 +4524,7 @@ int main(int argc, char **argv)
                     LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
                     LOOP2_ASSERT(LINE, len,
-                                       0 == bsl::memcmp(outBuf, &compareStr[0],
+                           0 == len || 0 == bsl::memcmp(outBuf, &compareStr[0],
                                                         expectedNumBytes - 1));
                     LOOP2_ASSERT(LINE, len,
                                 0 == len || 0 == outBuf[expectedNumBytes - 1]);
