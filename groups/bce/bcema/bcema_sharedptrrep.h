@@ -275,13 +275,19 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCES_ATOMICTYPES
-#include <bces_atomictypes.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BCES_ATOMICTYPES
+#include <bces_atomictypes.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
                         // ========================
@@ -301,7 +307,7 @@ class bcema_SharedPtrRep {
     // invoked.
 
     // DATA
-    bces_AtomicInt d_adjustedSharedCount;
+    bsls::AtomicInt d_adjustedSharedCount;
                                   // Counter storing a value that allows us to
                                   // calculate the number of shared references.
                                   // The numerical value of
@@ -309,7 +315,7 @@ class bcema_SharedPtrRep {
                                   // 2 * number of shared references, plus 1 if
                                   // any weak references were *ever* created.
 
-    bces_AtomicInt d_adjustedWeakCount;
+    bsls::AtomicInt d_adjustedWeakCount;
                                   // Counter storing a value that allows us to
                                   // calculate the number of weak references.
                                   // The numerical value of
@@ -464,7 +470,7 @@ void bcema_SharedPtrRep::acquireRef()
 {
     BSLS_ASSERT_SAFE(0 < numReferences());
 
-    d_adjustedSharedCount.relaxedAdd(2);        // minimum consistency: relaxed
+    d_adjustedSharedCount.addRelaxed(2);        // minimum consistency: relaxed
 }
 
 inline
@@ -473,7 +479,7 @@ void bcema_SharedPtrRep::incrementRefs(int incrementAmount)
     BSLS_ASSERT_SAFE(0 < incrementAmount);
     BSLS_ASSERT_SAFE(0 < numReferences());
 
-    d_adjustedSharedCount.relaxedAdd(incrementAmount * 2);
+    d_adjustedSharedCount.addRelaxed(incrementAmount * 2);
                                                 // minimum consistency: relaxed
 }
 
@@ -493,7 +499,7 @@ void bcema_SharedPtrRep::releaseWeakRef()
 inline
 int bcema_SharedPtrRep::numReferences() const
 {
-    const int sharedCount = d_adjustedSharedCount.relaxedLoad();
+    const int sharedCount = d_adjustedSharedCount.loadRelaxed();
                                                 // minimum consistency: relaxed
     return sharedCount / 2;
 }
@@ -501,7 +507,7 @@ int bcema_SharedPtrRep::numReferences() const
 inline
 int bcema_SharedPtrRep::numWeakReferences() const
 {
-    const int weakCount = d_adjustedWeakCount.relaxedLoad();
+    const int weakCount = d_adjustedWeakCount.loadRelaxed();
                                                 // minimum consistency: relaxed
     return weakCount / 2;
 }
