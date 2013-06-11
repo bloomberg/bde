@@ -489,6 +489,28 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
     return 0;
 }
 
+int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
+{
+    enum { BAEJSN_TRUE_LENGTH = 4, BAEJSN_FALSE_LENGTH = 5 };
+
+    if (BAEJSN_TRUE_LENGTH == data.length()
+     && 0                  == bsl::strncmp("true",
+                                           data.data(),
+                                           BAEJSN_TRUE_LENGTH)) {
+        *value = true;
+    }
+    else if (BAEJSN_FALSE_LENGTH == data.length()
+          && 0                   == bsl::strncmp("false",
+                                                 data.data(),
+                                                 BAEJSN_FALSE_LENGTH)) {
+        *value = false;
+    }
+    else {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
