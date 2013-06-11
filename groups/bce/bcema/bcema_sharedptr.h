@@ -1126,6 +1126,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_nullptr.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include <bsls_unspecifiedbool.h>
 #endif
@@ -2885,7 +2889,12 @@ void bcema_SharedPtr<ELEMENT_TYPE>::swap(bcema_SharedPtr<ELEMENT_TYPE>& other)
 // ACCESSORS
 template <class ELEMENT_TYPE>
 inline
+#if defined(BSLS_PLATFORM_CMP_IBM)
+bcema_SharedPtr<ELEMENT_TYPE>::operator
+                                     typename bcema_SharedPtr::BoolType() const
+#else
 bcema_SharedPtr<ELEMENT_TYPE>::operator BoolType() const
+#endif
 {
     return bsls::UnspecifiedBool<bcema_SharedPtr>::makeValue(d_ptr_p);
 }
