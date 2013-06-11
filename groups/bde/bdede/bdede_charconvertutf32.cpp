@@ -1119,6 +1119,8 @@ int bdede_CharConvertUtf32::utf32ToUtf8(bsl::string        *dstString,
                                         bsl::size_t        *numCharsWritten,
                                         unsigned char       errorCharacter)
 {
+    BSLS_ASSERT(errorCharacter < 0x80);
+
     typedef Utf32ToUtf8Translator<NoopCapacity> Translator;
 
     bsl::size_t bufferLen = utf8BufferLengthNeeded(srcString,
@@ -1147,7 +1149,6 @@ int bdede_CharConvertUtf32::utf32ToUtf8(bsl::string        *dstString,
     // string, so resize down by 1 byte.
 
     dstString->resize(numBytesWritten - 1);
-    BSLS_ASSERT_SAFE(dstString->length() == numBytesWritten - 1);
 
     // Check for 0's in the middle of the output.
 
@@ -1161,6 +1162,8 @@ int bdede_CharConvertUtf32::utf32ToUtf8(bsl::vector<char>  *dstVector,
                                         bsl::size_t        *numCharsWritten,
                                         unsigned char       errorCharacter)
 {
+    BSLS_ASSERT(errorCharacter < 0x80);
+
     typedef Utf32ToUtf8Translator<NoopCapacity> Translator;
 
     bsl::size_t bufferLen = utf8BufferLengthNeeded(srcString,
@@ -1200,6 +1203,8 @@ int bdede_CharConvertUtf32::utf32ToUtf8(char               *dstBuffer,
                                         bsl::size_t        *numBytesWritten,
                                         unsigned char       errorCharacter)
 {
+    BSLS_ASSERT(errorCharacter < 0x80);
+
     bsl::size_t ncw, nbw;
     if (0 == numCharsWritten) {
         numCharsWritten = &ncw;
