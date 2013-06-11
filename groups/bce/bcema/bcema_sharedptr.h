@@ -1164,6 +1164,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -1171,7 +1172,10 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_TYPEINFO
 #include <bsl_typeinfo.h>
 #endif
+
 #endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+
 
 namespace BloombergLP {
 
@@ -2000,12 +2004,13 @@ bool operator>=(bsl::nullptr_t, const bcema_SharedPtr<RHS_TYPE>& rhs);
     // under the total ordering supplied by 'bsl::less<RHS_TYPE *>', and
     // 'false' otherwise.
 
-template <typename TYPE>
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const bcema_SharedPtr<TYPE>& object);
+template<class CHAR_TYPE, class CHAR_TRAITS, class TYPE>
+bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
+operator<<(bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+           const bcema_SharedPtr<TYPE>&                rhs);
     // Print to the specified 'stream' the address of the shared object
-    // referred to by the specified 'object' shared pointer and return a
-    // reference to the modifiable 'stream'.
+    // referred to by the specified 'rhs' shared pointer and return a reference
+    // to the modifiable 'stream'.
 
                         // *** std::tr1 COMPATIBILITY ***
 
@@ -3234,12 +3239,13 @@ bool BloombergLP::operator>=(bsl::nullptr_t,
     return !bsl::less<RHS_TYPE *>()(0, rhs.ptr());
 }
 
-template <typename TYPE>
-bsl::ostream& BloombergLP::operator<<(bsl::ostream&                stream,
-                                      const bcema_SharedPtr<TYPE>& rhs)
+template<class CHAR_TYPE, class CHAR_TRAITS, class TYPE>
+inline
+bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
+BloombergLP::operator<<(bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+                        const bcema_SharedPtr<TYPE>&                rhs)
 {
-    stream << rhs.ptr();
-    return stream;
+    return stream << rhs.ptr();
 }
 
                         // *** std::tr1 COMPATIBILITY ***
