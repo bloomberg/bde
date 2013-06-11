@@ -29,6 +29,7 @@ BDES_IDENT("$Id: $")
 //  initialIndentLevel  int            0               >= 0
 //  spacesPerLevel      int            0               >= 0
 //  encodeEmptyArrays   bool           false           none
+//  encodeNullElements  bool           false           none
 //..
 //: o 'encodingStyle': encoding style used to encode the JSON data.
 //:
@@ -37,6 +38,9 @@ BDES_IDENT("$Id: $")
 //: o 'spacesPerLevel': spaces per additional indent level.
 //:
 //: o 'encodeEmptyArrays': option specifying if empty arrays should be encoded.
+//:
+//: o 'encodeNullElements': option specifying if null elements should be
+//:                         encoded.
 //
 ///Usage
 ///-----
@@ -53,12 +57,14 @@ BDES_IDENT("$Id: $")
 //  const int  INITIAL_INDENT_LEVEL = 1;
 //  const int  SPACES_PER_LEVEL     = 4;
 //  const bool ENCODE_EMPTY_ARRAYS  = true;
+//  const bool ENCODE_NULL_ELEMENTS = true;
 //
 //  baejsn_EncoderOptions options;
 //  assert(0 == options.initialIndentLevel());
 //  assert(0 == options.spacesPerLevel());
 //  assert(baejsn_EncoderOptions::BAEJSN_COMPACT == options.encodingStyle());
 //  assert(false == options.encodeEmptyArrays());
+//  assert(false == options.encodeNullElements());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -74,6 +80,9 @@ BDES_IDENT("$Id: $")
 //
 //  options.setEncodeEmptyArrays(ENCODE_EMPTY_ARRAYS);
 //  assert(ENCODE_EMPTY_ARRAYS == options.encodeEmptyArrays());
+//
+//  options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
+//  assert(ENCODE_NULL_ELEMENTS == options.encodeNullElements());
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -123,9 +132,15 @@ class baejsn_EncoderOptions {
   private:
     // DATA
     int           d_initialIndentLevel;  // initial indentation level
+
     int           d_spacesPerLevel;      // spaces per level per indent level
+
     EncodingStyle d_encodingStyle;       // encoding style
+
     bool          d_encodeEmptyArrays;   // flag specifying if empty arrays
+                                         // should be encoded
+
+    bool          d_encodeNullElements;  // flag specifying if null elements
                                          // should be encoded
 
   public:
@@ -138,6 +153,7 @@ class baejsn_EncoderOptions {
         //  initialIndentLevel == 0
         //  spacesPerLevel     == 0
         //  encodeEmptyArrays  == false
+        //  encodeNullElements == false
         //..
 
     //! baejsn_EncoderOptions(const baejsn_EncoderOptions& original) = default;
@@ -174,6 +190,10 @@ class baejsn_EncoderOptions {
         // Set the 'encodeEmptyArrays' attribute of this object to the
         // specified 'value'.
 
+    void setEncodeNullElements(bool value);
+        // Set the 'encodeNullElements' attribute of this object to the
+        // specified 'value'.
+
     // ACCESSORS
     int initialIndentLevel() const;
         // Return the value of the 'initialIndentLevel' attribute of this
@@ -187,6 +207,10 @@ class baejsn_EncoderOptions {
 
     bool encodeEmptyArrays() const;
         // Return the value of the 'encodeEmptyArrays' attribute of this
+        // object.
+
+    bool encodeNullElements() const;
+        // Return the value of the 'encodeNullElements' attribute of this
         // object.
 
                                   // Aspects
@@ -214,16 +238,17 @@ bool operator==(const baejsn_EncoderOptions& lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'baejsn_EncoderOptions' objects have
     // the same value if all of the corresponding values of their
-    // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle', and
-    // 'encodeEmptyArrays' attributes are the same.
+    // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle',
+    // 'encodeEmptyArrays', and 'encodeNullElements' attributes are the same.
 
 bool operator!=(const baejsn_EncoderOptions& lhs,
                 const baejsn_EncoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baejsn_EncoderOptions' objects
     // do not have the same value if any of the corresponding values of their
-    // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle', and
-    // 'encodeEmptyArrays' attributes are not the same.
+    // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle',
+    // 'encodeEmptyArrays', and 'encodeNullElements' attributes are not the
+    // same.
 
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          const baejsn_EncoderOptions& object);
@@ -250,6 +275,7 @@ baejsn_EncoderOptions::baejsn_EncoderOptions()
 , d_spacesPerLevel(0)
 , d_encodingStyle(BAEJSN_COMPACT)
 , d_encodeEmptyArrays(false)
+, d_encodeNullElements(false)
 {
 }
 
@@ -291,6 +317,12 @@ void baejsn_EncoderOptions::setEncodeEmptyArrays(bool value)
     d_encodeEmptyArrays = value;
 }
 
+inline
+void baejsn_EncoderOptions::setEncodeNullElements(bool value)
+{
+    d_encodeNullElements = value;
+}
+
 // ACCESSORS
 inline
 int baejsn_EncoderOptions::initialIndentLevel() const
@@ -317,6 +349,12 @@ bool baejsn_EncoderOptions::encodeEmptyArrays() const
     return d_encodeEmptyArrays;
 }
 
+inline
+bool baejsn_EncoderOptions::encodeNullElements() const
+{
+    return d_encodeNullElements;
+}
+
 // FREE FUNCTIONS
 inline
 bool operator==(const baejsn_EncoderOptions& lhs,
@@ -325,7 +363,8 @@ bool operator==(const baejsn_EncoderOptions& lhs,
     return  lhs.initialIndentLevel() == rhs.initialIndentLevel()
          && lhs.spacesPerLevel()     == rhs.spacesPerLevel()
          && lhs.encodingStyle()      == rhs.encodingStyle()
-         && lhs.encodeEmptyArrays()  == rhs.encodeEmptyArrays();
+         && lhs.encodeEmptyArrays()  == rhs.encodeEmptyArrays()
+         && lhs.encodeNullElements() == rhs.encodeNullElements();
 }
 
 inline
@@ -335,7 +374,8 @@ bool operator!=(const baejsn_EncoderOptions& lhs,
     return  lhs.initialIndentLevel() != rhs.initialIndentLevel()
          || lhs.spacesPerLevel()     != rhs.spacesPerLevel()
          || lhs.encodingStyle()      != rhs.encodingStyle()
-         || lhs.encodeEmptyArrays()  != rhs.encodeEmptyArrays();
+         || lhs.encodeEmptyArrays()  != rhs.encodeEmptyArrays()
+         || lhs.encodeNullElements() != rhs.encodeNullElements();
 }
 
 }  // close enterprise namespace

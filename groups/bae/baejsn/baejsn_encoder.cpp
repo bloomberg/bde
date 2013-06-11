@@ -57,22 +57,22 @@ void baejsn_Encoder_Formatter::closeObject()
     d_outputStream << '}';
 }
 
-void baejsn_Encoder_Formatter::openArray(bool isEmptyArray)
+void baejsn_Encoder_Formatter::openArray(bool formatAsEmptyArrayFlag)
 {
     d_outputStream << '[';
 
-    if (d_usePrettyStyle && !isEmptyArray) {
+    if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
         d_outputStream << '\n';
     }
 
     ++d_indentLevel;
 }
 
-void baejsn_Encoder_Formatter::closeArray(bool isEmptyArray)
+void baejsn_Encoder_Formatter::closeArray(bool formatAsEmptyArrayFlag)
 {
     --d_indentLevel;
 
-    if (d_usePrettyStyle && !isEmptyArray) {
+    if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
         d_outputStream << '\n';
         bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
     }

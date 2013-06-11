@@ -34,11 +34,15 @@ using namespace bsl;
 //: o 'setInitialIndentLevel'
 //: o 'setSpacesPerLevel'
 //: o 'setEncodingStyle'
+//: o 'setEncodeEmptyArrays'
+//: o 'setEncodeNullElements'
 //
 // Basic Accessors:
 //: o 'initialIndentLevel'
 //: o 'spacesPerLevel'
 //: o 'encodingStyle'
+//: o 'encodeEmptyArrays'
+//: o 'encodeNullElements'
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [ 8] -- 'swap' is not implemented for this class.
@@ -66,12 +70,16 @@ using namespace bsl;
 // [ 3] setInitialIndentLevel(int value);
 // [ 3] setSpacesPerLevel(int value);
 // [ 3] setEncodingStyle(EncodingStyle value);
+// [ 3] setEncodeEmptyArrays(bool value);
+// [ 3] setEncodeNullElements(bool value);
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 4] int initialIndentLevel() const;
 // [ 4] int spacesPerLevel() const;
 // [ 4] int encodingStyle() const;
+// [ 4] bool encodeEmptyArrays() const;
+// [ 4] bool encodeNullElements() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -171,32 +179,37 @@ struct DefaultDataRow {
     int   d_spacesPerLevel;
     Style d_encodingStyle;
     bool  d_encodeEmptyArrays;
+    bool  d_encodeNullElements;
 };
 
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE  INDENT   SPL       STYLE                 EEA
-    //----  ------   ---       -----                 ---
+    //LINE  INDENT   SPL       STYLE                 EEA    ENE
+    //----  ------   ---       -----                 ---    ---
 
     // default (must be first)
-    { L_,       0,       0,    Obj::BAEJSN_COMPACT,  false  },
+    { L_,       0,       0,    Obj::BAEJSN_COMPACT,  false, false  },
 
     // 'initialIndentLevel'
-    { L_,       1,       0,    Obj::BAEJSN_PRETTY,   false  },
-    { L_, INT_MAX,       0,    Obj::BAEJSN_COMPACT,  false  },
+    { L_,       1,       0,    Obj::BAEJSN_PRETTY,   false, false  },
+    { L_, INT_MAX,       0,    Obj::BAEJSN_COMPACT,  false, false  },
 
     // 'spacesPerLevel'
-    { L_,       0,       1,    Obj::BAEJSN_PRETTY,   false  },
-    { L_,       0, INT_MAX,    Obj::BAEJSN_COMPACT,  false  },
+    { L_,       0,       1,    Obj::BAEJSN_PRETTY,   false, false  },
+    { L_,       0, INT_MAX,    Obj::BAEJSN_COMPACT,  false, false  },
 
     // 'encodingStyle'
-    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   false  },
-    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  false  },
+    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   false, false  },
+    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  false, false  },
 
     // 'encodeEmptyArrays'
-    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   true   },
-    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  true   },
+    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   true,  false  },
+    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  true,  false  },
+
+    // 'encodeNullElements'
+    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   false, true   },
+    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  false, true   },
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
@@ -258,12 +271,14 @@ int main(int argc, char *argv[])
     const int  INITIAL_INDENT_LEVEL = 1;
     const int  SPACES_PER_LEVEL     = 4;
     const bool ENCODE_EMPTY_ARRAYS  = true;
+    const bool ENCODE_NULL_ELEMENTS = true;
 //
     baejsn_EncoderOptions options;
     ASSERT(0 == options.initialIndentLevel());
     ASSERT(0 == options.spacesPerLevel());
     ASSERT(baejsn_EncoderOptions::BAEJSN_COMPACT == options.encodingStyle());
     ASSERT(false == options.encodeEmptyArrays());
+    ASSERT(false == options.encodeNullElements());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -279,6 +294,9 @@ int main(int argc, char *argv[])
 //
     options.setEncodeEmptyArrays(ENCODE_EMPTY_ARRAYS);
     ASSERT(ENCODE_EMPTY_ARRAYS == options.encodeEmptyArrays());
+//
+    options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
+    ASSERT(ENCODE_NULL_ELEMENTS == options.encodeNullElements());
 //..
 
       } break;
@@ -411,18 +429,21 @@ int main(int argc, char *argv[])
             const int   SPL1     = DATA[ti].d_spacesPerLevel;
             const Style STYLE1   = DATA[ti].d_encodingStyle;
             const bool  EEA1     = DATA[ti].d_encodeEmptyArrays;
+            const bool  ENE1     = DATA[ti].d_encodeNullElements;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT1);
             mZ.setSpacesPerLevel(SPL1);
             mZ.setEncodingStyle(STYLE1);
             mZ.setEncodeEmptyArrays(EEA1);
+            mZ.setEncodeNullElements(ENE1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT1);
             mZZ.setSpacesPerLevel(SPL1);
             mZZ.setEncodingStyle(STYLE1);
             mZZ.setEncodeEmptyArrays(EEA1);
+            mZZ.setEncodeNullElements(ENE1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -441,12 +462,14 @@ int main(int argc, char *argv[])
                 const int   SPL2     = DATA[tj].d_spacesPerLevel;
                 const Style STYLE2   = DATA[tj].d_encodingStyle;
                 const bool  EEA2     = DATA[tj].d_encodeEmptyArrays;
+                const bool  ENE2     = DATA[tj].d_encodeNullElements;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setInitialIndentLevel(INDENT2);
                 mX.setSpacesPerLevel(SPL2);
                 mX.setEncodingStyle(STYLE2);
                 mX.setEncodeEmptyArrays(EEA2);
+                mX.setEncodeNullElements(ENE2);
 
                 if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -467,12 +490,14 @@ int main(int argc, char *argv[])
                 mX.setSpacesPerLevel(SPL1);
                 mX.setEncodingStyle(STYLE1);
                 mX.setEncodeEmptyArrays(EEA1);
+                mX.setEncodeNullElements(ENE1);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setInitialIndentLevel(INDENT1);
                 mZZ.setSpacesPerLevel(SPL1);
                 mZZ.setEncodingStyle(STYLE1);
                 mZZ.setEncodeEmptyArrays(EEA1);
+                mZZ.setEncodeNullElements(ENE1);
 
                 const Obj& Z = mX;
 
@@ -563,18 +588,21 @@ int main(int argc, char *argv[])
             const int   SPL     = DATA[ti].d_spacesPerLevel;
             const Style STYLE   = DATA[ti].d_encodingStyle;
             const bool  EEA     = DATA[ti].d_encodeEmptyArrays;
+            const bool  ENE     = DATA[ti].d_encodeNullElements;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT);
             mZ.setSpacesPerLevel(SPL);
             mZ.setEncodingStyle(STYLE);
             mZ.setEncodeEmptyArrays(EEA);
+            mZ.setEncodeNullElements(ENE);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT);
             mZZ.setSpacesPerLevel(SPL);
             mZZ.setEncodingStyle(STYLE);
             mZZ.setEncodeEmptyArrays(EEA);
+            mZZ.setEncodeNullElements(ENE);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
@@ -701,6 +729,7 @@ int main(int argc, char *argv[])
         typedef int   T2;        // 'spacesPerLevel'
         typedef Style T3;        // 'encodingStyle'
         typedef bool  T4;        // 'encodeEmptyArrays'
+        typedef bool  T5;        // 'encodeNullElements'
 
         // ----------------------------------------
         // Attribute 1 Values: 'initialIndentLevel'
@@ -723,12 +752,19 @@ int main(int argc, char *argv[])
         const T3 A3 = Obj::BAEJSN_COMPACT;         // baseline
         const T3 B3 = Obj::BAEJSN_PRETTY;
 
-        // -----------------------------------
+        // ---------------------------------------
         // Attribute 4 Values: 'encodeEmptyArrays'
-        // -----------------------------------
+        // ---------------------------------------
 
         const T4 A4 = false;           // baseline
         const T4 B4 = true;
+
+        // ----------------------------------------
+        // Attribute 5 Values: 'encodeNullElements'
+        // ----------------------------------------
+
+        const T5 A5 = false;           // baseline
+        const T5 B5 = true;
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -739,6 +775,7 @@ int main(int argc, char *argv[])
             int   d_spacesPerLevel;
             Style d_encodingStyle;
             bool  d_encodeEmptyArrays;
+            bool  d_encodeNullElements;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -746,15 +783,16 @@ int main(int argc, char *argv[])
         // row differs (slightly) from the first in exactly one attribute
         // value (Bi).
 
-        //LINE  INDENT  SPL  STYLE  EEA
-        //----  ------  ---  -----  ---
+        //LINE  INDENT  SPL  STYLE   EEA  ENE
+        //----  ------  ---  -----   ---  ---
 
-        { L_,       A1,   A2,   A3,  A4 },          // baseline
+        { L_,       A1,   A2,   A3,  A4,   A5  },          // baseline
 
-        { L_,       B1,   A2,   A3,  A4  },
-        { L_,       A1,   B2,   A3,  A4  },
-        { L_,       A1,   A2,   B3,  A4  },
-        { L_,       A1,   A2,   A3,  B4  },
+        { L_,       B1,   A2,   A3,  A4,   A5  },
+        { L_,       A1,   B2,   A3,  A4,   A5  },
+        { L_,       A1,   A2,   B3,  A4,   A5  },
+        { L_,       A1,   A2,   A3,  B4,   A5  },
+        { L_,       A1,   A2,   A3,  A4,   B5  },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -767,9 +805,10 @@ int main(int argc, char *argv[])
             const int   SPL1     = DATA[ti].d_spacesPerLevel;
             const Style STYLE1   = DATA[ti].d_encodingStyle;
             const bool  EEA1     = DATA[ti].d_encodeEmptyArrays;
+            const bool  ENE1     = DATA[ti].d_encodeNullElements;
 
             if (veryVerbose) { T_ P_(LINE1) P_(INDENT1)
-                                  P_(SPL1)  P_(STYLE1) P_(EEA1) }
+                                  P_(SPL1)  P_(STYLE1) P_(EEA1) P_(ENE1) }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -779,6 +818,7 @@ int main(int argc, char *argv[])
                 mX.setSpacesPerLevel(SPL1);
                 mX.setEncodingStyle(STYLE1);
                 mX.setEncodeEmptyArrays(EEA1);
+                mX.setEncodeNullElements(ENE1);
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -790,9 +830,10 @@ int main(int argc, char *argv[])
                 const int   SPL2     = DATA[tj].d_spacesPerLevel;
                 const Style STYLE2   = DATA[tj].d_encodingStyle;
                 const bool  EEA2     = DATA[tj].d_encodeEmptyArrays;
+                const bool  ENE2     = DATA[tj].d_encodeNullElements;
 
                 if (veryVerbose) { T_ P_(LINE1) P_(INDENT2)
-                                      P_(SPL2) P_(STYLE2) P_(EEA2) }
+                                      P_(SPL2) P_(STYLE2) P_(EEA2) P_(ENE2) }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
@@ -803,11 +844,13 @@ int main(int argc, char *argv[])
                 mX.setSpacesPerLevel(SPL1);
                 mX.setEncodingStyle(STYLE1);
                 mX.setEncodeEmptyArrays(EEA1);
+                mX.setEncodeNullElements(ENE1);
 
                 mY.setInitialIndentLevel(INDENT2);
                 mY.setSpacesPerLevel(SPL2);
                 mY.setEncodingStyle(STYLE2);
                 mY.setEncodeEmptyArrays(EEA2);
+                mY.setEncodeNullElements(ENE2);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -920,6 +963,7 @@ int main(int argc, char *argv[])
             int         d_spacesPerLevel;
             Style       d_encodingStyle;
             bool        d_encodeEmptyArrays;
+            bool        d_encodeNullElements;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -931,30 +975,33 @@ int main(int argc, char *argv[])
    // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
    // ------------------------------------------------------------------
 
-   //LINE  L  SPL  IND  SPL STYLE EEA EXP
-   //----  -  ---  ---  --- ----- --- ---
+//LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
+//----  -  ---  ---  --- ----- --- --- ---
 
-    { L_,  0,  0,  89,  10,    C,  T,  "["                                   NL
+ { L_,  0,  0,  89,  10,    C,  T,  T, "["                                   NL
                                        "initialIndentLevel = 89"             NL
                                        "spacesPerLevel = 10"                 NL
                                        "encodingStyle = 0"                   NL
                                        "encodeEmptyArrays = true"            NL
+                                       "encodeNullElements = true"           NL
                                        "]"                                   NL
                                                                              },
 
-    { L_,  0,  1,  89,  10,    P,  T,  "["                                   NL
+ { L_,  0,  1,  89,  10,    P,  T,  T, "["                                   NL
                                        " initialIndentLevel = 89"            NL
                                        " spacesPerLevel = 10"                NL
                                        " encodingStyle = 1"                  NL
                                        " encodeEmptyArrays = true"           NL
+                                       " encodeNullElements = true"          NL
                                        "]"                                   NL
                                                                              },
 
-    { L_,  0, -1,  89,  10,    C,  T,  "["                                   SP
+ { L_,  0, -1,  89,  10,    C,  T,  F, "["                                   SP
                                        "initialIndentLevel = 89"             SP
                                        "spacesPerLevel = 10"                 SP
                                        "encodingStyle = 0"                   SP
                                        "encodeEmptyArrays = true"            SP
+                                       "encodeNullElements = false"          SP
                                        "]"
                                                                              },
 
@@ -962,54 +1009,60 @@ int main(int argc, char *argv[])
    // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
    // ------------------------------------------------------------------
 
-   //LINE  L  SPL  IND  SPL STYLE EEA EXP
-   //----  -  ---  ---  --- ----- --- ---
+//LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
+//----  -  ---  ---  --- ----- --- --- ---
 
-    { L_,  3,  0,  89,  10,    C,  T,  "["                                   NL
+ { L_,  3,  0,  89,  10,    C,  T,  T, "["                                   NL
                                        "initialIndentLevel = 89"             NL
                                        "spacesPerLevel = 10"                 NL
                                        "encodingStyle = 0"                   NL
                                        "encodeEmptyArrays = true"            NL
+                                       "encodeNullElements = true"           NL
                                        "]"                                   NL
                                                                              },
 
-    { L_,  3,  2,  89,  10,    P,  F,  "      ["                             NL
+ { L_,  3,  2,  89,  10,    P,  F,  F, "      ["                             NL
                                        "        initialIndentLevel = 89"     NL
                                        "        spacesPerLevel = 10"         NL
                                        "        encodingStyle = 1"           NL
                                        "        encodeEmptyArrays = false"   NL
+                                       "        encodeNullElements = false"  NL
                                        "      ]"                             NL
                                                                              },
 
-    { L_,  3, -2,  89,  10,    C,  T,  "      ["                             SP
+ { L_,  3, -2,  89,  10,    C,  T,  F, "      ["                             SP
                                        "initialIndentLevel = 89"             SP
                                        "spacesPerLevel = 10"                 SP
                                        "encodingStyle = 0"                   SP
                                        "encodeEmptyArrays = true"            SP
+                                       "encodeNullElements = false"          SP
                                        "]"
                                                                              },
 
-    { L_, -3,  0,  89,  10,    P,  F,  "["                                   NL
+ { L_, -3,  0,  89,  10,    P,  F,  T, "["                                   NL
                                        "initialIndentLevel = 89"             NL
                                        "spacesPerLevel = 10"                 NL
                                        "encodingStyle = 1"                   NL
                                        "encodeEmptyArrays = false"           NL
+                                       "encodeNullElements = true"           NL
                                        "]"                                   NL
                                                                              },
 
-    { L_, -3,  2,  89,  10,    P,  T,  "["                                   NL
+ { L_, -3,  2,  89,  10,    P,  T,  F, "["                                   NL
                                        "        initialIndentLevel = 89"     NL
                                        "        spacesPerLevel = 10"         NL
                                        "        encodingStyle = 1"           NL
                                        "        encodeEmptyArrays = true"    NL
+                                       "        encodeNullElements = false"  NL
                                        "      ]"                             NL
                                                                              },
 
-    { L_, -3, -2,  89,  10,    C,  T,  "["                                   SP
+ { L_, -3, -2,  89,  10,    C,  T,  T, "["                                   SP
                                        "initialIndentLevel = 89"             SP
                                        "spacesPerLevel = 10"                 SP
                                        "encodingStyle = 0"                   SP
                                        "encodeEmptyArrays = true"            SP
+                                       "encodeNullElements = true"           SP
                                        "]"
                                                                              },
 
@@ -1017,14 +1070,15 @@ int main(int argc, char *argv[])
    // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
    // -----------------------------------------------------------------
 
-   //LINE  L  SPL  IND  SPL STYLE EEA  EXP
-   //----  -  ---  ---  --- ----- ---  ---
+//LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
+//----  -  ---  ---  --- ----- --- --- ---
 
-    { L_,  2,  3,  89,  10,    P,  T,  "      ["                             NL
+ { L_,  2,  3,  89,  10,    P,  T,  T, "      ["                             NL
                                        "         initialIndentLevel = 89"    NL
                                        "         spacesPerLevel = 10"        NL
                                        "         encodingStyle = 1"          NL
                                        "         encodeEmptyArrays = true"   NL
+                                       "         encodeNullElements = true"  NL
                                        "      ]"                             NL
                                                                              },
 
@@ -1032,12 +1086,12 @@ int main(int argc, char *argv[])
         // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
         // -----------------------------------------------------------------
 
-   //LINE  L  SPL  IND  SPL STYLE EEA  EXP
-   //----  -  ---  ---  --- ----- ---  ---
+//LINE  L  SPL  IND  SPL STYLE EEA  ENE EXP
+//----  -  ---  ---  --- ----- ---  --- ---
 
-    { L_, -9, -9,  89,  10,    C,  F,  "[ 89 10 0 false ]"                   },
+ { L_, -9, -9,  89,  10,    C,  F,  T, "[ 89 10 0 false true ]"              },
 
-    { L_, -9, -9,   7,   5,    P,  F,  "[ 7 5 1 false ]"                     },
+ { L_, -9, -9,   7,   5,    P,  F,  F, "[ 7 5 1 false false ]"               },
 
 #undef NL
 #undef SP
@@ -1057,11 +1111,12 @@ int main(int argc, char *argv[])
                 const int         SPL    = DATA[ti].d_spacesPerLevel;
                 const Style       STYLE  = DATA[ti].d_encodingStyle;
                 const bool        EEA    = DATA[ti].d_encodeEmptyArrays;
+                const bool        ENE    = DATA[ti].d_encodeNullElements;
 
                 const char *const EXP    = DATA[ti].d_expected_p;
 
                 if (veryVerbose) { T_ P_(L) P_(INDENT) P_(SPL)
-                                      P_(STYLE) P_(EEA)}
+                                      P_(STYLE) P_(EEA) P_(ENE) }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
@@ -1070,6 +1125,7 @@ int main(int argc, char *argv[])
                 mX.setSpacesPerLevel(SPL);
                 mX.setEncodingStyle(STYLE);
                 mX.setEncodeEmptyArrays(EEA);
+                mX.setEncodeNullElements(ENE);
 
                 ostringstream os;
 
@@ -1132,6 +1188,7 @@ int main(int argc, char *argv[])
         //   int   spacesPerLevel() const;
         //   Style encodingStyle() const;
         //   bool  encodeEmptyArrays() const;
+        //   bool  encodeNullElements() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1144,6 +1201,7 @@ int main(int argc, char *argv[])
         typedef int   T2;        // 'spacesPerLevel'
         typedef Style T3;        // 'encodingStyle'
         typedef bool  T4;        // 'encodeEmptyArrays'
+        typedef bool  T5;        // 'encodeNullElements'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1155,6 +1213,7 @@ int main(int argc, char *argv[])
         const int   D2   = 0;                    // 'spacesPerLevel'
         const Style D3   = Obj::BAEJSN_COMPACT;  // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
+        const bool  D5   = false;                // 'encodeNullElements'
 
         // -------------------------------------------------------
         // 'A' values: Boundary values.
@@ -1164,6 +1223,7 @@ int main(int argc, char *argv[])
         const int   A2   = 4;                    // 'spacesPerLevel'
         const Style A3   = Obj::BAEJSN_PRETTY;   // 'encodingStyle'
         const bool  A4   = true;                 // 'encodeEmptyArrays'
+        const bool  A5   = true;                 // 'encodeNullElements'
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1183,6 +1243,9 @@ int main(int argc, char *argv[])
 
             const T4& encodeEmptyArrays = X.encodeEmptyArrays();
             LOOP2_ASSERT(D4, encodeEmptyArrays, D4 == encodeEmptyArrays);
+
+            const T5& encodeNullElements = X.encodeNullElements();
+            LOOP2_ASSERT(D5, encodeNullElements, D5 == encodeNullElements);
         }
 
         if (verbose) cout <<
@@ -1208,7 +1271,7 @@ int main(int argc, char *argv[])
         {
             mX.setEncodingStyle(A3);
 
-            const T2& encodingStyle = X.encodingStyle();
+            const T3& encodingStyle = X.encodingStyle();
             LOOP2_ASSERT(A3, encodingStyle, A3 == encodingStyle);
         }
 
@@ -1216,8 +1279,16 @@ int main(int argc, char *argv[])
         {
             mX.setEncodeEmptyArrays(A4);
 
-            const T2& encodeEmptyArrays = X.encodeEmptyArrays();
+            const T4& encodeEmptyArrays = X.encodeEmptyArrays();
             LOOP2_ASSERT(A4, encodeEmptyArrays, A4 == encodeEmptyArrays);
+        }
+
+        if (veryVerbose) { T_ Q(encodeNullElements) }
+        {
+            mX.setEncodeNullElements(A5);
+
+            const T5& encodeNullElements = X.encodeNullElements();
+            LOOP2_ASSERT(A4, encodeNullElements, A4 == encodeNullElements);
         }
       } break;
       case 3: {
@@ -1266,6 +1337,7 @@ int main(int argc, char *argv[])
         //   setSpacesPerLevel(int value);
         //   setEncodingStyle(Style value);
         //   setEncodeEmptyArrays(bool value);
+        //   setEncodeNullElements(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1280,6 +1352,7 @@ int main(int argc, char *argv[])
         const int   D2   = 0;                    // 'spacesPerLevel'
         const Style D3   = Obj::BAEJSN_COMPACT;  // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
+        const bool  D5   = false;                // 'encodeNullElements'
 
         // 'A' values.
 
@@ -1287,6 +1360,7 @@ int main(int argc, char *argv[])
         const int   A2   = 4;                    // 'spacesPerLevel'
         const Style A3   = Obj::BAEJSN_PRETTY;   // 'encodingStyle'
         const bool  A4   = true;                 // 'encodeEmptyArrays'
+        const bool  A5   = true;                 // 'encodeNullElements'
 
         // 'B' values.
 
@@ -1294,6 +1368,7 @@ int main(int argc, char *argv[])
         const int   B2   = INT_MAX;               // 'spacesPerLevel'
         const Style B3   = Obj::BAEJSN_COMPACT;   // 'encodingStyle'
         const bool  B4   = false;                 // 'encodeEmptyArrays'
+        const bool  B5   = false;                 // 'encodeNullElements'
 
         Obj mX;  const Obj& X = mX;
 
@@ -1309,18 +1384,21 @@ int main(int argc, char *argv[])
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setInitialIndentLevel(B1);
             ASSERT(B1 == X.initialIndentLevel());
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setInitialIndentLevel(D1);
             ASSERT(D1 == X.initialIndentLevel());
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
         }
 
         // ----------------
@@ -1332,18 +1410,21 @@ int main(int argc, char *argv[])
             ASSERT(A2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setSpacesPerLevel(B2);
             ASSERT(D1 == X.initialIndentLevel());
             ASSERT(B2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setSpacesPerLevel(D2);
             ASSERT(D1 == X.initialIndentLevel());
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
         }
 
         // ---------------
@@ -1355,18 +1436,21 @@ int main(int argc, char *argv[])
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(A3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setEncodingStyle(B3);
             ASSERT(D1 == X.initialIndentLevel());
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(B3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setEncodingStyle(D3);
             ASSERT(D1 == X.initialIndentLevel());
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
         }
 
         // -------------------
@@ -1378,18 +1462,47 @@ int main(int argc, char *argv[])
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(A4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setEncodeEmptyArrays(B4);
             ASSERT(D1 == X.initialIndentLevel());
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(B4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
 
             mX.setEncodeEmptyArrays(D4);
             ASSERT(D1 == X.initialIndentLevel());
             ASSERT(D2 == X.spacesPerLevel());
             ASSERT(D3 == X.encodingStyle());
             ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
+        }
+
+        // --------------------
+        // 'encodeNullElements'
+        // --------------------
+        {
+            mX.setEncodeNullElements(A5);
+            ASSERT(D1 == X.initialIndentLevel());
+            ASSERT(D2 == X.spacesPerLevel());
+            ASSERT(D3 == X.encodingStyle());
+            ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(A5 == X.encodeNullElements());
+
+            mX.setEncodeNullElements(B5);
+            ASSERT(D1 == X.initialIndentLevel());
+            ASSERT(D2 == X.spacesPerLevel());
+            ASSERT(D3 == X.encodingStyle());
+            ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(B5 == X.encodeNullElements());
+
+            mX.setEncodeNullElements(D5);
+            ASSERT(D1 == X.initialIndentLevel());
+            ASSERT(D2 == X.spacesPerLevel());
+            ASSERT(D3 == X.encodingStyle());
+            ASSERT(D4 == X.encodeEmptyArrays());
+            ASSERT(D5 == X.encodeNullElements());
         }
 
         if (verbose) cout << "Corroborate attribute independence." << endl;
@@ -1402,11 +1515,13 @@ int main(int argc, char *argv[])
             mX.setSpacesPerLevel(A2);
             mX.setEncodingStyle(A3);
             mX.setEncodeEmptyArrays(A4);
+            mX.setEncodeNullElements(A5);
 
             ASSERT(A1 == X.initialIndentLevel());
             ASSERT(A2 == X.spacesPerLevel());
             ASSERT(A3 == X.encodingStyle());
             ASSERT(A4 == X.encodeEmptyArrays());
+            ASSERT(A5 == X.encodeNullElements());
 
             // ---------------------------------------
             // Set all attributes to their 'B' values.
@@ -1418,6 +1533,7 @@ int main(int argc, char *argv[])
             ASSERT(A2 == X.spacesPerLevel());
             ASSERT(A3 == X.encodingStyle());
             ASSERT(A4 == X.encodeEmptyArrays());
+            ASSERT(A5 == X.encodeNullElements());
 
             mX.setSpacesPerLevel(B2);
 
@@ -1425,6 +1541,7 @@ int main(int argc, char *argv[])
             ASSERT(B2 == X.spacesPerLevel());
             ASSERT(A3 == X.encodingStyle());
             ASSERT(A4 == X.encodeEmptyArrays());
+            ASSERT(A5 == X.encodeNullElements());
 
             mX.setEncodingStyle(B3);
 
@@ -1432,6 +1549,7 @@ int main(int argc, char *argv[])
             ASSERT(B2 == X.spacesPerLevel());
             ASSERT(B3 == X.encodingStyle());
             ASSERT(A4 == X.encodeEmptyArrays());
+            ASSERT(A5 == X.encodeNullElements());
 
             mX.setEncodeEmptyArrays(B4);
 
@@ -1439,6 +1557,15 @@ int main(int argc, char *argv[])
             ASSERT(B2 == X.spacesPerLevel());
             ASSERT(B3 == X.encodingStyle());
             ASSERT(B4 == X.encodeEmptyArrays());
+            ASSERT(A5 == X.encodeNullElements());
+
+            mX.setEncodeNullElements(B5);
+
+            ASSERT(B1 == X.initialIndentLevel());
+            ASSERT(B2 == X.spacesPerLevel());
+            ASSERT(B3 == X.encodingStyle());
+            ASSERT(B4 == X.encodeEmptyArrays());
+            ASSERT(B5 == X.encodeNullElements());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1492,6 +1619,7 @@ int main(int argc, char *argv[])
         const int   D2   = 0;                    // 'spacesPerLevel'
         const Style D3   = Obj::BAEJSN_COMPACT;  // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
+        const bool  D5   = false;                // 'encodeNullElements'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1508,6 +1636,7 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(D2, X.spacesPerLevel(),     D2 == X.spacesPerLevel());
         LOOP2_ASSERT(D3, X.encodingStyle(),      D3 == X.encodingStyle());
         LOOP2_ASSERT(D4, X.encodeEmptyArrays(),  D4 == X.encodeEmptyArrays());
+        LOOP2_ASSERT(D5, X.encodeNullElements(), D5 == X.encodeNullElements());
 
       } break;
       case 1: {
@@ -1544,6 +1673,7 @@ int main(int argc, char *argv[])
         typedef int   T2;        // 'spacesPerLevel'
         typedef Style T3;        // 'encodingStyle'
         typedef bool  T4;        // 'encodeEmptyArrays'
+        typedef bool  T5;        // 'encodeNullElements'
 
         // Attribute 1 Values: 'initialIndentLevel'
 
@@ -1565,6 +1695,11 @@ int main(int argc, char *argv[])
         const T4 D4 = false;    // default value
         const T4 A4 = true;
 
+        // Attribute 5 Values: 'encodeNullElements'
+
+        const T5 D5 = false;    // default value
+        const T5 A5 = true;
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
@@ -1579,6 +1714,7 @@ int main(int argc, char *argv[])
         ASSERT(D2 == W.spacesPerLevel());
         ASSERT(D3 == W.encodingStyle());
         ASSERT(D4 == W.encodeEmptyArrays());
+        ASSERT(D5 == W.encodeNullElements());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -1599,6 +1735,7 @@ int main(int argc, char *argv[])
         ASSERT(D2 == X.spacesPerLevel());
         ASSERT(D3 == X.encodingStyle());
         ASSERT(D4 == X.encodeEmptyArrays());
+        ASSERT(D5 == X.encodeNullElements());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1615,6 +1752,7 @@ int main(int argc, char *argv[])
         mX.setSpacesPerLevel(A2);
         mX.setEncodingStyle(A3);
         mX.setEncodeEmptyArrays(A4);
+        mX.setEncodeNullElements(A5);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -1623,6 +1761,7 @@ int main(int argc, char *argv[])
         ASSERT(A2 == X.spacesPerLevel());
         ASSERT(A3 == X.encodingStyle());
         ASSERT(A4 == X.encodeEmptyArrays());
+        ASSERT(A5 == X.encodeNullElements());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1640,6 +1779,7 @@ int main(int argc, char *argv[])
         mY.setSpacesPerLevel(A2);
         mY.setEncodingStyle(A3);
         mY.setEncodeEmptyArrays(A4);
+        mY.setEncodeNullElements(A5);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -1648,6 +1788,7 @@ int main(int argc, char *argv[])
         ASSERT(A2 == Y.spacesPerLevel());
         ASSERT(A3 == Y.encodingStyle());
         ASSERT(A4 == Y.encodeEmptyArrays());
+        ASSERT(A5 == Y.encodeNullElements());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -1670,6 +1811,7 @@ int main(int argc, char *argv[])
         ASSERT(A2 == Z.spacesPerLevel());
         ASSERT(A3 == Z.encodingStyle());
         ASSERT(A4 == Z.encodeEmptyArrays());
+        ASSERT(A5 == Z.encodeNullElements());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1688,6 +1830,7 @@ int main(int argc, char *argv[])
         mZ.setSpacesPerLevel(D2);
         mZ.setEncodingStyle(D3);
         mZ.setEncodeEmptyArrays(D4);
+        mZ.setEncodeNullElements(D5);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
@@ -1696,6 +1839,7 @@ int main(int argc, char *argv[])
         ASSERT(D2 == Z.spacesPerLevel());
         ASSERT(D3 == Z.encodingStyle());
         ASSERT(D4 == Z.encodeEmptyArrays());
+        ASSERT(D5 == Z.encodeNullElements());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1718,6 +1862,7 @@ int main(int argc, char *argv[])
         ASSERT(A2 == W.spacesPerLevel());
         ASSERT(A3 == W.encodingStyle());
         ASSERT(A4 == W.encodeEmptyArrays());
+        ASSERT(A5 == W.encodeNullElements());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1740,6 +1885,7 @@ int main(int argc, char *argv[])
         ASSERT(D2 == W.spacesPerLevel());
         ASSERT(D3 == W.encodingStyle());
         ASSERT(D4 == W.encodeEmptyArrays());
+        ASSERT(D5 == W.encodeNullElements());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1762,6 +1908,7 @@ int main(int argc, char *argv[])
         ASSERT(A2 == X.spacesPerLevel());
         ASSERT(A3 == X.encodingStyle());
         ASSERT(A4 == X.encodeEmptyArrays());
+        ASSERT(A5 == X.encodeNullElements());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
