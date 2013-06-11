@@ -1857,6 +1857,14 @@ class bcema_SharedPtr {
         // one) that share ownership of the object referred to by this shared
         // pointer.  Note that the behavior of this function is the same as
         // 'numReferences'.
+
+    template<class OTHER_TYPE>
+    bool owner_before(const bcema_SharedPtr<OTHER_TYPE>& other) const;
+        // Return 'true' if the address of the 'bcema_SharedPtrRep' object
+        // used by this shared pointer is ordered before the address of the
+        // 'bcema_SharedPtrRep' object used by the specified 'other' shared
+        // pointer under the total ordering supplied by
+        // 'bsl::less<bcema_SharedPtrRep *>', and 'false' otherwise.
 };
 
 // FREE OPERATORS
@@ -1881,6 +1889,116 @@ bool operator!=(const bcema_SharedPtr<LHS_TYPE>& lhs,
     // 'RHS_TYPE', then a compiler diagnostic will be emitted indicating the
     // error.  Also note that two equal shared pointers do not necessarily
     // manage the same object due to aliasing.
+
+template<class LHS_TYPE, class RHS_TYPE>
+bool operator<(const bcema_SharedPtr<LHS_TYPE>& lhs,
+               const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the address of the object referenced by the specified
+    // 'lhs' is ordered before the address of the object referenced by the
+    // specified 'rhs' under the total ordering supplied by 'bsl::less<T *>',
+    // where 'T *' is the composite pointer type of 'LHS_TYPE *' and
+    // 'RHS_TYPE *', and 'false' otherwise.
+
+template<class LHS_TYPE, class RHS_TYPE>
+bool operator>(const bcema_SharedPtr<LHS_TYPE>& lhs,
+               const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the address of the object referenced by the specified
+    // 'lhs' is ordered after the address of the object referenced by the
+    // specified 'rhs' under the total ordering supplied by 'bsl::less<T *>',
+    // where 'T *' is the composite pointer type of 'LHS_TYPE *' and
+    // 'RHS_TYPE *', and 'false' otherwise.
+
+template<class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' refers to the same object as the
+    // specified 'rhs', or if the address of the object referenced by 'lhs' is
+    // ordered before the address of the object referenced by 'rhs' under the
+    // total ordering supplied by 'bsl::less<T *>', where 'T *' is the
+    // composite pointer type of 'LHS_TYPE *' and 'RHS_TYPE *', and 'false'
+    // otherwise.
+
+template<class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' refers to the same object as the
+    // specified 'rhs', or if the address of the object referenced by 'lhs' is
+    // ordered after the address of the object referenced by 'rhs' under the
+    // total ordering supplied by 'bsl::less<T *>', where 'T *' is the
+    // composite pointer type of 'LHS_TYPE *' and 'RHS_TYPE *', and 'false'
+    // otherwise.
+
+template <class LHS_TYPE>
+bool operator==(const bcema_SharedPtr<LHS_TYPE>& lhs, bsl::nullptr_t);
+    // Return 'true' if the specified 'lhs' shared pointer is empty, and
+    // 'false' otherwise.
+
+template <class RHS_TYPE>
+bool operator==(bsl::nullptr_t, const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'rhs' shared pointer is empty, and
+    // 'false' otherwise.
+
+template <class LHS_TYPE>
+bool operator!=(const bcema_SharedPtr<LHS_TYPE>& lhs, bsl::nullptr_t);
+    // Return 'true' if the specified 'lhs' shared pointer is not empty, and
+    // 'false' otherwise.
+
+template <class RHS_TYPE>
+bool operator!=(bsl::nullptr_t, const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'rhs' shared pointer is not empty, and
+    // 'false' otherwise.
+
+template <class LHS_TYPE>
+bool operator<(const bcema_SharedPtr<LHS_TYPE>& lhs, bsl::nullptr_t);
+    // Return 'true' if the address of the object referenced by the specified
+    // 'lhs' is ordered before the null-pointer value under the total ordering
+    // supplied by 'bsl::less<LHS_TYPE *>', and 'false' otherwise.
+
+template <class RHS_TYPE>
+bool operator<(bsl::nullptr_t, const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the address of the object referenced by the specified
+    // 'rhs' is ordered after the null-pointer value under the total ordering
+    // supplied by 'bsl::less<RHS_TYPE *>', and 'false' otherwise.
+
+template <class LHS_TYPE>
+bool operator<=(const bcema_SharedPtr<LHS_TYPE>& lhs, bsl::nullptr_t);
+    // Return 'true' if the specified 'lhs' is empty, or if the address of the
+    // object referenced by 'lhs' is ordered before the null-pointer value
+    // under the total ordering supplied by 'bsl::less<LHS_TYPE *>', and
+    // 'false' otherwise.
+
+template <class RHS_TYPE>
+bool operator<=(bsl::nullptr_t, const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'rhs' is empty, or if the address of the
+    // object referenced by 'rhs' is ordered after the null-pointer value under
+    // the total ordering supplied by 'bsl::less<RHS_TYPE *>', and 'false'
+    // otherwise.
+
+template <class LHS_TYPE>
+bool operator>(const bcema_SharedPtr<LHS_TYPE>& lhs, bsl::nullptr_t);
+    // Return 'true' if the address of the object referenced by the specified
+    // 'lhs' is ordered after the null-pointer value under the total ordering
+    // supplied by 'bsl::less<LHS_TYPE *>', and 'false' otherwise.
+
+template <class RHS_TYPE>
+bool operator>(bsl::nullptr_t, const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the address of the object referenced by the specified
+    // 'rhs' is ordered before the null-pointer value under the total ordering
+    // supplied by 'bsl::less<RHS_TYPE *>', and 'false' otherwise.
+
+template <class LHS_TYPE>
+bool operator>=(const bcema_SharedPtr<LHS_TYPE>& lhs, bsl::nullptr_t);
+    // Return 'true' if the specified 'lhs' is empty, or if the address of the
+    // object referenced by 'lhs' is ordered after the null-pointer value under
+    // the total ordering supplied by 'bsl::less<LHS_TYPE *>', and 'false'
+    // otherwise.
+
+template <class RHS_TYPE>
+bool operator>=(bsl::nullptr_t, const bcema_SharedPtr<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'rhs' is empty, or if the address of the
+    // object referenced by 'rhs' is ordered before the null-pointer value
+    // under the total ordering supplied by 'bsl::less<RHS_TYPE *>', and
+    // 'false' otherwise.
 
 template <typename TYPE>
 bsl::ostream& operator<<(bsl::ostream&                stream,
@@ -2868,6 +2986,15 @@ int bcema_SharedPtr<TYPE>::use_count() const
     return numReferences();
 }
 
+template <class TYPE>
+template<class OTHER_TYPE>
+inline
+bool bcema_SharedPtr<TYPE>::owner_before(
+                                const bcema_SharedPtr<OTHER_TYPE>& other) const
+{
+    return bsl::less<bcema_SharedPtrRep *>()(rep(), other.rep());
+}
+
                     // --------------------------
                     // struct bcema_SharedPtrLess
                     // --------------------------
@@ -2977,6 +3104,134 @@ bool BloombergLP::operator!=(const bcema_SharedPtr<LHS_TYPE>& lhs,
                              const bcema_SharedPtr<RHS_TYPE>& rhs)
 {
     return !(lhs == rhs);
+}
+
+template<class LHS_TYPE, class RHS_TYPE>
+inline
+bool BloombergLP::operator<(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                            const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return bsl::less<const void *>()(lhs.ptr(), rhs.ptr());
+}
+
+template<class LHS_TYPE, class RHS_TYPE>
+inline
+bool BloombergLP::operator>(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                            const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return rhs < lhs;
+}
+
+template<class LHS_TYPE, class RHS_TYPE>
+inline
+bool BloombergLP::operator<=(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                             const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return !(rhs < lhs);
+}
+
+template<class LHS_TYPE, class RHS_TYPE>
+inline
+bool BloombergLP::operator>=(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                             const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return !(lhs < rhs);
+}
+
+template <class LHS_TYPE>
+inline
+bool BloombergLP::operator==(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                             bsl::nullptr_t)
+{
+    return !lhs;
+}
+
+template <class RHS_TYPE>
+inline
+bool BloombergLP::operator==(bsl::nullptr_t,
+                             const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return !rhs;
+}
+
+template <class LHS_TYPE>
+inline
+bool BloombergLP::operator!=(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                             bsl::nullptr_t)
+{
+    return static_cast<bool>(lhs);
+}
+
+template <class RHS_TYPE>
+inline
+bool BloombergLP::operator!=(bsl::nullptr_t,
+                             const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return static_cast<bool>(rhs);
+}
+
+template <class LHS_TYPE>
+inline
+bool BloombergLP::operator<(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                            bsl::nullptr_t)
+{
+    return bsl::less<LHS_TYPE *>()(lhs.ptr(), 0);
+}
+
+template <class RHS_TYPE>
+inline
+bool BloombergLP::operator<(bsl::nullptr_t,
+                            const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return bsl::less<RHS_TYPE *>()(0, rhs.ptr());
+}
+
+template <class LHS_TYPE>
+inline
+bool BloombergLP::operator<=(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                             bsl::nullptr_t)
+{
+    return !bsl::less<LHS_TYPE *>()(0, lhs.ptr());
+}
+
+template <class RHS_TYPE>
+inline
+bool BloombergLP::operator<=(bsl::nullptr_t,
+                             const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return !bsl::less<RHS_TYPE *>()(rhs.ptr(), 0);
+}
+
+template <class LHS_TYPE>
+inline
+bool BloombergLP::operator>(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                            bsl::nullptr_t)
+{
+    return bsl::less<LHS_TYPE *>()(0, lhs.ptr());
+}
+
+template <class RHS_TYPE>
+inline
+bool BloombergLP::operator>(bsl::nullptr_t,
+                            const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return bsl::less<RHS_TYPE *>()(rhs.ptr(), 0);
+}
+
+template <class LHS_TYPE>
+inline
+bool BloombergLP::operator>=(const bcema_SharedPtr<LHS_TYPE>& lhs,
+                             bsl::nullptr_t)
+{
+    return !bsl::less<LHS_TYPE *>()(lhs.ptr(), 0);
+}
+
+template <class RHS_TYPE>
+inline
+bool BloombergLP::operator>=(bsl::nullptr_t,
+                             const bcema_SharedPtr<RHS_TYPE>& rhs)
+{
+    return !bsl::less<RHS_TYPE *>()(0, rhs.ptr());
 }
 
 template <typename TYPE>
