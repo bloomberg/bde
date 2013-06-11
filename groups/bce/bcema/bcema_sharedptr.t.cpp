@@ -75,7 +75,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] bcema_SharedPtr(nullptr_t, const DELETER&, bslma::Allocator * = 0);
 // [  ] bcema_SharedPtr(bdema_ManagedPtr<OTHER>, bslma::Allocator * = 0);
 // [ 3] bcema_SharedPtr(bsl::auto_ptr<OTHER>, bslma::Allocator * = 0);
-// [  ] bcema_SharedPtr(const bcema_SharedPtr<OTHER>& alias, TYPE *object);
+// [  ] bcema_SharedPtr(const bcema_SharedPtr<OTHER>& alias, ELEMENT_TYPE *ptr)
 // [  ] bcema_SharedPtr(const bcema_SharedPtr<OTHER>& other);
 //*[ 3] bcema_SharedPtr(const bcema_SharedPtr& original);
 // [ 3] bcema_SharedPtr(bcema_SharedPtrRep *rep);
@@ -612,8 +612,8 @@ class MyTestDeleter {
     MyTestDeleter(const MyTestDeleter& original);
 
     // ACCESSORS
-    template <class TYPE>
-    void operator() (TYPE *ptr) const;
+    template <class OBJECT_TYPE>
+    void operator() (OBJECT_TYPE *ptr) const;
 
     bool operator==(const MyTestDeleter& rhs) const;
 };
@@ -647,8 +647,8 @@ class MyAllocTestDeleter {
     MyAllocTestDeleter& operator=(const MyAllocTestDeleter& rhs);
 
     // ACCESSORS
-    template <class TYPE>
-    void operator()(TYPE *ptr) const;
+    template <class OBJECT_TYPE>
+    void operator()(OBJECT_TYPE *ptr) const;
 };
 
 namespace BloombergLP {
@@ -713,8 +713,8 @@ MyTestDeleter::MyTestDeleter(const MyTestDeleter& original)
 {
 }
 
-template <class TYPE>
-void MyTestDeleter::operator() (TYPE *ptr) const
+template <class OBJECT_TYPE>
+void MyTestDeleter::operator() (OBJECT_TYPE *ptr) const
 {
     bslma::Allocator *ba = bslma::Default::allocator(d_allocator_p);
     ba->deleteObject(ptr);
@@ -762,8 +762,8 @@ MyAllocTestDeleter& MyAllocTestDeleter::operator=(
 }
 
 // ACCESSORS
-template <class TYPE>
-void MyAllocTestDeleter::operator()(TYPE *ptr) const
+template <class OBJECT_TYPE>
+void MyAllocTestDeleter::operator()(OBJECT_TYPE *ptr) const
 {
     d_deleter_p->deleteObject(ptr);
 }
@@ -1288,7 +1288,7 @@ int main(int argc, char *argv[])
         // TESTING 'bcema_SharedPtr<cv-void> (DRQS 33549823)
         //
         // Concerns:
-        //: 1 Can compare two constant shared pointer obiects using any
+        //: 1 Can compare two constant shared pointer objects using any
         //:   comparison operator.
         //:
         //: 2 Can compare two shared pointer objects pointing to different
@@ -1330,7 +1330,7 @@ int main(int argc, char *argv[])
         int sampleArray[] = { 42, 13 };
         int *const pA = &sampleArray[0];
         int *const pB = &sampleArray[1];
-        
+
         const IntPtr  X(sampleArray, doNothing);
         const VoidPtr Y(X, pB);
 
