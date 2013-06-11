@@ -56,16 +56,17 @@ BSLS_IDENT("$Id: $")
 // [utility.arg.requirements] of the C++11 standard.  Note that, in the context
 // of an 'unordered_map' instantiation, the requirements apply specifically to
 // the 'unordered_map's element type, 'value_type', which is an alias for
-// std::pair<const KEY, VALUE>'.
+// 'std::pair<const KEY, VALUE>'.
 //
-//: "default-constructible": The type provides an accessible default
-//:                          constructor.
+//: "default-constructible":
+//:     The type provides an accessible default constructor.
 //:
-//: "copy-constructible": The type provides an accessible copy constructor.
+//: "copy-constructible":
+//:     The type provides an accessible copy constructor.
 //:
-//: "equality-comparable": The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
+//: "equality-comparable":
+//:     The type provides an equality-comparison operator that defines an
+//:     equivalence relationship and is both reflexive and transitive.
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
@@ -85,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //  std::size_t result = hash(key);
 //..
 // where the definition of the called function meets the requirements of a
-// hash function as specified in {'bslstl_hash|Standard Hash Function'}.
+// hash function as specified in {'bslstl_hash'|Standard Hash Function}.
 //
 // 'EQUAL' shall support the a function call operator compatible with the
 //  following statements:
@@ -495,7 +496,7 @@ BSLS_IDENT("$Id: $")
 // the stop list.
 //
 ///Example 2: Examining and Setting Unordered Map Configuration
-///------------------------------------------------------------
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to examine (and possibly influence) the performance of an
 // unordered map.  The unordered map provides several interfaces that allow us
 // to do so.  Several of these were used in {Example 1} (code repeated below):
@@ -654,7 +655,7 @@ BSLS_IDENT("$Id: $")
 // in performance characteristics of the containers we create.
 //
 ///Example 3: Inverse Concordance
-///------------------------------
+/// - - - - - - - - - - - - - - -
 // If one has a concordance for a set of documents (an index of the position of
 // every unique word in those documents), then words of interest can be
 // efficiently located.  Suppose after locating a word of interest one also

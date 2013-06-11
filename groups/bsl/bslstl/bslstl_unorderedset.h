@@ -56,14 +56,15 @@ BSLS_IDENT("$Id: $")
 // requirements apply specifically to the 'unordered_set's element type,
 // 'value_type', which is an alias for 'KEY'.
 //
-//: "default-constructible": The type provides an accessible default
-//:                          constructor.
+//: "default-constructible":
+//:     The type provides an accessible default constructor.
 //:
-//: "copy-constructible": The type provides an accessible copy constructor.
+//: "copy-constructible":
+//:     The type provides an accessible copy constructor.
 //:
-//: "equality-comparable": The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
+//: "equality-comparable":
+//:     The type provides an equality-comparison operator that defines an
+//:     equivalence relationship and is both reflexive and transitive.
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
@@ -80,7 +81,7 @@ BSLS_IDENT("$Id: $")
 //  std::size_t result = hash(key);
 //..
 // where the definition of the called function meets the requirements of a
-// hash function, as specified in {'bslstl_hash|Standard Hash Function'}.
+// hash function, as specified in {'bslstl_hash'|Standard Hash Function}.
 //
 // 'EQUAL' shall support the a function call operator compatible with the
 //  following statements:
