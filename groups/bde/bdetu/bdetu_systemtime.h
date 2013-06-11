@@ -20,7 +20,7 @@ BDES_IDENT("$Id: $")
 // time.  The system time is expressed as a time interval between the current
 // time and a pre-determined historical time, 00:00 UTC, January 1, 1970.  This
 // component operates using a dynamically replaceable callback mechanism.  For
-// applications that choose to define there own mechanism for determining
+// applications that choose to define their own mechanism for determining
 // system time, this component provides the ability to install a custom
 // callback function.  The behavior is undefined unless the callback provided
 // is epoch-based.  Note that if an application provides its own mechanism to
@@ -37,8 +37,12 @@ BDES_IDENT("$Id: $")
 // Clients can override the default callback function by calling the '
 // 'setLoadLocalTimeOffsetCallback' function.
 //
-///Usage 1
-///-------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Getting Current Time
+///- - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this utility component
 // to obtain the system time by calling 'now', 'nowAsDatetimeUtc', or
 // 'loadCurrentTime'.
@@ -68,8 +72,9 @@ BDES_IDENT("$Id: $")
 //    assert(dti.totalMilliseconds() <= i2.totalMilliseconds());
 //                                             //  Presumably, 0 < i0 < i1 < i2
 //..
-///Usage 2
-///-------
+//
+///Example 2: Using 'loadSystemTimeDefault'
+/// - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use 'loadSystemTimeDefault'
 // function (Note that 'loadSystemTimeDefault') provides a default
 // implementation to retrieve system time.
@@ -96,9 +101,10 @@ BDES_IDENT("$Id: $")
 //    bdetu_SystemTime::loadSystemTimeDefault(&i4);
 //    assert(i4 >= i3);
 //..
-///Usage 3
-///-------
-// For applications that choose to define there own mechanism for determining
+//
+///Example 3: Setting the System Time Callback
+///- - - - - - - - - - - - - - - - - - - - - -
+// For applications that choose to define their own mechanism for determining
 // system time, the 'bdetu_SystemTime' utility provides the ability to install
 // a custom system-time callback.
 //
@@ -144,7 +150,7 @@ BDES_IDENT("$Id: $")
 //..
 //
 ///Example 4: Using the Local Time Offset Callback
-///-----------------------------------------------
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose one has to provide time stamp values that always reflect local time
 // for a given location, even when local time transitions into and out of
 // daylight saving time.  Further suppose that one must do this quite often
