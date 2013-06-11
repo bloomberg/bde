@@ -683,13 +683,13 @@ bdesu_FileUtil::open(const char *pathName,
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
     return ::open(  pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 #elif defined(BSLS_PLATFORM_OS_HPUX)
     return ::open64(pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 #else
     return open64(  pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 #endif
 }
 
