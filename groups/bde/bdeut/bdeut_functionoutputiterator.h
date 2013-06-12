@@ -298,7 +298,7 @@ template <class FUNCTION>
 template <class TYPE>
 inline
 typename bdeut_FunctionOutputIterator<FUNCTION>::AssignmentProxy&
-bdeut_FunctionOutputIterator<FUNCTION>::AssignmentProxy::template operator=(
+bdeut_FunctionOutputIterator<FUNCTION>::AssignmentProxy::operator=(
     const TYPE& value)
 {
     d_function(value);
