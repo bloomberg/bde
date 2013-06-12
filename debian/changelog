@@ -1,13 +1,21 @@
-bsl-internal (2.18.1.001) unstable; urgency=low
+bsl-internal (2.18.1.002) unstable; urgency=low
 
   * Bump changelog
+  * cafc989 Merge branch 'master' into releases/2.18.x
+  * c16cf32 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 14:12:23 -0400
+
+bsl-internal (BDE_ROBO_2.18.1.001) git; urgency=low
+
+  * 084de71 Bump changelog to 2.18.1.001
   * b39a993 Merge branch 'master' into releases/2.18.x
   * 688a736 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
   * 9e2df54 [APPROVAL] OSS review/format_errors_cause_doxygen_problems-drqs-40608146 to master
   * 9a16918 [APPROVAL] review/format_errors_cause_doxygen_problems-drqs-40608146 to master
   * 45ed364 [APPROVAL] pending/master/bslstp_deprecate-drqs-36656841 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 11:02:32 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 11:05:44 -0400
 
 bsl-internal (BDE_ROBO_2.18.1.000) git; urgency=low
 
