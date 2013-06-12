@@ -6,7 +6,7 @@ Build-Depends: bde-tools, producemake, rssuite-tools, bsl-internal-bdemeta, libb
 Standards-Version: 3.8.4
 
 Package: bde-core-bdemeta
-Architecture: all
+Architecture: any
 Description: bde-core bde metadata
  bde metadata for the bde-core source package
 
