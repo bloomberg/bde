@@ -1,6 +1,17 @@
-bsl-internal (2.18.1.000) unstable; urgency=low
+bsl-internal (2.18.1.001) unstable; urgency=low
 
   * Bump changelog
+  * b39a993 Merge branch 'master' into releases/2.18.x
+  * 688a736 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
+  * 9e2df54 [APPROVAL] OSS review/format_errors_cause_doxygen_problems-drqs-40608146 to master
+  * 9a16918 [APPROVAL] review/format_errors_cause_doxygen_problems-drqs-40608146 to master
+  * 45ed364 [APPROVAL] pending/master/bslstp_deprecate-drqs-36656841 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 11:02:32 -0400
+
+bsl-internal (BDE_ROBO_2.18.1.000) git; urgency=low
+
+  * 5fb5ef3 Bump changelog to 2.18.1.000
   * 9f0ea47 Bump version to 2.18.1
   * 59d7214 [APPROVAL] OSS pending/master/fix-dual-stlmode-include-drqs41100790 to master
   * 1bb7998 [APPROVAL] pending/master/fix-dual-stlmode-include-drqs41100790 to master
@@ -9,7 +20,7 @@ bsl-internal (2.18.1.000) unstable; urgency=low
   * 83cdc4d [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
   * 1d1ade6 [APPROVAL] review/bsl-stringref-drqs41338618 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 4 Jun 2013 21:10:18 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 4 Jun 2013 21:12:29 -0400
 
 bsl-internal (2.18.0.0) git; urgency=low
 
@@ -43,6 +54,7 @@ bsl-internal (2.18.0.0) git; urgency=low
   * e07ebd0 [APPROVAL] pending/master/bsl-endianness-drqs39774236 to master
   * e6a7d54 [APPROVAL] INTERNAL sun-algorithm-extensions-drqs40798754 to master
   * 64ae05b [APPROVAL] sun-algorithm-extensions-drqs40798754 to master
+  * 3cae99a drqs-40608146: Additional format fixes in 2.17 for 'doxygen' conversion.
   * 663207c [APPROVAL] OSS review/update-gyp-files to master
   * a4a9310 [APPROVAL] review/update-gyp-files to master
 
