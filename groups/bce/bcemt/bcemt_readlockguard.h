@@ -374,7 +374,7 @@ class bcemt_ReadLockGuardTryLock {
 
     // DATA
     T *d_lock_p;  // lock proctored by this object (held, not owned)
-  
+
   private:
     // NOT IMPLEMENTED
     bcemt_ReadLockGuardTryLock(const bcemt_ReadLockGuardTryLock<T>&);
