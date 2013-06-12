@@ -1535,8 +1535,13 @@ class btemt_ChannelPool {
         // listening sockets, close both the read and write parts of all
         // communication channels under management, and remove all those
         // communication channels from this channel pool.  Return 0 on success,
-        // and a non-zero value otherwise.  Note that shutting down a channel
-        // will deallocate all system resources associated with that channel.
+        // and a non-zero value otherwise.  The behavior is undefined if
+        // 'start' is called concurrently or subsequent to the completion of
+        // this call.  Note that shutting down a channel will deallocate all
+        // system resources associated with that channel.  Also note that this
+        // function is assumed to be called to release resources held by
+        // channel pool and just before this object's destruction.  Therefore,
+        // 'start' should not be invoked after this function is called.
 
     int setWriteCacheHiWatermark(int channelId, int numBytes);
         // Set the write-cache high-watermark for the specified 'channelId' to

@@ -781,6 +781,13 @@ class btemt_SessionPool {
         // sessions "gracefully" fail, a negative value is returned and the
         // sessions are destroyed anyway.
 
+    int stopAndRemoveAllSessions();
+        // Stop the asynchronous operation of this session pool and gracefully
+        // terminate all active connectors and listeners, and remove all those
+        // communication sessions from this session pool.  Return 0 on success,
+        // and a non-zero value otherwise.  Note that shutting down a session
+        // will deallocate all system resources associated with that session.
+
                                   // *** server-related section ***
 
     int listen(
