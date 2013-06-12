@@ -7,7 +7,9 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a namespace for functional extensions
+//@PURPOSE: Provide a namespace for functional extensions.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
 //
 //@CLASSES:
 //  bsl::compose1: create an unary function object adaptor
@@ -15,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::select1st: select 'first' value of a pair
 //  bsl::select2nd: select 'second' value of a pair
 //
-//@SEE_ALSO: bsl+stdhdrs
+//@SEE_ALSO: bsl_functional
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -55,8 +57,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stdhdrs' package.  Use 'functional'
-// directly.
+// This component is for internal use only.
 
 #ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_exfunctional is not for publication"

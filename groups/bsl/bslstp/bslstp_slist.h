@@ -1,3 +1,23 @@
+// bslstp_slist.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLSTP_SLIST
+#define INCLUDED_BSLSTP_SLIST
+
+//@PURPOSE: Provide a singly linked list container.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
+//
+//@CLASSES:
+//  slist: singly linked list
+//
+//@SEE_ALSO: bsl_slist
+//
+//@AUTHOR: Steven Breitstein (sbreitstein)
+//
+//@DESCRIPTION: This component is for internal use only.
+//
+// Note that the functions in this component are based on STLPort's
+// implementation, with copyright notice as follows:
+//..
 /*
  * Copyright (c) 1997
  * Silicon Graphics Computer Systems, Inc.
@@ -35,11 +55,11 @@
  * modified is included with the above copyright notice.
  *
  */
-
-
-
-#ifndef INCLUDED_BSLSTP_SLIST
-#define INCLUDED_BSLSTP_SLIST
+//..
+//
+///Usage
+///-----
+// This component is for internal use only.
 
 #ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_slist is not for publication"

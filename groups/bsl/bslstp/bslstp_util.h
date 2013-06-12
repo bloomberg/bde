@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for utility functions for STL functionality.
 //
+//@INTERNAL_DEPRECATED: Do not use directly.
+//
 //@CLASSES:
 //  bslstp::Util: namespace for utility functions
 //
@@ -20,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for internal use only.  A usage example is not provided.
+// This component is for internal use only.
 
 // Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

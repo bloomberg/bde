@@ -1,3 +1,24 @@
+// bslstp_hashset.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLSTP_HASHSET
+#define INCLUDED_BSLSTP_HASHSET
+
+//@PURPOSE: Provide containers hashed by value.
+//
+//@INTERNAL_DEPRECATED: Do not use directly.
+//
+//@CLASSES:
+//        bsl::hash_set: container of unique values
+//   bsl::hash_multiset: container of possibly non-unique values
+//
+//@SEE_ALSO: bsl_unordered_set
+//
+//@AUTHOR: Steven Breitstein (sbreitstein)
+//
+//@DESCRIPTION: This component is for internal use only. 
+//
+// Note that the functions in this component are based on STLPort's
+// implementation, with copyright notice as follows:
+//..
 /*
  * Copyright (c) 1996,1997
  * Silicon Graphics Computer Systems, Inc.
@@ -42,9 +63,11 @@
  * modified is included with the above copyright notice.
  *
  */
-
-#ifndef INCLUDED_BSLSTP_HASHSET
-#define INCLUDED_BSLSTP_HASHSET
+//..
+//
+///Usage
+///-----
+// This component is for internal use only.
 
 #ifdef BDE_OMIT_TRANSITIONAL // STP
 #error "bslstp_hashset is not for publication"
