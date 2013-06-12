@@ -760,7 +760,7 @@ const int NT = 5;
 bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *> clientSockets(NT);
 bteso_InetStreamSocketFactory<bteso_IPv4Address>     factory;
 
-const int NUM_BYTES = 1024;
+const int NUM_BYTES = 1024 * 1024 * 10;
 
 struct ConnectData {
     int               d_index;
@@ -8588,7 +8588,7 @@ void TestDriver::testCase43()
 
         bcemt_ThreadUtil::microSleep(0, 2);
 
-        bcema_PooledBlobBufferFactory f(SIZE);
+        bcema_PooledBlobBufferFactory f(NUM_BYTES);
         bcema_Blob                    b(&f);
         b.setLength(SIZE);
 
