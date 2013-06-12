@@ -6,7 +6,7 @@ Build-Depends: bde-tools, producemake, rssuite-tools
 Standards-Version: 3.8.4
 
 Package: bsl-internal-bdemeta
-Architecture: all
+Architecture: any
 Description: bsl-internal bde metadata
  bde metadata for the bsl-internal source package
 
