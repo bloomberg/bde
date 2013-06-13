@@ -130,29 +130,48 @@ static void aSsErT2(int c, const char *s, int i)
 
 #define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
+
+//=============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT(I,X) {                                                    \
+    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP0_ASSERT ASSERT
+#define LOOP1_ASSERT LOOP_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP2_ASSERT(I,J,X) {                                                 \
+    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
+              << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP3_ASSERT(I,J,K,X) {                                               \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
+              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
+       #M << ": " << M << "\n";                                               \
+       aSsErT(1, #X, __LINE__); } }
+
+
+//=============================================================================
+//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
+//-----------------------------------------------------------------------------
+
+#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
+#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
+
+#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
+#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+
+#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 //=============================================================================
 //                       SEMI-STANDARD TEST OUTPUT MACROS
@@ -274,8 +293,14 @@ bsl::string tempFileName(bool verboseFlag)
     result = tempnam(tmpPathBuf, "bael");
 #else
     char *fn = tempnam(0, "bael");
-    result = fn;
-    bsl::free(fn);
+    if (0 == fn) {
+        ASSERTV("Unable to generate temporary file name", false);
+        return "bael.faketempfile";
+    }
+    else {
+        result = fn;
+        bsl::free(fn);
+    }
 #endif
 
     if (veryVeryVerbose) {
@@ -646,7 +671,7 @@ int main(int argc, char *argv[])
         //:    queue reflects the number of records that have been published
         //:    to the log file (and removed from the queue). (C-1)
         //:
-        //:  2 Create a async-file obsererver, start asynchronous publication,
+        //:  2 Create a async-file observer, start asynchronous publication,
         //:    and, for a number of iterations, publish a series of records,
         //:    and then repeatedly call 'recordQueueLength' and sanity test
         //:    the returned value (it should be decreasing) until the record
@@ -699,20 +724,23 @@ int main(int argc, char *argv[])
 
             bsls::Stopwatch timer;
             timer.start();
-            while (MAX_QUEUE_LENGTH == X.recordQueueLength() &&
-                   timer.elapsedTime() < 5) {
-                bcemt_ThreadUtil::microSleep(10, 0);
+            while (MAX_QUEUE_LENGTH - X.recordQueueLength() <= 5) {
+                bcemt_ThreadUtil::microSleep(100, 0);
+                if (timer.elapsedTime() > 5) {
+                    ASSERTV("Failed to write any log records",
+                            timer.elapsedTime(),
+                            false);
+                }
+
             }
 
             // Note that stopping the publication thread clears the record
             // queue, so we capture a snapshot of the queue length, and then
             // disable publication so we can determine the number of logged
-            // records in the file.  As records may be logged between
-            // accessing the queue length, and disabling publication, we
-            // 'ASSERT' that:
-            // 'MAX_QUEUE_LENGTH - X.recordQueueLength() <= # Logged Records'
+            // records in the file.
 
             const int queueLength = X.recordQueueLength();
+
             mX.disableFileLogging();
 
             const int numLoggedRecords =
@@ -725,9 +753,18 @@ int main(int argc, char *argv[])
                 P_(numLoggedRecords); P_(queueLength);
                 P(MAX_QUEUE_LENGTH - queueLength);
             }
-            ASSERT(MAX_QUEUE_LENGTH > queueLength);
-            LOOP2_ASSERT(numLoggedRecords, queueLength,
-                         numLoggedRecords >= MAX_QUEUE_LENGTH - queueLength);
+
+            // Records may have been logged between assigning 'queueLength'
+            // and disabling publication.  In addition, its possible that 1
+            // record may be discarded (without being logged) as part of
+            // shutting down the publication of logged records.  Therefore:
+            // 'MAX_QUEUE_LENGTH - X.recordQueueLength() - 1 <=
+            //                                             numLoggedRecords
+
+            ASSERTV(MAX_QUEUE_LENGTH, queueLength,
+                    MAX_QUEUE_LENGTH > queueLength);
+            ASSERTV(numLoggedRecords, MAX_QUEUE_LENGTH, queueLength, fileName,
+                    MAX_QUEUE_LENGTH - queueLength - 1 <= numLoggedRecords);
 
             // After shutting down the publication thread, the queue should be
             // cleared.
