@@ -1539,9 +1539,8 @@ class btemt_ChannelPool {
         // 'start' is called concurrently or subsequent to the completion of
         // this call.  Note that shutting down a channel will deallocate all
         // system resources associated with that channel.  Also note that this
-        // function is assumed to be called to release resources held by
-        // channel pool and just before this object's destruction.  Therefore,
-        // 'start' should not be invoked after this function is called.
+        // function is intended to be called to release resources held by this
+        // channel pool just prior to its destruction.
 
     int setWriteCacheHiWatermark(int channelId, int numBytes);
         // Set the write-cache high-watermark for the specified 'channelId' to

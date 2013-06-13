@@ -579,7 +579,7 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     void clearExecuteQueue();
         // Clear the functors enqueued to the execute queue.
 
-   virtual int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
+    virtual int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
                                     bteso_EventType::Type               event,
                                     const bteso_EventManager::Callback& cb);
         // Register the specified 'cb' functor to be invoked whenever the
