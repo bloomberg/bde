@@ -175,6 +175,18 @@ static const int MICRO_DECI_SEC =    10000;
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
 
+Element randElement(int *seed)
+{
+    enum { DIV_BIT  = 1 << 14,
+           DIV_MASK = DIV_BIT - 1 };
+
+    const unsigned int num = bdeu_Random::generate15(seed);
+    const unsigned int div = bdeu_Random::generate15(seed);
+    const Element      ret = num + ((double) (div & DIV_MASK) / DIV_BIT);
+
+    return (div & DIV_BIT) ? ret : -ret;
+}
+
 class MyBarrier {
     // This class is a fast 2-thread barrier implemented with semaphores.
     // Since it can only coordinate two threads, it can use much simpler
@@ -190,8 +202,9 @@ class MyBarrier {
         // c'tor
     {}
 
-    void wait() {
+    void wait()
         // wait until the other thread has reach the 'MyBarrier'
+    {
 
         if (0 == d_threadWaiting.testAndSwap(0, 1)) {
             d_entryGate.wait();
@@ -210,17 +223,17 @@ class MyBarrier {
 //-----------------------------------------------------------------------------
 namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE {
 
-struct myData
+struct MyData
 {
-    // myData...
+    // MyData...
 };
 
-bcec_Queue<myData>  myWorkQueue;
-bdec_Queue<myData>& rawQueue = myWorkQueue.queue();
+bcec_Queue<MyData>  myWorkQueue;
+bdec_Queue<MyData>& rawQueue = myWorkQueue.queue();
 bcemt_Mutex&        queueMutex = myWorkQueue.mutex();
 
-myData  data1;
-myData  data2;
+MyData  data1;
+MyData  data2;
 bool pairFoundFlag = false;
 
 void myWork()
@@ -2258,8 +2271,8 @@ int main(int argc, char *argv[])
         using namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE;
 
         {
-            myWorkQueue.pushBack( myData() );
-            myWorkQueue.pushBack( myData() );
+            myWorkQueue.pushBack( MyData() );
+            myWorkQueue.pushBack( MyData() );
             myWork();
             ASSERT(0 == rawQueue.length());
             ASSERT(0 == myWorkQueue.length());
@@ -3098,15 +3111,29 @@ int main(int argc, char *argv[])
         // SINGLE_THREADED TESTING LENGTH
         //
         // Concerns:
-        //   That push, pop and length work in a single-threaded context.
+        //: 1 That in single threaded mode, values popped from the queue
+        //:   are exactly what would be expected to be produced by a 'deque'
+        //:   for an analogous sequence of pushes and pops.
+        //: 2 After all pushes or pops, 'X.length() == X.queeu().length()' and
+        //:   both equal '(# of pushes) - (# of pops)'.
         //
         // Plan:
         //: 1 Do explicit pushes and pops to and from both ends of the queue,
         //:   verifying that the length is as expected.
+        //:   o Do explicit pushes to the back of the queue and pops from the
+        //:     front, observing that the popped values and length are as
+        //:     epxected.
+        //:   o Do explicit pushes to the front of the queue and pops from the
+        //:     back, observing that the popped values and length are as
+        //:     epxected.
+        //:   o Do pushes to, and pops from, the front of the queue, observing
+        //:     that the popped values are as epxected.
+        //:   o Do pushes to, and pops from, the back of the queue, observing
+        //:     that the popped values are as epxected.
         //: 2 Iterate, randomly choosing a queue length in the range 0-7.
         //:   o If the chosen length is longer than the existing queue length,
         //:     grow the queue to the desired queue length by random choosing
-        //:     'pushFront' or 'pushBack', and pushing random floats into the
+        //:     'pushFront' or 'pushBack', and pushing random doubles into the
         //:     queue.  Simultanously push the same value onto the same end of
         //:     a 'bsl::deque' kept in parallel.
         //:   o If the chosen length is shorter than the existing queue, shrink
@@ -3134,121 +3161,131 @@ int main(int argc, char *argv[])
         bsls::Stopwatch sw;
         sw.start();
 
+        int seed = 123456789;
+
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
         if (verbose) cout << "1. Explicit Pushes and Pops\n";
         {
-            const Element VA = 1.0;
-            const Element VB = 2.1;
-            const Element VC = 3.2;
+            const Element VA = randElement(&seed);
+            const Element VB = randElement(&seed);
+            const Element VC = randElement(&seed);
+
+            if (veryVerbose) { P_(VA); P_(VB); P(VC); }
 
             Obj x1(&ta);    const Obj& X1 = x1;
 
-            ASSERT(0 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+            if (verbose) cout << "'pushBack', 'popFront', 'length'\n";
+            {
+                ASSERT(0 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushBack(VA);
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                x1.pushBack(VA);
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushBack(VB);
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                x1.pushBack(VB);
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushBack(VC);
-            ASSERT(3 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                x1.pushBack(VC);
+                ASSERT(3 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            ASSERT(VA == x1.popFront());
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VA == x1.popFront());
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            ASSERT(VB == x1.popFront());
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VB == x1.popFront());
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            ASSERT(VC == x1.popFront());
-            ASSERT(0 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VC == x1.popFront());
+                ASSERT(0 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+            }
 
+            if (verbose) cout << "'pushFront', 'popBack', 'length'\n";
+            {
+                x1.pushFront(VA);
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
+                x1.pushFront(VB);
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushFront(VA);
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                x1.pushFront(VC);
+                ASSERT(3 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushFront(VB);
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VA == x1.popBack());
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushFront(VC);
-            ASSERT(3 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VB == x1.popBack());
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            ASSERT(VA == x1.popBack());
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-            ASSERT(VB == x1.popBack());
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-            ASSERT(VC == x1.popBack());
-            ASSERT(0 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-
-
-            x1.pushFront(VA);
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-            x1.pushFront(VB);
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-            x1.pushFront(VC);
-            ASSERT(3 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-            ASSERT(VC == x1.popFront());
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-            ASSERT(VB == x1.popFront());
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
-
-            ASSERT(VA == x1.popFront());
-            ASSERT(0 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VC == x1.popBack());
+                ASSERT(0 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+            }
 
 
+            if (verbose) cout << "pushing/popping to/from the front\n";
+            {
+                x1.pushFront(VA);
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
+                x1.pushFront(VB);
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushBack(VA);
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                x1.pushFront(VC);
+                ASSERT(3 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushBack(VB);
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VC == x1.popFront());
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            x1.pushBack(VC);
-            ASSERT(3 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VB == x1.popFront());
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            ASSERT(VC == x1.popBack());
-            ASSERT(2 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                ASSERT(VA == x1.popFront());
+                ASSERT(0 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+            }
 
-            ASSERT(VB == x1.popBack());
-            ASSERT(1 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+            if (verbose) cout << "pushing/popping to/from the back\n";
+            {
+                x1.pushBack(VA);
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
 
-            ASSERT(VA == x1.popBack());
-            ASSERT(0 == X1.length());
-            ASSERT(x1.queue().length() == X1.length());
+                x1.pushBack(VB);
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+
+                x1.pushBack(VC);
+                ASSERT(3 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+
+                ASSERT(VC == x1.popBack());
+                ASSERT(2 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+
+                ASSERT(VB == x1.popBack());
+                ASSERT(1 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+
+                ASSERT(VA == x1.popBack());
+                ASSERT(0 == X1.length());
+                ASSERT(x1.queue().length() == X1.length());
+            }
         }
 
         ASSERT(0 == ta.numBytesInUse());
@@ -3263,16 +3300,16 @@ int main(int argc, char *argv[])
             ASSERT(x.queue().length() == X.length());
 
             int expectedLength = 0;
-            int seed = 123456789;
+            const int ITERATIONS = veryVeryVerbose ? 50 : 5000;
 
-            for (int i = 0; i < 10 * 1000; ++i) {
+            for (int i = 0; i < ITERATIONS; ++i) {
                 int ll;
                 do {
                     ll = bdeu_Random::generate15(&seed) % 8;
                 } while (expectedLength == ll);
                 const int LENGTH = ll;
 
-                if (veryVerbose) P(LENGTH);
+                if (veryVerbose) { P_(X.length()); P(LENGTH); }
 
                 if (expectedLength < LENGTH) {
                     while (expectedLength < LENGTH) {
@@ -3282,20 +3319,17 @@ int main(int argc, char *argv[])
 
                         // Generate a fairly random double using 'generate15'.
 
-                        Element v = bdeu_Random::generate15(&seed);
-                        v += bdeu_Random::generate15(&seed) /
-                                                            (double) (1 << 15);
-                        if (bdeu_Random::generate15(&seed) & 0x80) {
-                            v = -v;
-                        }
+                        const Element v = randElement(&seed);
 
                         if (bdeu_Random::generate15(&seed) & 0x80) {
                             x.pushBack(v);
                             d.push_back(v);
+                            if (veryVeryVerbose) cout << "PUB: " << v << endl;
                         }
                         else {
                             x.pushFront(v);
                             d.push_front(v);
+                            if (veryVeryVerbose) cout << "PUF: " << v << endl;
                         }
 
                         ++expectedLength;
@@ -3315,10 +3349,14 @@ int main(int argc, char *argv[])
                             const Element popped = D.back();
                             d.pop_back();
                             ASSERT(popped == x.popBack());
+                            if (veryVeryVerbose) cout << "POB: " << popped <<
+                                                                          endl;
                         }
                         else {
                             const Element popped = D.front();
                             d.pop_front();
+                            if (veryVeryVerbose) cout << "POF: " << popped <<
+                                                                          endl;
                             ASSERT(popped == x.popFront());
                         }
 
@@ -3329,6 +3367,8 @@ int main(int argc, char *argv[])
                         ASSERT(expectedLength == x.queue().length());
                     }
                 }
+
+                ASSERT(LENGTH == expectedLength);
             }
         }
         sw.stop();
