@@ -1447,8 +1447,8 @@ class bcema_SharedPtr {
         // Create a shared pointer taking ownership of the specified 'rep'
         // and pointing to the object stored in the specified 'rep'.  The
         // behavior is undefined unless 'rep->originalPtr()' points to an
-        // object of type 'TYPE'.  Note that this method *DOES* *NOT* increment
-        // the number of references to 'rep'.
+        // object of type 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT*
+        // increment the number of references to 'rep'.
         //
         // DEPRECATED This constructor will be made inaccessible in the next
         // BDE release, as the undefined behavior is too easily triggered and
