@@ -140,8 +140,6 @@ const int NT = 10;
 bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *> clientSockets(NT);
 bteso_InetStreamSocketFactory<bteso_IPv4Address>     factory;
 
-const int NUM_BYTES = 1024 * 1024 * 10;
-
 struct ConnectData {
     int               d_index;
     int               d_numBytes;
@@ -3069,6 +3067,7 @@ int main(int argc, char *argv[])
         typedef btemt_SessionPool::SessionStateCallback SessionCb;
         typedef btemt_SessionPool::SessionPoolStateCallback PoolCb;
 
+        const int NUM_BYTES = 1024 * 1024 * 10;
         btemt_ChannelPoolConfiguration config;
         config.setMaxThreads(NT);
         config.setWriteCacheWatermarks(0, NUM_BYTES * 10);  // 1Mb
