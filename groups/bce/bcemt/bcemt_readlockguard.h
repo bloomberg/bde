@@ -82,13 +82,6 @@ BDES_IDENT("$Id: $")
 //      // ... Do work that does not require the lock.
 //  }
 //..
-// Note that this is the standard behavior of the 'release' method of any BDE
-// proctor class.  For most BDE proctors the meaning of 'release' requires no
-// special explanation.  This explanation is provided here because users may be
-// confused by the fact that the 'bcemt_ReadLockGuard*' classes manage lock
-// objects, and the term "release" is often used to describe the action of
-// unlocking a lock object.  Keep in mind that the 'release' method applies
-// only to the proctor, and does not unlock the managed object.
 //
 ///Usage
 ///-----
