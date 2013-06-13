@@ -30246,6 +30246,25 @@ void constructFeatureTestMessage(
     }
 }
 
+template <typename TYPE>
+int populateTestObject(TYPE *object, const bsl::string& xmlString)
+{
+    bsl::istringstream ss(xmlString);
+
+    baexml_MiniReader reader;
+    baexml_DecoderOptions options;
+    baexml_ErrorInfo e;
+    baexml_Decoder decoder(&options, &reader, &e);
+
+    int rc = decoder.decode(ss.rdbuf(), object);
+
+    if (0 != rc) {
+        bsl::cout << "Failed to decode from initialization data: "
+                  << decoder.loggedMessages() << bsl::endl;
+    }
+    return rc;
+}
+
 template <class TYPE>
 void testNumber()
 {
@@ -30308,7 +30327,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -30480,6 +30499,453 @@ int main(int argc, char *argv[])
     ASSERT(EXP_OUTPUT == os.str());
     }
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING 'encodeNullElements' option
+        //
+        // Concerns:
+        //: 1 Encoder outputs "null" for null elements only if the
+        //:   'encodeNullElements' option is set. 
+        //:
+        //: 2 The encoder correctly generates the output in pretty or compact
+        //:   style when used in consonance with this option.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a table with
+        //:   a set of distinct rows of encoding style, initial indent level,
+        //:   spaces per level, input XML, 'encodeNullElements' option value,
+        //:   and the expected JSON corresponding to that object.
+        //:
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Populate a 'baea::Sequence3' object based on the input XML
+        //:     using the XML decoder.
+        //:
+        //:   2 Create a 'baejsn_Encoder' object.
+        //:
+        //:   3 Create a 'ostringstream' object and encode the object
+        //:     using the specified style, formatting options, and
+        //:     'encodeNullElements' option.
+        //:
+        //:   4 Compare the generated JSON with the expected JSON.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        typedef Options::EncodingStyle Style;
+        static const struct {
+            int         d_line;        // source line number
+            Style       d_style;       // encoding style
+            int         d_indent;      // initial indent level
+            int         d_spl;         // spaces per level
+            const char *d_xmlText_p;   // xml text
+            bool        d_encodeNulls; // if nulls should be encoded
+            const char *d_jsonText_p;  // json text
+        } DATA[] = {
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : null,\n"
+                "  \"element4\" : null,\n"
+                "  \"element5\" : null\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":null,\"element4\":null,\"element5\":null}"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : null,\n"
+                "  \"element4\" : null,\n"
+                "  \"element5\" : null,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":null,\"element4\":null,\"element5\":null,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element4\" : null,\n"
+                "  \"element5\" : null,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":null,\"element5\":null,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element4\" : \"arbitrary string value\",\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element4\" : \"arbitrary string value\",\n"
+                "  \"element5\" : null,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":\"arbitrary string value\","
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":\"arbitrary string value\","
+                "\"element5\":null,"
+                "\"element6\":[null,null]}"
+            }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const Style       STYLE  = DATA[ti].d_style;
+            const int         INDENT = DATA[ti].d_indent;
+            const int         SPL    = DATA[ti].d_spl;
+            const bsl::string XML    = DATA[ti].d_xmlText_p;
+            const int         ENE    = DATA[ti].d_encodeNulls;
+            const bsl::string EXP    = DATA[ti].d_jsonText_p;
+
+            baea::Sequence3 object;
+            ASSERT(0 == populateTestObject(&object, XML));
+
+            baejsn_Encoder     encoder;
+            bsl::ostringstream oss;
+
+            baejsn_EncoderOptions options;
+            options.setEncodingStyle(STYLE);
+            options.setInitialIndentLevel(INDENT);
+            options.setSpacesPerLevel(SPL);
+            options.setEncodeNullElements(ENE);
+
+            ASSERTV(0 == encoder.encode(oss, object, options));
+            ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
