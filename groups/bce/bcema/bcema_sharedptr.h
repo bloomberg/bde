@@ -3135,6 +3135,17 @@ void bcema_SharedPtrNilDeleter::operator()(const void *) const
 {
 }
 
+                    // ====================================
+                    // struct bcema_SharedPtr_ReferenceType
+                    // ====================================
+
+template <class TARGET>
+struct bcema_SharedPtr_ReferenceType;
+    // This 'struct' is deprecated and not defined.  If is declared only to
+    // support legacy code that defines (unused) specializations of this
+    // template that is no longer needed in the BDE 2.18 release, and will
+    // be formally removed in the following BDE 2.19 release.
+
 }  // close namespace BloombergLP
 
 // FREE OPERATORS
