@@ -1,4 +1,4 @@
-// bdes_platform.h                 -*-C++-*-
+// bdes_platform.h                                                    -*-C++-*-
 #ifndef INCLUDED_BDES_PLATFORM
 #define INCLUDED_BDES_PLATFORM
 
@@ -21,7 +21,6 @@ BDES_IDENT("$Id: $")
 // consist of the types and versions of
 //..
 //   - the operating system
-//   - the processor(s)
 //   - the compiler
 //..
 // that comprise the platform.  By including this header file, most, but not
@@ -46,22 +45,6 @@ BDES_IDENT("$Id: $")
 //                          *__OS_WINNT
 //                          *__OS_WIN2K
 //                          *__OS_WINXP
-//      =============================================================
-//                          PROCESSOR
-//      -------------------------------------------------------------
-//      Instruction Set          Width                 Version
-//      -----------------   -------------------   -------------------
-//      *__CPU_88000        *__CPU_32_BIT         *__CPU_VER_MAJOR
-//      *__CPU_ALPHA        *__CPU_64_BIT         *__CPU_VER_MINOR
-//      *__CPU_HPPA
-//      *__CPU_INTEL^
-//      *__CPU_X86
-//      *__CPU_IA64
-//      *__CPU_X86_64
-//      *__CPU_MIPS
-//      *__CPU_POWERPC
-//      *__CPU_SPARC
-//        ^ - DEPRECATED
 //      =============================================================
 //                          COMPILER
 //      -------------------------------------------------------------
@@ -238,72 +221,6 @@ BDES_IDENT("$Id: $")
 #endif
 #endif
 
-#ifdef BSLS_PLATFORM_CPU_VER_MAJOR
-#ifndef BDES_PLATFORM__CPU_VER_MAJOR
-#define BDES_PLATFORM__CPU_VER_MAJOR  BSLS_PLATFORM_CPU_VER_MAJOR
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_VER_MINOR
-#ifndef BDES_PLATFORM__CPU_VER_MINOR
-#define BDES_PLATFORM__CPU_VER_MINOR  BSLS_PLATFORM_CPU_VER_MINOR
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_88000
-#ifndef BDES_PLATFORM__CPU_88000
-#define BDES_PLATFORM__CPU_88000      BSLS_PLATFORM_CPU_88000
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_ALPHA
-#ifndef BDES_PLATFORM__CPU_ALPHA
-#define BDES_PLATFORM__CPU_ALPHA      BSLS_PLATFORM_CPU_ALPHA
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_HPPA
-#ifndef BDES_PLATFORM__CPU_HPPA
-#define BDES_PLATFORM__CPU_HPPA       BSLS_PLATFORM_CPU_HPPA
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_IA64
-#ifndef BDES_PLATFORM__CPU_IA64
-#define BDES_PLATFORM__CPU_IA64       BSLS_PLATFORM_CPU_IA64
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_MIPS
-#ifndef BDES_PLATFORM__CPU_MIPS
-#define BDES_PLATFORM__CPU_MIPS       BSLS_PLATFORM_CPU_MIPS
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_POWERPC
-#ifndef BDES_PLATFORM__CPU_POWERPC
-#define BDES_PLATFORM__CPU_POWERPC    BSLS_PLATFORM_CPU_POWERPC
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_SPARC
-#ifndef BDES_PLATFORM__CPU_SPARC
-#define BDES_PLATFORM__CPU_SPARC      BSLS_PLATFORM_CPU_SPARC
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_X86
-#ifndef BDES_PLATFORM__CPU_X86
-#define BDES_PLATFORM__CPU_X86        BSLS_PLATFORM_CPU_X86
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_CPU_X86_64
-#ifndef BDES_PLATFORM__CPU_X86_64
-#define BDES_PLATFORM__CPU_X86_64     BSLS_PLATFORM_CPU_X86_64
-#endif
-#endif
-
                                  // ==========
                                  // Validation
                                  // ==========
@@ -349,20 +266,6 @@ BDES_IDENT("$Id: $")
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
-// Exactly one CPU type.
-#if BDES_PLATFORM__CPU_88000 \
-  + BDES_PLATFORM__CPU_ALPHA \
-  + BDES_PLATFORM__CPU_HPPA \
-  + BDES_PLATFORM__CPU_IA64 \
-  + BDES_PLATFORM__CPU_X86 \
-  + BDES_PLATFORM__CPU_X86_64 \
-  + BDES_PLATFORM__CPU_MIPS \
-  + BDES_PLATFORM__CPU_POWERPC \
-  + BDES_PLATFORM__CPU_SPARC != 1
-    #error "Exactly one processor must be set."
-    char assertion[0];                         // stop non-compliant compilers
-#endif
-
 
 #if defined(BDES_PLATFORM__OS_VER_MAJOR) \
          && BDES_PLATFORM__OS_SUBTYPE_COUNT != 1
@@ -376,12 +279,6 @@ BDES_IDENT("$Id: $")
 #if defined(BDES_PLATFORM__OS_VER_MINOR) && \
    !defined(BDES_PLATFORM__OS_VER_MAJOR)
     #error "Operating System minor but not major version defined."
-    char assertion[0];                         // stop non-compliant compilers
-#endif
-
-#if defined(BDES_PLATFORM__CPU_VER_MINOR) && \
-   !defined(BDES_PLATFORM__CPU_VER_MAJOR)
-    #error "Processor minor but not major version defined."
     char assertion[0];                         // stop non-compliant compilers
 #endif
 
