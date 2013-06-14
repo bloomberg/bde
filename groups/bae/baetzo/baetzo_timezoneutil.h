@@ -30,13 +30,13 @@ BDES_IDENT("$Id: $")
 // whether the provided time is a daylight-saving time value.  Finally note
 // that, all of the functions in this utility component make use of a
 // process-wide cache of time-zone information (see
-// 'baetzo_defaultzoneinfocache').
+// {'baetzo_defaultzoneinfocache'}).
 //
 ///Valid, Ambiguous, and Invalid Local-Time Values
 ///-----------------------------------------------
 // There are intervals around each daylight-saving time transition where a
 // 'bdet_Datetime' object holding a local time may not describe a valid or
-// unique clock time in the local time zone (see 'baetzo_localtimevalidity').
+// unique clock time in the local time zone (see {'baetzo_localtimevalidity'}).
 // When interpreting a local-time value represented using a 'bdet_Datetime'
 // object w.r.t. a given time zone, there are three possible scenarios:
 //
@@ -69,10 +69,10 @@ BDES_IDENT("$Id: $")
 // Note that the functions provided in this component guarantee a graceful
 // handling of all three scenarios.  Ambiguity and invalidity, when they arise,
 // are resolved according to a user-supplied daylight-saving time policy that
-// describes how to interpret the input time values (see 'baetzo_dstpolicy').
+// describes how to interpret the input time values (see {'baetzo_dstpolicy'}).
 //
 ///Daylight-Saving Time (DST) Policies and Disambiguation
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The 'baetzo_TimeZoneUtil' methods that take, as input, a 'bdet_Datetime'
 // object representing a local time (i.e., a local-time value without a UTC
 // offset) also accept an optional 'baetzo_DstPolicy::Enum'.  This (optional)
@@ -84,7 +84,7 @@ BDES_IDENT("$Id: $")
 //
 // Three enumerated 'baetzo_DstPolicy' values are supported:
 //
-//: 1 BAETZO_UNSPECIFIED (default)
+//: 1 'BAETZO_UNSPECIFIED' (default)
 //:   o The client does not explicitly indicate whether the associated input
 //:     time represents a daylight-saving time value, and the operation will
 //:     determine how to interpret the time solely based on the input itself.
@@ -98,7 +98,7 @@ BDES_IDENT("$Id: $")
 //:     choice is arbitrary (but is consistent with common implementations of
 //:     the C standard library).
 //:
-//: 2 BAETZO_STANDARD
+//: 2 'BAETZO_STANDARD'
 //:   o Indicates that the operation should treat the associated input time
 //:     value as a standard time, using the UTC value computed by applying the
 //:     standard-time UTC offset.  Note that the standard-time UTC offset is
@@ -106,7 +106,7 @@ BDES_IDENT("$Id: $")
 //:     time, which would result in a UTC time that does not correspond to a
 //:     standard time within the time zone.
 //:
-//: 3 BAETZO_DST
+//: 3 'BAETZO_DST'
 //:   o Indicates that the operation should treat the associated input time
 //:     value as a daylight-saving time, using the UTC value computed by
 //:     applying the daylight-saving time UTC offset.  Note that the
@@ -152,52 +152,56 @@ BDES_IDENT("$Id: $")
 // `--------------------------------------------------------------------------'
 //..
 //
-//: 1 "Jan 1, 2010 01:30" is unambiguously a standard time value.  The
-//:   result is simply the corresponding UTC time "Jan 1, 2010 05:30 UTC".
+//: 1 "Jan 1, 2010 01:30" is unambiguously a standard time value.  The result
+//:   is simply the corresponding UTC time "Jan 1, 2010 05:30 UTC".
 //:
 //: 2 "Jan 1, 2010 01:30" is unambiguously a standard time value, so the
 //:   supplied policy, 'BAETZO_DST', contradicts the actual occurrence of
-//:   daylight-saving time in New York.  The input time is adjusted by the
-//:   UTC offset for daylight-saving time in New York (-4:00) resulting in a
-//:   UTC time 05:30.  Note that the result, "Jan 1, 2010 05:30 UTC",
-//:   corresponds to the New York time "Jan 1, 2010 00:30:00-5:00" (a
-//:   standard time).
+//:   daylight-saving time in New York.  The input time is adjusted by the UTC
+//:   offset for daylight-saving time in New York (-4:00) resulting in a UTC
+//:   time 05:30.  Note that the result, "Jan 1, 2010 05:30 UTC", corresponds
+//:   to the New York time "Jan 1, 2010 00:30:00-5:00" (a standard time).
 //:
 //: 3 "Mar 14, 2010 02:30" is not a valid local time in New York (a correctly
 //:   administered clock would have been set ahead an hour at 2:00AM).  The
 //:   operation will use the later of two potential values, determined by
 //:   applying the standard and daylight-saving time UTC offsets to the input
-//:   (07:30 UTC and 06:30 UTC, respectively).  Note that the selection of
-//:   the later time reflects an assumption that the user forgot to adjust
-//:   the clock.
+//:   (07:30 UTC and 06:30 UTC, respectively).  Note that the selection of the
+//:   later time reflects an assumption that the user forgot to adjust the
+//:   clock.
 //:
 //: 4 The input time is adjusted by the UTC offset for standard time in New
-//:   York (-5:00) resulting in the UTC time 07:30.  Note that
-//:   "Mar 14, 2010 07:30 UTC" corresponds to the New York time
-//:   "Mar 14, 2010 03:30-4:00" (a daylight-saving time).
+//:   York (-5:00) resulting in the UTC time 07:30.  Note that "Mar 14, 2010
+//:   07:30 UTC" corresponds to the New York time "Mar 14, 2010 03:30-4:00" (a
+//:   daylight-saving time).
 //:
 //: 5 The input time is adjusted by the UTC offset for daylight-saving time in
-//:   New York (-4:00) resulting in the UTC time 06:30.  Note that
-//:   "Mar 14, 2010 06:30 UTC" corresponds to the New York time
-//:   "Mar 14, 2010 01:30-5:00" (a standard time).
+//:   New York (-4:00) resulting in the UTC time 06:30.  Note that "Mar 14,
+//:   2010 06:30 UTC" corresponds to the New York time "Mar 14, 2010
+//:   01:30-5:00" (a standard time).
 //:
-//: 6 "Apr  1, 2010 01:30" is unambiguously a daylight-saving time value, so
-//:   the supplied policy 'BAETZO_STANDARD' contradicts the actual occurrence
-//:   of daylight-saving time in New York.  The input time is adjusted by the
-//:   UTC offset for standard time in New York (-5:00) resulting in a UTC time
+//: 6 "Apr 1, 2010 01:30" is unambiguously a daylight-saving time value, so the
+//:   supplied policy 'BAETZO_STANDARD' contradicts the actual occurrence of
+//:   daylight-saving time in New York.  The input time is adjusted by the UTC
+//:   offset for standard time in New York (-5:00) resulting in a UTC time
 //:   06:30.  Note that "Apr 1, 2010 06:30 UTC" corresponds to the New York
 //:   time "Apr 1, 2010 02:30:00-4:00" (a daylight-saving time).
 //:
-//: 7 "Apr  1, 2010 01:30" is unambiguously a daylight-saving time value.  The
+//: 7 "Apr 1, 2010 01:30" is unambiguously a daylight-saving time value.  The
 //:   result is simply the corresponding UTC time "Apr 1, 2010 06:30 UTC".
 //:
-//: 8 "Nov  7, 2010 01:30" is a valid, but ambiguous, local time in New York
-//:   (clocks are set back by an hour at 2:00AM, so 1:30AM occurs twice).
-//:   The operation will use the later of two potential values determined by
+//: 8 "Nov 7, 2010 01:30" is a valid, but ambiguous, local time in New York
+//:   (clocks are set back by an hour at 2:00AM, so 1:30AM occurs twice).  The
+//:   operation will use the later of two potential values determined by
 //:   applying the standard and daylight-saving time UTC offsets to the input
 //:   (06:30 UTC and 05:30 UTC, respectively).  Note that the selection of the
-//:   later time is arbitrary, but is consistent with common implementations
-//:   of the C standard library.
+//:   later time is arbitrary, but is consistent with common implementations of
+//:   the C standard library.
+//
+///Thread Safety
+///-------------
+// The functions provided by 'baetzo_TimeZoneUtil' are *thread-safe*, meaning
+// they can be safely executed concurrently.
 //
 ///Usage
 ///-----
@@ -213,8 +217,8 @@ BDES_IDENT("$Id: $")
 //..
 //  bdet_Datetime utcTime(2010, 7, 31, 15, 0, 0);
 //..
-//  Then, we create a 'baet_LocalDatetime' object to hold the result of the
-//  conversion operation:
+// Then, we create a 'baet_LocalDatetime' object to hold the result of the
+// conversion operation:
 //..
 //  baet_LocalDatetime newYorkTime;
 //..
@@ -231,8 +235,8 @@ BDES_IDENT("$Id: $")
 //      return 1;                                                     // RETURN
 //  }
 //..
-// Finally, we observe that the result in 'newYorkTime' is
-// "July 31, 2010 11:00:00" and that the offset from UTC applied was -4 hours:
+// Finally, we observe that the result in 'newYorkTime' is "July 31, 2010
+// 11:00:00" and that the offset from UTC applied was -4 hours:
 //..
 //  const bdet_Datetime test = newYorkTime.datetimeTz().localDatetime();
 //  assert(2010 == test.year());  assert(11 == test.hour());
@@ -246,11 +250,11 @@ BDES_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to convert a local time in a given time
 // zone directly to its corresponding local time in another time zone.  In
-// particular, we want to convert the time "July 31, 2010 15:00:00" in New
-// York to its corresponding time in Rome, Italy.
+// particular, we want to convert the time "July 31, 2010 15:00:00" in New York
+// to its corresponding time in Rome, Italy.
 //
-// First, we create a 'bdet_Datetime' object representing the time
-// "July 31, 2010 15:00:00" in New York:
+// First, we create a 'bdet_Datetime' object representing the time "July 31,
+// 2010 15:00:00" in New York:
 //..
 //  bdet_Datetime newYorkTime(2010, 7, 31, 15, 0, 0);
 //..
@@ -271,9 +275,9 @@ BDES_IDENT("$Id: $")
 //      return 1;                                                     // RETURN
 //  }
 //..
-// Notice that we did not specify the optional 'dstPolicy' argument
-// to 'convertLocalToLocalTime'.  The default value should be appropriate for
-// most users.
+// Notice that we did not specify the optional 'dstPolicy' argument to
+// 'convertLocalToLocalTime'.  The default value should be appropriate for most
+// users.
 //
 // Finally, we verify that the value of 'romeTime' is "July 31, 2010 21:00:00",
 // which is the time in Italy corresponding to "July 31, 2010 15:00:00" in New
@@ -287,13 +291,13 @@ BDES_IDENT("$Id: $")
 //  assert( 2 * 60 == romeTime.datetimeTz().offset());
 //..
 //
-///Example 3: Initializing a local time
+///Example 3: Initializing a Local Time
 /// - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to create a 'baet_LocalDatetime' from a
 // 'bdet_Datetime', which may not represent a unique (or valid) clock time.
 //
-// First, we create a 'bdet_Datetime' object for the New York local time
-// "Jul 31, 2010 15:00:00".  Note that this local date-time occurs during a DST
+// First, we create a 'bdet_Datetime' object for the New York local time "Jul
+// 31, 2010 15:00:00".  Note that this local date-time occurs during a DST
 // transition and is an invalid date-time.
 //..
 //  bdet_Datetime uniqueTime(2010, 7, 31, 15, 0, 0);
@@ -302,8 +306,8 @@ BDES_IDENT("$Id: $")
 // 'initLocalTime' also optionally returns 'baetzo_LocalTimeValidity::Enum',
 // indicating whether the provided input was a valid and unique clock time.
 // Note that invalid or ambiguous times are resolved using the optionally
-// provided 'baetzo_DstPolicy::Enum' (see the section
-// 'Daylight-Savings Time (DST) Policies and Disambiguation'):
+// provided 'baetzo_DstPolicy::Enum' (see the section {Daylight-Saving Time
+// (DST) Policies and Disambiguation}):
 //..
 //  baet_LocalDatetime             localTime;
 //  baetzo_LocalTimeValidity::Enum validity;
@@ -327,21 +331,20 @@ BDES_IDENT("$Id: $")
 //  assert("America/New_York" == localTime.timeZoneId());
 //..
 // In addition, the time provided represents a unique and valid clock time in
-// New York (because it does not fall near a daylight-savings time
-// transition):
+// New York (because it does not fall near a daylight-saving time transition):
 //..
 //  assert(baetzo_LocalTimeValidity::BAETZO_VALID_UNIQUE == validity);
 //..
 // By contrast, if we call 'initLocalTime' for a time value that falls during a
-// during a daylight-savings time transition, the returned
+// during a daylight-saving time transition, the returned
 // 'baetzo_LocalTimeValidity::Enum' will indicate if the supplied time either
 // does not represent a valid clock time in the time zone (as may occur when
 // clocks are set forward), or does not represent a unique clock time (as may
 // occur when clocks are set back).
 //
-// For example, suppose we call 'initLocalTime' for "Mar 14, 2010 02:30";
-// this clock time does not occurs in New York, as clocks are set forward by an
-// hour at 2am local time:
+// For example, suppose we call 'initLocalTime' for "Mar 14, 2010 02:30"; this
+// clock time does not occurs in New York, as clocks are set forward by an hour
+// at 2am local time:
 //..
 //  bdet_Datetime invalidTime(2010, 3, 14, 2, 30, 0);
 //  status = baetzo_TimeZoneUtil::initLocalTime(&localTime,
@@ -369,14 +372,14 @@ BDES_IDENT("$Id: $")
 //  assert(baetzo_LocalTimeValidity::BAETZO_INVALID == validity);
 //..
 //
-///Example 4: Obtaining Information about a Time Value
+///Example 4: Obtaining Information About a Time Value
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to obtain additional information about a
 // local time in a given time zone using the 'loadLocalTimePeriod' method.
-// Using 'loadLocalTimePeriod' a client can determine, for a point in time,
-// the attributes that characterize local time in a given time zone (e.g.,
-// the offset from UTC, whether it is daylight-saving time) as well as the
-// interval over which those attributes apply (see 'baetzo_localtimeperiod').
+// Using 'loadLocalTimePeriod' a client can determine, for a point in time, the
+// attributes that characterize local time in a given time zone (e.g., the
+// offset from UTC, whether it is daylight-saving time) as well as the interval
+// over which those attributes apply (see {'baetzo_localtimeperiod'}).
 //
 // First, we create a 'baet_LocalDatetime' object for the New York local time
 // "Jul 31, 2010 15:00:00-04:00".  Note that this 'baet_LocalDatetime' may also
@@ -401,12 +404,12 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 // Now we examine the returned properties.  "Mar 14, 2010 03:30:00" is during
-// daylight-savings time, which is -4:00 UTC, and the type of local time is
-// sometimes abbreviated "EDT" for "Eastern Daylight Time".  "Eastern
-// Daylight Time" is in effect from "Mar 14, 2010 7am UTC" to "Nov 7, 2010 6am
-// UTC".  Note that the abbreviation provided ("EDT") is not canonical or
-// localized.  In general the provided abbreviations should not be displayed
-// to users (they are inteded for development and debugging only):
+// daylight-saving time, which is -4:00 UTC, and the type of local time is
+// sometimes abbreviated "EDT" for "Eastern Daylight Time".  "Eastern Daylight
+// Time" is in effect from "Mar 14, 2010 7am UTC" to "Nov 7, 2010 6am UTC".
+// Note that the abbreviation provided ("EDT") is not canonical or localized.
+// In general the provided abbreviations should not be displayed to users (they
+// are intended for development and debugging only):
 //..
 //  assert(true         == period.descriptor().dstInEffectFlag());
 //  assert(-4 * 60 * 60 == period.descriptor().utcOffsetInSeconds());
@@ -464,6 +467,13 @@ struct baetzo_TimeZoneUtil {
     // This 'struct' provides a namespace for utility functions that convert
     // time values to, from, and between, their corresponding local time
     // representations in (possibly) different time zones.
+    //
+    // These utility functions are:
+    //: o *alias-safe*
+    //: o *exception-neutral* (agnostic)
+    //: o *thread-safe*
+    // For terminology see {'bsldoc_glossary'}.
+
 
     // CLASS METHODS
     static int convertUtcToLocalTime(baet_LocalDatetime   *result,
@@ -501,7 +511,7 @@ struct baetzo_TimeZoneUtil {
         // corresponding to the local time indicated by the specified
         // 'srcTime'.  The offset from UTC of both time zones is rounded down
         // to minute precision.  Return 0 on success, and a non-zero value with
-        // no effect otherwise.   A return value of
+        // no effect otherwise.  A return value of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'targetTimeZoneId' was not recognized.
 
@@ -588,14 +598,14 @@ struct baetzo_TimeZoneUtil {
         // corresponds to the specified 'localTime' in the time zone indicated
         // by the specified 'timeZoneId'.  Optionally specify a 'dstPolicy'
         // indicating whether or not 'localTime' represents a daylight-saving
-        // time value.  If no 'dstPolicy' is specified and 'localTime'
-        // is a unique and valid time in the source time zone, then perform
-        // the conversion using that uniquely described time; if no
-        // 'dstPolicy' is specified and 'localTime' is either ambiguous or
-        // invalid, then use the later of the two possible interpretations of
-        // 'localTime'.  The offset from UTC of the time zone is rounded down
-        // to minute precision.  Return 0 on success, and a non-zero value with
-        // no effect otherwise.  A return value of
+        // time value.  If no 'dstPolicy' is specified and 'localTime' is a
+        // unique and valid time in the source time zone, then perform the
+        // conversion using that uniquely described time; if no 'dstPolicy' is
+        // specified and 'localTime' is either ambiguous or invalid, then use
+        // the later of the two possible interpretations of 'localTime'.  The
+        // offset from UTC of the time zone is rounded down to minute
+        // precision.  Return 0 on success, and a non-zero value with no effect
+        // otherwise.  A return value of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.
 
@@ -669,7 +679,7 @@ struct baetzo_TimeZoneUtil {
         // UTC of 'localTime' (i.e., 'localTime.datetimeTz().offset()') is
         // consistent with the actual local time offset, as indicated by time
         // zone data, at the UTC time 'localTime.dateTimeTz().utcDatetime()' in
-        // the time zone inidicated by 'localTime.timeZoneId()', and 'false'
+        // the time zone indicated by 'localTime.timeZoneId()', and 'false'
         // otherwise.  Return 0 on success, and a non-zero value with 'false'
         // loaded into 'result' otherwise.  A return value of
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
