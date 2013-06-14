@@ -1,4 +1,4 @@
-// bdes_alignment.t.cpp       -*-C++-*-
+// bdes_alignment.t.cpp                                               -*-C++-*-
 
 #include <bdes_alignment.h>
 

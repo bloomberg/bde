@@ -1,4 +1,4 @@
-// bdes_alignment.cpp            -*-C++-*-
+// bdes_alignment.cpp                                                 -*-C++-*-
 #include <bdes_alignment.h>
 
 #include <bdes_ident.h>
