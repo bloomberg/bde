@@ -1944,6 +1944,9 @@ class HashTable {
         // efficiently exploiting the empty base optimization without adding
         // unforeseen namespace associations to the 'HashTable' class itself
         // due to the structural inheritance.
+        //
+        // Note that all methods are implemented inline because the out-of-line
+        // implementation causes an ICE in the MSVC++ 2008 compiler.
 
       private:
         // NOT IMPLEMENTED
@@ -1984,70 +1987,128 @@ class HashTable {
                                        // accessed through the public methods.
 
         // CREATORS
-        explicit ImplParameters(const ALLOCATOR& allocator);
+        explicit ImplParameters(const ALLOCATOR& allocator)
             // Create an 'ImplParameters' object having default constructed
             // 'HASHER' and 'COMPARATOR' functors, and using the specified
             // 'allocator' to provide a 'BidirectionalNodePool'.
+        : BaseHasher()
+        , BaseComparator()
+        , d_nodeFactory(allocator)
+        {
+        }
 
         ImplParameters(const HASHER&     hash,
                        const COMPARATOR& compare,
-                       const ALLOCATOR&  allocator);
+                       const ALLOCATOR&  allocator)
             // Create an 'ImplParameters' object having the specified 'hash',
             // and 'compare' functors, and using the specified 'allocator' to
             // provide a 'BidirectionalNodePool'.
+        : BaseHasher(hash)
+        , BaseComparator(compare)
+        , d_nodeFactory(allocator)
+        {
+        }
 
         ImplParameters(const ImplParameters& original,
-                       const ALLOCATOR&      allocator);
+                       const ALLOCATOR&      allocator)
             // Create an 'ImplParameters' object having the same 'hasher' and
             // 'comparator' attributes as the specified 'original', and
             // providing a 'BidirectionalNodePool' using the specified
             // 'allocator'.
+        : BaseHasher(static_cast<const BaseHasher&>(original))
+        , BaseComparator(static_cast<const BaseComparator&>(original))
+        , d_nodeFactory(allocator)
+        {
+        }
 
         // MANIPULATORS
-        NodeFactory& nodeFactory();
+        NodeFactory& nodeFactory()
             // Return a modifiable reference to the 'nodeFactory' owned by
             // this object.
+        {
+            return d_nodeFactory;
+        }
 
-        void quickSwapRetainAllocators(ImplParameters *other);
+        void quickSwapRetainAllocators(ImplParameters *other)
             // Efficiently exchange the value and functors this object with
             // those of the specified 'other' object.  This method provides the
             // no-throw exception-safety guarantee.  The behavior is undefined
             // unless this object was created with the same allocator as
             // 'other'.
+        {
+            BSLS_ASSERT_SAFE(other);
 
-        void quickSwapExchangeAllocators(ImplParameters *other);
+            bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
+                                   static_cast<BaseHasher*>(other));
+
+            bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
+                                   static_cast<BaseComparator*>(other));
+
+            nodeFactory().swapRetainAllocators(other->nodeFactory());
+        }
+
+        void quickSwapExchangeAllocators(ImplParameters *other)
             // Efficiently exchange the value, functor, and allocator of this
             // object with those of the specified 'other' object.  This method
             // provides the no-throw exception-safety guarantee.
+        {
+            BSLS_ASSERT_SAFE(other);
+
+            bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
+                                   static_cast<BaseHasher*>(other));
+
+            bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
+                                   static_cast<BaseComparator*>(other));
+
+            nodeFactory().swapExchangeAllocators(other->nodeFactory());
+        }
 
         // ACCESSORS
-        const BaseComparator& comparator()  const;
+        const BaseComparator& comparator() const
             // Return a non-modifiable reference to the 'comparator' functor
             // owned by this object.
+        {
+            return *this;
+        }
 
-        const BaseHasher&     hasher()      const;
+        const BaseHasher& hasher() const
             // Return a non-modifiable reference to the 'hasher' functor owned
             // by this object.
+        {
+            return *this;
+        }
 
-        const NodeFactory&    nodeFactory() const;
+        const NodeFactory& nodeFactory() const
             // Return a non-modifiable reference to the 'nodeFactory' owned by
             // this object.
+        {
+            return d_nodeFactory;
+        }
 
-        const COMPARATOR&     originalComparator()  const;
+        const COMPARATOR& originalComparator() const
             // Return a non-modifiable reference to the 'comparator' functor
             // owned by this object.
+        {
+            return static_cast<const BaseComparator *>(this)->functor();
+        }
 
-        const HASHER&         originalHasher()      const;
+        const HASHER& originalHasher() const
             // Return a non-modifiable reference to the 'hasher' functor owned
             // by this object.
+        {
+            return static_cast<const BaseHasher *>(this)->functor();
+        }
 
         template <class DEDUCED_KEY>
-        native_std::size_t    hashCodeForKey(DEDUCED_KEY& key) const;
+        native_std::size_t hashCodeForKey(DEDUCED_KEY& key) const
             // Return the hash code for the specified 'key' using a copy of the
             // hash functor supplied at construction.  Note that this function
             // is provided as common way to resolve const_cast issues in the
             // case that the stored hash functor has a function call operator
             // that is not declared as 'const'.
+        {
+            return static_cast<const BaseHasher &>(*this)(key);
+        }
     };
 
   private:
@@ -2971,149 +3032,6 @@ inline
 void HashTable_ArrayProctor<FACTORY>::release()
 {
     d_anchor = 0;
-}
-
-                    // -------------------------------
-                    // class HashTable::ImplParameters
-                    // -------------------------------
-
-// CREATORS
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-ImplParameters(const HASHER&        hash,
-               const COMPARATOR&    compare,
-               const AllocatorType& allocator)
-: BaseHasher(hash)
-, BaseComparator(compare)
-, d_nodeFactory(allocator)
-{
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-ImplParameters(const AllocatorType& allocator)
-: BaseHasher()
-, BaseComparator()
-, d_nodeFactory(allocator)
-{
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-ImplParameters(const ImplParameters& original,
-               const AllocatorType&  allocator)
-: BaseHasher(static_cast<const BaseHasher&>(original))
-, BaseComparator(static_cast<const BaseComparator&>(original))
-, d_nodeFactory(allocator)
-{
-}
-
-// MANIPULATORS
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-                                                                   NodeFactory&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-nodeFactory()
-{
-    return d_nodeFactory;
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-void
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-quickSwapRetainAllocators(ImplParameters *other)
-{
-    BSLS_ASSERT_SAFE(other);
-
-    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
-                           static_cast<BaseHasher*>(other));
-
-    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
-                           static_cast<BaseComparator*>(other));
-
-    nodeFactory().swapRetainAllocators(other->nodeFactory());
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-void
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-quickSwapExchangeAllocators(ImplParameters *other)
-{
-    BSLS_ASSERT_SAFE(other);
-
-    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
-                           static_cast<BaseHasher*>(other));
-
-    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
-                           static_cast<BaseComparator*>(other));
-
-    nodeFactory().swapExchangeAllocators(other->nodeFactory());
-}
-
-// OBSERVERS
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-const typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-                                                                BaseComparator&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-                                                             comparator() const
-{
-    return *this;
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-const typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-                                                                    BaseHasher&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-hasher() const
-{
-    return *this;
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-const COMPARATOR&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-originalComparator() const
-{
-    return static_cast<const BaseComparator *>(this)->functor();
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-const HASHER&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-originalHasher() const
-{
-    return static_cast<const BaseHasher *>(this)->functor();
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class DEDUCED_KEY>
-inline
-native_std::size_t
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-hashCodeForKey(DEDUCED_KEY& key) const
-{
-    return static_cast<const BaseHasher &>(*this)(key);
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-inline
-const typename
-         HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-                                                                   NodeFactory&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-                                                            nodeFactory() const
-{
-    return d_nodeFactory;
 }
 
                     // --------------------
