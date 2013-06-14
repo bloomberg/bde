@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide utilities to get the current UTC and local times.
 //
 //@CLASSES:
-//   bdetu_SystemTime: namespace for system-time and local time procedures
+//   bdetu_SystemTime: namespace for system-time procedures
 //
 //@SEE_ALSO: bdet_timeinterval
 //
@@ -39,29 +39,19 @@ BDES_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The functions that return the current time and local time offset values are
-// *thread-safe*:
-//: o 'now'
-//: o 'nowAsDatetimeUtc'
-//: o 'nowAsDatetime'
-//: o 'nowAsDatetimeGMT'
-//: o 'nowAsDatetimeLocal'
-//: o 'localTimeOffset'
-//: o 'loadCurrentTime'
-//: o 'loadLocalTimeOffset'
-//: o 'loadLocalTimeOffsetDefault'
-//: o 'loadSystemTimeDefault'
-//
-// The functions that set and get the callback functions are not *thread-safe*
-// and must not be called concurrently with any of the functions that obtain
-// time and offset values.
+// The functions provided by 'bdetu_SystemTime' are *thread-safe* (meaning they
+// may be called concurrently from multiple threads) *except* for those
+// functions that set and retrieve the callback functions.  The functions
+// that are *not* thread-safe are:
 //: o 'setLoadLocalTimeOffsetCallback'
 //: o 'setSystemTimeCallback'
 //: o 'currentCallback'
 //: o 'currentLoadLocalTimeOffsetCallback'
 //: o 'currentSystemTimeCallback'
-// User-defined callback functions must be *thread-safe* in multithreaded
-// builds.
+// These functions may *not* be called concurrently with *any* other function,
+// and are intended to be called at most once once in 'main' before any
+// threads have been started.  In addition, supplied user-defined callback
+// functions must be *thread-safe*.
 //
 ///Usage
 ///-----
@@ -335,11 +325,8 @@ struct bdetu_SystemTime {
     // The functions provided are:
     //: o *exception-neutral* (agnostic)
     //:
-    //: o *thread-safe*: "now" methods, the "load" methods, and the default
-    //:   callbacks.  See {Thread Safety}.
-    //:
-    //: o non-*thread-safe*: the "set" and "get" callback methods. See {Thread
-    //:   Safety}.
+    //: o *thread-safe*, *except* for those functions that set or obtain the
+    //:   callback functions.  See {Thread Safety}.
 
     // TYPES
     typedef void (*LoadLocalTimeOffsetCallback)(
