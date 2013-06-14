@@ -701,8 +701,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 Create a 'baexml_Formatter' object and associate 'ss' with it.
         //:
-        //: 3 Invoke each of the three functions under test passing either an invalid
-        //:   value or an incorrect formatting mode.
+        //: 3 Invoke each of the three functions under test passing either an
+        //:   invalid value or an incorrect formatting mode.
         //:
         //: 4 Verify that 'ss' is invalid after the call.
         //:
@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
                 ASSERT(!ss.good());
             }
         }
-#endif
+#endif // !defined(BDE_BUILD_TARGET_SAFE)
       } break;
       case 20: {
         // --------------------------------------------------------------------
