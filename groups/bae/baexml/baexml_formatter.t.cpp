@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Create a 'baexml_Formatter' object and associate 'ss' with it.
         //:
-        //: 3 Invoke one of the functions under test passing either an invalid
+        //: 3 Invoke each of the three functions under test passing either an invalid
         //:   value or an incorrect formatting mode.
         //:
         //: 4 Verify that 'ss' is invalid after the call.
@@ -720,12 +720,12 @@ int main(int argc, char *argv[])
                       << "stream on failure" << bsl::endl;
         }
 
-        // addData
+        // non-UTF strings
         {
-            // non-generated enum
-            {
-                Test value = TEST_A;
+            const unsigned char *valuePtr = T1;
+            bsl::string          value((const char *)valuePtr);
 
+            {
                 bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
@@ -736,12 +736,33 @@ int main(int argc, char *argv[])
                 ASSERT(!ss.good());
             }
 
-            // non-UTF strings
             {
-                const unsigned char *valuePtr = T1;
-                bsl::string          value((const char *)valuePtr);
+                bsl::ostringstream ss;
+                Obj mX(ss);  const Obj& X = mX;
 
-                bsl::ostringstream   ss;
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value);
+                ASSERT(!ss.good());
+            }
+
+            {
+                bsl::ostringstream ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.addAttribute("test", value);
+                ASSERT(!ss.good());
+            }
+        }
+
+#if !defined(BDE_BUILD_TARGET_SAFE)
+        // non-generated enum
+        {
+            Test value = TEST_A;
+
+            {
+                bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
                 mX.openElement("test");
@@ -751,27 +772,7 @@ int main(int argc, char *argv[])
                 ASSERT(!ss.good());
             }
 
-            // invalid formatting mode
             {
-                int value = 1;
-
-                bsl::ostringstream   ss;
-                Obj mX(ss);  const Obj& X = mX;
-
-                mX.openElement("test");
-                ASSERT( ss.good());
-
-                mX.addData(value, 0xFFFFFFFF);
-                ASSERT(!ss.good());
-            }
-        }
-
-        // addListData
-        {
-            // non-generated enum
-            {
-                Test value = TEST_A;
-
                 bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
@@ -782,72 +783,53 @@ int main(int argc, char *argv[])
                 ASSERT(!ss.good());
             }
 
-            // non-UTF strings
             {
-                const unsigned char *valuePtr = T1;
-                bsl::string          value((const char *)valuePtr);
-
-                bsl::ostringstream   ss;
-                Obj mX(ss);  const Obj& X = mX;
-
-                mX.openElement("test");
-                ASSERT( ss.good());
-
-                mX.addListData(value);
-                ASSERT(!ss.good());
-            }
-
-            // invalid formatting mode
-            {
-                int value = 1;
-
-                bsl::ostringstream   ss;
-                Obj mX(ss);  const Obj& X = mX;
-
-                mX.openElement("test");
-                ASSERT( ss.good());
-
-                mX.addListData(value, 0xFFFFFFFF);
-                ASSERT(!ss.good());
-            }
-        }
-
-        // addAttribute
-        {
-            // non-generated enum
-            {
-                Test value = TEST_A;
-
                 bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
             }
+        }
 
-            // non-UTF strings
+        // invalid formatting mode
+        {
+            int value = 1;
+            int mode  = 0xFFFFFFFF;
+
             {
-                const unsigned char *valuePtr = T1;
-                bsl::string          value((const char *)valuePtr);
-
-                bsl::ostringstream   ss;
+                bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.addAttribute("test", value);
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addData(value, mode);
                 ASSERT(!ss.good());
             }
 
-            // invalid formatting mode
+            {
+                bsl::ostringstream ss;
+                Obj mX(ss);  const Obj& X = mX;
+
+                mX.openElement("test");
+                ASSERT( ss.good());
+
+                mX.addListData(value, mode);
+                ASSERT(!ss.good());
+            }
+
             {
                 int value = 1;
 
-                bsl::ostringstream   ss;
+                bsl::ostringstream ss;
                 Obj mX(ss);  const Obj& X = mX;
 
-                mX.addAttribute("test", value, 0xFFFFFFFF);
+                mX.addAttribute("test", value, mode);
                 ASSERT(!ss.good());
             }
         }
+#endif
       } break;
       case 20: {
         // --------------------------------------------------------------------
