@@ -59,7 +59,7 @@ BDES_IDENT("$Id: $")
 //..
 ///Thread Safety
 ///-------------
-// 'bcema_ProtectableSequentialAllocator' is *thread-safe*, meaning any
+// 'bcema_ProtectableSequentialAllocator' is fully *thread-safe*, meaning any
 // operation on the same allocator object can be safely invoked from any
 // thread without having to be synchronized.
 //
@@ -263,7 +263,7 @@ class bdema_ProtectableBlockDispenser;
                 // ==========================================
 
 class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
-    // This class defines a thread safe memory allocator that dispenses
+    // This class defines a *fully thread-safe* memory allocator that dispenses
     // arbitrarily-sized blocks of memory from an internal buffer.  The memory
     // allocated by this allocator can be *protected* from modification by
     // calling 'protect'.  Writing to protected memory will cause a
