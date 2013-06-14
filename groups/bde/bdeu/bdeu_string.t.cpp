@@ -584,11 +584,11 @@ int main(int argc, char *argv[]) {
                     T_; T_; P(RESULT);
                     T_; T_; bsl::cout << "STRING + RESULT: "
                                       << bsl::hex
-                                      << (void*) (STRING + RESULT)
+                                      << (const void*) (STRING + RESULT)
                                       << bsl::endl;
                     T_; T_; bsl::cout << "STRSTRRESULT: "
                                       << bsl::hex
-                                      << (void*) strstrResult
+                                      << (const void*) strstrResult
                                       << bsl::endl;
                 }
                 ASSERT(strstrResult == STRING + RESULT);
@@ -603,11 +603,11 @@ int main(int argc, char *argv[]) {
                     T_; T_; P(RESULTCASELESS);
                     T_; T_; bsl::cout << "STRING + RESULTCASELESS: "
                                       << bsl::hex
-                                      << (void*) (STRING + RESULTCASELESS)
+                                      << (const void*) (STRING + RESULTCASELESS)
                                       << bsl::endl;
                     T_; T_; bsl::cout << "STRSTRCASELESSRESULT: "
                                       << bsl::hex
-                                      << (void*) strstrCaselessResult
+                                      << (const void*) strstrCaselessResult
                                       << bsl::endl;
                 }
                 ASSERT (strstrCaselessResult == STRING + RESULTCASELESS);

@@ -105,8 +105,8 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTEDPTHREAD
-#include <bcemt_semaphoreimpl_countedpthread.h>
+#ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_COUNTED
+#include <bcemt_semaphoreimpl_counted.h>
 #endif
 
 #ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_PTHREAD

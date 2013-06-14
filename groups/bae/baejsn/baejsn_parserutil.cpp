@@ -359,7 +359,7 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
     // part in 'exponent' and the sign in 'isExpNegative'.
 
     int  exponent = 0;
-    bool isExpNegative;
+    bool isExpNegative = false;
     if ('E' == static_cast<char>(bsl::toupper(*iter))) {
 
         ++iter;
@@ -371,7 +371,6 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
             if ('+' == *iter) {
                 ++iter;
             }
-            isExpNegative = false;
         }
 
         while (iter < end && bsl::isdigit(*iter)) {
@@ -487,6 +486,28 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
     }
 
     *value = tmp;
+    return 0;
+}
+
+int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
+{
+    enum { BAEJSN_TRUE_LENGTH = 4, BAEJSN_FALSE_LENGTH = 5 };
+
+    if (BAEJSN_TRUE_LENGTH == data.length()
+     && 0                  == bsl::strncmp("true",
+                                           data.data(),
+                                           BAEJSN_TRUE_LENGTH)) {
+        *value = true;
+    }
+    else if (BAEJSN_FALSE_LENGTH == data.length()
+          && 0                   == bsl::strncmp("false",
+                                                 data.data(),
+                                                 BAEJSN_FALSE_LENGTH)) {
+        *value = false;
+    }
+    else {
+        return -1;                                                    // RETURN
+    }
     return 0;
 }
 

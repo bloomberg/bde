@@ -269,7 +269,7 @@ const bdef_Function<void (*)(btesc_CbChannel*, int)>&
 btesos_TcpTimedCbConnector_Reg::callback() const {
     BSLS_ASSERT(0 == d_isTimedChannel);
     return *(bdef_Function<void (*)(btesc_CbChannel*, int)>*)
-                (void *)d_cb.d_callbackArena;
+                (void *) const_cast<char *>(d_cb.d_callbackArena);
 }
 
 inline
@@ -277,7 +277,7 @@ const bdef_Function<void (*)(btesc_TimedCbChannel*, int)>&
 btesos_TcpTimedCbConnector_Reg::timedCallback() const {
     BSLS_ASSERT(1 == d_isTimedChannel);
     return *(bdef_Function<void (*)(btesc_TimedCbChannel*, int)>*)
-                                                  (void *)d_cb.d_callbackArena;
+                            (void *) const_cast<char *>(d_cb.d_callbackArena);
 }
 
 // ============================================================================

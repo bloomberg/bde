@@ -425,7 +425,7 @@ static inline int isLittleEndian()
     // Return 1 if this platform is inconsistent with network byte order
     // and zero otherwise; the LSB is at low end of the word.
 {
-    const int dummy = 1;
+    int dummy = 1;
     return ((char *)&dummy)[0]; // Least significant byte has lowest address.
 }
 
@@ -4559,7 +4559,7 @@ int main(int argc, char *argv[]) {
                 const int LINE = DATA[di].d_lineNum;
                 const int numBits = DATA[di].d_numBits;
                 const char *origSpec = DATA[di].d_spec;
-                const char *exp = (char *) DATA[di].d_exp;
+                const char *exp = (const char *) DATA[di].d_exp;
 
                 char spec[1000];    // big buffer to hold "perturbed specs
                 const int N = 3;    // perturb specs N different ways
@@ -5017,8 +5017,8 @@ int main(int argc, char *argv[]) {
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
-                const char *lhs = (char *) DATA[di].d_lhs;
-                const char *rhs = (char *) DATA[di].d_rhs;
+                const char *lhs = (const char *) DATA[di].d_lhs;
+                const char *rhs = (const char *) DATA[di].d_rhs;
                 const int nBits = DATA[di].d_nBits;
 
                 if (veryVerbose) {

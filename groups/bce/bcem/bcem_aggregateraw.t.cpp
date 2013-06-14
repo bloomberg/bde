@@ -1878,7 +1878,7 @@ int ggAggData(Obj *agg, const RecDef& record, bslma::Allocator *basicAllocator)
 int destroyAggData(Obj *agg, bslma::Allocator *allocator)
 {
     EType::Type  elemType = agg->dataType();
-    void        *aggData  = (void *) agg->data();
+    void        *aggData  = const_cast<void *>(agg->data());
     switch (elemType) {
       case bdem_ElemType::BDEM_LIST: {
         bdem_List *list = (bdem_List *) aggData;
@@ -2299,18 +2299,18 @@ static bool compareCERefs(const CERef& lhs, const CERef& rhs)
 {
     // Special Handling of list/row and choice/choice-array-item combinations:
     if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
-        return *(Row *) lhs.data() == rhs.theList().row();
+        return *(const Row *) lhs.data() == rhs.theList().row();
     }
     else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
-        return lhs.theList().row() == *(Row *) rhs.data();
+        return lhs.theList().row() == *(const Row *) rhs.data();
     }
     else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
           && ET::BDEM_CHOICE            == rhs.type()) {
-        return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
+        return *(const ChoiceItem *) lhs.data() == rhs.theChoice().item();
     }
     else if (ET::BDEM_CHOICE            == lhs.type()
           && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
-        return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
+        return lhs.theChoice().item() == *(const ChoiceItem *) rhs.data();
     }
     else {
         return lhs == rhs;
@@ -2481,7 +2481,7 @@ ERef getERef(ET::Type type, int value)
     // (one of 'A', 'B', 'N') of the specified 'type'.
 {
     CERef T = getCERef(type, value);
-    return ERef((void *) T.data(), T.descriptor());
+    return ERef(const_cast<void *>(T.data()), T.descriptor());
 }
 
 bool isUnset(const CERef& ref)
@@ -3531,8 +3531,7 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-
-void testCase30() {
+void testCase31() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3561,6 +3560,74 @@ void testCase30() {
           }
 
           destroyAggData(&object, &t);
+}
+
+void testCase30() {
+        // --------------------------------------------------------------------
+        // TESTING ACCESING SCHEMA-LESS FIELD BY INDEX
+        //
+        // Concerns:
+        //: 1 Accessing fields by index for schema-less aggregates works as
+        //:   expected.
+        //
+        // Plan:
+        //: 1 Create a 'bcem_AggregateRaw' object, 'mX', and assign a table to
+        //:   it.
+        //:
+        //: 2 Access individual elements in a row of the table and ensure that
+        //:   they can be updated correctly.
+        //
+        // Testing:
+        //   int fieldByIndex(Obj *field, ErrorAttr *err, int index) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ACCESING SCHEMA-LESS FIELD BY INDEX"
+                          << "\n==========================================="
+                          << bsl::endl;
+
+        bdem_ElemType::Type TYPES[] = {
+            bdem_ElemType::BDEM_INT,
+            bdem_ElemType::BDEM_STRING
+        };
+        const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
+
+        bdem_Table table(TYPES, NUM_TYPES);
+
+        int nullnessFlag = 0;
+        Obj mX;  const Obj& X = mX;
+        mX.setData(&table);
+        mX.setDataType(bdem_ElemType::BDEM_TABLE);
+        mX.setTopLevelAggregateNullness(&nullnessFlag);
+
+        if (veryVerbose) {
+            P(X);
+        }
+
+        const int         VA = 10;
+        const bsl::string VB = "Hello";
+
+        Error error;
+        mX.resize(&error, 1);
+
+        Obj mA;  const Obj& A = mA;
+        int rc = mX.getArrayItem(&mA, &error, 0);
+        ASSERT(!rc);
+
+        Obj mB;  const Obj& B = mB;
+        rc = mA.fieldByIndex(&mB, &error, 0);
+        ASSERT(!rc);
+
+        rc = mB.setValue(&error, VA);
+        ASSERT(!rc);
+        ASSERT(VA == mB.asInt());
+
+        Obj mC;  const Obj& C = mC;
+        rc = mA.fieldByIndex(&mC, &error, 1);
+        ASSERT(!rc);
+
+        rc = mC.setValue(&error, VB);
+        ASSERT(!rc);
+        ASSERT(VB == mC.asString());
 }
 
 void testCase29() {
@@ -6329,7 +6396,7 @@ void testCase20() {
 
                 Obj mX;
                 mX.setDataType(ET::BDEM_DOUBLE);
-                mX.setData((void *) CEA.data());
+                mX.setData(const_cast<void *>(CEA.data()));
                 int rc = mX.numSelections();
                 ASSERT(rc);
             }
@@ -8972,7 +9039,7 @@ void testCase11() {
 
                 const ERef  EA = getERef(TYPE, 1);
                 const ERef  EB = getERef(TYPE, 2);
-                const ERef NULL_ER((void *) CEN.data(),
+                const ERef NULL_ER(const_cast<void *>(CEN.data()),
                                    CEN.descriptor(),
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);
@@ -14082,7 +14149,7 @@ void testCase3() {
 
                 const ERef  EA = getERef(TYPE, 1);
                 const ERef  EB = getERef(TYPE, 2);
-                const ERef NULL_ER((void *) CEN.data(),
+                const ERef NULL_ER(const_cast<void *>(CEN.data()),
                                    CEN.descriptor(),
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);

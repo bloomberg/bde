@@ -73,6 +73,37 @@ int baejsn_Tokenizer::reloadStringBuffer()
     return numRead;
 }
 
+int baejsn_Tokenizer::expandBufferForLargeValue()
+{
+    d_stringBuffer.resize(d_stringBuffer.length() + BAEJSN_MAX_STRING_SIZE);
+
+    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[d_valueIter],
+                                             BAEJSN_MAX_STRING_SIZE);
+    return numRead ? 0 : -1;
+}
+
+int baejsn_Tokenizer::moveValueCharsToStartAndReloadBuffer()
+{
+    d_stringBuffer.erase(d_stringBuffer.begin(),
+                         d_stringBuffer.begin() + d_valueBegin);
+    d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
+
+    d_valueIter = d_valueIter - d_valueBegin;
+
+    const int numRead = d_streamBuf_p->sgetn(
+                                         &d_stringBuffer[d_valueIter],
+                                         BAEJSN_MAX_STRING_SIZE - d_valueIter);
+
+    if (0 == numRead) {
+        return -1;                                                    // RETURN
+    }
+
+    d_stringBuffer.resize(d_valueIter + numRead);
+    d_valueBegin = 0;
+
+    return 0;
+}
+
 int baejsn_Tokenizer::skipWhitespace()
 {
     while (true) {
@@ -93,45 +124,45 @@ int baejsn_Tokenizer::skipWhitespace()
 
 int baejsn_Tokenizer::extractStringValue()
 {
-    d_valueBegin          = d_cursor;
-    bsl::size_t iter      = d_cursor + 1;
-    bool        firstTime = true;
+    bool firstTime    = true;
+    char previousChar = 0;
 
     while (true) {
-        while (iter < d_stringBuffer.length()
-            && '"' != d_stringBuffer[iter]) {
-            ++iter;
+        while (d_valueIter < d_stringBuffer.length()
+            && '"' != d_stringBuffer[d_valueIter]) {
+            ++d_valueIter;
+            previousChar = d_stringBuffer[d_valueIter - 1];
         }
 
-        if (iter >= d_stringBuffer.length()) {
-            // TBD: Refactor
-            if (!firstTime) {
-                d_stringBuffer.resize(d_stringBuffer.length()
-                                                     + BAEJSN_MAX_STRING_SIZE);
-                int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[iter],
-                                                   BAEJSN_MAX_STRING_SIZE);
-                if (0 == numRead) {
-                    return -1;                                        // RETURN
+        if (d_valueIter >= d_stringBuffer.length()) {
+
+            // There isn't enough room in the internal buffer to hold the
+            // value.  If this is the first time through the loop, we move the
+            // current sequence of characters being processed to the front of
+            // the internal buffer, otherwise we must expand the internal
+            // buffer to hold additional characters.
+
+            if (firstTime) {
+                const int rc = moveValueCharsToStartAndReloadBuffer();
+                if (rc) {
+                    return rc;                                        // RETURN
                 }
-                continue;
+                firstTime = false;
             }
-
-            d_stringBuffer.erase(d_stringBuffer.begin(),
-                                 d_stringBuffer.begin() + d_cursor);
-            d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
-            iter = BAEJSN_MAX_STRING_SIZE - d_cursor;
-            int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[iter],
-                                               d_cursor);
-            if (0 == numRead) {
-                return -1;                                            // RETURN
+            else {
+                const int rc = expandBufferForLargeValue();
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
             }
-
-            d_stringBuffer.resize(iter + numRead);
-            d_valueBegin = 0;
-            firstTime = false;
         }
         else {
-            d_valueEnd = iter;
+            if ('\\' == previousChar) {
+                ++d_valueIter;
+                previousChar = 0;
+                continue;
+            }
+            d_valueEnd = d_valueIter;
             return 0;                                                 // RETURN
         }
     }
@@ -140,46 +171,39 @@ int baejsn_Tokenizer::extractStringValue()
 
 int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
 {
-    d_valueBegin          = d_cursor;
-    bsl::size_t iter      = d_cursor + 1;
-    bool        firstTime = true;
+    bool firstTime = true;
 
     while (true) {
-        while (iter < d_stringBuffer.length()
-            && !bdeu_CharType::isSpace(d_stringBuffer[iter])
-            && !bsl::strchr(TOKENS, d_stringBuffer[iter])) {
-            ++iter;
+        while (d_valueIter < d_stringBuffer.length()
+            && !bdeu_CharType::isSpace(d_stringBuffer[d_valueIter])
+            && !bsl::strchr(TOKENS, d_stringBuffer[d_valueIter])) {
+            ++d_valueIter;
         }
 
-        if (iter >= d_stringBuffer.length()) {
-            // TBD: Refactor
-            if (!firstTime) {
-                d_stringBuffer.resize(d_stringBuffer.length()
-                                                     + BAEJSN_MAX_STRING_SIZE);
-                int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[iter],
-                                                   BAEJSN_MAX_STRING_SIZE);
-                if (0 == numRead) {
-                    return -1;                                        // RETURN
+        if (d_valueIter >= d_stringBuffer.length()) {
+
+            // There isn't enough room in the internal buffer to hold the
+            // value.  If this is the first time through the loop, we move the
+            // current sequence of characters being processed to the front of
+            // the internal buffer, otherwise we must expand the internal
+            // buffer to hold additional characters.
+
+            if (firstTime) {
+                const int rc = moveValueCharsToStartAndReloadBuffer();
+                if (rc) {
+                    return rc;                                        // RETURN
                 }
-                continue;
+                firstTime = false;
             }
-
-            d_stringBuffer.erase(d_stringBuffer.begin(),
-                                 d_stringBuffer.begin() + d_cursor);
-            d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
-            iter = BAEJSN_MAX_STRING_SIZE - d_cursor;
-            int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[iter],
-                                               d_cursor);
-            if (0 == numRead) {
-                return -1;                                            // RETURN
+            else {
+                const int rc = expandBufferForLargeValue();
+                if (rc) {
+                    return rc;                                        // RETURN
+                }
             }
-
-            d_stringBuffer.resize(iter + numRead);
-            d_valueBegin = 0;
-            firstTime = false;
         }
         else {
-            d_valueEnd = iter;
+            d_valueEnd = d_valueIter;
             return 0;                                                 // RETURN
         }
     }
@@ -335,8 +359,9 @@ int baejsn_Tokenizer::advanceToNextToken()
              || (BAEJSN_ELEMENT_VALUE   == d_tokenType
                && ','                   == previousChar
                && BAEJSN_OBJECT_CONTEXT == d_context)) {
-                d_tokenType = BAEJSN_ELEMENT_NAME;
-                ++d_cursor;
+                d_tokenType  = BAEJSN_ELEMENT_NAME;
+                d_valueBegin = d_cursor + 1;
+                d_valueIter  = d_valueBegin;
             }
             else if (BAEJSN_START_ARRAY    == d_tokenType
                   || (BAEJSN_ELEMENT_NAME  == d_tokenType
@@ -344,15 +369,16 @@ int baejsn_Tokenizer::advanceToNextToken()
                   || (BAEJSN_ELEMENT_VALUE == d_tokenType
                    && ','                  == previousChar
                    && BAEJSN_ARRAY_CONTEXT == d_context)) {
-                d_tokenType = BAEJSN_ELEMENT_VALUE;
+                d_tokenType  = BAEJSN_ELEMENT_VALUE;
+                d_valueBegin = d_cursor;
+                d_valueIter  = d_valueBegin + 1;
             }
             else {
                 d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
 
-            d_valueBegin = 0;
-            d_valueEnd   = 0;
+            d_valueEnd = 0;
             int rc = extractStringValue();
             if (rc) {
                 d_tokenType = BAEJSN_ERROR;
@@ -381,8 +407,10 @@ int baejsn_Tokenizer::advanceToNextToken()
 
                 d_tokenType = BAEJSN_ELEMENT_VALUE;
 
-                d_valueBegin = 0;
+                d_valueBegin = d_cursor;
                 d_valueEnd   = 0;
+                d_valueIter  = d_valueBegin + 1;
+
                 const int rc = skipNonWhitespaceOrTillToken();
                 if (rc) {
                     d_tokenType = BAEJSN_ERROR;

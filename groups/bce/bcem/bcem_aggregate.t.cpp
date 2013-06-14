@@ -2031,7 +2031,7 @@ ERef getERef(ET::Type type, int value)
     // (one of 'A', 'B', 'N') of the specified 'type'.
 {
     CERef T = getCERef(type, value);
-    return ERef((void *) T.data(), T.descriptor());
+    return ERef(const_cast<void *>(T.data()), T.descriptor());
 }
 
 bool isUnset(const CERef& ref)
@@ -2766,18 +2766,18 @@ static bool compareCERefs(const CERef& lhs, const CERef& rhs)
 {
     // Special Handling of list/row and choice/choice-array-item combinations:
     if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
-        return *(Row *) lhs.data() == rhs.theList().row();
+        return *(const Row *) lhs.data() == rhs.theList().row();
     }
     else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
-        return lhs.theList().row() == *(Row *) rhs.data();
+        return lhs.theList().row() == *(const Row *) rhs.data();
     }
     else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
           && ET::BDEM_CHOICE            == rhs.type()) {
-        return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
+        return *(const ChoiceItem *) lhs.data() == rhs.theChoice().item();
     }
     else if (ET::BDEM_CHOICE            == lhs.type()
           && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
-        return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
+        return lhs.theChoice().item() == *(const ChoiceItem *) rhs.data();
     }
     else {
         return lhs == rhs;
@@ -3690,6 +3690,70 @@ static void runBerBenchmark(bool verbose, bool veryVerbose,
     delete[] ENCODE_BUFFER;
 }
 
+static void testCase36(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
+        // --------------------------------------------------------------------
+        // TESTING ACCESING SCHEMA-LESS FIELD BY INDEX
+        //
+        // Concerns:
+        //: 1 Accessing fields by index for schema-less aggregates works as
+        //:   expected.
+        //
+        // Plan:
+        //: 1 Create a 'bcem_Aggregate' object, 'mX', and assign a table to
+        //:   it.
+        //:
+        //: 2 Access individual elements in a row of the table and ensure that
+        //:   they can be updated correctly.
+        //
+        // Testing:
+        //   const Obj fieldByIndex(int index) const;
+        //   const Obj setFieldByIndex(int index, const VAL& value) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ACCESING SCHEMA-LESS FIELD BY INDEX"
+                          << "\n==========================================="
+                          << bsl::endl;
+
+        bdem_ElemType::Type TYPES[] = {
+            bdem_ElemType::BDEM_INT,
+            bdem_ElemType::BDEM_STRING
+        };
+        const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
+
+        bdem_Table table(TYPES, NUM_TYPES);
+
+        Obj mX(bdem_ElemType::BDEM_TABLE, table);  const Obj& X = mX;
+
+        if (veryVerbose) {
+            P(X);
+        }
+
+        const int         VA1 = 10, VA2 = 20;
+        const bsl::string VB1 = "Hello", VB2 = "World";
+
+        mX.resize(1);
+
+        Obj mA  = X[0];  const Obj& A = mA;
+        ASSERT(bdem_ElemType::BDEM_ROW == A.dataType());
+
+        Obj mB = mA.fieldByIndex(0);  const Obj& B = mB;
+        ASSERT(bdem_ElemType::BDEM_INT == B.dataType());
+
+        mB.setValue(VA1);
+        ASSERT(VA1 == mB.asInt());
+
+        mA.setFieldByIndex(0, VA2);
+        ASSERT(VA2 == mB.asInt());
+
+        Obj mC = mA.fieldByIndex(1);  const Obj& C = mC;
+        ASSERT(bdem_ElemType::BDEM_STRING == C.dataType());
+
+        mC.setValue(VB1);
+        ASSERT(VB1 == mC.asString());
+
+        mA.setFieldByIndex(1, VB2);
+        ASSERT(VB2 == mC.asString());
+}
 
 static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // --------------------------------------------------------------------
@@ -15457,7 +15521,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 const ERef  EA = getERef(TYPE, 1);
                 const ERef  EB = getERef(TYPE, 2);
-                const ERef NULL_ER((void *) CEN.data(),
+                const ERef NULL_ER(const_cast<void *>(CEN.data()),
                                    CEN.descriptor(),
                                    &NULLNESS_FLAGS,
                                    NULLNESS_BIT_IDX);
@@ -17429,6 +17493,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) \
     case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
+        CASE(36);
         CASE(35);
         CASE(34);
         CASE(33);

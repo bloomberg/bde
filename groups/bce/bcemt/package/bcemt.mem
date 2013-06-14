@@ -17,7 +17,8 @@ bcemt_recursivemuteximpl_pthread
 bcemt_recursivemuteximpl_win32
 bcemt_rwmutex
 bcemt_semaphore
-bcemt_semaphoreimpl_countedpthread
+bcemt_semaphoreimpl_counted
+bcemt_semaphoreimpl_darwin
 bcemt_semaphoreimpl_pthread
 bcemt_semaphoreimpl_win32
 bcemt_sluice

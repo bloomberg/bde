@@ -1,6 +1,8 @@
 // bcemt_semaphoreimpl_pthread.t.cpp                                  -*-C++-*-
 #include <bcemt_semaphoreimpl_pthread.h>
 
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BCES_PLATFORM_COUNTED_SEMAPHORE)
+
 #include <bcemt_lockguard.h>   // for testing only
 #include <bcemt_mutex.h>       // for testing only
 #include <bcemt_threadutil.h>  // for testing only
@@ -20,12 +22,10 @@
 
 #include <bsl_cstdlib.h>
 
-#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX)
-
-#include <pthread.h>
-
 #include <bsl_c_time.h>
 #include <bsl_c_stdio.h>
+
+#include <pthread.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -487,13 +487,12 @@ static const char* fmt(int n) {
 
 void *createSemaphoresWorker(void *arg)
 {
-    typedef bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> semaphore_t;
-    bsl::vector<bsls::ObjectBuffer<semaphore_t> > semaphores(10);
+    bsl::vector<bsls::ObjectBuffer<Obj> > semaphores(10);
 
     for (int i = 0; i != 1000; ++i) {
         // create a bunch of semaphores
         for (int j = 0; j != semaphores.size(); ++j) {
-            new (semaphores[j].buffer()) semaphore_t(i);
+            new (semaphores[j].buffer()) Obj(i);
         }
 
         // use semaphores
@@ -504,7 +503,7 @@ void *createSemaphoresWorker(void *arg)
 
         // delete semaphores
         for (int j = 0; j != semaphores.size(); ++j) {
-            semaphores[j].object().~semaphore_t();
+            semaphores[j].object().~Obj();
         }
     }
 
