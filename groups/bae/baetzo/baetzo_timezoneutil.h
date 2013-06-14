@@ -200,7 +200,8 @@ BDES_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The functions provided by 'baetzo_TimeZoneUtil' are *thread-safe*.
+// The functions provided by 'baetzo_TimeZoneUtil' are *thread-safe*, meaning
+// they can be safely executed concurrently.
 //
 ///Usage
 ///-----
