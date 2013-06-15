@@ -579,18 +579,18 @@ int main(int argc, char *argv[])
 
         const unsigned int maxDestinationInterval =
                                       bsl::numeric_limits<unsigned int>::max();
-        bdet_TimeInterval maxiumumTimeInterval(
+        bdet_TimeInterval maximumTimeInterval(
                                 maxDestinationInterval / 1000,
                                 (maxDestinationInterval % 1000) * 1000 * 1000);
         bcemt_SaturatedTimeConversionImpUtil::toMillisec(
-                                   &destinationInterval, maxiumumTimeInterval);
+                                   &destinationInterval, maximumTimeInterval);
         ASSERT(maxDestinationInterval == destinationInterval);
 
         // Now, we attempt to convert a value higher than the maximum
         // representable in an 'unsigned int' milliseconds and verify that the
         // resulting value is the maximum representable 'unsigned int' value:
 
-        bdet_TimeInterval aboveMaxInterval = maxiumumTimeInterval +
+        bdet_TimeInterval aboveMaxInterval = maximumTimeInterval +
                                              bdet_TimeInterval(0, 1000 * 1000);
         bcemt_SaturatedTimeConversionImpUtil::toMillisec(
                                        &destinationInterval, aboveMaxInterval);
@@ -870,8 +870,10 @@ int main(int argc, char *argv[])
                 NANOSECS_PER_SEC      = 1000000000   // one billion
             };
 
-            // Compute the threshold for saturation.
-
+            // Compute the threshold for saturating a Uint64 representation of
+            // milliseconds.  I.e., 
+            // 'bdet_TimeInterval(SEC_LIMIT, NANO_SEC_LIMIT)' should be the
+            // maxmimum representable Uint64 number of milliseconds. 
             const Int64    SEC_LIMIT = MAX_UINT64 / MILLISECS_PER_SEC;
             const int NANO_SEC_LIMIT = (MAX_UINT64 - (SEC_LIMIT * 1000))
                                                     * NANOSECS_PER_MILLISEC;
@@ -884,7 +886,10 @@ int main(int argc, char *argv[])
             } VALUES[] = {
                 { L_,             0,         0,                 0 },
                 { L_,     MAX_INT64, 999999999,        MAX_UINT64 },
+                { L_,            -1,         0,                 0 },
                 { L_,     MIN_INT64,         0,                 0 },
+                { L_,             0,        -1,                 0 },
+                { L_,             0,  -1000000,                 0 },
 
                 // Test values approach and just past the limit
        { L_, SEC_LIMIT - 1,         0, ((Uint64)SEC_LIMIT -1) * 1000 },
