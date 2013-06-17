@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component documents common terminology that is used
 // throughout the rest of BDE component documentation.  The terminology is
 // broken into the following sections:
@@ -216,8 +214,8 @@ BSLS_IDENT("$Id: $")
 //: o A *class* that is *thread-enabled* is designed to directly interact with
 //:   threads, and cannot function correctly in a non-multi-threading
 //:   environment (e.g., a thread pool is thread-enabled, so *must* be used in
-//:   a multi-threading environment).  Typically, a class is *not*
-//:   *thread-enabled* unless it spawns or joins threads.
+//:   a multi-threading environment).  Typically a *thread-enabled* class
+//:   creates or joins threads. 
 //
 ///Unconstrained Attribute Type [TC.4]
 ///- - - - - - - - - - - - - - - - - -
