@@ -129,7 +129,7 @@ void process(const bsl::string& configFilename)
                 "filename",
                 "configuration file name",
                 baea_CommandLineTypeInfo(&configFilename),
-                baea_CommandLineOccurrenceInfo::REQUIRED,
+                baea_CommandLineOccurrenceInfo::BAEA_REQUIRED,
             },
         };
 
