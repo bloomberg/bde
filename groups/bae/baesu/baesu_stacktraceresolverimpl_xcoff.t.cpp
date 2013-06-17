@@ -16,6 +16,8 @@
 
 #ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
+#include <unistd.h>
+
 using namespace BloombergLP;
 using bsl::cin;
 using bsl::cout;
@@ -254,6 +256,54 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // Reproduce bug DRQS 42134199
+        //
+        // Concerns:
+        //   It was reported that the heap was slowly growing as a result of
+        //   the stack trace being called many times.  The memory was not being
+        //   used by the default or global allocators.  Note that most of the
+        //   memory allocated by the resolver is in a local heap bypass
+        //   allocator and would not show up in normal measurement of the heap.
+        //   It was tracked down to be a problem with how 'Demangle' was being
+        //   called.
+        //
+        // Plan:
+        //   Do some resolving, including demanagling, many times and monitor
+        //   the heap size via 'sbrk'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Memory Leak Test\n"
+                             "================\n";
+
+        bslma::TestAllocator ta;
+
+        baesu_StackTrace frames(&ta);
+        long heapTop = 0;
+
+        for (int ti = 0; ti < 50;  ++ti) {
+            for (int tj = 0; tj < 10; ++tj) {
+                frames.resize(1);
+                frames[0].setAddress(addFixedOffset((UintPtr)
+                         &baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::
+                                                             Xcoff>::resolve));
+
+                ASSERT(0 == Obj::resolve(&frames, true));
+                frames.resize(0);
+            }
+
+            if (4 == ti) {
+                heapTop = (long) sbrk(0);
+            }
+            else if (ti > 4) {
+                LOOP2_ASSERT((long) sbrk(0), heapTop,
+                                                    (long) sbrk(0) == heapTop);
+            }
+
+            if (verbose) P((long) sbrk(0));
+        }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // GARBAGE TEST
@@ -283,6 +333,7 @@ int main(int argc, char *argv[])
                 ss << st[stIndex] << endl;
             }
         }
+
       }  break;
       case 1: {
         // --------------------------------------------------------------------

@@ -1513,10 +1513,9 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
                 bcemt_QLockGuard guard(&s_demangleQLock);
 
-                // Note that 'Demangle' allocates with 'malloc', and that
-                // 'rest' is is passed as a reference to a modifiable.  Also
-                // note that whoever wrote 'Demangle' didn't know how to use
-                // 'const'.
+                // Note that 'Demangle' allocates with 'new', and that 'rest'
+                // is is passed as a reference to a modifiable.  Also note that
+                // whoever wrote 'Demangle' didn't know how to use 'const'.
 
                 char *rest = 0;
                 name = Demangle((char *) symbolName, rest);
@@ -1533,6 +1532,8 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
                 char *text = name->Text();
                 zprintf("Demangled to %s\n", text);
                 frame->setSymbolName(bdeu_String::copy(text, allocator()));
+                delete name;    // 'name' is a C++ class, allocced by
+                                // 'Demangle' via 'new'.
             }
             else {
                 zprintf("Did not demangle: %s\n", frame->mangledSymbolName());
