@@ -55,6 +55,12 @@ namespace {
 
 using namespace BloombergLP;
 
+// Messages written to 'stderr' are prefixed with a unique string to allow
+// them to be easily identified.
+
+const char errorMsgPrefix[] = { "ERROR: bael_FileObserver2:" };
+const char warnMsgPrefix[]  = { "WARN: bael_FileObserver2:" };
+
 enum {
     // status code for the call back function.
 
@@ -230,9 +236,9 @@ int openLogFile(bsl::ostream *stream, const char *filename)
 
     if (fd == bdesu_FileUtil::INVALID_FD) {
         fprintf(
-              stderr,
-              "Cannot open log file %s: %s.  File logging will be disabled!\n",
-              filename, bsl::strerror(getErrorCode()));
+           stderr,
+           "%s Cannot open log file %s: %s.  File logging will be disabled!\n",
+           errorMsgPrefix, filename, bsl::strerror(getErrorCode()));
         return -1;                                                    // RETURN
     }
 
@@ -243,9 +249,9 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     if (0 != streamBuf->reset(fd, true, true, true)) {
         fprintf(
               stderr,
-              "Cannot close previous log file %s: %s.  "
+              "%s Cannot close previous log file %s: %s.  "
               "File logging will be disabled!\n",
-              filename, bsl::strerror(getErrorCode()));
+              warnMsgPrefix, filename, bsl::strerror(getErrorCode()));
         return -1;                                                    // RETURN
     }
 
@@ -378,8 +384,8 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     int returnStatus = ROTATE_SUCCESS;
 
     if (0 != d_logStreamBuf.clear()) {
-        fprintf(stderr, "Unable to close old log file: %s\n",
-                d_logFileName.c_str());
+        fprintf(stderr, "%s Unable to close old log file: %s\n",
+                warnMsgPrefix, d_logFileName.c_str());
         returnStatus = ROTATE_RENAME_ERROR;                           // RETURN
     }
 
@@ -402,8 +408,8 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
             *rotatedLogFileName = newFileName;
         }
         else {
-            fprintf(stderr, "Cannot rename %s to %s: %s\n",
-                    d_logFileName.c_str(), newFileName.c_str(),
+            fprintf(stderr, "%s Cannot rename %s to %s: %s\n",
+                    warnMsgPrefix, d_logFileName.c_str(), newFileName.c_str(),
                     bsl::strerror(getErrorCode()));
             returnStatus = ROTATE_RENAME_ERROR;
         }
@@ -418,8 +424,8 @@ int bael_FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     }
 
     if (0 != openLogFile(&d_logOutStream, d_logFileName.c_str())) {
-        fprintf(stderr, "Cannot open new log file: %s\n",
-                d_logFileName.c_str());
+        fprintf(stderr, "%s Cannot open new log file: %s\n",
+                errorMsgPrefix, d_logFileName.c_str());
         return ROTATE_SUCCESS != returnStatus
                ? ROTATE_RENAME_AND_NEW_LOG_ERROR
                : ROTATE_NEW_LOG_ERROR;                                // RETURN
@@ -604,7 +610,8 @@ void bael_FileObserver2::publish(const bael_Record&  record,
             d_logFileFunctor(d_logOutStream, record);
 
             if (!d_logOutStream) {
-                fprintf(stderr, "Error on file stream for %s: %s\n",
+                fprintf(stderr, "%s Error on file stream for %s: %s\n",
+                        errorMsgPrefix,
                         d_logFileName.c_str(), bsl::strerror(getErrorCode()));
 
                 d_logStreamBuf.clear();
