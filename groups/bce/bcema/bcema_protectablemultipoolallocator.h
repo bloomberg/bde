@@ -10,29 +10,29 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide an allocator from write-protectable pools of memory.
 //
 //@CLASSES:
-//   bcema_ProtectableMultipoolAllocator: allocator from protectable pools
+//  bcema_ProtectableMultipoolAllocator: allocator from protectable pools
 //
 //@SEE_ALSO: bcema_protectablemultipool
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: [!DEPRECATED!] This component provides an allocator,
+//@DESCRIPTION: This component provides an allocator,
 // 'bcema_ProtectableMultipoolAllocator', that implements the
 // 'bdema_ManagedAllocator' protocol and provides a partially thread-enabled
 // protectable memory manager for a set of memory pools, each dispensing
 // fixed-sized blocks of memory of a different size, and providing modifiers to
-// change the access protection of that managed memory.  A multipool
-// allocation (or deallocation) request allocates memory from (or returns
-// memory to) the appropriate internal pool, or else to a separately managed
-// list of memory blocks.  The 'protect' method sets the access protection for
-// all the memory managed by this allocator to a READ-ONLY state.  Writing to
-// memory in the protected state will cause a segmentation violation.  The
-// 'unprotect' method sets the access protection for all the memory managed by
-// this allocator to a READ-WRITE state.  The 'release' method and the
-// destructor both release all memory allocated through this memory manager
-// without regard to the current protection state.  The behavior for 'allocate'
-// and 'deallocate' is undefined unless the allocator is in an unprotected
-// state:
+// change the access protection of that managed memory.  A multipool allocation
+// (or deallocation) request allocates memory from (or returns memory to) the
+// appropriate internal pool, or else to a separately managed list of memory
+// blocks.  The 'protect' method sets the access protection for all the memory
+// managed by this allocator to a READ-ONLY state.  Writing to memory in the
+// protected state will cause a segmentation violation.  The 'unprotect' method
+// sets the access protection for all the memory managed by this allocator to a
+// READ-WRITE state.  The 'release' method and the destructor both release all
+// memory allocated through this memory manager without regard to the current
+// protection state.  The behavior for 'allocate' and 'deallocate' is undefined
+// unless the allocator is in an unprotected state:
+
 //..
 //   ,-----------------------------------.
 //  ( bcema_ProtectableMultipoolAllocator )
@@ -185,26 +185,26 @@ class bdema_ProtectableBlockDispenser;
                 // =========================================
 
 class bcema_ProtectableMultipoolAllocator : public bdema_ManagedAllocator {
-    // [!DEPRECATED!] This class implements a "partially" thread-enabled
-    // mechanism for managing memory using a set of memory pools of
-    // geometrically increasing (fixed) allocation size.  The 'allocate' and
-    // 'deallocate' methods of 'bcema_ProtectableMultipoolAllocator'
-    // respectively allocate memory from and return memory to the internal
-    // pool managing memory of the smallest size satisfying the requested
-    // size; if no internal pool of the required size exists, the memory is
-    // allocated from or returned to a separately managed list of memory
-    // blocks.  The 'protect' method sets the access protection for all the
-    // memory managed by this allocator to the protected (READ-ONLY) state,
-    // and 'unprotect' sets the access protection to the unprotected
-    // (READ-WRITE) state.  The 'release' method and the destructor both
-    // unprotect and release all memory allocated through this memory manager
-    // without regard to the current protection state.  The behavior is
-    // undefined for 'allocate' and 'deallocate' unless this allocator is in
-    // an unprotected state.  Requests for "large" memory chunks (larger than
-    // can be accommodated by the largest individual pool) are handled
-    // directly by the underlying dispenser.
+    // This class implements a "partially" thread-safe mechanism for managing
+    // memory using a set of memory pools of geometrically increasing (fixed)
+    // allocation size.  The 'allocate' and 'deallocate' methods of
+    // 'bcema_ProtectableMultipoolAllocator' respectively allocate memory from
+    // and return memory to the internal pool managing memory of the smallest
+    // size satisfying the requested size; if no internal pool of the required
+    // size exists, the memory is allocated from or returned to a separately
+    // managed list of memory blocks.  The 'protect' method sets the access
+    // protection for all the memory managed by this allocator to the protected
+    // (READ-ONLY) state, and 'unprotect' sets the access protection to the
+    // unprotected (READ-WRITE) state.  The 'release' method and the destructor
+    // both unprotect and release all memory allocated through this memory
+    // manager without regard to the current protection state.  The behavior is
+    // undefined for 'allocate' and 'deallocate' unless this allocator is in an
+    // unprotected state.  Requests for "large" memory chunks (larger than can
+    // be accommodated by the largest individual pool) are handled directly by
+    // the underlying dispenser.
+
     //
-    // 'bcema_ProtectableMultipoolAllocator' is *partially* *thread-enabled*,
+    // 'bcema_ProtectableMultipoolAllocator' is *partially* *thread-safe*,
     // meaning the accessors and the 'allocate' and 'deallocate' manipulators
     // can be safely invoked from any thread; however, it is *not* *safe* to
     // invoke 'release', 'protect', or 'unprotect' while an instance is being
