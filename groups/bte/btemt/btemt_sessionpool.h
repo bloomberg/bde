@@ -929,10 +929,9 @@ class btemt_SessionPool {
         // of the write cache.  (See the component-level documentation of
         // 'btemt_channelpool' for details on 'BTEMT_WRITE_CACHE_HIWAT' and
         // 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)  The behavior is undefined
-        // unless '0 <= lowWatermark', '0 <= hiWatermark', and
-        // 'lowWatermark <= hiWatermark'.  Note that this method overrides the
-        // values configured (for all channels) by the
-        // 'btemt_ChannelPoolConfiguration' supplied at construction.
+        // unless '0 <= lowWatermark' and 'lowWatermark <= hiWatermark'.  Note
+        // that this method overrides the values configured (for all channels)
+        // by the 'btemt_ChannelPoolConfiguration' supplied at construction.
 
     // ACCESSORS
     const btemt_ChannelPoolConfiguration& config() const;

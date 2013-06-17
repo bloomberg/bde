@@ -958,7 +958,6 @@ int btemt_SessionPool::setWriteCacheWatermarks(int handleId,
                                                int hiWatermark)
 {
     BSLS_ASSERT(0 <= lowWatermark);
-    BSLS_ASSERT(0 <= hiWatermark);
     BSLS_ASSERT(lowWatermark <= hiWatermark);
 
     HandlePtr handle;

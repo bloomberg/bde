@@ -1578,10 +1578,10 @@ class btemt_ChannelPool {
         // "Invocation of High- and Low-Water Mark Callbacks" section under
         // @DESCRIPTION in the component-level documentation for details on
         // 'BTEMT_WRITE_CACHE_HIWAT' and 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)
-        // The behavior is undefined unless '0 <= lowWatermark',
-        // '0 <= hiWatermark', and 'lowWatermark <= hiWatermark'.  Note that
-        // this method overrides the values configured (for all channels) by
-        // the 'btemt_ChannelPoolConfiguration' supplied at construction.
+        // The behavior is undefined unless '0 <= lowWatermark' and
+        // 'lowWatermark <= hiWatermark'.  Note that this method overrides the
+        // values configured (for all channels) by the
+        // 'btemt_ChannelPoolConfiguration' supplied at construction.
 
     int resetRecordedMaxWriteCacheSize(int channelId);
         // Reset the recorded max write cache size for the specified
