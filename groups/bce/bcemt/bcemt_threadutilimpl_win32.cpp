@@ -558,13 +558,12 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
     // to convert between the two epochs:
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
 
-    const int HUNDRED_NANOSECS_PER_SEC = 10000000;  // 1 hundred thousand
+    enum { HUNDRED_NANOSECS_PER_SEC = 10 * 1000 * 1000 };  // 10 million
     clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
                        + absoluteTime.nanoseconds() / 100
                        + 116444736000000000LL;
 
     if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
-
         return GetLastError();                                        // RETURN
     }
 
