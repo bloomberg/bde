@@ -34,7 +34,6 @@ using namespace bsl;  // automatically added by script
 // range of inputs.
 //--------------------------------------------------------------------------
 // [ 1] bdes_AlignmentOf<T>::VALUE
-// [ 2] bdes_AlignmentToType<N>::Type
 // [ 2] bdes_AlignmentOf<T>::Type
 // [ 3] bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
 // [ 4] bsls::AlignmentUtil::MaxAlignedType
@@ -706,8 +705,7 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING META-FUNCTIONS  bdes_AlignmentToType<N>::Type AND
-        //     bdes_AlignmentOf<T>::Type
+        // TESTING META-FUNCTIONS bdes_AlignmentOf<T>::Type
         //
         //   Ensure that the right type is selected for each possible
         //      alignment.
@@ -735,21 +733,17 @@ int main(int argc, char *argv[])
         //   Area test using primitive types.
         //
         // TESTING
-        //   bdes_AlignmentToType<N>::Type
         //   bdes_AlignmentOf<T>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTest bdes_AlignmentToType<T>::Type"
-                          << "\n==================================" << endl;
+        if (verbose) cout << "\nTest bdes_AlignmentOf<T>::Type"
+                          << "\n==============================" << endl;
 
         // Test sameType function.
         ASSERT(sameType(int(), int()));
         ASSERT(! sameType(int(), short()));
 
         if (veryVerbose) cout << "  Testing char, short & int" << endl;
-        ASSERT(sameType(bdes_AlignmentToType<1>::Type(), char()));
-        ASSERT(sameType(bdes_AlignmentToType<2>::Type(), short()));
-        ASSERT(sameType(bdes_AlignmentToType<4>::Type(), int()));
 
         typedef void (*FuncPtr)();
         enum {
@@ -776,28 +770,28 @@ int main(int argc, char *argv[])
             U1_ALIGNMENT          = bdes_AlignmentOf<U1>::VALUE
         };
 
-        typedef bdes_AlignmentToType<CHAR_ALIGNMENT>::Type     CharAlign;
-        typedef bdes_AlignmentToType<SHORT_ALIGNMENT>::Type    ShortAlign;
-        typedef bdes_AlignmentToType<INT_ALIGNMENT>::Type      IntAlign;
-        typedef bdes_AlignmentToType<LONG_ALIGNMENT>::Type     LongAlign;
-        typedef bdes_AlignmentToType<INT64_ALIGNMENT>::Type    LongLongAlign;
-        typedef bdes_AlignmentToType<BOOL_ALIGNMENT>::Type     BoolAlign;
-        typedef bdes_AlignmentToType<WCHAR_T_ALIGNMENT>::Type  Wchar_tAlign;
-        typedef bdes_AlignmentToType<PTR_ALIGNMENT>::Type      PtrAlign;
-        typedef bdes_AlignmentToType<FUNC_PTR_ALIGNMENT>::Type FuncPtrAlign;
-        typedef bdes_AlignmentToType<FLOAT_ALIGNMENT>::Type    FloatAlign;
-        typedef bdes_AlignmentToType<DOUBLE_ALIGNMENT>::Type   DoubleAlign;
-        typedef bdes_AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type
+        typedef bsls::AlignmentToType<CHAR_ALIGNMENT>::Type     CharAlign;
+        typedef bsls::AlignmentToType<SHORT_ALIGNMENT>::Type    ShortAlign;
+        typedef bsls::AlignmentToType<INT_ALIGNMENT>::Type      IntAlign;
+        typedef bsls::AlignmentToType<LONG_ALIGNMENT>::Type     LongAlign;
+        typedef bsls::AlignmentToType<INT64_ALIGNMENT>::Type    LongLongAlign;
+        typedef bsls::AlignmentToType<BOOL_ALIGNMENT>::Type     BoolAlign;
+        typedef bsls::AlignmentToType<WCHAR_T_ALIGNMENT>::Type  Wchar_tAlign;
+        typedef bsls::AlignmentToType<PTR_ALIGNMENT>::Type      PtrAlign;
+        typedef bsls::AlignmentToType<FUNC_PTR_ALIGNMENT>::Type FuncPtrAlign;
+        typedef bsls::AlignmentToType<FLOAT_ALIGNMENT>::Type    FloatAlign;
+        typedef bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type   DoubleAlign;
+        typedef bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type
             LongDoubleAlign;
 
-        typedef bdes_AlignmentToType<S1_ALIGNMENT>::Type       S1Align;
-        typedef bdes_AlignmentToType<S2_ALIGNMENT>::Type       S2Align;
-        typedef bdes_AlignmentToType<S3_ALIGNMENT>::Type       S3Align;
-        typedef bdes_AlignmentToType<S4_ALIGNMENT>::Type       S4Align;
+        typedef bsls::AlignmentToType<S1_ALIGNMENT>::Type       S1Align;
+        typedef bsls::AlignmentToType<S2_ALIGNMENT>::Type       S2Align;
+        typedef bsls::AlignmentToType<S3_ALIGNMENT>::Type       S3Align;
+        typedef bsls::AlignmentToType<S4_ALIGNMENT>::Type       S4Align;
 #if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CPU_X86)
         typedef bsls::AlignmentToType<S5_ALIGNMENT>::Type      S5Align;
 #endif
-        typedef bdes_AlignmentToType<U1_ALIGNMENT>::Type       U1Align;
+        typedef bsls::AlignmentToType<U1_ALIGNMENT>::Type       U1Align;
 
         if (veryVerbose) cout << "  Testing that bdes_AlignmentToType<N>::Type"
                               << "\n  is the same as bdes_AlignmentOf<T>::Type"
