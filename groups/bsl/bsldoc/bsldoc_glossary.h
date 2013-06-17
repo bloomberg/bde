@@ -216,7 +216,8 @@ BSLS_IDENT("$Id: $")
 //: o A *class* that is *thread-enabled* is designed to directly interact with
 //:   threads, and cannot function correctly in a non-multi-threading
 //:   environment (e.g., a thread pool is thread-enabled, so *must* be used in
-//:   a multi-threading environment).
+//:   a multi-threading environment).  Typically a *thread-enabled* class
+//:   creates or joins threads. 
 //
 ///Unconstrained Attribute Type [TC.4]
 ///- - - - - - - - - - - - - - - - - -
