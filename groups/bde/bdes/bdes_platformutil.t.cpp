@@ -1,10 +1,10 @@
-// bdes_platformutil.t.cpp         -*-C++-*-
+// bdes_platformutil.t.cpp                                            -*-C++-*-
 
 #include <bdes_platformutil.h>
 
 #include <bslmf_issame.h>    // bsl::is_same
 
-#include <bsls_platform.h>     // for testing only
+#include <bsls_platform.h>   // for testing only
 #include <bsls_types.h>
 
 #include <bsl_iostream.h>
@@ -43,15 +43,8 @@ using namespace bsl;
 // [ 2] Uint64
 // [ 3] size_type
 // [ 4] MaxAlign
-// [ 1] static int isBigEndian() const;
-// [ 1] static int isLittleEndian() const;
-// [ 3] static int roundUpToMaximalAlignment(int size);
-// [ 1] BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
-// [ 1] BDES_PLATFORMUTIL_IS_BIG_ENDIAN
-// [ 7] BDES_PLATFORMUTIL_HTONS
-// [ 7] BDES_PLATFORMUTIL_HTONL
+// [ 1] static int isLittleEndian() ;
 // [ 7] BDES_PLATFORMUTIL_NTOHS
-// [ 7] BDES_PLATFORMUTIL_NTOHL
 //-----------------------------------------------------------------------------
 // [ 6] operator<<(ostream&, const bdes_PlatformUtil::Uint64&);
 // [ 5] operator<<(ostream&, const bdes_PlatformUtil::Int64&);
@@ -105,24 +98,6 @@ char *hex64(char *buffer, bdes_PlatformUtil::Uint64 value)
 {
     sprintf(buffer, INT64_FMT_STR, value);
     return buffer;
-}
-
-void printBits(bdes_PlatformUtil::Uint64 value)
-    // Print the individual bits of the specified 64-bit 'value'.
-{
-    char *bytes = reinterpret_cast<char *>(&value);
-    for (int i = 0; i < 8; ++i) {
-        cout << !!(bytes[i] & 0x80)
-             << !!(bytes[i] & 0x40)
-             << !!(bytes[i] & 0x20)
-             << !!(bytes[i] & 0x10)
-             << !!(bytes[i] & 0x08)
-             << !!(bytes[i] & 0x04)
-             << !!(bytes[i] & 0x02)
-             << !!(bytes[i] & 0x01)
-             << ' ';
-    }
-    cout << endl;
 }
 
 #undef INT64_FMT_STR
@@ -220,10 +195,7 @@ int main(int argc, char *argv[])
         //  provided macros.
         //
         // Testing:
-        //   BDES_PLATFORMUTIL_HTONS
         //   BDES_PLATFORMUTIL_NTOHS
-        //   BDES_PLATFORMUTIL_HTONS
-        //   BDES_PLATFORMUTIL_NTOHL
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -253,75 +225,9 @@ int main(int argc, char *argv[])
                 const unsigned short VALUE = DATA[ti].d_value;
 
                 {
-                    const unsigned short oracle = htons(VALUE);
-                    const unsigned short newValue
-                                             = BDES_PLATFORMUTIL_HTONS(VALUE);
-
-                    if (veryVerbose) {
-                        TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
-                    }
-
-                    LOOP_ASSERT(LINE, newValue == oracle);
-                }
-                {
                     const unsigned short oracle = ntohs(VALUE);
                     const unsigned short newValue
                                              = BDES_PLATFORMUTIL_NTOHS(VALUE);
-
-                    if (veryVerbose) {
-                        TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
-                    }
-
-                    LOOP_ASSERT(LINE, newValue == oracle);
-                }
-            }
-        }
-
-        if (verbose) cout << endl
-            << "Testing BDES_PLATFORMUTIL_HTONL and BDES_PLATFORMUTIL_NTOHL"
-            << endl
-            << "============================================================="
-            << endl;
-        {
-            static const struct {
-                int   d_lineNum;    // source line number
-                int   d_value;
-            } DATA[] = {
-                //line  value
-                //----  ------------
-                { L_,            0, },
-                { L_,   0xff000000, },
-                { L_,   0x00ff0000, },
-                { L_,   0x0000ff00, },
-                { L_,   0x000000ff, },
-                { L_,   0xffffffff, },
-                { L_,   0x80000000, },
-                { L_,   0x01000000, },
-                { L_,   0x00800000, },
-                { L_,   0x00010000, },
-                { L_,   0x00008000, },
-                { L_,   0x00000100, },
-                { L_,   0x00000080, },
-                { L_,   0x00000001, },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE    = DATA[ti].d_lineNum;
-                const int VALUE = DATA[ti].d_value;
-
-                {
-                    const int oracle = htonl(VALUE);
-                    const int newValue = BDES_PLATFORMUTIL_HTONL(VALUE);
-
-                    if (veryVerbose) {
-                        TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
-                    }
-
-                    LOOP_ASSERT(LINE, newValue == oracle);
-                }
-                {
-                    const int oracle = ntohl(VALUE);
-                    const int newValue = BDES_PLATFORMUTIL_NTOHL(VALUE);
 
                     if (veryVerbose) {
                         TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
@@ -706,25 +612,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "MAXIMUM ALIGNMENT TEST" << endl
                                   << "======================" << endl;
 
-// TBD The 'roundUpToMaximalAlignment' method has been removed.
-#if 0
-        typedef bdes_PlatformUtil U;
-
-        struct ShortAlign       { char c; short  d_short;           };
-        struct IntAlign         { char c; int    d_int;             };
-        struct LongAlign        { char c; long   d_long;            };
-        struct Int64Align       { char c; U::Int64 d_int64;         };
-        struct FloatAlign       { char c; float  d_float;           };
-        struct DoubleAlign      { char c; double d_double;          };
-        struct LongDoubleAlign  { char c; long double d_longDouble; };
-        struct VoidPtrAlign     { char c; void  *d_voidPtr;         };
+        struct ShortAlign       { char c; short  d_short;             };
+        struct IntAlign         { char c; int    d_int;               };
+        struct LongAlign        { char c; long   d_long;              };
+        struct Int64Align       { char c; bsls::Types::Int64 d_int64; };
+        struct FloatAlign       { char c; float  d_float;             };
+        struct DoubleAlign      { char c; double d_double;            };
+        struct LongDoubleAlign  { char c; long double d_longDouble;   };
+        struct VoidPtrAlign     { char c; void  *d_voidPtr;           };
 #if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
-                                               d_8BytesAlignedType; };
+                                                 d_8BytesAlignedType; };
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef U::MaxAlign                         LegacyMaxAlign;
+    typedef bdes_PlatformUtil::MaxAlign         LegacyMaxAlign;
 #else
     typedef bsls::AlignmentUtil::MaxAlignedType LegacyMaxAlign;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -732,18 +634,17 @@ int main(int argc, char *argv[])
         struct MaxAlignAlign    { char c; LegacyMaxAlign d_maxAlign;};
 
         const int EXP =
-            1 + ( (1                                       - 1) // char
-                | (offsetof(ShortAlign, d_short)           - 1)
-                | (offsetof(IntAlign, d_int)               - 1)
-                | (offsetof(LongAlign, d_long)             - 1)
-                | (offsetof(Int64Align, d_int64)           - 1)
-                | (offsetof(FloatAlign, d_float)           - 1)
-                | (offsetof(DoubleAlign, d_double)         - 1)
-                | (offsetof(LongDoubleAlign, d_longDouble) - 1)
-                | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
+            1 + ( (1                                              - 1) // char
+                | (offsetof(ShortAlign, d_short)                  - 1)
+                | (offsetof(IntAlign, d_int)                      - 1)
+                | (offsetof(LongAlign, d_long)                    - 1)
+                | (offsetof(Int64Align, d_int64)                  - 1)
+                | (offsetof(FloatAlign, d_float)                  - 1)
+                | (offsetof(DoubleAlign, d_double)                - 1)
+                | (offsetof(LongDoubleAlign, d_longDouble)        - 1)
+                | (offsetof(VoidPtrAlign, d_voidPtr)              - 1)
 #if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
-                | (offsetof(Test8bytesAlign,
-                                d_8BytesAlignedType)       - 1)
+                | (offsetof(Test8bytesAlign, d_8BytesAlignedType) - 1)
 #endif
                 );
 
@@ -756,16 +657,6 @@ int main(int argc, char *argv[])
         ASSERT(EXP == maxAlignment);
         ASSERT(EXP == sizeof(LegacyMaxAlign));
 
-        ASSERT(0 == U::roundUpToMaximalAlignment(0));
-
-        int i;
-        for (i = 1; i <= maxAlignment; ++i) {
-            ASSERT(    maxAlignment == U::roundUpToMaximalAlignment(i));
-        }
-        for (i = maxAlignment + 1; i <= 2 * maxAlignment; ++i) {
-            ASSERT(2 * maxAlignment == U::roundUpToMaximalAlignment(i));
-        }
-#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -846,62 +737,40 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING BIG ENDIAN and LITTLE ENDIAN:
         //   Concerns:
-        //     1. The macros BDES_PLATFORMUTIL_IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN must have boolean values.
-        //     2. The macros BDES_PLATFORMUTIL_IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN are assigned at compile
-        //        time based on the platform (see overview above).  If any
-        //        one of the flags or inferences is wrong, the "endian-ness"
-        //        of a given platform could be wrong.  Similarly, the
-        //        'isBigEndian' and 'isLittleEndian' member functions could
-        //        also be wrong since those functions do nothing more than
-        //        return the//        value of the macros.  Fortunately it
-        //        is possible to make run-time determination of a platform's
-        //        "endian-ness" by using a union.  Unfortunately such a test
-        //        is more expensive than checking a flag.  However, such a
-        //        function is perfect for a test driver.
+        //..
+        //  1  The 'isLittleEndian' member functions should return a boolean
+        //     value that correctly identifies the "endian-ness" of the
+        //     platform.
+        //..
         //   Plan:
-        //     First ensure the values for the endian macros and their
-        //     corresponding function return boolean values.
-        //
-        //     Next, ensure the compile-time macros and inline functions agree
-        //     with the values calculated at runtime.
+        //      Fortunately it is possible to make run-time determination of a
+        //      platform's "endian-ness" by using a union.  Unfortunately such
+        //      a test is more expensive than checking a flag.  However, such a
+        //      function is perfect for a test driver.
+        //..
+        //  1  Ensure the function return boolean values.
+        //  2  Ensure the inline functions agrees with the values calculated at
+        //     runtime.
+        //..
         // Testing:
-        //   static int isBigEndian();
         //   static int isLittleEndian();
-        //   BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
-        //   BDES_PLATFORMUTIL_IS_BIG_ENDIAN
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
             << "Testing little-endian & big-endian functions/macros." << endl
             << "====================================================" << endl;
 
-// TBD The 'isBigEndian' method has been removed.
-#if 0
-        typedef bdes_PlatformUtil Util;
-
         if (verbose) cout << "This platform is " <<
-            (bdes_PlatformUtil::isBigEndian() ? "BIG ENDIAN" : "LITTLE ENDIAN")
+            (bdes_PlatformUtil::isLittleEndian() ? "LITTLE ENDIAN"
+                                                 : "BIG ENDIAN")
             << '.' << endl;
 
         // Must be boolean values,
-        ASSERT(Util::isBigEndian() == !!Util::isBigEndian());
-        ASSERT(Util::isLittleEndian() == !!Util::isLittleEndian());
+        const bool IS_LITTLE = bdes_PlatformUtil::isLittleEndian();
 
         // Must be same as control functions.
-        ASSERT(::isBigEndian() == Util::isBigEndian());
-        ASSERT(::isBigEndian() != Util::isLittleEndian());
-        ASSERT(::isLittleEndian() == Util::isLittleEndian());
-        ASSERT(::isLittleEndian() != Util::isBigEndian());
+        ASSERT(::isLittleEndian() == IS_LITTLE);
 
-        // Must be same as preprocessor MACROS.
-#if defined(BDES_PLATFORMUTIL_IS_BIG_ENDIAN)
-        ASSERT(BDES_PLATFORMUTIL_IS_BIG_ENDIAN == Util::isBigEndian());
-#else
-        ASSERT(BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN == Util::isLittleEndian());
-#endif
-#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
