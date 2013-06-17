@@ -244,6 +244,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
+        // Suppress an unused function warning from the usage-example.
+
+        (void  *)&allocateFromBuffer;
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -326,6 +330,7 @@ int main(int argc, char *argv[])
             typedef const char *(*FuncPtr)(Enum);
 
             const FuncPtr FP = &Obj::toAscii;
+            (void *)FP;
         }
 
       } break;
