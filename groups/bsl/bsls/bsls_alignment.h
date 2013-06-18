@@ -18,23 +18,13 @@ BSLS_IDENT("$Id: $")
 // enumerating alignment strategies, and provides a function, 'toAscii', that
 // converts each of the enumerators to its corresponding string representation.
 //
-// *Note:* This component has been factored into multiple components (it is now
-// simply an enumeration); types and values previously provided are now defined
-// in other components.  Specifically, clients using the previously named
-// 'bsls_AlignmentOf', 'bsls::AlignmentToType', and 'bsls::Alignment' types
-// should now use the components 'bsls_alignmentfromtype',
-// 'bsls_alignmenttotype', and 'bsls_alignmentutil', respectively.  Similarly,
-// the enumerator value 'bsls::Alignment::MAX_ALIGNMENT' and the
-// 'bsls::Alignment::MaxAlignedType' 'typedef' are now provided by
-// 'bsls_alignmentutil'.
-//
 ///Alignment Strategy
 ///------------------
-// This component supports two alignment strategies: 1) MAXIMUM ALIGNMENT and
-// 2) NATURAL ALIGNMENT.
+// This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT,
+// 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT.
 //..
 //  MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
-//  'BSLS_MAXIMUM', specifies that a memory block be aligned as per the most
+//  'BSLS_MAXIMUM', specifies that a memory block be aligned as per the *most*
 //  restrictive alignment requirement on the host platform.
 //
 //  NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
@@ -45,6 +35,11 @@ BSLS_IDENT("$Id: $")
 //  alignment of the most-restrictively aligned sub-object evenly divides
 //  the address of the aggregate.  Natural alignment is always at least as
 //  restrictive as the compiler's required alignment.
+//
+//  1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
+//  'BSLS_BYTEALIGNED', specifies that a memory block may be aligned
+//  arbitrarily on any 1-byte boundary.  This is the *least* restrictive
+//  alignment requirement.
 //..
 ///Usage
 ///-----
@@ -55,9 +50,9 @@ BSLS_IDENT("$Id: $")
 // wholly contained within the buffer, having the specified size and alignment.
 // As a side-effect, the cursor is updated to refer to the next available free
 // byte in the buffer.  Such a function could be used by a memory manager to
-// satisfy allocate requests from internally-managed buffers.  Clients of this
-// function indicate which alignment strategy to use based on their specific
-// requirements.
+// satisfy allocation requests from internally-managed buffers.  Clients of
+// this function indicate which alignment strategy to use based on their
+// specific requirements.
 //
 // Our 'allocateFromBuffer' function depends on an alignment utility,
 // 'my_AlignmentUtil', whose minimal interface is limited to that required by
@@ -98,11 +93,11 @@ BSLS_IDENT("$Id: $")
 //..
 // The definition of our 'allocateFromBuffer' function is as follows:
 //..
-//  static void *allocateFromBuffer(int                      *cursor,
-//                                  char                     *buffer,
-//                                  int                       bufferSize,
-//                                  int                       size,
-//                                  bsls::Alignment::Strategy strategy)
+//  static void *allocateFromBuffer(int                       *cursor,
+//                                  char                      *buffer,
+//                                  int                        bufferSize,
+//                                  int                        size,
+//                                  bsls::Alignment::Strategy  strategy)
 //      // Allocate a memory block of the specified 'size' (in bytes) from the
 //      // specified 'buffer' having the specified 'bufferSize' at the
 //      // specified 'cursor' position, using the specified alignment
@@ -117,39 +112,42 @@ BSLS_IDENT("$Id: $")
 //..
 // First we assert the function pre-conditions:
 //..
-//  assert(cursor);
-//  assert(buffer);
-//  assert(0 <= bufferSize);
-//  assert(0 < size);
+//      assert(cursor);
+//      assert(buffer);
+//      assert(0 <= bufferSize);
+//      assert(0 < size);
 //..
 // Then, based on the alignment 'strategy', we calculate the alignment value
 // that can satisfy the allocation request.  In the case of
 // 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
 // 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
-// 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value:
+// 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value; and for
+// 'bsls::Alignment::BSLS_BYTEALIGNED', we simply use 1:
 //..
-//  const int alignment =
-//                     strategy == bsls::Alignment::BSLS_NATURAL
-//                     ? my_AlignmentUtil::calculateAlignmentFromSize(size)
-//                     : my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT;
+//      const int alignment =
+//                         strategy == bsls::Alignment::BSLS_NATURAL
+//                         ? my_AlignmentUtil::calculateAlignmentFromSize(size)
+//                         : strategy == bsls::Alignment::BSLS_MAXIMUM
+//                           ? my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT
+//                           : 1;
 //..
 // Now we calculate the offset from the current 'cursor' value that can satisfy
 // the 'alignment' requirements:
 //..
-//  const int offset = my_AlignmentUtil::calculateAlignmentOffset(
-//                                                        buffer + *cursor,
-//                                                        alignment);
+//      const int offset = my_AlignmentUtil::calculateAlignmentOffset(
+//                                                            buffer + *cursor,
+//                                                            alignment);
 //
 //..
 // Next we check if the available free memory in 'buffer' can satisfy the
 // allocation request; 0 is returned if the request cannot be satisfied:
 //..
-//  if (*cursor + offset + size > bufferSize) {
-//      return 0;                                                     // RETURN
-//  }
+//      if (*cursor + offset + size > bufferSize) {
+//          return 0;                                                 // RETURN
+//      }
 //
-//  void *result = &buffer[*cursor + offset];
-//  *cursor += offset + size;
+//      void *result = &buffer[*cursor + offset];
+//      *cursor += offset + size;
 //
 //..
 // Finally, return the address of the correctly aligned memory block:
@@ -183,9 +181,13 @@ struct Alignment {
             // Align memory block based on the most restrictive alignment
             // requirements of the host platform.
 
-        BSLS_NATURAL = 1
+        BSLS_NATURAL = 1,
             // Align memory block on an address that is the largest power of
             // two that evenly divides the size (in bytes) of the block.
+
+        BSLS_BYTEALIGNED = 2
+            // Align memory block based on the least restrictive alignment
+            // requirements of the host platform (1-byte aligned).
     };
 
 
