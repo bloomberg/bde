@@ -18,13 +18,12 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 31 components having 11 levels of physical
+ The 'bsls' package currently has 30 components having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   11. bsls_alignedbuffer
-      bsls_alignment
 
   10. bsls_alignmentutil
 
@@ -46,19 +45,19 @@
       bsls_atomicoperations
       bsls_byteorder
       bsls_nullptr
-
-   3. bsls_alignmentimp
-      bsls_annotation
-      bsls_buildtarget
-      bsls_compilerfeatures
-      bsls_nativestd
-      bsls_types
       bsls_unspecifiedbool
       bsls_util
 
-   2. bsls_asserttestexception
-      bsls_blockgrowth
+   3. bsls_alignmentimp
+      bsls_annotation
       bsls_bsltestutil
+      bsls_compilerfeatures
+      bsls_nativestd
+      bsls_types
+
+   2. bsls_alignment
+      bsls_asserttestexception
+      bsls_blockgrowth
       bsls_macroincrement
       bsls_platform
       bsls_protocoltest
@@ -109,9 +108,6 @@
 :
 : 'bsls_bsltestutil':
 :      Provide test utilities for 'bsl' that do not use <iostream>.
-:
-: 'bsls_buildtarget':
-:      Provide build-target information in the object file.
 :
 : 'bsls_byteorder':
 :      Provide byte-order manipulation macros.
