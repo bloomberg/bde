@@ -27,6 +27,7 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -1503,37 +1504,36 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
         if (auxInfo->d_symEntValid) {
             const char *symbolName = getSymbolName(&auxInfo->d_symEnt);
-            frame->setMangledSymbolName(bdeu_String::copy(symbolName,
-                                                          allocator()));
+            frame->setMangledSymbolName(symbolName);
             zprintf("Loaded symbol name: %s\n", frame->mangledSymbolName());
 
-            Name *name = 0;
+            bsl::auto_ptr<Name> name;
             if (d_demangle) {
                 // Note that 'Demangle' is not thread safe.
 
                 bcemt_QLockGuard guard(&s_demangleQLock);
 
-                // Note that 'Demangle' allocates with 'new', and that 'rest'
-                // is is passed as a reference to a modifiable.  Also note that
-                // whoever wrote 'Demangle' didn't know how to use 'const'.
+                // Note that 'Demangle' allocates with 'new', and that
+                // 'remainder' is passed as a reference to a modifiable.  Also
+                // note that whoever wrote 'Demangle' didn't know how to use
+                // 'const'.
 
-                char *rest = 0;
-                name = Demangle((char *) symbolName, rest);
-                if (name && rest && *rest) {
+                char *remainder = 0;
+                name.reset(Demangle(const_cast<char *>(symbolName),
+                                    remainder));
+                if (name.get() && remainder && *remainder) {
                     // For some reason, Demangle may leave some trailing crud
-                    // at the end of the string pointed at by 'name'.  'rest'
-                    // points to the end of the identifier and the beginning of
-                    // that crud.
+                    // at the end of the string pointed at by 'name'.
+                    // 'remainder' points to the end of the identifier and the
+                    // beginning of that crud.
 
-                    *rest = 0;
+                    *remainder = 0;
                 }
             }
-            if (name) {
+            if (name.get()) {
                 char *text = name->Text();
                 zprintf("Demangled to %s\n", text);
-                frame->setSymbolName(bdeu_String::copy(text, allocator()));
-                delete name;    // 'name' is a C++ class, allocced by
-                                // 'Demangle' via 'new'.
+                frame->setSymbolName(text);
             }
             else {
                 zprintf("Did not demangle: %s\n", frame->mangledSymbolName());
