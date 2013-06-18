@@ -281,8 +281,9 @@ int main(int argc, char *argv[])
 
         baesu_StackTrace frames(&ta);
         long heapTop = 0;
+        int iterations = verbose ? 500 : 50;
 
-        for (int ti = 0; ti < 50;  ++ti) {
+        for (int ti = 0; ti < iterations;  ++ti) {
             for (int tj = 0; tj < 10; ++tj) {
                 frames.resize(1);
                 frames[0].setAddress(addFixedOffset((UintPtr)
