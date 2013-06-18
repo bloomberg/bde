@@ -24,7 +24,7 @@ btes5_ProxyDescription::btes5_ProxyDescription(
 
 btes5_ProxyDescription::btes5_ProxyDescription(
     const bteso_Endpoint&         address,
-    const btes5_UserCredentials&  credentials,
+    const btes5_Credentials&  credentials,
     bslma::Allocator             *allocator)
 : d_address(address, allocator)
 , d_credentials(credentials, allocator)
@@ -49,7 +49,7 @@ void btes5_ProxyDescription::setAddress(const bteso_Endpoint& value)
     d_address = value;
 }
 
-void btes5_ProxyDescription::setCredentials(const btes5_UserCredentials& value)
+void btes5_ProxyDescription::setCredentials(const btes5_Credentials& value)
 {
     d_credentials = value;
 }
@@ -60,7 +60,7 @@ const bteso_Endpoint& btes5_ProxyDescription::address() const
     return d_address;
 }
 
-const btes5_UserCredentials& btes5_ProxyDescription::credentials() const
+const btes5_Credentials& btes5_ProxyDescription::credentials() const
 {
     return d_credentials;
 }

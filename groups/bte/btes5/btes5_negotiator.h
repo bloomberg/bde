@@ -20,8 +20,8 @@
 // negotiate a SOCKS5 client-side handshake.  First we will declare and define
 // the callback function.
 //..
-//  void negotiateCb(btes5_Negotiator::Status  result,
-//                      btes5_DetailedError   *error)
+//  void negotiateCb(btes5_Negotiator::NegotiationStatus  result,
+//                      btes5_DetailedError              *error)
 //  {
 //      assert(result == btes5_Negotiator::SUCCESS);
 //  }
@@ -93,7 +93,7 @@
 #endif
 
 #ifndef INCLUDED_BTES5_USERCREDENTIALS
-#include <btes5_usercredentials.h>
+#include <btes5_credentials.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -135,13 +135,14 @@ class btes5_Negotiator {
 
   public:
     // PUBLIC TYPES
-    enum Status {
+    enum NegotiationStatus {
         BTES5_SUCCESS = 0,
         BTES5_AUTHENTICATION, // no acceptable authentication methods
         BTES5_ERROR           // any other error
     };
-    typedef bdef_Function<void(*)(btes5_Negotiator::Status   status,
-                                  const btes5_DetailedError& error)> Callback;
+    typedef bdef_Function<void(*)(btes5_Negotiator::NegotiationStatus status,
+                                  const btes5_DetailedError&          error)>
+        NegotiationStateCallback;
         // The callback of this type is invoked when a SOCKS5 negotiation is
         // complete. If the specified 'status' is 0 the connection has been
         // established, otherwise 'status' indicates the failure type and the
@@ -172,25 +173,20 @@ class btes5_Negotiator {
     // MANIPULATORS
     int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
                   const bteso_Endpoint&                  destination,
-                  Callback                               callback);
+                  NegotiationStateCallback               callback);
+    int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
+                  const bteso_Endpoint&                  destination,
+                  NegotiationStateCallback               callback,
+                  const btes5_Credentials&               credentials);
         // Start SOCKS5 client-side negotiation on the specified 'socket' to
-        // connect to the specified 'destination' using no authentication.
+        // connect to the specified 'destination' using the optionally
+        // specified 'credentials' to authenticate the SOCKS5 connection.
         // Invoke the specified 'callback' when negotiation is finished. Return
         // 0 on successful start, and a non-zero value on immediate failure.
 
     int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
                   const bteso_Endpoint&                  destination,
-                  Callback                               callback,
-                  const btes5_UserCredentials&           credentials);
-        // Start SOCKS5 client-side negotiation on the specified 'socket' to
-        // connect to the specified 'destination' using the specified
-        // 'credentials' to authenticate the SOCKS5 connection. Invoke the
-        // specified 'callback' when negotiation is finished. Return 0 on
-        // successful start, and a non-zero value on immediate failure.
-
-    int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
-                  const bteso_Endpoint&                  destination,
-                  Callback                               callback,
+                  NegotiationStateCallback               callback,
                   btes5_CredentialsProvider             *provider);
         // Start SOCKS5 client-side negotiation on the specified 'socket' to
         // connect to the specified 'destination' using the specified

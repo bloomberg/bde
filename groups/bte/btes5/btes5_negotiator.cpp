@@ -106,28 +106,33 @@ struct Negotiation {
         // for object lifetime management.
 
     // DATA
-    btes5_UserCredentials                  d_credentials; // SOCKS5 credentials
-    btes5_CredentialsProvider             *d_provider_p; // provider
+    btes5_Credentials          d_credentials; // SOCKS5 credentials
+    btes5_CredentialsProvider *d_provider_p; // provider
         // A negotiation request may have no credentials, pre-defined
         // credentials ('d_credentials.isSet()') or 'd_provider_p' supplied.
 
-    bteso_Endpoint                         d_destination; // address to connect
-    bteso_StreamSocket<bteso_IPv4Address> *d_socket_p;    // proxy socket, held
-    bteso_SocketHandle::Handle             d_handle;      // OS-level socket
-    btes5_Negotiator::Callback             d_callback;    // result callback
-    bool                                   d_acquiringCredentials;
+    bteso_Endpoint                             d_destination;
+    bteso_StreamSocket<bteso_IPv4Address>     *d_socket_p; // proxy socket
+    bteso_SocketHandle::Handle                 d_handle;   // OS-level socket
+    btes5_Negotiator::NegotiationStateCallback d_callback; // result callback
 
-    bteso_TimerEventManager               *d_eventManager_p;
+    bool                                       d_acquiringCredentials;
+        // 'true' iff 'd_provider_p->acquireCredentials()' has been invoked but
+        // associated callback 'setCredentials()' has not; and the acquisitions
+        // has not been stopped by
+        // 'd_provider_p->cancelAcquiringCredentials()'.
+
+    bteso_TimerEventManager                   *d_eventManager_p;
         // asynchronous event registration manager, held
 
-    bslma::Allocator                      *d_allocator_p; // memory, held
+    bslma::Allocator                          *d_allocator_p; // memory, held
 
     // CREATORS
-    Negotiation(bteso_StreamSocket<bteso_IPv4Address> *socket,
-                const bteso_Endpoint&                  destination,
-                btes5_Negotiator::Callback             callback,
-                bteso_TimerEventManager               *eventManager,
-                bslma::Allocator                      *allocator);
+    Negotiation(bteso_StreamSocket<bteso_IPv4Address>     *socket,
+                const bteso_Endpoint&                      destination,
+                btes5_Negotiator::NegotiationStateCallback callback,
+                bteso_TimerEventManager                   *eventManager,
+                bslma::Allocator                          *allocator);
         // Create a 'Negotiation' object to connect to the specified
         // 'destination' over the specified 'socket' and asynchrounously invoke
         // the specified 'callback', using the specified 'eventManager' to
@@ -166,8 +171,8 @@ struct Negotiation {
         // specified 'negotiation' on read events on 'd_handle'. Return 0 on
         // success and a negative value otherwise.
 
-    void terminate(btes5_Negotiator::Status    status,
-                   const btes5_DetailedError&  error);
+    void terminate(btes5_Negotiator::NegotiationStatus status,
+                   const btes5_DetailedError&          error);
         // Terminate current negotiation session, and invoke the user-supplied
         // callback with the specified 'status' and 'error'. If the specified
         // 'status' is not 0, 'd_socket_p' will be closed.
@@ -184,11 +189,12 @@ struct Negotiation {
                              // struct Negotiation
                              // ------------------
 // CREATORS
-Negotiation::Negotiation(bteso_StreamSocket<bteso_IPv4Address> *socket,
-                         const bteso_Endpoint&                  destination,
-                         btes5_Negotiator::Callback             callback,
-                         bteso_TimerEventManager               *eventManager,
-                         bslma::Allocator                      *allocator)
+Negotiation::Negotiation(
+    bteso_StreamSocket<bteso_IPv4Address>      *socket,
+    const bteso_Endpoint&                      destination,
+    btes5_Negotiator::NegotiationStateCallback callback,
+    bteso_TimerEventManager                    *eventManager,
+    bslma::Allocator                           *allocator)
 : d_credentials(allocator)
 , d_provider_p(0)
 , d_destination(destination, allocator)
@@ -205,8 +211,8 @@ Negotiation::~Negotiation()
 }
 
 // MANIPULATORS
-void Negotiation::terminate(btes5_Negotiator::Status    status,
-                            const btes5_DetailedError&  error)
+void Negotiation::terminate(btes5_Negotiator::NegotiationStatus status,
+                            const btes5_DetailedError&          error)
 {
     // TODO: take this out
     bsl::cout << "Negotiation::terminate" << bsl::endl;
@@ -522,7 +528,7 @@ btes5_Negotiator::~btes5_Negotiator()
 int btes5_Negotiator::negotiate(
     bteso_StreamSocket<bteso_IPv4Address> *socket,
     const bteso_Endpoint&                  destination,
-    Callback                               callback)
+    NegotiationStateCallback               callback)
 {
     Negotiation::Context
         negotiation(new (*d_allocator_p) Negotiation(socket,
@@ -536,8 +542,8 @@ int btes5_Negotiator::negotiate(
 int btes5_Negotiator::negotiate(
     bteso_StreamSocket<bteso_IPv4Address> *socket,
     const bteso_Endpoint&                  destination,
-    Callback                               callback,
-    const btes5_UserCredentials&           credentials)
+    NegotiationStateCallback               callback,
+    const btes5_Credentials&               credentials)
 {
     Negotiation::Context
         negotiation(new (*d_allocator_p) Negotiation(socket,
@@ -552,7 +558,7 @@ int btes5_Negotiator::negotiate(
 int btes5_Negotiator::negotiate(
     bteso_StreamSocket<bteso_IPv4Address> *socket,
     const bteso_Endpoint&                  destination,
-    Callback                               callback,
+    NegotiationStateCallback               callback,
     btes5_CredentialsProvider             *provider)
 {
     Negotiation::Context

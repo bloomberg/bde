@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
         verbose && cout << "proxy1=" << proxy1 << endl;
 
         bteso_Endpoint address2("example.com", 80);
-        btes5_UserCredentials credentials2("john.smith", "pass2");
+        btes5_Credentials credentials2("john.smith", "pass2");
         btes5_ProxyDescription proxy2(address2, credentials2);
         ASSERT(proxy2.address() == address2);
         ASSERT(proxy2.credentials().isSet());
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
         ASSERT(proxy2.address() == address1);
         verbose && cout << "proxy2=" << proxy2 << endl;
 
-        btes5_UserCredentials credentials3("jane.dow", "pass3");
+        btes5_Credentials credentials3("jane.dow", "pass3");
         proxy1.setCredentials(credentials3);
         ASSERT(proxy1.credentials() == credentials3);
         verbose && cout << "proxy1=" << proxy1 << endl;

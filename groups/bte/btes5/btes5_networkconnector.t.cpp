@@ -115,7 +115,7 @@ void poolStateCb(int state, int source, void *)
     }
 }
 
-void socks5Cb(btes5_NetworkConnector::Status                status,
+void socks5Cb(btes5_NetworkConnector::ConnectionStatus      status,
               bteso_StreamSocket<bteso_IPv4Address>        *socket,
               bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
               const btes5_DetailedError&                    error,
@@ -190,7 +190,7 @@ static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
 // Then we set the user name and password which will be used in case one of the
 // proxies in the connection path requires that type of authentication.
 //..
-    btes5_UserCredentials credentials("John.smith", "pass1");
+    btes5_Credentials credentials("John.smith", "pass1");
     btes5_NetworkDescriptionUtil::setAllCredentials(&proxies, credentials);
 //..
 // Next we construct a 'btes5_NetworkConnector' which will be used to connect

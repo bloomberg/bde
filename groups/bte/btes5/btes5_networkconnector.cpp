@@ -91,9 +91,9 @@ btes5_NetworkConnector::~btes5_NetworkConnector()
 }
 
 // MANIPULATORS
-void btes5_NetworkConnector::connect(const ConnectCallback&   callback,
-                                     const bdet_TimeInterval& timeout,
-                                     const bteso_Endpoint&    server)
+void btes5_NetworkConnector::connect(const ConnectionStateCallback& callback,
+                                     const bdet_TimeInterval&       timeout,
+                                     const bteso_Endpoint&          server)
 {
 /*** TODO: put real logic here
 check at least one level, and each proxy level has at least one proxy

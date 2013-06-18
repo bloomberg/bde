@@ -142,11 +142,11 @@ struct ConnectBase {
 // the callback function. It will signal the main thread by setting 'state',
 // which in turn is protected by a mutex and condition variable.
 //..
-void socks5Callback(btes5_Negotiator::Status result,
-                    btes5_DetailedError      error,
-                    bcemt_Mutex              *stateLock,
-                    bcemt_Condition          *stateChanged,
-                    volatile int             *state)
+void socks5Callback(btes5_Negotiator::NegotiationStatus result,
+                    btes5_DetailedError                 error,
+                    bcemt_Mutex                         *stateLock,
+                    bcemt_Condition                     *stateChanged,
+                    volatile int                        *state)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
     if (result == btes5_Negotiator::BTES5_SUCCESS) {
@@ -165,7 +165,7 @@ void socks5Callback(btes5_Negotiator::Status result,
 int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
                const bteso_Endpoint&                 destination)
 {
-    btes5_UserCredentials credentials("john.smith", "PassWord123");
+    btes5_Credentials credentials("john.smith", "PassWord123");
 //..
 // Next, we declare the variable for communicating the response, with a mutex
 // and a condition variable to protect access to it from different threads.
@@ -319,7 +319,7 @@ int main(int argc, char *argv[]) {
         int rc = socket->connect(proxyAddress);
         ASSERT(0 == rc);
 
-        btes5_UserCredentials credentials;
+        btes5_Credentials credentials;
 
         bcemt_Mutex     stateLock;
         bcemt_Condition stateChanged;

@@ -29,7 +29,7 @@ BDES_IDENT("$Id: $")
 //
 
 #ifndef INCLUDED_USERCREDENTIALS
-#include <btes5_usercredentials.h>
+#include <btes5_credentials.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -63,7 +63,7 @@ class btes5_ProxyDescription {
 
     // DATA
     bteso_Endpoint        d_address;     // TCP address of the proxy
-    btes5_UserCredentials d_credentials; // SOCKS5 credentials
+    btes5_Credentials d_credentials; // SOCKS5 credentials
 
   public:
     // CREATORS
@@ -76,7 +76,7 @@ class btes5_ProxyDescription {
         // default allocator.
 
     btes5_ProxyDescription(const bteso_Endpoint&         address,
-                           const btes5_UserCredentials&  credentials,
+                           const btes5_Credentials&  credentials,
                            bslma::Allocator             *allocator = 0);
         // Create a 'btes5_ProxyDescription' object with the specified
         // 'address' and 'credentials'. If the optionally specified
@@ -101,14 +101,14 @@ class btes5_ProxyDescription {
     void setAddress(const bteso_Endpoint& value);
         // Set the address of this object to the specified 'value'.
 
-    void setCredentials(const btes5_UserCredentials& value);
+    void setCredentials(const btes5_Credentials& value);
         // Set the credentials of this object to the specified 'value'.
 
     // ACCESSORS
     const bteso_Endpoint& address() const;
         // Return a reference to a read-only address attribute of this object.
 
-    const btes5_UserCredentials& credentials() const;
+    const btes5_Credentials& credentials() const;
         // Return a reference to a read-only credentials attribute of this
         // object.
 

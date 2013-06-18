@@ -42,7 +42,7 @@ btes5_NetworkDescription& btes5_NetworkDescription::operator=(const btes5_Networ
 
 int btes5_NetworkDescription::addProxy(int level,
              const bteso_Endpoint&         address,
-             const btes5_UserCredentials&  credentials)
+             const btes5_Credentials&  credentials)
     // Add a proxy host with the specified 'address' and 'credentials' t
     // the specified 'level', and return its ordinal number in the 'level'.
 {
@@ -57,13 +57,13 @@ int btes5_NetworkDescription::addProxy(int level,
 
 int btes5_NetworkDescription::addProxy(int level, const bteso_Endpoint& address)
 {
-    return addProxy(level, address, btes5_UserCredentials());
+    return addProxy(level, address, btes5_Credentials());
 }
 
 void btes5_NetworkDescription::setCredentials(
     int                          level,
     int                          order,
-    const btes5_UserCredentials& credentials)
+    const btes5_Credentials& credentials)
 {
     BSLS_ASSERT(0 <= level && level < d_proxies.size());
     BSLS_ASSERT(0 <= order && order < d_proxies[level].size());
@@ -142,7 +142,7 @@ bsl::ostream& operator<<(bsl::ostream&                 output,
 void btes5_NetworkDescriptionUtil::setLevelCredentials(
     btes5_NetworkDescription     *proxyNetwork,
     int                           level,
-    const btes5_UserCredentials&  credentials)
+    const btes5_Credentials&  credentials)
 {
     BSLS_ASSERT(0 <= level && level < proxyNetwork->levelCount());
     int order = 0;
@@ -158,7 +158,7 @@ void btes5_NetworkDescriptionUtil::setLevelCredentials(
 
 void btes5_NetworkDescriptionUtil::setAllCredentials(
     btes5_NetworkDescription      *proxyNetwork,
-    const btes5_UserCredentials&   credentials)
+    const btes5_Credentials&   credentials)
 {
     for (int l = 0, end = proxyNetwork->levelCount(); l != end; l++) {
         setLevelCredentials(proxyNetwork, l, credentials);

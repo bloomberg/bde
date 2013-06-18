@@ -27,7 +27,7 @@ BDES_IDENT("$Id: $")
 // first through one of corporate SOCKS5 servers, and then through one of
 // regional SOCKS5 servers.
 //..
-//  void connectCb(btes5_NetworkConnector::Status                status,
+//  void connectCb(btes5_NetworkConnector::ConnectionStatus      status,
 //                 bteso_StreamSocket<bteso_IPv4Address>        *socket,
 //                 bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
 //                 const btes5_DetailedError&                    error)
@@ -122,7 +122,7 @@ class btes5_NetworkConnector {
 public:
     // TYPES
 
-    enum Status {
+    enum ConnectionStatus {
         BTES5_SUCCESS = 0,    // connection successfully established
         BTES5_TIMEOUT,        // connection attempt timed out
         BTES5_AUTHENTICATION, // no acceptable authentication methods
@@ -130,11 +130,11 @@ public:
     };
 
     typedef bdef_Function<void (*)(
-            btes5_NetworkConnector::Status                status,
+            btes5_NetworkConnector::ConnectionStatus      status,
             bteso_StreamSocket<bteso_IPv4Address>        *socket,
             bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
             const btes5_DetailedError&                    error)>
-        ConnectCallback;
+        ConnectionStateCallback;
         // A callback of this type is invoked when the 'btes5_NetworkConnector'
         // object establishes a connection or fails. If the specified 'status'
         // is zero, use the specified 'socket' for communication, and the
@@ -196,9 +196,9 @@ public:
         // Destroy this object.
 
     // MANIPULATORS
-    void connect(const ConnectCallback&   callback,
-                 const bdet_TimeInterval& timeout,
-                 const bteso_Endpoint&    server);
+    void connect(const ConnectionStateCallback& callback,
+                 const bdet_TimeInterval&       timeout,
+                 const bteso_Endpoint&          server);
         // Asynchronously connect to the specified 'server'; the specified
         // 'callback' will be invoked with connection status. If the specified
         // 'timeout' is not empty, a successful connection must occur within

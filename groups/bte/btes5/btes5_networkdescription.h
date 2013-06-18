@@ -101,7 +101,7 @@ class btes5_NetworkDescription {
     // TODO: replace both with addProxy(int, const btes5_ProxyDescription&) ?
     int addProxy(int                          level,
                  const bteso_Endpoint&        address,
-                 const btes5_UserCredentials& credentials);
+                 const btes5_Credentials& credentials);
         // Add a proxy host with the specified 'address' and 'credentials' to
         // the specified 'level', and return its ordinal number in the 'level'.
         // The behavior is undefined unless 'level >= 0'.
@@ -113,7 +113,7 @@ class btes5_NetworkDescription {
 
     void setCredentials(int                          level,
                         int                          order,
-                        const btes5_UserCredentials& credentials);
+                        const btes5_Credentials& credentials);
         // Set credentials for the proxy identified by the specified 'level'
         // and 'order' to the specified 'credentials'. The behavior is
         // undefined unless 'level' and 'order' identify a proxy previously
@@ -144,13 +144,13 @@ struct btes5_NetworkDescriptionUtil {
 
     static void setLevelCredentials(btes5_NetworkDescription     *proxyNetwork,
                                     int                           level,
-                                    const btes5_UserCredentials&  credentials);
+                                    const btes5_Credentials&  credentials);
         // Assign the specified 'credentials' for authenticating with every
         // proxy in the specified 'level' of the specified 'proxyNetwork'. The
         // behavior is undefined unless '0 <= level && level < levelCount()'.
 
     static void setAllCredentials(btes5_NetworkDescription      *proxyNetwork,
-                                  const btes5_UserCredentials&   credentials);
+                                  const btes5_Credentials&   credentials);
         // Assign the specified 'credentials' for authenticating with every
         // proxy in the specified 'proxyNetwork'. The behavior is undefined
         // unless '0 <= level && level < levelCount()'.
