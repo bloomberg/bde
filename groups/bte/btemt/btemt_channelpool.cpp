@@ -3956,12 +3956,12 @@ int btemt_ChannelPool::shutdown(int                      channelId,
 
 int btemt_ChannelPool::stopAndRemoveAllChannels()
 {
-    bcemt_LockGuard<bcemt_Mutex> managersGuard(&d_managersLock);
+    bcemt_LockGuard<bcemt_Mutex> managersGuard(&d_managersStateChangeLock);
 
     // Terminate all the worker threads ensuring that no socket event is being
-    // monitored.  We keep 'd_managersLock' locked during this function so
-    // another thread does not succeed in calling 'start' before this function
-    // returns.
+    // monitored.  We keep 'd_managersStateChangeLock' locked during this
+    // function so another thread does not succeed in calling 'start' before
+    // this function returns.
 
     const int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
@@ -4000,6 +4000,8 @@ int btemt_ChannelPool::stopAndRemoveAllChannels()
             }
             cIter->second.d_socket_p = 0;
         }
+
+        d_connectors.clear();
     }
 
     // Remove and deallocate all channels.
@@ -4058,7 +4060,7 @@ int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
 
 int btemt_ChannelPool::start()
 {
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersLock);
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersStateChangeLock);
 
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
@@ -4079,7 +4081,7 @@ int btemt_ChannelPool::start()
 
 int btemt_ChannelPool::stop()
 {
-    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersLock);
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersStateChangeLock);
 
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {

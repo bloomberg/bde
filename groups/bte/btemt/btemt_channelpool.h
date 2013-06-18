@@ -945,9 +945,14 @@ class btemt_ChannelPool {
     // INSTANCE DATA
                                         // *** Transport-related state ***
     bcec_ObjectCatalog<ChannelHandle>   d_channels;
+
     bsl::vector<btemt_TcpTimerEventManager *>
                                         d_managers;
-    mutable bcemt_Mutex                 d_managersLock;
+
+    mutable bcemt_Mutex                 d_managersStateChangeLock;
+                                                    // mutex to synchronize
+                                                    // changing the state of
+                                                    // the event managers
 
     bsl::map<int, btemt_Connector>      d_connectors;
     mutable bcemt_Mutex                 d_connectorsLock;
