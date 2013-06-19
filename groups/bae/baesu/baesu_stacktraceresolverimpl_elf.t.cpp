@@ -433,7 +433,6 @@ int main(int argc, char *argv[])
             // frame[1] was pointing to a static, the ELF resolver should have
             // found this source file name.
 
-#ifndef BSLS_PLATFORM_OS_LINUX
             for (int i = 0; i < stackTrace.length(); ++i) {
                 if (0 == i || 3 == i) {
                     LOOP_ASSERT(i, !stackTrace[i].isSourceFileNameKnown());
@@ -455,7 +454,6 @@ int main(int argc, char *argv[])
                                     "baesu_stacktraceresolverimpl_elf.t.cpp"));
                 }
             }
-#endif
 
 #undef  SM
 #define SM(nm, match) {                                             \
