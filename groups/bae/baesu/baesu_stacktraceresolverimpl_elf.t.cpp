@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
                 IS_KNOWN(LibraryFileName);
                 IS_KNOWN(MangledSymbolName);
                 IS_KNOWN(OffsetFromSymbol);
-                if (1 == i) {
+                if (1 == i || 2 == i) {
                     IS_KNOWN(SourceFileName);    // static symbols only
                 }
                 IS_KNOWN(SymbolName);
@@ -435,13 +435,16 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_PLATFORM_OS_LINUX
             for (int i = 0; i < stackTrace.length(); ++i) {
-                if (0 == i || 2 == i || 4 == i) {
-                    ASSERT(!stackTrace[i].isSourceFileNameKnown());
+                if (0 == i || 3 == i) {
+                    LOOP_ASSERT(i, !stackTrace[i].isSourceFileNameKnown());
                     continue;
                 }
 
                 const char *name = stackTrace[i].sourceFileName().c_str();
-                ASSERT(name && *name);
+                LOOP_ASSERT(i, name);
+                if (name) {
+                    LOOP_ASSERT(i, *name);
+                }
                 if (name) {
                     const char *pc = name + bsl::strlen(name);
                     while (pc > name && '/' != pc[-1]) {
