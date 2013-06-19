@@ -227,6 +227,9 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
         // Destroy this stack trace resolver object.
 
     // PRIVATE MANIPULATORS
+    bslma::Allocator *allocator();
+        // Return a pointer to this object's heap bypass allocator.
+
     int findArchiveMember(const char *memberName);
         // Locate the archive member with the specified 'memberName' in the
         // current archive file and save the member's offset from the beginning
@@ -321,10 +324,6 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
         // that if 'archiveMemberName' is unspecified, the whole library file
         // has a single segment.
 
-    // PRIVATE ACCESSORS
-    bslma::Allocator *allocator();
-        // Return a pointer to this object's heap bypass allocator.
-
   public:
     // PUBLIC CLASS METHODS
     static
@@ -351,7 +350,7 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
                          // class baesu_StackTraceResolverImpl
                          // ----------------------------------
 
-// PRIVATE ACCESSORS
+// PRIVATE MANIPULATORS
 inline
 bslma::Allocator *baesu_StackTraceResolverImpl<
                                     baesu_ObjectFileFormat::Xcoff>::allocator()

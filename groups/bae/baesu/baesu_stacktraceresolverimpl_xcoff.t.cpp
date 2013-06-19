@@ -29,6 +29,7 @@ using bsl::endl;
 //-----------------------------------------------------------------------------
 // [ 1] resolve
 // [ 2] garbage test
+// [ 3] memory heap leak test
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -258,20 +259,17 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
-        // Reproduce bug DRQS 42134199
+        // TESTING: Potential Memory Leak (see DRQS 42134199)
         //
         // Concerns:
-        //   It was reported that the heap was slowly growing as a result of
-        //   the stack trace being called many times.  The memory was not being
-        //   used by the default or global allocators.  Note that most of the
-        //   memory allocated by the resolver is in a local heap bypass
-        //   allocator and would not show up in normal measurement of the heap.
-        //   It was tracked down to be a problem with how 'Demangle' was being
-        //   called.
+        //: 1 That heap memory allocated when resolving symbols is reclaimed.
         //
         // Plan:
-        //   Do some resolving, including demanagling, many times and monitor
-        //   the heap size via 'sbrk'.
+        //: 1 Resolve symbols repeatedly and observe, using 'sbrk', that the
+        //:   stack top remains constant (note that the stack top will grow
+        //:   for the first several iterations due to memory fragmentation,
+        //:   but should eventually settle down into 100% of memory being
+        //:   reclaimed.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Memory Leak Test\n"
