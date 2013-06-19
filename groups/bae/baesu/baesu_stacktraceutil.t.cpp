@@ -48,6 +48,10 @@
 
 # pragma optimize("", off)
 
+#else
+
+#include <unistd.h>    // sbrk
+
 #endif
 
 using namespace BloombergLP;
@@ -73,9 +77,10 @@ using bsl::flush;
 // [10] multithreaded
 // [11] hexStackTrace
 // [12] printHexStackTrace
-// [13] usage 1
-// [14] usage 2
-// [15] usage 3
+// [13] heap memory leak test
+// [14] usage 1
+// [15] usage 2
+// [16] usage 3
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -1491,7 +1496,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE THREE
         //
@@ -1512,7 +1517,7 @@ int main(int argc, char *argv[])
         recurseExample3(&depth);
         ASSERT(5 == depth);
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TWO
         //
@@ -1534,7 +1539,7 @@ int main(int argc, char *argv[])
         recurseExample2(&depth);
         ASSERT(5 == depth);
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE ONE
         //
@@ -1554,6 +1559,53 @@ int main(int argc, char *argv[])
         int depth = 5;
         recurseExample1(&depth);
         ASSERT(5 == depth);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING: Potential Memory Leak (see DRQS 42134199)
+        //
+        // Concerns:
+        //: 1 That heap memory allocated when resolving symbols is reclaimed.
+        //
+        // Plan:
+        //: 1 Resolve symbols repeatedly and observe, using 'sbrk', that the
+        //:   stack top remains constant (note that the stack top will grow
+        //:   for the first several iterations due to memory fragmentation,
+        //:   but should eventually settle down into 100% of memory being
+        //:   reclaimed.
+        // --------------------------------------------------------------------
+
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+        if (verbose) cout << "Memory Leak Test is Performed on Unix Only\n"
+                             "==========================================\n";
+#else
+        if (verbose) cout << "Memory Leak Test\n"
+                             "================\n";
+
+        bslma::TestAllocator ta;
+
+        baesu_StackTrace st(&ta);
+        UintPtr heapTop = 0;
+        int iterations = verbose ? 500 : 50;
+
+        for (int ti = 0; ti < iterations;  ++ti) {
+            for (int tj = 0; tj < 10; ++tj) {
+                Util::loadStackTraceFromStack(&st);
+                ASSERT(st.length() >= 1);
+                st.resize(0);
+            }
+
+            if (4 == ti) {
+                heapTop = (UintPtr) sbrk(0);
+            }
+            else if (ti > 4) {
+                LOOP2_ASSERT((UintPtr) sbrk(0), heapTop,
+                                                 (UintPtr) sbrk(0) == heapTop);
+            }
+
+            if (verbose) P((UintPtr) sbrk(0));
+        }
+#endif
       } break;
       case 12: {
         // --------------------------------------------------------------------
