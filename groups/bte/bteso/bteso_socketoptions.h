@@ -214,6 +214,10 @@ class bteso_SocketOptions {
                                          // should out-of-band data (data
                                          // marked urgent) be left inline
 
+    bdeut_NullableValue<bool>  d_tcpNoDelay;
+                                         // disable the Nagle algorithm for
+                                         // send coalescing
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bteso_SocketOptions,
@@ -309,6 +313,10 @@ class bteso_SocketOptions {
         // Set the 'receiveTimeout' attribute of this object to the specified
         // 'value'.
 
+    void setTcpNoDelay(bool value);
+        // Set the 'tcpNoDelay' attribute of this object to the specified
+        // 'value'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -378,6 +386,9 @@ class bteso_SocketOptions {
 
     const bdeut_NullableValue<int>& receiveTimeout() const;
         // Return a reference to the non-modifiable 'receiveTimeout' attribute.
+
+    const bdeut_NullableValue<bool>& tcpNoDelay() const;
+        // Return a reference to the non-modifiable 'tcpNoDelay' attribute.
 };
 
 // FREE OPERATORS
@@ -413,7 +424,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bteso_SocketOptions& rhs);
 inline
 int bteso_SocketOptions::maxSupportedBdexVersion()
 {
-    return 1;  // versions start at 1.
+    return 2;
 }
 
 // MANIPULATORS
@@ -422,6 +433,9 @@ STREAM& bteso_SocketOptions::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) {
+          case 2:
+            bdex_InStreamFunctions::streamIn(stream, d_tcpNoDelay, 1);
+            // fall through
           case 1: {
             bdex_InStreamFunctions::streamIn(stream, d_debugFlag, 1);
             bdex_InStreamFunctions::streamIn(stream, d_allowBroadcasting, 1);
@@ -529,11 +543,20 @@ void bteso_SocketOptions::setReceiveTimeout(int value)
     d_receiveTimeout.makeValue(value);
 }
 
+inline
+void bteso_SocketOptions::setTcpNoDelay(bool value)
+{
+    d_tcpNoDelay.makeValue(value);
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& bteso_SocketOptions::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
+      case 2:
+        bdex_OutStreamFunctions::streamOut(stream, d_tcpNoDelay, 1);
+        // fall through
       case 1: {
         bdex_OutStreamFunctions::streamOut(stream, d_debugFlag, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_allowBroadcasting, 1);
@@ -640,6 +663,12 @@ const bdeut_NullableValue<int>& bteso_SocketOptions::receiveTimeout() const
     return d_receiveTimeout;
 }
 
+inline
+const bdeut_NullableValue<bool>& bteso_SocketOptions::tcpNoDelay() const
+{
+    return d_tcpNoDelay;
+}
+
 // FREE FUNCTIONS
 inline
 bool operator==(const bteso_SocketOptions& lhs,
@@ -657,26 +686,15 @@ bool operator==(const bteso_SocketOptions& lhs,
          && lhs.minimumSendBufferSize() == rhs.minimumSendBufferSize()
          && lhs.minimumReceiveBufferSize() == rhs.minimumReceiveBufferSize()
          && lhs.sendTimeout() == rhs.sendTimeout()
-         && lhs.receiveTimeout() == rhs.receiveTimeout();
+         && lhs.receiveTimeout() == rhs.receiveTimeout()
+         && lhs.tcpNoDelay() == rhs.tcpNoDelay();
 }
 
 inline
 bool operator!=(const bteso_SocketOptions& lhs,
                 const bteso_SocketOptions& rhs)
 {
-    return  lhs.debugFlag() != rhs.debugFlag()
-         || lhs.allowBroadcasting() != rhs.allowBroadcasting()
-         || lhs.reuseAddress() != rhs.reuseAddress()
-         || lhs.keepAlive() != rhs.keepAlive()
-         || lhs.bypassNormalRouting() != rhs.bypassNormalRouting()
-         || lhs.linger() != rhs.linger()
-         || lhs.leaveOutOfBandDataInline() != rhs.leaveOutOfBandDataInline()
-         || lhs.sendBufferSize() != rhs.sendBufferSize()
-         || lhs.receiveBufferSize() != rhs.receiveBufferSize()
-         || lhs.minimumSendBufferSize() != rhs.minimumSendBufferSize()
-         || lhs.minimumReceiveBufferSize() != rhs.minimumReceiveBufferSize()
-         || lhs.sendTimeout() != rhs.sendTimeout()
-         || lhs.receiveTimeout() != rhs.receiveTimeout();
+    return !(lhs == rhs);
 }
 
 inline

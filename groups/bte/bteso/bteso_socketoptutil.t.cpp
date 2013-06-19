@@ -151,7 +151,7 @@ const unsigned short DUMMY_PORT = 5000;
 //                  <MIN_RECV_BUF_SIZE> | <SEND_TIMEOUT> | <RECV_TIMEOUT>
 //                  <DEBUG> | <ALLOW_BROADCASTING> | <REUSE_ADDR> |
 //                  <KEEP_ALIVE> | <BYPASS_ROUTING> |
-//                  <LEAVE_OUT_OF_BAND_DATA_INLINE> | LINGER
+//                  <LEAVE_OUT_OF_BAND_DATA_INLINE> | <LINGER> | <TCP_NODELAY>
 //
 // <ELEMENT>    ::= <SPEC><VALUE> | <SPEC><BOOLEAN> | <SPEC><LINGER>
 //
@@ -168,6 +168,7 @@ const unsigned short DUMMY_PORT = 5000;
 //                | 'K'              // <BYPASS_ROUTING>
 //                | 'L'              // <LEAVE_OUT_OF_BAND_INLINE>
 //                | 'M'              // <LINGER>
+//                | 'N'              // <TCP_NODELAY>
 //
 // <VALUE>      ::= '0' | '1' | '2'
 // <BOOLEAN>    ::= 'Y' | 'N'
@@ -244,6 +245,10 @@ int setOption(SocketOptions *options, const char *specString)
         linger.setTimeout(DATA[nextValue - '0']);
         options->setLinger(linger);
         ++numRead;
+      } break;
+      case 'N': {  // TCP_NODELAY
+        LOOP_ASSERT(value, 'Y' == value || 'N' == value);
+        options->setTcpNoDelay('Y' == value);
       } break;
       default: {
         LOOP2_ASSERT(spec, value, 0);
@@ -480,6 +485,20 @@ int verify(bteso_SocketHandle::Handle handle,
                      result == options.receiveTimeout().value());
     }
 
+    if (!options.tcpNoDelay().isNull()) {
+        int result;
+        const int rc = SockOptUtil::getOption(
+                                    &result,
+                                    handle,
+                                    bteso_SocketOptUtil::BTESO_TCPLEVEL,
+                                    bteso_SocketOptUtil::BTESO_TCPNODELAY);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+        LOOP2_ASSERT(result, options.tcpNoDelay().value(),
+                     result == options.tcpNoDelay().value());
+    }
+
     return 0;
 }
 
@@ -651,6 +670,8 @@ int main(int argc, char *argv[])
                   {   L_,   "LN",         0, 0 },
                   {   L_,   "LY",         0, 0 },
 #endif
+                  {   L_,   "NN",         0, -1 },
+                  {   L_,   "NY",         0, -1 },
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
                   {   L_,   "GNHN",      -1, 0 },
