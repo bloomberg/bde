@@ -283,14 +283,6 @@
  The {'bsls_ident'} component provides macros for inserting SCM (Source Control
  Management) Ids into source files.
 
-/'bsls_int64'
-/ - - - - - -
- The {'bsls_int64'} component provides platform-independent type names for both
- signed and unsigned 64-bit integers.  For healthy platforms, the component
- simply provides a BDE-standard 'typedef' for the non-standard native type
- name.  All platforms currently supported are healthy regarding 64-bit
- integers.
-
 /'bsls_macroincrement'
 /- - - - - - - - - - -
  The {'bsls_macroincrement'} component provides a macro,
@@ -331,18 +323,6 @@
  describe platform-specific attributes (at compile time).  These attributes
  consist of the types and versions of operating system, processor(s), and
  compiler that comprise the platform.
-
-/'bsls_platformutil'
-/- - - - - - - - - -
- The {'bsls_platformutil'} component provides a namespace for a collection of
- 'typedef's and pure procedures that would otherwise have platform-dependent
- interfaces.  For example, it defines the preferred fundamental types denoting
- signed and unsigned 64-bit integers, the preferred integral type denoting a
- number of elements in allocators and containers, provides the capability of
- determining whether a machine is big or little endian across all supported
- platforms, and defines a set of macros replacing the standard 'htonl',
- 'htons', 'ntohl', and 'ntohs' which do not require including any system
- header.
 
 /'bsls_protocoltest'
 /- - - - - - - - - -

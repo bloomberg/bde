@@ -223,13 +223,6 @@
  'std::free' that adheres to the 'bslma::Allocator' protocol (i.e., provides
  'allocate' and 'deallocate' functions).
 
-/'bslma_managedallocator'
-/ - - - - - - - - - - - -
- 'bslma_managedallocator' defines a protocol that extends the
- 'bslma::Allocator' protocol with a 'release' function.  'release' indicates
- that all memory allocated since the previous 'release' call is to be
- deallocated.
-
 /'bslma_newdeleteallocator'
 / - - - - - - - - - - - - -
  'bslma_newdeleteallocator' provides a wrapper around 'operator new' and
