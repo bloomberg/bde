@@ -162,6 +162,8 @@ int main(int argc, char *argv[]) {
     bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     // CONCERN: No memory is ever allocated.
