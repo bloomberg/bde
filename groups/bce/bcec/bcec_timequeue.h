@@ -90,7 +90,10 @@ BDES_IDENT("$Id: $")
 ///-------------
 // The 'bcec_TimeQueue' component is constructed using a user-supplied
 // 'numIndexBits'.  The number of bits used to store the index controls the
-// range of available indices.
+// range of available indices.  The maximum number of valid nodes at any time
+// is 'numIndexBits - 1'.  A larger value of 'numIndexBits' results in
+// 'Handle' values being re-used more frequently, but never will two current
+// nodes share the same 'Handle' value.
 //
 ///Forward declarations:
 ///- - - - - - - - - - -
@@ -600,9 +603,8 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-template <typename DATA> class bcec_TimeQueueItem;
-
-
+template <typename DATA>
+class bcec_TimeQueueItem;
 
                              // ====================
                              // class bcec_TimeQueue
@@ -636,7 +638,9 @@ class bcec_TimeQueue {
         // 'bcec_TimeQueue', as a return value when the item is inserted into
         // the queue.  Clients use this value to gain direct access to the
         // corresponding element; see member functions 'add', 'update', and
-        // 'remove'.
+        // 'remove'.  Note that 'Handle' values are eventually re-used, but
+        // only some time after the node using the index has been freed.  Never
+        // will two current nodes use the same 'Handle'.
 
     class Key {
         // This type is a wrapper around a void pointer that will be supplied
@@ -648,20 +652,31 @@ class bcec_TimeQueue {
       public:
         // CREATORS
         explicit Key(const void *key)
-        : d_key(key) { }
+        : d_key(key)
+            // Create a 'Key' object with the specified value 'key'.
+        {}
 
         explicit Key(int key)
-        : d_key(reinterpret_cast<const void*>(key)) { }
+        : d_key(reinterpret_cast<const void*>(key))
+            // Create a 'Key' object with the specified value 'key' cast to a
+            // 'void *'.
+        {}
 
-        ~Key() { }
+        ~Key()
+            // Destroy this 'Key' object.
+        {}
 
         // ACCESSORS
         bool operator==(const Key& rhs) const
+            // Return 'true' if this object is equal to the specified 'rhs'
+            // and 'false' otherwise.
         {
             return d_key == rhs.d_key;
         }
 
         bool operator!=(const Key& rhs) const
+            // Return 'false' if this object is equal to the specified 'rhs'
+            // and 'true' otherwise.
         {
             return d_key != rhs.d_key;
         }
@@ -683,12 +698,15 @@ class bcec_TimeQueue {
         Node                     *d_next_p;
         bsls::ObjectBuffer<DATA>  d_data;
 
+        // CREATORS
+        explicit
         Node(const bdet_TimeInterval& time)
         : d_index(0)
         , d_time(time)
         , d_key(0)
         , d_prev_p(0)
         , d_next_p(0)
+            // Create a 'Node' with the speccified value 'time'.
         {
         }
 
@@ -697,6 +715,7 @@ class bcec_TimeQueue {
         , d_key(0)
         , d_prev_p(0)
         , d_next_p(0)
+            // Create a 'Node' at time 0.
         {
         }
     };
@@ -751,6 +770,7 @@ class bcec_TimeQueue {
         // calling 'freeNode'.  Note that the caller must not have acquired the
         // lock to this queue.
 
+  private:
     // NOT IMPLEMENTED
     bcec_TimeQueue(const bcec_TimeQueue&);
     bcec_TimeQueue& operator=(const bcec_TimeQueue&);
@@ -948,6 +968,7 @@ class bcec_TimeQueueItem {
 
   public:
     // CREATORS
+    explicit
     bcec_TimeQueueItem(bslma::Allocator                *basicAllocator = 0);
     bcec_TimeQueueItem(const bdet_TimeInterval&         time,
                        const DATA&                      data,
@@ -964,7 +985,7 @@ class bcec_TimeQueueItem {
         // 'basicAllocator' is zero, then use the currently installed default
         // allocator.
 
-    bcec_TimeQueueItem(bcec_TimeQueueItem<DATA> const&  original,
+    bcec_TimeQueueItem(const bcec_TimeQueueItem<DATA>&  original,
                        bslma::Allocator                *basicAllocator = 0);
         // Create a copy of the 'original' time queue item.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -983,6 +1004,7 @@ class bcec_TimeQueueItem {
     {
         // this definition was moved into the class declaration
         // to work around a Visual Studio .NET 2003 bug.
+
         return d_handle;
     }
 
@@ -1001,6 +1023,7 @@ class bcec_TimeQueueItem {
     {
         // this definition was moved into the class declaration
         // to work around a Visual Studio .NET 2003 bug.
+
         return d_handle;
     }
 
@@ -1018,7 +1041,8 @@ class bcec_TimeQueueItem {
 
 // PRIVATE MANIPULATORS
 template <typename DATA>
-inline void bcec_TimeQueue<DATA>::freeNode(Node *node)
+inline
+void bcec_TimeQueue<DATA>::freeNode(Node *node)
 {
     node->d_index = ((node->d_index + d_indexIterationInc) &
                     d_indexIterationMask) | (node->d_index & d_indexMask);
@@ -1155,7 +1179,8 @@ bcec_TimeQueue<DATA>::~bcec_TimeQueue()
 
 // MANIPULATORS
 template <typename DATA>
-inline typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
+inline
+typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
                                            const bdet_TimeInterval&  time,
                                            const DATA&               data,
                                            int                      *isNewTop,
@@ -1187,8 +1212,9 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
     else {
         // The number of nodes cannot grow to a size larger than the range of
         // available indices.
+
         if ((int)d_nodeArray.size() >= d_indexMask - 1) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         node = new (*d_allocator_p) Node;
@@ -1232,7 +1258,8 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
 }
 
 template <typename DATA>
-inline typename bcec_TimeQueue<DATA>::Handle bcec_TimeQueue<DATA>::add(
+inline
+typename bcec_TimeQueue<DATA>::Handle bcec_TimeQueue<DATA>::add(
                                     const bcec_TimeQueueItem<DATA>&  item,
                                     int                             *isNewTop,
                                     int                             *newLength)
@@ -1249,7 +1276,7 @@ int bcec_TimeQueue<DATA>::popFront(bcec_TimeQueueItem<DATA> *buffer,
     MapIter it = d_map.begin();
 
     if (d_map.end() == it) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     Node *node = it->second;
 
@@ -1423,14 +1450,14 @@ int bcec_TimeQueue<DATA>::remove(
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
     int index = ((int)handle & d_indexMask) - 1;
     if (index < 0 || index >= (int)d_nodeArray.size()) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     Node *node = d_nodeArray[index];
 
     if (node->d_index != (int)handle
      || node->d_key != key
      || 0 == node->d_prev_p) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (item) {
@@ -1531,12 +1558,12 @@ int bcec_TimeQueue<DATA>::update(
     int index = ((int)handle & d_indexMask) - 1;
 
     if (index < 0 || (unsigned) index >= d_nodeArray.size()) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     Node *node = d_nodeArray[index];
 
     if (node->d_index != (int)handle || node->d_key != key) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (node->d_prev_p != node) {
@@ -1599,12 +1626,12 @@ bool bcec_TimeQueue<DATA>::isRegisteredHandle(
     int index = (handle & d_indexMask) - 1;
 
     if ( 0 > index || index >= (int)d_nodeArray.size()) {
-        return false;
+        return false;                                                 // RETURN
     }
     Node *node = d_nodeArray[index];
 
     if (node->d_index != (int)handle || node->d_key != key) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     return true;
@@ -1617,7 +1644,7 @@ int bcec_TimeQueue<DATA>::minTime(bdet_TimeInterval *buffer) const
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
     if (d_map.empty()) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     *buffer = d_map.begin()->first;
@@ -1702,7 +1729,7 @@ DATA& bcec_TimeQueueItem<DATA>::data()
     return d_data;
 }
 
-/*
+#if 0
 // this definition was moved into the class declaration
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
@@ -1712,7 +1739,7 @@ bcec_TimeQueueItem<DATA>::handle()
 {
     return d_handle;
 }
-*/
+#endif
 
 template <typename DATA>
 inline
@@ -1737,7 +1764,7 @@ const DATA& bcec_TimeQueueItem<DATA>::data() const
     return d_data;
 }
 
-/*
+#if 0
 // this definition was moved into the class declaration
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
@@ -1747,7 +1774,7 @@ bcec_TimeQueueItem<DATA>::handle() const
 {
     return d_handle;
 }
-*/
+#endif
 
 template <typename DATA>
 inline
