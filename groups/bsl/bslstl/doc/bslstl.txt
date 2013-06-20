@@ -20,9 +20,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bslstl' package currently has 47 components having 7 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   7. bslstl_queue
      bslstl_stack
@@ -91,7 +91,7 @@
 :      Provide a template to create STL-compliant bidirectional iterators.
 :
 : 'bslstl_bidirectionalnodepool':
-:      Provide efficient creation of nodes used in node-based container.
+:      Provide efficient creation of nodes used in a node-based container.
 :
 : 'bslstl_bitset':
 :      Provide an STL-compliant bitset class.
@@ -202,19 +202,19 @@
 :      Provide efficient creation of nodes used in tree-based container.
 :
 : 'bslstl_unorderedmap':
-:      Provide an STL-compliant unordered_map class.
+:      Provide an STL-compliant 'unordered_map' container.
 :
 : 'bslstl_unorderedmapkeyconfiguration':
 :      Provide a class template to extract keys as the 'first' attribute.
 :
 : 'bslstl_unorderedmultimap':
-:      Provide an STL-compliant unordered_multimap class.
+:      Provide an STL-compliant 'unordered_multimap' container.
 :
 : 'bslstl_unorderedmultiset':
-:      Provide an STL-compliant unordered_multiset class.
+:      Provide an STL-compliant 'unordered_multiset' container.
 :
 : 'bslstl_unorderedset':
-:      Provide an STL-compliant unordered_set class.
+:      Provide an STL-compliant 'unordered_set' container.
 :
 : 'bslstl_unorderedsetkeyconfiguration':
 :      Provide a configuration class to use a whole object as its own key.
