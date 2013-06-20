@@ -822,6 +822,7 @@ int main(int argc, char *argv[])
                 busyFunction();
                 w.stop();
                 double d = w.elapsedTime();
+                (void)d;
             }
             watch.stop();
             const double testTime = watch.elapsedTime();
@@ -921,6 +922,7 @@ int main(int argc, char *argv[])
                 busyFunction();
                 w.stop();
                 double d = w.elapsedTime();
+                (void)d;
             }
             testWatch.stop();
             const double testTimeSys  = testWatch.accumulatedSystemTime();
