@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
 
-@LAST_MODIFIED: September 13, 2012
+@LAST_MODIFIED: March 13, 2013
 
 @DESCRIPTION: This non-conventional package provides *no* components, only
  headers which enable BDE-STL mode at Bloomberg.  See the package-level 

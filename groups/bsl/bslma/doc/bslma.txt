@@ -17,9 +17,9 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bslma' package currently has 20 components having 6 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   6. bslma_autorawdeleter
      bslma_destructorproctor
@@ -27,11 +27,12 @@
 
   5. bslma_autodeallocator
      bslma_autodestructor
-     bslma_defaultallocatorguard
      bslma_deallocatorguard
-     bslma_destructorguard
-     bslma_rawdeleterguard
      bslma_deallocatorproctor
+     bslma_defaultallocatorguard
+     bslma_destructorguard
+     bslma_exceptionguard
+     bslma_rawdeleterguard
      bslma_rawdeleterproctor
 
   4. bslma_default
@@ -39,7 +40,6 @@
 
   3. bslma_mallocfreeallocator
      bslma_newdeleteallocator
-     bslma_usesbslmaallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
 
@@ -82,6 +82,9 @@
 :
 : 'bslma_destructorproctor':
 :      Provide a proctor to conditionally manage an object.
+:
+: 'bslma_exceptionguard':
+:      Provide a check that objects throwing exceptions do not change.
 :
 : 'bslma_mallocfreeallocator':
 :      Provide malloc/free adaptor to 'bslma::Allocator' protocol.
@@ -219,13 +222,6 @@
  'bslma_mallocfreeallocator' provides a wrapper around 'std::malloc' and
  'std::free' that adheres to the 'bslma::Allocator' protocol (i.e., provides
  'allocate' and 'deallocate' functions).
-
-/'bslma_managedallocator'
-/ - - - - - - - - - - - -
- 'bslma_managedallocator' defines a protocol that extends the
- 'bslma::Allocator' protocol with a 'release' function.  'release' indicates
- that all memory allocated since the previous 'release' call is to be
- deallocated.
 
 /'bslma_newdeleteallocator'
 / - - - - - - - - - - - - -
