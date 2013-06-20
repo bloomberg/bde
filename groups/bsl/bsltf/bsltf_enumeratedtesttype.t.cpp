@@ -83,6 +83,9 @@ int main(int argc, char *argv[]) {
     int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.

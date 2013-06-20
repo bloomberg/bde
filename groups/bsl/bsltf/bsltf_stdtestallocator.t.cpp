@@ -277,6 +277,9 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 4;
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
