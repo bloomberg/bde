@@ -122,6 +122,8 @@ int main(int argc, char *argv[])
 
         Obj mX;
 
+        (void)mX;
+
       } break;
 
       default: {

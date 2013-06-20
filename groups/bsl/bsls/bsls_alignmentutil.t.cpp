@@ -591,6 +591,7 @@ int main(int argc, char *argv[])
                     int a = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                                        ADDRESS,
                                                                        ALIGN);
+                    (void)a;
                     LOOP_ASSERT(LINE, bsls::AssertTest::tryProbe(RESULT));
 
 //                  LOOP4_ASSERT(LINE, ADDRESS, ALIGN, a, ALIGN == a);

@@ -713,7 +713,6 @@ int main(int argc, char *argv[])
         // 'A' values: Boundary values.
         // -------------------------------------------------------
 
-        const T1 A1 = BLACK;
         const T2 A2 = PTR1;
         const T3 A3 = PTR2;
         const T4 A4 = PTR2;
@@ -734,6 +733,8 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                  "\nApply primary manipulators and verify expected values.\n");
 
+         
+
         if (veryVerbose) { T_ Q(parent) }
         {
             mX.setParent(A2);
@@ -747,7 +748,7 @@ int main(int argc, char *argv[])
             mX.setLeftChild(A3);
 
             const T3& leftChild = mX.leftChild();
-            ASSERTV(A3, X.leftChild(), A3 == X.leftChild());
+            ASSERTV(A3, leftChild, A3 == leftChild);
         }
 
         if (veryVerbose) { T_ Q(rightChild) }
@@ -755,7 +756,7 @@ int main(int argc, char *argv[])
             mX.setRightChild(A4);
 
             const T4& rightChild = mX.rightChild();
-            ASSERTV(A4, X.rightChild(), A4 == X.rightChild());
+            ASSERTV(A4, rightChild, A4 == rightChild);
         }
       } break;
       case 7: {
@@ -1216,7 +1217,7 @@ int main(int argc, char *argv[])
             mX.setLeftChild(A3);
 
             const Obj *const leftChild = X.leftChild();
-            ASSERTV(A3, X.leftChild(), A3 == X.leftChild());
+            ASSERTV(A3, leftChild, A3 == leftChild);
         }
 
         if (veryVerbose) { T_ Q(rightChild) }
@@ -1224,7 +1225,7 @@ int main(int argc, char *argv[])
             mX.setRightChild(A4);
 
             const Obj *const rightChild = X.rightChild();
-            ASSERTV(A4, X.rightChild(), A4 == X.rightChild());
+            ASSERTV(A4, rightChild, A4 == rightChild);
         }
       } break;
       case 3: {
