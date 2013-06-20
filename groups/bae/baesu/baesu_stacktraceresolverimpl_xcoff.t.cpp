@@ -16,6 +16,8 @@
 
 #ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
+#include <unistd.h>
+
 using namespace BloombergLP;
 using bsl::cin;
 using bsl::cout;
@@ -27,6 +29,7 @@ using bsl::endl;
 //-----------------------------------------------------------------------------
 // [ 1] resolve
 // [ 2] garbage test
+// [ 3] memory heap leak test
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -254,6 +257,52 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING: Potential Memory Leak (see DRQS 42134199)
+        //
+        // Concerns:
+        //: 1 That heap memory allocated when resolving symbols is reclaimed.
+        //
+        // Plan:
+        //: 1 Resolve symbols repeatedly and observe, using 'sbrk', that the
+        //:   stack top remains constant (note that the stack top will grow
+        //:   for the first several iterations due to memory fragmentation,
+        //:   but should eventually settle down into 100% of memory being
+        //:   reclaimed.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Memory Leak Test\n"
+                             "================\n";
+
+        bslma::TestAllocator ta;
+
+        baesu_StackTrace frames(&ta);
+        long heapTop = 0;
+        int iterations = verbose ? 500 : 50;
+
+        for (int ti = 0; ti < iterations;  ++ti) {
+            for (int tj = 0; tj < 10; ++tj) {
+                frames.resize(1);
+                frames[0].setAddress(addFixedOffset((UintPtr)
+                         &baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::
+                                                             Xcoff>::resolve));
+
+                ASSERT(0 == Obj::resolve(&frames, true));
+                frames.resize(0);
+            }
+
+            if (4 == ti) {
+                heapTop = (long) sbrk(0);
+            }
+            else if (ti > 4) {
+                LOOP2_ASSERT((long) sbrk(0), heapTop,
+                                                    (long) sbrk(0) == heapTop);
+            }
+
+            if (verbose) P((long) sbrk(0));
+        }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // GARBAGE TEST
@@ -283,6 +332,7 @@ int main(int argc, char *argv[])
                 ss << st[stIndex] << endl;
             }
         }
+
       }  break;
       case 1: {
         // --------------------------------------------------------------------
