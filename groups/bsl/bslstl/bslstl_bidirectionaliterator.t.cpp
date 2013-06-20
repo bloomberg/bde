@@ -1224,7 +1224,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(3 == length);
 
-        itcBegin = testContainer.begin();
+        itcBegin = constContainer.begin();
         ASSERT(1 == *itcBegin++);
         ASSERT(2 == *itcBegin++);
         ASSERT(3 == *itcBegin++);
