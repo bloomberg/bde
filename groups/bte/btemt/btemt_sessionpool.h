@@ -918,7 +918,7 @@ class btemt_SessionPool {
     int setWriteCacheWatermarks(int handleId,
                                 int lowWatermark,
                                 int hiWatermark);
-        // Set the write cache low- and high-water marks for the channel
+        // Set the write cache low- and high-water marks for the session
         // associated with the specified 'handleId' to the specified
         // 'lowWatermark' and 'hiWatermark' values, respectively; return 0 on
         // success, and a non-zero value otherwise.  A
