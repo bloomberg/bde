@@ -637,6 +637,9 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVeryVerbose;
+    (void)veryVeryVeryVerbose;
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
