@@ -938,10 +938,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta1(veryVeryVeryVerbose);
         bslma::TestAllocator ta2(veryVeryVeryVerbose);
-        bslma::TestAllocator ta3(veryVeryVeryVerbose);
         const bslma::TestAllocator& TA1 = ta1;
         const bslma::TestAllocator& TA2 = ta2;
-        const bslma::TestAllocator& TA3 = ta3;
 
         static void *pointers1a[NUM_TEST];
         static void *pointers1b[NUM_TEST];
@@ -1421,8 +1419,8 @@ int main(int argc, char *argv[])
 
             maxNumAllocated = intMax(maxNumAllocated, numAllocated);
 
-            LOOP2_ASSERT(mX.numOutstandingAllocations(), numAllocated,
-                         NUMALLOCATED == mX.numOutstandingAllocations());
+            LOOP2_ASSERT(X.numOutstandingAllocations(), numAllocated,
+                         NUMALLOCATED == X.numOutstandingAllocations());
         }
 
         if (verbose) printf("Max num allocated: %d\n", maxNumAllocated);

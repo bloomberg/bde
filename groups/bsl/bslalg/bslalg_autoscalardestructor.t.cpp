@@ -341,7 +341,6 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 bslalg::AutoScalarDestructor<T> mG(0);
-                const bslalg::AutoScalarDestructor<T>& G = mG;
 
                 new (buf) T('a', Z);
                 if (veryVerbose) { buf->print(); }

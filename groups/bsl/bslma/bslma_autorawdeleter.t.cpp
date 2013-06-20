@@ -1083,8 +1083,6 @@ int main(int argc, char *argv[])
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
             const int   ORIGIN = DATA[i].d_origin;
-            const int   PLEN   = DATA[i].d_proctorLength;
-            const int   INCDEC = DATA[i].d_incDec;
             const static int EXP[NUM_ELEM] = { 0 };    // initialized to 0's
             int j;
 

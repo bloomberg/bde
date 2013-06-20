@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == myA.getCount());
-            a.deleteObjectRaw(pC3);
+            a.deleteObjectRaw(pC3bCONST);
             if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
