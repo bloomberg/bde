@@ -4,17 +4,45 @@
 
 @MNEMONIC: Basic Development Environment Containers Special-purpose (bdecs)
 
-@AUTHOR: Lea Fester (lfester)
-
 @SEE_ALSO: bdec, bdec2, bdeci
 
+@AUTHOR: Lea Fester (lfester)
+
 @DESCRIPTION: The 'bdecs' package provides specialized container components.
- These components include:
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdecs' package currently has 6 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  1. Index clerks
-  2. Calendar caches
+  3. bdecs_calendarcache
+
+  2. bdecs_calendar
+     bdecs_calendarloader
+
+  1. bdecs_hashtable2
+     bdecs_idxclerk
+     bdecs_packedcalendar
 ..
- Note that support for calendars, a very efficient container for performing
- business date calculations, will be implemented soon.  Please contact BDE
- Syndication (Tom Marshall and David Laurance) if you have any calendar and
- date math needs.
+
+/Component Synopsis
+/------------------
+: 'bdecs_calendar':
+:      Provide fast repository for accessing weekend/holiday information.
+:
+: 'bdecs_calendarcache':
+:      Provide an efficient cache for 'bdecs_Calendar'.
+:
+: 'bdecs_calendarloader':
+:      Provide a protocol (or pure interface) for loading calendars.
+:
+: 'bdecs_hashtable2':
+:      Provide a double-hashed table with utility.
+:
+: 'bdecs_idxclerk':
+:      Provide a manager of reusable, non-negative integer indices.
+:
+: 'bdecs_packedcalendar':
+:      Provide a compact repository for weekend/holiday information.

@@ -37,6 +37,65 @@
  compatible prototype to a specified callback interface, at run-time and
  without the need for recompilation.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdef' package currently has 12 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. bdef_bind
+
+  3. bdef_function
+
+  2. bdef_memfn
+     bdef_placeholder
+     bdef_vfunc0
+     bdef_vfunc1
+     bdef_vfunc2
+     bdef_vfunc3
+     bdef_vfunc4
+     bdef_vfunc5
+     bdef_vfunc6
+
+  1. bdef_bind_test
+..
+
+/Component Synopsis
+/------------------
+: 'bdef_bind':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_function':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_memfn':
+:      Provide member function pointer wrapper classes and utility.
+:
+: 'bdef_placeholder':
+:      Provide a parameterized placeholder and specialized placeholders.
+:
+: 'bdef_vfunc0':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_vfunc1':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_vfunc2':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_vfunc3':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_vfunc4':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_vfunc5':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdef_vfunc6':
+:      Provide a signature-specific function object (functor).
+
 /Related Packages in Package Group 'bde'
 /---------------------------------------
  Package 'bdef' is designed to use three other packages in 'bde'.  'bdef'
@@ -44,22 +103,26 @@
  play supporting roles.
 
  The packages are:
-..
-   bdef   Provides functors to clients in a canonical form.
 
-   bdefr  This package is *DEPRECATED*.  A common reference-counted base class,
-          used by bdefi.  These classes provide reference counting and object
-          deletion for derived classes.
+: 'bdef':
+:      Provides functors to clients in a canonical form.
+:
+: 'bdefr':
+:     This package is *DEPRECATED*.  A common reference-counted base class,
+:     used by 'bdefi'.  These classes provide reference counting and object
+:     deletion for derived classes.
+:
+: 'bdefi':
+:     This package is *DEPRECATED*.  Concrete reference-counted function
+:     objects, held and managed by a 'bdef' object; classes in 'bdefi'
+:     implement behavior declared in 'bdefr'.
+:
+: 'bdefu':
+:     This package is *DEPRECATED*.  Factory method utilities to initialize
+:     'bdef' functors by creating a reference-counted function object (from
+:     'bdefi') and assigning it to a 'bdef' functor. Subsequent invocations of
+:     the 'bdef' functor will be delegated to the  'bdefi' object.
 
-   bdefi  This package is *DEPRECATED*.  Concrete reference-counted function
-          objects, held and managed by a bdef object; classes in bdefi
-          implement behavior declared in bdefr.
-
-   bdefu  This package is *DEPRECATED*.  Factory method utilities to initialize
-          bdef functors by creating a reference-counted function object (from
-          bdefi) and assigning it to a bdef functor. Subsequent invocations of
-          the bdef functor will be delegated to the  bdefi object.
-..
 /Relationship to Packages in 'bde'
 /---------------------------------
  The 'bdef', 'bdefr', 'bdefi', and 'bdefu' packages provide identical
@@ -124,7 +187,6 @@
    int my_s = "Text String";
    fn(my_x, my_s);          // "invokes" functor fn via fn::operator()
 ..
-
  Functors provide some interesting advantages over simple function pointers.
  Unlike a function pointer, a functor may be created with one or more
  arbitrary objects (sometimes called "user data") to be passed (typically as
@@ -199,7 +261,7 @@
  *family* consists of a set of overloaded functions that support varying
  numbers of arguments on the underlying functions (member or free).  All
  classes returned by functions in component 'bdefu_vfunc2' are defined in
- component 'bdefi_vfunc2'.  See package documentation for the 'bdefu' package
+ component 'bdefi_vfunc2'.  See package documentation for the {'bdefu'} package
  for details.
 
  For the simple example above, we would use component 'bdefu_Vfunc2' as follows
@@ -235,8 +297,8 @@
  The 'bdefu' and 'bdefi' packages will also allow clients to match a functor to
  a free or member function in situations where the function requires more
  arguments than the functor invocation can support.  See the documentation for
- package 'bdefu' for details describing how to do this; see package
- documentation for 'bdefi' for implementation details.
+ package {'bdefu'} for details describing how to do this; see package
+ documentation for {'bdefi'} for implementation details.
 
  Note that because each required argument type 'T' is passed by ('const'
  'T&'), a compiler will generate an error if the user declares a callback
@@ -280,7 +342,7 @@
  'bdefu' package.  Different template functions are provided to match (1) the
  desired function-call-operator signature and (2) the supplied user data.
  Because the C++ compiler will deduce template parameters from argument types,
- clients need not specify them.  See the 'bdefu' package for more
+ clients need not specify them.  See the {'bdefu'} package for more
  information on populating 'bdef' functors with specific *letter* objects.
 
  See also J.O. Coplien, "Advanced Programming Styles and Idioms", Sections
@@ -354,7 +416,7 @@
  function objects, or even 'bdef_Bind' binders).
 
 /Functors and Binders
-/- - - - - - - - - -
+/ - - - - - - - - - -
  'bdef_Function' objects (functors) and 'bdef_Bind' objects (binders) are both
  mechanisms for binding arguments and calling an invocable.  They differ in
  their purpose, though.  In the last section, we detailed the main
@@ -537,14 +599,17 @@
  the end of the function parameter list.  The number of required parameters
  is a part of the 'MyGuiButton' interface, and hence will never change.
 
- The following code shows how we
-..
-  (1) Create the functor representation-(letter).
-  (2) Create the functor initialized with the representation.
-  (3) Register the functor as a callback with an instance of the
-      'MyGuiButton' class.
-  (4) Invoke the functor.
-..
+ The following code shows how we:
+
+: 1 Create the functor representation-(letter).
+:
+: 2 Create the functor initialized with the representation.
+:
+: 3 Register the functor as a callback with an instance of the 'MyGuiButton'
+:   class.
+:
+: 4 Invoke the functor.
+
  The code is as follows:
 ..
    // (1) Create the representation.

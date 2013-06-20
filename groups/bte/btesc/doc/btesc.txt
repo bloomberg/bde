@@ -56,28 +56,52 @@
  implementations, each "timed" entity is derived from its "untimed"
  counterpart. 
 
-/Component Synopsis
-/------------------
- The following is a list of the components currently available for use.
+/Hierarchical Synopsis
+/---------------------
+ The 'btesc' package currently has 9 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  btesc_flag                    -- 'enum' component providing flags used as
-                                   control arguments to various methods in
-                                   'btesc'
-  btesc_cbchannel               -- untimed non-blocking channel protocol
-  btesc_cbchannelallocator      -- untimed non-blocking channel allocator
-                                   protocol
-  btesc_channel                 -- untimed blocking channel protocol
-  btesc_channelallocator        -- untimed blocking channel allocator protocol
-  btesc_timedcbchannel          -- timed non-blocking channel protocol
-  btesc_timedcbchannelallocator -- timed non-blocking channel allocator
-                                   protocol
-  btesc_timedchannel            -- timed blocking channel protocol
-  btesc_timedchannelallocator   -- timed blocking channel allocator protocol
+  4. btesc_channelallocator
+     btesc_timedchannelallocator
+
+  3. btesc_timedcbchannel
+     btesc_timedchannel
+
+  2. btesc_cbchannel
+     btesc_cbchannelallocator
+     btesc_channel
+     btesc_timedcbchannelallocator
+
+  1. btesc_flag
 ..
 
-@Usage
- The usage examples for the 'btesc' package are under construction.  Please see
- the individual usage examples in the various components for now.  In
- particular, the Usage Example in 'btesc_timedcbchannelallocator' is especially
- detailed.
- 
+/Component Synopsis
+/------------------
+: 'btesc_cbchannel':
+:      Provide protocol for stream-based data communication.
+:
+: 'btesc_cbchannelallocator':
+:      Provide protocol for non-blocking stream-based channel allocators.
+:
+: 'btesc_channel':
+:      Provide a protocol for synchronous stream-based communication.
+:
+: 'btesc_channelallocator':
+:      Provide protocol for blocking stream-based channel allocators.
+:
+: 'btesc_flag':
+:      Enumerate all flags for stream-based-channel transport.
+:
+: 'btesc_timedcbchannel':
+:      Provide protocol for stream-based data communication with timeout.
+:
+: 'btesc_timedcbchannelallocator':
+:      Provide protocol for stream-based channel allocators with timeout.
+:
+: 'btesc_timedchannel':
+:      Provide protocol for stream-based communication with timeout.
+:
+: 'btesc_timedchannelallocator':
+:      Provide protocol for stream-based channel allocators with timeout.

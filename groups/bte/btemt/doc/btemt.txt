@@ -14,20 +14,96 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'btemt' currently has has six components having three levels of dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('btemt_') are omitted from the full component
- names for layout efficiency.
+ The 'btemt' package currently has 19 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-   Level 3: channelqueuepool
+  4. btemt_querydispatcher
+     btemt_sessionpool
 
-   Level 2: channelpool
+  3. btemt_channeloutstreambuf
+     btemt_channelpoolchannel
+     btemt_channelqueuepool
+     btemt_queryprocessor
+     btemt_queryrouter
 
-   Level 1: channelpoolconfig  message  pooldeallocator  tcptimereventmanager
+  2. btemt_asyncchannel
+     btemt_channelpool
+     btemt_queryxferutil
+
+  1. btemt_channelpoolconfiguration
+     btemt_channelstatus
+     btemt_channeltype
+     btemt_message
+     btemt_query
+     btemt_querydispatcherconfiguration
+     btemt_queryprocessorconfiguration
+     btemt_session
+     btemt_tcptimereventmanager
 ..
  'btemt' also depends directly upon the 'bteso' and 'btesos' packages within
  'bte', and on the 'bce' ("concurrency" or multi-threaded) and 'bde' package
  groups. 
+
+/Component Synopsis
+/------------------
+: 'btemt_asyncchannel':
+:      Provide a protocol for asynchronous IO operations
+:
+: 'btemt_channeloutstreambuf':
+:      Provide an output 'bsl::streambuf' for channel communication.
+:
+: 'btemt_channelpool':
+:      Provide thread-enabled stream-based IPv4 communication.
+:
+: 'btemt_channelpoolchannel':
+:      Provided a concrete implementation of the 'btemt_AsyncChannel'
+:
+: 'btemt_channelpoolconfiguration':
+:      Provide a constrained-attribute class for channel pools.
+:
+: 'btemt_channelqueuepool':
+:      Provide protocol-neutral queue-based message transport.
+:
+: 'btemt_channelstatus':
+:      Provide a set of enumerations for the channel status codes.
+:
+: 'btemt_channeltype':
+:      Provide a namespace for representing channel type values.
+:
+: 'btemt_message':
+:      Provide encapsulated type-safe data and status messages.
+:
+: 'btemt_query':
+:      Define the communication packet structures between client,
+:
+: 'btemt_querydispatcher':
+:      Provide 'bdem_List'-based query dispatcher
+:
+: 'btemt_querydispatcherconfiguration':
+:      Provide a constrained-attribute class for query dispatchers.
+:
+: 'btemt_queryprocessor':
+:      Provide a generic query processor
+:
+: 'btemt_queryprocessorconfiguration':
+:      Provide a constrained-attribute class for query processors.
+:
+: 'btemt_queryrouter':
+:      Provide a router that maintains connections to multiple processors
+:
+: 'btemt_queryxferutil':
+:      Provide utilities for parsing & serializing 'btemt_Query' packets.
+:
+: 'btemt_session':
+:      Provide a *pure* protocol class for creating sessions
+:
+: 'btemt_sessionpool':
+:      Provide thread-enabled session-based IPv4 communication
+:
+: 'btemt_tcptimereventmanager':
+:      Provide a thread-enabled multiplexor of socket events and timers.
 
 /Framework Overview
 /------------------

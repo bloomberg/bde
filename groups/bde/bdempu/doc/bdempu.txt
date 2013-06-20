@@ -14,21 +14,49 @@
  representations to 'bdem' objects (parsing utilities) and that convert objects
  to equivalent text representations (generator utilities).
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdempu' package currently has 3 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdempu_aggregate
+     bdempu_schema
+
+  1. bdempu_elemtype
+..
+
+/Component Synopsis
+/------------------
+: 'bdempu_aggregate':
+:      Convert 'bdem' lists and tables to/from text representation.
+:
+: 'bdempu_elemtype':
+:      Convert 'bdem_ElemType' enum value codes to/from symbolic names.
+:
+: 'bdempu_schema':
+:      Convert 'bdem' schema objects to/from textual representations.
+
  The 'bdem' package contains the components which define the types parsed by
  procedures in this package.
 
+/Overview
+/--------
  'bdempu' routines parse or generate the following types or entities:
-..
-    1.  The (type) words "CHAR", "SHORT", "INT", "INT64", "FLOAT", "DOUBLE",
-        "STRING", "DATETIME", "DATE", "TIME", "CHAR_ARRAY", "SHORT_ARRAY",
-        "INT_ARRAY", "INT64_ARRAY", "FLOAT_ARRAY", "DOUBLE_ARRAY",
-        "STRING_ARRAY", "DATETIME_ARRAY", "DATE_ARRAY", "TIME_ARRAY", "LIST",
-        and "TABLE".
-    2.  'bdem_List's and 'bdem_Table's (i.e., the containers).
-    3.  'bdem_Schema' (i.e., 'bdem' metadata).
-    4.  Constrained lists, constrained tables, and scopes (i.e., data along
-        with its constraining metadata).
-..
+
+: 1 The (type) words "CHAR", "SHORT", "INT", "INT64", "FLOAT", "DOUBLE",
+:   "STRING", "DATETIME", "DATE", "TIME", "CHAR_ARRAY", "SHORT_ARRAY",
+:   "INT_ARRAY", "INT64_ARRAY", "FLOAT_ARRAY", "DOUBLE_ARRAY", "STRING_ARRAY",
+:   "DATETIME_ARRAY", "DATE_ARRAY", "TIME_ARRAY", "LIST", and "TABLE".
+:
+: 2 'bdem_List's and 'bdem_Table's (i.e., the containers).
+:
+: 3 'bdem_Schema' (i.e., 'bdem' metadata).
+:
+: 4 Constrained lists, constrained tables, and scopes (i.e., data along with
+:   its constraining metadata).
+
  The (in-memory) 'bdem' objects are predominantly used for messaging.  Their
  *textual equivalents* are predominantly used for configuration files, such as
  the following:

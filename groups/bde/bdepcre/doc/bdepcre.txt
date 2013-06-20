@@ -12,20 +12,12 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bdepcre' currently has 1 component having 1 level of physical dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('bdepcre_') are omitted from the full component
- names for layout efficiency.
+ The 'bdepcre' package currently has 1 component.
 ..
-  Level 1:  regex
+  1. bdepcre_regex
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bdepcre'.  For the
- sake of brevity, we sometimes blur the distinction between a component and the
- primary types that the component provides.  We remind the reader that, in
- general, the distinction between a component and a class is important.
-..
-  'bdepcre_regex' - mechanism used to match Perl-compatible regular expressions
-..
+: 'bdepcre_regex':
+:      Provide a mechanism for regular expression pattern matching.
