@@ -241,6 +241,8 @@ int main(int argc, char *argv[])
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
+    (void) veryVeryVerbose;
+
     printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:
@@ -710,6 +712,13 @@ int main(int argc, char *argv[])
                 void * vptr            = bsls::ProtocolTest_MethodReturnType();
                 void const * const_vptr
                                        = bsls::ProtocolTest_MethodReturnType();
+                
+                (void)val;
+                (void)const_ref;
+                (void)const_ptr;
+                (void)ptr;
+                (void)vptr;
+                (void)const_vptr;
             }
 
             if (veryVerbose) printf("\tbsls_ProtocolTest_MethodReturnRefType "
