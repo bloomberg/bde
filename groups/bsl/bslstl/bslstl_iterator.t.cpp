@@ -364,6 +364,8 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    (void)veryVeryVerbose;
+
     setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
