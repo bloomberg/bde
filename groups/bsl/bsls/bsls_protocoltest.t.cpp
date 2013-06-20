@@ -729,6 +729,8 @@ int main(int argc, char *argv[])
                 NonCopyable & ref = bsls::ProtocolTest_MethodReturnRefType();
                 NonCopyable const & const_ref =
                                       bsls::ProtocolTest_MethodReturnRefType();
+                (void)ref;
+                (void)const_ref;
             }
 
             if (veryVerbose) printf("\tbsls_ProtocolTest_Status\n");
