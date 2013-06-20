@@ -365,6 +365,8 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         ASSERT(&object == pB2);
         ASSERT(&object == pC2);
 
+        (void)pA;
+
         // These lines would fail to compile
         // A *pA3 = smart_cast<A>(pB);
         // C *pC3 = smart_cast<C>(pA);
