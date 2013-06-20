@@ -76,7 +76,7 @@
 
 /btesc
 /- - -
- {'bteso'} provides a suite of protocols (i.e., pure abstract interfaces)
+ 'btesc' provides a suite of protocols (i.e., pure abstract interfaces)
  abstracting the general behavior of communications "channels".  All
  abstractions in this package consider stream-based (as opposed to
  message-based) transport.  The three general abstractions are called

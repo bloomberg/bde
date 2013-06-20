@@ -307,7 +307,7 @@ class baexml_Formatter {
         // For use in element nesting stack.  Keep track of the whitespace
         // formatting mode and the tag (in safe mode) for an open element.
         WhitespaceType d_ws;
-#ifdef BDE_BUILD_TARGET_SAFE2
+#ifdef BDE_BUILD_TARGET_SAFE_2
         // Use a fixed-length string to validate close tag against open tag.
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
@@ -320,7 +320,7 @@ class baexml_Formatter {
         // Use compiler-generated copy constructor, assignment, and destructor.
         void setWs(WhitespaceType ws);
         WhitespaceType ws() const;
-#ifdef BDE_BUILD_TARGET_SAFE2
+#ifdef BDE_BUILD_TARGET_SAFE_2
         bool matchTag(const bdeut_StringRef& tag) const;
 #endif
     };
@@ -547,7 +547,7 @@ class baexml_Formatter {
                         // -----------------------------------
 
 // CREATORS
-#ifdef BDE_BUILD_TARGET_SAFE2
+#ifdef BDE_BUILD_TARGET_SAFE_2
 inline
 baexml_Formatter::ElemContext::ElemContext(const bdeut_StringRef& tag,
                                            WhitespaceType         ws)
@@ -614,9 +614,10 @@ void baexml_Formatter::addAttribute(const bdeut_StringRef& name,
         bsl::ostream ss(&sb);
 
         baexml_TypesPrintUtil::print(ss, value, formattingMode);
-
-//      overzealous assert - some inputs result in stream being invalidated
-//      BSLS_ASSERT_SAFE(ss.good());
+        if (!ss.good()) {
+            d_outputStream.setstate(bsl::ios_base::failbit);
+            return;                                                   // RETURN
+        }
 
         doAddAttribute(name, bdeut_StringRef(sb.data(), (int)sb.length()));
     }
@@ -645,9 +646,10 @@ void baexml_Formatter::addData(const TYPE& value, int formattingMode)
         bsl::ostream ss(&sb);
 
         baexml_TypesPrintUtil::print(ss, value, formattingMode);
-
-//      overzealous assert - some inputs result in stream being invalidated
-//      BSLS_ASSERT_SAFE(ss.good());
+        if (!ss.good()) {
+            d_outputStream.setstate(bsl::ios_base::failbit);
+            return;                                                   // RETURN
+        }
 
         doAddData(bdeut_StringRef(sb.data(), (int)sb.length()), false);
     }
@@ -676,9 +678,10 @@ void baexml_Formatter::addListData(const TYPE& value, int formattingMode)
         bsl::ostream ss(&sb);
 
         baexml_TypesPrintUtil::print(ss, value, formattingMode);
-
-//      overzealous assert - some inputs result in stream being invalidated
-//      BSLS_ASSERT_SAFE(ss.good());
+        if (!ss.good()) {
+            d_outputStream.setstate(bsl::ios_base::failbit);
+            return;                                                   // RETURN
+        }
 
         doAddData(bdeut_StringRef(sb.data(), (int)sb.length()), true);
     }

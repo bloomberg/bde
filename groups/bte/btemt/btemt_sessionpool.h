@@ -327,7 +327,7 @@ BDES_IDENT("$Id: $")
 // Note that this example server prints information depending on
 // implicitly-defined static variables and therefore must use a mutex to
 // synchronize access to 'bsl::cout'.  A production application should use a
-// proper login mechanism instead such as the 'bael' logger.
+// proper logging mechanism instead such as the 'bael' logger.
 //..
 //  // my_echoserver.h (continued)
 //
@@ -781,6 +781,15 @@ class btemt_SessionPool {
         // sessions "gracefully" fail, a negative value is returned and the
         // sessions are destroyed anyway.
 
+    int stopAndRemoveAllSessions();
+        // Stop the asynchronous operation of this session pool, gracefully
+        // terminate all active connectors and listeners, and remove all those
+        // communication sessions from this session pool.  Return 0 on success,
+        // and a non-zero value otherwise.  If all attempts to terminate the
+        // sessions "gracefully" fail, a negative value is returned and the
+        // sessions are destroyed anyway.  Note that shutting down a session
+        // will deallocate all system resources associated with that session.
+
                                   // *** server-related section ***
 
     int listen(
@@ -914,6 +923,24 @@ class btemt_SessionPool {
         // 'callback' will be invoked along with the allocated 'btemt_Session'
         // and the optionally specified 'userData'.  Return 0 on success, and a
         // non-zero value with no effect on the session pool otherwise.
+
+    int setWriteCacheWatermarks(int handleId,
+                                int lowWatermark,
+                                int hiWatermark);
+        // Set the write cache low- and high-water marks for the session
+        // associated with the specified 'handleId' to the specified
+        // 'lowWatermark' and 'hiWatermark' values, respectively; return 0 on
+        // success, and a non-zero value otherwise.  A
+        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided (via the channel state
+        // callback) if 'lowWatermark' is greater than or equal to the current
+        // size of the write cache, and a 'BTEMT_WRITE_CACHE_HIWAT' alert is
+        // provided if 'hiWatermark' is less than or equal to the current size
+        // of the write cache.  (See the component-level documentation of
+        // 'btemt_channelpool' for details on 'BTEMT_WRITE_CACHE_HIWAT' and
+        // 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)  The behavior is undefined
+        // unless '0 <= lowWatermark' and 'lowWatermark <= hiWatermark'.  Note
+        // that this method overrides the values configured (for all channels)
+        // by the 'btemt_ChannelPoolConfiguration' supplied at construction.
 
     // ACCESSORS
     const btemt_ChannelPoolConfiguration& config() const;

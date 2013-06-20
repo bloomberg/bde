@@ -129,8 +129,8 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <typename TYPE> class  bdeut_NullableValue_WithAllocator;
-template <typename TYPE> class  bdeut_NullableValue_WithoutAllocator;
+template <class TYPE> class bdeut_NullableValue_WithAllocator;
+template <class TYPE> class bdeut_NullableValue_WithoutAllocator;
 
                       // ===============================
                       // class bdeut_NullableValue<TYPE>
@@ -148,7 +148,8 @@ class bdeut_NullableValue {
     // equal if they their underlying types are comparable and either
     // (1) both objects are null or (2) the non-null values compare equal.
     // Attempts to copy construct, copy assign, or compare incompatible
-    // values will fail to compile.
+    // values will fail to compile.  The 'bdeut_NullableValue<TYPE>' template
+    // cannot be instantiated on a type that overloads 'operator&'.
 
     // PRIVATE TYPES
     typedef typename
@@ -210,7 +211,7 @@ class bdeut_NullableValue {
         // constructor for an underlying 'ValueType' that does not take an
         // optional allocator at construction will fail to compile.
 
-    bdeut_NullableValue(const TYPE& value);
+    bdeut_NullableValue(const TYPE& value);                         // IMPLICIT
         // Create a nullable object having the specified (non-null) 'value' of
         // parameterized 'TYPE'.  Note that this object will initially not be
         // null.
@@ -367,7 +368,21 @@ class bdeut_NullableValue {
 
     const TYPE& value() const;
         // Return a reference to the underlying non-modifiable 'ValueType'
-        // of this object.  The behavior is undefined if this object is null.
+        // of this object.  The behavior is undefined if 'isNull' is 'true'.
+
+    TYPE valueOr(const TYPE& defaultValue) const;
+        // Return the value of the underlying 'ValueType', or the specified
+        // 'defaultValue' if 'isNull' is 'true'.  Note that this method
+        // returns by value and may be inefficient in some contexts.
+
+    const TYPE *valueOr(const TYPE *defaultValue) const;
+        // Return the address of the underlying non-modifiable 'ValueType' of
+        // this object, or the specified 'defaultValue' if 'isNull' is
+        // 'true'.
+
+    const TYPE* valueOrNull() const;
+        // Return the address of the underlying non-modifiable 'ValueType' of
+        // this object, or 0 if this 'isNull' is 'true'.
 };
 
 // FREE OPERATORS
@@ -387,6 +402,29 @@ bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
     // same value if one, but not both, are null, or neither is null and their
     // respective underlying type values are equality comparable and do not
     // compare equal.
+
+template <typename TYPE>
+bool operator==(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs);
+template <typename TYPE>
+bool operator==(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  A nullable object and a value of the
+    // underlying type have the same value if the nullable object is not null
+    // and its underlying value compares equal to the other value.
+
+template <typename TYPE>
+bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs);
+template <typename TYPE>
+bool operator!=(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  A nullable object and a value of the
+    // underlying type do not have the same value if either the nullable
+    // object is null, or its underlying value does not compare equal to the
+    // other value.
 
 template <typename TYPE>
 bsl::ostream& operator<<(bsl::ostream&                    stream,
@@ -811,6 +849,7 @@ bsl::ostream& bdeut_NullableValue<TYPE>::print(
 {
     if (d_imp.isNull()) {
         return bdeu_PrintMethods::print(stream, "NULL", level, spacesPerLevel);
+                                                                      // RETURN
     }
 
     return bdeu_PrintMethods::print(stream,
@@ -826,6 +865,29 @@ const TYPE& bdeut_NullableValue<TYPE>::value() const
     return d_imp.value();
 }
 
+template <typename TYPE>
+inline
+const TYPE *bdeut_NullableValue<TYPE>::valueOrNull() const
+{
+    return d_imp.isNull() ? 0 : &d_imp.value();
+}
+
+template <typename TYPE>
+inline
+TYPE bdeut_NullableValue<TYPE>::valueOr(const TYPE& defaultValue) const
+{
+    return d_imp.isNull() ? defaultValue : d_imp.value();
+}
+
+template <typename TYPE>
+inline
+const TYPE *bdeut_NullableValue<TYPE>::valueOr(const TYPE *defaultValue) const
+{
+    return d_imp.isNull() ? defaultValue : &d_imp.value();
+}
+
+
+
 // FREE OPERATORS
 
 template <typename LHS_TYPE, typename RHS_TYPE>
@@ -834,10 +896,26 @@ bool operator==(const bdeut_NullableValue<LHS_TYPE>& lhs,
                 const bdeut_NullableValue<RHS_TYPE>& rhs)
 {
     if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() == rhs.value();
+        return lhs.value() == rhs.value();                            // RETURN
     }
 
     return lhs.isNull() == rhs.isNull();
+}
+
+template <typename TYPE>
+inline
+bool operator==(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs)
+{
+    return !lhs.isNull() && lhs.value() == rhs;
+}
+
+template <typename TYPE>
+inline
+bool operator==(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs)
+{
+    return !rhs.isNull() && rhs.value() == lhs;
 }
 
 template <typename LHS_TYPE, typename RHS_TYPE>
@@ -846,10 +924,26 @@ bool operator!=(const bdeut_NullableValue<LHS_TYPE>& lhs,
                 const bdeut_NullableValue<RHS_TYPE>& rhs)
 {
     if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() != rhs.value();
+        return lhs.value() != rhs.value();                            // RETURN
     }
 
     return lhs.isNull() != rhs.isNull();
+}
+
+template <typename TYPE>
+inline
+bool operator!=(const bdeut_NullableValue<TYPE>& lhs,
+                const TYPE&                      rhs)
+{
+    return lhs.isNull() || lhs.value() != rhs;
+}
+
+template <typename TYPE>
+inline
+bool operator!=(const TYPE&                      lhs,
+                const bdeut_NullableValue<TYPE>& rhs)
+{
+    return rhs.isNull() || rhs.value() != lhs;
 }
 
 template <typename TYPE>
@@ -952,7 +1046,8 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
         nonNullObj = this;
     }
 
-    // copy-construct and reset
+    // Copy-construct and reset.
+
     nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
                                              // is only strongly exception-safe
     nonNullObj->reset();
@@ -1122,7 +1217,8 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
         nonNullObj = this;
     }
 
-    // copy-construct and reset
+    // Copy-construct and reset.
+
     nullObj->makeValue(nonNullObj->value()); // this can throw, and then 'swap'
                                              // is only strongly exception-safe
     nonNullObj->reset();
@@ -1165,7 +1261,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::makeValue()
 
     // Note that this alternative implementation provides stronger
     // exception-safety, but it breaks some client code that uses
-    // bdeut_NullableValue with a non-value-semantic TYPE.
+    // 'bdeut_NullableValue' with a non-value-semantic 'TYPE'.
     //..
     // if (d_isNull) {
     //     new (d_buffer.buffer()) TYPE();
@@ -1174,6 +1270,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::makeValue()
     // else {
     //     d_buffer.object() = TYPE();
     // }
+    //..
 }
 
 template <typename TYPE>

@@ -603,12 +603,13 @@ int main(int argc, char *argv[])
         };
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
-        {
+        bslma::TestAllocator  testAllocator;
+        BEGIN_BSLMA_EXCEPTION_TEST {
             if (veryVerbose) {
                 bsl::cout << "\tverify an explict category" << bsl::endl;
             }
 
-            Obj mX; const Obj& MX = mX;
+            Obj mX(&testAllocator); const Obj& MX = mX;
 
             // Create a set of metrics and keys prior to the test.
             for (int i = 0;  i < NUM_METRICS; ++i) {
@@ -666,7 +667,8 @@ int main(int argc, char *argv[])
                                  EXP_VALUE == id.description()->userData(j));
                 }
             }
-        }
+            ASSERT(0 == defaultAllocator.numBytesInUse());
+        } END_BSLMA_EXCEPTION_TEST
         {
             if (veryVerbose) {
                 bsl::cout << "\tverify a category prefix" << bsl::endl;

@@ -3499,7 +3499,7 @@ int main(int argc, char *argv[])
           cout << "\nCreate bdex_ByteInStreamFormatter x2 w/ an initial value."
                << endl;
 
-            bdesb_FixedMemInStreamBuf sb2((char *)"\x00\x01\x02\x03\x04", 5);
+            bdesb_FixedMemInStreamBuf sb2("\x00\x01\x02\x03\x04", 5);
             bdex_ByteInStreamFormatter x2(&sb2);
 
             if (verbose) cout << "\nTry getInt8() with x2." << endl;

@@ -1493,7 +1493,7 @@ int bcem_AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
         return error.code();                                          // RETURN
     }
 
-    bdem_Table            *dstTable     = (bdem_Table *)data();
+    bdem_Table            *dstTable     = (bdem_Table *)d_value_p;
     const bdem_Descriptor *baseTypeDesc =
                                   bdem_ElemAttrLookup::lookupTable()[baseType];
 
@@ -1522,7 +1522,7 @@ int bcem_AggregateRaw::assignToNillableScalarArray(
         return bcem_ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
     }
 
-    *(bdem_Table *)data() = value;
+    *(bdem_Table *)d_value_p = value;
     return 0;
 }
 
@@ -1562,7 +1562,7 @@ int bcem_AggregateRaw::assignToNillableScalarArray(
         return 0;                                                     // RETURN
     }
 
-    bdem_Table            *dstTable     = (bdem_Table *)data();
+    bdem_Table            *dstTable     = (bdem_Table *)d_value_p;
     const bdem_Descriptor *baseTypeDesc =
                                   bdem_ElemAttrLookup::lookupTable()[baseType];
     typename bsl::vector<TYPE>::const_iterator iter = value.begin();
@@ -1650,6 +1650,30 @@ bdem_ElemType::Type bcem_AggregateRaw::getBdemType(
 {
     return value.dataType();
 }
+
+// CREATORS
+#ifdef BDE_BUILD_TARGET_SAFE
+inline
+bcem_AggregateRaw::~bcem_AggregateRaw()
+{
+    // Assert invariants (see member variable description in class definition)
+    if (d_dataType != bdem_ElemType::BDEM_VOID) {
+        BSLS_ASSERT(d_schema_p || (!d_recordDef_p && !d_fieldDef_p));
+
+        BSLS_ASSERT(!d_schema_p || (d_recordDef_p || d_fieldDef_p));
+
+        BSLS_ASSERT(! d_recordDef_p || &d_recordDef_p->schema() == d_schema_p);
+
+        // Cannot easily test that 'd_fieldDef_p' is within 'd_schema_p'
+        BSLS_ASSERT(! d_fieldDef_p
+                    || d_fieldDef_p->elemType() == d_dataType
+                    || d_fieldDef_p->elemType() ==
+                            bdem_ElemType::toArrayType(d_dataType));
+        BSLS_ASSERT(! d_fieldDef_p
+                    || d_recordDef_p  == d_fieldDef_p->recordConstraint());
+    }
+}
+#endif
 
 // MANIPULATORS
 inline
@@ -2010,7 +2034,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
 {
     int rc = getField(field, errorDescription, true, fieldSelector1);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2029,7 +2053,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector1,
                       fieldSelector2);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2050,7 +2074,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector2,
                       fieldSelector3);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2073,7 +2097,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector3,
                       fieldSelector4);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2098,7 +2122,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector4,
                       fieldSelector5);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2125,7 +2149,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector5,
                       fieldSelector6);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2154,7 +2178,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector6,
                       fieldSelector7);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2185,7 +2209,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector7,
                       fieldSelector8);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2218,7 +2242,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector8,
                       fieldSelector9);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2253,7 +2277,7 @@ int bcem_AggregateRaw::setField(bcem_AggregateRaw    *field,
                       fieldSelector9,
                       fieldSelector10);
     if (!rc) {
-        field->setValue(errorDescription, value);
+        rc = field->setValue(errorDescription, value);
     }
     return rc;
 }
@@ -2779,6 +2803,8 @@ void bdeat_enumToInt(int *result, const bcem_AggregateRaw& value)
 {
     const bdem_EnumerationDef *enumDef = value.enumerationConstraint();
     if (! enumDef) {
+        BSLS_ASSERT_OPT(!"Schema Error");
+        *result = bdetu_Unset<int>::unsetValue();
         return;                                                       // RETURN
     }
 

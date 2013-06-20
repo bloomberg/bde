@@ -791,14 +791,11 @@ int main(int argc, char *argv[])
 
         typedef bdes_PlatformUtil Util;
 
-        // Note that we cannot assert directly on the call to 'bsl::is_same',
-        // because the comma between the template parameters confuses the
-        // 'ASSERT' macro.
+        // Note that extra parentheses are needed below to prevent the 'ASSERT'
+        // macro from being confused by the comma between the template
+        // parameters.
 
-        bool isSameType =
-                  bsl::is_same<Util::size_type, bsls::Types::size_type>::value;
-
-        ASSERT(isSameType);
+        ASSERT((bsl::is_same<Util::size_type, bsls::Types::size_type>::value));
 
       } break;
       case 2: {

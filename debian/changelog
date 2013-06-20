@@ -1,6 +1,63 @@
-bde-core (2.17.0.001) unstable; urgency=low
+bde-core (2.17.0.005) unstable; urgency=low
 
   * Bump changelog
+  * 306e11b [APPROVAL] origin/review/eliminate_use_of_bdef_function_equality_drqs26223088 to master
+  * b7831b7 [APPROVAL] pending/master/fix-linux-gcc-warnings-drqs-38796820 to master
+  * 0551f2b [APPROVAL] origin/review/timed-wait-doc-drqs24205667 to master
+  * 51102ce [APPROVAL] pending/master/bcemt_readerwriterlock-usage-fix-drqs-32972079 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 26 Mar 2013 07:49:58 -0400
+
+bde-core (BDE_2.17.0_BETA_3a) git; urgency=low
+
+  * d50739c bump debian/changelog for 2.17.0 beta 3
+  * cc8f434 [APPROVAL] pending/master/drqs-39447786-fix-SunOS-compile to master
+  * 7602e96 [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
+  * 568ff54 [APPROVAL] fix-bst-build-drqs35242941 to master
+  * d34bb30 [APPROVAL] pending/master/fix_SAFE_2_checks_drqs35987921 to master
+  * c5c930a [APPROVAL] pending/master/fix_for_bcef_metadata to master
+  * f9a3125 [APPROVAL] pending/master/alloctesttype-td-safe-fix-drqs-36772136 to master
+  * bbdcc79 [APPROVAL] pending/master/warnings_fix_for_bdem_convert_drqs37154742 to master
+  * 899fb2b [APPROVAL] pending/master/oss-universal-size-type-printf-code-in-bsls_bsltestutil-drqs_37405914 to master
+  * 350e751 [APPROVAL] pending/master/leaky-bucket-polish-drqs-36592346 to master
+  * 30fce2d [APPROVAL] pending/master/baesu_stacktracetestallocator-drqs-21254353 to master
+  * 4ef5d2c [APPROVAL] pending/master/drqs-37856352-aggregateraw-setField-error to master
+  * b0bfacf [APPROVAL] pending/master/drqs-39447786-add-getOsInfo to master
+  * 547ec1a [APPROVAL] pending/master/bcemt_threadutil-nativehandle-doc-drqs38397605 to master
+  * 792b530 [APPROVAL] origin/review/drqs-38730721-ber-encoder-enum-error to master
+  * 46feabf [APPROVAL] pending/master/bcemt_once-doc-drqs38732921 to master
+  * 8073ed5 [APPROVAL] origin/review/eliminate_Xfunc6_components_drqs39383875 to master
+  * f702b55 [APPROVAL] origin/review/de-duplicate-dummy-cpp-files-drqs-38654957 to master
+  * 41b56b9 [APPROVAL] pending/master/fix-bdes_float-testdriver-drqs37511035 to master
+  * f04182b [APPROVAL] pending/master/drqs-39301731-bcem_aggregateraw-inline-destructor to master
+  * 185058c [APPROVAL] pending/master/improve-nullable-drqs37086863 to master
+  * dd70ea7 [APPROVAL] pending/master/fix-socketimputil-readFrom-drqs36749575 to master
+  * 21b9437 [APPROVAL] pending/master/drqs-39012206-baejsn-doxygen-issue to master
+  * f233c63 [APPROVAL] pending/master/drqs-29758161-baexml-formatter-enum-encoding-failure to master
+  * e24772e [APPROVAL] pending/master/bdeso_ipv4-clang-crash-drqs-38679960 to master
+  * b97e4d4 [APPROVAL] review/package-build-refroot-support-drqs-38467258 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 24 Mar 2013 10:43:55 -0400
+
+bde-core (BSL_FROZEN_2.17.0c) git; urgency=low
+
+  * 851e7de update debian/changelog for 2.17 bsl freeze (take 3)
+  * 072410f [APPROVAL] origin/review/restore-bsls_platformutil-transitive-includes-drqs-37361937 to master
+  * cf441df [APPROVAL] pending/master/revert_hash_const_char_intentional_breakage_drqs38592188 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 Mar 2013 10:59:26 -0400
+
+bde-core (BSL_FROZEN_2.17.0b) git; urgency=low
+
+  * 710c0ba changelog update for 2.17.0b bsl freeze
+  * a100fe3 [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
+  * 4cbccff [APPROVAL] build-bbe-in-rules-drqs-39480694 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Mar 2013 13:52:09 -0400
+
+bde-core (BSL_FROZEN_2.17.0a) git; urgency=low
+
+  * 5a532f6 bump changelog for pre-2.17.0 bsl freeze
   * 091f619 [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
   * 28c4c99 [APPROVAL] pending/master/oss-bsls_buildtarget-test-driver-drqs_33319796 to master
   * 3abccd6 [APPROVAL] pending/master/update-licenses-to-MIT-2013-drqs-39016521 to master
@@ -49,7 +106,7 @@ bde-core (2.17.0.001) unstable; urgency=low
   * 03f9212 [APPROVAL] pending/master/bdecs_calendarcache-timeout-fix-drqs-37338470 to master
   * 7677178 [APPROVAL] pending/master/bcemt-qlock-semaphore-drqs37693825 to master
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 4 Mar 2013 19:14:41 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 6 Mar 2013 11:58:54 -0500
 
 bde-core (MERGE_BASE_master_2.16.x) git; urgency=low
 
@@ -746,6 +803,7 @@ bde-core (BSL_FROZEN_2.8.0) git; urgency=low
   * 376b2df [APPROVAL] dev/hversche/bslmf-enableif-fixmerge to master
   * 84dd72a [APPROVAL] origin/pending/master/dev/sbreitst/Doxygen.pm to master
   * d49152f [APPROVAL] remotes/origin/pending/master/gitignore-vim-temp to master
+  * 12abaa4 Merge branch 'releases/2.7.x' of devgit:bde/git-bde
   * 9f60317 [APPROVAL] origin/review/drqs-25457771-baenet_httpstatusline to master
   * 834a39e [APPROVAL] origin/pending/master/remove-pedantic to master
   * 75228a9 [APPROVAL] remotes/origin/review/drqs-25393633-hpux-getcontext to master
@@ -781,6 +839,8 @@ bde-core (BLP_LIB_BDE_BTE_2.7.1) git; urgency=low
   * 2d3156a [APPROVAL] remotes/origin/pending/master/gitignore-update to master
   * ab50752 [APPROVAL] remotes/origin/pending/master/remove_extra_files to master
   * 399ccfb [APPROVAL] remotes/origin/pending/master/version_tags_2.8.0_BETA_1 to master
+  * 95aeb5a scm files set to 2.8.0 BETA_1, adding groups/releases, and adding etc/default.opts
+  * f54a761 add default.opts and releases files
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 May 2011 14:35:33 -0400
 

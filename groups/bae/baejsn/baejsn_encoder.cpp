@@ -57,22 +57,22 @@ void baejsn_Encoder_Formatter::closeObject()
     d_outputStream << '}';
 }
 
-void baejsn_Encoder_Formatter::openArray()
+void baejsn_Encoder_Formatter::openArray(bool formatAsEmptyArrayFlag)
 {
     d_outputStream << '[';
 
-    if (d_usePrettyStyle) {
+    if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
         d_outputStream << '\n';
     }
 
     ++d_indentLevel;
 }
 
-void baejsn_Encoder_Formatter::closeArray()
+void baejsn_Encoder_Formatter::closeArray(bool formatAsEmptyArrayFlag)
 {
     --d_indentLevel;
 
-    if (d_usePrettyStyle) {
+    if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
         d_outputStream << '\n';
         bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
     }
@@ -142,7 +142,7 @@ void baejsn_Encoder_Formatter::closeDocument()
 
 // PRIVATE MANIPULATORS
 int baejsn_Encoder_EncodeImpl::encodeImp(const bsl::vector<char>& value,
-                                         int                      mode,
+                                         int,
                                          bdeat_TypeCategory::Array)
 {
     bsl::string base64String;

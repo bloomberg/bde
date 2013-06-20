@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
                         bdeut_StringRef filename(path.c_str() + offset,
                                                  subStrLen);
 
-                        if ('/' == filename[0]) {
+                        if (filename.length() > 0 && '/' == filename[0]) {
                             continue;
                         }
 

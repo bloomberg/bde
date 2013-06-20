@@ -637,9 +637,14 @@ BDES_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-namespace BloombergLP {
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>  // not a component
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-template <typename PLATFORM> struct bces_AtomicUtilImpl;
+namespace BloombergLP {
 
                         // ======================
                         // struct bces_AtomicUtil
@@ -895,7 +900,7 @@ inline
 void bces_AtomicUtil::initPointer(bces_AtomicUtil::Pointer *atomicPtr,
                                   const volatile void      *initialValue)
 {
-    Impl::initPointer(atomicPtr, const_cast<const void *>(initialValue));
+    Impl::initPointer(atomicPtr, const_cast<void *>(initialValue));
 }
 
 inline

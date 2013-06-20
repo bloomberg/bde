@@ -300,7 +300,7 @@ bdex_TestInStreamFormatter& bdex_TestInStreamFormatter::getString(
     getLength(length);
     if (d_validFlag) {
         str.resize(length);
-        getArrayUint8((char *)(void *)str.data(), length);
+        getArrayUint8((char *) &str[0], length);
     }
     return *this;
 }

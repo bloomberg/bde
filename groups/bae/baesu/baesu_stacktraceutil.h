@@ -1,3 +1,4 @@
+
 // baesu_stacktraceutil.h                                             -*-C++-*-
 #ifndef INCLUDED_BAESU_STACKTRACEUTIL
 #define INCLUDED_BAESU_STACKTRACEUTIL
@@ -75,7 +76,7 @@ BDES_IDENT("$Id: $")
 // Finally, we use 'printFormatted' to stream out the stack-trace, one frame
 // per line, in a concise, human-readable format.
 //..
-//      baesu_StackTraceUtil::printFormatted(cout, stackTrace);
+//      baesu_StackTraceUtil::printFormatted(bsl::cout, stackTrace);
 //  }
 //..
 // The output from the preceding example on Solaris is as follows:
@@ -169,7 +170,7 @@ BDES_IDENT("$Id: $")
 //          const char *symbol = frame.isSymbolNameKnown()
 //                             ? frame.symbolName().c_str()
 //                             : "--unknown__";
-//          cout << '(' << i << "): " << symbol << endl;
+//          bsl::cout << '(' << i << "): " << symbol << endl;
 //      }
 //  }
 //..
@@ -184,6 +185,52 @@ BDES_IDENT("$Id: $")
 // (6): main
 // (7): _start
 //..
+//
+///Example 3: Outputting a Hex Stack Trace
+///- - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate how to output return addresses from the
+// stack to a stream in hex.  Note that in this case the stack trace is never
+// stored to a data object -- when the 'operator<<' is passed a pointer to the
+// 'hexStackTrace' function, it calls the 'hexStackTrace' function, which
+// gathers the stack addresses and immediately streams them out.  After the
+// 'operator<<' is finished, the stack addresses are no longer stored anywhere.
+//
+// First, we define a routine 'recurseExample3' which will recurse the
+// specified 'depth' times, then call 'traceExample3'.
+//
+//  void traceExample3();    // forward declaration
+//
+//  static void recurseExample3(int *depth)
+//      // Recurse the specified 'depth' number of times, then call
+//      // 'traceExample3', which will print a stack-trace.
+//  {
+//      if (--*depth > 0) {
+//          recurseExample3(depth);
+//      }
+//      else {
+//          traceExample3();
+//      }
+//
+//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+//                  // loop.
+//  }
+//
+//  void traceExample3()
+//  {
+//..
+// Now, within 'traceExample3', we output the stack addresses in hex by
+// streaming the function pointer 'hexStackTrace' to 'cout':
+//..
+//      bsl::cout << baesu_StackTraceUtil::hexStackTrace << endl;
+//  }
+//..
+// Finally, the output appears as a collection of hex values streamed out
+// separated by spaces, which can be translated to symbol names using tools
+// outside of 'baesu':
+//..
+// 0x804f806 0x804f7dc 0x804f7d5 0x804f7d5 0x804f7d5 0x804fbea 0x341e9c
+//..
+
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -206,6 +253,13 @@ namespace BloombergLP {
 struct baesu_StackTraceUtil {
     // This 'struct' serves as a namespace for a collection of functions that
     // are useful for initializing and printing a stack-trace object.
+
+    // CLASS METHODS
+    static
+    bsl::ostream& hexStackTrace(bsl::ostream &stream);
+        // Write to the specified 'stream' the stack addresses from a stack
+        // trace of the current thread, in hex from top to bottom, and return
+        // 'stream'.
 
     static
     int loadStackTraceFromAddressArray(
@@ -269,6 +323,27 @@ struct baesu_StackTraceUtil {
         // Note that the format is not fully specified, and can change without
         // notice.  Also note that this method attempts to avoid using the
         // default allocator.
+
+    static
+    bsl::ostream& printHexStackTrace(
+                                 bsl::ostream&     stream,
+                                 char              delimiter = ' ',
+                                 int               maxFrames = -1,
+                                 int               additionalIgnoreFrames = 0,
+                                 bslma::Allocator *allocator = 0);
+        // Write to the specified 'stream' the stack addresses from a stack
+        // trace of the current thread, in hex from top to bottom, and return
+        // 'stream'.  Optionally specify 'delimiter', that is to be written
+        // between stack addresses.  If 'delimiter is not specified, the
+        // addresses are separated by a single space.  Optionally specify
+        // 'maxFrames', the upper limit of the number of frames to obtain,
+        // where a negative or unspecified value will be interpreted as a large
+        // finite default value.  Optionally specify 'additionalIgnoreFrames'
+        // to be added to the number of frames from the stack top to be ignored
+        // and not printed.  Optionally specify 'allocator' to be used for
+        // temporary storage; if none is specified, a locally created heap
+        // bypass allocator will be used.  The behavior is undefined unless
+        // 'delimiter != 0' and 'additionalIgnoreFrames >= 0'.
 };
 
 }  // close namespace BloombergLP

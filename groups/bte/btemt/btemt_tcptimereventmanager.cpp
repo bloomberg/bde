@@ -1507,6 +1507,12 @@ void btemt_TcpTimerEventManager::execute(const bdef_Function<void (*)()>&
 
 }
 
+void btemt_TcpTimerEventManager::clearExecuteQueue()
+{
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_executeQueueLock);
+    d_executeQueue_p->clear();
+}
+
 void btemt_TcpTimerEventManager::deregisterSocket(
         const bteso_SocketHandle::Handle& handle)
 {

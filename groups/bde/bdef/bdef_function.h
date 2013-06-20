@@ -538,7 +538,7 @@ class bdef_Function_Rep {
     };
 
     // CREATORS
-    bdef_Function_Rep(bslma::Allocator *allocator = 0);
+    explicit bdef_Function_Rep(bslma::Allocator *allocator = 0);
         // Create an unset functor using the specified 'allocator' to supply
         // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
@@ -889,6 +889,17 @@ class bdef_Function {
         return &Invoker::template invoke<FUNC>;
     }
 
+
+  private:
+    // NOT IMPLEMENTED
+    void operator==(const bdef_Function&) const; // = delete;
+    void operator!=(const bdef_Function&) const; // = delete;
+        // 'bdef_Function' objects cannot be compared for equality, as the
+        // function objects they wrap might not support the equality comparison
+        // operator to delegate to.  However, if these methods are not declared
+        // as private, then both 'bdef_Function' objects will be implicitly
+        // converted to their boolean value, and those values compared instead.
+
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Function,
@@ -900,7 +911,7 @@ class bdef_Function {
         // default allocator to supply memory.
 
     template <class FUNC_OR_ALLOC>
-    bdef_Function(const FUNC_OR_ALLOC& funcOrAlloc);
+    bdef_Function(const FUNC_OR_ALLOC& funcOrAlloc);                // IMPLICIT
         // Create either a function object having the value of the specified
         // 'funcOrAlloc' function object, or an uninitialized function object
         // having 'funcOrAlloc' as an allocator if 'FUNC_OR_ALLOC' is
@@ -939,7 +950,7 @@ class bdef_Function {
         // Assign to this object the invocable of the specified 'rhs' and
         // return a reference to this modifiable function object.
 
-    template <typename FUNC>
+    template <class FUNC>
     bdef_Function<PROTOTYPE>& operator=(const FUNC& func);
         // Assign to this function object the 'func' invocable object of the
         // parameterized 'FUNC' type, and return a reference to this modifiable
@@ -1143,6 +1154,7 @@ template <class FUNC>
 struct bdef_Function_Invocable<FUNC,
                                bdef_Function_Rep::IS_FUNCTION_POINTER>
                                                    : public bdef_Function_Rep {
+    // ACCESSORS
     FUNC invocable() const
     {
         return *(const FUNC *)&d_arena.d_func_p;
@@ -1153,6 +1165,7 @@ template <class FUNC>
 struct bdef_Function_Invocable<FUNC,
                          bdef_Function_Rep::IS_IN_PLACE_WITH_POINTER_SEMANTICS>
                                                    : public bdef_Function_Rep {
+    // ACCESSORS
     FUNC& invocable() const
     {
         return *const_cast<FUNC *>((const FUNC *)&d_arena);
@@ -1163,6 +1176,7 @@ template <class FUNC>
 struct bdef_Function_Invocable<FUNC,
                      bdef_Function_Rep::IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS>
                                                    : public bdef_Function_Rep {
+    // ACCESSORS
     FUNC& invocable() const
     {
         return *(FUNC *)d_arena.d_object_p;
@@ -1173,6 +1187,7 @@ template <class FUNC>
 struct bdef_Function_Invocable<FUNC,
                       bdef_Function_Rep::IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS>
                                                    : public bdef_Function_Rep {
+    // ACCESSORS
     FUNC *invocable() const
     {
         return const_cast<FUNC *>((const FUNC *)&d_arena);
@@ -1183,6 +1198,7 @@ template <class FUNC>
 struct bdef_Function_Invocable<FUNC,
                   bdef_Function_Rep::IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS>
                                                    : public bdef_Function_Rep {
+    // ACCESSORS
     FUNC *invocable() const
     {
         return (FUNC *)d_arena.d_object_p;
@@ -1305,7 +1321,7 @@ struct bdef_Function_TypeList {
         typename bslmf::TypeListTypeOf<4, Args>::TypeOrDefault>::Type  A4;
     typedef typename bslmf::ForwardingType<
         typename bslmf::TypeListTypeOf<5, Args>::TypeOrDefault>::Type  A5;
-     typedef typename bslmf::ForwardingType<
+    typedef typename bslmf::ForwardingType<
         typename bslmf::TypeListTypeOf<6, Args>::TypeOrDefault>::Type  A6;
     typedef typename bslmf::ForwardingType<
         typename bslmf::TypeListTypeOf<7, Args>::TypeOrDefault>::Type  A7;
@@ -1388,8 +1404,10 @@ struct bdef_Function_Invoker<0, RET, ARGS> {
     // This implementation-private class defines an invoker specialized for
     // functions that return 'RET' and accept zero arguments.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep)
     {
@@ -1403,8 +1421,10 @@ struct bdef_Function_Invoker<0, void, ARGS> {
     // This implementation-private class defines an invoker specialized for
     // functions that return 'void' and accept zero arguments.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep)
     {
@@ -1418,9 +1438,11 @@ struct bdef_Function_Invoker<1, RET, ARGS> {
     // This implementation-private class defines an invoker specialized for
     // functions that return 'RET' and accept a single argument of type 'A1'.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1)
@@ -1435,9 +1457,11 @@ struct bdef_Function_Invoker<1, void, ARGS> {
     // This implementation-private class defines an invoker specialized for
     // functions that return 'void' and accept a single argument of type 'A1'.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                 typename ARGS::A1);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1)
@@ -1453,9 +1477,11 @@ struct bdef_Function_Invoker<2, RET, ARGS> {
     // functions that return 'RET' and accept two arguments of type 'A1', 'A2'
     // respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2 p2)
@@ -1471,9 +1497,11 @@ struct bdef_Function_Invoker<2, void, ARGS> {
     // functions that return 'void' and accept two arguments of type 'A1',
     // 'A2' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                 typename ARGS::A1, typename ARGS::A2);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2)
@@ -1489,10 +1517,12 @@ struct bdef_Function_Invoker<3, RET, ARGS> {
     // functions that return 'RET' and accept three arguments of type 'A1',
     // 'A2', 'A3' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1509,10 +1539,12 @@ struct bdef_Function_Invoker<3, void, ARGS> {
     // functions that return 'void' and accept three arguments of type 'A1',
     // 'A2', 'A3' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                 typename ARGS::A1, typename ARGS::A2,
                                 typename ARGS::A3);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1529,10 +1561,12 @@ struct bdef_Function_Invoker<4, RET, ARGS> {
     // functions that return 'RET' and accept four arguments of type 'A1',
     // 'A2', 'A3', 'A4' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1549,10 +1583,12 @@ struct bdef_Function_Invoker<4, void, ARGS> {
     // functions that return 'void' and accept four arguments of type 'A1',
     // 'A2', 'A3', 'A4' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                 typename ARGS::A1, typename ARGS::A2,
                                 typename ARGS::A3, typename ARGS::A4);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1569,11 +1605,13 @@ struct bdef_Function_Invoker<5, RET, ARGS> {
     // functions that return 'RET' and accept five arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
                                typename ARGS::A5);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1591,11 +1629,13 @@ struct bdef_Function_Invoker<5, void, ARGS> {
     // functions that return 'void' and accept five arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                 typename ARGS::A1, typename ARGS::A2,
                                 typename ARGS::A3, typename ARGS::A4,
                                 typename ARGS::A5);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1613,11 +1653,13 @@ struct bdef_Function_Invoker<6, RET, ARGS> {
     // functions that return 'RET' and accept six arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
                                typename ARGS::A5, typename ARGS::A6);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(
                       bdef_Function_Rep const *rep,
@@ -1636,11 +1678,13 @@ struct bdef_Function_Invoker<6, void, ARGS> {
     // functions that return 'void' and accept six arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
                                typename ARGS::A5, typename ARGS::A6);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1658,12 +1702,14 @@ struct bdef_Function_Invoker<7, RET, ARGS> {
     // functions that return 'RET' and accept seven arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', typename 'A7' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
                                typename ARGS::A5, typename ARGS::A6,
                                typename ARGS::A7);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1683,12 +1729,14 @@ struct bdef_Function_Invoker<7, void, ARGS> {
     // functions that return 'void' and accept seven arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', typename 'A7' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                 typename ARGS::A1, typename ARGS::A2,
                                 typename ARGS::A3, typename ARGS::A4,
                                 typename ARGS::A5, typename ARGS::A6,
                                 typename ARGS::A7);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1707,12 +1755,14 @@ struct bdef_Function_Invoker<8, RET, ARGS> {
     // functions that return 'RET' and accept eight arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
                                typename ARGS::A5, typename ARGS::A6,
                                typename ARGS::A7, typename ARGS::A8);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1732,12 +1782,14 @@ struct bdef_Function_Invoker<8, void, ARGS> {
     // functions that return 'void' and accept eight arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
                                typename ARGS::A5, typename ARGS::A6,
                                typename ARGS::A7, typename ARGS::A8);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1757,6 +1809,7 @@ struct bdef_Function_Invoker<9, RET, ARGS> {
     // functions that return 'RET' and accept nine arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
@@ -1764,6 +1817,7 @@ struct bdef_Function_Invoker<9, RET, ARGS> {
                                typename ARGS::A7, typename ARGS::A8,
                                typename ARGS::A9);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1784,6 +1838,7 @@ struct bdef_Function_Invoker<9, void, ARGS> {
     // functions that return 'void' and accept nine arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
@@ -1791,6 +1846,7 @@ struct bdef_Function_Invoker<9, void, ARGS> {
                                typename ARGS::A7, typename ARGS::A8,
                                typename ARGS::A9);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2 p2,
@@ -1811,6 +1867,7 @@ struct bdef_Function_Invoker<10, RET, ARGS> {
     // functions that return 'RET' and accept ten arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
@@ -1818,6 +1875,7 @@ struct bdef_Function_Invoker<10, RET, ARGS> {
                                typename ARGS::A7, typename ARGS::A8,
                                typename ARGS::A9, typename ARGS::A10);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1 p1, typename ARGS::A2  p2,
@@ -1838,6 +1896,7 @@ struct bdef_Function_Invoker<10, void, ARGS> {
     // functions that return 'void' and accept ten arguments of type 'A1',
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
@@ -1845,6 +1904,7 @@ struct bdef_Function_Invoker<10, void, ARGS> {
                                typename ARGS::A7, typename ARGS::A8,
                                typename ARGS::A9, typename ARGS::A10);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1 p1, typename ARGS::A2  p2,
@@ -1866,6 +1926,7 @@ struct bdef_Function_Invoker<11, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11'
     // respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
@@ -1874,6 +1935,7 @@ struct bdef_Function_Invoker<11, RET, ARGS> {
                                typename ARGS::A9, typename ARGS::A10,
                                typename ARGS::A11);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1  p1,  typename ARGS::A2  p2,
@@ -1896,6 +1958,7 @@ struct bdef_Function_Invoker<11, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11'
     // respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1, typename ARGS::A2,
                                typename ARGS::A3, typename ARGS::A4,
@@ -1904,6 +1967,7 @@ struct bdef_Function_Invoker<11, void, ARGS> {
                                typename ARGS::A9, typename ARGS::A10,
                                typename ARGS::A11);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1  p1,  typename ARGS::A2  p2,
@@ -1926,6 +1990,7 @@ struct bdef_Function_Invoker<12, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12'
     // respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1,  typename ARGS::A2,
                                typename ARGS::A3,  typename ARGS::A4,
@@ -1934,6 +1999,7 @@ struct bdef_Function_Invoker<12, RET, ARGS> {
                                typename ARGS::A9,  typename ARGS::A10,
                                typename ARGS::A11, typename ARGS::A12);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1  p1,  typename ARGS::A2 p2,
@@ -1956,6 +2022,7 @@ struct bdef_Function_Invoker<12, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12'
     // respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1,  typename ARGS::A2,
                                typename ARGS::A3,  typename ARGS::A4,
@@ -1964,6 +2031,7 @@ struct bdef_Function_Invoker<12, void, ARGS> {
                                typename ARGS::A9,  typename ARGS::A10,
                                typename ARGS::A11, typename ARGS::A12);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1  p1,  typename ARGS::A2  p2,
@@ -1986,6 +2054,7 @@ struct bdef_Function_Invoker<13, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12',
     // 'A13' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1,  typename ARGS::A2,
                                typename ARGS::A3,  typename ARGS::A4,
@@ -1995,6 +2064,7 @@ struct bdef_Function_Invoker<13, RET, ARGS> {
                                typename ARGS::A11, typename ARGS::A12,
                                typename ARGS::A13);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1  p1,  typename ARGS::A2  p2,
@@ -2018,6 +2088,7 @@ struct bdef_Function_Invoker<13, void, ARGS> {
     // 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11',
     // 'A12', 'A13' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1,  typename ARGS::A2,
                                typename ARGS::A3,  typename ARGS::A4,
@@ -2027,6 +2098,7 @@ struct bdef_Function_Invoker<13, void, ARGS> {
                                typename ARGS::A11, typename ARGS::A12,
                                typename ARGS::A13);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1  p1,  typename ARGS::A2  p2,
@@ -2050,6 +2122,7 @@ struct bdef_Function_Invoker<14, RET, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12',
     // 'A13', 'A14' respectively.
 
+    // TYPES
     typedef RET (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1,  typename ARGS::A2,
                                typename ARGS::A3,  typename ARGS::A4,
@@ -2059,6 +2132,7 @@ struct bdef_Function_Invoker<14, RET, ARGS> {
                                typename ARGS::A11, typename ARGS::A12,
                                typename ARGS::A13, typename ARGS::A14);
 
+    // CLASS METHODS
     template <class FUNC>
     static RET invoke(bdef_Function_Rep const *rep,
                       typename ARGS::A1  p1,  typename ARGS::A2  p2,
@@ -2082,6 +2156,7 @@ struct bdef_Function_Invoker<14, void, ARGS> {
     // 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12',
     // 'A13', 'A14' respectively.
 
+    // TYPES
     typedef void (*InvokerFunc)(bdef_Function_Rep const*,
                                typename ARGS::A1,  typename ARGS::A2,
                                typename ARGS::A3,  typename ARGS::A4,
@@ -2091,6 +2166,7 @@ struct bdef_Function_Invoker<14, void, ARGS> {
                                typename ARGS::A11, typename ARGS::A12,
                                typename ARGS::A13, typename ARGS::A14);
 
+    // CLASS METHODS
     template <class FUNC>
     static void invoke(bdef_Function_Rep const *rep,
                        typename ARGS::A1  p1,  typename ARGS::A2  p2,
@@ -2217,7 +2293,7 @@ bdef_Function<PROTOTYPE>::operator=(const bdef_Function<PROTOTYPE>& rhs)
 }
 
 template <class PROTOTYPE>
-template <typename FUNC>
+template <class FUNC>
 inline
 bdef_Function<PROTOTYPE>&
 bdef_Function<PROTOTYPE>::operator=(const FUNC& func)
@@ -2686,7 +2762,7 @@ inline
 bool bdef_Function_Rep::isInplace() const
 {
     if (!d_manager_p) {
-        return true;
+        return true;                                                  // RETURN
     }
     return (*d_manager_p)(0, (const void *)0, BDEF_IN_PLACE_DETECTION);
 }
@@ -2805,7 +2881,8 @@ bool bdef_Function_RepUtil::inplaceBitwiseMoveableManager(
         // that 'source' is left in a empty state but must be zero-initialized
         // by the caller upon return.
 
-        const bdef_Function_Rep *sourceRep = (bdef_Function_Rep *) source;
+        const bdef_Function_Rep *sourceRep
+            = (const bdef_Function_Rep *) source;
 
         BSLS_ASSERT_SAFE(sourceRep->d_allocator_p == rep->d_allocator_p);
         bsl::memcpy((FUNC *)&rep->d_arena,

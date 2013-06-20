@@ -38,8 +38,7 @@ bcema_SharedPtrUtil::createInplaceUninitializedBuffer(
     // documentation for a definition of natural alignment.)  We achieve this
     // in the simplest way by always maximally aligning the returned pointer.
 
-    typedef
-        bcema_SharedPtrInplaceRep<bsls::AlignmentUtil::MaxAlignedType> Rep;
+    typedef bcema_SharedPtrInplaceRep<bsls::AlignmentUtil::MaxAlignedType> Rep;
 
     enum{
         ALIGNMENT_MASK = ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)

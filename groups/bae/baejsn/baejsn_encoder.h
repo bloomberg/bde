@@ -307,7 +307,7 @@ class baejsn_Encoder {
 
   private:
     // DATA
-    bsl::ostringstream d_logStream;        // stream used for logging
+    bsl::ostringstream d_logStream;  // stream used for logging
 
   private:
     // PRIVATE MANIPULATORS
@@ -410,13 +410,25 @@ class baejsn_Encoder_Formatter {
         // Print onto the stream supplied at construction the sequence of
         // characters designating the end of an object.
 
-    void openArray();
+    void openArray(bool formatAsEmptyArrayFlag = false);
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an array.
+        // characters designating the start of an array.  Optionally specify
+        // 'formatAsEmptyArrayFlag' denoting if the array being opened should
+        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
+        // specified then the array being opened is formatted as an array
+        // having elements.  Note that the formatting (and as a consequence the
+        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
+        // in the pretty style and is ignored otherwise.
 
-    void closeArray();
+    void closeArray(bool formatAsEmptyArrayFlag = false);
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an array.
+        // characters designating the end of an array.  Optionally specify
+        // 'formatAsEmptyArrayFlag' denoting if the array being closed should
+        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
+        // specified then the array being closed is formatted as an array
+        // having elements.  Note that the formatting (and as a consequence the
+        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
+        // in the pretty style and is ignored otherwise.
 
     void indent();
         // Print onto the stream supplied at construction the sequence of
@@ -460,13 +472,17 @@ class baejsn_Encoder_EncodeImpl {
     // should not be used outside of this component.
 
     // DATA
-    baejsn_Encoder                       *d_encoder;          // encoder (held,
-                                                              // not owned)
+    baejsn_Encoder                       *d_encoder_p;         // encoder
+                                                               // (held, not
+                                                               // owned)
 
-    bsl::ostream                          d_outputStream;     // stream for
-                                                              // output
+    bsl::ostream                          d_outputStream;      // stream for
+                                                               // output
 
-    baejsn_Encoder_Formatter              d_formatter;        // formatter
+    baejsn_Encoder_Formatter              d_formatter;         // formatter
+
+    const baejsn_EncoderOptions          *d_encoderOptions_p;  // encoder
+                                                               // options
 
     // FRIENDS
     friend struct baejsn_Encoder_DynamicTypeDispatcher;
@@ -547,6 +563,11 @@ class baejsn_Encoder_EncodeImpl {
     void closeDocument();
         // Print onto the stream supplied at construction the sequence of
         // characters designating the end of the document.
+
+    // ACCESSORS
+    const baejsn_EncoderOptions *encoderOptions() const;
+        // Return a reference to the non-modifiable encoder options currently
+        // being used by this encoder.
 };
 
                  // ====================================
@@ -561,8 +582,8 @@ struct baejsn_Encoder_ElementVisitor {
     // types.
 
     // DATA
-    baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
-    int                        d_mode;     // formatting mode
+    baejsn_Encoder_EncodeImpl *d_encoder_p; // encoder (held, not owned)
+    int                        d_mode;      // formatting mode
 
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
@@ -592,20 +613,21 @@ class baejsn_Encoder_SequenceVisitor {
     // sequence types.
 
     // DATA
-    baejsn_Encoder_EncodeImpl *d_encoder;          // encoder (held, not owned)
+    baejsn_Encoder_EncodeImpl *d_encoder_p;        // encoder (held, not owned)
     bool                       d_isFirstElement;   // flag indicating if an
                                                    // current element is the
                                                    // first
 
     // PRIVATE CLASS METHODS
     template <class TYPE>
-    static bool isAttributeNull(const TYPE&, bslmf::MetaInt<0>);
+    bool skipNullableAttribute(const TYPE&, bslmf::MetaInt<0>);
     template <class TYPE>
-    static bool isAttributeNull(const TYPE& value, bslmf::MetaInt<1>);
+    bool skipNullableAttribute(const TYPE& value, bslmf::MetaInt<1>);
     template <class TYPE>
-    static bool isAttributeNull(const TYPE& value);
+    bool skipNullableAttribute(const TYPE& value);
         // Return 'true' if the specified 'value' represents a
-        // 'bdeat_NullableValue' type and is null, and 'false' otherwise.
+        // 'bdeat_NullableValue' type and should be skipped, and 'false'
+        // otherwise.
 
     template <class TYPE>
     static bool isEmptyArray(const TYPE&, bslmf::MetaInt<0>);
@@ -642,8 +664,8 @@ struct baejsn_Encoder_DynamicTypeDispatcher {
     // elements of 'bdeat' dynamic types.
 
     // DATA
-    baejsn_Encoder_EncodeImpl *d_encoder;  // encoder (held, not owned)
-    int                        d_mode;     // formatting mode
+    baejsn_Encoder_EncodeImpl *d_encoder_p; // encoder (held, not owned)
+    int                        d_mode;      // formatting mode
 
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
@@ -784,7 +806,7 @@ bool baejsn_Encoder_Formatter::isArrayElement() const
 inline
 bsl::ostream& baejsn_Encoder_EncodeImpl::logStream()
 {
-    return d_encoder->logStream();
+    return d_encoder_p->logStream();
 }
 
 template <typename TYPE>
@@ -922,6 +944,10 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
         d_formatter.closeArray();
     }
+    else if (d_encoderOptions_p->encodeEmptyArrays()) {
+        d_formatter.openArray(true);
+        d_formatter.closeArray(true);
+    }
 
     return 0;
 }
@@ -955,9 +981,10 @@ baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
                                        baejsn_Encoder               *encoder,
                                        bsl::streambuf               *streambuf,
                                        const baejsn_EncoderOptions&  options)
-: d_encoder(encoder)
+: d_encoder_p(encoder)
 , d_outputStream(streambuf)
 , d_formatter(d_outputStream, options)
+, d_encoderOptions_p(&options)
 {
 }
 
@@ -973,6 +1000,12 @@ void baejsn_Encoder_EncodeImpl::closeDocument()
     d_formatter.closeDocument();
 }
 
+// ACCESSORS
+inline
+const baejsn_EncoderOptions *baejsn_Encoder_EncodeImpl::encoderOptions() const
+{
+    return d_encoderOptions_p;
+}
 
                     // -------------------------------------
                     // struct baejsn_Encoder_SequenceVisitor
@@ -981,29 +1014,30 @@ void baejsn_Encoder_EncodeImpl::closeDocument()
 // PRIVATE CLASS METHODS
 template <class TYPE>
 inline
-bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE&,
-                                                     bslmf::MetaInt<0>)
+bool baejsn_Encoder_SequenceVisitor::skipNullableAttribute(const TYPE&,
+                                                           bslmf::MetaInt<0>)
 {
     return false;
 }
 
 template <class TYPE>
-bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value,
-                                                     bslmf::MetaInt<1>)
+bool baejsn_Encoder_SequenceVisitor::skipNullableAttribute(const TYPE& value,
+                                                           bslmf::MetaInt<1>)
 {
     if (bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY ==
                                   bdeat_TypeCategoryFunctions::select(value)) {
-        return bdeat_NullableValueFunctions::isNull(value);           // RETURN
+        return bdeat_NullableValueFunctions::isNull(value)
+            && !d_encoder_p->encoderOptions()->encodeNullElements();  // RETURN
     }
     return false;
 }
 
 template <class TYPE>
 inline
-bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value)
+bool baejsn_Encoder_SequenceVisitor::skipNullableAttribute(const TYPE& value)
 {
-    return isAttributeNull(value,
-                           bslmf::MetaInt<bdeat_NullableValueFunctions
+    return skipNullableAttribute(value,
+                                 bslmf::MetaInt<bdeat_NullableValueFunctions
                                             ::IsNullableValue<TYPE>::VALUE>());
 }
 
@@ -1039,7 +1073,7 @@ bool baejsn_Encoder_SequenceVisitor::isEmptyArray(const TYPE& value)
 inline
 baejsn_Encoder_SequenceVisitor::baejsn_Encoder_SequenceVisitor(
                                             baejsn_Encoder_EncodeImpl *encoder)
-: d_encoder(encoder)
+: d_encoder_p(encoder)
 , d_isFirstElement(true)
 {
 }
@@ -1051,17 +1085,17 @@ int baejsn_Encoder_SequenceVisitor::operator()(const TYPE& value,
 {
     // Determine if 'value' is null and do not encode 'value' if it is.
 
-    if (isAttributeNull(value) || isEmptyArray(value)) {
+    if (skipNullableAttribute(value) || isEmptyArray(value)) {
         return 0;                                                     // RETURN
     }
 
     if (!d_isFirstElement) {
-        d_encoder->d_formatter.closeElement();
+        d_encoder_p->d_formatter.closeElement();
     }
 
     d_isFirstElement = false;
 
-    baejsn_Encoder_ElementVisitor visitor = { d_encoder,
+    baejsn_Encoder_ElementVisitor visitor = { d_encoder_p,
                                               info.formattingMode() };
     return visitor(value, info);
 }
@@ -1074,7 +1108,7 @@ template <typename TYPE>
 inline
 int baejsn_Encoder_ElementVisitor::operator()(const TYPE &value)
 {
-    return d_encoder->encode(value, d_mode);
+    return d_encoder_p->encode(value, d_mode);
 }
 
 template <typename TYPE, typename INFO>
@@ -1086,18 +1120,19 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
     const int mode = info.formattingMode();
     if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
 
-        const int rc = d_encoder->d_formatter.openElement(info.name());
+        const int rc = d_encoder_p->d_formatter.openElement(info.name());
         if (rc) {
-            d_encoder->logStream() << "Unable to encode element named: '"
-                                   << info.name() << "'." << bsl::endl;
+            d_encoder_p->logStream() << "Unable to encode element named: '"
+                                     << info.name() << "'." << bsl::endl;
             return rc;                                                // RETURN
         }
     }
 
-    const int rc = d_encoder->encode(value, mode);
+    const int rc = d_encoder_p->encode(value, mode);
     if (rc) {
-        d_encoder->logStream() << "Unable to encode value of element named: '"
-                               << info.name() << "'." << bsl::endl;
+        d_encoder_p->logStream() << "Unable to encode value of element "
+                                 << "named: '" << info.name() << "'."
+                                 << bsl::endl;
         return rc;                                                    // RETURN
     }
     return 0;
@@ -1122,7 +1157,7 @@ inline
 int baejsn_Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
                                                      ANY_CATEGORY category)
 {
-    d_encoder->encodeImp(value, d_mode, category);
+    d_encoder_p->encodeImp(value, d_mode, category);
     return 0;
 }
 

@@ -46,6 +46,10 @@ BDES_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
+#ifndef INCLUDED_BCEMT_SATURATEDTIMECONVERSIONIMPUTIL
+#include <bcemt_saturatedtimeconversionimputil.h>
+#endif
+
 #ifndef INCLUDED_BCEMT_THREADATTRIBUTES
 #include <bcemt_threadattributes.h>
 #endif
@@ -252,7 +256,9 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
 
     static NativeHandle nativeHandle(const Handle& threadHandle);
         // Return the platform specific identifier associated with the thread
-        // specified by 'threadHandle'.
+        // specified by 'threadHandle'.  Note that the returned native handle
+        // may not be a globally unique identifier for the thread (see
+        // 'selfIdAsUint').
 
     static bool areEqual(const Handle& a, const Handle& b);
         // Return 'true' if the specified 'a' and 'b' thread handles
@@ -389,8 +395,10 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleep(
                                             const bdet_TimeInterval& sleepTime)
 
 {
-    ::Sleep(static_cast<DWORD>(sleepTime.seconds()) * 1000 +
-            static_cast<DWORD>(sleepTime.nanoseconds() / (1000 * 1000)));
+    DWORD milliSeconds;
+    bcemt_SaturatedTimeConversionImpUtil::toMillisec(&milliSeconds, sleepTime);
+
+    ::Sleep(milliSeconds);
 }
 
 inline
@@ -398,7 +406,14 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::microSleep(
                                                                  int microsecs,
                                                                  int seconds)
 {
-    ::Sleep(microsecs / 1000 + (seconds * 1000));
+    enum { MILLION = 1000 * 1000 };
+
+    bdet_TimeInterval ti((microsecs / MILLION) + seconds,
+                         (microsecs % MILLION) * 1000);
+    DWORD milliSeconds;
+    bcemt_SaturatedTimeConversionImpUtil::toMillisec(&milliSeconds, ti);
+
+    ::Sleep(milliSeconds);
 }
 
 inline

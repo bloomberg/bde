@@ -9,6 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-enabled adapter for the allocator protocol.
 //
+//@DEPRECATED: Do not use.
+//
 //@CLASSES:
 //   bcema_ThreadEnabledAllocatorAdapter: thread-enabled allocator adapter
 //

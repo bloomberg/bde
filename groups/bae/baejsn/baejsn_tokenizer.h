@@ -193,16 +193,16 @@ class baejsn_Tokenizer {
         BAEJSN_ARRAY_CONTEXT               // array context
     };
 
-    // CONSTANTS
+    // Intermediate data buffer used for reading data from the stream.
+
     enum {
-        BAEJSN_BUFSIZE         = 1024,
+        BAEJSN_BUFSIZE         = 1024 * 8,
         BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
                                   - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
     };
 
-    char                               d_buffer[BAEJSN_BUFSIZE];  // data
-                                                                  // buffer
-                                                                  // (owned)
+    // DATA
+    char                               d_buffer[BAEJSN_BUFSIZE];  // buffer
 
     bdema_BufferedSequentialAllocator  d_allocator;               // allocater
                                                                   // (owned)
@@ -225,6 +225,10 @@ class baejsn_Tokenizer {
                                                                   // end of
                                                                   // value
 
+    bsl::size_t                        d_valueIter;               // cursor for
+                                                                  // iterating
+                                                                  // value
+
     TokenType                          d_tokenType;               // token type
 
     ContextType                        d_context;                 // context
@@ -237,11 +241,25 @@ class baejsn_Tokenizer {
         // end of the extracted string.  Return 0 on success and a non-zero
         // value otherwise.
 
+    int moveValueCharsToStartAndReloadBuffer();
+        // Move the current sequence of characters being tokenized to the front
+        // of the internal string buffer, 'd_stringBuffer', and then append
+        // additional characters, from the internally-held 'streambuf'
+        // ('d_streamBuf_p') to the end of that sequence up to a maximum
+        // sequence length of 'd_buffer.size()' characters.  Return 0 on
+        // success and a non-zero value otherwise.
+
     int reloadStringBuffer();
         // Reload the string buffer with new data read from the underlying
         // 'streambuf' and overwriting the current buffer.  After reading
         // update the cursor to the new read location.  Return the number of
         // bytes read from the 'streamBuf'.
+
+    int expandBufferForLargeValue();
+        // Increase the size of the string buffer, 'd_stringBuffer', and then
+        // append additional characters, from the internally-held 'streambuf' (
+        // 'd_streambuf_p') to the end of the current sequence of characters.
+        // Return 0 on success and a non-zero value otherwise.
 
     int skipWhitespace();
         // Skip all whitespace characters and position the cursor onto the
@@ -297,6 +315,9 @@ baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_streamBuf_p(0)
 , d_cursor(0)
+, d_valueBegin(0)
+, d_valueEnd(0)
+, d_valueIter(0)
 , d_tokenType(BAEJSN_BEGIN)
 , d_context(BAEJSN_OBJECT_CONTEXT)
 {
@@ -317,6 +338,7 @@ void baejsn_Tokenizer::reset(bsl::streambuf *streamBuf)
     d_cursor      = 0;
     d_valueBegin  = 0;
     d_valueEnd    = 0;
+    d_valueIter   = 0;
     d_tokenType   = BAEJSN_BEGIN;
 }
 

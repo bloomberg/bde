@@ -43,8 +43,8 @@ static void aSsErT(int c, const char *s, int i)
 // [ 1] For the OS, type ensure MAJOR_NUMBER set -> SUBTYPE set.
 //==========================================================================
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 
