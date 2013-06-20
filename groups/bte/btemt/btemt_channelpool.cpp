@@ -3997,6 +3997,71 @@ int btemt_ChannelPool::shutdown(int                      channelId,
     return SUCCESS;
 }
 
+int btemt_ChannelPool::stopAndRemoveAllChannels()
+{
+    bcemt_LockGuard<bcemt_Mutex> managersGuard(&d_managersStateChangeLock);
+
+    // Terminate all the worker threads ensuring that no socket event is being
+    // monitored.  We keep 'd_managersStateChangeLock' locked during this
+    // function so another thread does not succeed in calling 'start' before
+    // this function returns.
+
+    const int numManagers = d_managers.size();
+    for (int i = 0; i < numManagers; ++i) {
+        if (d_managers[i]->disable()) {
+           while(--i >= 0) {
+               bcemt_Attribute attr;
+               attr.setStackSize(d_config.threadStackSize());
+               int rc = d_managers[i]->enable(attr);
+               BSLS_ASSERT(0 == rc);
+           }
+           return -1;
+        }
+    }
+    d_startFlag = 0;
+
+    // Deallocate all servers.  Note that since we have already deregistered
+    // all the timer and socket events we just need to deallocate the servers
+    // closing the listening sockets.
+
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_acceptorsLock);
+
+        d_acceptors.clear();
+    }
+
+    // Deallocate pending connecting sockets.
+
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&d_connectorsLock);
+
+        ConnectorMap::iterator cBegin = d_connectors.begin(),
+                               cEnd   = d_connectors.end();
+        for (ConnectorMap::iterator cIter = cBegin; cIter != cEnd; ++cIter) {
+            if (cIter->second.d_socket_p) {
+                d_factory.deallocate(cIter->second.d_socket_p);
+            }
+            cIter->second.d_socket_p = 0;
+        }
+
+        d_connectors.clear();
+    }
+
+    // Remove and deallocate all channels.
+
+    d_channels.removeAll();
+
+    // Deregister all events associated with the event managers ensuring
+    // that any held shared pointers are released.
+
+    for (int i = 0; i < numManagers; ++i) {
+        d_managers[i]->deregisterAll();
+        d_managers[i]->clearExecuteQueue();
+    }
+
+    return 0;
+}
+
 int btemt_ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
@@ -4058,6 +4123,8 @@ int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
 
 int btemt_ChannelPool::start()
 {
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersStateChangeLock);
+
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
         bcemt_Attribute attr;
@@ -4077,6 +4144,8 @@ int btemt_ChannelPool::start()
 
 int btemt_ChannelPool::stop()
 {
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_managersStateChangeLock);
+
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {

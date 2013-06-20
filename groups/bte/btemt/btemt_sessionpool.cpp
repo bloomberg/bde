@@ -599,11 +599,45 @@ int btemt_SessionPool::stop()
     {
         bcec_ObjectCatalogIter<HandlePtr> itr(d_handles);
 
-        // Move the handles to a temporary vector to avoid a potential
-        // deadlock if when destroying the handle, we invoke the session
-        // down event and the client then makes a call into back into
-        // the session pool which requires adding/removing an item from
-        // d_handles.
+        // Move the handles to a temporary vector to avoid a potential deadlock
+        // if, when destroying the handle, we invoke the session down event and
+        // the client then makes a call back into the session pool which
+        // requires adding/removing an item from 'd_handles'.
+
+        handles.reserve(d_handles.length());
+
+        while (itr) {
+            handles.push_back(itr().second);
+            ++itr;
+        }
+    }
+
+    d_handles.removeAll();
+
+    return ret;
+}
+
+int btemt_SessionPool::stopAndRemoveAllSessions()
+{
+    int ret = 0;
+    if (d_channelPool_p) {
+        ret = d_channelPool_p->stopAndRemoveAllChannels();
+    }
+
+    const int NUM_HANDLES = 32;
+    const int SIZE        = NUM_HANDLES * sizeof(HandlePtr);
+
+    char BUFFER[SIZE];
+    bdema_BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
+
+    bsl::vector<HandlePtr> handles(&bufferAllocator);
+    {
+        bcec_ObjectCatalogIter<HandlePtr> itr(d_handles);
+
+        // Move the handles to a temporary vector to avoid a potential deadlock
+        // if, when destroying the handle, we invoke the session down event and
+        // the client then makes a call back into the session pool which
+        // requires adding/removing an item from 'd_handles'.
 
         handles.reserve(d_handles.length());
 

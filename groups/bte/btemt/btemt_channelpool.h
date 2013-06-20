@@ -950,9 +950,14 @@ class btemt_ChannelPool {
     // INSTANCE DATA
                                         // *** Transport-related state ***
     bcec_ObjectCatalog<ChannelHandle>   d_channels;
+
     bsl::vector<btemt_TcpTimerEventManager *>
                                         d_managers;
-    mutable bcemt_Mutex                 d_managersLock;
+
+    mutable bcemt_Mutex                 d_managersStateChangeLock;
+                                                    // mutex to synchronize
+                                                    // changing the state of
+                                                    // the event managers
 
     bsl::map<int, btemt_Connector>      d_connectors;
     mutable bcemt_Mutex                 d_connectorsLock;
@@ -1534,6 +1539,18 @@ class btemt_ChannelPool {
         // channel is closed but the channel itself is not, and subsequent
         // calls to write (if 'type' is 'SHUTDOWN_SEND'), or to 'enableRead'
         // (if 'type' is 'SHUTDOWN_RECEIVE'), will fail.
+
+    int stopAndRemoveAllChannels();
+        // Terminate all threads managed by this channel pool, close all
+        // listening sockets, close both the read and write parts of all
+        // communication channels under management, and remove all those
+        // communication channels from this channel pool.  Return 0 on success,
+        // and a non-zero value otherwise.  The behavior is undefined if
+        // 'start' is called concurrently or subsequent to the completion of
+        // this call.  Note that shutting down a channel will deallocate all
+        // system resources associated with that channel.  Also note that this
+        // function is intended to be called to release resources held by this
+        // channel pool just prior to its destruction.
 
     int setWriteCacheHiWatermark(int channelId, int numBytes);
         // Set the write cache high-water mark for the specified 'channelId' to
