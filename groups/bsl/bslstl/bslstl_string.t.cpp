@@ -10668,10 +10668,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                     }
 
                     for (int i = 1; i < N+1; ++i) {
-                        const size_t oldSize  = Y11.size();
                         const size_t oldCap   = Y11.capacity();
-                        const size_t remSlots = Y11.capacity() - Y11.size();
-
                         const size_t initCap = DEFAULT_CAPACITY;
 
                         const int CC = testAllocator.numBlocksTotal();
@@ -13847,8 +13844,8 @@ int main(int argc, char *argv[])
             // Copy constructor
             Employee e3(e1);  const Employee& E3 = e3;
 
-            ASSERT(   e1 == e3);
-            ASSERT(! (e1 != e3));
+            ASSERT(   e1 == E3);
+            ASSERT(! (e1 != E3));
         }
 
 ///Example 3: A 'string' replace function
