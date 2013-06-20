@@ -38,8 +38,9 @@ using namespace bdef_PlaceHolders;
 // This test driver does nothing, except verify that the usage example can
 // compile and run correctly as documented.
 //-----------------------------------------------------------------------------
+// [12] int setWriteCacheWatermarks(int, int, int);
 //-----------------------------------------------------------------------------
-// [1 ] BREATHING TEST
+// [ 1] BREATHING TEST
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -128,6 +129,227 @@ static bcemt_Mutex coutMutex;
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace BTEMT_SESSION_POOL_SETWRITECACHEWATERMARKS {
+
+void poolStateCallback(int reason, int source, void *userData)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state changed: (" << reason << ", " << source
+               << ") " << MTENDL;
+    }
+}
+
+void sessionStateCallback(int            state,
+                          int            handle,
+                          btemt_Session *session,
+                          void          *userData)
+{
+    switch(state) {
+      case btemt_SessionPool::SESSION_DOWN: {
+          if (veryVerbose) {
+              MTCOUT << "Client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+      } break;
+      case btemt_SessionPool::SESSION_UP: {
+          if (veryVerbose) {
+              MTCOUT << "Client connected from "
+                     << session->channel()->peerAddress()
+                     << MTENDL;
+          }
+      } break;
+    }
+}
+
+                            // ===================
+                            // class TesterSession
+                            // ===================
+
+class TesterSession : public btemt_Session {
+    // This class is a concrete implementation of the 'btemt_Session' protocol
+    // to use along with 'Tester' objects.
+
+    // DATA
+    btemt_AsyncChannel *d_channel_p; // underlying channel (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    TesterSession(const TesterSession&);
+    TesterSession& operator=(const TesterSession&);
+
+  public:
+    // CREATORS
+    TesterSession(btemt_AsyncChannel *channel);
+        // Create a new 'TesterSession' object for the specified 'channel'.
+
+    ~TesterSession();
+        // Destroy this object.
+
+    // MANIPULATORS
+    virtual int start();
+        // Begin the asynchronous operation of this session.
+
+    virtual int stop();
+        // Stop the operation of this session.
+
+    // ACCESSORS
+    virtual btemt_AsyncChannel *channel() const;
+        // Return the channel associate with this session.
+};
+
+                    // ===================
+                    // class TesterFactory
+                    // ===================
+
+class TesterFactory : public btemt_SessionFactory {
+    // This class is a concrete implementation of the 'btemt_SessionFactory'
+    // that simply allocates 'TesterSession' objects.  No specific allocation
+    // strategy (such as pooling) is implemented.
+
+    // DATA
+    btemt_SessionFactory::Callback  d_callback;
+    btemt_Session                  *d_session_p;
+    bslma::Allocator               *d_allocator_p;  // memory allocator (held,
+                                                    // not owned)
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    TesterFactory(bslma::Allocator *basicAllocator = 0);
+        // Create a new 'TesterFactory' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    virtual ~TesterFactory();
+        // Destroy this factory.
+
+    // MANIPULATORS
+    virtual void allocate(btemt_AsyncChannel                    *channel,
+                          const btemt_SessionFactory::Callback&  callback);
+        // Asynchronously allocate a 'btemt_Session' object for the
+        // specified 'channel', and invoke the specified 'callback' with
+        // this session.
+
+    virtual void deallocate(btemt_Session *session);
+        // Deallocate the specified 'session'.
+
+    void readCb(int         state,
+                int        *numNeeded,
+                bcema_Blob *msg,
+                int         channelId);
+        // Blob based read callback for session pool.
+
+    void writeCb(int         state,
+                int        *numNeeded,
+                bcema_Blob *msg,
+                int         channelId);
+        // Blob based read callback for session pool.
+
+    btemt_AsyncChannel *channel() const;
+        // Return the channel managed by this factory.
+};
+
+                            // -------------------
+                            // class TesterSession
+                            // -------------------
+
+// CREATORS
+TesterSession::TesterSession(btemt_AsyncChannel *channel)
+: d_channel_p(channel)
+{
+}
+
+TesterSession::~TesterSession()
+{
+}
+
+// MANIPULATORS
+int TesterSession::start()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session started" << MTENDL;
+    }
+
+    return 0;
+}
+
+int TesterSession::stop()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session stopped" << MTENDL;
+    }
+
+    d_channel_p->close();
+    return 0;
+}
+
+// ACCESSORS
+btemt_AsyncChannel *TesterSession::channel() const
+{
+    return d_channel_p;
+}
+
+                        // -------------------
+                        // class TesterFactory
+                        // -------------------
+
+// CREATORS
+TesterFactory::TesterFactory(bslma::Allocator *basicAllocator)
+: d_session_p(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+TesterFactory::~TesterFactory()
+{
+}
+
+// MANIPULATORS
+void TesterFactory::allocate(btemt_AsyncChannel                    *channel,
+                             const btemt_SessionFactory::Callback&  callback)
+{
+    if (veryVerbose) {
+        MTCOUT << "Allocate factory called: " << MTENDL;
+    }
+
+    d_session_p = new (*d_allocator_p) TesterSession(channel);
+
+    callback(0, d_session_p);
+}
+
+void TesterFactory::deallocate(btemt_Session *session)
+{
+    if (veryVerbose) {
+        MTCOUT << "Deallocate factory called: " << MTENDL;
+    }
+
+    d_allocator_p->deleteObjectRaw(session);
+}
+
+void TesterFactory::readCb(int         state,
+                           int        *numNeeded,
+                           bcema_Blob *msg,
+                           int         channelId)
+{
+    if (veryVerbose) {
+        MTCOUT << "Read callback called with: " << state << MTENDL;
+    }
+
+    d_callback(0, d_session_p);
+}
+
+btemt_AsyncChannel *TesterFactory::channel() const
+{
+    return d_session_p->channel();
+}
+
+}  // close namespace BTEMT_SESSION_POOL_SETWRITECACHEWATERMARKS
 
 namespace BTEMT_SESSION_POOL_DRQS_28731692 {
 
@@ -2737,6 +2959,123 @@ int main(int argc, char *argv[])
     bcema_TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'setWriteCacheWatermarks'
+        //   The 'setWriteCacheWatermarks' method has the expected effect.
+        //
+        // Concerns:
+        //   1. That 'setWriteCacheWatermarks' fails when passed an invalid
+        //      session id.
+        //
+        //   2. That 'setWriteCacheWatermarks' correctly passes its arguments
+        //      to btemt_ChannelPool::setWriteCacheWatermarks'.
+        //
+        // Plan:
+        //   1. For concern 1, invoke 'setWriteCacheWatermarks' with an invalid
+        //      session id and verify that the method fails.
+        //
+        //   2. For concern 2, create a session, capturing the session id of a
+        //      client connection.  Invoke the method using that session id and
+        //      representative (valid) values for the low- and high-water
+        //      marks.  Assert that the method succeeds in each case.
+        //
+        // Testing:
+        //   int setWriteCacheWatermarks(int, int, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING 'setWriteCacheWatermarks'"
+                               << bsl::endl
+                               << "================================="
+                               << bsl::endl;
+
+        using namespace BTEMT_SESSION_POOL_SETWRITECACHEWATERMARKS;
+
+        enum {
+            LOW_WATERMARK =  512,
+            HI_WATERMARK  = 4096
+        };
+
+        typedef btemt_SessionPool::SessionStateCallback     SessionCb;
+        typedef btemt_SessionPool::SessionPoolStateCallback PoolCb;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(4);
+        config.setWriteCacheWatermarks(LOW_WATERMARK, HI_WATERMARK);
+
+        PoolCb    poolStateCb    = &poolStateCallback;
+        SessionCb sessionStateCb = &sessionStateCallback;
+
+        btemt_SessionPool sessionPool(config, poolStateCb, false);
+
+        ASSERT(0 == sessionPool.start());
+
+        TesterFactory factory;
+
+        int handle = 0;
+        ASSERT(0 == sessionPool.listen(&handle,
+                                       sessionStateCb,
+                                       0,
+                                       5,
+                                       1,
+                                       &factory));
+        const int PORTNUM = sessionPool.portNumber(handle);
+
+        bteso_IPv4Address ADDRESS("127.0.0.1", PORTNUM);
+
+        ASSERT(0 == sessionPool.connect(&handle,
+                                        sessionStateCb,
+                                        ADDRESS,
+                                        5,
+                                        bdet_TimeInterval(1),
+                                        &factory));
+
+        bcemt_ThreadUtil::sleep(bdet_TimeInterval(2));
+
+        ASSERT(0 != sessionPool.setWriteCacheWatermarks(handle + 666,
+                                                        LOW_WATERMARK + 1,
+                                                        HI_WATERMARK - 1));
+
+        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                     LOW_WATERMARK,
+                                                     HI_WATERMARK));
+        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                     LOW_WATERMARK,
+                                                     LOW_WATERMARK));
+
+        sessionPool.setWriteCacheWatermarks(handle,
+                                            LOW_WATERMARK, HI_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                        HI_WATERMARK,
+                                                        HI_WATERMARK));
+
+        sessionPool.setWriteCacheWatermarks(handle,
+                                            LOW_WATERMARK, HI_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                        LOW_WATERMARK - 2,
+                                                        LOW_WATERMARK));
+
+        sessionPool.setWriteCacheWatermarks(handle,
+                                            LOW_WATERMARK, HI_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                        LOW_WATERMARK - 2,
+                                                        LOW_WATERMARK - 1));
+
+        sessionPool.setWriteCacheWatermarks(handle,
+                                            LOW_WATERMARK, HI_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                        HI_WATERMARK,
+                                                        HI_WATERMARK + 2));
+
+        sessionPool.setWriteCacheWatermarks(handle,
+                                            LOW_WATERMARK, HI_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                        HI_WATERMARK + 1,
+                                                        HI_WATERMARK + 2));
+
+        ASSERT(0 == sessionPool.stop());
+
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28731692

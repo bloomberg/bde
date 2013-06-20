@@ -953,6 +953,31 @@ int btemt_SessionPool::listen(
     return 0;
 }
 
+int btemt_SessionPool::setWriteCacheWatermarks(int handleId,
+                                               int lowWatermark,
+                                               int hiWatermark)
+{
+    BSLS_ASSERT(0 <= lowWatermark);
+    BSLS_ASSERT(lowWatermark <= hiWatermark);
+
+    HandlePtr handle;
+    if (d_handles.find(handleId, &handle)) {
+        return -1;
+    }
+
+    btemt_ChannelPoolChannel *channelPtr = handle->d_channel_p;
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!channelPtr)) {
+        return -1;
+    }
+    else {
+        return d_channelPool_p->setWriteCacheWatermarks(
+                                                       channelPtr->channelId(),
+                                                       lowWatermark,
+                                                       hiWatermark);
+    }
+}
+
 // ACCESSORS
 int btemt_SessionPool::portNumber(int handle) const
 {
