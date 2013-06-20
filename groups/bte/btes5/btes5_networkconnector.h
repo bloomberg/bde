@@ -117,16 +117,16 @@ class btes5_NetworkConnector {
     // then they will be used to attempt authentication. If a SOCKS5 server
     // requires a different authentication method, or it requires
     // username/password and none were supplied, the negotiation will fail with
-    // 'status == BTES5_AUTHENTICATION'.
+    // 'status == e_AUTHENTICATION'.
 
 public:
     // TYPES
 
     enum ConnectionStatus {
-        BTES5_SUCCESS = 0,    // connection successfully established
-        BTES5_TIMEOUT,        // connection attempt timed out
-        BTES5_AUTHENTICATION, // no acceptable authentication methods
-        BTES5_ERROR           // any other error
+        e_SUCCESS = 0,    // connection successfully established
+        e_TIMEOUT,        // connection attempt timed out
+        e_AUTHENTICATION, // no acceptable authentication methods
+        e_ERROR           // any other error
     };
 
     typedef bdef_Function<void (*)(

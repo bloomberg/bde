@@ -232,7 +232,7 @@ int Negotiation::registerReadCb(void (Negotiation::*cb) (Context),
                                                    bteso_EventType::READ,
                                                    readCb);
     if (rc < 0) {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error registering read handler"));
         return -1;
     }
@@ -261,7 +261,7 @@ int Negotiation::sendMethodRequest(Context negotiation)
 
     int rc = d_socket_p->write(reinterpret_cast<const char *>(&pkt), length);
     if (length != rc) {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error writing method request"));
         return -2;
     }
@@ -274,7 +274,7 @@ void Negotiation::methodCallback(Context negotiation)
     MethodResponsePkt pkt;
     int rc = d_socket_p->read(reinterpret_cast<char *>(&pkt), sizeof(pkt));
     if (sizeof(pkt) != rc) {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error reading method request"));
         return;
     }
@@ -285,7 +285,7 @@ void Negotiation::methodCallback(Context negotiation)
       } break;
       case PASSWORD: {
         if (!d_credentials.isSet() && !d_provider_p) {
-            terminate(btes5_Negotiator::BTES5_ERROR,
+            terminate(btes5_Negotiator::e_ERROR,
                       btes5_DetailedError(
                                "Got authentication request when we did not"
                                " offer authentication as an option, closing"));
@@ -294,14 +294,14 @@ void Negotiation::methodCallback(Context negotiation)
         sendAuthenticationRequest(negotiation);
       } break;
       case UNACCEPTABLE: {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError(
                     "proxy server rejected all authentication methods"));
       } break;
       default: {
         bsl::ostringstream description;
         description << "unknown response from proxy server " << pkt.d_method;
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError(description.str()));
       } break;
     }
@@ -337,7 +337,7 @@ void Negotiation::sendAuthenticationRequest(Context negotiation)
     }
     int rc = d_socket_p->write(request.str().c_str(), request.str().size());
     if (rc != request.str().size()) {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error writing username/password"));
         return;
     }
@@ -377,7 +377,7 @@ void Negotiation::connectToEndpoint(Context negotiation)
     }
     int rc = d_socket_p->write(request.str().c_str(), request.str().size());
     if (rc != request.str().size()) {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error writing connection request"));
         return;
     }
@@ -391,13 +391,13 @@ void Negotiation::authenticationCallback(Context negotiation)
         if (d_acquiringCredentials) {
             d_provider_p->cancelAcquiringCredentials();
         }
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error reading auth. response"));
         return;
     }
 
     if (pkt.d_status) {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("authentication rejected"));
         return;
     }
@@ -413,14 +413,14 @@ void Negotiation::connectCallback(Context negotiation)
     int rc = d_socket_p->read(reinterpret_cast<char *>(&hdr), sizeof(hdr));
     if (sizeof(hdr) != rc) {
         e << "error reading: " << rc;
-        terminate(btes5_Negotiator::BTES5_ERROR, btes5_DetailedError(e.str()));
+        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
         return;
     }
 
     if (hdr.d_ver != VERSION) {
         e << "invalid SOCK version, expected " << VERSION
           << " got " << hdr.d_ver;
-        terminate(btes5_Negotiator::BTES5_ERROR, btes5_DetailedError(e.str()));
+        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
         return;
     }
 
@@ -434,14 +434,14 @@ void Negotiation::connectCallback(Context negotiation)
         rc = d_socket_p->read(reinterpret_cast<char *>(&length), 1);
         if (1 != rc) {
             e << "error reading domainname length: " << rc;
-            terminate(btes5_Negotiator::BTES5_ERROR,
+            terminate(btes5_Negotiator::e_ERROR,
                       btes5_DetailedError(e.str()));
             return;
         }
         addressLength = length;
     } else {
         e << "received invalid address type: " << hdr.d_atype;
-        terminate(btes5_Negotiator::BTES5_ERROR, btes5_DetailedError(e.str()));
+        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
         return;
     }
 
@@ -451,7 +451,7 @@ void Negotiation::connectCallback(Context negotiation)
     if (addressLength + 2 != rc) {
         e << "error reading bound address, expected " << addressLength + 2
           << " got " << rc;
-        terminate(btes5_Negotiator::BTES5_ERROR, btes5_DetailedError(e.str()));
+        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
         return;
     }
 
@@ -487,8 +487,8 @@ void Negotiation::connectCallback(Context negotiation)
         e << "status: unknown = " << hdr.d_rep;
       } break;
     }
-    terminate(REQUEST_GRANTED == hdr.d_rep ? btes5_Negotiator::BTES5_SUCCESS
-                                           : btes5_Negotiator::BTES5_ERROR,
+    terminate(REQUEST_GRANTED == hdr.d_rep ? btes5_Negotiator::e_SUCCESS
+                                           : btes5_Negotiator::e_ERROR,
               btes5_DetailedError(e.str()));
 }
 
@@ -499,7 +499,7 @@ void Negotiation::setCredentials(int                      status,
 {
     d_acquiringCredentials = false;
     if (status) {
-        terminate(btes5_Negotiator::BTES5_ERROR,
+        terminate(btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error acquiring credentials"));
     } else {
         d_credentials.set(username, password);

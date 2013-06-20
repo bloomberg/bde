@@ -134,7 +134,7 @@ negotiatorCb(socket, level, order
 
 ***/
     btes5_DetailedError error("not implemented yet");
-    callback(BTES5_ERROR,
+    callback(e_ERROR,
              0,
              d_socketFactory_p,
              error);

@@ -110,7 +110,7 @@ void assertHandler(const char *text, const char *file, int line)
 
 void cbSuccess(int status, btes5_Negotiator *negotiator)
 {
-    ASSERT(status == btes5_Negotiator::BTES5_SUCCESS);
+    ASSERT(status == btes5_Negotiator::e_SUCCESS);
 }
 
 
@@ -149,7 +149,7 @@ void socks5Callback(btes5_Negotiator::NegotiationStatus result,
                     volatile int                        *state)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
-    if (result == btes5_Negotiator::BTES5_SUCCESS) {
+    if (result == btes5_Negotiator::e_SUCCESS) {
         *state = 1;
     } else {
         cout << "Negotiation error " << result << ": " << error << endl;

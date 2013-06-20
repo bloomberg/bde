@@ -125,7 +125,7 @@ void socks5Cb(btes5_NetworkConnector::ConnectionStatus      status,
               volatile int                                 *state)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
-    if (status == btes5_NetworkConnector::BTES5_SUCCESS) {
+    if (status == btes5_NetworkConnector::e_SUCCESS) {
         *state = 1;
         cout << "connection succeeded" << endl;
         //TODO: import into sessionPool->import(...), for now just deallocate

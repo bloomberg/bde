@@ -131,14 +131,14 @@ class btes5_Negotiator {
     // then the 'btes5_Negotiator' object will use them to attempt
     // authentication. If the SOCKS5 server requires a different authentication
     // method, or it requires username/password and none were supplied, the
-    // negotiation will fail with 'status == BTES5_AUTHENTICATION'.
+    // negotiation will fail with 'status == e_AUTHENTICATION'.
 
   public:
     // PUBLIC TYPES
     enum NegotiationStatus {
-        BTES5_SUCCESS = 0,
-        BTES5_AUTHENTICATION, // no acceptable authentication methods
-        BTES5_ERROR           // any other error
+        e_SUCCESS = 0,
+        e_AUTHENTICATION, // no acceptable authentication methods
+        e_ERROR           // any other error
     };
     typedef bdef_Function<void(*)(btes5_Negotiator::NegotiationStatus status,
                                   const btes5_DetailedError&          error)>
