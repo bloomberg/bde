@@ -169,6 +169,10 @@ void testCase1(int argc, bool /* assert */)
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+ 
+    (void)verbose;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
 
     BloombergLP::bsls::Stopwatch timer;
 
