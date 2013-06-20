@@ -338,6 +338,9 @@ void testCase3(int argc, bool assert)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    (void)verbose;
+    (void)veryVeryVerbose;
+
     if (veryVerbose) {
         cout << "Adding with prefetch" << endl;
     }
@@ -421,6 +424,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    (void)veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
