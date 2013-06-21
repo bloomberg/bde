@@ -112,16 +112,16 @@ volatile int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
 {
-   if (c) {
-       cout << "Error " << __FILE__ << "(" << i << "): " << s
-            << "    (failed)" << endl;
-       if (0 <= testStatus && testStatus <= 100) ++testStatus;
-   }
+    if (c) {
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+                 << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+#define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
 //=============================================================================
 //                      STANDARD BDE LOOP-ASSERT TEST MACRO
@@ -1643,6 +1643,21 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }  // close namespace zerotst
 
+namespace TEST_CASE_2 {
+
+int myLength(bcec_Queue<Element> *q)
+{
+    const bcec_Queue<Element>& Q = *q;
+
+    int ret = Q.length();
+
+    ASSERT(ret == q->queue().length());
+
+    return ret;
+}
+
+}  // close namespace TEST_CASE_2
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -3108,44 +3123,73 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // SINGLE_THREADED TESTING LENGTH
+        // SINGLE_THREADED TESTING PUSHES, POPS, AND LENGTH
         //
         // Concerns:
-        //: 1 That in single threaded mode, values popped from the queue
-        //:   are exactly what would be expected to be produced by a 'deque'
-        //:   for an analogous sequence of pushes and pops.
-        //: 2 After all pushes or pops, 'X.length() == X.queeu().length()' and
-        //:   both equal '(# of pushes) - (# of pops)'.
+        //: 1 That for a 'bcec_Queue' 'q', 'q.length() == q.queue().length()'
+        //:   always.  This is verified by the 'myLength' function.  Since
+        //:   it is usually impossible to test manipulators without calling
+        //:   accessors, or accessors without calling manipulators, this
+        //:   testing will take place while the manipulators are being tested
+        //:   rather than in a separate section.
+        //:
+        //: 2 That 'pushBack' has the same effect on the queue as calling
+        //:   'pushBack on the underlying 'bdec_Queue'.
+        //:
+        //: 3 That 'popBack' calls 'popBack' on the underlying 'bdec_Queue',
+        //:   except it also returns the popped value.
+        //:
+        //: 4 That 'pushFront' has the same effect on the queue as calling
+        //:   'pushFront on the underlying 'bdec_Queue'.
+        //:
+        //: 5 That 'popFront' calls 'popFront' on the underlying 'bdec_Queue',
+        //:   except it also returns the popped value.
         //
         // Plan:
-        //: 1 Do explicit pushes and pops to and from both ends of the queue,
-        //:   verifying that the length is as expected.
-        //:   o Do explicit pushes to the back of the queue and pops from the
-        //:     front, observing that the popped values and length are as
-        //:     epxected.
-        //:   o Do explicit pushes to the front of the queue and pops from the
-        //:     back, observing that the popped values and length are as
-        //:     epxected.
-        //:   o Do pushes to, and pops from, the front of the queue, observing
-        //:     that the popped values are as epxected.
-        //:   o Do pushes to, and pops from, the back of the queue, observing
-        //:     that the popped values are as epxected.
-        //: 2 Iterate, randomly choosing a queue length in the range 0-7.
+        //: 1 Testing 'pushBack', 'popBack', 'pushFront', and 'popFront':
+        //:
+        //:   o Push a couple of different values into 'x', the queue, with
+        //:     'pushBack', monitoring the length of the queue with 'myLength'
+        //:     and monitoring the contents of the queue with
+        //:     'x.queue().back()' and 'x.queue().front()'. C-2, C-1.
+        //:
+        //:   o Pop the two values from the 'x', the queue, using 'popBack',
+        //:     observing that the correct values are returned, and monitoring
+        //:     the length of the queue with 'myLength' and monitoring the
+        //:     contents of the queue with 'x.queue().back()' and
+        //:     'x.queue().front()'. C-3, C-1.
+        //:
+        //:   o Push a couple of new, different values into 'x', the queue,
+        //:     with 'pushFront', monitoring the length of the queue with
+        //:     'myLength' and monitoring the contents of the queue with
+        //:     'x.queue().back()' and 'x.queue().front()'. C-4, C-1.
+        //:
+        //:   o Pop the two values from the 'x', the queue, using 'popFront',
+        //:     observing that the correct values are returned, and monitoring
+        //:     the length of the queue with 'myLength' and monitoring the
+        //:     contents of the queue with 'x.queue().back()' and
+        //:     'x.queue().front()'. C-5, C-1.
+        //:
+        //: 2 Iterate, randomly choosing a queue length in the range 0-7.  This
+        //    test tests C-1, C-2, C-3, C-4, and C-5, just more thoroughly.
+        //:
         //:   o If the chosen length is longer than the existing queue length,
         //:     grow the queue to the desired queue length by random choosing
         //:     'pushFront' or 'pushBack', and pushing random doubles into the
-        //:     queue.  Simultanously push the same value onto the same end of
+        //:     queue.  Simultaneously push the same value onto the same end of
         //:     a 'bsl::deque' kept in parallel.
+        //;
         //:   o If the chosen length is shorter than the existing queue, shrink
-        //:     the queue to the desiged queue length by randomly calling
+        //:     the queue to the designated queue length by randomly calling
         //:     'popFront' or 'popBack'.  Simultaneously do a similar pop from
         //:     the parallel 'bsl::deque', and observe the values popped are
         //:     identical.
+        //;
         //:   o Each iteration, whether growing or shrinking, frequently check
-        //:     the length is as expected, via bcec_Queue::length, but also
-        //:     check the length of the deque, and call '.queue().length()' on
-        //:     the queue and observe that all three lengths match with the
-        //:     expected value.
+        //:     the length is as expected, via 'myLength', but also verify it
+        //:     matches the length of the 'deque'. check the length of the
+        //:     deque, and call '.queue().length()' on the queue and observe
+        //:     that all three lengths match with the expected value.
         //
         // Testing:
         //   pushFront
@@ -3158,6 +3202,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING PUSH, POP, and LENGTH\n"
                              "=============================\n";
 
+        using namespace TEST_CASE_2;
+
         bsls::Stopwatch sw;
         sw.start();
 
@@ -3167,124 +3213,78 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "1. Explicit Pushes and Pops\n";
         {
-            const Element VA = randElement(&seed);
-            const Element VB = randElement(&seed);
-            const Element VC = randElement(&seed);
-
-            if (veryVerbose) { P_(VA); P_(VB); P(VC); }
-
-            Obj x1(&ta);    const Obj& X1 = x1;
-
-            if (verbose) cout << "'pushBack', 'popFront', 'length'\n";
-            {
-                ASSERT(0 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                x1.pushBack(VA);
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                x1.pushBack(VB);
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                x1.pushBack(VC);
-                ASSERT(3 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                ASSERT(VA == x1.popFront());
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                ASSERT(VB == x1.popFront());
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                ASSERT(VC == x1.popFront());
-                ASSERT(0 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+            enum { NUM_V = 4 };
+            Element v[NUM_V];    const Element *V = &v[0];
+            for (int ti = 0; ti < NUM_V; ++ti) {
+                v[ti] = randElement(&seed);
+                for (int tj = 0; tj < ti; ++tj) {
+                    ASSERT(V[tj] != V[ti]);
+                }
+                if (veryVerbose) { P_(ti); P(V[ti]); }
             }
 
-            if (verbose) cout << "'pushFront', 'popBack', 'length'\n";
+            Obj x(&ta);    const Obj& X = x;
+
+            if (verbose) cout << "'pushBack' && 'length'\n";
             {
-                x1.pushFront(VA);
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(0 == myLength(&x));
 
-                x1.pushFront(VB);
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                x.pushBack(V[0]);
 
-                x1.pushFront(VC);
-                ASSERT(3 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[0] == x.queue().back());
 
-                ASSERT(VA == x1.popBack());
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                x.pushBack(V[1]);
 
-                ASSERT(VB == x1.popBack());
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                ASSERT(VC == x1.popBack());
-                ASSERT(0 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(2 == myLength(&x));
+                ASSERT(V[0] == x.queue().front());
+                ASSERT(V[1] == x.queue().back());
             }
 
-
-            if (verbose) cout << "pushing/popping to/from the front\n";
+            if (verbose) cout << "'popBack' && 'length'\n";
             {
-                x1.pushFront(VA);
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(2 == myLength(&x));
 
-                x1.pushFront(VB);
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(V[1] == x.popBack());
 
-                x1.pushFront(VC);
-                ASSERT(3 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[0] == x.queue().front());
+                ASSERT(V[0] == x.queue().back());
 
-                ASSERT(VC == x1.popFront());
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(V[0] == x.popBack());
 
-                ASSERT(VB == x1.popFront());
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
-
-                ASSERT(VA == x1.popFront());
-                ASSERT(0 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(0 == myLength(&x));
             }
 
-            if (verbose) cout << "pushing/popping to/from the back\n";
+            if (verbose) cout << "'pushFront' && 'length'\n";
             {
-                x1.pushBack(VA);
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(0 == myLength(&x));
 
-                x1.pushBack(VB);
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                x.pushFront(V[2]);
 
-                x1.pushBack(VC);
-                ASSERT(3 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[2] == x.queue().back());
 
-                ASSERT(VC == x1.popBack());
-                ASSERT(2 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                x.pushFront(V[3]);
 
-                ASSERT(VB == x1.popBack());
-                ASSERT(1 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+                ASSERT(2 == myLength(&x));
+                ASSERT(V[3] == x.queue().front());
+                ASSERT(V[2] == x.queue().back());
+            }
 
-                ASSERT(VA == x1.popBack());
-                ASSERT(0 == X1.length());
-                ASSERT(x1.queue().length() == X1.length());
+            if (verbose) cout << "'popFront' && 'length'\n";
+            {
+                ASSERT(2 == myLength(&x));
+
+                ASSERT(V[3] == x.popFront());
+
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[2] == x.queue().front());
+                ASSERT(V[2] == x.queue().back());
+
+                ASSERT(V[2] == x.popFront());
+
+                ASSERT(0 == myLength(&x));
             }
         }
 
@@ -3314,8 +3314,7 @@ int main(int argc, char *argv[])
                 if (expectedLength < LENGTH) {
                     while (expectedLength < LENGTH) {
                         ASSERT(expectedLength == (int) D.size());
-                        ASSERT(expectedLength == X.length());
-                        ASSERT(expectedLength == x.queue().length());
+                        ASSERT(expectedLength == myLength(&x));
 
                         // Generate a fairly random double using 'generate15'.
 
@@ -3335,15 +3334,13 @@ int main(int argc, char *argv[])
                         ++expectedLength;
 
                         ASSERT(expectedLength == (int) D.size());
-                        ASSERT(expectedLength == X.length());
-                        ASSERT(expectedLength == x.queue().length());
+                        ASSERT(expectedLength == myLength(&x));
                     }
                 }
                 else {
                     while (expectedLength > LENGTH) {
                         ASSERT(expectedLength == (int) D.size());
-                        ASSERT(expectedLength == X.length());
-                        ASSERT(expectedLength == x.queue().length());
+                        ASSERT(expectedLength == myLength(&x));
 
                         if (bdeu_Random::generate15(&seed) & 0x80) {
                             const Element popped = D.back();
@@ -3363,8 +3360,7 @@ int main(int argc, char *argv[])
                         --expectedLength;
 
                         ASSERT(expectedLength == (int) D.size());
-                        ASSERT(expectedLength == X.length());
-                        ASSERT(expectedLength == x.queue().length());
+                        ASSERT(expectedLength == myLength(&x));
                     }
                 }
 
