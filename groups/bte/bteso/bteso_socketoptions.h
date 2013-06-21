@@ -86,6 +86,16 @@ BDES_IDENT("$Id: $")
 //  receiveTimeout             BTESO_RECEIVETIMEOUT  This option specifies the
 //                                                   timeout (in seconds) for
 //                                                   blocking receive calls.
+//
+//  tcpNoDelay                 BTESO_TCPNODELAY      This option indicates
+//                                                   whether the Nagle
+//                                                   algorithm for packet
+//                                                   coalescing should be
+//                                                   disabled and packets
+//                                                   should be sent as soon as
+//                                                   possible even if there is
+//                                                   only a small amount of
+//                                                   data.
 //..
 //
 ///Usage
