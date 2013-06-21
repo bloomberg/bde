@@ -1,16 +1,119 @@
-bde-core (2.17.0.005) unstable; urgency=low
+bde-core (2.18.0.000.1000) unstable; urgency=low
 
   * Bump changelog
+  * 18b53b8 [APPROVAL] pending/master/bteso-tcp-nodelay-drqs42175221 to master
+  * e90a32b [APPROVAL] pending/master/fix_pkg_grp_doc_for_automation-drqs-36664046 to master
+  * 99c6594 [APPROVAL] pending/master/drqs-36521873-channelpool-shutdownAll to master
+  * e0560c6 [APPROVAL] pending/master/btemt-setWriteCacheWatermarks-drqs-30306222-35366826 to master
+  * 853c946 [APPROVAL] pending/master/baesu-xcoff-free-drqs-42134199 to master
+  * 943620a [APPROVAL] pending/master/arm-port-drqs40879968 to master
+  * 4a39410 [APPROVAL] pending/master/bcemt_saturatedtimeconversion-drqs-3562402 to master
+  * 200ac17 [APPROVAL] pending/master/day-count-sia30360neom-fix-41062759 to master
+  * 364aaab [APPROVAL] pending/master/fix_commndlineutil_test_driver_drqs41934570 to master
+  * 3d98dbe [APPROVAL] pending/master/bael-tool-for-almn-drqs-40459057 to master
+  * dc95a80 [APPROVAL] pending/master/bcema-thread-doc-drqs-39756936 to master
+  * d3b0202 [APPROVAL] pending/master/bcemt_readlockguard-release-doc-drqs-41655244 to master
+  * 2cc4bec [APPROVAL] pending/master/drqs-41684552-baexml_formatter-nightly-test-failure to master
+  * b745563 [APPROVAL] pending/master/drqs-39897873-baejsn-encode-empty-array to master
+  * f7d4098 [APPROVAL] pending/master/drqs-40777224-baejsn_parserutil-enum to master
+  * 4ea5c33 [APPROVAL] pending/master/bdetu_systemtime_doc_mt-drqs-39804918 to master
+  * b875cd0 [APPROVAL] pending/master/baetzo_timezoneutil_doc_mt-drqs-38301701 to master
+  * 98221e8 [APPROVAL] remotes/origin/review/support_SharedPtr_const_void_drqs33549823 to master
+  * a642851 [APPROVAL] origin/review/rename_OTHER_TYPE_template_parameter_drqs41937510 to master
+  * 0d74dfd [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
+  * 8aead84 [APPROVAL] pending/master/bdesu_fileutil-open-perms-drqs-40563234 to master
+  * 3d59d70 [APPROVAL] pending/master/drqs-41576707-baejsn_parserutil-empty-bool to master
+  * 5b3ce27 [APPROVAL] pending/master/baetzo_localtimedescriptor-exception-disabled-drqs36597486 to master
+  * 5649e3d [APPROVAL] origin/review/change_template_parameter_from_TYPE_to_ELEMENT_TYPE_drqs41937510 to master
+  * 20f0ffc [APPROVAL] pending/master/restore_private_ctor_for_one_release_drqs35875366 to master
+  * f17a046 [APPROVAL] origin/review/format_errors_cause_doxygen_problems-drqs-40608146 to master
+  * 15fb6dd [APPROVAL] pending/master/standardize_bcema_sharedptr_stream_inserter_drqs41823126 to master
+  * 61543f3 [APPROVAL] pending/master/shared_ptr_use_bsls_atomics_drqs41825087 to master
+  * 250de82 [APPROVAL] pending/master/bcema_sharedptr_comparison_operators_drqs41848937 to master
+  * 41573a4 [APPROVAL] pending/master/miscellaneous_cleanup_of_bcema_sharedptr_drqs41892383 to master
+  * 9d40068 [APPROVAL] pending/master/btes_leakybucket-safe-assert-fix-drqs-39471169 to master
+  * ecbe09c [APPROVAL] pending/master/baesu-hextracefunc-drqs-36842569 to master
+  * 84848ce [APPROVAL] pending/master/bdesu_fileutil-msync-failurecode-FIXED-drqs40459662 to master
+  * 90e21a4 [APPROVAL] pending/master/drqs-41660550-baejsn_decoder-multiple-threads to master
+  * d7bbe3a [APPROVAL] pending/master/drqs-41686952-baejsn_parserutil-uninitialized-bool to master
+  * cd62892 [APPROVAL] pending/master/osutil-package-namespace-drqs41201426 to master
+  * 6a7bb5c [APPROVAL] pending/master/bdema_testprotectableblockdispenser-drqs-41529981 to master
+  * 6ec9675 [APPROVAL] pending/master/add-asyncfileobserver-queue-size-drqs41494720 to master
+  * 4e2c489 Merge branch 'master' into pending/master/bcemt_saturatedtimeconversion-drqs-3562402
+  * 139e440 [APPROVAL] origin/review/move-default.opts-metadata-to-bde-tools-drqs-40974008 to master
+  * f91ea1b bump version to 2.18
+  * 723fe1d [APPROVAL] pending/master/pool-bcep_timereventscheduler-allocation-drqs35794413 to master
+  * 7b80933 [APPROVAL] pending/master/sharedptr_issues_with_single_rep_pointer_constructor_drqs35875366 to master
+  * 190f202 [APPROVAL] pending/master/support_SharedPtr_const_void_drqs33549823 to master
+  * 5dfcf4d [APPROVAL] pending/master/rework_bcema_sharedptr_constructors_drqs37154727 to master
+  * 56c48dd [APPROVAL] pending/master/bdef_function_style_guide_fixes_drqs41669161 to master
+  * d327fc7 [APPROVAL] pending/master/eliminate_private_enableif_implementation_drqs33720524 to master
+  * a53afc6 [APPROVAL] pending/master/rework_bcema_sharedptr_constructors_drqs37154727 to master
+  * 9e6a63c [APPROVAL] pending/master/baea_commandlineutil_doc-drqs-41474544 to master
+  * a178e0f [APPROVAL] pending/master/fix_sharedptr_use_of_deprecated_managedptr_deleter_drqs41505020 to master
+  * 212d8ef [APPROVAL] pending/master/bdepu_iso8601-recover-doc-changes-drqs-40694987 to master
+  * 960f813 [APPROVAL] pending/master/sharedPtr_take_auto_ptr_by_value_drqs40057155 to master
+  * 2b93b59 [APPROVAL] pending/master/baetzo_localtimeoffsetutil-fail_aix-drqs-40638371 to master
+  * ec82aa9 [APPROVAL] pending/master/const-cast-qual-drqs40473559 to master
+  * 1a994f0 [APPROVAL] pending/master/bcema_protectablesequentialallocator-fixes-drqs-41072024 to master
+  * 2dea9df [APPROVAL] origin/review/clean_up_shared_ptr_before_patching_drqs41051384 to master
+  * d37e05f drqs-40608146: Additional format fixes in 2.17 for 'doxygen' conversion.
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 21 Jun 2013 15:07:58 -0400
+
+bde-core (BSL_OSS_EXPORT) git; urgency=low
+
+  * 9cc8b50 [APPROVAL] origin/review/sync-bslint-add-internal-build-tool-support-drqs-40575735 to master
+  * 49cbd7a drqs-40608146: Format fixes in 2.17 for 'doxygen' conversion.
+  * 8a1109b [APPROVAL] merge-rebase-bde-on-bsl-final-cleanup-drqs-40575735 to master
+  * c62ea5a [APPROVAL] bdepcre_RegEx_remove_atomic_drqs-40274730 to master
+  * 112217a [APPROVAL] origin/review/remove-bslma-size-is-signed-from-bslstl-allocator-drqs-40228902 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 23 Apr 2013 13:37:14 -0400
+
+bde-core (MERGE_BASE_master_2.17.x) git; urgency=low
+
+  * 6265540 [APPROVAL] pending/master/drqs31965875_localtime_callback to master
+  * a22d266 [APPROVAL] pending/master/drqs-39631391-baexml_encoder-test-driver-c++11-build-error to master
+  * 0454183 [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
+  * 2d5cbdb [APPROVAL] pending/master/btemt-deprecated-ctors-drqs-32609770 to master
+  * 69204ff [APPROVAL] pending/master/bdepu_iso8601-leap-seconds-drqs-33269280 to master
+  * b359a55 [APPROVAL] pending/master/drqs-39109040-baejsn-windows-test-failures to master
+  * 9193d93 [APPROVAL] pending/master/drqs-39353573-baejsn-patch-review-changes to master
+  * ce8eb7a [APPROVAL] pending/master/drqs-34548366-bcem_aggregateraw-schemaless-by-index-operations-crash to master
+  * 66021fe [APPROVAL] pending/master/correct-rtrim-overload-doc-drqs-36846699 to master
+  * 2e930bd [APPROVAL] pending/master/eliminate_duffsdevice_drqs39067829 to master
+  * ed9e7a9 [APPROVAL] pending/master/recordstringformatter-allocation-drqs36780581 to master
+  * f0fc6c9 [APPROVAL] pending/master/metricregistry-drqs39802388 to master
+  * 49d460c [APPROVAL] pending/master/bslstl-bsttst_stack-is-failing-drqs-37240478 to master
+  * 10e9b12 [APPROVAL] pending/master/bcemt-semaphoreimpl-darwin-drqs38593153 to master
+  * c9374b0 [APPROVAL] pending/master/fix-pathutil-safe-test-drqs38986775 to master
+  * 7df0b2f [APPROVAL] pending/master/pcre-match-depth-drqs-39313532 to master
+  * cb5820c [APPROVAL] pending/master/baesu-stacktrace-on-darwin-drqs-31905196 to master
+  * b56b53a [APPROVAL] origin/review/clean-up-doc-bde-mem-drqs39807043 to master
+  * 7c4335e [APPROVAL] pending/master/drqs-36695512-ber-encoder-assert-invalid-date to master
+  * ec87d09 [APPROVAL] pending/master/bdem_table-geogrowth-drqs-37858192 to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 4 Apr 2013 00:38:36 -0400
+
+bde-core (BDE_2.17.0_BETA_3b) git; urgency=low
+
+  * d29f2eb bump changelog
   * 306e11b [APPROVAL] origin/review/eliminate_use_of_bdef_function_equality_drqs26223088 to master
   * b7831b7 [APPROVAL] pending/master/fix-linux-gcc-warnings-drqs-38796820 to master
   * 0551f2b [APPROVAL] origin/review/timed-wait-doc-drqs24205667 to master
   * 51102ce [APPROVAL] pending/master/bcemt_readerwriterlock-usage-fix-drqs-32972079 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 26 Mar 2013 07:49:58 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 26 Mar 2013 08:43:31 -0400
 
 bde-core (BDE_2.17.0_BETA_3a) git; urgency=low
 
   * d50739c bump debian/changelog for 2.17.0 beta 3
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 24 Mar 2013 10:43:55 -0400
+
+bde-core (BDE_2.17.0_BETA_3) git; urgency=low
+
   * cc8f434 [APPROVAL] pending/master/drqs-39447786-fix-SunOS-compile to master
   * 7602e96 [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
   * 568ff54 [APPROVAL] fix-bst-build-drqs35242941 to master
@@ -37,7 +140,7 @@ bde-core (BDE_2.17.0_BETA_3a) git; urgency=low
   * e24772e [APPROVAL] pending/master/bdeso_ipv4-clang-crash-drqs-38679960 to master
   * b97e4d4 [APPROVAL] review/package-build-refroot-support-drqs-38467258 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 24 Mar 2013 10:43:55 -0400
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 22 Mar 2013 19:24:36 -0400
 
 bde-core (BSL_FROZEN_2.17.0c) git; urgency=low
 
@@ -51,6 +154,7 @@ bde-core (BSL_FROZEN_2.17.0b) git; urgency=low
 
   * 710c0ba changelog update for 2.17.0b bsl freeze
   * a100fe3 [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
+  * 1ac6772 Applied 'bcemt_SaturatedTimeConversion' everywhere appropriate in bcemt
   * 4cbccff [APPROVAL] build-bbe-in-rules-drqs-39480694 to master
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Mar 2013 13:52:09 -0400
@@ -70,6 +174,8 @@ bde-core (BSL_FROZEN_2.17.0a) git; urgency=low
   * cce3633 [APPROVAL] pending/master/bslmf_enableif_crashes_clang3.1_drqs39147181 to master
   * b8fa0b5 [APPROVAL] pending/master/nullptr_t_patch_for_msvc_clr_drqs38441804 to master
   * 6891bfe [APPROVAL] bde-bsl-versions-to-2.17 to master
+  * 43e437c Bump version to 2.17.0
+  * 31742a6 bcemt_saturatedtimeconversion component
   * 4413c82 [APPROVAL] pending/master/cygwin-port-phase-2 to master
   * d093929 [APPROVAL] pending/master/drqs35514064_list_leak_file to master
   * bd55884 [APPROVAL] pending/master/drqs35886446_list_inline to master
@@ -94,11 +200,19 @@ bde-core (BSL_FROZEN_2.17.0a) git; urgency=low
   * a5c9442 [APPROVAL] pending/master/drqs-33944521-codec-followup to master
   * 96a17ae [APPROVAL] pending/master/bcemt-semaphore-darwin-test-drqs37308523 to master
   * 96e74eb [APPROVAL] pending/master/bsl-iosfwd-macrostd-drqs38887876 to master
+  * 2deb753 extend common versioning to bbe
+  * def9fc9 bump required version for new warning checks to gcc 4.2
   * 7c822eb [APPROVAL] pending/master/bsl-detectnested-templateconversion-drqs38623160 to master
   * 5c6422f [APPROVAL] pending/master/bsl-detectnested-templateconversion-drqs38623160 to master
   * 1a755eb [APPROVAL] origin/review/bsl-stringbuf-m64-warnings-drqs38470743 to master
   * 018b110 [APPROVAL] origin/review/bsl-stringbuf-assertsize-drqs38618050 to master
   * 90e9178 [APPROVAL] origin/review/fixes_for_doxygen-drqs-38664727 to master
+  * 72f8b16 correct bce versioning
+  * 5153c50 Lock BCE/BTE/BAE versions to BDE version
+  * 16c87af update package group *scm_version components to use bdescm_PatchVersion
+  * 037da4a Initial version of bdescm_PatchVersion component
+  * 7644f71 drqs-3866472: Fix markup syntax (for 'doxygen' conversion).
+  * b8c0eac resolve ambiguous conversion on MSVC
   * f569fc6 [APPROVAL] pending/master/bdeut-variant-metaint-pod-drqs37686975 to master
   * 2ead108 [APPROVAL] pending/master/parse-double-fix-drqs-37205465 to master
   * c69e905 [APPROVAL] pending/master/btemt_channelerror-drqs-33787836 to master
@@ -157,6 +271,7 @@ bde-core (BSL_FROZEN_2.16.0_A) git; urgency=low
 bde-core (BSL_FROZEN_2.16.0) git; urgency=low
 
   * 573ee79 [APPROVAL] origin/review/unordered_validation to rssuite-2.16.0
+  * 3292add updated clang build from version 2.9 to 3.1
   * 3fde32b Bump changelog version to 2.16.0 for rs_suite release
   * 188010c [APPROVAL] pending/master/bsl-atomic-failure-clang-drqs-37362137 to master
   * 0f93d1a [APPROVAL] pending/master/bsls-atomics-Solaris-Gcc-Code-Missing-drqs-35034529 to master
@@ -180,6 +295,8 @@ bde-core (BSL_FROZEN_2.16.0) git; urgency=low
   * 3424a72 [APPROVAL] pending/master/drqs36358097_baenet_httpmessageparser_test to master
   * 62502a9 [APPROVAL] pending/master/bteso_DEM_select-FD_ZERO-memset-drqs-36561621 to master
   * 849c21e [APPROVAL] bump-versions-to-2.16.0 to master
+  * 628e7ef bump versions to 2.16.0
+  * c2e2ddc Reconcile bslalg_dequeprimitives.t.cpp whitespace with version in dev-integration
   * ee07b68 [APPROVAL] pending/master/reverse-deprecation-of-bslma-bdema_managedallocator_drqs-36500007 to master
   * ad11f5e [APPROVAL] pending/master/remove-my_class5-tests-from-typetraits-test-drivers_drqs-35644799 to master
   * 3ce5c49 [APPROVAL] pending/master/basic_warning_reduction_drqs37044526 to master
@@ -198,6 +315,7 @@ bde-core (BSL_FROZEN_2.16.0) git; urgency=low
   * b2540ab [APPROVAL] origin/review/cleanup-legacy-identifier-use_drqs-36870775 to master
   * 64e4529 [APPROVAL] unordered_polish-master-merge to master
   * 0aa7023 [APPROVAL] cygwin_build-master-merge to master
+  * 87ece59 use include_next version of bsl_stdhdrs_incpaths.h, fixup PLATFORM__ symbols
   * 8c1178d [APPROVAL] pending/master/type-traits-update to master
   * 41e7710 [APPROVAL] pending/master/include_next-drqs36057057-merge to master
   * 1dce5e5 [APPROVAL] pending/master/fix-package-prefix-use-in-bslstl_treeiterator-drqs-36697932 to master
@@ -216,6 +334,7 @@ bde-core (BSL_FROZEN_2.16.0) git; urgency=low
   * 134b02e [APPROVAL] origin/review/baejsn-drqs-33944521 to master
   * c51bf64 [APPROVAL] review/debian-packaging to master
   * 247c005 [APPROVAL] remotes/origin/review/bsl-wrap_deprecated_includes-drqs-36262302 to master
+  * 72dd0c9 Fix test driver qualification-conversion on gcc
   * 7f316f8 [APPROVAL] remotes/origin/review/drqs36396820 to master
   * 342685d [APPROVAL] origin/review/update-deprecated-component-name-in-bslstl_simplepool_drqs-36349742 to master
   * 8a64b10 [APPROVAL] pending/master/drqs35181674_bslstl_string_assertion to master
@@ -233,12 +352,15 @@ bde-core (BSL_FROZEN_2.16.0) git; urgency=low
   * 4227ed0 [APPROVAL] pending/master/bsls_timeutil-ubuntu-12.04-build-drqs-35852555 to master
   * 6b47371 [APPROVAL] pending/master/stringstream-test-drivers to master
   * 1635c22 [APPROVAL] pending/master/workaround-gcc-463-compiler-bug-in-bslstl_list.t.cpp-drqs-35775692 to master
+  * 4854c70 Fix test driver qualification-conversion on gcc
   * 603e140 [APPROVAL] remotes/origin/review/bslalg_doc_fixes_drqs35665439 to master
+  * a2e1991 Fix test driver qualification-conversion on gcc
   * 662ee49 [APPROVAL] pending/master/drqs34520980_bslstl_iterator_docs_and_testing to master
   * 52322fb [APPROVAL] pending/master/change-drqs-and-treq-to-internal-ticket-in-doc-drqs-35594247 to master
   * 3e8858a [APPROVAL] pending/master/rename-bslstl_treeiterator-template-parameters-drqs-34092930 to master
   * 8d6aaf8 [APPROVAL] pending/master/bdechk_bsls_atomics_fixes_drqs35055960 to master
   * be2ad10 [APPROVAL] pending/master/style_and_doc_fixes_for_bsls_drqs35677445 to master
+  * 635b797 Created initial version of the parser
   * 253fce0 [APPROVAL] remotes/origin/review/bslcleanup-bsl_grp_doc-drqs-35592101 to master
   * 6edfb09 [APPROVAL] pending/master/bslcleanup-fixes_for_doxygen-drqs-35644319 to master
   * e63b993 [APPROVAL] pending/master/addcopyright-drqs35644844 to master
@@ -278,6 +400,8 @@ bde-core (BSL_FROZEN_2.16.0) git; urgency=low
   * 6ead422 [APPROVAL] update-bslstl_list-template-param-names-drqs35234736 to master
   * 931ed9b [APPROVAL] pending/master/bsls-bsltestutil-test-driver-drqs-29926158 to master
   * 41ffc57 [APPROVAL] pending/master/drqs35111387_missing_constructor to master
+  * e05c2db Initial BSL_LEGACY conversion: signpost before doing 'bslmf_' conversions.
+  * 262ce57 Unwind bsls_codebase.h and b*scm_version.h enforcement.
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Dec 2012 14:22:46 -0500
 
@@ -294,8 +418,10 @@ bde-core (MERGE_BASE_master_2.15.x) git; urgency=low
 bde-core (BSL_FROZEN_2.15.0_UPDATED) git; urgency=low
 
   * 3946000 [APPROVAL] pending/master/drqs-34828111-ber-decoding-using-variant to master
+  * b1c5abf Remove runtime version of function pointer size resolution code.
   * 3628d98 [APPROVAL] remotes/origin/dev/druoso/debian-packaging to master
   * b877f91 [APPROVAL] pending/master/cal-changing-weekend-days-drqs-25988530 to master
+  * f23e020 make the package independent of the rssuite version
   * 4a6f8a9 [APPROVAL] pending/master/bslstl_list-release to master
   * 7796a54 [APPROVAL] pending/master/bslstl_map-ambiguous_Comparator to master
   * fc40fb9 [APPROVAL] pending/master/drqs-34402866-ber-encoder-gcc-warning to master
@@ -307,7 +433,9 @@ bde-core (BSL_FROZEN_2.15.0_UPDATED) git; urgency=low
 bde-core (BSL_FROZEN_2.15.0) git; urgency=low
 
   * ed9e829 [APPROVAL] fix_debian_rs_suite_version to master
+  * 107737e update debian/* files for new rs_suite version and for 2.15.0
   * 49c7dd6 [APPROVAL] bump-versions-to-2.15 to master
+  * 9d48f25 bump versions to 2.15.0
   * e8333a7 [APPROVAL] pending/master/bsls_timeutil-and-bsls_stopwatch-corrections-drqs-34696461 to master
   * 070f9f5 [APPROVAL] pending/master/deprecate_dual_stlport_drqs34515180 to master
   * f4ba209 [APPROVAL] pending/master/bslstl_map-ibm_compiler_workaround-drqs-34659505 to master
@@ -317,6 +445,7 @@ bde-core (BSL_FROZEN_2.15.0) git; urgency=low
   * 42d9223 [APPROVAL] pending/master/bslcleanup-SEE_ALSO-drqs-33892825 to master
   * 3e634f6 [APPROVAL] bslstl_stack-rebase-treq-2156431 to master
   * c2620d3 [APPROVAL] recursive-epilogue-merge-fix-drqs-34742613 to master
+  * ed552e6 First version of bslstl_hashtable_array
   * 15149ef [APPROVAL] approvals/pending/master/bslstl_list-release/1345749902 to master
   * 0021336 [APPROVAL] pending/master/bslstl_list-release to master
   * 20ae49c [APPROVAL] pending/master/bslstl_iterator_test_driver_drqs33321146 to master
@@ -333,6 +462,7 @@ bde-core (BSL_FROZEN_2.15.0) git; urgency=low
   * 0e33833 [APPROVAL] pending/master/bsls_alignmentimp-usage-testdriver-drqs-33321756 to master
   * 607aadb [APPROVAL] pending/master/bslstl-add_bslscm_version-drqs-34617129 to master
   * 954d3a2 [APPROVAL] remotes/origin/review/debian-packaging to master
+  * 23d3767 Added bslscm_version to associative containers
   * 98a9394 [APPROVAL] pending/master/drqs-20535695-returning-peer-address to master
   * 4544c71 [APPROVAL] switch-back-to-cp-dash-p-drqs-34472949-master-merge to master
   * 3156a45 [APPROVAL] pending/master/drqs30625945_remove_deadbeef to master
@@ -372,6 +502,8 @@ bde-core (MERGE_BASE_master_2.14.x) git; urgency=low
   * 7684e1a [APPROVAL] pending/master/drqs34078955_btemt_channelqueuepool_doc to master
   * f2249a7 [APPROVAL] pending/master/bcemt_rwmutex-compiler-warning-drqs-28103928 to master
   * 4a65e1e [APPROVAL] remotes/origin/review/removing_deprecated_components_phase2_drqs33433419 to master
+  * 5d1f21e drqs-33491474: Improve presentation of version-specific information.
+  * f67f418 remove RS from the version for consistency with the other packages
   * e5ef5db [APPROVAL] remotes/origin/review/drqs-33352502-channel-pool-test-driver to master
   * 73e2221 [APPROVAL] pending/master/drqs-33150225-ber-encoder-bool-assert to master
 
@@ -381,14 +513,18 @@ bde-core (BSL_FROZEN_2.14.0) git; urgency=low
 
   * 3aa609a [APPROVAL] pending/master/bdesu_fileutil-enum-prefix-drqs-32641536 to master
   * 1669465 [APPROVAL] version_2.14_GIT_MASTER to master
+  * 7400b08 Bump versions to 2.14
   * 0693d26 [APPROVAL] pending/master/atomic-singletons-drqs32300988 to master
   * 4e76c63 [APPROVAL] pending/master/fix-bte-darwin-build-drqs33796821 to master
   * bf4557c [APPROVAL] pending/master/warn_about_old_platforms_drqs30881113 to master
+  * 56878b7 Checkpoint in middle of template method conversion
   * 95e30d7 [APPROVAL] pending/master/IsPolymorphic_refinements_drqs28522058 to master
   * dbcd2e8 [APPROVAL] pending/master/publish_hash_through_bsl_function_drqs33765075 to master
+  * f966b3a updated minimum compiler version check flag
   * a1c6e8d [APPROVAL] add-arconfig to master
   * 1d071bb [APPROVAL] remotes/origin/review/add-arcconfig to master
   * cb50ef3 [APPROVAL] pending/master/bsltf_testvaluearray-iter_traits-rebase-drqs-32090350 to master
+  * fca7e87 Added minimum compiler version checks
   * b4cbaa7 [APPROVAL] pending/master/bsltf_testvaluearray-iter_traits-rebase-drqs-32090350 to master
   * 9c1b9d9 [APPROVAL] remotes/origin/review/default-opts-windows-W4-warnings-drqs-33673377 to master
   * dd7e6a8 [APPROVAL] pending/master/bsl-hpux-atomics-noreordering-drqs31176257 to master
@@ -403,6 +539,8 @@ bde-core (BSL_FROZEN_2.14.0) git; urgency=low
   * 19e65d3 [APPROVAL] pending/master/bteso-revert-hpux-to-poll-33118269 to master
   * 6ba942c [APPROVAL] pending/master/drqs-32973044-async-channel-warning-rebased to master
   * db69bfd [APPROVAL] pending/master/drqs-31706696-baexml_decoder-sequence-context to master
+  * 6c2fed5 drqs-31848131: In test driver, changed TEST TIME ZONE DATA static tables     from 'const char' to 'const unsigned char'.  Should eliminate the     "narrowing conversion" warnings being generated on some plaforms     (e.g., Windows).
+  * 8e7145c drqs-31848131: Updated Usage examples in component-level doc from latest     (working) versions in the test driver.
   * dfdd849 [APPROVAL] fix-btemt_channelpool-testdriver to master
   * 2cef171 [APPROVAL] pending/master/drqs-32694758-low-watermark to master
 
@@ -414,6 +552,7 @@ bde-core (MERGE_BASE_master_2.13.x) git; urgency=low
   * c7064e8 [APPROVAL] pending/master/doc_bdeut_stringref-drqs-31222558 to master
   * 94f5228 [APPROVAL] pending/master/drqs-28934644-channelpool-disableRead to master
   * 36a3c6d [APPROVAL] pending/master/drqs-29286796-tcptimereventmgr-race-condition to master
+  * f763112 fixed signed->unsigned integer conversion issues in bslstl_string streaming
   * 1b3deb2 [APPROVAL] pending/master/asyncfileobserver_nightly_failure_drqs32721749 to master
   * f1127c6 [APPROVAL] remove-fwd-declare-drqs32822394 to master
   * bc1a2c7 [APPROVAL] remove-shadow-declaration-drqs32822544-master to master
@@ -422,6 +561,9 @@ bde-core (MERGE_BASE_master_2.13.x) git; urgency=low
   * aef0d6a [APPROVAL] pending/master/bdeu_string-lowerCaseCmp-drqs-32081455 to master
   * 97a2489 [APPROVAL] pending/master/bsl-atomics-hpux-drqs32696083 to master
   * 45a5db5 [APPROVAL] pending/master/fix_throw_expressions_in_bdesu_drqs32572479 to master
+  * 5d19657 Added conversion to 'int' test to bslmf_metaint.
+  * 15ccabd Implemented and tested conversion to 'integer_constant<int, INT_VALUE>' and conversions to 'false_type' and 'true_type'.
+  * e5a6a7d Rewrote bslmf_metaint in terms of bsltt_integerconstant. Reliable conversion to arbitrary bsltt_integer constant not yet working.
   * 07d3a4c [APPROVAL] pending/master/remove-bdema-autodeallocator-autodeleter-autodestructor-drqs-30646486 to master
   * 2bb1df0 [APPROVAL] pending/master/drqs-28002301-finish-mstr to master
   * 04b44ed [APPROVAL] pending/master/replaceGMTwithUtc-drqs29222266 to master
@@ -455,6 +597,18 @@ bde-core (MERGE_BASE_master_2.13.x) git; urgency=low
   * 6bdd873 [APPROVAL] pending/master/darwin-build-drqs30522547 to master
   * 8019001 [APPROVAL] pending/master/move-bbe-to-bde-core-drqs-31723192 to master
   * 85f8bdb [APPROVAL] remotes/origin/review/no-undefined-symbols-shlib to master
+  * 2a49a18 Bump version to 2.13.0 (_GIT_MASTER)
+  * 4e35978 set version to 2.12.0
+  * 1cf02a5 update version strings for 2.10.0 release
+  * b973ca8 Update version strings to 2.9.0
+  * f5a6714 Update version files to 2.8.0 BETA_1
+  * 23b62e8 Converted package bbescm version BLP_LIB_BDE_BBE_2.7.0 from clearcase
+  * d08b094 Converted package bbescm version BLP_LIB_BDE_BBE_2.6.0 from clearcase
+  * d0c2f66 Converted package bbescm version BLP_LIB_BDE_BBE_2.5.0 from clearcase
+  * 7ea320d Converted package group version BLP_LIB_BDE_BBE_2.4.0 from clearcase
+  * f397dbf Converted package doc version BLP_LIB_BDE_BBE_2.4.0 from clearcase
+  * 4a8fcd7 Converted package bbescm version BLP_LIB_BDE_BBE_2.4.0 from clearcase
+  * ef06bff Converted package bbedc version BLP_LIB_BDE_BBE_2.4.0 from clearcase
 
  -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 14 Jun 2012 17:22:32 -0400
 
@@ -476,6 +630,7 @@ bde-core (BSL_FROZEN_2.13.0) git; urgency=low
   * 6839c0b [APPROVAL] remotes/origin/review/default-opts-gcc-drqs32000581 to master
   * 2d65e6f [APPROVAL] pending/master/hash-multiset-range-insert-drqs-31062316 to master
   * bce5fa6 [APPROVAL] pending/master/cleanup-for-no-BSL_OVERRIDES_STD-drqs30771494 to master
+  * ebf71dd fixed gcc version handling for Linux in default.opts
   * a98ea1f [APPROVAL] pending/master/nonblocking_drqs30813822 to master
   * 437db13 [APPROVAL] remotes/origin/review/public-protocoltest-drqs31193856 to master
   * d38d1a5 [APPROVAL] pending/master/bsls_alignmentutil-fix-warnings-drqs-29594559 to master
@@ -490,6 +645,7 @@ bde-core (BSL_FROZEN_2.13.0) git; urgency=low
 bde-core (BDE_CORE_MASTER_BEFORE_NAMESPACE_MIGRATION) git; urgency=low
 
   * 712872a [APPROVAL] remotes/origin/review/gcc-4.7.0-support to master
+  * dcea6a7 conversion of the bsl package group to namespaces
   * 176da1d [APPROVAL] remotes/origin/review/bae-asyncfileobserver-fdecl-drqs29344828 to master
   * 634fae2 [APPROVAL] remotes/origin/review/bsl-forward-headers-2.12 to master
   * a9c2715 [APPROVAL] pending/master/drqs-29175158-datetime-ber-encoding to master
@@ -497,12 +653,14 @@ bde-core (BDE_CORE_MASTER_BEFORE_NAMESPACE_MIGRATION) git; urgency=low
   * e1ac08a [APPROVAL] pending/master/testobserver_drqs30942437-master-merged to master
   * f10f5e4 [APPROVAL] pending/master/drqs30626609_concurrencytest to master
   * 6f0b1e4 [APPROVAL] remotes/origin/review/version-2.13-numbers to master
+  * d52d003 Bump version to 2.13.0 (_GIT_MASTER)
   * 98f99b4 [APPROVAL] remotes/origin/review/core_hiddenpublish-drqs-30753902 to master
   * 3ea76a6 [APPROVAL] remotes/origin/review/drqs-30703789-ber-encoderoptions-crash to master
   * 3732c82 [APPROVAL] remotes/origin/review/managedptr-overloadset-fix-drqs-30670366 to master
   * 06bebef [APPROVAL] pending/master/misaligned-managedPtr-base-drqs-30596378 to master
   * 8f205b4 [APPROVAL] pending/master/drqs29344828_asyncfileobserver to master
   * 5e15b42 [APPROVAL] pending/master/drqs-23445019-bcep_eventscheduler-cancelEvent to master
+  * e4e3a58 Upgrade managed pointer test driver to catch conversion-to-rightmost-base bug
   * 4d109ae [APPROVAL] remotes/origin/review/bap-isnt-linking-drqs-30379557 to master
   * 5c44740 [APPROVAL] pending/master/drqs-30057667-bdesu_FileUtil-trylock-status to master
   * 755737f [APPROVAL] pending/master/stacktrace-temporary-guard-drqs-30474753 to master
@@ -529,6 +687,7 @@ bde-core (BDE_CORE_MASTER_BEFORE_NAMESPACE_MIGRATION) git; urgency=low
   * a37c4aa [APPROVAL] pending/master/drqs-29712797-bapcdr-needs-trakhitspost to master
   * 715e641 [APPROVAL] pending/master/drqs29494989-a_comdb2-vutf8_documentation to master
   * 8b03c9d [APPROVAL] pending/master/bdema_managedptr to master
+  * 2f20082 revert bsls_platform.h to master branch version
   * ea79118 [APPROVAL] remotes/origin/review/drqs29962271-shrlib-broken-aix to master
   * e4dff88 [APPROVAL] pending/master/drqs-29680062-enhance-bcep-scheduler-doc to master
   * 430177b [APPROVAL] pending/master/drqs-29765669-ticks-in-bce to master
@@ -552,6 +711,7 @@ bde-core (BSL_FROZEN_2.12.0) git; urgency=low
   * 3a4effb [APPROVAL] pending/master/drqs29044162_PredicateTypeTraits to master
   * c754d13 [APPROVAL] pending/master/bde-variant-sun-assert-29636421 to master
   * 498c168 [APPROVAL] pending/master/DRQS29594683-deprecationInTestDriver to master
+  * 508bc3b namespaces: updated bde and bae to simplify conversion to namespaces
   * a336f65 [APPROVAL] remotes/origin/review/drqs-27802322-time-calc-in-baea_performancemonitor to master
   * 6bb61ee [APPROVAL] remotes/origin/review/drqs27906288-content-length to master
   * e6a3160 [APPROVAL] remotes/origin/review/drqs-29523606-nillable-encoder-fix to master
@@ -564,6 +724,7 @@ bde-core (BSL_FROZEN_2.12.0) git; urgency=low
   * 0bced80 [APPROVAL] remotes/origin/review/drqs-29067989-channelpoolchannel-remove-pending-blob to master
   * 3da0c3f [APPROVAL] remotes/origin/review/drqs-28935000-usage-example-first-sentence to master
   * 170c97b [APPROVAL] update-version-to-2.12 to master
+  * 0848f54 set version to 2.12.0
   * 21552e2 [APPROVAL] bdem_allocatormanager_typo_fix to master
   * 4661d3e [APPROVAL] pending/master/drqs-28405957-channelpool-connect-local-addr to master
   * d11451a [APPROVAL] pending/master/drqs27854780-a_bteso-compilefailure to master
@@ -576,11 +737,15 @@ bde-core (BSL_FROZEN_2.12.0) git; urgency=low
   * 9d4d5b7 [APPROVAL] remotes/origin/review/drqs-28171075-bcep-thead_safety_doc to master
   * 00d256e [APPROVAL] pending/master/prefix-namespace-29173602 to master
   * 24d83ff [APPROVAL] pending/master/bde-mac-port-29174806 to master
+  * bb14fd5 namespaces: updated bde/bce to simplify conversion to namespaces
+  * 0614977 namespaces: updated bce/bae/bte components to simplify conversion to namespaces
+  * c02a567 namespaces: updated bsl/bde components to simplify conversion to namespaces
   * 214dc18 [APPROVAL] pending/master/drqs28662197-fix-bde+pcre-test-location to master
   * 4f93378 [APPROVAL] pending/master/drqs-27472149-green-bteso-test-drivers to master
   * 48b302a [APPROVAL] pending/master/review/drqs28099656-a_comdb2-bindText_StringRef to master
   * 7636351 [APPROVAL] pending/master/drqs-28909833-bdem_beruniversaltagnumber-safe-assertion to master
   * 7072850 [APPROVAL] approve-build-gcc-rpath to master
+  * 7cb29ab Fix version checks for GCC
   * 1b2e69c [APPROVAL] pending/master/bdem_tableimp-test-driver-fix-drqs27013335 to master
   * 0af586b [APPROVAL] pending/master/drqs28362349-bdesb-c++11 to master
   * fb04a15 [APPROVAL] pending/master/drqs-26805799-xml-decoding-nillable to master
@@ -607,6 +772,7 @@ bde-core (BSL_FROZEN_2.11.0) git; urgency=low
   * 8a45824 [APPROVAL] remotes/origin/review/drqs27581909-bslim_printer-stringvalues to master
   * 0135d2c [APPROVAL] remotes/origin/review/a_xercesc_cpp11_28362629 to master
   * 894fe0a [APPROVAL] remotes/origin/review/drqs28135201-reduce-ephemeralport-usage to master
+  * 7ea15f6 Fix narrowing conversion error for c++11
   * f902d87 [APPROVAL] pending/master/drqs-28098492-assert to master
   * 36be282 [APPROVAL] remotes/origin/review/a_xercesc-sun-gcc-xerces-locn to master
   * 2c2da98 [APPROVAL] remotes/origin/review/bsl-stringref-epilogue-fix to master
@@ -659,6 +825,7 @@ bde-core (BSL_FROZEN_2.10.0) git; urgency=low
 
   * 7466db1 [APPROVAL] pending/master/DRQS-27636673-clearer-ASSERT_FAIL-messages to master
   * a5bdf96 [APPROVAL] pending/master/bsl-stringref to master
+  * 6f09a3c drqs-26825632: address 'enum' conversion warnings.
   * 3d14914 [APPROVAL] pending/master/bsl-stringref to master
   * ff12902 [APPROVAL] remotes/origin/review/drqs-27606820-assertion to master
   * eaea1ec [APPROVAL] pending/master/treq-1885814-bslma_testallocatormonitor to master
@@ -692,6 +859,7 @@ bde-core (BLP_LIB_A_BDEMA_2.9.1) git; urgency=low
   * 7a0e57f [APPROVAL] remotes/origin/review/gcc-4.6.1-support to master
   * 47d4d99 [APPROVAL] remotes/origin/review/gcc-4.6.1-support to master
   * b947602 [APPROVAL] origin/review/drqs27037973-bael-file_permission to master
+  * 850f13e Simplify support for gcc versions, and support 4.6.1
 
  -- Rohan Bhindwale <rbhindwale@bloomberg.net>  Thu, 1 Sep 2011 15:20:44 -0400
 
@@ -703,6 +871,7 @@ bde-core (PKGS_TO_PABLO_20110830) git; urgency=low
 
 bde-core (BUNDLE_SENT_TO_PHALPERN_20110830) git; urgency=low
 
+  * 4b54771 update version strings for 2.10.0 release
   * 0999f2c [APPROVAL] pending/master/drqs-26923097-bteso-build-errors to master
   * 3306c47 [APPROVAL] pending/master/drqs-26851257-btemt-testing to master
   * fe6a8ad [APPROVAL] pending/master/bcem_aggregate-memory-growth to master
@@ -710,6 +879,7 @@ bde-core (BUNDLE_SENT_TO_PHALPERN_20110830) git; urgency=low
   * 99a2dc0 [APPROVAL] pending/master/drqs24972657-bteso_ipresolutioncache-testdriver to master
   * bd901ac [APPROVAL] pending/master/treq1923821-bael_fileobserver to master
   * 67c5866 [APPROVAL] origin/review/drqs26754933-a_xercesc_stringutil_assert to master
+  * 61e05a5 Solved warning for conversion from size_t to int, and added one assert in the test case.
   * 9c113b1 [APPROVAL] pending/master/remove-unused-rc-from-bcem_aggregateutil.h to master
   * 05fb9e8 [APPROVAL] pending/master/bcem_aggregate-memory-growth-update to master
   * 2cad15b [APPROVAL] pending/master/drqs-26851257-btemt-testing to master
@@ -734,6 +904,7 @@ bde-core (BUNDLE_SENT_TO_PHALPERN_20110830) git; urgency=low
   * 4294f15 [APPROVAL] pending/master/drqs-26486529-tcptimereventmgr-deregisterTimer to master
   * 3035207 [APPROVAL] pending/master/drqs-26459211-stacktrace-fixwarnings to master
   * ecca1ec [APPROVAL] pending/master/bce-atomics-powerpc to master
+  * d4136f6 Kill conversion between managed pointers of incompatible types
   * 4a2c377 [APPROVAL] pending/master/drqs25755645-bsidb2_dynamictagservice to master
   * cadbd8f [APPROVAL] review/master/drqs2659982-a_comdb2_statictag-cursor to master
   * 4315176 [APPROVAL] pending/master/drqs25869030-bteso_inetstreamsocketfactory to master
@@ -763,10 +934,13 @@ bde-core (BSL_FROZEN_2.9.0) git; urgency=low
   * 59a0ec5 [APPROVAL] pending/master/unspecifiedbool to master
   * b25357b [APPROVAL] pending/master/baetzo_localtimedescriptor-exemplar to master
   * 787e8d7 [APPROVAL] pending/master/drqs26006657-bapipc-compile_bug to master
+  * 5bc94cc Documented and tested the set of implicit conversion contexts
   * 67137b8 [APPROVAL] pending/master/bsl-swapfix to master
+  * e4e5ed7 add version component, minor edits
   * 1205046 [APPROVAL] pending/master/bsl-protocoltest to master
   * c1104f7 [APPROVAL] pending/master/baenet-sync-http-encoding to master
   * 93b6ca0 [APPROVAL] remotes/origin/review/version-2.9.0-scm-files to master
+  * 3821f0e Update version strings to 2.9.0
   * 344c188 [APPROVAL] remotes/origin/review/drqs26090294-a_xercesc-depend-on-rs_suite to master
   * c3ad5f8 [APPROVAL] pending/master/post-beta-1-review-fixes to master
   * fffbaeb [APPROVAL] pending/master/drqs-25530064-bapcdr-settlementloader-doc to master
@@ -775,6 +949,7 @@ bde-core (BSL_FROZEN_2.9.0) git; urgency=low
   * 229620c [APPROVAL] pending/master/review/baenet-sync-http-encoding to master
   * 051b1cc [APPROVAL] pending/master/stacktrace to master
   * a08a1bb [APPROVAL] pending/master/drqs-20199908-btemt_channelpool-disable-read to master
+  * 4403784 bslalg_SwapUtil: added a workaround for an ADL-related bug in GCC version before 4.0
   * ea48933 [APPROVAL] remotes/origin/review/sysutil_ident-not-a-component-fixup to master
   * 7bb5631 [APPROVAL] remotes/origin/review/sysutil_ident-not-a-component-fixup to master
   * 615fda4 [APPROVAL] pending/master/drqs_23652498-bdema_alignedallocator to master
@@ -782,6 +957,7 @@ bde-core (BSL_FROZEN_2.9.0) git; urgency=low
   * 9ff9ff7 [APPROVAL] pending/master/bce-atomics-amd64 to master
   * 302a98d [APPROVAL] pending/master/drqs-24968477-session-pool-stop to master
   * b5323ad [APPROVAL] remotes/origin/review/fix-comments-in-manifest to master
+  * d3d4af1 Fix overall version number to 2.8.0
   * 8a69498 [APPROVAL] pending/master/bce-atomics-amd64 to master
   * 326fad3 [APPROVAL] pending/master/DRQS-25954677-e_ipc-import to master
   * 25d076e [APPROVAL] pending/master/bce-atomics-powerpc to master
@@ -802,9 +978,12 @@ bde-core (BSL_FROZEN_2.8.0) git; urgency=low
   * de2a59c [APPROVAL] pending/master/bsl-vector to master
   * 376b2df [APPROVAL] dev/hversche/bslmf-enableif-fixmerge to master
   * 84dd72a [APPROVAL] origin/pending/master/dev/sbreitst/Doxygen.pm to master
+  * e5755bf Fix formatting problems noted in conversion to 'doxygen'.
   * d49152f [APPROVAL] remotes/origin/pending/master/gitignore-vim-temp to master
   * 12abaa4 Merge branch 'releases/2.7.x' of devgit:bde/git-bde
+  * 9ee4f5c Updated usage example including Windows version
   * 9f60317 [APPROVAL] origin/review/drqs-25457771-baenet_httpstatusline to master
+  * 36c024a Fix btescm_version include
   * 834a39e [APPROVAL] origin/pending/master/remove-pedantic to master
   * 75228a9 [APPROVAL] remotes/origin/review/drqs-25393633-hpux-getcontext to master
   * 1808627 [APPROVAL] origin/review/treq-1743148-bdecs-precondition-checks to master
@@ -813,6 +992,7 @@ bde-core (BSL_FROZEN_2.8.0) git; urgency=low
   * 63d93ee [APPROVAL] remotes/origin/review/bdem-bas_codegen to master
   * e19ec35 [APPROVAL] remotes/origin/review/bdem-deprecated to master
   * 4229184 [APPROVAL] remotes/origin/review/bsic-imaster-changes to master
+  * c6296a5 bdescm_version -> baescm_version
   * 93a38e1 [APPROVAL] remotes/origin/review/bde-package-opts to master
   * 28d9095 [APPROVAL] remotes/origin/review/bde-package-opts to origin/master
   * 05cd775 [APPROVAL] remotes/origin/review/bdem_convert-cc-5.10-support to master
@@ -825,6 +1005,7 @@ bde-core (BSL_FROZEN_2.8.0) git; urgency=low
 bde-core (BLP_LIB_BDE_BTE_2.7.1) git; urgency=low
 
   * a265279 [APPROVAL] remotes/origin/review/drqs25245489-2.7-patch to releases/2.7.x
+  * 136bce9 Bump version to 2.7.1 for DRQS 25245489 fix
   * 5e95499 [APPROVAL] pending/master/drqs-23897376-bcemt_rwmutex to master
   * c832bbe [APPROVAL] remotes/origin/review/drqs-25312374-transactiondoc to master
   * f272f29 [APPROVAL] remotes/origin/pending/master/zde-dev-history to master
@@ -835,112 +1016,327 @@ bde-core (BLP_LIB_BDE_BTE_2.7.1) git; urgency=low
   * 4d9fd9b [APPROVAL] origin/pending/master/bbe-dev-history to master
   * d477cda [APPROVAL] origin/pending/master/drqs-25058870-baenet-legacy-enums to master
   * 0f4add5 [APPROVAL] remotes/origin/pending/master/z_bae-dev-history to master
+  * 5de7e4a Synch with latest 'dev' version from Clearcase.
   * 60361d0 [APPROVAL] remotes/origin/pending/master/drqs-25207063-bdem_ber-warning to master
   * 2d3156a [APPROVAL] remotes/origin/pending/master/gitignore-update to master
   * ab50752 [APPROVAL] remotes/origin/pending/master/remove_extra_files to master
   * 399ccfb [APPROVAL] remotes/origin/pending/master/version_tags_2.8.0_BETA_1 to master
   * 95aeb5a scm files set to 2.8.0 BETA_1, adding groups/releases, and adding etc/default.opts
+  * 5145ae1 Update version files to 2.8.0 BETA_1
   * f54a761 add default.opts and releases files
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 May 2011 14:35:33 -0400
 
 bde-core (RELEASE_2.7) git; urgency=low
 
+  * 6b82c3f Converted package btesos version BLP_LIB_BDE_BTE_2.7.0 from clearcase
+  * b86b850 Converted package bteso version BLP_LIB_BDE_BTE_2.7.0 from clearcase
+  * 215e6cd Converted package btescm version BLP_LIB_BDE_BTE_2.7.0 from clearcase
+  * a62505b Converted package btemt version BLP_LIB_BDE_BTE_2.7.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:04:33 -0400
 
 bde-core (BLP_LIB_BDE_BSL_2.7.0) git; urgency=low
 
+  * 073d9bf Converted package bslim version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * afa480a Converted package bsldoc version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * c8e9901 Converted package group version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * edb15cc Converted package bslstp version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * ec6ae2f Converted package bslstl version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * 06b67b7 Converted package bslscm version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * 7a394de Converted package bsls version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * 8bc231e Converted package bslmf version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * 3376165 Converted package bslma version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * 8897728 Converted package bslalg version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * f99797a Converted package bsl+stdhdrs version BLP_LIB_BDE_BSL_2.7.0 from clearcase
+  * 4e5ba5a Converted package bsl+apache version BLP_LIB_BDE_BSL_2.7.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:04:11 -0400
 
 bde-core (BLP_LIB_BDE_BSI_2.7.0) git; urgency=low
 
+  * 31eac47 Converted package bdeut version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * 481422e Converted package bdetu version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * b14d656 Converted package bdet version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * e0d29bf Converted package bdesu version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * 83b8749 Converted package bdescm version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * 4d9b4aa Converted package bdema version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * 95505a3 Converted package bdem version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * 09083f9 Converted package bdecs version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * 06a0d96 Converted package bdea version BLP_LIB_BDE_BDE_2.7.0 from clearcase
+  * d935179 Converted package bde+pcre version BLP_LIB_BDE_BDE_2.7.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:02:50 -0400
 
 bde-core (BLP_LIB_BDE_BCE_2.7.0) git; urgency=low
 
+  * 70b64df Converted package bcescm version BLP_LIB_BDE_BCE_2.7.0 from clearcase
+  * a478623 Converted package bcema version BLP_LIB_BDE_BCE_2.7.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:01:37 -0400
 
 bde-core (BLP_LIB_BDE_BBE_2.7.0) git; urgency=low
 
+  * b84c2e1 Converted package baetzo version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * 0122794 Converted package baet version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * 2cd5c57 Converted package group version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * d2b3fd9 Converted package baexml version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * 27c8759 Converted package baescm version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * 0439caf Converted package baenet version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * d9eed70 Converted package baem version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * f12926d Converted package bael version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * 7dbf959 Converted package baecs version BLP_LIB_BDE_BAE_2.7.0 from clearcase
+  * b11b6a0 Converted package baea version BLP_LIB_BDE_BAE_2.7.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 15:00:39 -0400
 
 bde-core (RELEASE_2.6) git; urgency=low
 
+  * c6f2e92 Converted package btesos version BLP_LIB_BDE_BTE_2.6.0 from clearcase
+  * 4c18227 Converted package bteso version BLP_LIB_BDE_BTE_2.6.0 from clearcase
+  * 604e81e Converted package btescm version BLP_LIB_BDE_BTE_2.6.0 from clearcase
+  * 30ab360 Converted package btemt version BLP_LIB_BDE_BTE_2.6.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:58:39 -0400
 
 bde-core (BLP_LIB_BDE_BSL_2.6.0) git; urgency=low
 
+  * 19317dc Converted package group version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 797aafb Converted package bsltst version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 3a1e55d Converted package bslstp version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 8ed8ae5 Converted package bslstl version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * be6c49f Converted package bslscm version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 525bc13 Converted package bsls version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * c6f4137 Converted package bslmf version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 8e9838c Converted package bslma version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 5d937bc Converted package bslalg version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * abf7996 Converted package bsl+stdhdrs version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 1657452 Converted package bsl+bslhdrs version BLP_LIB_BDE_BSL_2.6.0 from clearcase
+  * 5899dfb Converted package bsl+apache version BLP_LIB_BDE_BSL_2.6.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:58:22 -0400
 
 bde-core (BLP_LIB_BDE_BSI_2.6.0) git; urgency=low
 
+  * e0fb303 Converted package bdex version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 0484c95 Converted package bdeut version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * bc25d82 Converted package bdetu version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 606b2eb Converted package bdet version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 57bed2a Converted package bdesu version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 0d55d91 Converted package bdescm version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * d576ced Converted package bdesb version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 6754289 Converted package bdes version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 3248ec2 Converted package bdepu version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * dfdf68b Converted package bdepcre version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 780f1bb Converted package bdema version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 44ee9c1 Converted package bdem version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 6270070 Converted package bdeimp version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * edfbcce Converted package bdef version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 3ef19fa Converted package bdede version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 4349da8 Converted package bdec2 version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * e86827e Converted package bdec version BLP_LIB_BDE_BDE_2.6.0 from clearcase
+  * 41ccdc4 Converted package bdea version BLP_LIB_BDE_BDE_2.6.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:57:15 -0400
 
 bde-core (BLP_LIB_BDE_BCE_2.6.0) git; urgency=low
 
+  * 3becd21 Converted package bcescm version BLP_LIB_BDE_BCE_2.6.0 from clearcase
+  * 9875a74 Converted package bcep version BLP_LIB_BDE_BCE_2.6.0 from clearcase
+  * 0c3716e Converted package bcema version BLP_LIB_BDE_BCE_2.6.0 from clearcase
+  * 1e7013e Converted package bcem version BLP_LIB_BDE_BCE_2.6.0 from clearcase
+  * 3f39362 Converted package bcec version BLP_LIB_BDE_BCE_2.6.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:56:00 -0400
 
 bde-core (BLP_LIB_BDE_BBE_2.6.0) git; urgency=low
 
+  * 85cd5f8 Converted package baexml version BLP_LIB_BDE_BAE_2.6.0 from clearcase
+  * 52d3311 Converted package baescm version BLP_LIB_BDE_BAE_2.6.0 from clearcase
+  * bc550e1 Converted package baenet version BLP_LIB_BDE_BAE_2.6.0 from clearcase
+  * 0c10caf Converted package baem version BLP_LIB_BDE_BAE_2.6.0 from clearcase
+  * 490965d Converted package bael version BLP_LIB_BDE_BAE_2.6.0 from clearcase
+  * bc1f4b7 Converted package baecs version BLP_LIB_BDE_BAE_2.6.0 from clearcase
+  * 814648f Converted package baea version BLP_LIB_BDE_BAE_2.6.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:54:01 -0400
 
 bde-core (RELEASE_2.5) git; urgency=low
 
+  * 117e145 Converted package btesos version BLP_LIB_BDE_BTE_2.5.0 from clearcase
+  * e4bb1fe Converted package bteso version BLP_LIB_BDE_BTE_2.5.0 from clearcase
+  * 8130077 Converted package btescm version BLP_LIB_BDE_BTE_2.5.0 from clearcase
+  * 52756b9 Converted package btemt version BLP_LIB_BDE_BTE_2.5.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:53:07 -0400
 
 bde-core (BLP_LIB_BDE_BSL_2.5.0) git; urgency=low
 
+  * 7c88324 Converted package bslstp version BLP_LIB_BDE_BSL_2.5.0 from clearcase
+  * b237d62 Converted package bslstl version BLP_LIB_BDE_BSL_2.5.0 from clearcase
+  * 9962e5c Converted package bslscm version BLP_LIB_BDE_BSL_2.5.0 from clearcase
+  * 1789d6e Converted package bsls version BLP_LIB_BDE_BSL_2.5.0 from clearcase
+  * 0d9072f Converted package bslmf version BLP_LIB_BDE_BSL_2.5.0 from clearcase
+  * 45edd0e Converted package bslma version BLP_LIB_BDE_BSL_2.5.0 from clearcase
+  * eee86a2 Converted package bslalg version BLP_LIB_BDE_BSL_2.5.0 from clearcase
+  * 5bec108 Converted package bsl+stdhdrs version BLP_LIB_BDE_BSL_2.5.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:52:46 -0400
 
 bde-core (BLP_LIB_BDE_BSI_2.5.0) git; urgency=low
 
+  * 6167a68 Converted package bdex version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 7198252 Converted package bdeut version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 6ae0164 Converted package bdeu version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * ac8c3e8 Converted package bdet version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * a8391c9 Converted package bdesu version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * b9d4350 Converted package bdescm version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 09176b3 Converted package bdesb version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * fe4f33b Converted package bdes version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 0927f78 Converted package bdepu version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * ff3815f Converted package bdempu version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 8ce7d5c Converted package bdema version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * bc30cf0 Converted package bdem version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * d80674d Converted package bdefu version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 3ec3275 Converted package bdefr version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * f27f5fb Converted package bdefi version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 1ade5ad Converted package bdede version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * 2093df3 Converted package bdecs version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * e45386b Converted package bdeat version BLP_LIB_BDE_BDE_2.5.0 from clearcase
+  * a5de135 Converted package bdea version BLP_LIB_BDE_BDE_2.5.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:51:47 -0400
 
 bde-core (BLP_LIB_BDE_BCE_2.5.0) git; urgency=low
 
+  * c64c61b Converted package group version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 5e2d152 Converted package bcescm version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 70037bd Converted package bcesb version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 94c3c4e Converted package bcep version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 43c8bf7 Converted package bcemt version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 4a8b10a Converted package bcema version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * f740066 Converted package bcem version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 6246d28 Converted package bcedb version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 734dfe3 Converted package bcecs version BLP_LIB_BDE_BCE_2.5.0 from clearcase
+  * 5f0eaec Converted package bcec version BLP_LIB_BDE_BCE_2.5.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:50:39 -0400
 
 bde-core (BLP_LIB_BDE_BBE_2.5.0) git; urgency=low
 
+  * eb75d8b Converted package baexml version BLP_LIB_BDE_BAE_2.5.0 from clearcase
+  * 7b6d370 Converted package baescm version BLP_LIB_BDE_BAE_2.5.0 from clearcase
+  * fde07af Converted package baenet version BLP_LIB_BDE_BAE_2.5.0 from clearcase
+  * 23fc5d1 Converted package baem version BLP_LIB_BDE_BAE_2.5.0 from clearcase
+  * bb71460 Converted package bael version BLP_LIB_BDE_BAE_2.5.0 from clearcase
+  * c43f280 Converted package baedb version BLP_LIB_BDE_BAE_2.5.0 from clearcase
+  * e5a56c2 Converted package baecs version BLP_LIB_BDE_BAE_2.5.0 from clearcase
+  * 08ddb94 Converted package baea version BLP_LIB_BDE_BAE_2.5.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:49:43 -0400
 
 bde-core (RELEASE_2.4) git; urgency=low
 
+  * fe0bd06 Converted package group version BLP_LIB_BDE_BTE_2.4.0 from clearcase
+  * 42ae65b Converted package doc version BLP_LIB_BDE_BTE_2.4.0 from clearcase
+  * 24c8ada Converted package btesos version BLP_LIB_BDE_BTE_2.4.0 from clearcase
+  * bde640c Converted package bteso version BLP_LIB_BDE_BTE_2.4.0 from clearcase
+  * 9ffbaea Converted package btescm version BLP_LIB_BDE_BTE_2.4.0 from clearcase
+  * c550c4c Converted package btesc version BLP_LIB_BDE_BTE_2.4.0 from clearcase
+  * 27daac7 Converted package btes version BLP_LIB_BDE_BTE_2.4.0 from clearcase
+  * 306f36f Converted package btemt version BLP_LIB_BDE_BTE_2.4.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:46:56 -0400
 
 bde-core (BLP_LIB_BDE_BSL_2.4.0) git; urgency=low
 
+  * 716298f Converted package group version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 364794e Converted package doc version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 74f839d Converted package bsltst version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * f1fc0ea Converted package bslstp version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 83c2ab5 Converted package bslstl version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 4a62b63 Converted package bslscm version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 77ab591 Converted package bsls version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * dd33fc4 Converted package bslmf version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 8c0cb4c Converted package bslma version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 0c6b713 Converted package bslalg version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 424c8bb Converted package bsl+stdhdrs version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * 479e74c Converted package bsl+bslhdrs version BLP_LIB_BDE_BSL_2.4.0 from clearcase
+  * c511001 Converted package bsl+apache version BLP_LIB_BDE_BSL_2.4.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:46:36 -0400
 
 bde-core (BLP_LIB_BDE_BSI_2.4.0) git; urgency=low
 
+  * f413278 Converted package group version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 28ea87d Converted package doc version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * a02c705 Converted package bdex version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 21275f9 Converted package bdeut version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 091231b Converted package bdeu version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 2128421 Converted package bdetu version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * ef0f717 Converted package bdetst version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * a4df9fa Converted package bdet version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * bdceb0a Converted package bdesu version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 80fbdf2 Converted package bdescm version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 6e18fe5 Converted package bdesb version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * d75c70d Converted package bdes version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 370a85b Converted package bdepu version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * ced6100 Converted package bdepcre version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * e66ce29 Converted package bdempu version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 57565d6 Converted package bdemf version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 5793d78 Converted package bdema version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * f8df57c Converted package bdem version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 3967d6d Converted package bdeimp version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 2db5640 Converted package bdefu version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * ea4cf2a Converted package bdefr version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 91fe2f8 Converted package bdefi version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * be601fe Converted package bdef version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 2afa574 Converted package bdede version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 16f82a5 Converted package bdecs version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 8072bd9 Converted package bdeci version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * b055069 Converted package bdec2 version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * ecade13 Converted package bdec version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 3d74906 Converted package bdeat version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 98a9530 Converted package bdealg version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 5e3dfcc Converted package bdea version BLP_LIB_BDE_BDE_2.4.0 from clearcase
+  * 48186fc Converted package bde+pcre version BLP_LIB_BDE_BDE_2.4.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:45:41 -0400
 
 bde-core (BLP_LIB_BDE_BCE_2.4.0) git; urgency=low
 
+  * e108eff Converted package group version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * baf896c Converted package doc version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * f9bed10 Converted package bcescm version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 15b427c Converted package bcesb version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 793c9ed Converted package bces version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 61448ba Converted package bcep version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * ca1a8ee Converted package bcemt version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 3d95794 Converted package bcema version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 6638f38 Converted package bcem version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * d30704e Converted package bcefu version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 14f4e5f Converted package bcefr version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 495da2a Converted package bcefi version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * c4b310c Converted package bcef version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 7c2c219 Converted package bcedb version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * a036fc7 Converted package bcecs version BLP_LIB_BDE_BCE_2.4.0 from clearcase
+  * 65d775b Converted package bcec version BLP_LIB_BDE_BCE_2.4.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:44:32 -0400
 
 bde-core (BLP_LIB_BDE_BBE_2.4.0) git; urgency=low
 
+  * c3e2a6b Converted package group version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * 2a865ea Converted package doc version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * f2b4b39 Converted package baexml version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * fbb13f1 Converted package baescm version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * a70b957 Converted package baenet version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * 51f5e71 Converted package baem version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * 2219e2f Converted package baelu version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * 5ea91a6 Converted package bael version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * f9a242e Converted package baedb version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * 1a155fc Converted package baecs version BLP_LIB_BDE_BAE_2.4.0 from clearcase
+  * 174d2b4 Converted package baea version BLP_LIB_BDE_BAE_2.4.0 from clearcase
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2011 14:43:49 -0400
 
