@@ -91,7 +91,10 @@ BDES_IDENT("$Id: $")
 //                                                   whether the Nagle
 //                                                   algorithm for packet
 //                                                   coalescing should be
-//                                                   disabled and packets
+//                                                   disabled.  A value of
+//                                                   'true' indicates packet
+//                                                   coalescing should be
+//                                                   disabled , and packets
 //                                                   should be sent as soon as
 //                                                   possible even if there is
 //                                                   only a small amount of
@@ -445,7 +448,7 @@ STREAM& bteso_SocketOptions::bdexStreamIn(STREAM& stream, int version)
         switch (version) {
           case 2:
             bdex_InStreamFunctions::streamIn(stream, d_tcpNoDelay, 1);
-            // fall through
+                                                                // FALL THROUGH
           case 1: {
             bdex_InStreamFunctions::streamIn(stream, d_debugFlag, 1);
             bdex_InStreamFunctions::streamIn(stream, d_allowBroadcasting, 1);
