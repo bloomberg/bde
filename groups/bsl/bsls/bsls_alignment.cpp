@@ -2,6 +2,8 @@
 
 #include <bsls_alignment.h>
 
+#include <bsls_bsltestutil.h>      // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -21,6 +23,7 @@ const char *Alignment::toAscii(Alignment::Strategy value)
     switch (value) {
       CASE(MAXIMUM)
       CASE(NATURAL)
+      CASE(BYTEALIGNED)
       default: return "(* UNKNOWN *)";
     }
 

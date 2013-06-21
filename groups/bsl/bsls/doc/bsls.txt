@@ -20,13 +20,12 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 31 components having 11 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ The 'bsls' package currently has 30 components having 11 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   11. bsls_alignedbuffer
-      bsls_alignment
 
   10. bsls_alignmentutil
 
@@ -48,19 +47,19 @@
       bsls_atomicoperations
       bsls_byteorder
       bsls_nullptr
-
-   3. bsls_alignmentimp
-      bsls_annotation
-      bsls_buildtarget
-      bsls_compilerfeatures
-      bsls_nativestd
-      bsls_types
       bsls_unspecifiedbool
       bsls_util
 
-   2. bsls_asserttestexception
-      bsls_blockgrowth
+   3. bsls_alignmentimp
+      bsls_annotation
       bsls_bsltestutil
+      bsls_compilerfeatures
+      bsls_nativestd
+      bsls_types
+
+   2. bsls_alignment
+      bsls_asserttestexception
+      bsls_blockgrowth
       bsls_macroincrement
       bsls_platform
       bsls_protocoltest
@@ -112,14 +111,11 @@
 : 'bsls_bsltestutil':
 :      Provide test utilities for 'bsl' that do not use <iostream>.
 :
-: 'bsls_buildtarget':
-:      Provide build-target information in the object file.
-:
 : 'bsls_byteorder':
 :      Provide byte-order manipulation macros.
 :
 : 'bsls_compilerfeatures':
-:      Provide macros to identify compiler support for C++0x features.
+:      Provide macros to identify compiler support for C++11 features.
 :
 : 'bsls_exceptionutil':
 :      Provide simplified exception constructs for non-exception builds.
@@ -289,14 +285,6 @@
  The {'bsls_ident'} component provides macros for inserting SCM (Source Control
  Management) Ids into source files.
 
-/'bsls_int64'
-/ - - - - - -
- The {'bsls_int64'} component provides platform-independent type names for both
- signed and unsigned 64-bit integers.  For healthy platforms, the component
- simply provides a BDE-standard 'typedef' for the non-standard native type
- name.  All platforms currently supported are healthy regarding 64-bit
- integers.
-
 /'bsls_macroincrement'
 /- - - - - - - - - - -
  The {'bsls_macroincrement'} component provides a macro,
@@ -337,18 +325,6 @@
  describe platform-specific attributes (at compile time).  These attributes
  consist of the types and versions of operating system, processor(s), and
  compiler that comprise the platform.
-
-/'bsls_platformutil'
-/- - - - - - - - - -
- The {'bsls_platformutil'} component provides a namespace for a collection of
- 'typedef's and pure procedures that would otherwise have platform-dependent
- interfaces.  For example, it defines the preferred fundamental types denoting
- signed and unsigned 64-bit integers, the preferred integral type denoting a
- number of elements in allocators and containers, provides the capability of
- determining whether a machine is big or little endian across all supported
- platforms, and defines a set of macros replacing the standard 'htonl',
- 'htons', 'ntohl', and 'ntohs' which do not require including any system
- header.
 
 /'bsls_protocoltest'
 /- - - - - - - - - -
