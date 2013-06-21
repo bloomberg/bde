@@ -10,22 +10,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide source control management (versioning) information.
 //
 //@CLASSES:
-// bslscm::Version: namespace for RCS and SCCS versioning information for 'bde'
+// bslscm::Version: namespace for RCS and SCCS versioning information for 'bsl'
 //
 //@DESCRIPTION: This component provides source control management (versioning)
-// information for the 'bde' package group.  In particular, this component
+// information for the 'bsl' package group.  In particular, this component
 // embeds RCS-style and SCCS-style version strings in binary executable files
-// that use one or more components from the 'bde' package group.  This version
+// that use one or more components from the 'bsl' package group.  This version
 // information may be extracted from binary files using common UNIX utilities
 // (e.g., 'ident' and 'what').  In addition, the 'version' 'static' member
 // function in the 'bslscm::Version' 'struct' can be used to query version
-// information for the 'bde' package group at runtime.  The following usage
+// information for the 'bsl' package group at runtime.  The following usage
 // examples illustrate these two basic capabilities.
 //
 // Note that unless the 'version' method will be called, it is not necessary to
-// '#include' this component header file to get 'bde' version information
-// embedded in an executable.  It is only necessary to use one or more 'bde'
-// components (and, hence, link in the 'bde' library).
+// '#include' this component header file to get 'bsl' version information
+// embedded in an executable.  It is only necessary to use one or more 'bsl'
+// components (and, hence, link in the 'bsl' library).
 //
 ///Usage
 ///-----
