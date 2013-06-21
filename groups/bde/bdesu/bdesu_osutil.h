@@ -10,11 +10,11 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide utilities related to the operating system.
 //
 //@CLASSES:
-//   bdesu::OsUtil: namespace for operating system information utilities
+//  bdesu_OsUtil: namespace for operating system information utilities
 //
 //@SEE ALSO:
 //
-//@DESCRIPTION: This component provides a namespace, 'OsUtil',
+//@DESCRIPTION: This component provides a namespace, 'bdesu_OsUtil',
 // containing utility functions for retrieving information at runtime about the
 // operating system in which this task is running.
 //
@@ -38,7 +38,7 @@ BDES_IDENT("$Id: $")
 // Then, we use the standard streams to write the operating system version
 // information to the console, or an error message of failure:
 //..
-//  int rc = OsUtil::getOsInfo(&name, &version, &patch);
+//  int rc = bdesu_OsUtil::getOsInfo(&name, &version, &patch);
 //  if (0 == rc) {
 //      bsl::cout << "OS Name: " << name << "\n"
 //                << "Version: " << version << "\n"
@@ -50,15 +50,15 @@ BDES_IDENT("$Id: $")
 // Finally, the resulting console output on the Red Hat Enterprise Linux Server
 // 5.5 would be
 //..
-// OS Name: Linux
-// Version: 2.6.18-194.32.1.el5
-// Patch:   #1 SMP Mon Dec 20 10:52:42 EST 2010
+//  OS Name: Linux
+//  Version: 2.6.18-194.32.1.el5
+//  Patch:   #1 SMP Mon Dec 20 10:52:42 EST 2010
 //..
 // On Windows 7 SP1, the display would be
 //..
-// OS Name: Windows
-// Version: 6.1
-// Patch:   Service Pack 1
+//  OS Name: Windows
+//  Version: 6.1
+//  Patch:   Service Pack 1
 //..
 
 #ifndef INCLUDED_BSL_STRING
@@ -67,13 +67,11 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdesu {
+                        // ===================
+                        // struct bdesu_OsUtil
+                        // ===================
 
-                        // =============
-                        // struct OsUtil
-                        // =============
-
-struct OsUtil {
+struct bdesu_OsUtil {
     // This 'struct' provides a namespace for utility functions retrieving
     // information about the operating system.
 
@@ -92,7 +90,12 @@ struct OsUtil {
     // !uname(2)!.
 };
 
-}  // close package namespace
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+namespace bdesu {
+typedef bdesu_OsUtil OsUtil;
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 }  // close enterprise namespace
 
 #endif

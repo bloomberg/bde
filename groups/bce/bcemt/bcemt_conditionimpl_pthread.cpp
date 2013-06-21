@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 
+#include <bcemt_saturatedtimeconversionimputil.h>
+
 #include <bdet_timeinterval.h>
 
 #ifdef BCES_PLATFORM_POSIX_THREADS
@@ -20,8 +22,7 @@ int bcemt_ConditionImpl<bces_Platform::PosixThreads>::timedWait(
                                              const bdet_TimeInterval&  timeout)
 {
     timespec ts;
-    ts.tv_sec  = static_cast<bsl::time_t>(timeout.seconds());
-    ts.tv_nsec = timeout.nanoseconds();
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&ts, timeout);
     int status = pthread_cond_timedwait(&d_cond, &mutex->nativeMutex(), &ts);
 
     return 0 == status ? 0 : (ETIMEDOUT == status ? -1 : -2);

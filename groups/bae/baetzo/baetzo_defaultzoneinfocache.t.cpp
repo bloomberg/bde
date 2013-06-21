@@ -575,10 +575,12 @@ int main(int argc, char *argv[])
     }
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    _putenv((char *) "BDE_ZONEINFO_ROOT_PATH=.\\defaultzictest");
+    char zoneInfo[] = "BDE_ZONEINFO_ROOT_PATH=.\\defaultzictest";
 #else
-    putenv((char *) "BDE_ZONEINFO_ROOT_PATH=./defaultzictest");
+    char zoneInfo[] = "BDE_ZONEINFO_ROOT_PATH=./defaultzictest";
 #endif
+
+    putenv(zoneInfo);
 
     if (!bdesu_FileUtil::exists(AMERICA_NEW_YORK_FILE)) {
         writeData(AMERICA_NEW_YORK_FILE,
@@ -954,7 +956,8 @@ int main(int argc, char *argv[])
                           << "(expected to log a complaint)"
                           << endl;
         {
-            putenv((char *) "BDE_ZONEINFO_ROOT_PATH=/usr/bin/");
+            char zoneInfo[] = "BDE_ZONEINFO_ROOT_PATH=/usr/bin/";
+            putenv(zoneInfo);
             const char *RESULT = Obj::defaultZoneinfoDataLocation();
             LOOP2_ASSERT(L_, RESULT, 0 == strcmp(RESULT, "/usr/bin/"));
         }

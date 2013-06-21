@@ -25,7 +25,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;
-using namespace BloombergLP::bdesu;
 
 //=============================================================================
 //                             TEST PLAN
@@ -105,7 +104,7 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdesu::OsUtil Obj;
+typedef bdesu_OsUtil Obj;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -155,7 +154,7 @@ int main(int argc, char *argv[])
         bsl::string name;
         bsl::string version;
         bsl::string patch;
-        int rc = OsUtil::getOsInfo(&name, &version, &patch);
+        int rc = bdesu_OsUtil::getOsInfo(&name, &version, &patch);
 
         // Then, we use the standard streams to write the operating system
         // version information to the console, or an error message of failure:
@@ -249,6 +248,7 @@ int main(int argc, char *argv[])
         bsl::string version;
         bsl::string patch;
         ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

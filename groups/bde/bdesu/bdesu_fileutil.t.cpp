@@ -6,6 +6,8 @@
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -29,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#else
+#else // !BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>  // for Sleep, GetLastError
 #endif
 
@@ -38,9 +40,10 @@
 #include <bsl_cstdlib.h>
 #include <bsl_c_stdio.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -59,10 +62,14 @@ using namespace bsl;  // automatically added by script
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
 // [ 8] FD open(const char *p, bool writable, bool exist, bool append);
+// [10] int tryLock(FileDescriptor, bool )
+// [13] int sync(char *, int , bool )
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE 1
-// [10] USAGE EXAMPLE 2
+// [12] CONCERN: Open in append-mode behavior (particularly on windows)
+// [14] CONCERNS Unix File Permissions for 'open'
+// [15] USAGE EXAMPLE 1
+// [16] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -103,6 +110,17 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
@@ -222,7 +240,7 @@ void makeArbitraryFile(const char *path)
 }
 
 inline
-bsl::string tempFileName()
+bsl::string tempFileName(const char *fnTemplate = 0)
 {
     bsl::string result;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -230,16 +248,22 @@ bsl::string tempFileName()
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bde", 0, tmpNameBuf);
     result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    char tmpPathBuf[L_tmpnam];
-    result = tmpnam(tmpPathBuf);
 #else
-    result = tmpnam(0);
+    fnTemplate = fnTemplate ? fnTemplate : "bdesu_fileutil.test";
+    bsl::vector<char> fn;
+    fn.resize(bsl::strlen(fnTemplate) + 8);
+    bsl::strcpy(fn.begin(), fnTemplate);
+    bsl::strcat(fn.begin(), "_XXXXXX");
+    ASSERT(bsl::strlen(fn.begin()) == fn.size() - 1);
+    ASSERT(!bsl::strcmp(fn.end() - 8, "_XXXXXX"));
+    mkstemp(fn.begin());
+    ASSERT(bsl::strlen(fn.begin()) == fn.size() - 1);
+    result = fn.begin();
 #endif
 
     // Test Invariant:
 
-    BSLS_ASSERT(!result.empty());
+    ASSERT(!result.empty());
     return result;
 }
 
@@ -293,6 +317,10 @@ class MMIXRand {
     }
 };
 
+
+void NoOpAssertHandler(const char *, const char *, int)
+{
+}
 
 //=============================================================================
 //                             USAGE EXAMPLES
@@ -353,7 +381,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 14: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -440,7 +468,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 13: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -531,6 +559,216 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING: Unix File Permissions for 'open'
+        //
+        // Concerns:
+        //: 1 The permissions of a file created with 'open' on unix are chmod
+        //:   0666.  Although not (currently) contractually guaranteed, this
+        //:   matches the behavior for std::fstream and is consistent with the
+        //:   use of a umask (see DRQS 40563234).
+        //
+        // Plan:
+        //: 1 Open and file, write some data to it, and close it.
+        //: 2 Read its permissions via 'stat64' or 'stat'.
+        //: 3 Observe that the permission are chmod 0666 (C-1).
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING: Unix File Permissions for 'open'\n"
+                             "=========================================\n";
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
+#else
+        typedef bdesu_FileUtil::FileDescriptor FD;
+
+        const char *testFile = "tmp.bdesu_fileutil_13.permissions.txt";
+
+        (void) bdesu_FileUtil::remove(testFile, false);
+
+        umask(0);
+
+        FD fd = Obj::open(testFile, true, false);
+        ASSERT(Obj::INVALID_FD != fd);
+
+        const char *str = "To be or not to be\n";
+        const int len   = bsl::strlen(str);
+        ASSERT(len == Obj::write(fd, str, len));
+
+        ASSERT(0 == Obj::close(fd));
+
+# ifdef BSLS_PLATFORM_OS_CYGWIN
+        struct stat info;
+        ASSERT(0 == ::stat(  testFile, &info));
+# else
+        struct stat64 info;
+        ASSERT(0 == ::stat64(testFile, &info));
+# endif
+        info.st_mode &= 0777;
+        const bool eq = (S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH|S_IWOTH)
+                                                               == info.st_mode;
+        if (veryVerbose || !eq) {
+            bsl::ios_base::fmtflags flags = cout.flags();
+            cout << bsl::oct;
+            P_((S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH|S_IWOTH));
+            P(info.st_mode);
+            cout.flags(flags);
+        }
+        ASSERT(eq);
+
+        ASSERT(0 == bdesu_FileUtil::remove(testFile, false));
+#endif
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING: sync
+        //
+        // Note that this is a white-box test that aims to verify the
+        // underlying system call is called with the appropriate arguments (it
+        // is not a test of the operating system behavior).
+        //
+        // Unfortunately, I been unable to find an effective test for
+        // concerns  1, 2, and 3, since I've been unable to observe memory
+        // pages *not* synchronized to disk.
+        //
+        // Concerns:
+        //: 1 On success the mapped bytes are synchronized with their values
+        //:   in the file.
+        //:
+        //: 2 That only the region of memory at the specified location
+        //:   is synchronized.
+        //:
+        //: 3 That only the indicated number of bytes are synchronized.
+        //:
+        //: 4 That on failure an error status is returned.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        //
+        //:Plan:
+        //: 1 Call 'sync' with valid arguments and verify it returns
+        //:   successfully. (C-1..3)
+        //:
+        //: 2 Call 'sync' with an invalid set of arguments (having disabled
+        //:   assertions that would prevent the arguments being supplied to the
+        //:   underlying system call)  (C-4)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values (using the 'BSLS_ASSERTTEST_*'
+        //:   macros).  (C-5)
+        //
+        // Testing:
+        //   static int sync(char *, int , bool );
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING: 'sync'" << endl
+                          << "===============" << endl;
+
+        typedef bdesu_FileUtil::FileDescriptor FD;
+
+        // Note that there appear to be '#define' for PAGESIZE and PAGE_SIZE
+        // on AIX.
+
+        const int MYPAGESIZE = bdesu_MemoryUtil::pageSize();
+        const int SIZE       = MYPAGESIZE;
+        const int READ       = bdesu_MemoryUtil::BDESU_ACCESS_READ;
+        const int READ_WRITE = bdesu_MemoryUtil::BDESU_ACCESS_READ |
+                               bdesu_MemoryUtil::BDESU_ACCESS_WRITE;
+        int         rc     = 0;
+        Obj::Offset offset = 0;
+
+        bsl::string testFileName(tempFileName());
+        Obj::remove(testFileName);
+        FD writeFd = Obj::open(testFileName, true, false, false);
+        FD readFd  = Obj::open(testFileName, false, true, false);
+
+        ASSERT(Obj::INVALID_FD != writeFd);
+        ASSERT(Obj::INVALID_FD != readFd);
+
+        offset = Obj::seek(writeFd, SIZE, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(SIZE == offset);
+        rc = Obj::write(writeFd, testFileName.c_str(), 1);
+        ASSERT(1 == rc);
+
+        offset = Obj::seek(writeFd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(0 == offset);
+
+        void *writeMemory, *readMemory;
+
+        rc = Obj::map(writeFd, &writeMemory, 0, SIZE, READ_WRITE);
+        ASSERT(0 == rc);
+
+        rc = Obj::map(readFd,   &readMemory, 0, SIZE, READ);
+        ASSERT(0 == rc);
+
+        ASSERT(readFd != writeFd);
+
+        char *writeBuffer = static_cast<char *>(writeMemory);
+
+        {
+
+            if (veryVerbose) {
+                cout << "\tTesting msync is performed" << endl;
+            }
+
+            rc = Obj::sync(writeBuffer, SIZE, true);
+            ASSERT(0 == rc);
+
+            // I have not been able to fashion an effective test for 'sync'
+            // because I've been unable to observe unsynchronized memory
+            // mapped pages (so it cannot be determined whether 'sync' is
+            // actually performing synchronization).  For reference, you can
+            // find some experiments writing to mapped-memory, and read from a
+            // different file descriptor to the same file, in
+            // 'devgit:bde/bde-core' commit:
+            //..
+            //  commit a93a90d9c567d7a24994811f79c65b38c2cb9791
+            //  Author: (Henry) Mike Verschell <hverschell@bloomberg.net>
+            //  Date:   Fri Apr 19 16:28:50 2013 -0400
+            //..
+        }
+        {
+            if (veryVerbose) {
+                cout << "\tTesting msync returns an error status" << endl;
+            }
+
+            // Note that, experimentally, the only sane way to force an error
+            // code from sync is to pass a address that is not aligned on a
+            // page boundary.  We must first disable our own assertion handler
+            // in order for the underlying system call to be invoked.
+
+            bsls::AssertFailureHandlerGuard hg(NoOpAssertHandler);
+
+            int address;
+
+            rc = Obj::sync((char *)&address, MYPAGESIZE, true);
+            ASSERT(0 != rc);
+#ifdef BSLS_PLATFORM_OS_UNIX
+            // Note that this is a white-box test that we return 'errno' on
+            // error, which is not required by the method contract.
+            ASSERT(EINVAL == rc);
+            if (veryVeryVerbose) {
+                P(rc);
+            }
+#endif
+        }
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                            bsls::AssertTest::failTestDriver);
+            if (veryVerbose) cout << "\tTest assertions." << endl;
+
+            ASSERT_PASS(Obj::sync(writeBuffer, SIZE, true));
+            ASSERT_FAIL(Obj::sync(0, SIZE, true));
+            ASSERT_FAIL(Obj::sync(writeBuffer, SIZE / 2, true));
+            ASSERT_FAIL(Obj::sync(writeBuffer + 1, SIZE, true));
+
+        }
+        Obj::close(writeFd);
+        Obj::close(readFd);
+        Obj::remove(testFileName);
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -711,9 +949,9 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        const char *fileNameWrite   = "tmp.bdesu_fileutil_11.write.txt";
-        const char *fileNameRead    = "tmp.bdesu_fileutil_11.read.txt";
-        const char *fileNameSuccess = "tmp.bdesu_fileutil_11.success.txt";
+        bsl::string fileNameWrite   = tempFileName("tmp.fileutil_11.write");
+        bsl::string fileNameRead    = tempFileName("tmp.fileutil_11.read");
+        bsl::string fileNameSuccess = tempFileName("tmp.fileutil_11.success");
 
         FD fdWrite = bdesu_FileUtil::INVALID_FD;
         FD fdRead  = bdesu_FileUtil::INVALID_FD;
@@ -882,7 +1120,8 @@ int main(int argc, char *argv[])
                 // Touch the 'success' file to tell the parent process we
                 // succeeded.
 
-                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess, true,
+                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess,
+                                                    true,
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
@@ -914,9 +1153,16 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        const char *fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
-        const char *fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
-        const char *fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
+        // It is important not to use 'tempFileName' here because otherwise
+        // the parent and child will have different file names.
+
+        bsl::string fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
+        bsl::string fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
+        bsl::string fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
+
+        if (veryVerbose) {
+            P_(fileNameWrite);    P_(fileNameRead);    P(fileNameSuccess);
+        }
 
         FD fdWrite = bdesu_FileUtil::INVALID_FD;
         FD fdRead  = bdesu_FileUtil::INVALID_FD;
@@ -1070,7 +1316,8 @@ int main(int argc, char *argv[])
                 // Touch the 'success' file to tell the parent process we
                 // succeeded.
 
-                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess, true,
+                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess,
+                                                    true,
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
@@ -1225,11 +1472,8 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         // Setup by first creating a tmp file
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        string fileName("getFileSizeTest.txt");  // not sure where to put it
-#else
-        string fileName("/tmp/getFileSizeTest.txt");
-#endif
+        string fileName = tempFileName("tmp.getFileSizeTest");
+        if (veryVerbose) P(fileName);
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(fileName,
                                                                  true,
                                                                  false);
@@ -1350,7 +1594,9 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) cout << "\n5. Symbolic Links" << endl;
-            system("ln -s /tmp/getFileSizeTest.txt testLink");
+
+            bsl::string cmd = "ln -s " + fileName + " testLink";
+            system(cmd.c_str());
 
             string fileName("testLink");
             bdesu_FileUtil::Offset off = bdesu_FileUtil::getFileSize(fileName);
@@ -1893,7 +2139,8 @@ int main(int argc, char *argv[])
                                            bdet_TimeInterval(3 * 24 * 3600, 0);
             if (isOld) {
                 struct utimbuf timeInfo;
-                timeInfo.actime = timeInfo.modtime = threeDaysAgo.seconds();
+                timeInfo.actime = timeInfo.modtime = 
+                                         (bsl::time_t)threeDaysAgo.seconds();
 
                 //test invariant:
 

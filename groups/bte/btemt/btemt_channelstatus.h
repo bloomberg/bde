@@ -44,7 +44,7 @@ BDES_IDENT("$Id: $")
 //                            enqueued will be greater than the write cache
 //                            high-water mark.
 //
-//  BTEMT_READ_CHANNEL_DOWN   The read request falied because the read part of
+//  BTEMT_READ_CHANNEL_DOWN   The read request failed because the read part of
 //                            the channel had already been closed.
 //
 //  BTEMT_WRITE_CHANNEL_DOWN  The write request failed because the write part

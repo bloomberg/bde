@@ -10,4 +10,21 @@
  'bdescm' package, except that 'btescm' is incorporated into each 'bte'
  component to provide uniform versioning information for that package group.
  See the 'bdescm' package documentation for details.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btescm' package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. btescm_version
+
+  1. btescm_versiontag
+..
  
+/Component Synopsis
+/------------------
+: 'btescm_version':
+:      Provide source control management (versioning) information.
+:
+: 'btescm_versiontag':
+:      Provide versioning information for the 'bte' package group.

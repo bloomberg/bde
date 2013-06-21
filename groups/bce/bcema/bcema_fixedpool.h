@@ -1,4 +1,4 @@
-// bcema_fixedpool.h      -*-C++-*-
+// bcema_fixedpool.h                                                  -*-C++-*-
 #ifndef INCLUDED_BCEMA_FIXEDPOOL
 #define INCLUDED_BCEMA_FIXEDPOOL
 
@@ -11,9 +11,9 @@
 //
 //@AUTHOR: Ilougino Rocha (irocha), Vladimir Kliatchko (vkliatch)
 //
-//@DESCRIPTION: This component implements a thread-enabled memory pool that
-// allocates and manages a limited number (specified at construction) of memory
-// blocks of some uniform size (also specified at construction).  A
+//@DESCRIPTION: This component implements a *fully thread-safe* memory pool
+// that allocates and manages a limited number (specified at construction) of
+// memory blocks of some uniform size (also specified at construction).  A
 // 'bcema_FixedPool' constructed to manage up to 'N' blocks also provides an
 // association between the address of each block and an index in the range
 // '[ 0 .. N - 1 ]'.
@@ -36,7 +36,7 @@
 // 'bsl::deque<bdef_Function<void(*)(void)> >'.  However, to minimize the time
 // spent performing operations on this deque - which must be carried out under
 // a lock - we instead store just pointers in the deque, and manage memory
-// efficiently using 'bcema_FixedPool'.  'bcema_FixedPool' is thread-enabled
+// efficiently using 'bcema_FixedPool'.  'bcema_FixedPool' is fully thread-safe
 // and does not require any additional synchronization.
 //
 // The example below is just for the container portion of our simple thread
@@ -400,7 +400,7 @@ void bcema_FixedPool::setBackoffLevel(int backoffLevel)
 inline
 void *bcema_FixedPool::addressFromIndex(int index) const
 {
-    const Node * const node = d_nodes[index];
+    Node * node = const_cast<Node *>(d_nodes[index]);
 
     BSLS_ASSERT(node);
     return (char *)node + d_dataOffset;
@@ -451,6 +451,7 @@ void operator delete(void *address, BloombergLP::bcema_FixedPool& pool)
 {
     pool.deallocate(address);
 }
+
 
 #endif
 

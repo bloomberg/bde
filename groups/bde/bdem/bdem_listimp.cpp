@@ -569,7 +569,7 @@ void bdem_ListImp::replaceElement(int index, const bdem_ConstElemRef& srcElem)
     const bdem_Descriptor *descriptor = (*d_rowLayout_p)[index].attributes();
     if (srcElem.descriptor() == descriptor
      && ! (bdem_ElemType::BDEM_LIST == srcElem.type()
-        && this == (bdem_ListImp *) srcElem.data())) {
+        && this == (const bdem_ListImp *) srcElem.data())) {
         d_rowData_p->elemRef(index).replaceValue(srcElem);
     }
     else {

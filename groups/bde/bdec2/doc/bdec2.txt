@@ -14,10 +14,22 @@
  more specialized than those provided by the STL.  In general 'bdec2'
  containers are associative containers of two distinct types.  The 'bdec2'
  containers include:
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdec2' package currently has 2 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-    1. A templated map, performing most typical map operations in constant
-       time with worst-case bounds of linear time.
-    2. A templated ordered map, which is a map whose keys are ordered.
-    3. A templated multimap, in which keys may map to more than one value,
-       and values need not be unique.
+  1. bdec2_intmap
+     bdec2_map
 ..
+
+/Component Synopsis
+/------------------
+: 'bdec2_intmap':
+:      Provide associations of unique 'int' to 'T' values.
+:
+: 'bdec2_map':
+:      Provide associations of unique 'KEY' to 'VALUE' values.

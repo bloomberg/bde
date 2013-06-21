@@ -48,6 +48,10 @@
 
 # pragma optimize("", off)
 
+#else
+
+#include <unistd.h>    // sbrk
+
 #endif
 
 using namespace BloombergLP;
@@ -70,8 +74,13 @@ using bsl::flush;
 // [ 7] large symbols
 // [ 8] output of trace with fprintf rather than stream
 // [ 9] line #'s and offsets
-// [10] usage 1
-// [11] usage 2
+// [10] multithreaded
+// [11] hexStackTrace
+// [12] printHexStackTrace
+// [13] heap memory leak test
+// [14] usage 1
+// [15] usage 2
+// [16] usage 3
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -350,6 +359,117 @@ void testStackTrace(const baesu_StackTrace& st)
 //#endif
     }
 }
+
+                                // -------
+                                // case 11
+                                // -------
+
+namespace BAESU_STACKTRACEUTIL_TEST_CASE_11 {
+
+bool straightTrace = true;
+
+void stackTop();    // forward dclaration
+
+void recurseABunchOfTimes(int *depth, int, void *, int, void *)
+{
+    if (--*depth <= 0) {
+        stackTop();
+    }
+    else {
+        recurseABunchOfTimes(depth, 0, depth, 0, depth);
+    }
+
+    ++*depth;
+}
+
+void stackTop()
+{
+    bsl::stringstream ss;
+
+    if (straightTrace) {
+        ss << Util::hexStackTrace;
+    }
+    else {
+        bsl::ostream *ps = &Util::printHexStackTrace(ss, '\n');
+        ASSERT(&ss == ps);
+    }
+
+    int numDelims = 0;
+    char delim = straightTrace ? ' ' : '\n';
+    const bsl::string& str = ss.str();
+    for (unsigned u = 0; u < str.length(); ++u) {
+        numDelims += delim == str[u];
+    }
+    LOOP_ASSERT(numDelims, numDelims >= 6);
+
+    if (veryVerbose) {
+        *out_p << ss.str() << bsl::endl;
+    }
+
+    bsl::vector<void *> v;
+
+    for (const char *pc = str.c_str(); *pc; ) {
+        if ('0' != pc[0] || 'x' != pc[1]) {
+            ASSERT(0 && "garbled output");
+            break;
+        }
+
+        UintPtr u;
+
+        int rc = sscanf(pc + 2, SIZE_T_CONTROL_STRING, &u);
+        ASSERT(1 == rc);
+
+        v.push_back((void *) u);
+
+        const char *next = strchr(pc, delim);
+        pc = next ? next + 1 : "";
+    }
+
+    LOOP_ASSERT(v.size(), v.size() >= 7);
+
+    if (PLAT_WIN && !DEBUG_ON) {
+        return;                                                       // RETURN
+    }
+
+    if (!v.empty()) {
+        ST st;
+
+        int rc = Util::loadStackTraceFromAddressArray(&st, &v[0], v.size());
+        ASSERT(0 == rc);
+
+        if (veryVerbose) {
+            *out_p << st;
+        }
+
+        int numStackTop                          = 0;
+        int numRecurseABunchOfTimes              = 0;
+        int numBAESU_STACKTRACEUTIL_TEST_CASE_11 = 0;
+        int numMain                              = 0;
+
+        for (int i = 0; i < st.length(); ++i) {
+            const char *sym = st[i].symbolName().c_str();
+
+            numStackTop += !!bsl::strstr(sym, "stackTop");
+            numRecurseABunchOfTimes +=
+                                    !!bsl::strstr(sym, "recurseABunchOfTimes");
+            numBAESU_STACKTRACEUTIL_TEST_CASE_11 +=
+                       !!bsl::strstr(sym, "BAESU_STACKTRACEUTIL_TEST_CASE_11");
+            numMain += !!bsl::strstr(sym, "main");
+        }
+
+        ASSERT(1 == numStackTop);
+        ASSERT(5 == numRecurseABunchOfTimes)
+        ASSERT(6 == numBAESU_STACKTRACEUTIL_TEST_CASE_11);
+        ASSERT(1 <= numMain);
+
+        if (veryVerbose) {
+            P_(numStackTop);    P_(numRecurseABunchOfTimes);
+            P_(numBAESU_STACKTRACEUTIL_TEST_CASE_11);    P(numMain);
+        }
+    }
+}
+
+}  // close namespace BAESU_STACKTRACEUTIL_TEST_CASE_11
 
                                 // -------
                                 // case 10
@@ -1152,6 +1272,47 @@ void bottom(bslma::Allocator *alloc)
 //-----------------------------------------------------------------------------
 
                                     // -------
+                                    // Usage 3
+                                    // -------
+
+// Example 3: Outputting a hex stack trace.
+
+// In this example, we demonstrate how to output return addresses from the
+// stack to a stream in hex.  Note that in this case the stack trace is never
+// stored to a data object -- when the 'operator<<' is passed a pointer to the
+// 'hexStackTrace' function, it calls the 'hexStackTrace' function, which
+// gathers the stack addresses and immediately streams them out.  After the
+// 'operator<<' is finished, the stack addresses are no longer stored anywhere.
+
+// First, we define a routine 'recurseExample3' which will recurse the
+// specified 'depth' times, then call 'traceExample3'.
+
+void traceExample3();    // forward declaration
+
+static void recurseExample3(int *depth)
+    // Recurse the specified 'depth' number of times, then call
+    // 'traceExample3', which will print a stack-trace.
+{
+    if (--*depth > 0) {
+        recurseExample3(depth);
+    }
+    else {
+        traceExample3();
+    }
+
+    ++*depth;   // Prevent compiler from optimizing tail recursion as a
+                // loop.
+}
+
+void traceExample3()
+{
+    // Now, within 'traceExample3', we output the stack addresses in
+    // hex by streaming the function pointer 'hexStackTrace' to the ostream:
+
+    *out_p << baesu_StackTraceUtil::hexStackTrace << endl;
+}
+
+                                    // -------
                                     // Usage 2
                                     // -------
 
@@ -1318,7 +1479,28 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 12: {
+      case 16: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE THREE
+        //
+        // Concerns:
+        //  That the usage example that uses 'hexStackTrace' works.
+        //
+        // Plan: call the routines in the usage example to observe that the
+        //  stack trace works.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TEST OF USAGE EXAMPLE 2\n"
+                             "=======================\n";
+
+        // Call 'recurseExample3' with will recurse 'depth' times, then print
+        // a hex stack trace.
+
+        int depth = 5;
+        recurseExample3(&depth);
+        ASSERT(5 == depth);
+      } break;
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TWO
         //
@@ -1340,7 +1522,7 @@ int main(int argc, char *argv[])
         recurseExample2(&depth);
         ASSERT(5 == depth);
       } break;
-      case 11: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE ONE
         //
@@ -1360,6 +1542,105 @@ int main(int argc, char *argv[])
         int depth = 5;
         recurseExample1(&depth);
         ASSERT(5 == depth);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING: Potential Memory Leak (see DRQS 42134199)
+        //
+        // Concerns:
+        //: 1 That heap memory allocated when resolving symbols is reclaimed.
+        //
+        // Plan:
+        //: 1 Resolve symbols repeatedly and observe, using 'sbrk', that the
+        //:   stack top remains constant (note that the stack top will grow
+        //:   for the first several iterations due to memory fragmentation,
+        //:   but should eventually settle down into 100% of memory being
+        //:   reclaimed.
+        // --------------------------------------------------------------------
+
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+        if (verbose) cout << "Memory Leak Test is Performed on Unix Only\n"
+                             "==========================================\n";
+#else
+        if (verbose) cout << "Memory Leak Test\n"
+                             "================\n";
+
+        bslma::TestAllocator ta;
+
+        baesu_StackTrace st(&ta);
+        UintPtr heapTop = 0;
+        int iterations = verbose ? 500 : 50;
+
+        for (int ti = 0; ti < iterations;  ++ti) {
+            for (int tj = 0; tj < 10; ++tj) {
+                Util::loadStackTraceFromStack(&st);
+                ASSERT(st.length() >= 1);
+                st.resize(0);
+            }
+
+            if (4 == ti) {
+                heapTop = (UintPtr) sbrk(0);
+            }
+            else if (ti > 4) {
+                LOOP2_ASSERT((UintPtr) sbrk(0), heapTop,
+                                                 (UintPtr) sbrk(0) == heapTop);
+            }
+
+            if (verbose) P((UintPtr) sbrk(0));
+        }
+#endif
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING PRINT HEX TRACE
+        //
+        // Concerns:
+        //   That 'Util::printHexStackTrace;' outputs the correct function
+        //   pointers.
+        //
+        // Plan:
+        //   Do the output to a stringstream, then parse the hex pointers, put
+        //   them into a stack trace and resolve them and verify that reslts
+        //   in the expected symbols.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING PRINT HEX STACK TRACE\n"
+                             "=============================\n";
+
+        using namespace BAESU_STACKTRACEUTIL_TEST_CASE_11;
+
+        bslma::TestAllocator da2;
+        bslma::DefaultAllocatorGuard guard(&da2);
+
+        straightTrace = false;
+
+        int depth = 5;
+        recurseABunchOfTimes(&depth, depth, &depth, depth, &depth);
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING << HEX TRACE
+        //
+        // Concerns:
+        //   That 'stream << Util::hexStackTrace;' outputs the correct
+        //   function pointers.
+        //
+        // Plan:
+        //   Do the output to a stringstream, then parse the hex pointers, put
+        //   them into a stack trace and resolve them and verify that reslts
+        //   in the expected symbols.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING << HEX STACK TRACE\n"
+                             "==========================\n";
+
+        using namespace BAESU_STACKTRACEUTIL_TEST_CASE_11;
+
+        bslma::TestAllocator da2;
+        bslma::DefaultAllocatorGuard guard(&da2);
+
+        int depth = 5;
+        recurseABunchOfTimes(&depth, depth, &depth, depth, &depth);
       } break;
       case 10: {
         // --------------------------------------------------------------------

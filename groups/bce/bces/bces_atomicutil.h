@@ -646,8 +646,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <typename PLATFORM> struct bces_AtomicUtilImpl;
-
                         // ======================
                         // struct bces_AtomicUtil
                         // ======================
@@ -902,7 +900,7 @@ inline
 void bces_AtomicUtil::initPointer(bces_AtomicUtil::Pointer *atomicPtr,
                                   const volatile void      *initialValue)
 {
-    Impl::initPointer(atomicPtr, const_cast<const void *>(initialValue));
+    Impl::initPointer(atomicPtr, const_cast<void *>(initialValue));
 }
 
 inline

@@ -11,38 +11,69 @@ baea.txt
 @DESCRIPTION: The 'baea' package provides support for an assortment of common
  application-level services (e.g., command-line processing).  In particular,
  'baea' includes the following:
- :o Classes for parsing, validating, and accessing the command-line arguments
- :  of a program.
- :o A mechanism for monitoring and reporting the observable performance of a
- :  process.
- :o Classes for (1) defining commands (as short strings), (2) passing these
- :  commands through a pipe-channel to a running process, and (3) registering
- :  callback functions to be invoked upon reception of such commands.
- :o A metric reporting protocol and a value-semantic type to represent
- :  metrics.  Note that the metric reporting facilities provided by 'baea'
- :  have been !DEPRECATED! in lieu of 'baem'.
+
+: o Classes for parsing, validating, and accessing the command-line arguments
+:   of a program.
+:
+: o A mechanism for monitoring and reporting the observable performance of a
+:   process.
+:
+: o Classes for (1) defining commands (as short strings), (2) passing these
+:   commands through a pipe-channel to a running process, and (3) registering
+:   callback functions to be invoked upon reception of such commands.
+:
+: o A metric reporting protocol and a value-semantic type to represent
+:   metrics.  Note that the metric reporting facilities provided by 'baea'
+:   have been !DEPRECATED! in lieu of 'baem'.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baea' package currently has 10 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. baea_baemmetricreporteradapter
+     baea_serializableobjectproxyutil
+
+  1. baea_commandline
+     baea_commandlineutil
+     baea_controlmanager
+     baea_metric
+     baea_performancemonitor
+     baea_pipecontrolchannel
+     baea_serializableobjectproxy
+     baea_testmessages
+..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'baea'.
-..
-  'baea_baemmetricreporteradapter' - [!DEPRECATED!] BAEM metric reporter
-                                     adapter
-
-  'baea_commandline'               - command line parsing, validation, and
-                                     access
-
-  'baea_commandlineutil'           - utility functions for operating on
-                                     command-line arguments
-
-  'baea_controlmanager'            - maps control messages to callbacks
-
-  'baea_metric'                    - [!DEPRECATED!] describe, gather, and
-                                     report metrics
-
-  'baea_performancemonitor'        - mechanism to collect performance measures
-                                     of a process
-
-  'baea_pipecontrolchannel'        - mechanism for reading control messages
-                                     from a named pipe
-..
+: 'baea_baemmetricreporteradapter':
+:      Provide a BAEM metric reporter adapter.
+:
+: 'baea_commandline':
+:      Provide command line parsing, validation, and access.
+:
+: 'baea_commandlineutil':
+:      Provide utility functions for operating on command-line arguments.
+:
+: 'baea_controlmanager':
+:      Provide a mechanism for mapping control messages to callbacks
+:
+: 'baea_metric':
+:      Provide the means to describe, gather, and report software metrics.
+:
+: 'baea_performancemonitor':
+:      Provide a mechanism to collect process performance measures.
+:
+: 'baea_pipecontrolchannel':
+:      Provide a mechanism for reading control messages from a named pipe
+:
+: 'baea_serializableobjectproxy':
+:      Provide a dynamically-typed proxy for serializable types.
+:
+: 'baea_serializableobjectproxyutil':
+:      Provide utilities for configuring a 'baea_SerializableObjectProxy'.
+:
+: 'baea_testmessages':
+:      Provide value-semantic attribute classes

@@ -193,7 +193,17 @@ class baejsn_Tokenizer {
         BAEJSN_ARRAY_CONTEXT               // array context
     };
 
+    // Intermediate data buffer used for reading data from the stream.
+
+    enum {
+        BAEJSN_BUFSIZE         = 1024 * 8,
+        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
+                                  - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+    };
+
     // DATA
+    char                               d_buffer[BAEJSN_BUFSIZE];  // buffer
+
     bdema_BufferedSequentialAllocator  d_allocator;               // allocater
                                                                   // (owned)
 
@@ -299,6 +309,21 @@ class baejsn_Tokenizer {
 // ============================================================================
 
 // CREATORS
+inline
+baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
+: d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
+, d_stringBuffer(&d_allocator)
+, d_streamBuf_p(0)
+, d_cursor(0)
+, d_valueBegin(0)
+, d_valueEnd(0)
+, d_valueIter(0)
+, d_tokenType(BAEJSN_BEGIN)
+, d_context(BAEJSN_OBJECT_CONTEXT)
+{
+    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
+}
+
 inline
 baejsn_Tokenizer::~baejsn_Tokenizer()
 {

@@ -85,7 +85,7 @@ using bsl::endl;
 // [13] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -168,11 +168,12 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baejsn_Encoder            Obj;
-typedef baejsn_Encoder_EncodeImpl Impl;
-typedef baejsn_EncoderOptions     Options;
-typedef bsls::Types::Int64        Int64;
-typedef bsls::Types::Uint64       Uint64;
+typedef baejsn_Encoder                       Obj;
+typedef baejsn_Encoder_EncodeImpl            Impl;
+typedef baejsn_EncoderOptions                Options;
+typedef baejsn_EncoderOptions::EncodingStyle Style;
+typedef bsls::Types::Int64                   Int64;
+typedef bsls::Types::Uint64                  Uint64;
 
 // ============================================================================
 //                  GLOBAL DATA FOR TESTING
@@ -30245,6 +30246,25 @@ void constructFeatureTestMessage(
     }
 }
 
+template <typename TYPE>
+int populateTestObject(TYPE *object, const bsl::string& xmlString)
+{
+    bsl::istringstream ss(xmlString);
+
+    baexml_MiniReader reader;
+    baexml_DecoderOptions options;
+    baexml_ErrorInfo e;
+    baexml_Decoder decoder(&options, &reader, &e);
+
+    int rc = decoder.decode(ss.rdbuf(), object);
+
+    if (0 != rc) {
+        bsl::cout << "Failed to decode from initialization data: "
+                  << decoder.loggedMessages() << bsl::endl;
+    }
+    return rc;
+}
+
 template <class TYPE>
 void testNumber()
 {
@@ -30307,7 +30327,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -30479,6 +30499,453 @@ int main(int argc, char *argv[])
     ASSERT(EXP_OUTPUT == os.str());
     }
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING 'encodeNullElements' option
+        //
+        // Concerns:
+        //: 1 Encoder outputs "null" for null elements only if the
+        //:   'encodeNullElements' option is set. 
+        //:
+        //: 2 The encoder correctly generates the output in pretty or compact
+        //:   style when used in consonance with this option.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a table with
+        //:   a set of distinct rows of encoding style, initial indent level,
+        //:   spaces per level, input XML, 'encodeNullElements' option value,
+        //:   and the expected JSON corresponding to that object.
+        //:
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Populate a 'baea::Sequence3' object based on the input XML
+        //:     using the XML decoder.
+        //:
+        //:   2 Create a 'baejsn_Encoder' object.
+        //:
+        //:   3 Create a 'ostringstream' object and encode the object
+        //:     using the specified style, formatting options, and
+        //:     'encodeNullElements' option.
+        //:
+        //:   4 Compare the generated JSON with the expected JSON.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        typedef Options::EncodingStyle Style;
+        static const struct {
+            int         d_line;        // source line number
+            Style       d_style;       // encoding style
+            int         d_indent;      // initial indent level
+            int         d_spl;         // spaces per level
+            const char *d_xmlText_p;   // xml text
+            bool        d_encodeNulls; // if nulls should be encoded
+            const char *d_jsonText_p;  // json text
+        } DATA[] = {
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : null,\n"
+                "  \"element4\" : null,\n"
+                "  \"element5\" : null\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":null,\"element4\":null,\"element5\":null}"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : null,\n"
+                "  \"element4\" : null,\n"
+                "  \"element5\" : null,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":null,\"element4\":null,\"element5\":null,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element4\" : null,\n"
+                "  \"element5\" : null,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":null,\"element5\":null,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element4\" : \"arbitrary string value\",\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\" : [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\" : [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\" : true,\n"
+                "  \"element4\" : \"arbitrary string value\",\n"
+                "  \"element5\" : null,\n"
+                "  \"element6\" : [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":\"arbitrary string value\","
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::BAEJSN_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":\"arbitrary string value\","
+                "\"element5\":null,"
+                "\"element6\":[null,null]}"
+            }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const Style       STYLE  = DATA[ti].d_style;
+            const int         INDENT = DATA[ti].d_indent;
+            const int         SPL    = DATA[ti].d_spl;
+            const bsl::string XML    = DATA[ti].d_xmlText_p;
+            const int         ENE    = DATA[ti].d_encodeNulls;
+            const bsl::string EXP    = DATA[ti].d_jsonText_p;
+
+            baea::Sequence3 object;
+            ASSERT(0 == populateTestObject(&object, XML));
+
+            baejsn_Encoder     encoder;
+            bsl::ostringstream oss;
+
+            baejsn_EncoderOptions options;
+            options.setEncodingStyle(STYLE);
+            options.setInitialIndentLevel(INDENT);
+            options.setSpacesPerLevel(SPL);
+            options.setEncodeNullElements(ENE);
+
+            ASSERTV(0 == encoder.encode(oss, object, options));
+            ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -31261,9 +31728,16 @@ int main(int argc, char *argv[])
         //: 1 'bsl::vector<char>' is encoded into as a JSON string type in
         //:   base64 encoding.
         //:
-        //: 2 Empty 'bsl::vector<char>' results in an empyt string.
+        //: 2 Empty 'bsl::vector<char>' results in an empty string.
         //:
-        //: 3 Array of other types will be encoded as a JSON array.
+        //: 3 Empty arrays of other types by will not be encoded by default.
+        //:
+        //: 4 Empty vectors with the 'encodeEmptyArrays' option set to 'true'
+        //:   result in an '[' and ']' being output.
+        //:
+        //: 5 The formatting is appropriately output for all vectors including
+        //:   empty vectors when used in consonance with the
+        //:   'encodeEmptyArrays' option.
         //
         // Plan:
         //: 1 Use a table-driven approach:
@@ -31273,6 +31747,8 @@ int main(int argc, char *argv[])
         //:   2 Encode each values and verify the result is in base64 format.
         //:
         //: 2 Repeat step one with 'vector<int>' instead.
+        //:
+        //: 3 Ensure that the output is as expected in all cases.
         //
         // Testing:
         //   int encode(bsl::ostream& s, const bsl::vector<TYPE>& v, options);
@@ -31286,9 +31762,9 @@ int main(int argc, char *argv[])
         {
             const struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_inputLength;
-                const char *d_result;
+                const char *d_result_p;
             } DATA[] = {
 
             //LINE  INPUT  LEN  RESULT
@@ -31306,53 +31782,150 @@ int main(int argc, char *argv[])
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
-                const char *const INPUT  = DATA[ti].d_input;
+                const char *const INPUT  = DATA[ti].d_input_p;
                 const int         LENGTH = DATA[ti].d_inputLength;
-                const char *const EXP    = DATA[ti].d_result;
+                const char *const EXP    = DATA[ti].d_result_p;
                 const bsl::vector<char> VALUE(INPUT, INPUT + LENGTH);
 
-                Obj  encoder;
-                bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
-                ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+                {
+                    Obj  encoder;
+                    bsl::ostringstream oss;
+                    Impl impl(&encoder, oss.rdbuf(), Options());
+                    ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
 
-                bsl::string result = oss.str();
-                ASSERTV(LINE, result, EXP, result == EXP);
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, result, EXP, result == EXP);
+                }
+
+                {
+                    Options options;
+                    options.setEncodeEmptyArrays(true);
+
+                    Obj  encoder;
+                    bsl::ostringstream oss;
+                    Impl impl(&encoder, oss.rdbuf(), options);
+                    ASSERTV(LINE, 0 == impl.encode(VALUE, 0));
+
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, result, EXP, result == EXP);
+                }
             }
         }
 
         if (verbose) cout << "Encode 'vector<int>'" << endl;
         {
+            typedef Options::EncodingStyle Style;
+            Style P = Options::BAEJSN_PRETTY;
+            Style C = Options::BAEJSN_COMPACT;
+
+#define NL "\n"
+
             const struct {
-                int         d_line;
-                const char *d_result;
+                int            d_line;
+                const char    *d_input_p;
+                bool           d_encodeEmptyArrays;
+                Style          d_encodingStyle;
+                int            d_initialIndentLevel;
+                int            d_spacesPerLevel;
+                const char    *d_result_p;
             } DATA[] = {
 
-            //LINE  RESULT
-            //----  ------
+            //LINE  INPUT  EEA     Style  INDENT     SPL    RESULT
+            //----  -----  ---     -----  ------     ---    ------
 
-            { L_,   ""     },
-            { L_,   "[0]"  },
-            { L_,   "[0,1]"  },
-            { L_,   "[0,1,2]"  },
-            { L_,   "[0,1,2,3]"  }
+             { L_,    "",  false,     C,      0,      0,    ""           },
+             { L_,    "",  false,     P,      0,      0,    ""           },
+             { L_,    "",  false,     C,      1,      2,    ""           },
+             { L_,    "",  false,     P,      1,      2,    ""           },
+
+             { L_,    "",  true,      C,      0,      0,    "[]"         },
+             { L_,    "",  true,      P,      0,      0,    "[]"         },
+             { L_,    "",  true,      C,      1,      2,    "[]"         },
+             { L_,    "",  true,      P,      1,      2,    "[]"         },
+
+             { L_,    "2", false,     C,      0,      0,    "[2]"        },
+
+             { L_,    "2", false,     P,      0,      0,    "["      NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,    "2", false,     C,      1,      2,    "[2]"        },
+
+             { L_,    "2", false,     P,      1,      2,    "["      NL
+                                                            "    2"  NL
+                                                            "  ]"        },
+
+             { L_,    "2", true,      C,      0,      0,    "[2]"        },
+
+             { L_,    "2", true,      P,      0,      0,    "["      NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,    "2", true,      C,      1,      2,    "[2]"        },
+
+             { L_,    "2", true,      P,      1,      2,    "["      NL
+                                                            "    2"  NL
+                                                            "  ]"        },
+
+             { L_,  "012", false,     C,      0,      0,    "[0,1,2]"    },
+
+             { L_,  "012", false,     P,      0,      0,    "["      NL
+                                                            "0,"     NL
+                                                            "1,"     NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,  "012", false,     C,      1,      2,    "[0,1,2]"    },
+
+             { L_,  "012", false,     P,      1,      2,    "["      NL
+                                                            "    0," NL
+                                                            "    1," NL
+                                                            "    2"  NL
+                                                            "  ]"        },
+
+             { L_,  "012", true,      C,      0,      0,    "[0,1,2]"    },
+
+             { L_,  "012", true,      P,      0,      0,    "["      NL
+                                                            "0,"     NL
+                                                            "1,"     NL
+                                                            "2"      NL
+                                                            "]"          },
+
+             { L_,  "012", true,      C,      1,      2,    "[0,1,2]"    },
+
+             { L_,  "012", true,      P,      1,      2,    "["      NL
+                                                            "    0," NL
+                                                            "    1," NL
+                                                            "    2"  NL
+                                                            "  ]"        },
 
             };
+#undef NL
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
-                const int         NUM    = ti;
-                const char *const EXP    = DATA[ti].d_result;
+                const bsl::string INPUT  = DATA[ti].d_input_p;
+                const bool        EEA    = DATA[ti].d_encodeEmptyArrays;
+                const Style       STYLE  = DATA[ti].d_encodingStyle;
+                const int         INDENT = DATA[ti].d_initialIndentLevel;
+                const int         SPL    = DATA[ti].d_spacesPerLevel;
+                const bsl::string EXP    = DATA[ti].d_result_p;
 
                 bsl::vector<int> value;
-                for (int i = 0; i < NUM; ++i) {
-                    value.push_back(i);
+                for (int i = 0; i < INPUT.size(); ++i) {
+                    value.push_back(INPUT[i] - '0');
                 }
+
+                Options options;
+                options.setEncodingStyle(STYLE);
+                options.setInitialIndentLevel(INDENT);
+                options.setSpacesPerLevel(SPL);
+                options.setEncodeEmptyArrays(EEA);
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf(), Options());
+                Impl impl(&encoder, oss.rdbuf(), options);
                 ASSERTV(LINE, 0 == impl.encode(value, 0));
 
                 bsl::string result = oss.str();

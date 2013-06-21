@@ -24,10 +24,30 @@ static int computeDaysDiff(const bdet_Date& beginDate,
     // result.
 {
     int y1, m1, d1, y2, m2, d2;
+    int negationFlag = beginDate > endDate;
+    if (negationFlag) {
+        endDate.getYearMonthDay(  &y1, &m1, &d1);
+        beginDate.getYearMonthDay(&y2, &m2, &d2);
+    } else {
+        beginDate.getYearMonthDay(&y1, &m1, &d1);
+        endDate.getYearMonthDay(  &y2, &m2, &d2);
+    }
 
-    beginDate.getYearMonthDay(&y1, &m1, &d1);
-    endDate.getYearMonthDay(&y2, &m2, &d2);
-    return (y2 - y1) * 360 + (m2 - m1) * 30 + d2 - d1;
+    if (31 == d1) {
+      d1 = 30;
+    }
+
+    if (30 == d1 && 31 == d2) {
+      d2 = 30;
+    }
+
+    int result = (y2 - y1) * 360 + (m2 - m1) * 30 + d2 - d1;
+
+    if (negationFlag) {
+        result = -result;
+    }
+
+    return result;
 }
 
                         // -------------------------

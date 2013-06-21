@@ -868,8 +868,8 @@ int local::StackTraceResolver::loadSymbols()
                 if (sym->st_shndx != SHN_UNDEF) {
                     const void *symbolAddress =
                               (void *) (sym->st_value + d_seg_p->d_adjustment);
-                    const void *endSymbolAddress = (char *) symbolAddress +
-                                                                  sym->st_size;
+                    const void *endSymbolAddress
+                        = (const char *) symbolAddress + sym->st_size;
                     for (int i = 0; i < d_seg_p->d_numAddresses; ++i) {
                         const void *address = d_seg_p->d_addresses_p[i];
                         if (symbolAddress <= address
@@ -877,8 +877,8 @@ int local::StackTraceResolver::loadSymbols()
                             baesu_StackTraceFrame& frame =
                                                     *d_seg_p->d_framePtrs_p[i];
 
-                            frame.setOffsetFromSymbol(
-                                    (char *) address - (char *) symbolAddress);
+                            frame.setOffsetFromSymbol((const char *) address
+                                               - (const char *) symbolAddress);
 
                             frame.setMangledSymbolName(
                                   d_seg_p->d_helper_p->loadString(
@@ -1068,6 +1068,8 @@ int linkmapCallback(struct dl_phdr_info *info,
     // unused, the specified 'data' is a pointer to the elf resolver.  Return 0
     // on success and a non-zero value otherwise.
 {
+    (void) size;
+
     local::StackTraceResolver *resolver =
                            reinterpret_cast<local::StackTraceResolver *>(data);
 

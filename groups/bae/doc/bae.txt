@@ -14,40 +14,79 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bae' depends upon the 'bce' and 'bde' package groups:
+ The 'bae' package group currently has 13 packages having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
 ..
-    Level 3:   bae
+  5. baejsn
 
-    Level 2:   bce
+  4. baea
 
-    Level 1:   bde
-..
- 'bae' currently has has 2 packages forming 2 levels physical of dependency.
- Note the required source control package 'baescm'.  The table below shows the
- physical dependency hierarchy among the packages.
-..
-   Level  2: bael
+  3. baecs
+     baelu
+     baem
+     baetzo
 
-   Level  1: baescm
+  2. baedb
+     bael
+     baenet
+     baesu
+     baet
+     baexml
+
+  1. baescm
 ..
 
 /Package Synopsis
 /----------------
- The following is a brief synopsis of the content of each package in 'bae'.
-..
-    1. 'bael'   - Logging toolkit with standard and special-purpose (e.g.,
-                  "trace-back") features
-    2. 'baescm' - Introspective versioning information for each 'bae' release
-..
+: 'baea':
+:      Provide common application-level facilities.
+:
+: 'baecs':
+:      Provide special-purpose application-level containers.
+:
+: 'baedb':
+:      [DEPRECATED] Provide a protocol to access a Bloomberg user database.
+:
+: 'baejsn':
+:      Provide components for encoding/decoding in the JSON format.
+:
+: 'bael':
+:      Provide thread-safe logging toolkit suitable for all platforms.
+:
+: 'baelu':
+:      Provide non-primitive utilities for logging.
+:
+: 'baem':
+:      Provide thread-safe collection and publishing of metrics.
+:
+: 'baenet':
+:      Provide utilities components to perform HTTP communication.
+:
+: 'baescm':
+:      Provide versioning information for library components in 'bae'
+:
+: 'baesu':
+:      Provide a portable facility for obtaining & printing a stack trace
+:
+: 'baet':
+:      Provide value-semantic vocabulary types (including time types).
+:
+: 'baetzo':
+:      Provide timezone data for use with timezone-enabled vocabulary types.
+:
+: 'baexml':
+:      Provide utility components for using XML and XSD.
 
 /Package Overview
 /----------------
- The following provides a brief overview of the 'bae' packages.  See the
- respective Package Level documents for more details and usage examples.
+ The following provides a brief overview of some of the 'bae' packages.  See
+ the respective Package Level documents for more details and usage examples.
 
 /bael
 /- -
- 'bael' provides a logging toolkit that, in turn, provides administerable,
+ {'bael'} provides a logging toolkit that, in turn, provides administerable,
  customizable logging facilities for libraries and applications.  The logging
  toolkit is thread-enabled, and thus suitable for multi-threaded applications.
  'bael' provides the capability to log to an in-memory buffer or directly to an
@@ -60,9 +99,8 @@
 
 /baescm
 /- - -
- 'baescm' is a special source control management package containing a single
+ {'baescm'} is a special source control management package containing a single
  component, 'baescm_version'.  This component is included by every other
  component in 'bae', and provides versioning information for the package group.
  Users may use the 'baescm_version' facilities to query a particular 'bae'
- library for its version information.  See {BP BDE_SCM <GO>} for a detailed
- specification for the archetype 'bdescm' package.
+ library for its version information.

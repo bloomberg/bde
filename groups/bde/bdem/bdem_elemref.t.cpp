@@ -3242,7 +3242,7 @@ int main(int argc, char *argv[])
         ASSERT( NER.isNonNull());                                           \
         ASSERT(!isUnset(NER));                                              \
                                                                             \
-        pType = (TYPE *) &NER.the ## ETYPE();                               \
+        pType = const_cast<TYPE *>(&NER.the ## ETYPE());                    \
         ASSERT(&data == pType);                                             \
         ASSERT(!((1 << 3) & nullBits));                                     \
         ASSERT(!NER.isNull());                                              \
@@ -3262,7 +3262,7 @@ int main(int argc, char *argv[])
         ASSERT(!NER.isNonNull());                                           \
         ASSERT( isUnset(NER));                                              \
                                                                             \
-        pType = (TYPE *) &NER.the ## ETYPE();                               \
+        pType = const_cast<TYPE *>(&NER.the ## ETYPE());                    \
         ASSERT(&data == pType);                                             \
         ASSERT((1 << 3) & nullBits);                                        \
         ASSERT( NER.isNull());                                              \
@@ -3306,7 +3306,7 @@ int main(int argc, char *argv[])
         const bdem_ElemRef NER(data,                                      \
                                 &LCASETYPE ## Descriptor, &nullBits, 3);  \
         ASSERT((1 << 3) & nullBits);                                      \
-        pType = (CTYPE *) &NER.the ## UCASETYPE();                        \
+        pType = const_cast<CTYPE *>(&NER.the ## UCASETYPE());             \
         ASSERT((CTYPE *) data == pType);                                  \
         ASSERT((1 << 3) & nullBits);                                      \
         pType = 0;                                                        \

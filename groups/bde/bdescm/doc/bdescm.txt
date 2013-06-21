@@ -15,7 +15,32 @@
  group within the BDE library suite.  This document therefore serves as
  documentation for all 'XXXscm' packages within BDE.
 
-@Usage
+/Hierarchical Synopsis
+/---------------------
+ The 'bdescm' package currently has 3 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdescm_version
+
+  1. bdescm_patchversion
+     bdescm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'bdescm_patchversion':
+:      Provide common patch versioning information.
+:
+: 'bdescm_version':
+:      Provide source control management (versioning) information.
+:
+: 'bdescm_versiontag':
+:      Provide versioning information for the 'bde' package group.
+
+/Usage
+/-----
  The single component in 'bdescm' is 'bdescm_version', which provides the
  'struct' 'bdescm_Version'.  Every component in every package in 'bde' (except
  for components in 'bdes' -- for technical dependency reasons) must depend on

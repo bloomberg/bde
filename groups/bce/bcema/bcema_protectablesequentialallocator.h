@@ -59,7 +59,7 @@ BDES_IDENT("$Id: $")
 //..
 ///Thread Safety
 ///-------------
-// 'bcema_ProtectableSequentialAllocator' is *thread-enabled*, meaning any
+// 'bcema_ProtectableSequentialAllocator' is fully *thread-safe*, meaning any
 // operation on the same allocator object can be safely invoked from any
 // thread without having to be synchronized.
 //
@@ -159,7 +159,8 @@ BDES_IDENT("$Id: $")
 //          int      *oldData = d_data_p;
 //          int       oldSize = d_maxSize;
 //          d_maxSize *= GROW_FACTOR;
-//          d_data_p = new(&d_allocator) int[d_maxSize];
+//          d_data_p = static_cast<int *>(d_allocator.allocate(
+//                                                   d_maxSize * sizeof(int)));
 //          bsl::copy(oldData, oldData + oldSize, d_data_p);
 //      }
 //
@@ -176,33 +177,39 @@ BDES_IDENT("$Id: $")
 //      : d_data_p()
 //      , d_stackSize(0)
 //      , d_maxSize(INITIAL_SIZE)
-//      , d_allocator(protectedDispenser)
+//      , d_allocator(protectedDispenser
+//                       ? protectedDispenser
+//                       : &bdema_NativeProtectableBlockDispenser::singleton())
 //      {
-//          d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+//          d_data_p = static_cast<int *>(d_allocator.allocate(
+//                                                   d_maxSize * sizeof(int)));
 //          d_allocator.protect();
 //      }
 //
 //      ~IntegerStack()
 //          // Destroy this object (and release its memory).
 //      {
+//          d_allocator.unprotect();
 //      }
 //
 //..
-// We must unprotect the dispenser before modifying or deallocating
-// memory:
+// We must unprotect the dispenser before modifying or deallocating memory.
+// Note that we use a 'bdema_ProtectableMemoryScopedGuard' to assure that the
+// memory will be re-protected in the event of an exception:
 //..
 //      // MANIPULATORS
 //      void push(int value)
 //          // Push the specified 'value' onto the stack.
 //      {
-//          d_allocator.unprotect();
+//          bdema_ProtectableMemoryScopedGuard
+//                  <bcema_ProtectableSequentialAllocator> guard(&d_allocator);
+//
 //          if (d_stackSize >= d_maxSize) {
 //              increaseSize();
 //          }
 //
 //          // Sufficient room is guaranteed.
 //          d_data_p[d_stackSize++] = value;
-//          d_allocator.protect();
 //      }
 //
 //      int pop()
@@ -256,7 +263,7 @@ class bdema_ProtectableBlockDispenser;
                 // ==========================================
 
 class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
-    // This class defines a thread enabled memory allocator that dispenses
+    // This class defines a *fully thread-safe* memory allocator that dispenses
     // arbitrarily-sized blocks of memory from an internal buffer.  The memory
     // allocated by this allocator can be *protected* from modification by
     // calling 'protect'.  Writing to protected memory will cause a
@@ -280,20 +287,20 @@ class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
 
     int                    d_cursor;      // position of the next free byte
 
+    bsls::BlockGrowth::Strategy
+                           d_growthStrategy;
+                                          // strategy to use for for growth
+
+    bsls::Alignment::Strategy
+                           d_strategy;    // strategy to use for alignment
+
     char                  *d_buffer;      // holds current free memory buffer
 
     size_type              d_bufSize;     // the size of the free buffer
 
     size_type              d_growthLimit; // limit of buffer growth
 
-    bsls::BlockGrowth::Strategy
-                           d_growthStrategy;
-                                          // strategy to use for for growth
-
     size_type              d_size;        // total amount of allocated memory
-
-    bsls::Alignment::Strategy
-                           d_strategy;    // strategy to use for alignment
 
     bdema_ProtectableBlockList
                            d_blockList;   // provides memory

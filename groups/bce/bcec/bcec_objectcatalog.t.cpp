@@ -294,7 +294,7 @@ class my_bcec_ObjectCatalog
             return -1; //non zero
         }
         if(p != 0) {
-            *p = *((TYPE *)d_arr[h].d_obj_p);
+            *p = *((TYPE const *)d_arr[h].d_obj_p);
         }
 
         return 0;

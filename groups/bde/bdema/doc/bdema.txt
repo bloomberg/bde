@@ -16,30 +16,182 @@
  and 'delete' is the BDE default allocator.  This topic is discussed in more
  detail below.
 
-@Component Overview:
+/Hierarchical Synopsis
+/---------------------
+ The 'bdema' package currently has 35 components having 7 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  7. bdema_multipoolallocator
+     bdema_strallocator
+
+  6. bdema_chararray
+     bdema_multipool
+     bdema_protectablememoryscopedguard
+     bdema_strpool
+
+  5. bdema_bufferedsequentialallocator
+     bdema_protectableblocklist
+     bdema_sequentialallocator
+
+  4. bdema_bufferedsequentialpool
+     bdema_defaultallocatorguard
+     bdema_nativeprotectableblockdispenser
+     bdema_sequentialpool
+     bdema_testprotectableblockdispenser
+
+  3. bdema_buffermanager
+     bdema_default
+     bdema_managedptr
+     bdema_pool
+     bdema_protectableblockdispenser
+
+  2. bdema_alignedallocator
+     bdema_allocator
+     bdema_autoreleaser
+     bdema_blocklist
+     bdema_bufferallocator
+     bdema_bufferimputil
+     bdema_heapbypassallocator
+     bdema_infrequentdeleteblocklist
+     bdema_managedallocator
+     bdema_managedptrdeleter
+     bdema_memoryblockdescriptor
+     bdema_newdeleteallocator
+     bdema_testallocator
+     bdema_testallocatorexception
+
+  1. bdema_managedptr_factorydeleter
+     bdema_managedptr_members
+..
+
+/Component Synopsis
+/------------------
+: 'bdema_alignedallocator':
+:      Provide a protocol for memory allocators that support alignment.
+:
+: 'bdema_allocator':
+:      Provide a protocol for memory allocation and deallocation.
+:
+: 'bdema_autoreleaser':
+:      Release memory from a managed allocator or a pool at destruction.
+:
+: 'bdema_blocklist':
+:      Provide allocation and management of a sequence of memory blocks.
+:
+: 'bdema_bufferallocator':
+:      Support efficient memory allocation from a user-supplied buffer.
+:
+: 'bdema_bufferedsequentialallocator':
+:      Provide an efficient managed allocator using an external buffer.
+:
+: 'bdema_bufferedsequentialpool':
+:      Provide sequential memory using an external buffer and a fallback.
+:
+: 'bdema_bufferimputil':
+:      Provide pure procedures for allocating memory from a buffer.
+:
+: 'bdema_buffermanager':
+:      Provide a memory manager that manages an external buffer.
+:
+: 'bdema_chararray':
+:      Provide an in-place array of 'char' values.
+:
+: 'bdema_default':
+:      Provide utilities to set/fetch the default and global allocators.
+:
+: 'bdema_defaultallocatorguard':
+:      Provide scoped guard to temporarily change the default allocator.
+:
+: 'bdema_heapbypassallocator':
+:      Support memory allocation directly from virtual memory.
+:
+: 'bdema_infrequentdeleteblocklist':
+:      Provide allocation and management of infrequently deleted blocks.
+:
+: 'bdema_managedallocator':
+:      Provide a protocol for memory allocators that support 'release'.
+:
+: 'bdema_managedptr':
+:      Provide a managed pointer class.
+:
+: 'bdema_managedptrdeleter':
+:      Provide an in-core value semantic class to call a delete function.
+:
+: 'bdema_memoryblockdescriptor':
+:      Provide a class describing a block of memory.
+:
+: 'bdema_multipool':
+:      Provide a memory manager to manage pools of varying block sizes.
+:
+: 'bdema_multipoolallocator':
+:      Provide memory-pooling allocator of heterogeneous block sizes.
+:
+: 'bdema_nativeprotectableblockdispenser':
+:      Provide a platform-specific dispenser of protectable blocks.
+:
+: 'bdema_newdeleteallocator':
+:      Provide new/delete adaptor to 'bslma::Allocator' protocol.
+:
+: 'bdema_pool':
+:      Provide efficient allocation of memory blocks of uniform size.
+:
+: 'bdema_protectableblockdispenser':
+:      Provide a protocol for allocating and protecting blocks of memory.
+:
+: 'bdema_protectableblocklist':
+:      Provide allocation and protection for a sequence of memory blocks.
+:
+: 'bdema_protectablememoryscopedguard':
+:      Provide a scoped guard to temporarily unprotect memory for writing.
+:
+: 'bdema_sequentialallocator':
+:      Provide a managed allocator using dynamically-allocated buffers.
+:
+: 'bdema_sequentialpool':
+:      Provide sequential memory using dynamically-allocated buffers.
+:
+: 'bdema_strallocator':
+:      Provide fast allocation for character string memory.
+:
+: 'bdema_strpool':
+:      Provide fast allocation and management for unaligned string memory.
+:
+: 'bdema_testallocator':
+:      Provide concrete test allocator that maintains blocks and bytes.
+:
+: 'bdema_testallocatorexception':
+:      Provide exception class for memory allocation operations.
+:
+: 'bdema_testprotectableblockdispenser':
+:      Provide a concrete protectable block dispenser for testing.
+
+/Component Overview
+/------------------
  This Overview section summarizes the components that are available in 'bdema'.
  Subsequent sections provide more detail on component selection, performance,
  and usage.
 
 /'bdema_allocationhint'
-/----------------------
+/ - - - - - - - - - - - 
  'bdema_allocationhint' defines an enumeration whose values provide indication
  of optimal memory management strategy.
 
 /'bdema_allocator'
-/-----------------
+/- - - - - - - - -
  'bdema_allocator' defines a protocol (i.e.,, an abstract base  class)
  requiring the following interface: 'allocate()', for memory  allocation, and
  'deallocate()', for deallocation of individual allocated  memory blocks.
 
 /'bdema_allocatorutil'
-/---------------------
+/- - - - - - - - - - -
  'bdema_allocatorutil' provides a namespace for a suite of static functions
  that work with allocators.  Functions currently available provide mechanisms
  for constructing and copy-constructing template-generated objects.
 
 /'bdema_autoreleaser'
-/--------------------
+/ - - - - - - - - - - 
  'bdema_autoreleaser' provides a "scoped guard" mechanism that assumes
  management of all of the memory allocated by a managed allocator (which
  provids a 'release()' method).  The managed allocator's 'release' method is
@@ -49,7 +201,7 @@
  exception.
 
 /'bdema_blocklist'
-/-----------------
+/- - - - - - - - -
  'bdema_blocklist' provides a manager that maintains memory allocated by an
  underlying memory allocator on a list.  The list structure  enables
  'release()' of all still-allocated memory, i.e. provides enough  structure for
@@ -61,7 +213,7 @@
  'release()' method.
 
 /'bdema_bufferallocator'
-/-----------------------
+/- - - - - - - - - - - -
  'bdema_bufferallocator' defines a memory manager that allocates and
  deallocates memory obtained from some underlying 'char' array (that is, a
  buffer).  The array is provided by the client at 'bdema_BufferAllocator'
@@ -72,51 +224,52 @@
  to the client as the result of the client's 'allocate()' request.
 
 /'bdema_chararray'
-/-----------------
+/- - - - - - - - -
  'bdema_chararray' exists to satisfy the physical design injunction against
  cyclic dependency.  In particular, 'bdema_chararray' provides a dynamically
  allocated character buffer that is aware of 'bdema' allocators, but does not
  depend on various other services that higher-level components (e.g.,
  'std::vector') depend on.  Therefore, 'bdema_chararray' is useful to
  components whose position in the physical hierarcy is below that of the
- 'bde+stlport' package.  (See John Lakos, "Large-Scale C++ Software Design" for a discussion of physical dependency.)
+ 'bde+stlport' package.  (See John Lakos, "Large-Scale C++ Software Design" for
+ a discussion of physical dependency.)
 
 /'bdema_countedhandle'
-/--------------------
+/- - - - - - - - - - 
  'bdema_countedhandle' provides a generic, reference-counted handle for
  supporting shared ownership of items.
 
 /'bdema_default'
-/---------------
+/- - - - - - - -
  'bdema_default' provides a namespace in which to declare a default allocator
  that can be used by any component requiring an allocator in cases where the
  client does not supply one, and two functions relating to this default
  allocator: a "setter", and a "getter".
 
 /'bdema_defaultallocatorguard'
-/-----------------------------
+/- - - - - - - - - - - - - - -
  'bdema_defaultallocatorguard' provides a mechanism to enable safe, temporary
  replacement of the default allocator.
 
 /'bdema_handle'
-/--------------
+/- - - - - - - 
  'bdema_handle' provides a generic (templated) handle for accessing objects
  produced by some factory.
 
 /'bdema_infrequentdeleteblocklist'
-/---------------------------------
- 'bdema_infrequentdeleteblocklist' defines a block list (see 'bdema_BlockList')
- that does not support deallocation of individual items (the 'deallocate()'
- function does nothing).
+/- - - - - - - - - - - - - - - - -
+ 'bdema_infrequentdeleteblocklist' defines a block list (see
+ {'bdema_blockList'}) that does not support deallocation of individual items
+ (the 'deallocate()' function does nothing).
 
 /'bdema_managedallocator'
-/-----------------------
+/- - - - - - - - - - - -
  'bdema_managedallocator' defines a protocol that extends the 'bdema_Allocator'
  protocol with a 'release()' function.  'release()' indicates that all memory
  allocated since the previous 'release()' call is to be deallocated.
 
 /'bdema_multipool'
-/----------------
+/- - - - - - - - -
  'bdema_multipool' manages memory distributed among pools of varying sizes.
  Each pool provides MAXIMUM-aligned, fixed-size memory blocks, so each pool is
  sized to a multiple of the value  'bdes_Alignment::MAX_ALIGNMENT'.  The
@@ -135,60 +288,61 @@
  worthwhile depends on the lifespan of the allocator.
 
 /'bdema_multipoolallocator'
-/--------------------------
+/ - - - - - - - - - - - - - 
  'bdema_multipoolallocator' wraps a 'bdema_Allocator' interface around a
  'bdema_MultiPool'.
 
 /'bdema_newdeleteallocator'
-/--------------------------
+/ - - - - - - - - - - - - - 
  'bdema_newdeleteallocator' provides a wrapper around 'operator new' and
  'operator delete' that adheres to the 'bdema_Allocator' protocol (i.e.,
  provides an 'allocate()' function and a 'deallocate()' function).
 
 /'bdema_placementnew'
-/--------------------
+/ - - - - - - - - - - 
  'bdema_placementnew' provides a variant of placement new for use by low-level,
  library components needing to avoid cyclic physical dependencies that would
  result from using another placement new.
 
 /'bdema_pool'
-/------------
+/ - - - - - - 
  'bdema_pool' defines a construct that "pools" memory, i.e., maintains a list
  of (fixed-size) available blocks so that allocation and deallocation (almost
  always) require only the constant-time operations of  removing a block from
  the list, or returning a block to the list.
 
 /'bdema_sequentialallocator'
-/---------------------------
+/- - - - - - - - - - - - - -
  'bdema_sequentialallocator' wraps a 'bdema_Allocator' interface around a
  'bdema_SequentialPool'.
 
 /'bdema_sequentialpool'
-/----------------------
+/ - - - - - - - - - - - 
  'bdema_sequentialpool' provides a pool that allocates variable-sized memory
  blocks either NATURAL alignment or MAXIMUM alignment.
 
 /'bdema_strallocator'
-/-------------------
+/ - - - - - - - - - -
  'bdema_strallocator' wraps a 'bdema_Allocator' interface around a
  'bdema_StrPool'.
 
 /'bdema_strpool'
-/---------------
+/- - - - - - - -
  'bdema_strpool' provides a pool that allocates variable-sized memory blocks,
  without the overhead of providing alignment.
 
 /'bdema_testallocator'
-/---------------------
+/- - - - - - - - - - -
  'bdema_testallocator' provides an instrumented memory allocator drawing on
  'malloc'-provided memory, that can be exceedingly useful during development.
 
 /'bdema_testallocatorexception'
-/------------------------------
+/ - - - - - - - - - - - - - - - 
  'bdema_testallocatorexception' defines an exception object for use in testing
  exceptions during memory allocations.
 
-@Allocators and Other Memory-Dispensing Mechanisms
+/Allocators and Other Memory-Dispensing Mechanisms
+/-------------------------------------------------
  An allocator is a memory manager that derives from the 'bdema_Allocator'
  protocol and provides an 'allocate' method for obtaining memory, and a
  'deallocate' method for returning memory (to the allocator).  'bdema' also
@@ -205,21 +359,24 @@
 
  Characteristics differentiating among 'bdema' memory-allocation objects *in*
  *general* are:
-..
-    * Whether or not the object isA 'bdema_Allocator'.
-    * Whether or not the allocator supports memory reuse.
-    * Whether allocation requests consume the exact amount of memory requested,
-      an additive number of additional bytes, or a non-addative number of
-      additional bytes (e.g., the smallest power of two that can satisfy the
-      request).
-    * Whether or not the allocator supports multi-threading.
-..
- All 'bdema' allocators are thread-safe but not thread-enabled (see the 'bcema'
- package-level documentation for information on thread-enabled allocators).
- In BDE terminology, a class is thread-safe if distinct threads can safely
- access *different* *instances* of that class simultaneously; a class is
- thread-enabled if distinct threads can safely access *the* *same* *instance*
- of that class simultaneously.
+
+: o Whether or not the object isA 'bdema_Allocator'.
+:
+: o Whether or not the allocator supports memory reuse.
+:
+: o Whether allocation requests consume the exact amount of memory requested,
+:   an additive number of additional bytes, or a non-addative number of
+:   additional bytes (e.g., the smallest power of two that can satisfy the
+:   request).
+:
+: o Whether or not the allocator supports multi-threading.
+
+ All 'bdema' allocators are thread-safe but not thread-enabled (see the
+ {'bcema'} package-level documentation for information on thread-enabled
+ allocators).  In BDE terminology, a class is thread-safe if distinct threads
+ can safely access *different* *instances* of that class simultaneously; a
+ class is thread-enabled if distinct threads can safely access *the* *same*
+ *instance* of that class simultaneously.
 
  The *BDE* allocators have two more differentiating properties.  First, whether
  the allocator is intended to be part of a chain (or other grouping) of
@@ -257,7 +414,7 @@
  i.e., the memory pools.
 
 /Alignment
-/---------
+/- - - - -
  Alignment of an *address* in memory refers to the relative position of that
  address with respect to specific (hardware-imposed) boundaries within the
  memory space.  Any one address can be said to be on a one-byte boundary, a
@@ -319,13 +476,14 @@
  'struct's, and other non-'char' types.
 
  A number of the 'bdema' memory managers *do* align.  They do so by:
-..
-     1. Inferring the needed alignment from the size of the request, and
-        returning a NATURALLY aligned address for it, or
-     2. Returning a chunk of memory aligned to an address that would serve as
-        a properly-aligned address for a type with the largest possible
-        alignment needs, i.e. returning a MAXIMALLY aligned address.
-..
+
+: 1 Inferring the needed alignment from the size of the request, and
+:   returning a NATURALLY aligned address for it, or
+:
+: 2 Returning a chunk of memory aligned to an address that would serve as
+:   a properly-aligned address for a type with the largest possible
+:   alignment needs, i.e. returning a MAXIMALLY aligned address.
+
  The cost of obtaining aligned addresses is twofold: an increase in the memory
  used (allocators returning aligned addresses do so by skipping bytes that
  could otherwise be used, so as to return an appropriate address), and
@@ -333,7 +491,7 @@
  offset.
 
 /Deallocation
-/------------
+/ - - - - - - 
  Some of the managers do not deallocate individual items.  (The 'deallocate'
  function is almost always provided, but in these managers it performs no
  action.)  Such managers provide a 'release' function instead, which
@@ -341,7 +499,7 @@
  'release' call.
 
 /Type and Origination
-/--------------------
+/ - - - - - - - - - - 
  Most managers provide variable-sized, untyped (i.e., 'void *') memory.  Only
  the 'bdema_Pool' works with fixed-size chunks.
 
@@ -364,50 +522,50 @@
                                  Cost OVER                     Handling
                                  Underlying
                                   Source
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 Block List  | Client-provided | O(1) node    | MAXIMAL |       None           |
             |   allocator     | creation &   |         |                      |
             |                 | insertion    |         |                      |
-            +-----------------+--------------+--------------------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - - - - - - - - - - - - - +
 Infrequent- | Client-provided | O(1) node    |   None  |       None           |
 Delete      |   allocator     | creation &   |         |                      |
 Block List  |                 | insertion    |         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
             |Infrequent-Delete|  negative*   |   None  |       None           |
 Pool        |   Block List    |              |         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 Sequential  |Infrequent-Delete|  negative*   |NATURAL, |       None           |
 Pool        |  Block List     |              | MAXIMAL |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 String      |Infrequent-Delete|  negative*   |   None  |       None           |
 Pool        |  Block List     |              |         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 Multi       |A set of Pools,  |  negative*   |MAXIMAL  |       None           |
 Pool        |and a Block List |              |         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 Buffer      | Client-provided |  vfn + O(1)  |NATURAL, | Client callback, or  |
 Allocator   | buffer (a 'char'|align. comp. &| MAXIMAL | return value 0 if no |
             | pointer)        |cursor maint. |         | callback registered  |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 Sequential  | Sequential Pool | 0 if inlined,|NATURAL  |       None           |
 Allocator   |                 |else vfn call+|         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 String      | String Pool     | 0 if inlined,|   None  |       None           |
 Allocator   |                 |else vfn call+|         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 Multipool   | Multi Pool      | 0 if inlined,|MAXIMAL  |       None           |
 Allocator   |                 |else vfn call+|         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 NewDelete   | operator new    | 0 if inlined,|MAXIMAL  | Return value 0       |
 Allocator   |                 |else vfn call+|         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 Test        | malloc          |     N/A      |   None  | Return value 0       |
 Allocator   |                 |              |         |                      |
-            +-----------------+--------------+---------+----------------------+
+            +- - - - - - - - -+- - - - - - - +- - - - -+- - - - - - - - - - - +
 ..
  * Pooling potentially speeds up allocation over the allocation done by
  some underlying source, by (sub)allocating (and reclaiming) memory more
@@ -426,44 +584,45 @@ Allocator   |                 |              |         |                      |
                                      SEMANTICS
 
                       Deallocation             Storage Facility
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Block List        | Single and all items  | Untyped, varying sizes  |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Infrequent Delete | Single and all items  | Untyped, varying sizes  |
 Block List        |                       |                         |
-                  +-----------------------+-------------------------+
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Pool              | Single and all items  | Untyped, fixed size     |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Sequential Pool   | All items only        | Untyped, varying sizes  |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 String Pool       | All items only        | Untyped, varying sizes  |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Multi Pool        | Single and all items  | Untyped, varying sizes  |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Buffered          | Single items only     | Untyped, varying sizes  |
 Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Sequential        | All items only        | Untyped, varying sizes  |
 Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 String            | All items only        | Untyped, varying sizes  |
 Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Multipool         | Single and all items  | Untyped, varying sizes  |
 Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Newdelete         | Single items only     | Untyped, varying sizes  |
 Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 Test              | Single items only     | Untyped, varying sizes  |
 Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
+                  +- - - - - - - - - - - -+- - - - - - - - - - - - -+
 ..
+
 /The Default Allocator
-/---------------------
+/- - - - - - - - - - -
  All object types in the BDE library needing dynamic memory require that an
  allocator be passed to their constructor.  They take a 'bdema_Allocator *'
  argument, which defaults to the value of 'bdema_Default::defaultAllocator()'.
@@ -472,19 +631,23 @@ Allocator         |                       |                         |
  'bdema_Default::setDefaultAllocator()' sets the value of the (global) default
  allocator, and 'bdema_Default::allocator()' returns it.
 
-@INTERACTION WITH OTHER PACKAGES: All BDE library objects needing dynamic
+/Interaction With Other Packages
+/-------------------------------
+ All BDE library objects needing dynamic
  memory require that an allocator be passed to their constructor, which
  defaults to the allocator currently installed as the default allocator.
 
-@USAGE EXAMPLES
-..
-    1. Using 'bdema_StrAllocator' for a multi-threaded 'grep'.
-    2. Using 'bdema_SequentialAllocator' for an ODBC/JDBC-like database driver.
-    3. Sketch use of 'bdema_BufferAllocator'.
-    4. Sketch use of 'bdema_MultiPoolAllocator'.
-..
-/USAGE EXAMPLE 1: 'bdema_StrAllocator' for a multi-threaded 'grep'
-/-----------------------------------------------------------------
+/Usage
+/-----
+ This section illustrates intended use of several components of this package.
+
+: 1 Using 'bdema_StrAllocator' for a multi-threaded 'grep'.
+: 2 Using 'bdema_SequentialAllocator' for an ODBC/JDBC-like database driver.
+: 3 Sketch use of 'bdema_BufferAllocator'.
+: 4 Sketch use of 'bdema_MultiPoolAllocator'.
+
+/Example 1: 'bdema_StrAllocator' for a multi-threaded 'grep'
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  Suppose we wanted to write a 'grep'-like procedure (i.e., a program that
  lets clients search for presence of some string in one or more files),
  possibly for use in a larger application.  Which memory manager would be best?
@@ -653,8 +816,8 @@ Allocator         |                       |                         |
  } // end grep
 ..
 
-/USAGE EXAMPLE 2: 'bdema_SequentialAllocator' for a database driver
-/------------------------------------------------------------------
+/Example 2: 'bdema_SequentialAllocator' for a database driver
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  ODBC/JDBC drivers are libraries providing standardized, language-appropriate
  API's for accessing SQL databases.  The standardization allows programmers
  using these drivers to access any vendor's SQL-based DBMS in the same way.
@@ -967,8 +1130,9 @@ int main(int    argc,
     return 0;
 }
 ..
-/USAGE EXAMPLE 3: Sketch use of 'bdema_BufferAllocator'
-/------------------------------------------------------
+
+/Example 3: Sketch use of 'bdema_BufferAllocator'
+/ - - - - - - - - - - - - - - - - - - - - - - - -
  Clients can take advantage of the faster and cheaper memory originating
  on the stack for use with objects (wanting allocators) that are used as
  *local* *variables* within some procedure.
@@ -1018,12 +1182,11 @@ The code above might look like
                   bdema_BufferAllocator(hugeLocalBuffer, 5000, cheapNew));
 ..
 
-/USAGE EXAMPLE 4: Sketch use of 'bdema_MultiPoolAllocator'
-/---------------------------------------------------------
+/Example 4: Sketch use of 'bdema_MultiPoolAllocator'
+/- - - - - - - - - - - - - - - - - - - - - - - - - -
 The 'bdema_MultiPoolAllocator' provides aligned memory, as does the
 'bdema_SequentialAllocator', but at slightly greater cost.  The advantage of
 a 'bdema_MultiPoolAllocator' over a 'bdema_SequentialAllocator' is the ability
 to deallocate items individually, which can be preferable in high-memory-
 consumption scenarios.  A ticker data stream (or other data streams of
 structured information) is one example.
-
