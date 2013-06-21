@@ -1,10 +1,30 @@
-bsl-internal (2.18.1.002) unstable; urgency=low
+bsl-internal (2.18.1.003) unstable; urgency=low
 
   * Bump changelog
+  * 2fa265d Merge branch 'master' into releases/2.18.x
+  * cbcf7dd [APPROVAL] OSS pending/master/fix_pkg_grp_doc_for_automation-drqs-36664046 to master
+  * b1edb17 [APPROVAL] pending/master/fix_pkg_grp_doc_for_automation-drqs-36664046 to master
+  * 0f19a4e [APPROVAL] OSS bsls_alignment-drqs-36719760-importbsl to master
+  * 9bda5ee [APPROVAL] bsls_alignment-drqs-36719760-importbsl to master
+  * 5ba0513 [APPROVAL] OSS pending/master/bsldoc-thread-doc-drqs-39756936 to master
+  * 0e4e785 [APPROVAL] pending/master/bsldoc-thread-doc-drqs-39756936 to master
+  * 53a9855 [APPROVAL] OSS pending/master/msvc-ice-hashtable-drqs40550559 to master
+  * 2c00eb1 [APPROVAL] pending/master/msvc-ice-hashtable-drqs40550559 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 21 Jun 2013 15:59:15 -0400
+
+bsl-internal (BDE_ROBO_2.18.1.002) git; urgency=low
+
+  * b41ef4d bump changelog to 2.18.1.002
   * cafc989 Merge branch 'master' into releases/2.18.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 14:13:03 -0400
+
+bsl-internal (MERGE_BASE_master_2.18.x) git; urgency=low
+
   * c16cf32 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 14:12:23 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 14:10:01 -0400
 
 bsl-internal (BDE_ROBO_2.18.1.001) git; urgency=low
 
