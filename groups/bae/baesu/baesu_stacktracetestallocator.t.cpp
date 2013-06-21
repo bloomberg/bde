@@ -612,12 +612,12 @@ typedef void (*VoidFuncPtr)();
 // fixed on a separate branch as this is being written.
 
 VoidFuncPtr voidFuncs[10];
-unsigned voidFuncsSize = 0;
+unsigned int voidFuncsSize = 0;
 
-unsigned idxVoidFuncRecurser;
-unsigned idxVoidFuncLeakTwiceA;
-unsigned idxVoidFuncLeakTwiceB;
-unsigned idxVoidFuncLeakTwiceC;
+unsigned int idxVoidFuncRecurser;
+unsigned int idxVoidFuncLeakTwiceA;
+unsigned int idxVoidFuncLeakTwiceB;
+unsigned int idxVoidFuncLeakTwiceC;
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
 static
@@ -759,13 +759,13 @@ struct Functor {
     typedef void (Functor::*FuncPtr)();
 
     // DATA
-    static FuncPtr          s_funcPtrs[10];
-    static const unsigned   s_nest1Idx    = 1;
-    static const unsigned   s_nest2Idx    = 2;
-    static const unsigned   s_nest3Idx    = 3;
-    static const unsigned   s_nest4Idx    = 4;
-    static const unsigned   s_allocOneIdx = 5;
-    static const unsigned   s_freeSomeIdx = 6;
+    static FuncPtr             s_funcPtrs[10];
+    static const unsigned int  s_nest1Idx    = 1;
+    static const unsigned int  s_nest2Idx    = 2;
+    static const unsigned int  s_nest3Idx    = 3;
+    static const unsigned int  s_nest4Idx    = 4;
+    static const unsigned int  s_allocOneIdx = 5;
+    static const unsigned int  s_freeSomeIdx = 6;
 
     static bsls::AtomicInt  s_threadRand;
     static bcemt_Barrier    s_startBarrier;
@@ -816,7 +816,7 @@ struct Functor {
     // MANIPULATORS
     void freeOne(int index)
     {
-        ASSERT((unsigned) index < d_alloced.size());
+        ASSERT((unsigned int) index < d_alloced.size());
         int *block = d_alloced[index];
         d_allocator_p->deallocate(block);
         d_alloced[index] = d_alloced.back();
@@ -1144,6 +1144,9 @@ int main(int argc, char *argv[])
                 cout << bytesLeaked << " bytes of memory were leaked!\n";
             }
         }
+
+        cout << "Note msg 'Error: memory leaked' deliberately generated"
+                                                         " in usage example\n";
 //..
 // Now, this generates the following report:
 //..
@@ -1730,7 +1733,7 @@ int main(int argc, char *argv[])
             for (int a = 0; a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
-                for (unsigned u = 1; u <= 4 * sizeof(void *); ++u) {
+                for (unsigned int u = 1; u <= 4 * sizeof(void *); ++u) {
                     for (const unsigned char *pu = fillChars; pu < end; ++pu) {
                         if (veryVerbose) {
                             cout << "Continuous:   ";
@@ -1741,7 +1744,7 @@ int main(int argc, char *argv[])
 
                         unsigned char *ptr =(unsigned char *) ta.allocate(100);
 
-                        const unsigned numBlocks = (unsigned)
+                        const unsigned int numBlocks = (unsigned int)
                                                            ta.numBlocksInUse();
 
                         char saveBuffer[4 * sizeof(void *)];
@@ -1933,7 +1936,7 @@ int main(int argc, char *argv[])
                 tba.setName("beta");
                 tba.setOstream(&oss);
 
-                unsigned tbaBlocks;
+                unsigned int tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating same block twice);
 
@@ -1949,7 +1952,7 @@ int main(int argc, char *argv[])
 
                     tba.deallocate(ptr);
 
-                    tbaBlocks = (unsigned) tba.numBlocksInUse();
+                    tbaBlocks = (unsigned int) tba.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     tba.deallocate(ptr);
@@ -1980,7 +1983,7 @@ int main(int argc, char *argv[])
             if (verbose) Q(Check freeing by wrong allocator of right type)
             {
                 void *ptr;
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating by wrong alloc);
 
@@ -1995,7 +1998,7 @@ int main(int argc, char *argv[])
 
                     ptr = ta2.allocate(100);
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
 
                     my_failureHandlerFlag = false;
 
@@ -2033,7 +2036,7 @@ int main(int argc, char *argv[])
             {
                 void *ptr;
 
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing malloced);
 
@@ -2047,7 +2050,7 @@ int main(int argc, char *argv[])
 
                     ptr = bsl::malloc(100);
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2076,7 +2079,7 @@ int main(int argc, char *argv[])
             {
                 char *ptr;
 
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing newed);
 
@@ -2090,7 +2093,7 @@ int main(int argc, char *argv[])
 
                     ptr = new char[100];
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2119,7 +2122,7 @@ int main(int argc, char *argv[])
             {
                 int *ptr;
 
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing newed);
 
@@ -2133,7 +2136,7 @@ int main(int argc, char *argv[])
 
                     ptr = new int;
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2144,7 +2147,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ASSERT((unsigned) ta.numBlocksInUse() == taBlocks);
+                ASSERT((unsigned int) ta.numBlocksInUse() == taBlocks);
 
                 ta.setFailureHandler(Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
@@ -2162,7 +2165,7 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator taBsl;
                 void *ptr;
-                unsigned numBlocks;
+                unsigned int numBlocks;
 
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing bslma TAed);
@@ -2177,7 +2180,7 @@ int main(int argc, char *argv[])
 
                     ptr = taBsl.allocate(100);
 
-                    numBlocks = (unsigned) ta.numBlocksInUse();
+                    numBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2206,7 +2209,7 @@ int main(int argc, char *argv[])
             {
                 bcema_TestAllocator taBce;
                 void *ptr;
-                unsigned numBlocks;
+                unsigned int numBlocks;
 
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing bcema TAed);
@@ -2221,7 +2224,7 @@ int main(int argc, char *argv[])
 
                     ptr = taBce.allocate(100);
 
-                    numBlocks = (unsigned) ta.numBlocksInUse();
+                    numBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2249,9 +2252,10 @@ int main(int argc, char *argv[])
             if (verbose) Q(Check freeing of misaligned block);
             {
                 char *cPtr = (char *) ta.allocate(100);
-                unsigned numBlocks;
+                unsigned int numBlocks;
 
-                for (unsigned offset = 1; offset < sizeof(void *); ++offset) {
+                for (unsigned int offset = 1; offset < sizeof(void *);
+                                                                    ++offset) {
                     ASSERT(oss.str().empty());
 
                     if (setjmp(my_setJmpBuf)) {
@@ -2265,7 +2269,7 @@ int main(int argc, char *argv[])
 
                         ASSERT(oss.str().empty());
 
-                        numBlocks = (unsigned) ta.numBlocksInUse();
+                        numBlocks = (unsigned int) ta.numBlocksInUse();
                         my_failureHandlerFlag = false;
 
                         ta.deallocate(cPtr + offset);
@@ -2437,7 +2441,7 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(numAllocs == (int) pta->numBlocksInUse());
 
-                unsigned staBlocks = (unsigned) sta.numBlocksInUse();
+                unsigned int staBlocks = (unsigned int) sta.numBlocksInUse();
 
                 ASSERT(ss.str().empty());
                 if (setjmp(my_setJmpBuf)) {
@@ -2455,7 +2459,7 @@ int main(int argc, char *argv[])
                     // was called.
 
                     ASSERT(staBlocks == sta.numBlocksInUse());
-                    ASSERT(pta->numBlocksInUse() == (unsigned) numAllocs);
+                    ASSERT(pta->numBlocksInUse() == (unsigned int) numAllocs);
                 }
                 else {
                     pta->setFailureHandler(&my_failureHandlerLongJmp);
@@ -2836,14 +2840,14 @@ int main(int argc, char *argv[])
 
             int randNum;
             bdeu_Random::generate15(&randNum, 987654321);
-            unsigned numBlocks = 0;
+            unsigned int numBlocks = 0;
 
             // do a lot of allocating and freeing, not just freeing the block
             // most recently allocated, but rather choosing the block to free
             // in a somewhat random fashion.
 
             for (int i = 0; i < 100; ++i) {
-                unsigned allocIdx = bdeu_Random::generate15(&randNum) %
+                unsigned int allocIdx = bdeu_Random::generate15(&randNum) %
                                                           BLOCK_ARRAY_LENGTH;
                 while (blocks[allocIdx]) {
                     allocIdx = (allocIdx + ALLOC_INC) % BLOCK_ARRAY_LENGTH;
@@ -2856,7 +2860,7 @@ int main(int argc, char *argv[])
                                            ta.numBlocksInUse() == numBlocks);
 
                 if (numBlocks >= 4) {
-                    unsigned freeIdx = bdeu_Random::generate15(&randNum) %
+                    unsigned int freeIdx = bdeu_Random::generate15(&randNum) %
                                                           BLOCK_ARRAY_LENGTH;
                     while (! blocks[freeIdx]) {
                         freeIdx = (freeIdx+ FREE_INC) % BLOCK_ARRAY_LENGTH;

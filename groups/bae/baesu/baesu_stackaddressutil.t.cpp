@@ -156,7 +156,6 @@ struct AddressEntry {
         return d_funcAddress < rhs.d_funcAddress;
     }
 };
-
 // Then, we define 'entries', a vector of address entries.  This will be
 // populated such that a given entry will contain function address '&funcN' and
 // index 'N'.  The elements will be sorted according to function address.
@@ -171,7 +170,7 @@ static int findIndex(const void *retAddress)
     // undefined unless 'retAddress' is the address of an instruction in
     // use by a function referred to by an address entry in 'entries'.
 {
-    unsigned u = 0;
+    unsigned int u = 0;
     while (u < entries.size()-1 && retAddress >= entries[u+1].d_funcAddress) {
         ++u;
     }
@@ -190,7 +189,7 @@ static int findIndex(const void *retAddress)
 // Then, we define a volatile global variable that we will use in calculation
 // to discourage compiler optimizers from inlining:
 
-volatile unsigned volatileGlobal = 1;
+volatile unsigned int volatileGlobal = 1;
 
 // Next, we define a set of functions that will be called in a nested fashion
 // -- 'func5' calls 'func4' who calls 'fun3' and so on.  In each function, we
@@ -201,8 +200,8 @@ volatile unsigned volatileGlobal = 1;
 // to 'true', however, the optimizer cannot figure that out, and that will
 // prevent it from inlining here.
 
-static unsigned func1();
-static unsigned func2()
+static unsigned int func1();
+static unsigned int func2()
 {
     if (volatileGlobal > 10) {
         return (volatileGlobal -= 100) * 2 * func2();                 // RETURN
@@ -211,7 +210,7 @@ static unsigned func2()
         return volatileGlobal * 2 * func1();                          // RETURN
     }
 }
-static unsigned func3()
+static unsigned int func3()
 {
     if (volatileGlobal > 10) {
         return (volatileGlobal -= 100) * 2 * func3();                 // RETURN
@@ -220,7 +219,7 @@ static unsigned func3()
         return volatileGlobal * 3 * func2();                          // RETURN
     }
 }
-static unsigned func4()
+static unsigned int func4()
 {
     if (volatileGlobal > 10) {
         return (volatileGlobal -= 100) * 2 * func4();                 // RETURN
@@ -229,7 +228,7 @@ static unsigned func4()
         return volatileGlobal * 4 * func3();                          // RETURN
     }
 }
-static unsigned func5()
+static unsigned int func5()
 {
     if (volatileGlobal > 10) {
         return (volatileGlobal -= 100) * 2 * func5();                 // RETURN
@@ -238,7 +237,7 @@ static unsigned func5()
         return volatileGlobal * 5 * func4();                          // RETURN
     }
 }
-static unsigned func6()
+static unsigned int func6()
 {
     if (volatileGlobal > 10) {
         return (volatileGlobal -= 100) * 2 * func6();                 // RETURN
@@ -267,7 +266,7 @@ static unsigned func6()
 // return addresses from the current thread's function call stack and uses the
 // previously defined 'findIndex' function to verify those address are correct.
 
-unsigned func1()
+unsigned int func1()
     // Call 'getAddresses' and verify that the returned set of addresses
     // matches our expectations.
 {
@@ -317,7 +316,7 @@ unsigned func1()
 
     if (testStatus || veryVerbose) {
         Q(Entries:);
-        for (unsigned u = 0; u < entries.size(); ++u) {
+        for (unsigned int u = 0; u < entries.size(); ++u) {
             P_(u); P_((void *) entries[u].d_funcAddress);
             P(entries[u].d_index);
         }
@@ -601,7 +600,7 @@ int main(int argc, char *argv[])
         // 'thunk' functions which just call the actual routine.  I wish they
         // wouldn't do that.
 
-        unsigned result = CASE_FOUR::func6();
+        unsigned int result = CASE_FOUR::func6();
         LOOP2_ASSERT(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
 // #endif
       }  break;

@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
         st[1].setAddress(addFixedOffset(testFuncPtr));
 #endif
 
-        for (unsigned i = 0; i < st.length(); ++i) {
+        for (unsigned int i = 0; i < st.length(); ++i) {
             const baesu_StackTraceFrame& frame = st[i];
 
             ASSERT(!frame.isMangledSymbolNameKnown());
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
             cout << "0): " << st[0] << endl;
         }
 
-        for (unsigned i = 0; i < st.length(); ++i) {
+        for (unsigned int i = 0; i < st.length(); ++i) {
             const baesu_StackTraceFrame& frame = st[i];
             bsl::string name;
 
