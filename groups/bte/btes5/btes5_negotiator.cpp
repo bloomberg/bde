@@ -123,9 +123,10 @@ struct Negotiation {
         // 'd_provider_p->cancelAcquiringCredentials()'.
 
     bteso_TimerEventManager                   *d_eventManager_p;
-        // asynchronous event registration manager, held
+        // asynchronous event registration manager, not owned
 
-    bslma::Allocator                          *d_allocator_p; // memory, held
+    bslma::Allocator                          *d_allocator_p;
+        // memory allocator, not owned
 
     // CREATORS
     Negotiation(bteso_StreamSocket<bteso_IPv4Address>     *socket,
