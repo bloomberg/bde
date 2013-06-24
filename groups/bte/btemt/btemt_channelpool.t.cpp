@@ -777,7 +777,8 @@ void *connectFunction(void *args)
 
     ASSERT(0 == clientSockets[INDEX]->connect(ADDRESS));
 
-    char buffer[NUM_BYTES];
+    const int BUF_SIZE = 1024 * 100;
+    char buffer[BUF_SIZE];
 
     int numRemaining = NUM_BYTES;
     do {
@@ -815,7 +816,8 @@ void *listenFunction(void *args)
     ASSERT(!serverSockets[INDEX]->accept(&client));
     ASSERT(0 == client->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE));
 
-    char buffer[NUM_BYTES];
+    const int BUF_SIZE = 1024 * 100;
+    char buffer[BUF_SIZE];
 
     int numRemaining = NUM_BYTES;
     do {
