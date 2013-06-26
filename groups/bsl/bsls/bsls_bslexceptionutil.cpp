@@ -1,33 +1,70 @@
-// bslma_allocator.cpp                                                -*-C++-*-
-#include <bslma_allocator.h>
+// bsls_bslexceptionutil.cpp                                          -*-C++-*-
+#include <bsls_bslexceptionutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_bslexceptionutil.h>
+#include <bsls_exceptionutil.h>
+
+#include <exception>
+#include <new>
+#include <typeinfo>
+
+#ifdef BSLS_BSLEXCEPTIONUTIL_NORETURN
+#error BSLS_BSLEXCEPTIONUTIL_NORETURN \
+                                    must be a macro scoped locally to this file
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+#   define BSLS_BSLEXCEPTIONUTIL_NORETURN [[noreturn]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+#   define BSLS_BSLEXCEPTIONUTIL_NORETURN __declspec(noreturn)
+#else
+#   define BSLS_BSLEXCEPTIONUTIL_NORETURN
+#endif
 
 namespace BloombergLP {
 
-namespace bslma {
+namespace bsls {
 
-                        // ---------------
-                        // class Allocator
-                        // ---------------
+                      //========================
+                      // class BslExceptiontUtil
+                      //========================
 
-#if !defined(BDE_OMIT_DEPRECATED)
 // CLASS METHODS
-void Allocator::throwBadAlloc()
+BSLS_BSLEXCEPTIONUTIL_NORETURN
+void BslExceptionUtil::throwBadAlloc()
 {
-    bsls::BslExceptionUtil::throwBadAlloc();
+    BSLS_THROW(std::bad_alloc());
 }
-#endif
 
-// CREATORS
-Allocator::~Allocator()
+BSLS_BSLEXCEPTIONUTIL_NORETURN
+void BslExceptionUtil::throwBadCast()
 {
+    BSLS_THROW(std::bad_cast());
+}
+
+BSLS_BSLEXCEPTIONUTIL_NORETURN
+void BslExceptionUtil::throwBadException()
+{
+    BSLS_THROW(std::bad_exception());
+}
+
+BSLS_BSLEXCEPTIONUTIL_NORETURN
+void BslExceptionUtil::throwBadTypeid()
+{
+    BSLS_THROW(std::bad_typeid());
+}
+
+BSLS_BSLEXCEPTIONUTIL_NORETURN
+void BslExceptionUtil::throwException()
+{
+    BSLS_THROW(std::exception());
 }
 
 }  // close package namespace
+
+#undef BSLS_BSLEXCEPTIONUTIL_NORETURN
 
 }  // close enterprise namespace
 

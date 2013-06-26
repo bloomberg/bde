@@ -4,7 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_objectbuffer.h>
 
 #include <new>
@@ -100,6 +102,22 @@ MallocFreeAllocator& MallocFreeAllocator::singleton()
                                           &g_mallocFreeAllocatorSingleton_p)));
 }
 
+// MANIPULATORS
+void *MallocFreeAllocator::allocate(size_type size)
+{
+    BSLS_ASSERT_SAFE(0 <= size);
+
+    if (!size) {
+        return 0;
+    }
+
+    void *result = std::malloc(size);
+    if (!result) {
+        bsls::BslExceptionUtil::throwBadAlloc();
+    }
+
+    return result; 
+}
 }  // close package namespace
 
 }  // close enterprise namespace

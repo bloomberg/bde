@@ -118,10 +118,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // 'std::malloc', 'std::free'
 #define INCLUDED_CSTDLIB
@@ -210,12 +206,6 @@ MallocFreeAllocator::~MallocFreeAllocator()
 }
 
 // MANIPULATORS
-inline
-void *MallocFreeAllocator::allocate(size_type size)
-{
-    return size == 0 ? 0 : std::malloc(size);
-}
-
 inline
 void MallocFreeAllocator::deallocate(void *address)
 {

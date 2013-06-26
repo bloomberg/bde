@@ -410,12 +410,14 @@ class Allocator {
         // Alias for a signed integral type capable of representing the number
         // of bytes in this platform's virtual address space.
 
+#if !defined(BDE_OMIT_DEPRECATED)
     // CLASS METHODS
     static void throwBadAlloc();  // TBD does this belong here?
         // Throw 'std::bad_alloc' if exceptions are enabled or abort the
         // program otherwise.  Derived classes and helper functions will
         // typically call this function when they are unable to satisfy an
         // allocation request.  This function never returns.
+#endif
 
     // CREATORS
     virtual ~Allocator();

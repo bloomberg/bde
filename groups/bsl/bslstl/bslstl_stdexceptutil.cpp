@@ -15,11 +15,9 @@ BSLS_IDENT("$Id$ $CSID$")
                                     must be a macro scoped locally to this file
 #endif
 
-// Note that a portable syntax for 'noreturn' will be available once we have
-// access to conforming C++0x compilers.
-//# define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+#   define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN __declspec(noreturn)
 #else
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN

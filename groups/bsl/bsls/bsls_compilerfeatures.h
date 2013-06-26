@@ -41,6 +41,10 @@ BSLS_IDENT("$Id: $")
 //:    This macro is defined if alias templates are supported by the current
 //:    compiler settings for this platform.
 //:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
+//:    This macro is defined if the '[[noreturn]]' attribute is supported by
+//:    the current compiler settings for this platform.
+//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
 //:    This macro is defined if 'decltype' is supported by the current compiler
 //:    settings for this platform.
@@ -105,6 +109,14 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700\
  && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+
+// GCC 4.8 has support with '-std=c++11'.
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40800\
+ && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
