@@ -14,6 +14,11 @@ bslma_exceptionguard
 bslma_infrequentdeleteblocklist
 bslma_mallocfreeallocator
 bslma_managedallocator
+bslma_managedptr
+bslma_managedptr_factorydeleter
+bslma_managedptr_members
+bslma_managedptr_pairproxy
+bslma_managedptrdeleter
 bslma_newdeleteallocator
 bslma_rawdeleterguard
 bslma_rawdeleterproctor
