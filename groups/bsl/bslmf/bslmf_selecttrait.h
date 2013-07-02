@@ -287,9 +287,9 @@ BSLS_IDENT("$Id: $")
 //      TypeWithAllocator  twa(1, a1);
 //      TypeWithAllocator *twaptr = (TypeWithAllocator*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(twaptr, twa, a2);
-//      ASSERT(1 == Imp::s_usesBslmaAllocatorCounter);
-//      ASSERT(1 == twaptr->value());
-//      ASSERT(a2 == twaptr->allocator());
+//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
+//      assert(1 == twaptr->value());
+//      assert(a2 == twaptr->allocator());
 //      twaptr->~TypeWithAllocator();
 //..
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
@@ -300,8 +300,8 @@ BSLS_IDENT("$Id: $")
 //      BitwiseCopyableType  bct(2);
 //      BitwiseCopyableType *bctptr = (BitwiseCopyableType*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(bctptr, bct, a2);
-//      ASSERT(1 == Imp::s_isBitwiseCopyableCounter);
-//      ASSERT(2 == bctptr->value());
+//      assert(1 == Imp::s_isBitwiseCopyableCounter);
+//      assert(2 == bctptr->value());
 //      bctptr->~BitwiseCopyableType();
 //..
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
@@ -314,12 +314,12 @@ BSLS_IDENT("$Id: $")
 //      PairType  pt(3, 4);
 //      PairType *ptptr = (PairType*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(ptptr, pt, a2);
-//      ASSERT(1 == Imp::s_isPairCounter);
-//      ASSERT(1 == Imp::s_usesBslmaAllocatorCounter);
-//      ASSERT(1 == Imp::s_usesBslmaAllocatorCounter);
-//      ASSERT(3 == ptptr->first.value());
-//      ASSERT(a2 == ptptr->first.allocator());
-//      ASSERT(4 == ptptr->second.value());
+//      assert(1 == Imp::s_isPairCounter);
+//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
+//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
+//      assert(3 == ptptr->first.value());
+//      assert(a2 == ptptr->first.allocator());
+//      assert(4 == ptptr->second.value());
 //      ptptr->~PairType();
 //..
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
@@ -334,10 +334,10 @@ BSLS_IDENT("$Id: $")
 //      BitwiseCopyablePairType *bcptbcptr = (BitwiseCopyablePairType*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(bcptbcptr, bcpt, a2);
 //      // Prefer IsBitwiseCopyable over IsPair trait
-//      ASSERT(1 == Imp::s_isBitwiseCopyableCounter);
-//      ASSERT(0 == Imp::s_isPairCounter);
-//      ASSERT(5 == bcptbcptr->first.value());
-//      ASSERT(6 == bcptbcptr->second.value());
+//      assert(1 == Imp::s_isBitwiseCopyableCounter);
+//      assert(0 == Imp::s_isPairCounter);
+//      assert(5 == bcptbcptr->first.value());
+//      assert(6 == bcptbcptr->second.value());
 //      bcptbcptr->~BitwiseCopyablePairType();
 //..
 // When we call 'ScalarPrimitives::copyConstruct' for an object of
@@ -348,8 +348,8 @@ BSLS_IDENT("$Id: $")
 //      TypeWithNoTraits  twnt(7);
 //      TypeWithNoTraits *twntptr = (TypeWithNoTraits*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(twntptr, twnt, a2);
-//      ASSERT(1 == Imp::s_noTraitsCounter);
-//      ASSERT(7 == twntptr->value());
+//      assert(1 == Imp::s_noTraitsCounter);
+//      assert(7 == twntptr->value());
 //      twntptr->~TypeWithNoTraits();
 //
 //      return 0;

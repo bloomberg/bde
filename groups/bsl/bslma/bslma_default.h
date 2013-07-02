@@ -607,14 +607,14 @@ BSLS_IDENT("$Id: $")
 //  static my_CountingAllocator defaultCountingAllocator;
 //
 //  int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
-//  ASSERT(0 == status);
+//  assert(0 == status);
 //  bslma::Default::lockDefaultAllocator();
-//  ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
+//  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //
 //  static my_CountingAllocator globalCountingAllocator;
 //
 //  bslma::Default::setGlobalAllocator(&globalCountingAllocator);
-//  ASSERT(bslma::Default::globalAllocator() == &globalCountingAllocator);
+//  assert(bslma::Default::globalAllocator() == &globalCountingAllocator);
 //..
 // Finally, we initialize the singleton object.  We explicitly specify the
 // desired allocator in the call to 'initSingleton' to make our intentions as
@@ -623,17 +623,17 @@ BSLS_IDENT("$Id: $")
 // had been specified.  As in previous examples, the states of the default and
 // global allocators are asserted before and after initializing the singleton:
 //..
-//  ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
-//  ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
-//  ASSERT(0 == globalCountingAllocator.numBlocksInUse());
-//  ASSERT(0 == globalCountingAllocator.numBlocksTotal());
+//  assert(0 == defaultCountingAllocator.numBlocksInUse());
+//  assert(0 == defaultCountingAllocator.numBlocksTotal());
+//  assert(0 == globalCountingAllocator.numBlocksInUse());
+//  assert(0 == globalCountingAllocator.numBlocksTotal());
 //
 //  my_Singleton::initSingleton("S", bslma::Default::globalAllocator());
 //
-//  ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
-//  ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
-//  ASSERT(1 == globalCountingAllocator.numBlocksInUse());
-//  ASSERT(1 == globalCountingAllocator.numBlocksTotal());
+//  assert(0 == defaultCountingAllocator.numBlocksInUse());
+//  assert(0 == defaultCountingAllocator.numBlocksTotal());
+//  assert(1 == globalCountingAllocator.numBlocksInUse());
+//  assert(1 == globalCountingAllocator.numBlocksTotal());
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
