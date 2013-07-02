@@ -23,6 +23,9 @@ bslma_newdeleteallocator
 bslma_rawdeleterguard
 bslma_rawdeleterproctor
 bslma_sequentialallocator
+bslma_sharedptrinplacerep
+bslma_sharedptroutofplacerep
+bslma_sharedptrrep
 bslma_sequentialpool
 bslma_testallocator
 bslma_testallocatorexception
