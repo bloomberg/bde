@@ -52,12 +52,51 @@
  'bcefi_Vfunc*' to declare their destructors 'private' and limit object
  instantiation to the heap.
 
-/USAGE
+/Hierarchical Synopsis
+/---------------------
+ The 'bcefi' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bcefi_vfunc0
+     bcefi_vfunc1
+     bcefi_vfunc2
+     bcefi_vfunc3
+     bcefi_vfunc4
+     bcefi_vfunc5
+     bcefi_vfunc6
+..
+
+/Component Synopsis
+/------------------
+: 'bcefi_vfunc0':
+:      Provide concrete representations for 0-arg void function objects.
+:
+: 'bcefi_vfunc1':
+:      Provide concrete representations for 1-arg void function objects.
+:
+: 'bcefi_vfunc2':
+:      Provide concrete representations for 2-arg void function objects.
+:
+: 'bcefi_vfunc3':
+:      Provide concrete representations for 3-arg void function objects.
+:
+: 'bcefi_vfunc4':
+:      Provide concrete representations for 4-arg void function objects.
+:
+: 'bcefi_vfunc5':
+:      Provide concrete representations for 5-arg void function objects.
+:
+: 'bcefi_vfunc6':
+:      Provide concrete representations for 6-arg void function objects.
+
+/Usage
 /-----
  Most clients will not use 'bcefr' or 'bcefi' classes directly; rather, they
  will create 'bcef' functors, and populate them with utility functions from the
- 'bcefu' package.  See the package documentation for package 'bcef' for
+ 'bcefu' package.  See the package documentation for package {'bcef'} for
  examples that illustrate this usage.
 
  In order to understand in detail how the 'bcefi' components and classes work,
- refer to the usage example in Component 'bcefi_vfunc2'.
+ refer to {'bcefi_vfunc2'|USAGE}.

@@ -6,7 +6,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_cstdio.h>      // printf
 #include <bsl_cstdlib.h>     // atoi
 #include <bsl_iostream.h>
 #include <bsl_utility.h>
@@ -124,15 +123,15 @@ int main(int argc, char *argv[])
         //     pair<T1, T2> make_pair(const T1& a, const T2& b);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::printf("\nTESTING make_pair"
-                                 "\n=================\n");
+        if (verbose) bsl::cout << "\nTESTING make_pair"
+                                  "\n=================" << bsl::endl;
 
         bslma::TestAllocator ta;
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_NoTraits, my_NoTraits>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_NoTraits, my_NoTraits>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -143,9 +142,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_MoveAbandonBdema, "
-                        "my_MoveAbandonBdema>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_MoveAbandonBdema, "
+                         "my_MoveAbandonBdema>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -156,8 +155,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_CopyTrivial, my_CopyTrivial>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_CopyTrivial, my_CopyTrivial>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -168,8 +167,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_CopyTrivial, my_MoveAbandonBdema>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_CopyTrivial, my_MoveAbandonBdema>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -180,8 +179,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_MoveAbandonBdema, my_CopyTrivial>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_MoveAbandonBdema, my_CopyTrivial>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -192,8 +191,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_MoveAbandonBdema, my_NoTraits>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_MoveAbandonBdema, my_NoTraits>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -204,8 +203,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_CopyTrivial, my_NoTraits>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_CopyTrivial, my_NoTraits>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -216,8 +215,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<my_MoveAbandonBdema, int>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<my_MoveAbandonBdema, int>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -228,8 +227,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<int, my_CopyTrivial>\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<int, my_CopyTrivial>" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);
@@ -240,8 +239,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
-            bsl::printf("Testing make_pair returning "
-                        "bsl::pair<pair<int, int>, pair<int, int> >\n");
+            bsl::cout << "Testing make_pair returning "
+                         "bsl::pair<pair<int, int>, pair<int, int> >" << bsl::endl;
         }
         {
             bslma::DefaultAllocatorGuard ag(&ta);

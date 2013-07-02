@@ -10,3 +10,54 @@
  library, predominantly hash functions and other arithmetic computations.  It
  is intended for use only by the BDE library.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdeimp' package currently has 10 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdeimp_charhash
+     bdeimp_voidptrhash
+
+  1. bdeimp_bitwisecopy
+     bdeimp_dateutil
+     bdeimp_duffsdevice
+     bdeimp_fuzzy
+     bdeimp_int64hash
+     bdeimp_inthash
+     bdeimp_prolepticdateutil
+     bdeimp_strhash
+..
+
+/Component Synopsis
+/------------------
+: 'bdeimp_bitwisecopy':
+:      Provide high-performance bitwise copy of objects.
+:
+: 'bdeimp_charhash':
+:      Provide support implementation for 'char' hashing.
+:
+: 'bdeimp_dateutil':
+:      Provide low-level support functions for date-value manipulation.
+:
+: 'bdeimp_duffsdevice':
+:      Provide Duff's Device implementation of common array operations.
+:
+: 'bdeimp_fuzzy':
+:      Provide "fuzzy" equality/relational operations on 'double' values.
+:
+: 'bdeimp_int64hash':
+:      Provide support implementation for 64-bit integer hashing.
+:
+: 'bdeimp_inthash':
+:      Provide support implementation for 'int' hashing.
+:
+: 'bdeimp_prolepticdateutil':
+:      Provide low-level functions for proleptic date-value manipulation.
+:
+: 'bdeimp_strhash':
+:      Provide implementation support for 'char *' hashing.
+:
+: 'bdeimp_voidptrhash':
+:      Provide support implementation for 'void *' hashing.

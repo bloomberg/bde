@@ -113,7 +113,9 @@ using namespace bdef_PlaceHolders;
 // [10]  int btemt_ChannelPool::deregisterClock(...);
 // [11]  int btemt_ChannelPool::enableRead(int channelId);
 // [11]  int btemt_ChannelPool::disableRead(int channelId);
-// [25]  int btemt_ChannelPool::setWriteCacheHiWatermark(int,int)
+// [25]  int btemt_ChannelPool::setWriteCacheHiWatermark(int, int);
+// [25]  int btemt_ChannelPool::setWriteCacheLowWatermark(int, int);
+// [25]  int btemt_ChannelPool::setWriteCacheWatermarks(int, int, int);
 // [  ]  void *btemt_ChannelPool::channelContext(int channelId);
 // [  ]  void btemt_ChannelPool::setChannelContext(int channelId, ...);
 // [  ]  int btemt_ChannelPool::outboundBufferFactory();
@@ -262,7 +264,7 @@ typedef bsls::Types::Uint64 ThreadId;
 
 const ThreadId NULL_THREAD_ID = (ThreadId) (long long) -1;
 
-static inline void assertCb() {
+static void assertCb() {
     ASSERT("This function should NOT be called" && 0);
 }
 
@@ -425,7 +427,7 @@ class ChannelPoolStateCbTester {
   private:
     // DATA
     bdema_ManagedPtr<btemt_ChannelPool>
-                        d_channelPool_p;  // wrapper pool
+                        d_channelPool_p;  // wrapped pool
 
     int                 d_lastChannelId;  // id of the most recently open
                                           // channel
@@ -438,13 +440,10 @@ class ChannelPoolStateCbTester {
 
     bcemt_Condition     d_condition;      // wait for a state callback
 
-    void channelStateCb(int    channelId,
-                        int    sourceId,
-                        int    state,
-                        void  *arg)
+    void channelStateCb(int channelId, int sourceId, int state, void *arg)
         // Append the specified 'state' to the queue of channel states, and if
-        // 'waitForState' is currently blocked waiting for a state, wake of
-        // the waiting thread to return the update state information.
+        // 'waitForState' is currently blocked waiting for a state, wake up
+        // the waiting thread to return the updated state information.
     {
         bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
         d_channelStates.push_back(
@@ -452,7 +451,7 @@ class ChannelPoolStateCbTester {
                                       sourceId,
                                       state,
                                       bcemt_ThreadUtil::selfIdAsInt()));
-        switch(state){
+        switch (state) {
           case btemt_ChannelPool::BTEMT_CHANNEL_DOWN: {
               if (veryVerbose) {
                   MTCOUT << "Connection terminated:"
@@ -464,7 +463,6 @@ class ChannelPoolStateCbTester {
                                         btemt_ChannelPool::BTEMT_IMMEDIATE);
 
           } break;
-
           case btemt_ChannelPool::BTEMT_CHANNEL_UP: {
               if (veryVerbose) {
                   MTCOUT << "Connection established:"
@@ -495,7 +493,6 @@ class ChannelPoolStateCbTester {
     }
 
   public:
-
     // CREATORS
     ChannelPoolStateCbTester(
                      const btemt_ChannelPoolConfiguration&  config,
@@ -599,7 +596,6 @@ class ChannelPoolStateCbTester {
         // Return the identifier for the most recent channel to receive the
         // 'CHANNEL_UP' state.
     { return d_lastChannelId; }
-
 };
 
 void populateMessage(bcema_Blob       *msg,
@@ -691,6 +687,144 @@ void blobBasedReadCb(int             *needed,
     LOOP2_ASSERT(d_peerAddress, peer, d_peerAddress == peer);
 
     msg->removeAll();
+}
+
+}
+
+//-----------------------------------------------------------------------------
+// CASE 43
+//-----------------------------------------------------------------------------
+
+namespace CASE43 {
+
+bcemt_Mutex        mapMutex;
+bsl::map<int, int> sourceIdToChannelIdMap;
+typedef bsl::map<int, int>::iterator MapIter;
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              sourceId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << sourceId
+                  << " State: " << state << bsl::endl;
+    }
+
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        {
+            bcemt_LockGuard<bcemt_Mutex> guard(&mapMutex);
+            sourceIdToChannelIdMap[sourceId] = channelId;
+        }
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+
+    msg->removeAll();
+}
+
+const int NT = 5;
+
+bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *> clientSockets(NT);
+bteso_InetStreamSocketFactory<bteso_IPv4Address>     factory;
+
+struct ConnectData {
+    int               d_index;
+    int               d_numBytes;
+    bteso_IPv4Address d_serverAddress;
+};
+
+void *connectFunction(void *args)
+{
+    ConnectData             data      = *(const ConnectData *) args;
+    const int               INDEX     = data.d_index;
+    const int               NUM_BYTES = data.d_numBytes;
+    const bteso_IPv4Address ADDRESS   = data.d_serverAddress;
+
+    clientSockets[INDEX] = factory.allocate();
+
+    ASSERT(0 == clientSockets[INDEX]->connect(ADDRESS));
+
+    char buffer[NUM_BYTES];
+
+    int numRemaining = NUM_BYTES;
+    do {
+        int rc = clientSockets[INDEX]->read(buffer, numRemaining);
+        if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            numRemaining -= rc;
+        }
+
+        rc = clientSockets[INDEX]->write(buffer, numRemaining);
+
+        bcemt_ThreadUtil::microSleep(1000 , 0);
+    } while (numRemaining > 0);
+    return 0;
+}
+
+bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *> serverSockets(NT);
+
+struct ListenData {
+    int d_index;
+    int d_numBytes;
+};
+
+void *listenFunction(void *args)
+{
+    ListenData data      = *(const ListenData *) args;
+    const int  INDEX     = data.d_index;
+    const int  NUM_BYTES = data.d_numBytes;
+
+    serverSockets[INDEX] = factory.allocate();
+
+    ASSERT(0 == serverSockets[INDEX]->bind(bteso_IPv4Address()));
+    ASSERT(0 == serverSockets[INDEX]->listen(1));
+
+    bteso_StreamSocket<bteso_IPv4Address> *client;
+    ASSERT(!serverSockets[INDEX]->accept(&client));
+    ASSERT(0 == client->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE));
+
+    char buffer[NUM_BYTES];
+
+    int numRemaining = NUM_BYTES;
+    do {
+        int rc = client->read(buffer, numRemaining);
+        if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            numRemaining -= rc;
+        }
+
+        rc = client->write(buffer, numRemaining);
+
+        bcemt_ThreadUtil::microSleep(1000 , 0);
+    } while (numRemaining > 0);
+    return 0;
 }
 
 }
@@ -2927,10 +3061,10 @@ void testIovecArray()
     }
 }
 
-} // close namespace TEST_CASE_25_NAMESPACE
+} // close namespace TEST_CASE_MESSAGEHELPER_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 25 'setWriteCacheHighWatermark()'
+// CASE 25 'setWriteCache[Hi|Low]Watermark' & 'setWriteCacheWatermarks'
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_25_NAMESPACE {
 
@@ -2969,7 +3103,7 @@ class TestCase25ConcurrencyTest {
 
      void executeTest();
         // Perform the concurrency test: Write data to 'd_pool_p' and modify
-        // the write-cache of 'd_pool_p', increment 'd_numBytesWritten' with
+        // the write cache of 'd_pool_p', increment 'd_numBytesWritten' with
         // the number of bytes written (as they are written), and increment
         // 'd_done' to indicate the operation has completed.
 
@@ -3016,8 +3150,9 @@ void TestCase25ConcurrencyTest::executeTest()
 
     d_barrier.wait();
 
-    d_pool_p->setWriteCacheHiWatermark(d_channelId, HI_WATERMARK);
-    d_pool_p->setWriteCacheLowWatermark(d_channelId, LOW_WATERMARK);
+    rc = d_pool_p->setWriteCacheWatermarks(d_channelId,
+                                           LOW_WATERMARK, HI_WATERMARK);
+    ASSERT(!rc);
 
     while (totalBytesWritten < NUM_BYTES) {
         int currentBytesWritten = 0;
@@ -3028,8 +3163,11 @@ void TestCase25ConcurrencyTest::executeTest()
             d_numBytesWritten   += oneByteMsg.length();
         }
 
-        d_pool_p->setWriteCacheHiWatermark(d_channelId, 2 * HI_WATERMARK);
-        d_pool_p->setWriteCacheLowWatermark(d_channelId, 2 * LOW_WATERMARK);
+        rc  = d_pool_p->setWriteCacheHiWatermark(d_channelId,
+                                                 2 * HI_WATERMARK);
+        rc |= d_pool_p->setWriteCacheLowWatermark(d_channelId,
+                                                  2 * LOW_WATERMARK);
+        ASSERT(!rc);
 
         currentBytesWritten = 0;
         while (currentBytesWritten < (HI_WATERMARK / 4) &&
@@ -3039,8 +3177,9 @@ void TestCase25ConcurrencyTest::executeTest()
             d_numBytesWritten   += oneByteMsg.length();
         }
 
-        d_pool_p->setWriteCacheHiWatermark(d_channelId, HI_WATERMARK);
-        d_pool_p->setWriteCacheLowWatermark(d_channelId, LOW_WATERMARK);
+        rc = d_pool_p->setWriteCacheWatermarks(d_channelId,
+                                               LOW_WATERMARK, HI_WATERMARK);
+        ASSERT(!rc);
     }
     ++d_done;
 }
@@ -3088,6 +3227,7 @@ void TestCase25ConcurrencyTest::run()
     }
 }
 
+#if 0
 void testCase25ConcurrencyTest(btemt_ChannelPool *pool,
                                int                channelId,
                                bcemt_Barrier     *barrier,
@@ -3127,8 +3267,9 @@ void testCase25ConcurrencyTest(btemt_ChannelPool *pool,
     }
     (*done)++;
 }
+#endif
 
-} // closing namespace TEST_CASE_12_NAMESPACE
+} // closing namespace TEST_CASE_25_NAMESPACE
 
 //-----------------------------------------------------------------------------
 // CASE -2 supporting classes and methods
@@ -3136,13 +3277,13 @@ void testCase25ConcurrencyTest(btemt_ChannelPool *pool,
 namespace TEST_CASE_N2_NAMESPACE {
 static
 void caseN2ChannelStateCallback(int                 channelId,
-                               int                 serverId,
-                               int                 state,
-                               void               *arg,
-                               btemt_ChannelPool **poolAddr,
-                               int               **eventAddr,
-                               bcemt_Barrier      *barrier,
-                               int                *channelId_p)
+                                int                 serverId,
+                                int                 state,
+                                void               *arg,
+                                btemt_ChannelPool **poolAddr,
+                                int               **eventAddr,
+                                bcemt_Barrier      *barrier,
+                                int                *channelId_p)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -3278,7 +3419,7 @@ void case23DataCallback(int                *numConsumed,
 
         int retCode = info->d_channelPool_p->write(msg.channelId(), msg);
         MTLOOP_ASSERT(retCode, 0 == retCode ||
-                              -2 == retCode ||  // reached high-watermark
+                              -2 == retCode ||  // reached high-water mark
                               -3 == retCode);   // channel shut down
         if (0 == retCode) {
             if (veryVerbose) {
@@ -3502,7 +3643,7 @@ void * case22Thread(void * arg)
         retCode = mXp->write(channelId, msg);
         MTLOOP_ASSERT(retCode,
                        0 == retCode ||  // o.k.
-                      -2 == retCode ||  // reached high-watermark
+                      -2 == retCode ||  // reached high-water mark
                       -3 == retCode ||  // channel down
                       -5 == retCode);   // channel unknown
 
@@ -3779,7 +3920,7 @@ void case22DataCallback(int                *numConsumed,
 
         int retCode = mXp->write(msg.channelId(), msg);
         MTLOOP_ASSERT(retCode, 0 == retCode ||
-                              -2 == retCode ||  // reached high-watermark
+                              -2 == retCode ||  // reached high-water mark
                               -3 == retCode);   // channel shut down
         if (0 == retCode) {
             if (veryVerbose) {
@@ -5729,7 +5870,7 @@ void case10ChannelStateCallback(int                  channelId,
                                 int                  veryVerbose)
 {
     ASSERT(channelId1 && threadId1);
-    ASSERT(channelId2 && threadId1);
+    ASSERT(channelId2 && threadId2);
 
     switch (state) {
       case btemt_ChannelPool::BTEMT_CHANNEL_DOWN: {
@@ -7088,10 +7229,10 @@ static void case4ErrorPoolStateCb(int             poolState,
 /// monitorPool, from usage example 2, is reused.
 //-----------------------------------------------------------------------------
 
-static inline void  monitorPool(bcemt_Mutex              *coutLock,
-                                const btemt_ChannelPool&  pool,
-                                int                       numTimes,
-                                bool                      verbose = true)
+static void monitorPool(bcemt_Mutex              *coutLock,
+                        const btemt_ChannelPool&  pool,
+                        int                       numTimes,
+                        bool                      verbose = true)
     // With the period of 2 seconds up to the specified 'numTimes' times,
     // output the percent busy of the specified channel 'pool' to
     // the standard output using the specified 'coutLock' for synchronizing
@@ -7824,9 +7965,9 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
 // its busy metrics.  For simplicity, we will use the following function
 // for monitoring:
 //..
-    static inline void  monitorPool(bcemt_Mutex              *coutLock,
-                                    const btemt_ChannelPool&  pool,
-                                    int                       numTimes)
+    static void monitorPool(bcemt_Mutex              *coutLock,
+                            const btemt_ChannelPool&  pool,
+                            int                       numTimes)
         // Every 10 seconds, output the percent busy of the specified channel
         // 'pool' to the standard output, using the specified 'coutLock' to
         // synchronizing access to the standard output stream; return to the
@@ -8181,6 +8322,10 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase43();
+        // Test that 'stopAndRemoveAllChannels' correctly releases all
+        // resources held by channels.
+
     static void testCase42();
         // Test that 'BTEMT_WRITE_CACHE_LOWWAT' is invoked after the
         // 'enqueueWatermark' is exceeded on the 'write'.
@@ -8238,8 +8383,8 @@ class TestDriver {
         // Test that 'btemt_ChannelPool_MessageUtil' class works as expected.
 
     static void testCase25();
-        // Test that 'setWriteCacheLowWatermark' and
-        // 'setWriteCacheHighWatermark' works as expected.
+        // Test that 'setWriteCache[Hi|Low]Watermark' and
+        // 'setWriteCacheWatermarks' work as expected.
 
     static void testCase24();
         // Test that 'enableRead' works as expected.
@@ -8323,19 +8468,170 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
+void TestDriver::testCase43()
+{
+        // --------------------------------------------------------------------
+        // Testing 'stopAndRemoveAllChannels'
+        //
+        // Concerns:
+        //: 1 All running worker threads are stopped after the call.
+        //:
+        //: 2 Any resources associated with any channel is released.
+        //
+        // Plan:
+        //: 1 Create a channel pool object, mX.
+        //:
+        //: 2 Open a pre-defined number of listening sockets in mX.
+        //:
+        //: 3 Create a number of threads that each connect to one of the
+        //:   listening sockets in mX.
+        //:
+        //: 4 Create a number of threads that each listen on a socket.
+        //:
+        //: 5 Open a channel in mX by connecting a listening sockets created
+        //:   in step 4.
+        //:
+        //: 6 Write large amount of data through mX across all the open
+        //:   channels.
+        //:
+        //: 7 Invoke 'stopAndRemoveAllChannels' and confirm that no channels
+        //:   or threads are outstanding.
+        //:
+        //
+        // Testing:
+        //   int stopAndRemoveAllChannels();
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING 'stopAndRemoveAllChannels'"
+                 << "\n=================================="
+                 << endl;
+
+        using namespace CASE43;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(NT);
+        config.setWriteCacheWatermarks(0, 1024 * 1024 * 1024);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(NT + 1);
+        int             channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                         _1, _2, _3, _4,
+                                                         &channelId,
+                                                         &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        bcemt_Barrier dataCbBarrier(NT + 1);
+
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &dataCbBarrier));
+
+        Obj mX(channelCb, dataCb, poolCb, config);  const Obj& X = mX;
+
+        ASSERT(0 == mX.start());
+
+        const int SERVER_ID = 100;
+
+        for (int i = 0; i < NT; ++i) {
+            ASSERT(0 == mX.listen(0, 1, SERVER_ID + i));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        bcemt_ThreadUtil::Handle connectThreads[NT];
+        ConnectData              connectData[NT];
+        const int                SIZE = 1024 * 1024; // 1 MB
+
+        for (int i = 0; i < NT; ++i) {
+            connectData[i].d_index    = i;
+            connectData[i].d_numBytes = SIZE;
+            ASSERT(0 == mX.getServerAddress(&connectData[i].d_serverAddress,
+                                            SERVER_ID + i));
+            ASSERT(0 == bcemt_ThreadUtil::create(&connectThreads[i],
+                                                 &connectFunction,
+                                                 (void *) &connectData[i]));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        bcemt_ThreadUtil::Handle listenThreads[NT];
+        ListenData               listenData[NT];
+        for (int i = 0; i < NT; ++i) {
+            listenData[i].d_index    = i;
+            listenData[i].d_numBytes = SIZE;
+
+            ASSERT(0 == bcemt_ThreadUtil::create(&listenThreads[i],
+                                                 &listenFunction,
+                                                 (void *) &listenData[i]));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        const int CLIENT_ID = 200;
+
+        for (int i = 0; i < NT; ++i) {
+            bteso_IPv4Address serverAddr;
+            ASSERT(0 == serverSockets[i]->localAddress(&serverAddr));
+
+            ASSERT(0 == mX.connect(serverAddr,
+                                   10,
+                                   bdet_TimeInterval(1),
+                                   CLIENT_ID + i));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
+        const int NUM_BYTES = 1024 * 1024 * 10;
+        bcema_PooledBlobBufferFactory f(SIZE);
+        bcema_Blob                    b(&f);
+        b.setLength(NUM_BYTES);
+
+        mapMutex.lock();
+        for (int i = 0; i < NT; ++i) {
+            MapIter iter = sourceIdToChannelIdMap.find(SERVER_ID + i);
+            ASSERT(iter != sourceIdToChannelIdMap.end());
+            ASSERT(0 == mX.write(iter->second, b));
+
+            iter = sourceIdToChannelIdMap.find(CLIENT_ID + i);
+            ASSERT(iter != sourceIdToChannelIdMap.end());
+            ASSERT(0 == mX.write(iter->second, b));
+        }
+        mapMutex.unlock();
+
+        ASSERT(0 != mX.numChannels());
+        ASSERT(0 != mX.numThreads());
+
+        bsls::Types::Int64 numRead = 0, numWritten = 0;
+        mX.totalBytesRead(&numRead);
+        mX.totalBytesWritten(&numWritten);
+
+        ASSERT(!mX.stopAndRemoveAllChannels());
+
+        ASSERT(0 == mX.numChannels());
+        ASSERT(0 == mX.numThreads());
+}
+
 void TestDriver::testCase42()
 {
         // --------------------------------------------------------------------
-        // Testing LOWAT called when 'enqueueWatermark' exceeded
+        // Testing LOWWAT called when 'enqueueWatermark' exceeded
         //
         // Concerns:
-        //: 1 The low watermark is invoked after the enqueue watermark is
-        //:   exceeded and the write cache size drops below the low-watermark.
+        //: 1 The low-water mark is invoked after the enqueue water mark is
+        //:   exceeded and the write cache size drops below the low-water mark.
         //
         // Plan:
         //: 1 Write a message greater than the enqueue cache size and confirm
-        //:   that the low-watermark is invoked after the write completes.
-        //:   Repeat a similar write again and assert that low watermark is
+        //:   that the low-water mark is invoked after the write completes.
+        //:   Repeat a similar write again and assert that low-water mark is
         //:   invoked.
         //
         // Testing:
@@ -8343,8 +8639,8 @@ void TestDriver::testCase42()
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING LOWAT called when 'enqueueWatermark' exceeded"
-                 << "\n====================================================="
+            cout << "\nTESTING LOWWAT called when 'enqueueWatermark' exceeded"
+                 << "\n===========-=========================================="
                  << endl;
 
         using namespace CASE42;
@@ -8995,7 +9291,7 @@ void TestDriver::testCase34()
         //:   internal 'd_writeCacheSize' variable (which controls the size
         //:   of the current write buffer), without synchronization resulting
         //:   'd_writeCacheSize' containing an invalid value.  If the value
-        //:   exceeded the cache high watermark then writes would start
+        //:   exceeded the cache high-water mark then writes would start
         //:   failing.
         //
         // Plan:
@@ -9005,8 +9301,8 @@ void TestDriver::testCase34()
         //: write random data on a channel with random intervals of spinning.
         //: The hope is that with sufficient attempts the value of
         //: 'd_writeCacheSize' would become invalid.  This condition can be
-        //: checked by trying to write data of length cache hi watermark (and
-        //: then one plus the cache hi watermark).  The former should succeed
+        //: checked by trying to write data of length cache hi-water mark (and
+        //: then one plus the cache hi-water mark).  The former should succeed
         //: and the latter should fail.  If both conditions do not return the
         //: expected return code then we have reproduced the bug.
         //
@@ -11291,54 +11587,59 @@ void TestDriver::testCase26()
 void TestDriver::testCase25()
 {
         // --------------------------------------------------------------------
-        // TESTING: 'setWriteCacheHigh/LowWatermark()'
+        // TESTING: 'setWriteCache[High|Low]Watermark[s]'
         //
         // Concerns:
-        //   o That 'setWriteCacheHighWatermark()' modifies the high watermark
-        //     of the specified channel (and only the specified channel)
+        //   o That 'setWriteCacheHiWatermark', 'setWriteCacheLowWatermark',
+        //     and 'setWriteCacheWatermarks' modify the high-water mark,
+        //     low-water mark, and both water marks, respectively, of the
+        //     specified channel (and only the specified channel).
         //   o That the 'HIWAT' alert is delivered properly if the specified
-        //     cache size is smaller than the cache.
-        //   o That the 'HIWAT" alert is delivered, if the cache size limit
+        //     water mark is smaller than the cache size.
+        //   o That the 'HIWAT' alert is delivered if the cache size limit
         //     has been reached, then it is expanded, and it is reached again.
-        //   o That 'setWriteCacheHighWatermark()' is thread-safe.
+        //   o That 'setWriteCache[Hi|Low]Watermark', 'setWriteCacheWatermarks'
+        //     are thread-safe.
         //
         // Plan:
         //   Create an instance under test.  Create a local socket pair and
         //   import it into the channel pool.  Then:
         //
-        //   1. Verify that setWriteCacheHiWatermark() fails for succeeds or
-        //     fails appropriately based on channelId and numBytes.
+        //   1. Verify that 'setWriteCache[Hi|Low]Watermark' and
+        //      'setWriteCacheWatermarks' succeed or fail appropriately based
+        //      on channelId and numBytes.
         //   2. Fill the write cache, verify the 'HIWAT' alert is delivered
         //      and no more data can be written.
-        //   3. Double the write-cache size, verify that the 'HIWAT' alert
+        //   3. Double the write cache size, verify that the 'HIWAT' alert
         //      is not delivered.  Then refill the cache and verify that the
         //      cache increased by the expected amount and that 'HIWAT' is
         //      delivered.
-        //   4. Double the write-cache size again, add one byte (to verify
-        //      it is not full), then reduce the write-cache size to the
-        //      original size and verify the 'HIWAT' alert is generated
+        //   4. Double the write cache size again, add one byte (to verify
+        //      it is not full), then reduce the write cache size to the
+        //      original size and verify the 'HIWAT' alert is generated.
         //   5. Increase the write cache size back to 2 * HI_WATERMARK (one
-        //      byte less than is currently in the cache) verify that the
-        //      'HIWAT' alert is generated an no data can be written to the
+        //      byte less than is currently in the cache); verify that the
+        //      'HIWAT' alert is generated and no data can be written to the
         //      cache.
-        //   6. Empty the write-cache and perform a concurrency test.
+        //   6. Empty the write cache and perform a concurrency test.
         //
         // Testing:
-        //   int setWriteCacheHighWatermark(int, int);
+        //   int setWriteCacheHiWatermark(int, int);
         //   int setWriteCacheLowWatermark(int, int);
+        //   int setWriteCacheWatermarks(int, int, int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: setWriteCacheHigh/LowWatermark()"
+        if (verbose) cout << "TESTING: 'setWriteCache[High|Low]Watermark[s]'"
                           << endl
-                          << "========================================"
+                          << "=============================================="
                           << endl;
 
         using namespace TEST_CASE_25_NAMESPACE;
         bcema_TestAllocator ta(veryVeryVerbose);
         {
             enum {
-                NUM_SOCKETS   = 1,
-                LOW_WATERMARK = 512,
+                NUM_SOCKETS   =    1,
+                LOW_WATERMARK =  512,
                 HI_WATERMARK  = 4096
             };
 
@@ -11397,10 +11698,11 @@ void TestDriver::testCase25()
             int channelId = mX.lastOpenedChannelId();
             ASSERT(0 != channelId);
 
-            // ------------------ We are now ready to perform tests  --------
+            // ------------------ We are now ready to perform tests. ----------
 
-            // 1. Verify that setWriteCacheHiWatermark() fails for succeeds or
-            //    fails appropriately based on channelId and numBytes.
+            // 1. Verify that 'setWriteCache[Hi|Low]Watermark' and
+            //    'setWriteCacheWatermarks' succeed or fail appropriately based
+            //     on channelId and numBytes.
             if (verbose) {
                 bsl::cout << "\tVerify invalid arguments are rejected"
                           << bsl::endl;
@@ -11436,13 +11738,61 @@ void TestDriver::testCase25()
             ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
                                                        LOW_WATERMARK + 1));
 
+            pool.setWriteCacheLowWatermark(channelId, LOW_WATERMARK);
+            ASSERT(0 != pool.setWriteCacheWatermarks(channelId + 1,
+                                                     LOW_WATERMARK + 1,
+                                                     HI_WATERMARK - 1));
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     LOW_WATERMARK + 1,
+                                                     HI_WATERMARK - 1));
+
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     LOW_WATERMARK,
+                                                     HI_WATERMARK));
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     LOW_WATERMARK,
+                                                     LOW_WATERMARK));
+
+            pool.setWriteCacheWatermarks(channelId,
+                                         LOW_WATERMARK, HI_WATERMARK);
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     HI_WATERMARK,
+                                                     HI_WATERMARK));
+
+            pool.setWriteCacheWatermarks(channelId,
+                                         LOW_WATERMARK, HI_WATERMARK);
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     LOW_WATERMARK - 2,
+                                                     LOW_WATERMARK));
+
+            pool.setWriteCacheWatermarks(channelId,
+                                         LOW_WATERMARK, HI_WATERMARK);
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     LOW_WATERMARK - 2,
+                                                     LOW_WATERMARK - 1));
+
+            pool.setWriteCacheWatermarks(channelId,
+                                         LOW_WATERMARK, HI_WATERMARK);
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     HI_WATERMARK,
+                                                     HI_WATERMARK + 2));
+
+            pool.setWriteCacheWatermarks(channelId,
+                                         LOW_WATERMARK, HI_WATERMARK);
+            ASSERT(0 == pool.setWriteCacheWatermarks(channelId,
+                                                     HI_WATERMARK + 1,
+                                                     HI_WATERMARK + 2));
+
+            pool.setWriteCacheWatermarks(channelId,
+                                         LOW_WATERMARK, HI_WATERMARK);
+
             // 2. Fill the write cache, verify the 'HIWAT' alert is delivered
             //    and no more data can be written.
 
-            int rc = 0, numBytesWritten  = 0, totalBytesWritten = 0;
+            int rc = 0, numBytesWritten = 0, totalBytesWritten = 0;
 
-            // We attempt to fill the write-cache over a period of 1 second.
-            // The delay is required,  otherwise the cache may temporary fill,
+            // We attempt to fill the write cache over a period of 1 second.
+            // The delay is required, otherwise the cache may temporarily fill,
             // but will empty as data is transmitted to the client (and not
             // read).  Subsequent tests require that the cache starts full.
             for (int i = 0; i < 4; ++i) {
@@ -11458,12 +11808,12 @@ void TestDriver::testCase25()
             }
             int sts = pool.write(channelId, oneByteMsg);
             LOOP_ASSERT(sts, 0 != sts);
-            ASSERT(0 ==  mX.waitForState(
+            ASSERT(0 == mX.waitForState(
                                     &states,
                                     btemt_ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
                                     bdet_TimeInterval(0.25)));
 
-            // 3. Double the write-cache size, verify that the 'HIWAT' alert
+            // 3. Double the write cache size, verify that the 'HIWAT' alert
             //    is not delivered.  Then refill the cache and verify that the
             //    cache increased by the expected amount and that 'HIWAT' is
             //    delivered.
@@ -11472,7 +11822,7 @@ void TestDriver::testCase25()
             }
             ASSERT(0 ==
                    pool.setWriteCacheHiWatermark(channelId, 2 * HI_WATERMARK));
-            ASSERT(0 !=  mX.waitForState(
+            ASSERT(0 != mX.waitForState(
                                     &states,
                                     btemt_ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
                                     bdet_TimeInterval(0.25)));
@@ -11488,14 +11838,14 @@ void TestDriver::testCase25()
             LOOP2_ASSERT(HI_WATERMARK, numBytesWritten,
                                               HI_WATERMARK == numBytesWritten);
             ASSERT(0 != pool.write(channelId, oneByteMsg));
-            ASSERT(0 ==  mX.waitForState(
+            ASSERT(0 == mX.waitForState(
                                     &states,
                                     btemt_ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
                                     bdet_TimeInterval(0.25)));
 
-            // 4. Double the write-cache size again, add one byte (to verify
-            //    it is not full), then reduce the write-cache size to the
-            //    original size and verify the 'HIWAT' alert is generated
+            // 4. Double the write cache size again, add one byte (to verify
+            //    it is not full), then reduce the write cache size to the
+            //    original size and verify the 'HIWAT' alert is generated.
             if (verbose) {
                 bsl::cout << "\tVerify decreasing the cache size & generating "
                           << "a 'HIWAT' alert" << bsl::endl;
@@ -11505,22 +11855,22 @@ void TestDriver::testCase25()
 
             ASSERT(0 == pool.write(channelId, oneByteMsg));
             totalBytesWritten += oneByteMsg.length();
-            ASSERT(0 !=  mX.waitForState(
+            ASSERT(0 != mX.waitForState(
                                     &states,
                                     btemt_ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
                                     bdet_TimeInterval(0.25)));
 
             ASSERT(0 ==
                    pool.setWriteCacheHiWatermark(channelId, HI_WATERMARK));
-            ASSERT(0 ==  mX.waitForState(
+            ASSERT(0 == mX.waitForState(
                                     &states,
                                     btemt_ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
                                     bdet_TimeInterval(0.25)));
             ASSERT(0 != pool.write(channelId, oneByteMsg));
 
             // 5. Increase the write cache size back to 2 * HI_WATERMARK (one
-            //    byte less than is currently in the cache) verify that no
-            //    'HIWAT' alert is generated an no data can be written to the
+            //    byte less than is currently in the cache); verify that no
+            //    'HIWAT' alert is generated and no data can be written to the
             //    cache.
             if (verbose) {
                 bsl::cout << "\tVerify a 'HIWAT' alert is not generated when "
@@ -11529,13 +11879,13 @@ void TestDriver::testCase25()
             }
             ASSERT(0 ==
                    pool.setWriteCacheHiWatermark(channelId, 2 * HI_WATERMARK));
-            ASSERT(0 !=  mX.waitForState(
+            ASSERT(0 != mX.waitForState(
                                     &states,
                                     btemt_ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
                                     bdet_TimeInterval(0.25)));
             ASSERT(0 != pool.write(channelId, oneByteMsg));
 
-            // 6. Empty the write-cache and perform a concurrency test.
+            // 6. Empty the write cache and perform a concurrency test.
             if (verbose) {
                 bsl::cout << "\tConcurrency Test" << bsl::endl;
             }
@@ -11553,7 +11903,6 @@ void TestDriver::testCase25()
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
         if (veryVerbose) { P(ta); }
-
 }
 
 void TestDriver::testCase24()
@@ -13877,7 +14226,7 @@ void TestDriver::testCase12()
         // TESTING FLOW CONTROL
         //
         // Concerns:
-        //   o WRITE_CACHE_HIWAT and WRITE_CACHE_LOWAT are generated
+        //   o WRITE_CACHE_HIWAT and WRITE_CACHE_LOWWAT are generated
         //     appropriately
         //
         // Plan:
@@ -13885,7 +14234,7 @@ void TestDriver::testCase12()
         //   import it into the channel pool.  Block on a barrier waiting
         //   until another thread unblocks the main thread.  Then
         //   read the number of written bytes until EWOULDBLOCK is returned,
-        //   then close the channels.  Verify that the watermark messages
+        //   then close the channels.  Verify that the water mark messages
         //   are generated.
         //
         // Testing:
@@ -14978,7 +15327,7 @@ void TestDriver::testCase6()
         //   (non-blocking) connections and import them into the channel pool.
         //   Then import one more connection and check that the import failed.
         //   Then read the number of written bytes returned, then close the
-        //   channels.  Verify that the watermark messages are generated and
+        //   channels.  Verify that the water mark messages are generated and
         //   check on the distribution of the load among the various event
         //   managers.
         //
@@ -16135,6 +16484,7 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(43);
       CASE(42);
       CASE(41);
       CASE(40);

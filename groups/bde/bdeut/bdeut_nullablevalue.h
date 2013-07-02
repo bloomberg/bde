@@ -1261,7 +1261,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::makeValue()
 
     // Note that this alternative implementation provides stronger
     // exception-safety, but it breaks some client code that uses
-    // bdeut_NullableValue with a non-value-semantic TYPE.
+    // 'bdeut_NullableValue' with a non-value-semantic 'TYPE'.
     //..
     // if (d_isNull) {
     //     new (d_buffer.buffer()) TYPE();
@@ -1270,6 +1270,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::makeValue()
     // else {
     //     d_buffer.object() = TYPE();
     // }
+    //..
 }
 
 template <typename TYPE>

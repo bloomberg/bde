@@ -1475,7 +1475,7 @@ int
 baexml_MiniReader::updateElementInfo()
 {
     Node& node = currentNode();
-    char* colon = (char*) bsl::strchr(node.d_qualifiedName, ':');
+    char* colon = const_cast<char *>(bsl::strchr(node.d_qualifiedName, ':'));
 
     if (colon == 0) {
         //only localName

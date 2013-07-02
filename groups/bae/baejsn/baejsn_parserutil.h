@@ -282,21 +282,6 @@ int baejsn_ParserUtil::getDateAndTimeValue(TYPE              *value,
 }
 
 inline
-int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
-{
-    if (0 == bsl::strncmp("true", data.data(), data.length())) {
-        *value = true;
-    }
-    else if (0 == bsl::strncmp("false", data.data(), data.length())) {
-        *value = false;
-    }
-    else {
-        return -1;                                                    // RETURN
-    }
-    return 0;
-}
-
-inline
 int baejsn_ParserUtil::getValue(char *value, bslstl::StringRef data)
 {
     signed char tmp;  // Note that 'char' is unsigned on IBM.
@@ -378,49 +363,45 @@ int baejsn_ParserUtil::getValue(bsl::string *value, bslstl::StringRef data)
 inline
 int baejsn_ParserUtil::getValue(bdet_Date *value, bslstl::StringRef data)
 {
-    enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATE_STRLEN };
-
-    return getDateAndTimeValue(value, data, MAX_LENGTH);
+    return getDateAndTimeValue(value, data, bdepu_Iso8601::BDEPU_DATE_STRLEN);
 }
 
 inline
 int baejsn_ParserUtil::getValue(bdet_Datetime *value, bslstl::StringRef data)
 {
-    enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATETIME_STRLEN };
-
-    return getDateAndTimeValue(value, data, MAX_LENGTH);
+    return getDateAndTimeValue(value,
+                               data,
+                               bdepu_Iso8601::BDEPU_DATETIME_STRLEN);
 }
 
 inline
 int baejsn_ParserUtil::getValue(bdet_DatetimeTz *value, bslstl::StringRef data)
 {
-    enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATETIMETZ_STRLEN };
-
-    return getDateAndTimeValue(value, data, MAX_LENGTH);
+    return getDateAndTimeValue(value,
+                               data,
+                               bdepu_Iso8601::BDEPU_DATETIMETZ_STRLEN);
 }
 
 inline
 int baejsn_ParserUtil::getValue(bdet_DateTz *value, bslstl::StringRef data)
 {
-    enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATETZ_STRLEN };
-
-    return getDateAndTimeValue(value, data, MAX_LENGTH);
+    return getDateAndTimeValue(value,
+                               data,
+                               bdepu_Iso8601::BDEPU_DATETZ_STRLEN);
 }
 
 inline
 int baejsn_ParserUtil::getValue(bdet_Time *value, bslstl::StringRef data)
 {
-    enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_TIME_STRLEN };
-
-    return getDateAndTimeValue(value, data, MAX_LENGTH);
+    return getDateAndTimeValue(value, data, bdepu_Iso8601::BDEPU_TIME_STRLEN);
 }
 
 inline
 int baejsn_ParserUtil::getValue(bdet_TimeTz *value, bslstl::StringRef data)
 {
-    enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_TIMETZ_STRLEN };
-
-    return getDateAndTimeValue(value, data, MAX_LENGTH);
+    return getDateAndTimeValue(value,
+                               data,
+                               bdepu_Iso8601::BDEPU_TIMETZ_STRLEN);
 }
 
 }  // close namespace BloombergLP

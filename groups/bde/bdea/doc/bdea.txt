@@ -9,3 +9,15 @@
 @DESCRIPTION: This package contains a single component, 'bdea_bitarray'.
  Please refer to the component-level documentation of 'bdea_bitarray' for an
  overview of that component.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdea' package currently has 1 component.
+..
+  1. bdea_bitarray
+..
+
+/Component Synopsis
+/------------------
+: 'bdea_bitarray':
+:      Provide a space-efficient, sequence container of boolean values.

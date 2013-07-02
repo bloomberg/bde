@@ -813,8 +813,8 @@ int main(int argc, char *argv[])
                           << "TESTING PRINT AND OUTPUT OPERATOR" << endl
                           << "=================================" << endl;
 
-        bslma_TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma_DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout << "\nAssign the addresses of 'print' and "
                              "the output 'operator<<' to variables." << endl;
@@ -1221,7 +1221,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             Obj obj;
 

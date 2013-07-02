@@ -7,6 +7,7 @@
 #include <bcemt_barrier.h>
 #include <bdema_testprotectableblockdispenser.h>
 #include <bdema_protectableblockdispenser.h>
+#include <bdema_protectablememoryscopedguard.h>
 #include <bdema_nativeprotectableblockdispenser.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_defaultallocatorguard.h>
@@ -162,10 +163,10 @@ static void aSsErT(int c, const char *s, int i)
 //                               GLOBAL TYPEDEF
 //-----------------------------------------------------------------------------
 
-typedef bcema_ProtectableSequentialAllocator Obj;
-typedef bdema_TestProtectableBlockDispenser  TestDisp;
-typedef bdema_MemoryBlockDescriptor          Block;
-typedef bsls::Types::size_type               SizeType;
+typedef bcema_ProtectableSequentialAllocator            Obj;
+typedef bdema_TestProtectableBlockDispenser             TestDisp;
+typedef bdema_MemoryBlockDescriptor                     Block;
+typedef bcema_ProtectableSequentialAllocator::size_type SizeType;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -179,14 +180,12 @@ Obj   *g_testingAlloc = 0; // A global variable that must refer to the
 
 extern "C" {
 
-void segfaultHandler(int x)
+void segfaultHandler(int)
 // This is a segmentation fault signal handler.  It uses the global variables
 // above to manage it's state.  Mark that a segmentation fault has occurred in
 // g_fault and, if protection is under test, unprotect the memory pointed to by
 // the allocator under test.
 {
-    (void) x;  // suppress unused variable warning
-
     g_fault = true;
     if (g_inTest) {
         g_testingAlloc->unprotect();
@@ -389,11 +388,13 @@ extern "C" void *workerThread(void *arg)
             // allocator is in an unprotected state.
         {
             int      *oldData = d_data_p;
-            SizeType  oldSize = d_maxSize;
+            int       oldSize = d_maxSize;
             d_maxSize *= GROW_FACTOR;
-            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
-            memcpy(d_data_p, oldData, sizeof(int) * oldSize);
+            d_data_p = static_cast<int *>(d_allocator.allocate(
+                                                     d_maxSize * sizeof(int)));
+            bsl::copy(oldData, oldData + oldSize, d_data_p);
         }
+
 
       public:
 
@@ -407,33 +408,39 @@ extern "C" void *workerThread(void *arg)
         : d_data_p()
         , d_stackSize(0)
         , d_maxSize(INITIAL_SIZE)
-        , d_allocator(protectedDispenser)
+        , d_allocator(protectedDispenser
+                         ? protectedDispenser
+                         : &bdema_NativeProtectableBlockDispenser::singleton())
         {
-            d_data_p = (int *)d_allocator.allocate(d_maxSize * sizeof(int));
+            d_data_p = static_cast<int *>(d_allocator.allocate(
+                                                     d_maxSize * sizeof(int)));
             d_allocator.protect();
         }
 
         ~IntegerStack()
             // Destroy this object (and release its memory).
         {
+            d_allocator.unprotect();
         }
 
 //..
-// We must unprotect the dispenser before modifying or deallocating
-// memory:
+// We must unprotect the dispenser before modifying or deallocating memory.
+// Note that we use a 'bdema_ProtectableMemoryScopedGuard' to assure that the
+// memory will be re-protected in the event of an exception:
 //..
         // MANIPULATORS
         void push(int value)
             // Push the specified 'value' onto the stack.
         {
-            d_allocator.unprotect();
+            bdema_ProtectableMemoryScopedGuard
+                    <bcema_ProtectableSequentialAllocator> guard(&d_allocator);
+
             if (d_stackSize >= d_maxSize) {
                 increaseSize();
             }
 
             // Sufficient room is guaranteed.
             d_data_p[d_stackSize++] = value;
-            d_allocator.protect();
         }
 
         int pop()

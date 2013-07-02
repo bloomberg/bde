@@ -457,12 +457,12 @@ struct bdesu_FileUtil {
     static int sync(char *addr, int numBytes, bool sync);
         // Synchronize the contents of the specified 'numBytes' of mapped
         // memory beginning at the specified 'addr' with the underlying file
-        // on disk.  If 'sync' is true, block until all writes to
-        // nonvolatile media have actually completed; otherwise, return once
-        // they have been scheduled.  Return 0 on success, and a nonzero
-        // value otherwise.  The behavior is undefined if 'addr' is not
-        // aligned on a page boundary, if 'numBytes' is not a multiple of
-        // 'pageSize()', or if 'numBytes' is 0.
+        // on disk.  If the specified 'sync' flag is true, block until all
+        // writes to nonvolatile media have actually completed; otherwise,
+        // return once they have been scheduled.  Return 0 on success, and a
+        // non-zero value otherwise.  The behavior is undefined unless 'addr'
+        // is aligned on a page boundary, 'numBytes' is a multiple of
+        // 'pageSize()', and '0 <= numBytes'.
 
     static Offset seek(FileDescriptor fd, Offset offset, int whence);
         // Set the file pointer associated with the specified 'fd' file

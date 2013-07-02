@@ -88,6 +88,7 @@ BDES_IDENT("$Id: $")
 // supports the notion of a maximum of provided resources, the callback should
 // be called when if new resources are available.  An example of such
 // implementation follows.
+//
 // It should be noted that a spurious call to the callback is supported but
 // not calling the callback when a pool is ready to provide resources again
 // is a major flaw in a 'bcecs_ResourcePool' implementation.
@@ -96,7 +97,7 @@ BDES_IDENT("$Id: $")
 ///-------------
 // All implementations of the 'bcecs_ResourcePool' protocol must be
 // thread-safe.  'bcecs_FailoverSet' is also thread-safe.  Note that for
-// efficiency purposes,  it is encouraged to provide a lockless 'isValid' in
+// efficiency purposes, it is encouraged to provide a lockless 'isValid' in
 // 'bcecs_ResourcePool' implementations.
 //
 ///Usage
@@ -158,8 +159,8 @@ BDES_IDENT("$Id: $")
 //                                                      // resources
 //     int                        d_maxResources;       // max number of
 //                                                      // resources that can
-                                                        // be allocated (0
-                                                        // means no max)
+//                                                      // be allocated (0
+//                                                      // means no max)
 //     bsl::vector<int*>          d_allocatedPointers;  // list of allocated
 //                                                      // pointers
 //     bdef_Function<void (*)()>  d_resCb;              // resource ready cb

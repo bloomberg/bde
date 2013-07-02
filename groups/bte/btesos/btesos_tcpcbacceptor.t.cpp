@@ -434,7 +434,7 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer)
     // specified 'stream' or report an error to 'stream' if 'buffer' is
     // determined *not* to hold an encoding of a valid 'my_Tick' value.
 {
-    my_Tick *tick = (my_Tick*) buffer;
+    const my_Tick *tick = (const my_Tick*) buffer;
     stream << *tick;
 }
 

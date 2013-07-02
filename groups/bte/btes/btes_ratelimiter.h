@@ -232,11 +232,11 @@ BDES_IDENT("$Id: $")
 // (512 bytes / 1024 bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate
 // time-window of 0.0625s (128 bytes / 2048 bytes/s):
 //..
-//  bsls_Types::Uint64 sustainedRateLimit = 1024;
-//  bdet_TimeInterval  sustainedRateWindow(0.5);
-//  bsls_Types::Uint64 peakRateLimit = 2048;
-//  bdet_TimeInterval  peakRateWindow(0.0625);
-//  bdet_TimeInterval  now = bdetu_SystemTime::now();
+//  bsls::Types::Uint64 sustainedRateLimit = 1024;
+//  bdet_TimeInterval   sustainedRateWindow(0.5);
+//  bsls::Types::Uint64 peakRateLimit = 2048;
+//  bdet_TimeInterval   peakRateWindow(0.0625);
+//  bdet_TimeInterval   now = bdetu_SystemTime::now();
 //
 //  btes_RateLimiter  rateLimiter(sustainedRateLimit,
 //                                sustainedRateWindow,
@@ -253,9 +253,9 @@ BDES_IDENT("$Id: $")
 // Then, we define the size of data to be send, the size of each data chunk,
 // and a counter of data actually sent:
 //..
-//  bsls_Types::Uint64 sizeOfData = 10 * 1024; // in bytes
-//  bsls_Types::Uint64 chunkSize  = 64;        // in bytes
-//  bsls_Types::Uint64 bytesSent  = 0;
+//  bsls::Types::Uint64 sizeOfData = 10 * 1024; // in bytes
+//  bsls::Types::Uint64 chunkSize  = 64;        // in bytes
+//  bsls::Types::Uint64 bytesSent  = 0;
 //..
 // Now, we send the chunks of data using a loop.  For each iteration, we
 // checked whether submitting another byte would exceed the rate limiter's
@@ -279,7 +279,7 @@ BDES_IDENT("$Id: $")
 //      else {
 //          bdet_TimeInterval timeToSubmit =
 //                                      rateLimiter.calculateTimeToSubmit(now);
-//          bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+//          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
 //          bcemt_ThreadUtil::microSleep(uS);
 //      }
@@ -287,7 +287,6 @@ BDES_IDENT("$Id: $")
 //..
 // Notice that we wait by putting the thread into a sleep state instead of
 // using busy-waiting to better optimize for multi-threaded applications.
-//..
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>
@@ -369,9 +368,9 @@ class btes_RateLimiter {
 
   public:
     // CREATORS
-    btes_RateLimiter(bsls_Types::Uint64       sustainedRateLimit,
+    btes_RateLimiter(bsls::Types::Uint64      sustainedRateLimit,
                      const bdet_TimeInterval& sustainedRateWindow,
-                     bsls_Types::Uint64       peakRateLimit,
+                     bsls::Types::Uint64      peakRateLimit,
                      const bdet_TimeInterval& peakRateWindow,
                      const bdet_TimeInterval& currentTime);
         // Create a btes_RateLimiter object, having the specified
@@ -409,9 +408,9 @@ class btes_RateLimiter {
         // the 'statisticsCollectionStartTime' to the 'lastUpdateTime' of this
         // leaky bucket.
 
-    void setRateLimits(bsls_Types::Uint64       sustainedRateLimit,
+    void setRateLimits(bsls::Types::Uint64      sustainedRateLimit,
                        const bdet_TimeInterval& sustainedRateWindow,
-                       bsls_Types::Uint64       seakRateLimit,
+                       bsls::Types::Uint64      seakRateLimit,
                        const bdet_TimeInterval& peakRateWindow);
         // Set the sustained rate of this rate limiter to the specified
         // 'sustainedRateLimit', the sustained-rate time-window to the
@@ -425,24 +424,24 @@ class btes_RateLimiter {
         // and 'peakRateWindow' can be represented by 64-bit unsigned integral
         // type.
 
-    void submit(bsls_Types::Uint64 numUnits);
+    void submit(bsls::Types::Uint64 numUnits);
         // Submit the specified 'numUnits' to this rate limiter.  The behavior
         // is undefined unless the sum of 'numUnits', unused units previously
         // submitted to this rate limiter, and 'unitsReserved' can be
         // represented by a 64-bit unsigned integral type.
 
-    void reserve(bsls_Types::Uint64 numUnits);
+    void reserve(bsls::Types::Uint64 numUnits);
         // Reserve the specified 'numUnits' for future use by this rate
         // limiter.  The behavior is undefined unless the sum of 'numUnits',
         // unused units previously submitted to this rate limiter, and
         // 'unitsReserved' can be represented by a 64-bit unsigned integral
         // type.
 
-    void cancelReserved(bsls_Types::Uint64 numUnits);
+    void cancelReserved(bsls::Types::Uint64 numUnits);
         // Cancel the specified 'numUnits' that were previously reserved.  The
         // behavior is undefined unless 'numUnits <= unitsReserved()'.
 
-    void submitReserved(bsls_Types::Uint64 numUnits);
+    void submitReserved(bsls::Types::Uint64 numUnits);
         // Submit the specified 'numUnits' that were previously reserved.  The
         // behavior is undefined unless 'numUnits <= unitsReserved()'.
 
@@ -471,7 +470,7 @@ class btes_RateLimiter {
         // 'currentTime'.
 
     // ACCESSORS
-    bsls_Types::Uint64 peakRateLimit() const;
+    bsls::Types::Uint64 peakRateLimit() const;
         // Return the peak rate of this rate limiter.
 
     bdet_TimeInterval peakRateWindow() const;
@@ -479,7 +478,7 @@ class btes_RateLimiter {
         // this period is generally significantly shorter than
         // 'sustainedRateWindow'.
 
-    bsls_Types::Uint64 sustainedRateLimit() const;
+    bsls::Types::Uint64 sustainedRateLimit() const;
         // Return the sustained rate of this rate limiter.
 
     bdet_TimeInterval sustainedRateWindow() const;
@@ -487,14 +486,14 @@ class btes_RateLimiter {
         // that this period is generally significantly longer than the
         // 'peakRateWindow'.
 
-    bsls_Types::Uint64 unitsReserved() const;
+    bsls::Types::Uint64 unitsReserved() const;
         // Return the number of reserved units for this rate limiter.
 
     bdet_TimeInterval lastUpdateTime() const;
         // Return the time when this rate limiter was last updated.
 
-    void getStatistics(bsls_Types::Uint64* submittedUnits,
-                       bsls_Types::Uint64* unusedUnits) const;
+    void getStatistics(bsls::Types::Uint64* submittedUnits,
+                       bsls::Types::Uint64* unusedUnits) const;
         // Load, into the specified 'submittedUnits' and the specified
         // 'unusedUnits' respectively, the numbers of submitted units and the
         // number of unused units for this rate limiter from the
@@ -525,7 +524,7 @@ void btes_RateLimiter::updateState(const bdet_TimeInterval& currentTime)
 }
 
 inline
-void btes_RateLimiter::submit(bsls_Types::Uint64 numUnits)
+void btes_RateLimiter::submit(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT_SAFE(numUnits <=
                            ULLONG_MAX - d_sustainedRateBucket.unitsInBucket());
@@ -544,7 +543,7 @@ void btes_RateLimiter::submit(bsls_Types::Uint64 numUnits)
 }
 
 inline
-void btes_RateLimiter::reserve(bsls_Types::Uint64 numUnits)
+void btes_RateLimiter::reserve(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT_SAFE(numUnits <= ULLONG_MAX - unitsReserved());
 
@@ -559,7 +558,7 @@ void btes_RateLimiter::reserve(bsls_Types::Uint64 numUnits)
 }
 
 inline
-void btes_RateLimiter::submitReserved(bsls_Types::Uint64 numUnits)
+void btes_RateLimiter::submitReserved(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT(numUnits <= unitsReserved());
 
@@ -571,7 +570,7 @@ void btes_RateLimiter::submitReserved(bsls_Types::Uint64 numUnits)
 }
 
 inline
-void btes_RateLimiter::cancelReserved(bsls_Types::Uint64 numUnits)
+void btes_RateLimiter::cancelReserved(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT(numUnits <= unitsReserved());
 
@@ -602,8 +601,8 @@ void btes_RateLimiter::reset(const bdet_TimeInterval& currentTime)
 
 // ACCESSORS
 inline
-void btes_RateLimiter::getStatistics(bsls_Types::Uint64* submittedUnits,
-                                     bsls_Types::Uint64* unusedUnits) const
+void btes_RateLimiter::getStatistics(bsls::Types::Uint64* submittedUnits,
+                                     bsls::Types::Uint64* unusedUnits) const
 {
     BSLS_ASSERT_SAFE(0 != submittedUnits);
     BSLS_ASSERT_SAFE(0 != unusedUnits);
@@ -614,13 +613,13 @@ void btes_RateLimiter::getStatistics(bsls_Types::Uint64* submittedUnits,
 }
 
 inline
-bsls_Types::Uint64 btes_RateLimiter::peakRateLimit() const
+bsls::Types::Uint64 btes_RateLimiter::peakRateLimit() const
 {
     return d_peakRateBucket.drainRate();
 }
 
 inline
-bsls_Types::Uint64 btes_RateLimiter::sustainedRateLimit() const
+bsls::Types::Uint64 btes_RateLimiter::sustainedRateLimit() const
 {
     return d_sustainedRateBucket.drainRate();
 }
@@ -654,7 +653,7 @@ bdet_TimeInterval btes_RateLimiter::lastUpdateTime() const
 }
 
 inline
-bsls_Types::Uint64 btes_RateLimiter::unitsReserved() const
+bsls::Types::Uint64 btes_RateLimiter::unitsReserved() const
 {
     BSLS_ASSERT_SAFE(d_sustainedRateBucket.unitsReserved() ==
                                              d_peakRateBucket.unitsReserved());

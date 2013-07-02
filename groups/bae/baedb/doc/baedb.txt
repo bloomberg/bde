@@ -21,10 +21,18 @@
 /Hierarchical Synopsis
 /---------------------
  The 'baedb' package currently has 2 components having 2 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.
+ dependency.  The list below shows the hierarchical ordering of the components.
 ..
-  Level 2: baedb_testuserdb
+  2. baedb_testuserdb
 
-  Level 1: baedb_userdb
+  1. baedb_userdb
 ..
+
+/Component Synopsis
+/------------------
+: 'baedb_testuserdb':
+:      Provide a concrete Bloomberg User Database simulator.
+:
+: 'baedb_userdb':
+:      Provide a protocol to access fields in a Bloomberg User Database.
+

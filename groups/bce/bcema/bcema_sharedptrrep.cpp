@@ -17,9 +17,9 @@ void bcema_SharedPtrRep::acquireWeakRef()
 {
     BSLS_ASSERT(0 < numWeakReferences() || 0 < numReferences());
 
-    d_adjustedWeakCount.relaxedAdd(2);          // minimum consistency: relaxed
+    d_adjustedWeakCount.addRelaxed(2);          // minimum consistency: relaxed
 
-    int sharedCount = d_adjustedSharedCount.relaxedLoad();
+    int sharedCount = d_adjustedSharedCount.loadRelaxed();
                                                 // minimum consistency: relaxed
     while (!(sharedCount & 1)) {
         int temp = d_adjustedSharedCount.testAndSwap(sharedCount,
@@ -63,11 +63,11 @@ void bcema_SharedPtrRep::resetCountsRaw(int numSharedReferences,
     // 'bcema_SharedPtrRep' must be serialized when calling this function (as
     // specified in the function-level doc).
 
-    d_adjustedSharedCount.relaxedStore(2 * numSharedReferences
+    d_adjustedSharedCount.storeRelaxed(2 * numSharedReferences
                                        + (numWeakReferences ? 1 : 0));
                                                 // minimum consistency: relaxed
 
-    d_adjustedWeakCount.relaxedStore(2 * numWeakReferences
+    d_adjustedWeakCount.storeRelaxed(2 * numWeakReferences
                                      + (numSharedReferences ? 1 : 0));
                                                 // minimum consistency: relaxed
 }
@@ -76,7 +76,7 @@ bool bcema_SharedPtrRep::tryAcquireRef()
 {
     BSLS_ASSERT(0 < numWeakReferences() || 0 < numReferences());
 
-    int sharedCount = d_adjustedSharedCount.relaxedLoad();
+    int sharedCount = d_adjustedSharedCount.loadRelaxed();
                                                 // minimum consistency: relaxed
     while (sharedCount > 1) {
         int temp = d_adjustedSharedCount.testAndSwap(sharedCount,

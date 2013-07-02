@@ -14,35 +14,33 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'baecs' currently has 5 components having 3 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('baecs_') are omitted from the full component
- names for layout efficiency.
+ The 'baecs' package currently has 5 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  Level 3: journal
+  3. baecs_journal
 
-  Level 2: journalheader
+  2. baecs_journalheader
 
-  Level 1: journalpageheader    journalparameters    mappingmanager
+  1. baecs_journalpageheader
+     baecs_journalparameters
+     baecs_mappingmanager
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'baecs'.  For the sake
- of brevity, we sometimes blur the distinction between a component and the
- primary types that the component provides.  We remind the reader that, in
- general, the distinction between a component and a class is important.
-..
-  'baecs_journal'           - Provide a file-backed persistent journal.
-
-  'baecs_journalheader'     - Provide a container for the header information of
-                              a journal.
-
-  'baecs_journalpageheader' - Provide a container for the header information of
-                              a journal page.
-
-  'baecs_journalparameters' - Provide a container for the file parameters of a
-                              journal.
-
-  'baecs_mappingmanager'    - Provide an in-process manager of mmap pages.
-..
+: 'baecs_journal':
+:      Provide a file-backed persistent journal.
+:
+: 'baecs_journalheader':
+:      Provide a container for the header information of a journal.
+:
+: 'baecs_journalpageheader':
+:      Provide a container for the header information of a journal page.
+:
+: 'baecs_journalparameters':
+:      Provide a container for the file parameters of a journal.
+:
+: 'baecs_mappingmanager':
+:      Provide an in-process manager of mmap pages

@@ -833,8 +833,7 @@ void TestData::run()
                                                &d_reader);
 
     for (int i = 0; i < d_numCbs; ++i) {
-        const CallbackDetails cbDetails =
-                                      ((CallbackDetails *) d_callbacks)[i];
+        const CallbackDetails cbDetails = d_callbacks[i];
         const int numBytes  = cbDetails.d_numBytes;
         const bool blobBased= cbDetails.d_blobBased;
 

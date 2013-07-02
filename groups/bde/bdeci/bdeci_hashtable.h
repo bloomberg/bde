@@ -759,7 +759,7 @@ inline
 bdeci_Hashtable_Link<T>::
                  bdeci_Hashtable_Link(const T&                      value,
                                       bdeci_Hashtable_Link         *next,
-                                      bslma_Allocator              *allocator)
+                                      bslma::Allocator             *allocator)
 : d_memory(value, allocator)
 , d_next_p(next)
 {

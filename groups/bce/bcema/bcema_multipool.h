@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// 'bcema_Multipool' is *thread-enabled*, meaning any operation on the same
+// 'bcema_Multipool' is *fully thread-safe*, meaning any operation on the same
 // object can be safely invoked from any thread.
 //
 ///Configuration at Construction
@@ -523,7 +523,7 @@ class bcema_Multipool {
     bcemt_Mutex      d_mutex;         // synchronize data access
 
     bcema_ThreadEnabledAllocatorAdapter
-                     d_allocAdapter;  // thread-enabled adapter
+                     d_allocAdapter;  // thread-safe adapter
 
   private:
     // NOT IMPLEMENTED

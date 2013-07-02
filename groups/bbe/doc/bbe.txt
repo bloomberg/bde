@@ -12,12 +12,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bbe' depends upon the 'bsl' and 'bde' package groups, and currently has two
- packages forming two levels of physical dependency.  Note that one of these
- packages is the required version control package ('bbescm').  The table below
- shows the physical dependency hierarchy among the packages.
+ The 'bbe' package group currently has 2 packages having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
 ..
-   Level 2: bbedc
+  2. bbedc
 
-   Level 1: bbescm
+  1. bbescm
 ..
+
+/Package Synopsis
+/----------------
+: 'bbedc':
+:      Provide calendar approximations, e.g., for fixed-income securities.
+:
+: 'bbescm':
+:      Provide versioning information for library components in 'bbe'.

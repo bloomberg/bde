@@ -10,12 +10,12 @@ bdem.txt
  containers, and "negotiation" and other helper utility functions and objects
  needed to support firm-wide "messaging".  Messaging in BDE refers to the
  in-core marshalling of arbitrarily hierarchical, self-describing data.  In
- conjunction with 'bdex' externalization (see the 'bdex' package
+ conjunction with 'bdex' externalization (see the {'bdex'} package
  documentation), 'bdem' messaging provides fast, efficient, and convenient
  conversion from the in-core representation to a byte stream suitable for
  out-of-process transport (e.g., IPC, writing to a data base, etc.).  In
- conjunction with the 'baexml' and 'bcem' packages (see the 'baexml' and
- 'bcem' package documentation), 'bdem' data and metadata can also easily be
+ conjunction with the 'baexml' and 'bcem' packages (see the {'baexml'} and
+ {'bcem'} package documentation), 'bdem' data and metadata can also easily be
  converted to and from XML representation.  Note that the 'bdempu' package
  that was formerly used to convert 'bdem' data to and from text representation
  has been deprecated.
@@ -23,16 +23,16 @@ bdem.txt
 /Organization of this Document
 /-----------------------------
  In the next two subsections we present the component dependency hierarchy
- within 'bdem' and a very brief Component Synopsis.  We then present a "General
- Discussion" section, which is itself subdivided into a number of topics,
+ within 'bdem' and a very brief Component Synopsis.  We then present a {General
+ Discussion} section, which is itself subdivided into a number of topics,
  providing a solid conceptual *and* practical foundation for using 'bdem'.
- That section is followed by the usual "Usage Examples" section.  For reasons
- both historical and practical, the Examples section is followed by two
- appendices.  Appendix 1 presents a self-contained tutorial example (a complete
+ That section is followed by the usual {Usage} section.  For reasons
+ both historical and practical, the {Usage} section is followed by two
+ appendices.  {Appendix 1} presents a self-contained tutorial example (a complete
  buildable 'main') that illustrates the central "client-server schema
  negotiation" paradigm (and subsequent data transfer).  That tutorial predates
  this document, and some material from the appendix has also been incorporated
- elsewhere in this text.  Appendix 2 presents a "Component Reference Guide".
+ elsewhere in this text.  Lastly, there is {Appendix 2: Component Reference Guide"}.
  Since many of the components are factored "implementation details", and since,
  in some sense, 'bdem' really is more than the sum of its parts, this reference
  material is deferred until after the more holistic overview is presented.
@@ -45,43 +45,74 @@ bdem.txt
 
 /Hierarchical Synopsis
 /---------------------
- 'bdem' currently has 43 components having 14 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('bdem_') are omitted from the full component
- names for layout efficiency.
+ The 'bdem' package currently has 49 components having 15 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-   Level 14: bindingadapters
+  15. bdem_binding
 
-   Level 13: binding
+  14. bdem_schemaaggregateutil
 
-   Level 12: aggregateutil      convert              datasizeutil
-             schemaaggregateutil
+  13. bdem_aggregateutil
+      bdem_bdemdecoderutil
+      bdem_schemaenumerationutil
+      bdem_schemautil
 
-   Level 11: aggregate
+  12. bdem_aggregate
+      bdem_bdemencoderutil
+      bdem_convert
+      bdem_schema
 
-   Level 10: choicearray        table
+  11. bdem_recorddef
+      bdem_table
 
-   Level  9: choice             list
+  10. bdem_choicearray
+      bdem_fielddef
 
-   Level  8: choicearrayitem    row              schema
+   9. bdem_choice
+      bdem_fieldspec
+      bdem_list
 
-   Level  7: elemattrlookup
+   8. bdem_choicearrayitem
+      bdem_fielddefattributes
+      bdem_row
 
-   Level  6: choiceimp          choicearrayimp       listimp          tableimp
+   7. bdem_elemattrlookup
 
-   Level  5: aggregateimp       berdecoderutil
+   6. bdem_listimp
+      bdem_tableimp
 
-   Level  4: berencoderutil     berdecoder           choiceheader     rowdef
+   5. bdem_berdecoderutil
+      bdem_choicearrayimp
+      bdem_choiceimp
+      bdem_rowdata
 
-   Level  3: elemref            idxoffsetmap         properties
-             berencoder
+   4. bdem_berdecoder
+      bdem_berencoderutil
+      bdem_choiceheader
+      bdem_elemref
 
-   Level  2: descriptor         functiontemplates    berutil
-             selectbdemtype     selectbertag
+   3. bdem_berencoder
+      bdem_properties
+      bdem_rowlayout
 
-   Level  1: aggregateoption    bdemdecoderoptions   bdemencoderoptions
-             berconstants       berencoderoptions    berdecoderoptions
-             beruniversaltagnumber                   elemtype
+   2. bdem_allocatormanager
+      bdem_beruniversaltagnumber
+      bdem_berutil
+      bdem_descriptor
+      bdem_enumerationdef
+      bdem_functiontemplates
+      bdem_selectbdemtype
+
+   1. bdem_aggregateoption
+      bdem_bdemdecoderoptions
+      bdem_bdemencoderoptions
+      bdem_berconstants
+      bdem_berdecoderoptions
+      bdem_berencoderoptions
+      bdem_configschema
+      bdem_elemtype
 ..
  Note that all the aggregates at levels 8, 9, and 10, are intended to be
  *peers* and could have been implemented with *no* physical dependencies on
@@ -94,95 +125,158 @@ bdem.txt
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bdem'.  For the sake
- of brevity, we sometimes blur the distinction between a component and the
- primary types that the component provides.  We remind the reader that, in
- general, the distinction between a component and a class is important.
-..
-  'bdem_aggregate' - a convenience component that provides '#include'
-        directives for the row, list, and table headers.
-  'bdem_aggregateimp' - factored implementation component for memory management
-        for 'bdem_RowDef'-based constructs.
-  'bdem_aggregateoption' - enumeration of various memory management strategies.
-  'bdem_aggregateutil' - equality-comparators for the aggregate types in
-        'bdem'; uses fuzzy equality when comparing floating-point values.
-  'bdem_bdemdecoderoptions' - Options structure used as an argument to
-        'bdem_BdemDecoderUtil' methods.
-  'bdem_bdemdecoderutil' - reads a binary stream in the format used by 'bdem'
-        aggregate types and decodes it into an arbitrary self-describing data
-        structure that conforms to the 'bdeat_ArrayFunctions' or
-        'bdeat_ChoiceFunctions' interface.  (See 'bdeat_arrayfunctions' and
-        'bdeat_choicefunctions' component-level documentation).
-  'bdem_bdemencoderoptions' - Options structure used as an argument to
-        'bdem_BdemEncoderUtil' methods.
-  'bdem_bdemencoderutil' - takes any self-describing object that conforms to
-        the 'bdeat_ArrayFunctions' or 'bdeat_ChoiceFunctions' interface (See
-        'bdeat_arrayfunctions' and 'bdeat_choicefunctions' component-level
-        documentation), and encodes it into a binary stream format compatible
-        with that used by 'bdem' aggregate types.
-  'bdem_berconstants' - enumerations used in BER encoding and decoding.
-  'bdem_berdecoder' - reads a binary stream in BER format and decodes it into
-        an arbitrary self-describing data structure that conforms to the
-        'bdeat_ArrayFunctions' or 'bdeat_ChoiceFunctions' interface.  (See
-        'bdeat_arrayfunctions' and 'bdeat_choicefunctions' component-level
-        documentation).
-  'bdem_berdecoderoptions' - Options structure used as an argument to
-        'bdem_BerDecoder methods.
-  'bdem_berdecoderutil' - DEPRECATED.  Use bdem_berdecoder instead.
-  'bdem_berencoder' - takes any self-describing object that conforms to the
-        'bdeat_ArrayFunctions' or 'bdeat_ChoiceFunctions' interface (See
-        'bdeat_arrayfunctions' and 'bdeat_choicefunctions' component-level
-        documentation), and encodes it into the BER binary-stream format.
-  'bdem_berencoderoptions' - Options structure used as an argument to
-        'bdem_BerEncoder' methods.
-  'bdem_berencoderutil' - DEPRECATED.  Use bdem_berencoder, instead.
-  'bdem_beruniversaltagnumber' - enumeration of the set of 'BER' universal tag
-        numbers.
-  'bdem_berutil' - BER encoding and decoding of primitive data types.
-  'bdem_binding' - reference-semantic utility type binding an aggregate to
-        a record (metadata), enabling by-name access to data; also provides
-        "checked" versions to validate operations.
-  'bdem_choice' - an union-like aggregate type that holds a single object from
-        a specified list of types.
-  'bdem_choicearray' - an array of 'bdem_Choice' objects, all of which share
-        the same catalog of possible selection types.
-  'bdem_choicearrayimp' - factored implementation for 'bdem_choicearray'
-  'bdem_choicearrayitem' - an item within a 'bdem_choicearray'.  Like
-        'bdem_choice' but with a non-modifiable catalog of types.
-  'bdem_choiceheader' - factored implementation of 'bdem_choice' and
-        'bdem_choicearrayitem'.
-  'bdem_choiceimp' - factored implementation of 'bdem_choice'.
-  'bdem_convert' - runtime conversion of data types.
-  'bdem_datasizeutil' - utilities to calculate data size of aggregate objects.
-  'bdem_descriptor' - repository for pointers to some "canonical" operations.
-  'bdem_elemattrlookup' - provides indexed lookup of 'bdem_Descriptor's for
-        each 'bdem_ElemType' (including streaming descriptors).
-  'bdem_elemref' - reference-semantic proxy type for any one of the 32 'bdem'
-        data types; also provides "checked" versions to validate operations.
-  'bdem_elemtype' - enumeration of the 32 'bdem' data types.
-  'bdem_functiontemplates' - factored template definition of many of the
-        "canonical operations" needed internally by 'bdem' components.
-  'bdem_idxoffsetmap' - an implementation detail component mapping details of
-        'bdem' elements to memory (offset) positions; used by 'bdem_Row'.
-  'bdem_list' - heterogeneous collection of 'bdem' (data) elements.
-  'bdem_listimp' - a factored implementation component for 'bdem_List'.
-  'bdem_properties' - defines twenty pre-populated 'bdem_Descriptor's used by
-        other 'bdem' components.
-  'bdem_row' - memory management for heterogeneous message elements.
-  'bdem_rowdef' - factored implementation component for 'bdem_Row'.
-  'bdem_schema' - "metadata" container describing structure of a 'bdem_List'.
-  'bdem_schemaaggregateutil' - utilities for comparing 'bdem' metadata and data
-  'bdem_schemautil' - utilities comparing schemas or record definitions.
-  'bdem_selectbdemtype' - metafunctions to associate 'bdem_elemtype' values
-        with C++ types.
-  'bdem_selectbertag' - meta-function for selecting 'ber' tags.
-  'bdem_table' - a homogeneous array of heterogeneous rows (see 'bdem_row')
-  'bdem_tableimp' - a factored implementation component for 'bdem_Table'.
-..
- A more complete description for each component is given in Appendix 2, in the
- form of a "Component Reference Guide".
+: 'bdem_aggregate':
+:      Provide an aggregation of various 'bdem' containers.
+:
+: 'bdem_aggregateoption':
+:      Enumerate memory management strategies used by 'bdem'.
+:
+: 'bdem_aggregateutil':
+:      Provide a set of utility functions for 'bdem_aggregate' classes.
+:
+: 'bdem_allocatormanager':
+:      Provide an allocator manager based on a 'bdem' allocation strategy.
+:
+: 'bdem_bdemdecoderoptions':
+:      Provide value-semantic attribute classes
+:
+: 'bdem_bdemdecoderutil':
+:      Provide a 'bdem'-compatible decoder utility.
+:
+: 'bdem_bdemencoderoptions':
+:      Provide value-semantic attribute classes
+:
+: 'bdem_bdemencoderutil':
+:      Provide a 'bdem'-compatible encoder utility.
+:
+: 'bdem_berconstants':
+:      Provide namespace for storing BER-related constants
+:
+: 'bdem_berdecoder':
+:      Provide a BER decoder class.
+:
+: 'bdem_berdecoderoptions':
+:      TODO: Provide purpose
+:
+: 'bdem_berdecoderutil':
+:      Provide a BER decoder utility.
+:
+: 'bdem_berencoder':
+:      Provide a BER encoder class.
+:
+: 'bdem_berencoderoptions':
+:      Provide value-semantic attribute classes
+:
+: 'bdem_berencoderutil':
+:      Provide a BER encoder utility.
+:
+: 'bdem_beruniversaltagnumber':
+:      Enumerate the set of 'BER' universal tag numbers.
+:
+: 'bdem_berutil':
+:      Provide functions to encode and decode simple types in BER format.
+:
+: 'bdem_binding':
+:      Provide proxies for row/table/column/choice/choicearray access.
+:
+: 'bdem_choice':
+:      Provide a container holding one value from a set of possible types.
+:
+: 'bdem_choicearray':
+:      Provide an array of same-structured choice objects.
+:
+: 'bdem_choicearrayimp':
+:      Provide implementation of a 'bdem' choice array.
+:
+: 'bdem_choicearrayitem':
+:      Provide a container for an item in a choice array.
+:
+: 'bdem_choiceheader':
+:      Provide common implementation machinery for 'bdem' choices.
+:
+: 'bdem_choiceimp':
+:      Provide implementation of a 'bdem' choice.
+:
+: 'bdem_configschema':
+:      Provide the 'bdem' schema
+:
+: 'bdem_convert':
+:      Provide functions that convert values to and from 'bdem' types.
+:
+: 'bdem_descriptor':
+:      Provide type-specific operations for type-agnostic clients.
+:
+: 'bdem_elemattrlookup':
+:      Provide lookup for descriptors and attributes of 'bdem' types.
+:
+: 'bdem_elemref':
+:      Provide proxies to 'bdem' data elements.
+:
+: 'bdem_elemtype':
+:      Provide an enumeration of the supported 'bdem' element types.
+:
+: 'bdem_enumerationdef':
+:      Provide a definition for a set of enumerated values.
+:
+: 'bdem_fielddef':
+:      Provide a class representing the definition for a single field.
+:
+: 'bdem_fielddefattributes':
+:      Provide the attributes for the definition of a field.
+:
+: 'bdem_fieldspec':
+:      Provide a specification for the type of a field.
+:
+: 'bdem_functiontemplates':
+:      Provide function templates for common operations on elements.
+:
+: 'bdem_list':
+:      Provide a heterogeneous list of 'bdem' elements.
+:
+: 'bdem_listimp':
+:      Provide implementation of a 'bdem' list.
+:
+: 'bdem_properties':
+:      Provide predefined attribute structures for 'bdem' types.
+:
+: 'bdem_recorddef':
+:      Provide a record definition characterizing a sequence of fields.
+:
+: 'bdem_row':
+:      Provide a memory buffer for arbitrary self-describing 'bdem' data.
+:
+: 'bdem_rowdata':
+:      Provide a container of data for a 'bdem' row.
+:
+: 'bdem_rowlayout':
+:      Specify the layout of 'bdem' elements in a contiguous memory block.
+:
+: 'bdem_schema':
+:      Provide a collection of record definitions defining a data schema.
+:
+: 'bdem_schemaaggregateutil':
+:      Provide utility functions on combinations of schemas & aggregates.
+:
+: 'bdem_schemaenumerationutil':
+:      Provide utility functions on schema/enum combinations.
+:
+: 'bdem_schemautil':
+:      Provide comparison operations for schemas and record definitions.
+:
+: 'bdem_selectbdemtype':
+:      Provide a meta-function for selecting 'bdem' and C++ types.
+:
+: 'bdem_table':
+:      Provide a table of homogeneous rows of heterogeneous column types.
+:
+: 'bdem_tableimp':
+:      Provide implementation of a 'bdem' table.
 
-@General Discussion
+ A more complete description for each component is given in {Appendix 2:
+ Component Reference Guide}
+
+/General Discussion
+/------------------
  'bdem' is a high performance, flexible "messaging system" providing data
  structures, metadata, and utilities for composing arbitrary self-describing
  "messages" (suitable for out-of-process transport), and for accessing and
@@ -194,8 +288,7 @@ bdem.txt
  'char*' or a 'streambuf' (as generated by 'bdex').
 
 /Logical and Physical Message Types
-/----------------------------------
-
+/ - - - - - - - - - - - - - - - - -
  A 'bdem' "message" comprises both data and metadata.  Since 'bdem' metadata is
  not aware of the C++ types of the 'bdem' data elements, but only of their
  *logical* types, we will need to be familiar with both the logical and the
@@ -276,8 +369,7 @@ bdem.txt
  32 data types.
 
 /Terminology and Concepts
-/------------------------
-
+/ - - - - - - - - - - - -
  This section presents an informal glossary and discussion of terms used
  throughout 'bdem'.  In discussing the names of things, we will touch on a few
  key concepts, but our focus is on terminology, to make the rest of this
@@ -354,8 +446,7 @@ bdem.txt
  "Const" and "checked" flavors, exactly analogous to the bindings.
 
 /Bird's Eye View of 'bdem' Functionality
-/---------------------------------------
-
+/- - - - - - - - - - - - - - - - - - - -
  Now that we have a grasp on the 'bdem' element types, and have been introduced
  to some jargon, we can begin to look at 'bdem' functionality.  The material in
  this section provides a quick overview, and almost all of it will be repeated
@@ -405,7 +496,7 @@ bdem.txt
  'TABLE'.  The utilities in 'bdem_SchemaUtil' allow the user to compare
  metadata for various levels of equivalence or containment (i.e., the superset
  relationship).  These utilities are important for a usage pattern known as
- "schema negotiation", which is described below, and illustrated in Appendix 1.
+ "schema negotiation", which is described below, and illustrated in {Appendix 1}.
 
  Clearly, a record can describe the full structure of a list; it can also
  describe the full structure of a table *except* for the number of rows in the
@@ -461,8 +552,7 @@ bdem.txt
  Hierarchical synopsis).
 
 /Proxy Types
-/-----------
-
+/- - - - - -
  There are three "families" of proxy types in 'bdem', provided in three
  separate components.  Each component was designed for a specific purpose, and
  not just "to be a proxy type", and so other design considerations sometimes
@@ -493,7 +583,7 @@ bdem.txt
  reference type".
 
 /Reference Semantics
-/- - - - - - - - - -
+/-  -  -  -  -  -  -
  An element reference object provides (possibly modifiable) access to a
  particular element within a 'bdem' container, using "reference semantics".
  Reference semantics are analogous to the semantics of fundamental reference
@@ -509,32 +599,32 @@ bdem.txt
  even undesirable), 'operator=' has been suppressed from the (modifiable)
  element references.
 
- Please see 'bdem_elemref' and 'bdem_binding' component documentation for a
+ Please see {'bdem_elemref'} and {'bdem_binding'} component documentation for a
  detailed explanation of *reference* *semantics*, and how it is implemented by
  the classes 'bdemElemRef' and 'bdem_ConstElemRef', in particular.
 
 /Interaction with Other Packages
-/-------------------------------
-
+/- - - - - - - - - - - - - - - -
  'bdem' types can be bdex-externalized and "unexternalized" in collaboration
  with 'bdex' streams.
 
  Canonical 'NULL' or "unset" values for the scalar 'bdem' element types are
  defined in 'bdetu'.
 
-@Usage Examples
+/Usage
+/-----
  This section provides three examples.
-..
-     1. Writing a ticker data stream with 'bdem_List'.
-     2. Writing a ticker data stream with optional data using 'bdem_Schema'.
-     3. Writing a type-agnostic multiplexer with 'bdem_ElemRef'.
-..
- See "Appendix 1: An Informal Lesson in the Use of the 'bdem' Messaging
- Package" for a separate buildable example illustrating schema negotiation and
+
+: o {Example 1: Implementing a Ticker Data Stream With 'bdem_List'}
+: o {Example 2: A Ticker Data Stream With Optional Data Using 'bdem_Schema'}
+: o {Example 3: Writing a Type-Agnostic Multiplexer with 'bdem_ElemRef'}
+
+ See {Appendix 1: An Informal Lesson in the Use of the 'bdem' Messaging
+ Package} for a separate buildable example illustrating schema negotiation and
  data transfer in a client-server setting.
 
-/Example 1: Implementing a ticker data stream with 'bdem_List'
-/------------------------------------------------------------
+/Example 1: Implementing a Ticker Data Stream With 'bdem_List'
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  This example presents a highly simplified ticker data stream application,
  for the purpose of showing basic population and extraction of data to and
  from the BDE message type, a 'bdem_List'.
@@ -589,14 +679,15 @@ bdem.txt
 ..
  The consumer then (obtains and) unpacks the message.  There are two important
  points to note about extracting values from lists:
-..
-  1. Access is by-index only, and so message receivers must know the
-     position of any field they will want to extract.
-  2. Clients must know the type of the field whose contents they want.  All
-     extraction interfaces are type-specific (e.g., 'theDate' for getting a
-     date, and so on), excepting the 'bdem_ElemRef', discussed in the next
-     example.
-..
+
+: 1 Access is by-index only, and so message receivers must know the position of
+:   any field they will want to extract.
+:
+: 2 Clients must know the type of the field whose contents they want.  All
+:   extraction interfaces are type-specific (e.g., 'theDate' for getting a
+:   date, and so on), excepting the 'bdem_ElemRef', discussed in the next
+:   example.
+
 ..
  void consumer(void) {
 
@@ -612,8 +703,8 @@ bdem.txt
  }
 ..
 
-/Example 2: A ticker data stream with optional data using 'bdem_Schema'
-/----------------------------------------------------------------------
+/Example 2: A Ticker Data Stream With Optional Data Using 'bdem_Schema'
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  Suppose that the producer and consumer procedures from the example above
  decide to incorporate optional fields into the messages they exchange.  In
  that case, of course, there must be some way for the consumer to determine
@@ -743,7 +834,7 @@ bdem.txt
 ..
 
 /Example 3: Writing a Type-Agnostic Multiplexer with 'bdem_ElemRef'
-/------------------------------------------------------------------------
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  This Usage Example is under construction.
 
  A 'bdem_ElemRef' object serves as a reference type through which clients can
@@ -874,8 +965,8 @@ bdem.txt
  }
 ..
 
-@Appendix 1: An Informal Lesson in the Use of the 'bdem' Messaging Package
-
+/Appendix 1: An Informal Lesson in the Use of the 'bdem' Messaging Package
+/-------------------------------------------------------------------------
  This appendix presents the Informal Lesson named above, which is based on a
  usage example originally written by Dan Glaser and expanded by Tom Marshall.
  It is reproduced here in its entirety for convenience, even though some of the
@@ -883,7 +974,7 @@ bdem.txt
  <GO>} directly.
 
 /An Overview of 'bdem'
-/---------------------
+/- - - - - - - - - - -
  The purpose of the 'bdem' package is to provide a high performance, flexible
  messaging system.  By "messaging system", we mean the in-process data
  structures, metadata, and utilities to perform the data marshalling needed
@@ -1001,7 +1092,7 @@ bdem.txt
  again, here our focus is on understanding the basic usage models.
 
 /Using 'bdem'
-/------------
+/ - - - - - -
  A schema can be used to define the format (i.e., the structure) of a message
  that is in turn rendered as a list or a table.  Moreover, since records and
  fields may (optionally) be named, the schema "format" can actually enable
@@ -1022,7 +1113,7 @@ bdem.txt
  needed.
 
 /Two Usage Patterns (and Mixtures Thereof)
-/- - - - - - - - - - - - - - - - - - - - -
+/ -  -  -  -  -  -  -  -  -  -  -  -  -  -
  The above discussions about schema negotiations and "well-known" schemas
  illustrate the basic 'bdem' concepts of separating data and metadata.  Now
  it is time to get more specific about exactly how two participants agree on
@@ -1037,7 +1128,7 @@ bdem.txt
  -- will be governed by considerations of efficiency and ease of use.
 
 /Schema Usage Details
-/- - - - - - - - - -
+/ -  -  -  -  -  -  -
  Whichever of the above usage patterns is adopted, the programmer(s) must
  ultimately compare the two schemas to determine compatibility.  Here, we
  encounter a detail.  The metadata describing the structure of a 'bdem_List'
@@ -1103,7 +1194,7 @@ bdem.txt
   int isSymbolicSuperset(const bdem_RecordDef& super,
                          const bdem_RecordDef& sub);
 ..
- See the 'bdem_schemautil' component documentation for a full description of
+ See the {'bdem_schemautil'} component documentation for a full description of
  how these methods can be used in schema negotiations.  For now, we note that
  'isStructuralSuperset' and 'isSymbolicSuperset' are the two most useful
  methods for the common modes of schema negotiation.  The "structural" method
@@ -1112,7 +1203,7 @@ bdem.txt
  the 'isSymbolicSuperset' method in the example below.
 
 /The Example
-/-----------
+/- - - - - -
  The code below will build and run on any platform supporting BDE.  We will
  go through the program step by step, highlighting what we have discussed
  above.
@@ -1722,7 +1813,8 @@ return 0;
 } // end 'main'
 ..
 
-@Appendix 2: Component Reference Guide
+/Appendix 2: Component Reference Guide
+/-------------------------------------
  This section provides a reference summary of all of the components in 'bdem'.
  Because of the specific design choices made in optimizing 'bdem' for both
  performance and maintenance, many of the components described in this section
@@ -1730,21 +1822,21 @@ return 0;
  users.
 
 /'bdem_aggregate'
-/----------------
+/ - - - - - - - -
  'bdem_aggregate' exists largely for historical and convenience purposes.  The
  single header may be '#include'd by clients who wish to use the 'bdem' data
  structures 'bdem_Row', 'bdem_List', and 'bdem_Table'; 'bdem_aggregate.h'
  '#include's the headers 'bdem_row.h', 'bdem_list.h', and 'bdem_table.h'.
 
 /'bdem_aggregateimp'
-/-------------------
+/- - - - - - - - - -
  'bdem_aggregateimp' collects the memory-management constructs needed by
  'bdem_List' and 'bdem_Table' into one structure.
 
  This component is not intended for client use.
 
 /'bdem_aggregateoption'
-/----------------------
+/ - - - - - - - - - - -
  'bdem_aggregateoption' defines an enumeration representing four memory
  management strategies, providing a convenient indication of whether
  containers and contained elements should share allocators and which memory-
@@ -1753,7 +1845,7 @@ return 0;
  This component is not intended for client use.
 
 /'bdem_aggregateutil'
-/--------------------
+/ - - - - - - - - - -
  'bdem_aggregateutil' provides comparison utilities that enhance use of 'bdem'.
 
  'bdem_AggregateUtil' support the following functionality: equality
@@ -1761,7 +1853,7 @@ return 0;
  fuzzy-equality comparison for all contained floating-point data.
 
 /'bdem_descriptor'
-/----------------
+/- - - - - - - - -
  'bdem_descriptor' provides a convenient repository for storing pointers to
  "canonical" operations operating on a particular type, and also size and
  alignment information for that type.  The kinds of procedures whose
@@ -1773,14 +1865,14 @@ return 0;
  item is in the "unset" state, and an equality comparator.
 
 /Caveats
-/- - - -
- 1. The operations whose pointers are stored are *not* intended to do either
-    memory allocation or memory deallocation.  Where function signatures
-    include allocators, it is because these may need to be passed on (to
-    other procedures), rather than used directly.
+/-  -  -
+: 1 The operations whose pointers are stored are *not* intended to do either
+:   memory allocation or memory deallocation.  Where function signatures
+:   include allocators, it is because these may need to be passed on (to other
+:   procedures), rather than used directly.
 
 /'bdem_elemattrlookup'
-/---------------------
+/- - - - - - - - - - -
  The 'bdem_elemattrlookup' component provides indexed access to pre-populated
  bdem_Descriptors (including descriptors for streaming operations) for each
  of the 32 'bdem_ElemType's.
@@ -1789,7 +1881,7 @@ return 0;
  pre-populated 'bdem_Descriptor' for one of the 'bdem_ElemType's.
 
 /'bdem_elemref'
-/--------------
+/ - - - - - - -
  'bdem_elemref' defines a proxy type that can represent any item of
  'bdem_ElemType'.  The component  provides both a (logical) const and a
  (logical) non-const variant, which provide const reference and non-const
@@ -1800,12 +1892,12 @@ return 0;
  streaming.
 
 /Caveats
-/- - - -
- 1. As with C++ references, the meaningful lifetime of a 'bdem_ElemRef'
- does not exceed that of the referenced item.
+/-  -  -
+: 1 As with C++ references, the meaningful lifetime of a 'bdem_ElemRef' does
+:   not exceed that of the referenced item.
 
 /'bdem_elemtype'
-/---------------
+/- - - - - - - -
  'bdem_elemtype' defines an enumeration representing the 32 valid BDE
  message types.
 
@@ -1813,7 +1905,7 @@ return 0;
  enumeration code to the string symbol equivalent, and streaming.
 
 /'bdem_functiontemplates'
-/------------------------
+/ - - - - - - - - - - - -
  'bdem_functiontemplates' effectively templatizes enough "canonical
  operations" (such as copy construction, destruction, etc.) so that most of
  the operations needed to populate a 'bdem_Descriptor' (for each
@@ -1824,13 +1916,13 @@ return 0;
  an equality checker, and more, for existing 'bdem_ElemType's.
 
 /Caveats
-/- - - -
- 1. This component is intended primarily as a factored implementation detail
- within 'bdem'.  Clients needing to make direct use of this component should
- read the component documentation carefully.
+/-  -  -
+: 1 This component is intended primarily as a factored implementation detail
+:   within 'bdem'.  Clients needing to make direct use of this component should
+:   read the component documentation carefully.
 
 /'bdem_idxoffsetmap'
-/-------------------
+/- - - - - - - - - -
  The 'bdem_IdxOffsetMap' object effectively maps an index and a type to an
  offset; the index is the position within a sequence occupied by the item, and
  the type is the element type of that item.  The corresponding offset is the
@@ -1840,7 +1932,7 @@ return 0;
  This component is not intended for client use.
 
 /'bdem_list'
-/-----------
+/- - - - - -
  'bdem_list' provides 'bdem_List', an indexed, recursive container for
  heterogeneous items of some 'bdem_ElemType'.  I.e., it can store any number of
  varying  'bdem_ElemType'-typed items, including storing other 'bdem_List's as
@@ -1851,28 +1943,28 @@ return 0;
  retrieval, item removal and replacement, swapping items, and list streaming.
 
 /Caveats
-/- - - -
- 1. Clients using lists and schemas to do significant data access and
- manipulation may find the list interface a bit cumbersome for certain
- operations.  Consider using utility types in 'bdem_binding' along with the
- 'bdem_schemaaggregateutil' utilities to enhance the list functionality.
+/-  -  -
+: 1 Clients using lists and schemas to do significant data access and
+:   manipulation may find the list interface a bit cumbersome for certain
+:   operations.  Consider using utility types in 'bdem_binding' along with the
+:   'bdem_schemaaggregateutil' utilities to enhance the list functionality.
 
 /'bdem_listimp'
-/--------------
+/ - - - - - - -
  'bdem_listimp' is the body class that implements the 'bdem_List' (handle
  class) functionality.
 
  This component is not intended for client use.
 
 /'bdem_properties'
-/-----------------
+/- - - - - - - - -
  'bdem_properties' provides a namespace for twenty eight pre-populated
  'bdem_Descriptor's.
 
  This component is not intended for client use.
 
 /'bdem_row'
-/----------
+/ - - - - -
  'bdem_Row' is a proxy type for the contents of a 'bdem_List', or for the
  contents of a 'bdem_Table' at some particular index.  Note that the 'bdem_Row'
  object is logically the "array" analog of the "scalar" 'bdem_ElemRef' object.
@@ -1882,12 +1974,12 @@ return 0;
  type-specific item retrieval, type-deferred item retrieval, and streaming.
 
 /Caveats
-/- - - -
- 1. The most likely client use for rows will be in transferring data between
- lists and tables, or between two tables.
+/-  -  -
+: 1 The most likely client use for rows will be in transferring data between
+:   lists and tables, or between two tables.
 
 /'bdem_rowdef'
-/-------------
+/- - - - - - -
  'bdem_RowDef' contains the metadata defining the contents of a row.
 
  'bdem_RowDef' provides the following functionality: creating rows with
@@ -1898,7 +1990,7 @@ return 0;
  This component is not intended for client use.
 
 /'bdem_schema'
-/-------------
+/- - - - - - -
  'bdem_schema' provides (meta) data structures that can be used to to specify
  the *structural* contents of a 'bdem_List' or 'bdem_Table' object.
 
@@ -1907,12 +1999,12 @@ return 0;
  'bdem_Table's, and streaming.
 
 /Caveats
-/- - - -
- 1. The metadata in 'bdem_schema' is not capable of expressing information
- about how many rows a 'bdem_Table' contains.
+/-  -  -
+: 1 The metadata in 'bdem_schema' is not capable of expressing information
+:   about how many rows a 'bdem_Table' contains.
 
 /'bdem_schemautil'
-/-----------------
+/- - - - - - - - -
  'bdem_schemautil' provides pure procedures that compare two schemas or two
  individual record definitions, to determine various specific definitions of
  the "equivalence" and "superset" relationships between.
@@ -1922,7 +2014,7 @@ return 0;
  relationships.
 
 /'bdem_table'
-/------------
+/ - - - - - -
  'bdem_table' defines 'bdem_Table', a self-describing array of (logical) row
  types, that is, of identically-structured heterogeneous sequences of items of
  some 'bdem_ElemType'.
@@ -1932,14 +2024,14 @@ return 0;
  comparisons, and streaming.
 
 /Caveats
-/- - - -
- 1. 'bdem_Schema' does not know how many rows (if any) a table has.  The user
- must be careful to validate the existence of a row that is part of the access
- path of a data element identified through a 'bdem_Schema' (or, more properly,
- a 'bdem_RecordDef').
+/-  -  -
+: 1 'bdem_Schema' does not know how many rows (if any) a table has.  The user
+:   must be careful to validate the existence of a row that is part of the
+:   access path of a data element identified through a 'bdem_Schema' (or, more
+:   properly, a 'bdem_RecordDef').
 
 /'bdem_tableimp'
-/-----------------
+/- - - - - - - -
  'bdem_tableimp' provides the body class that implements the 'bdem_Table'
  (handle class) functionality.
 

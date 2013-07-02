@@ -255,19 +255,19 @@ BDES_IDENT("$Id: $")
 // interval from unix epoch).  Note that 'unit', the unit of measurement for
 // leaky bucket, corresponds to 'byte' in this example:
 //..
-//  bsls_Types::Uint64 rate     = 512;  // bytes/second
-//  bsls_Types::Uint64 capacity = 2560; // bytes
-//  bdet_TimeInterval  now      = bdetu_SystemTime::now();
+//  bsls::Types::Uint64 rate     = 512;  // bytes/second
+//  bsls::Types::Uint64 capacity = 2560; // bytes
+//  bdet_TimeInterval  now       = bdetu_SystemTime::now();
 //
 //  btes_LeakyBucket   bucket(rate, capacity, now);
 //..
 // Then, we define a data buffer to be sent, the size of each data chunk, and
 // the total size of the data to transmit:
 //..
-//  char               buffer[5120];
-//  unsigned int       chunkSize  = 256;             // in bytes
-//  bsls_Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
-//  bsls_Types::Uint64 dataSent   = 0;               // in bytes
+//  char                buffer[5120];
+//  unsigned int        chunkSize  = 256;             // in bytes
+//  bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
+//  bsls::Types::Uint64 dataSent   = 0;               // in bytes
 //
 //  // Load 'buffer'.
 //  // ...
@@ -300,7 +300,7 @@ BDES_IDENT("$Id: $")
 //          bdet_TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
 //
 //          // Round up the number of microseconds.
-//          bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+//          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
 //          bcemt_ThreadUtil::microSleep(uS);
 //      }
@@ -308,7 +308,6 @@ BDES_IDENT("$Id: $")
 //..
 // Notice that we wait by putting the thread into a sleep state instead of
 // using busy-waiting to better optimize for multi-threaded applications.
-//..
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>
@@ -374,37 +373,37 @@ class btes_LeakyBucket {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    bsls_Types::Uint64 d_drainRate;            // drain rate in units per
+    bsls::Types::Uint64 d_drainRate;           // drain rate in units per
                                                // second
 
-    bsls_Types::Uint64 d_capacity;             // the bucket capacity in
+    bsls::Types::Uint64 d_capacity;            // the bucket capacity in
                                                // units
 
-    bsls_Types::Uint64 d_unitsReserved;        // reserved units
+    bsls::Types::Uint64 d_unitsReserved;       // reserved units
 
-    bsls_Types::Uint64 d_unitsInBucket;        // number of units currently in
+    bsls::Types::Uint64 d_unitsInBucket;       // number of units currently in
                                                // the bucket
 
-    bsls_Types::Uint64 d_fractionalUnitDrainedInNanoUnits;
+    bsls::Types::Uint64 d_fractionalUnitDrainedInNanoUnits;
                                                // fractional number of units
                                                // that is carried from the
                                                // last drain operation
 
-    bdet_TimeInterval  d_lastUpdateTime;       // time of last drain, updated
+    bdet_TimeInterval   d_lastUpdateTime;      // time of last drain, updated
                                                // via the 'updateState' method
 
-    bdet_TimeInterval  d_maxUpdateInterval;    // time to drain maximum number
+    bdet_TimeInterval   d_maxUpdateInterval;   // time to drain maximum number
                                                // of units
 
-    bsls_Types::Uint64 d_statSubmittedUnits;   // submitted unit counter,
+    bsls::Types::Uint64 d_statSubmittedUnits;  // submitted unit counter,
                                                // number of submitted units
                                                // since last reset
 
-    bsls_Types::Uint64 d_statSubmittedUnitsAtLastUpdate;
+    bsls::Types::Uint64 d_statSubmittedUnitsAtLastUpdate;
                                                // submitted unit counter saved
                                                // during last update
 
-    bdet_TimeInterval  d_statisticsCollectionStartTime;
+    bdet_TimeInterval   d_statisticsCollectionStartTime;
                                                // start time for the submitted
                                                // unit counter
 
@@ -415,9 +414,9 @@ class btes_LeakyBucket {
 
   public:
     // CLASS METHODS
-    static bdet_TimeInterval calculateDrainTime(bsls_Types::Uint64 numUnits,
-                                                bsls_Types::Uint64 drainRate,
-                                                bool               ceilFlag);
+    static bdet_TimeInterval calculateDrainTime(bsls::Types::Uint64 numUnits,
+                                                bsls::Types::Uint64 drainRate,
+                                                bool                ceilFlag);
         // Return the time interval required to drain the specified 'numUnits'
         // at the specified 'drainRate', round up the number of nanoseconds in
         // the time interval if the specified 'ceilFlag' is set to 'true',
@@ -425,8 +424,8 @@ class btes_LeakyBucket {
         // undefined unless the number of seconds in the calculated interval
         // may be represented by a 64-bit signed integral type.
 
-    static bdet_TimeInterval calculateTimeWindow(bsls_Types::Uint64 drainRate,
-                                                 bsls_Types::Uint64 capacity);
+    static bdet_TimeInterval calculateTimeWindow(bsls::Types::Uint64 drainRate,
+                                                 bsls::Types::Uint64 capacity);
         // Return the time interval over which a leaky bucket *approximates* a
         // moving-total of submitted units, as the rounded-down ratio between
         // the specified 'capacity' and the specified 'drainRate'.  If the
@@ -435,8 +434,8 @@ class btes_LeakyBucket {
         // 'capacity / drainRate' can be represented with 64-bit signed
         // integral type.
 
-    static bsls_Types::Uint64 calculateCapacity(
-                                          bsls_Types::Uint64       drainRate,
+    static bsls::Types::Uint64 calculateCapacity(
+                                          bsls::Types::Uint64      drainRate,
                                           const bdet_TimeInterval& timeWindow);
         // Return the capacity of a leaky bucket as the rounded-down product of
         // the specified 'drainRate' by the specified 'timeWindow'.  If the
@@ -445,8 +444,8 @@ class btes_LeakyBucket {
         // 64-bit unsigned integral type.
 
     // CREATORS
-    btes_LeakyBucket(bsls_Types::Uint64       drainRate,
-                     bsls_Types::Uint64       capacity,
+    btes_LeakyBucket(bsls::Types::Uint64      drainRate,
+                     bsls::Types::Uint64      capacity,
                      const bdet_TimeInterval& currentTime);
         // Create an empty leaky bucket having the specified 'drainRate', the
         // specified 'capacity', and the specified 'currentTime' as the initial
@@ -477,7 +476,7 @@ class btes_LeakyBucket {
         // typically check again using this method, because additional units
         // may have been submitted in the interim.
 
-    void reserve(bsls_Types::Uint64 numUnits);
+    void reserve(bsls::Types::Uint64 numUnits);
         // Reserve the specified 'numUnits' for future use by this leaky
         // bucket.  The behavior is undefined unless 'unitsReserved() +
         // unitsInBucket() + numOfUnits' can be represented by a 64-bit
@@ -488,12 +487,12 @@ class btes_LeakyBucket {
         // time interval calculated by 'calculateTimeToSubmit' may be
         // negatively affected.
 
-    void cancelReserved(bsls_Types::Uint64 numUnits);
+    void cancelReserved(bsls::Types::Uint64 numUnits);
         // Cancel the specified 'numUnits' that were previously reserved.  This
         // method reduces the number of reserved units by 'numUnits'.  The
         // behavior is undefined unless 'numUnits <= unitsReserved()'.
 
-    void submitReserved(bsls_Types::Uint64 numUnits);
+    void submitReserved(bsls::Types::Uint64 numUnits);
         // Submit the specified 'numUnits' that were previously reserved.  This
         // method reduces the number of reserved units by 'numUnits' and
         // submits 'numUnits' to this leaky bucket.  The behavior is undefined
@@ -512,14 +511,14 @@ class btes_LeakyBucket {
         // the 'statisticsCollectionStartTime' to the 'lastUpdateTime' of this
         // leaky bucket.
 
-    void setRateAndCapacity(bsls_Types::Uint64 newRate,
-                            bsls_Types::Uint64 newCapacity);
+    void setRateAndCapacity(bsls::Types::Uint64 newRate,
+                            bsls::Types::Uint64 newCapacity);
         // Set the drain rate of this leaky bucket to the specified 'newRate'
         // and the capacity of this leaky bucket to the specified
         // 'newCapacity'.  The behavior is undefined unless '0 < newRate' and
         // '0 < newCapacity'.
 
-    void submit(bsls_Types::Uint64 numUnits);
+    void submit(bsls::Types::Uint64 numUnits);
         // Submit the specified 'numUnits' to this leaky bucket.  The behavior
         // is undefined unless 'unitsReserved() + unitsInBucket() + numUnits'
         // can be represented by a 64-bit unsigned integral type.  Note that
@@ -543,14 +542,14 @@ class btes_LeakyBucket {
         // the total number of units held by this leaky bucket .
 
     // ACCESSORS
-    bsls_Types::Uint64 capacity() const;
+    bsls::Types::Uint64 capacity() const;
         // Return the capacity of this leaky bucket.
 
-    bsls_Types::Uint64 drainRate() const;
+    bsls::Types::Uint64 drainRate() const;
         // Return the drain rate of this leaky bucket.
 
-    void getStatistics(bsls_Types::Uint64* submittedUnits,
-                       bsls_Types::Uint64* unusedUnits) const;
+    void getStatistics(bsls::Types::Uint64* submittedUnits,
+                       bsls::Types::Uint64* unusedUnits) const;
         // Load, into the specified 'submittedUnits' and the specified
         // 'unusedUnits' respectively, the numbers of submitted units and the
         // number of unused units for this leaky bucket from the
@@ -566,10 +565,10 @@ class btes_LeakyBucket {
         // Return the time interval when the collection of the statistics (as
         // returned by 'getStatistics') started.
 
-    bsls_Types::Uint64 unitsInBucket() const;
+    bsls::Types::Uint64 unitsInBucket() const;
         // Return the number of submitted units in this leaky bucket.
 
-    bsls_Types::Uint64 unitsReserved() const;
+    bsls::Types::Uint64 unitsReserved() const;
         // Return the number of reserved units in this leaky bucket.
 };
 
@@ -593,7 +592,7 @@ btes_LeakyBucket::~btes_LeakyBucket()
 
 // MANIPULATORS
 inline
-void btes_LeakyBucket::reserve(bsls_Types::Uint64 numUnits)
+void btes_LeakyBucket::reserve(bsls::Types::Uint64 numUnits)
 {
     // Check whether adding 'numUnits' causes an unsigned 64-bit integral type
     // to overflow.
@@ -607,7 +606,7 @@ void btes_LeakyBucket::reserve(bsls_Types::Uint64 numUnits)
 }
 
 inline
-void btes_LeakyBucket::cancelReserved(bsls_Types::Uint64 numUnits)
+void btes_LeakyBucket::cancelReserved(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
 
@@ -620,7 +619,7 @@ void btes_LeakyBucket::cancelReserved(bsls_Types::Uint64 numUnits)
 }
 
 inline
-void btes_LeakyBucket::submitReserved(bsls_Types::Uint64 numUnits)
+void btes_LeakyBucket::submitReserved(bsls::Types::Uint64 numUnits)
 {
     BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
 
@@ -648,7 +647,7 @@ void btes_LeakyBucket::resetStatistics()
 }
 
 inline
-void btes_LeakyBucket::submit(bsls_Types::Uint64 numUnits)
+void btes_LeakyBucket::submit(bsls::Types::Uint64 numUnits)
 {
     // Check whether adding 'numUnits' causes an unsigned 64-bit integer type
     // to overflow.
@@ -664,13 +663,13 @@ void btes_LeakyBucket::submit(bsls_Types::Uint64 numUnits)
 
 // ACCESSORS
 inline
-bsls_Types::Uint64 btes_LeakyBucket::capacity() const
+bsls::Types::Uint64 btes_LeakyBucket::capacity() const
 {
     return d_capacity;
 }
 
 inline
-bsls_Types::Uint64 btes_LeakyBucket::drainRate() const
+bsls::Types::Uint64 btes_LeakyBucket::drainRate() const
 {
     return d_drainRate;
 }
@@ -688,13 +687,13 @@ bdet_TimeInterval btes_LeakyBucket::statisticsCollectionStartTime() const
 }
 
 inline
-bsls_Types::Uint64 btes_LeakyBucket::unitsInBucket() const
+bsls::Types::Uint64 btes_LeakyBucket::unitsInBucket() const
 {
     return d_unitsInBucket;
 }
 
 inline
-bsls_Types::Uint64 btes_LeakyBucket::unitsReserved() const
+bsls::Types::Uint64 btes_LeakyBucket::unitsReserved() const
 {
     return d_unitsReserved;
 }

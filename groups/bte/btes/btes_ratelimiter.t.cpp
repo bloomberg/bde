@@ -49,22 +49,22 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 6] void setRateLimits(sR, sRW, pR, pRW, currentTime);
-// [ 4] void submit(bsls_Types::Uint64 numOfUnits);
-// [ 5] void reserve(bsls_Types::Uint64 numOfUnits);
+// [ 4] void submit(bsls::Types::Uint64 numOfUnits);
+// [ 5] void reserve(bsls::Types::Uint64 numOfUnits);
 // [ 8] void updateState(const bdet_TimeInterval& currentTime);
 // [ 4] bool wouldExceedBandwidth(currentTime);
-// [ 5] void submitReserved(bsls_Types::Unit64 numOfUnits);
-// [12] void cancelReserved(bsls_Types::Unit64 numOfUnits);
+// [ 5] void submitReserved(bsls::Types::Unit64 numOfUnits);
+// [12] void cancelReserved(bsls::Types::Unit64 numOfUnits);
 // [10] void resetStatistics();
 // [11] void reset(const bdet_TimeInterval& currentTime);
 // [ 7] bdet_TimeInterval calculateTimeToSubmit(currentTime);
 //
 // ACCESSORS
-// [ 3] bsls_Types::Uint64 peakRateLimit() const;
-// [ 3] bsls_Types::Uint64 sustainedRateLimit() const;
+// [ 3] bsls::Types::Uint64 peakRateLimit() const;
+// [ 3] bsls::Types::Uint64 sustainedRateLimit() const;
 // [ 3] bdet_TimeInterval peakRateWindow() const;
 // [ 3] bdet_TimeInterval sustainedRateWindow() const;
-// [ 5] bsls_Types::Uint64 unitsReserved() const;
+// [ 5] bsls::Types::Uint64 unitsReserved() const;
 // [ 3] bdet_TimeInterval lastUpdateTime() const;
 // [ 9] void getStatistics(*submittedUnits, *unusedUnits) const;
 // [ 3] bdet_TimeInterval statisticsCollectionStartTime() const;
@@ -148,7 +148,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 typedef btes_RateLimiter    Obj;
 typedef bdet_TimeInterval   Ti;
-typedef bsls_Types::Uint64  Uint64;
+typedef bsls::Types::Uint64 Uint64;
 typedef unsigned int        uint;
 
 //=============================================================================
@@ -256,11 +256,11 @@ int main(int argc, char *argv[])
 // (512 bytes / 1024 bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate
 // time-window of 0.0625s (128 bytes / 2048 bytes/s):
 //..
-   bsls_Types::Uint64 sustainedRateLimit = 1024;
-   bdet_TimeInterval  sustainedRateWindow(0.5);
-   bsls_Types::Uint64 peakRateLimit = 2048;
-   bdet_TimeInterval  peakRateWindow(0.0625);
-   bdet_TimeInterval  now = bdetu_SystemTime::now();
+   bsls::Types::Uint64 sustainedRateLimit = 1024;
+   bdet_TimeInterval   sustainedRateWindow(0.5);
+   bsls::Types::Uint64 peakRateLimit = 2048;
+   bdet_TimeInterval   peakRateWindow(0.0625);
+   bdet_TimeInterval   now = bdetu_SystemTime::now();
 
    btes_RateLimiter  rateLimiter(sustainedRateLimit,
                                  sustainedRateWindow,
@@ -277,9 +277,9 @@ int main(int argc, char *argv[])
 // Then, we define the size of data to be send, the size of each data chunk,
 // and a counter of data actually sent:
 //..
-   bsls_Types::Uint64 sizeOfData = 10 * 1024; // in bytes
-   bsls_Types::Uint64 chunkSize  = 64;        // in bytes
-   bsls_Types::Uint64 bytesSent  = 0;
+   bsls::Types::Uint64 sizeOfData = 10 * 1024; // in bytes
+   bsls::Types::Uint64 chunkSize  = 64;        // in bytes
+   bsls::Types::Uint64 bytesSent  = 0;
 //..
 // Now, we send the chunks of data using a loop.  For each iteration, we
 // checked whether submitting another byte would exceed the rate limiter's
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
         else {
             bdet_TimeInterval timeToSubmit =
                                         rateLimiter.calculateTimeToSubmit(now);
-            bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+            bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                    (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
             bcemt_ThreadUtil::microSleep(uS);
         }
@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
         //:  greater than the number of 'unitsReserved'.
         //
         // Testing:
-        //   void cancelReserved(bsls_Types::Uint64 numOfUnits)
+        //   void cancelReserved(bsls::Types::Uint64 numOfUnits)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
             // C-2
             if (false == x.wouldExceedBandwidth(Ti(0))) {
 
-                bsls_Types::Uint64 freeUnits = bsl::min(
+                bsls::Types::Uint64 freeUnits = bsl::min(
                                         sustLb.capacity() - x.unitsReserved(),
                                         peakLb.capacity() - x.unitsReserved());
 
@@ -413,8 +413,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             Obj y(100, Ti(10), 1000, Ti(1), Ti(0));
             y.submit(100);
@@ -669,7 +669,8 @@ int main(int argc, char *argv[])
         // C-3
         if (verbose) cout << endl << "Negative testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
             Obj x(1, Ti(10), 1, Ti(10), Ti(0));
 
             ASSERT_SAFE_FAIL(x.getStatistics(0,&unusedUnits));
@@ -948,8 +949,8 @@ int main(int argc, char *argv[])
         // C-3
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             // Zero rate or zero window.
             ASSERT_FAIL(x.setRateLimits(0, Ti(15), 10, Ti(10)));
@@ -983,9 +984,9 @@ int main(int argc, char *argv[])
         //:   behavior in special build configuration.
         //
         // Testing:
-        //      void reserve(bsls_Types::Uint64 numOfUnits);
-        //      bsls_Types::Uint64 unitsReserved();
-        //      void submitReserved(bsls_Types::Uint64 numOfUnits);
+        //      void reserve(bsls::Types::Uint64 numOfUnits);
+        //      bsls::Types::Uint64 unitsReserved();
+        //      void submitReserved(bsls::Types::Uint64 numOfUnits);
         //---------------------------------------------------------------------
 
         if (verbose)
@@ -1062,7 +1063,7 @@ int main(int argc, char *argv[])
 
             if (false == x.wouldExceedBandwidth(Ti(0))) {
 
-                bsls_Types::Uint64 freeUnits = bsl::min(
+                bsls::Types::Uint64 freeUnits = bsl::min(
                                    sustLb.capacity() - sustLb.unitsInBucket(),
                                    peakLb.capacity() - peakLb.unitsInBucket());
 
@@ -1079,7 +1080,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             // Units reserved, trying to submit & reserve.
 
@@ -1262,8 +1264,8 @@ int main(int argc, char *argv[])
         // C-2
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(
-                bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                bsls::AssertTest::failTestDriver);
 
             // Units submitted, trying to submit & reserve.
 
@@ -1305,8 +1307,8 @@ int main(int argc, char *argv[])
         //:   returns the expected value.  (C-1)
         //
         // Testing:
-        //   bsls_Types::Uint64 peakRateLimit() const;
-        //   bsls_Types::Uint64 sustainedRateLimit() const;
+        //   bsls::Types::Uint64 peakRateLimit() const;
+        //   bsls::Types::Uint64 sustainedRateLimit() const;
         //   bdet_TimeInterval peakRateWindow() const;
         //   bdet_TimeInterval sustainedRateWindow() const;
         //   bdet_TimeInterval lastUpdateTime() const;
@@ -1507,7 +1509,8 @@ int main(int argc, char *argv[])
 
         // Negative Testing
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
             // Zero rate or zero window.
             ASSERT_SAFE_FAIL(Obj x1(0, Ti(15), 10, Ti(10), Ti(0)));

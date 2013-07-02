@@ -604,10 +604,12 @@ static int compare(const void *p, const void *q, char spec)
     // the two values are equal and false otherwise.
 {
     switch (spec) {
-      case 'A': return *(SmallString *) p == *(SmallString *) q;
-      case 'B': return *(SmallStringAlloc *) p == *(SmallStringAlloc *) q;
-      case 'C': return *(LargeString *) p == *(LargeString *) q;
-      case 'D': return *(LargeStringAlloc *) p == *(LargeStringAlloc *) q;
+      case 'A': return *(const SmallString *) p == *(const SmallString *) q;
+      case 'B': return *(const SmallStringAlloc *) p
+                                              == *(const SmallStringAlloc *) q;
+      case 'C': return *(const LargeString *) p == *(const LargeString *) q;
+      case 'D': return *(const LargeStringAlloc *) p
+                                              == *(const LargeStringAlloc *) q;
       default: ASSERT(0); return 0;
     }
 }
@@ -639,34 +641,34 @@ static void populateCatalog(Catalog *catalog, const char *spec)
     }
 }
 
-static const void *getValueA(char spec)
+static void *getValueA(char spec)
     // Return the 'A' value corresponding to the specified 'spec'.
 {
     char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_A[index];
+    return const_cast<void *>(VALUES_A[index]);
 }
 
-static const void *getValueB(char spec)
+static void *getValueB(char spec)
     // Return the 'B' value corresponding to the specified 'spec'.
 {
     char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_B[index];
+    return const_cast<void *>(VALUES_B[index]);
 }
 
-static const void *getValueN(char spec)
+static void *getValueN(char spec)
     // Return the 'N' value corresponding to the specified 'spec'.
 {
     char *p = bsl::strchr(SPECIFICATIONS, spec);
     LOOP_ASSERT(spec, p);
     int index = p - SPECIFICATIONS;
     LOOP3_ASSERT(*p, index, SPEC_LEN, index < SPEC_LEN);
-    return VALUES_N[index];
+    return const_cast<void *>(VALUES_N[index]);
 }
 
 //=============================================================================
