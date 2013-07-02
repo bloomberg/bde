@@ -11,11 +11,15 @@ BDES_IDENT("$Id: $")
 // more SOCKS5 proxies.
 //
 //@CLASSES:
-//   btes5_NetworkConnector
+//   btes5_NetworkConnector: establish connections through SOCKS5 hosts
 //
-//@SEE ALSO:
+//@SEE ALSO: btes5_negotiator
 //
-//@DESCRIPTION: This component provides ...
+//@DESCRIPTION: This component provides a mechanism class,
+// 'btes5_NetworkConnector', which establishes connections through proxy hosts
+// using the SOCKS5 protocol. The connections are established asynchronously,
+// with status reported to client-supplied callback. Each connection attempt is
+// identifed by a 'AttempAttempt', which can be used to cancel the attempt.
 //
 ///Usage
 ///-----
@@ -64,9 +68,10 @@ BDES_IDENT("$Id: $")
 //      bdet_TimeInterval timeout(30.0);
 //      using namespace bdef_PlaceHolders;
 //      eventMgr.start();
-//      connector.connect(connectCb,
-//                        timeout,
-//                        bteso_Endpoint("destination.example.com", 8194));
+//      const bteso_Endpoint dst("destination.example.com", 8194);
+//      btes5_NetworkConnector::AttemptHandle
+//          attempt = connector.makeAttemptHandle(connectCb, timeout, dst);
+//      attempt.startAttempt();
 //  }
 
 #ifndef INCLUDED_BTES5_CREDENTIALSPROVIDER
@@ -79,6 +84,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BTES5_NETWORKDESCRIPTION
 #include <btes5_networkdescription.h>
+#endif
+
+#ifndef INCLUDED_BCEMA_SHAREDPTR
+#include <bcema_sharedptr.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -118,6 +127,15 @@ class btes5_NetworkConnector {
     // requires a different authentication method, or it requires
     // username/password and none were supplied, the negotiation will fail with
     // 'status == e_AUTHENTICATION'.
+    //
+    // A 'btes5_NetworkConnector' object allows multiple connection attempts. A
+    // connection attempt is initiated by a 'makeAttemptHandle()' call which
+    // returns a 'ConnectionHandle', and started by 'startAttempt()'. The
+    // 'ConnectionHandle' object can be used to cancel the connection attempt.
+
+    // PRIVATE TYPES
+    class Connector; // persistent state of the network connector
+    class Attempt;   // state of a connection attempt
 
 public:
     // TYPES
@@ -126,6 +144,7 @@ public:
         e_SUCCESS = 0,    // connection successfully established
         e_TIMEOUT,        // connection attempt timed out
         e_AUTHENTICATION, // no acceptable authentication methods
+        e_CANCEL,         // connection was cancelled
         e_ERROR           // any other error
     };
 
@@ -141,17 +160,13 @@ public:
         // specified 'socketFactory' for eventual deallocation. Otherwise,
         // process connection failure as described by the specified 'error'.
 
+    typedef bcema_SharedPtr<Attempt> AttemptHandle;
+        // A 'AttemptHandle' object can be used to cancel a connection attempt
+        // in progress.
+
 private:
     // DATA
-    int                                           d_minSourcePort;
-    int                                           d_maxSourcePort;
-        // if not 0, originating sockets will be bound to a port in this range
-
-    btes5_NetworkDescription                      d_socks5Servers;
-    bteso_StreamSocketFactory<bteso_IPv4Address> *d_socketFactory_p; // held
-    btemt_TcpTimerEventManager                   *d_eventManager_p;  // held
-    btes5_CredentialsProvider                    *d_provider_p;      // held
-    bslma::Allocator                             *d_allocator_p;     // held
+    bcema_SharedPtr<Connector> d_connector; // persistent state
 
 public:
     // CREATORS
@@ -193,16 +208,29 @@ public:
         // has at least one level of proxies, and each level is non-empty.
 
     ~btes5_NetworkConnector();
-        // Destroy this object.
+        // Destroy this object. Established connections are not closed.
 
     // MANIPULATORS
-    void connect(const ConnectionStateCallback& callback,
-                 const bdet_TimeInterval&       timeout,
-                 const bteso_Endpoint&          server);
-        // Asynchronously connect to the specified 'server'; the specified
-        // 'callback' will be invoked with connection status. If the specified
-        // 'timeout' is not empty, a successful connection must occur within
-        // that time.
+    AttemptHandle makeAttemptHandle(const ConnectionStateCallback& callback,
+                                    const bdet_TimeInterval&       timeout,
+                                    const bteso_Endpoint&          server);
+        // Return a 'AttemptHandle' object that can be used to asynchronously
+        // connect to the specified 'server'; the specified 'callback' will be
+        // invoked with connection status. If the specified 'timeout' is not
+        // empty, a successful connection must occur within that time. The
+        // handle can be used to start the connection attempt by calling
+        // 'startAttempt()' and cancel the attempt by calling
+        // 'cancelAttempt()'.
+
+    void startAttempt(AttemptHandle& connectionAttempt);
+        // Start the specified 'connectionAttempt'.
+
+    void cancelAttempt(AttemptHandle& connectionAttempt);
+        // Cancel the specified 'connectionAttempt'. Further invocation of the
+        // associated callback is disabled, but this function does *not*
+        // synchronize with callback invocation (i.e. an invocation initiated
+        // before the call to this function may execute after the return from
+        // this function).
 
 };
 

@@ -48,10 +48,9 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ===================
-                        // class btes5_DetailedError
-                        // ===================
-
+                          // =========================
+                          // class btes5_DetailedError
+                          // =========================
 struct btes5_DetailedError {
     // This value-semantic struct provides information about an error during a
     // connection attempt using SOCKS5. Note that the address attribute may not

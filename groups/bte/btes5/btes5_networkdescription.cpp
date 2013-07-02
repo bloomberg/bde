@@ -40,13 +40,13 @@ btes5_NetworkDescription& btes5_NetworkDescription::operator=(const btes5_Networ
     return *this;
 }
 
-int btes5_NetworkDescription::addProxy(int level,
-             const bteso_Endpoint&         address,
-             const btes5_Credentials&  credentials)
+bsl::size_t btes5_NetworkDescription::addProxy(
+    bsl::size_t level,
+    const bteso_Endpoint&         address,
+    const btes5_Credentials&  credentials)
     // Add a proxy host with the specified 'address' and 'credentials' t
     // the specified 'level', and return its ordinal number in the 'level'.
 {
-    BSLS_ASSERT(level >= 0);
     // make sure we have a contiugous vector of proxy levels
     if (d_proxies.size() < bsl::size_t(level + 1)) {
         d_proxies.resize(level + 1);
@@ -55,37 +55,45 @@ int btes5_NetworkDescription::addProxy(int level,
     return d_proxies[level].size();
 }
 
-int btes5_NetworkDescription::addProxy(int level, const bteso_Endpoint& address)
+bsl::size_t btes5_NetworkDescription::addProxy(bsl::size_t           level,
+                                               const bteso_Endpoint& address)
 {
     return addProxy(level, address, btes5_Credentials());
 }
 
 void btes5_NetworkDescription::setCredentials(
-    int                          level,
-    int                          order,
+    bsl::size_t                  level,
+    bsl::size_t                  order,
     const btes5_Credentials& credentials)
 {
-    BSLS_ASSERT(0 <= level && level < d_proxies.size());
-    BSLS_ASSERT(0 <= order && order < d_proxies[level].size());
+    BSLS_ASSERT(level < d_proxies.size());
+    BSLS_ASSERT(order < d_proxies[level].size());
     d_proxies[level][order].setCredentials(credentials);
 }
 
 // ACCESSORS
-int btes5_NetworkDescription::levelCount() const {
+bsl::size_t btes5_NetworkDescription::levelCount() const
+{
     return d_proxies.size();
 }
 
-btes5_NetworkDescription::ProxyIterator btes5_NetworkDescription::beginLevel(
-    int level) const
+bsl::size_t btes5_NetworkDescription::numProxies(bsl::size_t level) const
 {
-    BSLS_ASSERT(0 <= level && level < d_proxies.size());
+    BSLS_ASSERT(level < d_proxies.size());
+    return d_proxies[level].size();
+}
+
+btes5_NetworkDescription::ProxyIterator btes5_NetworkDescription::beginLevel(
+    bsl::size_t level) const
+{
+    BSLS_ASSERT(level < d_proxies.size());
     return d_proxies[level].begin();
 }
 
 btes5_NetworkDescription::ProxyIterator btes5_NetworkDescription::endLevel(
-    int level) const
+    bsl::size_t level) const
 {
-    BSLS_ASSERT(0 <= level && level < d_proxies.size());
+    BSLS_ASSERT(level < d_proxies.size());
     return d_proxies[level].end();
 }
 
@@ -102,7 +110,7 @@ bool operator!=(const btes5_NetworkDescription& lhs,
     if (lhs.levelCount() != rhs.levelCount()) {
         return true;
     }
-    for (int l = 0, endLevel = lhs.levelCount(); l < endLevel; l++) {
+    for (bsl::size_t l = 0, endLevel = lhs.levelCount(); l < endLevel; l++) {
         for (btes5_NetworkDescription::ProxyIterator
                 lhsProxy = lhs.beginLevel(l),
                 lhsEnd = lhs.endLevel(l),
@@ -122,7 +130,8 @@ bool operator!=(const btes5_NetworkDescription& lhs,
 bsl::ostream& operator<<(bsl::ostream&                 output,
                          const btes5_NetworkDescription& object)
 {
-    for (int l = 0, endLevel = object.levelCount(); l < endLevel; l++) {
+    for (bsl::size_t l = 0, endLevel = object.levelCount(); l < endLevel; l++)
+    {
         output << "Proxy level " << l << ":";
         for (btes5_NetworkDescription::ProxyIterator
                 proxy = object.beginLevel(l),
@@ -141,11 +150,11 @@ bsl::ostream& operator<<(bsl::ostream&                 output,
                      // -----------------------------------
 void btes5_NetworkDescriptionUtil::setLevelCredentials(
     btes5_NetworkDescription     *proxyNetwork,
-    int                           level,
+    bsl::size_t                   level,
     const btes5_Credentials&  credentials)
 {
-    BSLS_ASSERT(0 <= level && level < proxyNetwork->levelCount());
-    int order = 0;
+    BSLS_ASSERT(level < proxyNetwork->levelCount());
+    bsl::size_t order = 0;
     for (btes5_NetworkDescription::ProxyIterator
             proxy = proxyNetwork->beginLevel(level),
             end = proxyNetwork->endLevel(level);
@@ -160,7 +169,7 @@ void btes5_NetworkDescriptionUtil::setAllCredentials(
     btes5_NetworkDescription      *proxyNetwork,
     const btes5_Credentials&   credentials)
 {
-    for (int l = 0, end = proxyNetwork->levelCount(); l != end; l++) {
+    for (bsl::size_t l = 0, end = proxyNetwork->levelCount(); l != end; l++) {
         setLevelCredentials(proxyNetwork, l, credentials);
     }
 }

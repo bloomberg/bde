@@ -211,13 +211,15 @@ static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
     bcemt_Condition stateChanged;
     volatile int    state = 0; // value > 0 indicates success, < 0 is error
     using namespace bdef_PlaceHolders;
-    connector.connect(bdef_BindUtil::bind(connectCb,
-                                          _1, _2, _3, _4,
-                                          &stateLock,
-                                          &stateChanged,
-                                          &state),
+    btes5_NetworkConnector::AttemptHandle attempt
+        = connector.makeAttemptHandle(bdef_BindUtil::bind(connectCb,
+                                                          _1, _2, _3, _4,
+                                                          &stateLock,
+                                                          &stateChanged,
+                                                          &state),
                       timeout,
                       bteso_Endpoint("destination.example.com", 8194));
+    connector.startAttempt(attempt);
     bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
     while (!state) {
         stateChanged.wait(&stateLock);
@@ -240,7 +242,7 @@ int main(int argc, char *argv[])
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -337,14 +339,16 @@ int main(int argc, char *argv[])
         bcemt_Mutex     stateLock;
         bcemt_Condition stateChanged;
         volatile int    state = 0; // value > 0 indicates success, < 0 is error
-        connector.connect(bdef_BindUtil::bind(socks5Cb,
-                                              _1, _2, _3, _4,
-                                              &sessionPool,
-                                              &stateLock,
-                                              &stateChanged,
-                                              &state),
+        btes5_NetworkConnector::AttemptHandle attempt
+            = connector.makeAttemptHandle(bdef_BindUtil::bind(socks5Cb,
+                                                              _1, _2, _3, _4,
+                                                              &sessionPool,
+                                                              &stateLock,
+                                                              &stateChanged,
+                                                              &state),
                           timeout,
                           destination);
+        connector.startAttempt(attempt);
         bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
         while (!state) {
             stateChanged.wait(&stateLock);

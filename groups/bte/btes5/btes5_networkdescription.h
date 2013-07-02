@@ -45,6 +45,10 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef.h>
+#endif
+
 namespace BloombergLP {
                      // ===================================
                      // class btes5_NetworkDescription
@@ -99,20 +103,20 @@ class btes5_NetworkDescription {
         // return a reference providing modifiable access to this object.
 
     // TODO: replace both with addProxy(int, const btes5_ProxyDescription&) ?
-    int addProxy(int                          level,
-                 const bteso_Endpoint&        address,
-                 const btes5_Credentials& credentials);
+    bsl::size_t addProxy(bsl::size_t                  level,
+                         const bteso_Endpoint&        address,
+                         const btes5_Credentials&     credentials);
         // Add a proxy host with the specified 'address' and 'credentials' to
         // the specified 'level', and return its ordinal number in the 'level'.
         // The behavior is undefined unless 'level >= 0'.
 
-    int addProxy(int level, const bteso_Endpoint& address);
+    bsl::size_t addProxy(bsl::size_t level, const bteso_Endpoint& address);
         // Add a proxy host with the specified 'address' to the specified
         // 'level' and unset credentials, and return its ordinal number in the
         // 'level'. The behavior is undefined unless 'level >= 0'.
 
-    void setCredentials(int                          level,
-                        int                          order,
+    void setCredentials(bsl::size_t                  level,
+                        bsl::size_t                  order,
                         const btes5_Credentials& credentials);
         // Set credentials for the proxy identified by the specified 'level'
         // and 'order' to the specified 'credentials'. The behavior is
@@ -120,16 +124,20 @@ class btes5_NetworkDescription {
         // added with 'addProxy'.
 
     // ACCESSORS
-    int levelCount() const;
+    bsl::size_t levelCount() const;
         // Return the number of levels in this 'btes5_NetworkDescription'
         // object.
 
-    ProxyIterator beginLevel(int level) const;
+    bsl::size_t numProxies(bsl::size_t level) const;
+        // Return the number of proxies in the specified 'level'. The behavior
+        // is undefined unless '0 <= level && level < levelCount()'.
+
+    ProxyIterator beginLevel(bsl::size_t level) const;
         // Return the beginning iterator providing read-only access to proxies
         // in the specified 'level'. The behavior is undefined unless
         // '0 <= level && level < levelCount()'.
 
-    ProxyIterator endLevel(int level) const;
+    ProxyIterator endLevel(bsl::size_t level) const;
         // Return the ending iterator providing read-only access to proxies
         // in the specified 'level'. The behavior is undefined unless
         // '0 <= level && level < levelCount()'.
@@ -143,14 +151,14 @@ struct btes5_NetworkDescriptionUtil {
     // 'btes5_NetworkDescription' objects.
 
     static void setLevelCredentials(btes5_NetworkDescription     *proxyNetwork,
-                                    int                           level,
+                                    bsl::size_t                   level,
                                     const btes5_Credentials&  credentials);
         // Assign the specified 'credentials' for authenticating with every
         // proxy in the specified 'level' of the specified 'proxyNetwork'. The
         // behavior is undefined unless '0 <= level && level < levelCount()'.
 
     static void setAllCredentials(btes5_NetworkDescription      *proxyNetwork,
-                                  const btes5_Credentials&   credentials);
+                                  const btes5_Credentials&       credentials);
         // Assign the specified 'credentials' for authenticating with every
         // proxy in the specified 'proxyNetwork'. The behavior is undefined
         // unless '0 <= level && level < levelCount()'.

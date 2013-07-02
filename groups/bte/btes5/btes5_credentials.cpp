@@ -14,7 +14,7 @@ namespace BloombergLP {
                          // ---------------------------
 
 // CREATORS
-btes5_Credentials::btes5_Credentials(bslma_Allocator *allocator)
+btes5_Credentials::btes5_Credentials(bslma::Allocator *allocator)
 : d_username(bslma::Default::allocator(allocator))
 , d_password(bslma::Default::allocator(allocator))
 {
