@@ -129,8 +129,8 @@ static void aSsErT(bool b, const char *s, int i) {
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define A(X) printf( #X " = %p\n", (void *) (X)); // Print address
-#define A_(X) printf( #X " = %p, ", (void *) (X));
+#define A(X) printf( #X " = %p\n", (X)); // Print address
+#define A_(X) printf( #X " = %p, ", (X));
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
