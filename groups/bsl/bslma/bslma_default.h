@@ -514,14 +514,15 @@ BSLS_IDENT("$Id: $")
 //      // of the global allocator.
 //
 //      // CLASS DATA
-//      static my_Singleton *d_singleton_p;  // pointer to singleton object
+//      static my_Singleton *s_singleton_p;  // pointer to singleton object
 //
-//      // DATA
+//      // PRIVATE DATA
 //      my_Id d_id;  // allocating
 //
 //      // NOT IMPLEMENTED
-//      my_Singleton(const my_Singleton&, bslma::Allocator * = 0);
-//      my_Singleton& operator=(const my_Singleton&);
+//      my_Singleton(const my_Singleton&  original,
+//                   bslma::Allocator    *basicAllocator = 0);
+//      my_Singleton& operator=(const my_Singleton& rhs);
 //
 //    private:
 //      // PRIVATE CREATORS
@@ -558,12 +559,12 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  const my_Singleton& my_Singleton::singleton()
 //  {
-//      return *d_singleton_p;
+//      return *s_singleton_p;
 //  }
 //
-//  // PRIVATE CREATORS
+//  // CREATORS
 //  inline
-//  my_Singleton::my_Singleton(const char       *id,
+//  my_Singleton::my_Singleton(const char *id,
 //                             bslma::Allocator *basicAllocator)
 //  : d_id(id, bslma::Default::globalAllocator(basicAllocator))
 //  {
@@ -588,34 +589,32 @@ BSLS_IDENT("$Id: $")
 //  #include <my_singleton.h>
 //  #include <bsls_alignedbuffer.h>
 //
-//  my_Singleton *my_Singleton::d_singleton_p;
+//  my_Singleton *my_Singleton::s_singleton_p;
 //
 //  // CLASS METHODS
 //  void my_Singleton::initSingleton(const char       *id,
 //                                   bslma::Allocator *basicAllocator)
 //  {
 //      static bsls::AlignedBuffer<sizeof(my_Singleton)> singleton;
-//      d_singleton_p = new (singleton.buffer()) my_Singleton(id,
+//      s_singleton_p = new (singleton.buffer()) my_Singleton(id,
 //                                                            basicAllocator);
 //  }
 //..
 // In the following, the default and global allocators are set to distinct
-// objects of type 'my_CountingAllocator'.  Note that the default allocator is
-// set and locked identically to what was done in the previous two usage
-// examples:
+// instances of 'my_CountingAllocator'.  Note that the default allocator is set
+// and locked identically to what was done in the previous two usage examples:
 //..
 //  static my_CountingAllocator defaultCountingAllocator;
 //
-//  int status =
-//              bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
-//  assert(0 == status);
+//  int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
+//  ASSERT(0 == status);
 //  bslma::Default::lockDefaultAllocator();
-//  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
+//  ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //
 //  static my_CountingAllocator globalCountingAllocator;
 //
 //  bslma::Default::setGlobalAllocator(&globalCountingAllocator);
-//  assert(bslma::Default::globalAllocator() == &globalCountingAllocator);
+//  ASSERT(bslma::Default::globalAllocator() == &globalCountingAllocator);
 //..
 // Finally, we initialize the singleton object.  We explicitly specify the
 // desired allocator in the call to 'initSingleton' to make our intentions as
@@ -624,17 +623,17 @@ BSLS_IDENT("$Id: $")
 // had been specified.  As in previous examples, the states of the default and
 // global allocators are asserted before and after initializing the singleton:
 //..
-//  assert(0 == defaultCountingAllocator.numBlocksInUse());
-//  assert(0 == defaultCountingAllocator.numBlocksTotal());
-//  assert(0 == globalCountingAllocator.numBlocksInUse());
-//  assert(0 == globalCountingAllocator.numBlocksTotal());
+//  ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
+//  ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
+//  ASSERT(0 == globalCountingAllocator.numBlocksInUse());
+//  ASSERT(0 == globalCountingAllocator.numBlocksTotal());
 //
 //  my_Singleton::initSingleton("S", bslma::Default::globalAllocator());
 //
-//  assert(0 == defaultCountingAllocator.numBlocksInUse());
-//  assert(0 == defaultCountingAllocator.numBlocksTotal());
-//  assert(1 == globalCountingAllocator.numBlocksInUse());
-//  assert(1 == globalCountingAllocator.numBlocksTotal());
+//  ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
+//  ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
+//  ASSERT(1 == globalCountingAllocator.numBlocksInUse());
+//  ASSERT(1 == globalCountingAllocator.numBlocksTotal());
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
