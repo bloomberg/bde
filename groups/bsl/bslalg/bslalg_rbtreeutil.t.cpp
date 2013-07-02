@@ -1168,7 +1168,8 @@ struct TestTypeValue<PrimitiveTestTypes::ObjectPtr>
     PrimitiveTestTypes::ObjectPtr create(int value) const {
         BSLS_ASSERT(0 <= value);
 
-        return (PrimitiveTestTypes::ObjectPtr)(bsls::Types::IntPtr)(value);
+        return reinterpret_cast<PrimitiveTestTypes::ObjectPtr>(
+            static_cast<bsls::Types::IntPtr>(value));
     }
 
     int getValue(const PrimitiveTestTypes::ObjectPtr& value) const {
@@ -1184,7 +1185,8 @@ struct TestTypeValue<PrimitiveTestTypes::FunctionPtr>
     PrimitiveTestTypes::FunctionPtr create(int value) const {
         BSLS_ASSERT(0 <= value);
 
-        return (PrimitiveTestTypes::FunctionPtr)(bsls::Types::IntPtr)(value);
+        return reinterpret_cast<PrimitiveTestTypes::FunctionPtr>(
+            static_cast<bsls::Types::IntPtr>(value));
     }
 
     int getValue(const PrimitiveTestTypes::FunctionPtr& value) const {
