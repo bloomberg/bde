@@ -706,7 +706,9 @@ class bcec_Queue {
         // constructor.
 
     int length() const;
-        // Return the number of elements in this queue.
+        // Return the number of elements in this queue.  Note that if other
+        // threads are manipulating the queue, this information may be obsolete
+        // by the time it is returned.
 };
 
 // ===========================================================================
