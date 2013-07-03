@@ -6,17 +6,10 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
-#if 0
-#include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
-#else
 #include <algorithm>  // std::swap
 
 #include <stdlib.h>
 #include <stdio.h>
-#endif
 
 using namespace BloombergLP;
 using std::swap;

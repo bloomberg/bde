@@ -6,17 +6,9 @@
 #include <bslma_default.h>
 #include <bsls_bsltestutil.h>
 
-//#include <bdet_datetime.h>
-
-//#include <bsl_algorithm.h>       // for 'bsl::swap'
-//#include <bsl_iostream.h>
-
 #include <stdio.h>
 #include <stdlib.h>             // 'atoi'
 
-//using bsl::cout;
-//using bsl::endl;
-//using bsl::cerr;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC  // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS         // Microsoft Extensions Enabled
@@ -69,12 +61,9 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
 }  // close unnamed namespace
-
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -130,9 +119,9 @@ typedef MyTestImplementation TObj;
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-                         // ========================
+                         // ==========================
                          // class MyTestImplementation
-                         // ========================
+                         // ==========================
 
 class MyTestImplementation : public bslma::SharedPtrRep{
     // This class provides an implementation for 'bslma::SharedPtrRep' so that
@@ -390,13 +379,13 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
-    case 10: {
 #if 0  // TBD Need an appropriately levelized usage example
+    case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -446,10 +435,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   void managedPtrDeleter(void*, bslma::SharedPtrRep *rep);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'managedPtrDeleter'" << endl
-                          << "==========================" << endl;
-
+        if (verbose) printf("\nTesting 'managedPtrDeleter'"
+                            "\n===========================\n");
         {
             TObj t;
             Obj& x = t;
@@ -478,10 +465,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   void incrementRefs(int incrementAmount = 1);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'incrementRefs'" << endl
-                          << "========================" << endl;
-
+        if (verbose) printf("\nTesting 'incrementRefs'"
+                            "\n=======================\n");
         {
             TObj t;
             Obj& x = t;
@@ -532,10 +517,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   bool tryAcquireRef();
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'tryAcquireRef'" << endl
-                          << "========================" << endl;
-
+        if (verbose) printf("\nTesting 'tryAcquireRef'"
+                            "\n=======================\n");
         {
             TObj t;
             Obj& x = t;
@@ -569,10 +552,8 @@ int main(int argc, char *argv[])
         //   void resetCountsRaw(int numSharedReferences,
         //                       int numWeakReferences);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'resetCountsRaw'" << endl
-                          << "========================" << endl;
-
+        if (verbose) printf("\nTesting 'resetCountsRaw'"
+                            "\n========================\n");
         {
             TObj t;
             Obj& x = t;
@@ -615,10 +596,8 @@ int main(int argc, char *argv[])
         //   void disposeObject();
         //   void disposeRep();
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'disposeObject' and 'disposeRep'" << endl
-                          << "====================================" << endl;
-
+        if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
+                            "\n========================================\n");
         {
             TObj t;
             Obj& x = t;
@@ -675,10 +654,8 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'acquireRef' and 'releaseRef'" << endl
-                          << "====================================" << endl;
-
+        if (verbose) printf("\nTesting 'acquireRef' and 'releaseRef'"
+                            "\n=====================================\n");
         {
             TObj t;
             Obj& x = t;
@@ -730,10 +707,8 @@ int main(int argc, char *argv[])
         //   void acquireRef();
         //   void acquireWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'acquireRef' and 'releaseRef'" << endl
-                          << "====================================" << endl;
-
+        if (verbose) printf("\nTesting 'acquireRef' and 'releaseRef'"
+                            "\n=====================================\n");
         {
             TObj t;
             Obj& x = t;
@@ -762,7 +737,6 @@ int main(int argc, char *argv[])
             ASSERT(3 == X.numReferences());
             ASSERT(2 == X.numWeakReferences());
             ASSERT(false == X.hasUniqueOwner());
-
         }
       } break;
       case 2: {
@@ -782,13 +756,11 @@ int main(int argc, char *argv[])
         //   int numWeakReferences() const;
         //   bool hasUniqueOwner() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing Constructors and Destructor" << endl
-                          << "===================================" << endl;
+        if (verbose) printf("\nTesting Constructors and Destructor"
+                            "\n===================================\n");
 
-        if (verbose) cout << endl
-                          << "Testing default constructor" << endl
-                          << "---------------------------" << endl;
+        if (verbose) printf("\nTesting default constructor"
+                            "\n---------------------------\n");
         {
             TObj t;
             Obj& x = t;
@@ -806,9 +778,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   This test exercises basic functionality but tests nothing.
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
         {
             TObj t;
             Obj& x = t;
@@ -832,15 +803,14 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
 

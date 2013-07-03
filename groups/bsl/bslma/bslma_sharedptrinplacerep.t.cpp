@@ -4,15 +4,8 @@
 #include <bslma_testallocator.h>
 #include <bsls_bsltestutil.h>
 
-//#include <bdet_datetime.h>                                  // for testing only
-//#include <bsl_iostream.h>
-
 #include <stdio.h>
 #include <stdlib.h>
-
-//using bsl::cout;
-//using bsl::endl;
-//using bsl::cerr;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC  // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS         // Microsoft Extensions Enabled
@@ -518,7 +511,7 @@ int main(int argc, char *argv[])
     int numDeallocations;
     int numAllocations;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
@@ -536,9 +529,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   Usage example
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                        << "Testing Usage Example" << endl
-                        << "=====================" << endl;
+        if (verbose) printf(endl
+                        << "Testing Usage Example\n"
+                        << "=====================\n");
         {
             MySharedDatetime dt1;
             ASSERT(0 == ta.numAllocations());
@@ -585,9 +578,8 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                        << "Testing 'releaseRef' and 'releaseWeakRef'" << endl
-                        << "=========================================" << endl;
+        if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+                            "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -613,18 +605,17 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numWeakReferences());
             ASSERT(true == X.hasUniqueOwner());
 
-            if (verbose) cout << endl
-                     << "Testing 'releaseRef' with no weak reference'" << endl
-                     << "--------------------------------------------" << endl;
+            if (verbose) printf(
+                        "\nTesting 'releaseRef' with no weak reference'"
+                        "\n--------------------------------------------\n");
 
             x.releaseRef();
 
             ASSERT(1 == numDeletes);
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
-        if (verbose) cout << endl
-                        << "Testing 'releaseRef' with weak reference'" << endl
-                        << "-----------------------------------------" << endl;
+        if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+                            "\n-----------------------------------------\n");
 
         {
             int numDeletes = 0;
@@ -662,8 +653,8 @@ int main(int argc, char *argv[])
         //   void disposeObject();
         //
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting disposeObject"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting disposeObject"
+                            "\n---------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -711,9 +702,8 @@ int main(int argc, char *argv[])
         //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a13);
         //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a14);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing constructor" << endl
-                          << "=======================" << endl;
+        if (verbose) printf("\nTesting constructor\n"
+                            "\n===================\n");
 
         static const MyTestArg1 V1(1);
         static const MyTestArg2 V2(20);
@@ -730,8 +720,8 @@ int main(int argc, char *argv[])
         static const MyTestArg13 V13(712);
         static const MyTestArg14 V14(1414);
 
-        if (verbose) cout << "\nTesting constructor with 1 argument"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 1 argument"
+                            "\n-----------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -747,8 +737,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting contructor with 2 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting contructor with 2 arguments"
+                            "\n-----------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -764,8 +754,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 3 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 3 arguments"
+                            "\n------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -781,8 +771,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 4 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 4 arguments"
+                            "\n------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -798,8 +788,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 5 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 5 arguments"
+                            "\n------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -815,8 +805,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 6 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 6 arguments"
+                            "\n------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -832,8 +822,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 7 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 7 arguments"
+                            "\n------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -849,8 +839,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 8 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 8 arguments"
+                            "\n------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -867,8 +857,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 9 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 9 arguments"
+                            "\n------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -886,8 +876,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 10 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 10 arguments"
+                            "\n-------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -905,8 +895,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 11 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 11 arguments"
+                            "\n-------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -924,8 +914,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 12 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 12 arguments"
+                            "\n-------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -943,8 +933,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 13 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 13 arguments"
+                            "\n-------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -962,8 +952,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting constructor with 14 arguments"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting constructor with 14 arguments"
+                            "\n-------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -1001,8 +991,8 @@ int main(int argc, char *argv[])
         //   void *originalPtr() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Constructor"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting Constructor"
+                            "\n-------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -1036,21 +1026,19 @@ int main(int argc, char *argv[])
         //   This test exercises basic functionality but tests nothing.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST\n"
+                            "\n==============\n");
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
 

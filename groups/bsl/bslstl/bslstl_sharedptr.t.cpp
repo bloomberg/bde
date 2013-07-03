@@ -1,11 +1,9 @@
-// bcema_sharedptr.t.cpp                                              -*-C++-*-
+// bslstl_sharedptr.t.cpp                                             -*-C++-*-
+#include <bslstl_sharedptr.h>
 
-#include <bcema_sharedptr.h>
-
-#include <bcema_testallocator.h>
-#include <bdef_bind_test.h>
-#include <bdef_function.h>
-#include <bdema_managedptr.h>
+//#include <bdef_bind_test.h>
+//#include <bdef_function.h>
+#include <bslma_managedptr.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -17,29 +15,34 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bsl_algorithm.h>
-#include <bsl_iostream.h>
-#include <bsl_map.h>
-#include <bsl_memory.h>
-#include <bsl_new.h>          // placement syntax
-#include <bsl_utility.h>
-#include <bsl_vector.h>
+#include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 
-#include <bsl_cstdlib.h>      // atoi
-#include <bsl_cstring.h>      // strcmp, strcpy
+//#include <bsl_algorithm.h>
+//#include <bsl_iostream.h>
+//#include <bsl_map.h>
+//#include <bsl_memory.h>
+//#include <bsl_new.h>          // placement syntax
+//#include <bsl_utility.h>
+//#include <bsl_vector.h>
 
-using bsl::endl;
-using bsl::cerr;
-using bsl::cout;
+#include <bslstl_vector.h>
+
+#include <stdlib.h>      // atoi
+#include <string.h>      // strcmp, strcpy
+
+//using bsl::endl;
+//using bsl::cerr;
+//using bsl::cout;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC   // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS          // Microsoft Extensions Enabled
-#include <bsl_new.h>            // if so, need to include new as well
+#include <new>                  // if so, need to include new as well
 #endif
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+//using namespace bsl;  // automatically added by script
 
 //=============================================================================
 //                             TEST PLAN
@@ -59,34 +62,34 @@ using namespace bsl;  // automatically added by script
 //   allocator, and fail if a TestAllocator is installed as the default in
 //   'main'.  This should be addressed as part of resolving DRQS
 //-----------------------------------------------------------------------------
-// bcema_SharedPtrOutofplaceRep
+// bslma::SharedPtrOutofplaceRep
 //-----------------------------
 // [17] void *originalPtr() const;
-// [16] bcema_SharedPtrOutofplaceRep(...);
+// [16] bslma::SharedPtrOutofplaceRep(...);
 //
-// bcema_SharedPtr
+// bsl::shared_ptr
 //----------------
-// [ 2] bcema_SharedPtr();
-//*[ 3] bcema_SharedPtr(OTHER *ptr)
-//*[ 3] bcema_SharedPtr(OTHER *ptr, bslma::Allocator *basicAllocator)
-// [ 3] bcema_SharedPtrTYPE *ptr, bcema_SharedPtrRep *rep);
-// [ 3] bcema_SharedPtr(OTHER *ptr, DELETER *const& deleter);
-// [ 3] bcema_SharedPtr(OTHER *ptr, const DELETER&, bslma::Allocator * = 0);
-// [ 3] bcema_SharedPtr(nullptr_t, const DELETER&, bslma::Allocator * = 0);
-// [  ] bcema_SharedPtr(bdema_ManagedPtr<OTHER>, bslma::Allocator * = 0);
-// [ 3] bcema_SharedPtr(bsl::auto_ptr<OTHER>, bslma::Allocator * = 0);
-// [  ] bcema_SharedPtr(const bcema_SharedPtr<OTHER>& alias, ELEMENT_TYPE *ptr)
-// [  ] bcema_SharedPtr(const bcema_SharedPtr<OTHER>& other);
-//*[ 3] bcema_SharedPtr(const bcema_SharedPtr& original);
-// [ 3] bcema_SharedPtr(bcema_SharedPtrRep *rep);
-// [ 2] ~bcema_SharedPtr();
-// [ 4] bcema_SharedPtr& operator=(const bcema_SharedPtr& rhs);
-// [ 4] bcema_SharedPtr& operator=(const bcema_SharedPtr<OTHER>& rhs);
-// [ 4] bcema_SharedPtr& operator=(bsl::auto_ptr<OTHER> rhs);
+// [ 2] bsl::shared_ptr();
+//*[ 3] bsl::shared_ptr(OTHER *ptr)
+//*[ 3] bsl::shared_ptr(OTHER *ptr, bslma::Allocator *basicAllocator)
+// [ 3] bsl::shared_ptrTYPE *ptr, bslma::SharedPtrRep *rep);
+// [ 3] bsl::shared_ptr(OTHER *ptr, DELETER *const& deleter);
+// [ 3] bsl::shared_ptr(OTHER *ptr, const DELETER&, bslma::Allocator * = 0);
+// [ 3] bsl::shared_ptr(nullptr_t, const DELETER&, bslma::Allocator * = 0);
+// [  ] bsl::shared_ptr(bslma::ManagedPtr<OTHER>, bslma::Allocator * = 0);
+// [ 3] bsl::shared_ptr(std::auto_ptr<OTHER>, bslma::Allocator * = 0);
+// [  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& alias, ELEMENT_TYPE *ptr)
+// [  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& other);
+//*[ 3] bsl::shared_ptr(const bsl::shared_ptr& original);
+// [ 3] bsl::shared_ptr(bslma::SharedPtrRep *rep);
+// [ 2] ~bsl::shared_ptr();
+// [ 4] bsl::shared_ptr& operator=(const bsl::shared_ptr& rhs);
+// [ 4] bsl::shared_ptr& operator=(const bsl::shared_ptr<OTHER>& rhs);
+// [ 4] bsl::shared_ptr& operator=(std::auto_ptr<OTHER> rhs);
 // [ 2] void clear();
 // [ 6] void load(OTHER *ptr, bslma::Allocator *allocator=0)
 // [ 6] void load(OTHER *ptr, const DELETER&, bslma::Allocator *)
-// [ 8] void loadAlias(const bcema_SharedPtr<OTHER>& target, TYPE *object)
+// [ 8] void loadAlias(const bsl::shared_ptr<OTHER>& target, TYPE *object)
 // [ 5] void createInplace(bslma::Allocator *allocator=0);
 // [ 5] void createInplace(bslma::Allocator *allocator, const A1& a1)
 // [ 5] void createInplace(bslma::Allocator *allocator, const A1& a1, ..&a2);
@@ -102,115 +105,125 @@ using namespace bsl;  // automatically added by script
 // [ 5] void createInplace(bslma::Allocator *allocator, const A1& a1,...a12);
 // [ 5] void createInplace(bslma::Allocator *allocator, const A1& a1,...a13);
 // [ 5] void createInplace(bslma::Allocator *allocator, const A1& a1,...a14);
-// [  ] bsl::pair<TYPE *, bcema_SharedPtrRep *> release();
-// [12] void swap(bcema_SharedPtr<OTHER> &src)
-// [ 2] operator bcema_SharedPtr_UnspecifiedBool() const;
-// [ 2] typename bcema_SharedPtr<TYPE>::Reference operator[](ptrdiff_t) const;
-// [ 2] typename bcema_SharedPtr<TYPE>::Reference operator*() const;
+// [  ] bsl::pair<TYPE *, bslma::SharedPtrRep *> release();
+// [12] void swap(bsl::shared_ptr<OTHER> &src)
+// [ 2] operator bsl::shared_ptr_UnspecifiedBool() const;
+// [ 2] typename bsl::shared_ptr<TYPE>::Reference operator[](ptrdiff_t) const;
+// [ 2] typename bsl::shared_ptr<TYPE>::Reference operator*() const;
 // [ 2] TYPE *operator->() const;
 // [ 2] TYPE *ptr() const;
-// [ 2] bcema_SharedPtrRep *rep() const;
+// [ 2] bslma::SharedPtrRep *rep() const;
 // [ 2] int numReferences() const;
-// [13] bdema_ManagedPtr<TYPE> managedPtr() const;
+// [13] bslma::ManagedPtr<TYPE> managedPtr() const;
 // [  ] void reset();
 // [  ] void reset(OTHER *ptr);
 // [  ] void reset(OTHER *ptr, const DELETER& deleter);
-// [  ] void reset(const bcema_SharedPtr<OTHER>& source, TYPE *ptr);
+// [  ] void reset(const bsl::shared_ptr<OTHER>& source, TYPE *ptr);
 // [ 2] TYPE *get() const;
 // [ 2] bool unique() const;
 // [ 2] int use_count() const;
-// [  ] bool owner_before(const bcema_SharedPtr<OTHER>& other) const;
-// [  ] bool operator==(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
-// [  ] bool operator==(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-// [  ] bool operator==(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
-// [  ] bool operator!=(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
-// [  ] bool operator!=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-// [  ] bool operator!=(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
-// [  ] bool operator< (const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
-// [  ] bool operator< (const bcema_SharedPtr<A>&, bsl::nullptr_t);
-// [  ] bool operator< (bsl::nullptr_t,            const bcema_SharedPtr<B>&);
-// [  ] bool operator<=(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
-// [  ] bool operator<=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-// [  ] bool operator<=(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
-// [  ] bool operator>=(const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
-// [  ] bool operator>=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-// [  ] bool operator>=(bsl::nullptr_t,            const bcema_SharedPtr<B>&);
-// [  ] bool operator> (const bcema_SharedPtr<A>&, const bcema_SharedPtr<B>&);
-// [  ] bool operator> (const bcema_SharedPtr<A>&, bsl::nullptr_t);
-// [  ] bool operator> (bsl::nullptr_t,            const bcema_SharedPtr<B>&);
-// [  ] bsl::ostream& operator<<(bsl::ostream&, const bcema_SharedPtr<TYPE>&);
-// [  ] void swap(bcema_SharedPtr<TYPE>& a, bcema_SharedPtr<TYPE>& b);
+// [  ] bool owner_before(const bsl::shared_ptr<OTHER>& other) const;
+// [  ] bool operator==(const bsl::shared_ptr<A>&, const bsl::shared_ptr<B>&);
+// [  ] bool operator==(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+// [  ] bool operator==(bsl::nullptr_t,            const bsl::shared_ptr<B>&);
+// [  ] bool operator!=(const bsl::shared_ptr<A>&, const bsl::shared_ptr<B>&);
+// [  ] bool operator!=(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+// [  ] bool operator!=(bsl::nullptr_t,            const bsl::shared_ptr<B>&);
+// [  ] bool operator< (const bsl::shared_ptr<A>&, const bsl::shared_ptr<B>&);
+// [  ] bool operator< (const bsl::shared_ptr<A>&, bsl::nullptr_t);
+// [  ] bool operator< (bsl::nullptr_t,            const bsl::shared_ptr<B>&);
+// [  ] bool operator<=(const bsl::shared_ptr<A>&, const bsl::shared_ptr<B>&);
+// [  ] bool operator<=(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+// [  ] bool operator<=(bsl::nullptr_t,            const bsl::shared_ptr<B>&);
+// [  ] bool operator>=(const bsl::shared_ptr<A>&, const bsl::shared_ptr<B>&);
+// [  ] bool operator>=(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+// [  ] bool operator>=(bsl::nullptr_t,            const bsl::shared_ptr<B>&);
+// [  ] bool operator> (const bsl::shared_ptr<A>&, const bsl::shared_ptr<B>&);
+// [  ] bool operator> (const bsl::shared_ptr<A>&, bsl::nullptr_t);
+// [  ] bool operator> (bsl::nullptr_t,            const bsl::shared_ptr<B>&);
+// [  ] bsl::ostream& operator<<(bsl::ostream&, const bsl::shared_ptr<TYPE>&);
+// [  ] void swap(bsl::shared_ptr<TYPE>& a, bsl::shared_ptr<TYPE>& b);
 //
-// bcema_SharedPtrLess
+// bslstl::SharedPtrUtil
 //--------------------
-// [  ] bool operator()(const bcema_SharedPtr&, const bcema_SharedPtr&) const;
+// [ 9] bsl::shared_ptr<TARGET> dynamicCast(const bsl::shared_ptr<SOURCE>&);
+// [ 9] bsl::shared_ptr<TARGET> staticCast(const bsl::shared_ptr<SOURCE>&);
+// [ 9] bsl::shared_ptr<TARGET> constCast(const bsl::shared_ptr<SOURCE>&);
+// [  ] void dynamicCast(bsl::shared_ptr<TRGT> *, const bsl::shared_ptr<SRC>&);
+// [  ] void staticCast(bsl::shared_ptr<TRGT> *, const bsl::shared_ptr<SRC>&);
+// [  ] void constCast(bsl::shared_ptr<TRGT> *, const bsl::shared_ptr<SRC>&);
+// [10] bsl::shared_ptr<char> createInplaceUninitializedBuffer(...)
 //
-// bcema_SharedPtrUtil
-//--------------------
-// [ 9] bcema_SharedPtr<TARGET> dynamicCast(const bcema_SharedPtr<SOURCE>&);
-// [ 9] bcema_SharedPtr<TARGET> staticCast(const bcema_SharedPtr<SOURCE>&);
-// [ 9] bcema_SharedPtr<TARGET> constCast(const bcema_SharedPtr<SOURCE>&);
-// [  ] void dynamicCast(bcema_SharedPtr<TRGT> *, const bcema_SharedPtr<SRC>&);
-// [  ] void staticCast(bcema_SharedPtr<TRGT> *, const bcema_SharedPtr<SRC>&);
-// [  ] void constCast(bcema_SharedPtr<TRGT> *, const bcema_SharedPtr<SRC>&);
-// [10] bcema_SharedPtr<char> createInplaceUninitializedBuffer(...)
-// [11] struct PtrLess<TYPE>;
-//
-// bcema_SharedPtrNilDeleter
+// bslstl::SharedPtrNilDeleter
 //--------------------------
 // [  ] void operator()(TYPE *);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] bcema_SharedPtr(TYPE *ptr);
-// [ 2] bcema_SharedPtr(TYPE *ptr, bslma::Allocator *basicAllocator);
+// [ 2] bsl::shared_ptr(TYPE *ptr);
+// [ 2] bsl::shared_ptr(TYPE *ptr, bslma::Allocator *basicAllocator);
 // [14] CONCERN: SHARED POINTER IN-PLACE INSIDE 'bdef_Function' OBJECT
 // [15] CONCERN: C++ 'bsl::shared_ptr' COMPLIANCE
 // [18] USAGE EXAMPLE // TBD
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
+int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+namespace {
+
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
+
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 //=============================================================================
-//                    STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-          << J << "\t" << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J \
-          << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
-          << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -235,8 +248,8 @@ class MyTestFunctor;
 void myTestFunctor(MyTestObject *);
 
 // TYPEDEFS
-typedef bcema_SharedPtr<MyTestObject> Obj;
-typedef bcema_SharedPtr<const MyTestObject> ConstObj;
+typedef bsl::shared_ptr<MyTestObject> Obj;
+typedef bsl::shared_ptr<const MyTestObject> ConstObj;
 typedef MyTestObject TObj;
 
 //=============================================================================
@@ -248,17 +261,17 @@ namespace NAMESPACE_TEST_CASE_16 {
 int x = 1, y = 2;
 double z = 3.0;
 
-const bcema_SharedPtr<int>    ptrNil((int *)0);
-const bcema_SharedPtr<int>    ptr1(&x, bcema_SharedPtrNilDeleter(), 0);
-const bcema_SharedPtr<int>    ptr2(&y, bcema_SharedPtrNilDeleter(), 0);
-const bcema_SharedPtr<double> ptr3(&z, bcema_SharedPtrNilDeleter(), 0);
+const bsl::shared_ptr<int>    ptrNil((int *)0);
+const bsl::shared_ptr<int>    ptr1(&x, bslstl::SharedPtrNilDeleter(), 0);
+const bsl::shared_ptr<int>    ptr2(&y, bslstl::SharedPtrNilDeleter(), 0);
+const bsl::shared_ptr<double> ptr3(&z, bslstl::SharedPtrNilDeleter(), 0);
 
-bcema_SharedPtr<int> ptrNilFun()
+bsl::shared_ptr<int> ptrNilFun()
 {
     return ptrNil;
 }
 
-bcema_SharedPtr<int> ptr1Fun()
+bsl::shared_ptr<int> ptr1Fun()
 {
     return ptr1;
 }
@@ -778,7 +791,7 @@ template <class POINTER>
 struct PerformanceTester
 {
    static void test(bool verbose, bool allocVerbose) {
-        bcema_TestAllocator ta(allocVerbose);
+        bslma::TestAllocator ta(allocVerbose);
 
         enum {
             NUM_ITER        = 1000,
@@ -802,16 +815,18 @@ struct PerformanceTester
             mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
         }
         timer.stop();
-        cout << "Creating " << BIG_VECTOR_SIZE << " owned objects in "
+#if 0 // TBD fix printing
+        printf("Creating " << BIG_VECTOR_SIZE << " owned objects in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // 0 TBD fix printing
 
         for (int i = 1; i < BIG_VECTOR_SIZE; ++i) {
             mZ[i]->~TObj();
@@ -825,17 +840,19 @@ struct PerformanceTester
             new(mZ[i]) TObj(*Z[0]);
         }
         timer.stop();
-        cout << "Copy-constructing " << BIG_VECTOR_SIZE - 1
+#if 0 // TBD fix printing
+        printf("Copy-constructing " << BIG_VECTOR_SIZE - 1
              << " owned objects in " << timer.elapsedTime() << "s ("
              << timer.elapsedTime() / (BIG_VECTOR_SIZE - 1) << "s each)"
              << endl;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // 0 TBD fix printing
 
         deleteCounter = copyCounter = 0;
         numAlloc = ta.numAllocations();
@@ -845,16 +862,18 @@ struct PerformanceTester
             ((bslma::Allocator *)&ta)->deleteObject(mZ[i]);
         }
         timer.stop();
-        cout << "Destroying " << BIG_VECTOR_SIZE << " owned objects in "
+#if 0 // TBD fix printing
+        printf("Destroying " << BIG_VECTOR_SIZE << " owned objects in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // 0 TBD fix printing
 
         deleteCounter = copyCounter = 0;
         numAlloc = ta.numAllocations();
@@ -862,22 +881,24 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
         }
-        cout << "Rehydrated " << BIG_VECTOR_SIZE
-             << " owned objects" << endl;
+#if 0 // TBD fix printing
+        printf("Rehydrated " << BIG_VECTOR_SIZE
+             << " owned objects\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // 0 TBD fix printing
 
         bsl::vector<POINTER> mX(&ta);
         const bsl::vector<POINTER>& X = mX;
 
         // -------------------------------------------------------------------
-        cout << "\nCreating out-of-place representations."
-             << "\n--------------------------------------" << endl;
+        printf("\nCreating out-of-place representations."
+               "\n--------------------------------------\n");
 
         mX.resize(BIG_VECTOR_SIZE);
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
@@ -901,17 +922,19 @@ struct PerformanceTester
             new(&mX[i]) POINTER(Z[i], &ta);
         }
         timer.stop();
-        cout << "Creating " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+        printf("Creating " << BIG_VECTOR_SIZE
              << " distinct shared pointers in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // 0 TBD fix printing
 
         timer.reset();
         deleteCounter = copyCounter = 0;
@@ -922,17 +945,19 @@ struct PerformanceTester
             (&mX[i])->~POINTER();
         }
         timer.stop();
-        cout << "Destroying " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+        printf("Destroying " << BIG_VECTOR_SIZE
              << " distinct shared pointers in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // 0 TBD fix printing
 
         // Note:  Z now contains dangling pointers.  Rehydrate!
         deleteCounter = copyCounter = 0;
@@ -941,15 +966,17 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
         }
-        cout << "Rehydrated " << BIG_VECTOR_SIZE
-             << " owned objects" << endl;
+#if 0 // TBD fix printing
+        printf("Rehydrated " << BIG_VECTOR_SIZE
+             << " owned objects\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // 0 TBD fix printing
 
         {
             POINTER Y(Z[0], &ta);
@@ -962,18 +989,20 @@ struct PerformanceTester
                 new(&mX[i]) POINTER(Y);
             }
             timer.stop();
-            cout << "Creating " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+            printf("Creating " << BIG_VECTOR_SIZE
                  << " copies of the same shared pointer in "
                  << timer.elapsedTime() << "s ("
-                 << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+                 << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
             if (verbose) {
-                cout << "\t" << ta.numAllocations() - numAlloc
+                printf("\t" << ta.numAllocations() - numAlloc
                      << " allocations, "
                      << ta.numBytesInUse() - numBytes << " bytes\n"
                      << "\t" << copyCounter << " copies of test objects\n"
                      << "\t" << deleteCounter << " deletions of test objects"
                      << endl;
             }
+#endif // 0 TBD fix printing
         }
 
         timer.reset();
@@ -985,17 +1014,19 @@ struct PerformanceTester
             (&mX[i])->~POINTER();
         }
         timer.stop();
-        cout << "Destroying " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+        printf("Destroying " << BIG_VECTOR_SIZE
              << " times the same shared pointer in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
         // Note:  Z[0] is now dangling, and X contains only empty shared
         // pointers.  Rehydrate, but with empty shared pointers!
@@ -1006,18 +1037,20 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             new(&mX[i]) POINTER();
         }
-        cout << "Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
-             << " empty shared pointers" << endl;
+#if 0 // TBD fix printing
+        printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
+             << " empty shared pointers\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
-        cout << "\nCreating in-place representations."
-             << "\n----------------------------------" << endl;
+        printf("\nCreating in-place representations."
+               "\n----------------------------------\n");
 
         timer.reset();
         deleteCounter = copyCounter = 0;
@@ -1028,17 +1061,19 @@ struct PerformanceTester
             mX[i].createInplace(&ta, *Z[i]);
         }
         timer.stop();
-        cout << "Creating " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+        printf("Creating " << BIG_VECTOR_SIZE
              << " distinct in-place shared pointers in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
         timer.reset();
         deleteCounter = copyCounter = 0;
@@ -1049,20 +1084,22 @@ struct PerformanceTester
             (&mX[i])->~POINTER();
         }
         timer.stop();
-        cout << "Destroying " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+        printf("Destroying " << BIG_VECTOR_SIZE
              << " distinct in-place shared pointers in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
-        cout << "\nCreating aliased shared pointers."
-             << "\n---------------------------------" << endl;
+        printf("\nCreating aliased shared pointers."
+               "\n---------------------------------\n");
 
         {
             POINTER Y(Z[0], &ta);
@@ -1075,18 +1112,20 @@ struct PerformanceTester
                 new(&mX[i]) POINTER(Y, Z[i]);
             }
             timer.stop();
-            cout << "Creating " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+            printf("Creating " << BIG_VECTOR_SIZE
                  << " aliases of the same shared pointer in "
                  << timer.elapsedTime() << "s ("
-                 << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+                 << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
             if (verbose) {
-                cout << "\t" << ta.numAllocations() - numAlloc
+                printf("\t" << ta.numAllocations() - numAlloc
                      << " allocations, "
                      << ta.numBytesInUse() - numBytes << " bytes\n"
                      << "\t" << copyCounter << " copies of test objects\n"
                      << "\t" << deleteCounter << " deletions of test objects"
                      << endl;
             }
+#endif // TBD fix printing
         }
 
         timer.reset();
@@ -1098,17 +1137,19 @@ struct PerformanceTester
             (&mX[i])->~POINTER();
         }
         timer.stop();
-        cout << "Destroying " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+        printf("Destroying " << BIG_VECTOR_SIZE
              << " aliases of the same shared pointer in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif  // TBD fix printing
 
         // Note:  Z[0] is now dangling, and X contains only empty shared
         // pointers.  Rehydrate!
@@ -1119,19 +1160,21 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             new(&mX[i]) POINTER(Z[i], &ta);
         }
-        cout << "Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
-             << " shared pointers" << endl;
+#if 0 // TBD fix printing
+        printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
+             << " shared pointers\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
         // -------------------------------------------------------------------
-        cout << "\nAssignment."
-             << "\n-----------" << endl;
+        printf("\nAssignment."
+               "\n-----------\n");
 
         timer.reset();
         deleteCounter = copyCounter = 0;
@@ -1146,18 +1189,20 @@ struct PerformanceTester
             mX.back() = Y;
         }
         timer.stop();
-        cout << "Assigning " << BIG_VECTOR_SIZE + 1
+#if 0 // TBD fix printing
+        printf("Assigning " << BIG_VECTOR_SIZE + 1
              << " distinct shared pointers in "
              << timer.elapsedTime() << "s ("
              << timer.elapsedTime() / (BIG_VECTOR_SIZE + 1) << "s each)"
              << endl;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
         timer.reset();
         deleteCounter = copyCounter = 0;
@@ -1171,17 +1216,19 @@ struct PerformanceTester
             }
         }
         timer.stop();
-        cout << "Assigning " << BIG_VECTOR_SIZE
+#if 0 // TBD fix printing
+        printf("Assigning " << BIG_VECTOR_SIZE
              << " times the same shared pointer in "
              << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)" << endl;
+             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
         // Note:  Z now contains dangling pointers, except Z[0].  Rehydrate!
         // Note:  Z now contains dangling pointers.  Rehydrate!
@@ -1191,19 +1238,21 @@ struct PerformanceTester
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
             mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
         }
-        cout << "Rehydrated " << BIG_VECTOR_SIZE
-             << " owned objects" << endl;
+#if 0 // TBD fix printing
+        printf("Rehydrated " << BIG_VECTOR_SIZE
+             << " owned objects\n");;
         if (verbose) {
-            cout << "\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
 
         // -------------------------------------------------------------------
-        cout << "\nPooling out-of-place representations."
-             << "\n-------------------------------------" << endl;
+        printf("\nPooling out-of-place representations."
+               "\n-------------------------------------\n");
 
         // TBD
 
@@ -1239,25 +1288,25 @@ class ManagedPtrTestDeleter {
 class SelfReference
 {
     // DATA
-    bcema_SharedPtr<SelfReference> d_dataPtr;
+    bsl::shared_ptr<SelfReference> d_dataPtr;
 
   public:
     // MANIPULATORS
-    void setData(bcema_SharedPtr<SelfReference>& value) { d_dataPtr = value; }
+    void setData(bsl::shared_ptr<SelfReference>& value) { d_dataPtr = value; }
     void release() { d_dataPtr.reset(); }
 };
 
 
-bsl::auto_ptr<TObj> makeAuto()
+std::auto_ptr<TObj> makeAuto()
 {
-    return bsl::auto_ptr<TObj>((TObj*)0);
+    return std::auto_ptr<TObj>((TObj*)0);
 }
 
-bsl::auto_ptr<TObj> makeAuto(bsls::Types::Int64 *counter)
+std::auto_ptr<TObj> makeAuto(bsls::Types::Int64 *counter)
 {
     BSLS_ASSERT_OPT(counter);
 
-    return bsl::auto_ptr<TObj>(new TObj(counter));
+    return std::auto_ptr<TObj>(new TObj(counter));
 }
 
 namespace TestDriver {
@@ -1271,21 +1320,22 @@ void doNotDelete(TYPE *) {} // Do nothing
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     bsls::Types::Int64 numDeallocations;
     bsls::Types::Int64 numAllocations;
     bsls::Types::Int64 numDeletes = 0;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
     case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'bcema_SharedPtr<cv-void> (DRQS 33549823)
+        // TESTING 'bsl::shared_ptr<cv-void> (DRQS 33549823)
         //
         // Concerns:
         //: 1 Can compare two constant shared pointer objects using any
@@ -1301,31 +1351,31 @@ int main(int argc, char *argv[])
         //: 1 TBD
         //
         // Testing:
-        //   bool owner_before(const bcema_SharedPtr<OTHER>& other) const;
-        //   bool operator==(const bcema_SharedPtr&, const bcema_SharedPtr&);
-        //   bool operator==(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-        //   bool operator==(bsl::nullptr_t, const bcema_SharedPtr<B>&);
-        //   bool operator!=(const bcema_SharedPtr&, const bcema_SharedPtr&);
-        //   bool operator!=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-        //   bool operator!=(bsl::nullptr_t, const bcema_SharedPtr<B>&);
-        //   bool operator< (const bcema_SharedPtr&, const bcema_SharedPtr&);
-        //   bool operator< (const bcema_SharedPtr<A>&, bsl::nullptr_t);
-        //   bool operator< (bsl::nullptr_t, const bcema_SharedPtr<B>&);
-        //   bool operator<=(const bcema_SharedPtr&, const bcema_SharedPtr&);
-        //   bool operator<=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-        //   bool operator<=(bsl::nullptr_t, const bcema_SharedPtr<B>&);
-        //   bool operator>=(const bcema_SharedPtr&, const bcema_SharedPtr&);
-        //   bool operator>=(const bcema_SharedPtr<A>&, bsl::nullptr_t);
-        //   bool operator>=(bsl::nullptr_t, const bcema_SharedPtr<B>&);
-        //   bool operator> (const bcema_SharedPtr&, const bcema_SharedPtr&);
-        //   bool operator> (const bcema_SharedPtr<A>&, bsl::nullptr_t);
-        //   bool operator> (bsl::nullptr_t, const bcema_SharedPtr<B>&);
+        //   bool owner_before(const bsl::shared_ptr<OTHER>& other) const;
+        //   bool operator==(const bsl::shared_ptr&, const bsl::shared_ptr&);
+        //   bool operator==(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+        //   bool operator==(bsl::nullptr_t, const bsl::shared_ptr<B>&);
+        //   bool operator!=(const bsl::shared_ptr&, const bsl::shared_ptr&);
+        //   bool operator!=(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+        //   bool operator!=(bsl::nullptr_t, const bsl::shared_ptr<B>&);
+        //   bool operator< (const bsl::shared_ptr&, const bsl::shared_ptr&);
+        //   bool operator< (const bsl::shared_ptr<A>&, bsl::nullptr_t);
+        //   bool operator< (bsl::nullptr_t, const bsl::shared_ptr<B>&);
+        //   bool operator<=(const bsl::shared_ptr&, const bsl::shared_ptr&);
+        //   bool operator<=(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+        //   bool operator<=(bsl::nullptr_t, const bsl::shared_ptr<B>&);
+        //   bool operator>=(const bsl::shared_ptr&, const bsl::shared_ptr&);
+        //   bool operator>=(const bsl::shared_ptr<A>&, bsl::nullptr_t);
+        //   bool operator>=(bsl::nullptr_t, const bsl::shared_ptr<B>&);
+        //   bool operator> (const bsl::shared_ptr&, const bsl::shared_ptr&);
+        //   bool operator> (const bsl::shared_ptr<A>&, bsl::nullptr_t);
+        //   bool operator> (bsl::nullptr_t, const bsl::shared_ptr<B>&);
         // --------------------------------------------------------------------
 
-        typedef bcema_SharedPtr<const int> IntPtr;
-        typedef bcema_SharedPtr<void>      VoidPtr;
+        typedef bsl::shared_ptr<const int> IntPtr;
+        typedef bsl::shared_ptr<void>      VoidPtr;
 
-        bcema_SharedPtrNilDeleter doNothing = {};
+        bslstl::SharedPtrNilDeleter doNothing = {};
 
         int sampleArray[] = { 42, 13 };
         int *const pA = &sampleArray[0];
@@ -1417,7 +1467,7 @@ int main(int argc, char *argv[])
     } break;
     case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'bcema_SharedPtr<cv-void> (DRQS 33549823)
+        // TESTING 'bsl::shared_ptr<cv-void> (DRQS 33549823)
         //
         // Concerns:
         //: 1 Can construct a shared pointer to a cv-qualified 'void' type.
@@ -1437,11 +1487,11 @@ int main(int argc, char *argv[])
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Confirming bcema_SharedPtr<void> support.\n";
+        if (verbose) printf("Confirming bsl::shared_ptr<void> support.\n");
         {
-            typedef bcema_SharedPtr<void> TestObj;
+            typedef bsl::shared_ptr<void> TestObj;
             int iX = 42;
-            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pX(&iX, bslstl::SharedPtrNilDeleter(), 0);
             TestObj pY = pX;  const TestObj& Y = pY;
 
             ASSERT(   Y == pX );
@@ -1450,7 +1500,7 @@ int main(int argc, char *argv[])
             ASSERT(&iX == static_cast<int *>(Y.get()));
 
             double dY = 3.14159;
-            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+            pY.reset(&dY, bslstl::SharedPtrNilDeleter());
 
             ASSERT(   Y != pX );
             ASSERT(!(pX == Y) );
@@ -1458,12 +1508,11 @@ int main(int argc, char *argv[])
             ASSERT(&dY == static_cast<double *>(Y.get()));
         }
 
-        if (verbose) cout <<
-                           "Confirming bcema_SharedPtr<const void> support.\n";
+        if (verbose) printf("Confirming bsl::shared_ptr<const void> support.\n");
         {
-            typedef bcema_SharedPtr<const void> TestObj;
+            typedef bsl::shared_ptr<const void> TestObj;
             const int iX = 42;
-            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pX(&iX, bslstl::SharedPtrNilDeleter(), 0);
             TestObj pY = pX;  const TestObj& Y = pY;
 
             ASSERT(   Y == pX );
@@ -1472,7 +1521,7 @@ int main(int argc, char *argv[])
             ASSERT(&iX == static_cast<const int *>(Y.get()));
 
             double dY = 3.14159;
-            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+            pY.reset(&dY, bslstl::SharedPtrNilDeleter());
 
             ASSERT(   Y != pX );
             ASSERT(!(pX == Y) );
@@ -1485,12 +1534,12 @@ int main(int argc, char *argv[])
         // volatile types becomes desirable, such as for standard conformance.
         // Note that the current failures occur in the out-of-place rep type.
 
-        if (verbose) cout <<
-                        "Confirming bcema_SharedPtr<volatile void> support.\n";
+        if (verbose) printf(
+                        "Confirming bsl::shared_ptr<volatile void> support.\n");
         {
-            typedef bcema_SharedPtr<volatile void> TestObj;
+            typedef bsl::shared_ptr<volatile void> TestObj;
             int iX = 42;
-            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pX(&iX, bslstl::SharedPtrNilDeleter(), 0);
             TestObj pY = pX;  const TestObj& Y = pY;
 
             ASSERT(   Y == pX );
@@ -1499,7 +1548,7 @@ int main(int argc, char *argv[])
             ASSERT(&iX == static_cast<volatile int *>(Y.get()));
 
             volatile double dY = 3.14159;
-            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+            pY.reset(&dY, bslstl::SharedPtrNilDeleter());
 
             ASSERT(   Y != pX );
             ASSERT(!(pX == Y) );
@@ -1507,12 +1556,12 @@ int main(int argc, char *argv[])
             ASSERT(&dY == static_cast<volatile double *>(Y.get()));
         }
 
-        if (verbose) cout <<
-                  "Confirming bcema_SharedPtr<const volatile void> support.\n";
+        if (verbose) printf(
+                  "Confirming bsl::shared_ptr<const volatile void> support.\n");
         {
-            typedef bcema_SharedPtr<const volatile void> TestObj;
+            typedef bsl::shared_ptr<const volatile void> TestObj;
             volatile int iX = 42;
-            TestObj pX(&iX, bcema_SharedPtrNilDeleter(), 0);
+            TestObj pX(&iX, bslstl::SharedPtrNilDeleter(), 0);
             TestObj pY = pX;  const TestObj& Y = pY;
 
             ASSERT(   Y == pX );
@@ -1521,7 +1570,7 @@ int main(int argc, char *argv[])
             ASSERT(&iX == static_cast<const volatile int *>(Y.get()));
 
             const double dY = 3.14159;
-            pY.reset(&dY, bcema_SharedPtrNilDeleter());
+            pY.reset(&dY, bslstl::SharedPtrNilDeleter());
 
             ASSERT(   Y != pX );
             ASSERT(!(pX == Y) );
@@ -1551,7 +1600,7 @@ int main(int argc, char *argv[])
 
         SelfReference *ptr;
         {
-            bcema_SharedPtr<SelfReference> mX;
+            bsl::shared_ptr<SelfReference> mX;
             mX.createInplace();
             mX->setData(mX);
             ptr = mX.ptr();
@@ -1571,18 +1620,18 @@ int main(int argc, char *argv[])
         //      deleter is supplied the correct address
         //
         // Testing:
-        //   bcema_SharedPtr(bdema_ManagedPtr<OT> & original);
+        //   bsl::shared_ptr(bslma::ManagedPtr<OT> & original);
         // --------------------------------------------------------------------
 
         ManagedPtrTestDeleter<int> deleter;
 
         int obj1, obj2;
 
-        bcema_SharedPtr<int> outerSp;
+        bsl::shared_ptr<int> outerSp;
         {
-            bdema_ManagedPtr<int> mp1 (&obj1, &deleter);
+            bslma::ManagedPtr<int> mp1 (&obj1, &deleter);
 
-            bcema_SharedPtr<int> sp1 (mp1);
+            bsl::shared_ptr<int> sp1 (mp1);
             sp1.clear();
 
             // check non-aliased managed-ptr assignment
@@ -1591,8 +1640,8 @@ int main(int argc, char *argv[])
             deleter.reset();
             mp1.load(&obj2, &deleter);
 
-            bdema_ManagedPtr<int> mp2 (mp1, &obj1);
-            bcema_SharedPtr<int> sp2 (mp2);
+            bslma::ManagedPtr<int> mp2 (mp1, &obj1);
+            bsl::shared_ptr<int> sp2 (mp2);
             outerSp = sp2;
         }
         outerSp.clear();
@@ -1602,7 +1651,7 @@ int main(int argc, char *argv[])
 
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING bcema_SharedPtrOutofplaceRep
+        // TESTING bslma::SharedPtrOutofplaceRep
         //
         // Concerns:
         //   1) 'incrementRefs' and 'decrementRefs' correctly adjust the number
@@ -1628,7 +1677,7 @@ int main(int argc, char *argv[])
         //   int numReferences() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" << endl;
+        if (verbose) printf("\n");
 
         {
             bslma::Allocator     *da = bslma::Default::allocator();
@@ -1636,12 +1685,12 @@ int main(int argc, char *argv[])
             int *x                  = new int(0);
             int count               = 0;
 
-            bcema_SharedPtrOutofplaceRep<int, bslma::TestAllocator*> *implPtr =
-                     bcema_SharedPtrOutofplaceRep<int, bslma::TestAllocator*>::
+            bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator*> *implPtr =
+                     bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator*>::
                                                          makeOutofplaceRep(x,
                                                                            t,
                                                                            t);
-            bcema_SharedPtrOutofplaceRep<int, bslma::TestAllocator*>&impl
+            bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator*>&impl
                                                               = *implPtr;
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
 
@@ -1705,22 +1754,21 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING bcema_SharedPtrOutofplaceRep CTORS
+        // TESTING bslma::SharedPtrOutofplaceRep CTORS
         //
         // Plan: TBD
         //
         // Testing:
-        //   CONCERN: bcema_SharedPtrOutofplaceRep passes allocator
+        //   CONCERN: bslma::SharedPtrOutofplaceRep passes allocator
         //            to the deleter's constructor
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nConcern: bcema_SharedPtrOutofplaceRep passes"
-                          << "\nallocator to the deleter's constructor."
-                          << "\n======================================="
-                          << endl;
+        if (verbose) printf("\nConcern: bslma::SharedPtrOutofplaceRep passes"
+                            "\nallocator to the deleter's constructor."
+                            "\n=======================================\n");
 
-        bcema_TestAllocator ta1(veryVeryVerbose);
-        bcema_TestAllocator ta2(veryVeryVerbose);
+        bslma::TestAllocator ta1(veryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVerbose);
         bsls::Types::Int64 numDeletes1 = 0;
 
         {
@@ -1739,7 +1787,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING bcema_SharedPtrOutofplaceRep::originalPtr
+        // TESTING bslma::SharedPtrOutofplaceRep::originalPtr
         //
         // Plan:  Create shared pointers with various representations, release
         // them (getting back a pointer to the representation object) and
@@ -1747,22 +1795,21 @@ int main(int argc, char *argv[])
         // the address of the managed object.
         //
         // Testing:
-        //   CONCERN: bcema_SharedPtrRep::originalPtr returns correct value
+        //   CONCERN: bslma::SharedPtrRep::originalPtr returns correct value
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nConcern: 'bcema_SharedPtrRep::originalPtr' returns"
-                 << "\ncorrect value for 'bcema_SharedPtrOutofplaceRep'"
-                 << "\n================================================="
-                 << endl;
+            printf("\nConcern: 'bslma::SharedPtrRep::originalPtr' returns"
+                   "\ncorrect value for 'bslma::SharedPtrOutofplaceRep'"
+                   "\n=================================================\n");
 
         {
-            bcema_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bsls::Types::Int64 numDeletes1 = 0;
             MyTestObject *p1 = new (ta) MyTestObject(&numDeletes1);
             Obj x1(p1, &ta);
 
-            bsl::pair<MyTestObject*,bcema_SharedPtrRep*> r = x1.release();
+            bsl::pair<MyTestObject*,bslma::SharedPtrRep*> r = x1.release();
 
             ASSERT(0 == x1.get());
 
@@ -1778,17 +1825,16 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nConcern: 'bcema_SharedPtrRep::originalPtr' returns"
-                 << "\ncorrect value for 'bcema_SharedPtrInplaceRep'"
-                 << "\n===================================================="
-                 << endl;
+            printf("\nConcern: 'bslma::SharedPtrRep::originalPtr' returns"
+                   "\ncorrect value for 'bslma::SharedPtrInplaceRep'"
+                   "\n====================================================\n");
 
         {
-            bcema_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bsls::Types::Int64 numDeletes1 = 0;
             Obj x1;
             x1.createInplace(&ta, &numDeletes1);
-            bsl::pair<MyTestObject*,bcema_SharedPtrRep*> r = x1.release();
+            bsl::pair<MyTestObject*,bslma::SharedPtrRep*> r = x1.release();
 
             ASSERT(0 == x1.get());
 
@@ -1803,21 +1849,20 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nConcern: 'bcema_SharedPtrRep::originalPtr' returns"
-                 << "\ncorrect value when aliased"
-                 << "\n================================================="
-                 << endl;
+            printf("\nConcern: 'bslma::SharedPtrRep::originalPtr' returns"
+                   "\ncorrect value when aliased"
+                   "\n===================================================\n");
 
         {
             typedef bsl::vector<MyTestObject2> V;
-            bcema_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bsls::Types::Int64 numDeletes1 = 0;
             V *v1 = new (ta) V(&ta);
-            bcema_SharedPtr<V> x1(v1,&ta);
+            bsl::shared_ptr<V> x1(v1,&ta);
             v1->resize(2);
 
-            bcema_SharedPtr<MyTestObject2> a1(x1,&v1->at(1));
-            bsl::pair<MyTestObject2*,bcema_SharedPtrRep*> r = a1.release();
+            bsl::shared_ptr<MyTestObject2> a1(x1,&v1->at(1));
+            bsl::pair<MyTestObject2*,bslma::SharedPtrRep*> r = a1.release();
             ASSERT(0==a1.get());
 
             ASSERT(r.first != r.second->originalPtr());
@@ -1854,25 +1899,24 @@ int main(int argc, char *argv[])
         //   'operator<', and the other to '...'.
         //
         // Testing:
-        //   operator bcema_SharedPtr_UnspecifiedBool()
+        //   operator bsl::shared_ptr_UnspecifiedBool()
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Concern: 'bsl::shared_ptr' compliance" << endl
-                          << "=====================================" << endl;
+        if (verbose) printf("\nConcern: 'bsl::shared_ptr' compliance\n"
+                            "\n=====================================\n");
 
         using namespace NAMESPACE_TEST_CASE_16;
 
-        if (verbose) cout << "Not convertible to ints.\n" << endl;
+        if (verbose) printf("Not convertible to ints.\n");
 
-        ASSERT((0 == bslmf::IsConvertible<bcema_SharedPtr<int>, int>::VALUE));
+        ASSERT((0 == bslmf::IsConvertible<bsl::shared_ptr<int>, int>::VALUE));
 
-        if (verbose) cout << "Simple boolean expressions.\n" << endl;
+        if (verbose) printf("Simple boolean expressions.\n");
 
         ASSERT(!ptrNil);
         ASSERT(ptr1);
 
-        if (verbose) cout << "Comparisons.\n" << endl;
+        if (verbose) printf("Comparisons.\n");
 
             // COMPARISON SHR PTR TO SHR PTR
         ASSERT(!(ptrNil == ptr1));
@@ -1891,7 +1935,7 @@ int main(int argc, char *argv[])
         ASSERT(false != ptr1);
         ASSERT(true  && ptr1);
 
-        if (verbose) cout << "Boolean operators.\n" << endl;
+        if (verbose) printf("Boolean operators.\n");
 
         ASSERT(!ptrNil && true);
         ASSERT(!ptrNil || false);
@@ -1913,7 +1957,7 @@ int main(int argc, char *argv[])
         ASSERT(1 && ptr1);
         ASSERT(0 || ptr1);
 
-        if (verbose) cout << "With function return values.\n" << endl;
+        if (verbose) printf("With function return values.\n");
         // DRQS 12252806
 
         ASSERT(ptr1Fun() && true);
@@ -1927,7 +1971,7 @@ int main(int argc, char *argv[])
         ASSERT(!(ptrNilFun() && *ptrNilFun() != *ptr1));
 
 #if 0
-        if (verbose) cout << "Should not compile.\n" << endl;
+        if (verbose) printf("Should not compile.\n\n");;
 
         // COMPARISON SHR PTR TO INT
         ASSERT(ptrNil != 1);
@@ -1947,7 +1991,7 @@ int main(int argc, char *argv[])
         ASSERT(1 != ptrNil);
         ASSERT(1 == ptr1);
         ASSERT(2 != ptrNil);
-        ASSERT(2 == ptr1);  cout << "r on CC, error on x.\n" << endl;
+        ASSERT(2 == ptr1);  printf("r on CC, error on x.\n\n");;
 
         // LESS THAN COMPARISONS
         ASSERT(ptrNil < ptr1);
@@ -1961,9 +2005,9 @@ int main(int argc, char *argv[])
         sharedPtrMap[q] = 2;  // needs comparisons: error on CC, error on xlC_r
 
         if using bool instead of unspecifiedBool, everything OK until here:
-            cout << sharedPtrMap[p] << "\n";  // prints 1
-        cout << sharedPtrMap[q] << "\n";  // prints 2
-        cout << sharedPtrMap[r] << "\n";  // oops: prints 1, should print 0
+            printf(sharedPtrMap[p] << "\n";  // prints 1
+        printf(sharedPtrMap[q] << "\n";  // prints 2
+        printf(sharedPtrMap[r] << "\n";  // oops: prints 1, should print 0
 #endif
 
       } break;
@@ -1995,14 +2039,13 @@ int main(int argc, char *argv[])
         //   CONCERN: C++ 'bsl::shared_ptr' COMPLIANCE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Concern: 'bsl::shared_ptr' compliance" << endl
-                          << "=====================================" << endl;
+        if (verbose) printf("\nConcern: 'bsl::shared_ptr' compliance"
+                            "\n=====================================\n");
 
-        if (verbose) cout << "\nTesting 'reset'."
-                          << "\n----------------" << endl;
+        if (verbose) printf("\nTesting 'reset'."
+                            "\n----------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2037,8 +2080,8 @@ int main(int argc, char *argv[])
             P(ta.numDeallocations())
         }
 
-        if (verbose) cout << "\nTesting reset(ptr)"
-                          << "\n------------------" << endl;
+        if (verbose) printf("\nTesting reset(ptr)"
+                            "\n------------------\n");
 
         {
             numDeletes = 0;
@@ -2060,8 +2103,8 @@ int main(int argc, char *argv[])
             T_ P(numDeletes);
         }
 
-        if (verbose) cout << "\nTesting reset(ptr,deleter)."
-                          << "\n---------------------------" << endl;
+        if (verbose) printf("\nTesting reset(ptr,deleter)."
+                            "\n---------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2089,8 +2132,8 @@ int main(int argc, char *argv[])
             T_ P_(numDeletes) P_(numDeallocations) P(ta.numDeallocations())
         }
 
-        if (verbose) cout << "\nTesting 'reset(source, ptr)'."
-                          << "\n-----------------------------" << endl;
+        if (verbose) printf("\nTesting 'reset(source, ptr)'."
+                            "\n-----------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2102,7 +2145,7 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bcema_SharedPtr<double> y; const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
             double dummy;
 
             y.reset(X, &dummy);
@@ -2114,8 +2157,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
 
             int dummy2;
-            bcema_SharedPtr<int> z;
-            const bcema_SharedPtr<int>& Z=z;
+            bsl::shared_ptr<int> z;
+            const bsl::shared_ptr<int>& Z=z;
             z.loadAlias(Y, &dummy2);
             ASSERT(&dummy2 == Z.ptr());
             ASSERT(3 == Z.numReferences());
@@ -2134,8 +2177,8 @@ int main(int argc, char *argv[])
             T_ P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
         }
 
-        if (verbose) cout << "\nTesting global 'swap' function."
-                          << "\n-------------------------------" << endl;
+        if (verbose) printf("\nTesting global 'swap' function."
+                            "\n-------------------------------\n");
 
         bsls::Types::Int64 numDeletes1 = 0;
         numDeletes = 0;
@@ -2178,7 +2221,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CONCERN: SHARED PTR IN-PLACE INSIDE 'bdef_Function' OBJECT
         //
-        // Plan:  Simply instantiate a 'bcema_SharedPtr' to a function object
+        // Plan:  Simply instantiate a 'bsl::shared_ptr' to a function object
         //   inside a 'bdef_Function' object and make sure that the
         //   function object is created in-place.  This can even be achieved
         //   without creating a shared pointer, from the type only, using the
@@ -2189,34 +2232,33 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl
-                 << "Concern: Shared ptr in-place in 'bdef_Function'" << endl
-                 << "===============================================" << endl;
+            printf("\nConcern: Shared ptr in-place in 'bdef_Function'"
+                   "\n===============================================\n");
 
-        typedef bcema_SharedPtr<MyTestFunctor>  SharedFunctor;
+#if 0  // TBD waiting on bdef 0> bsl function conversion
+        typedef bsl::shared_ptr<MyTestFunctor>  SharedFunctor;
 
         ASSERT(1 == bdef_FunctionUtil::IsInplace<SharedFunctor>::VALUE);
-
+#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING conversion to bdema_ManagedPtr
+        // TESTING conversion to bslma::ManagedPtr
         //
         // Plan: TBD
         //
         // Testing:
-        //   bdema_ManagedPtr<TYPE> managedPtr() const;
+        //   bslma::ManagedPtr<TYPE> managedPtr() const;
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl
-                 << "Testing conversion to bdema_ManagedPtr" << endl
-                 << "======================================" << endl;
+            printf("\nTesting conversion to bslma::ManagedPtr"
+                   "\n======================================\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
-        bdema_ManagedPtr<MyPDTestObject> mp;
-        bcema_SharedPtr<MyPDTestObject>  sp(mp);
+        bslma::ManagedPtr<MyPDTestObject> mp;
+        bsl::shared_ptr<MyPDTestObject>  sp(mp);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2234,8 +2276,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
 
             {
-                bdema_ManagedPtr<TObj> y(X.managedPtr());
-                const bdema_ManagedPtr<TObj>& Y=y;
+                bslma::ManagedPtr<TObj> y(X.managedPtr());
+                const bslma::ManagedPtr<TObj>& Y=y;
 
                 ASSERT(0 == numDeletes);
                 ASSERT(p == X.ptr());
@@ -2268,8 +2310,8 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bdema_ManagedPtr<TObj> y(X.managedPtr());
-            const bdema_ManagedPtr<TObj>& Y=y;
+            bslma::ManagedPtr<TObj> y(X.managedPtr());
+            const bslma::ManagedPtr<TObj>& Y=y;
 
             ASSERT(0 == numDeletes);
             ASSERT(p == X.ptr());
@@ -2296,15 +2338,14 @@ int main(int argc, char *argv[])
         // Plan: TBD
         //
         // Testing:
-        //   void swap(bcema_SharedPtr<OTHER> &src)
+        //   void swap(bsl::shared_ptr<OTHER> &src)
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'swap'" << endl
-                          << "==============" << endl;
+        if (verbose) printf("\nTesting 'swap'"
+                            "\n==============\n");
 
-        if (verbose) cout << "\tWith default allocator." << endl;
+        if (verbose) printf("\tWith default allocator.\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         bsls::Types::Int64 numDeletes1 = 0;
         numDeletes = 0;
@@ -2342,13 +2383,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(1 == numDeletes1);
 
-        if (verbose) cout << "\tWith mix of deleters." << endl;
+        if (verbose) printf("\tWith mix of deleters.\n");;
 
         bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultGuard(&da);
 
         // WARNING:  Installing a test allocator as the default means that
-        //    bcema_SharedPtr<T> x(new T());
+        //    bsl::shared_ptr<T> x(new T());
         // will break, as it tries to delete the object using the installed
         // default allocator (i.e., the test allocator) and not the new/delete
         // allocator.  Therefore, from then on in this test case, whenever
@@ -2431,7 +2472,7 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // TESTING 'PtrLess<TYPE>'
-        //   Test that 'bcema_SharedPtrUtil::PtrLess' is a functor that
+        //   Test that 'bslstl::SharedPtrUtil::PtrLess' is a functor that
         //   compares shared pointers according to their 'ptr' values.
         //
         // Plan: Create a functor 'LT' and check that it does compare suitably
@@ -2439,15 +2480,16 @@ int main(int argc, char *argv[])
         //   derived type.
         //
         // Testing:
-        //   struct bcema_SharedPtrUtil::PtrLess<TYPE>;
+        //   struct bslstl::SharedPtrUtil::PtrLess<TYPE>;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'bcema_SharedPtrUtil::PtrLess'\n"
-                          << "\t--------------------------------------\n";
+        if (verbose) printf("\tTesting 'bslstl::SharedPtrUtil::PtrLess'\n"
+                            "\t--------------------------------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+#if 0
+        bslma::TestAllocator ta(veryVeryVerbose);
 
-        bcema_SharedPtrUtil::PtrLess<MyTestObject> LT;
+        bslstl::SharedPtrUtil::PtrLess<MyTestObject> LT;
         {
             MyTestDerivedObject *pd = new(ta) MyTestDerivedObject(&numDeletes);
             MyTestDerivedObject *qd = new(ta) MyTestDerivedObject(&numDeletes);
@@ -2461,17 +2503,17 @@ int main(int argc, char *argv[])
             ASSERT(pd < q);
             ASSERT(p  < qd);
 
-            bcema_SharedPtr<MyTestDerivedObject> xd(pd, &ta);
+            bsl::shared_ptr<MyTestDerivedObject> xd(pd, &ta);
             const Obj& XD = xd;
 
-            bcema_SharedPtr<MyTestDerivedObject> yd(qd, &ta);
+            bsl::shared_ptr<MyTestDerivedObject> yd(qd, &ta);
             const Obj& YD = yd;
 
             Obj x(XD);  const Obj& X = x;
             Obj y(YD);  const Obj& Y = y;
 
             if (veryVerbose)
-                bsl::cout << "\tFunctor comparisons with self." << bsl::endl;
+                bsl::printf("\tFunctor comparisons with self." << bsl::endl;
 
 #if 0  // Uncomment to generate compilation errors.
             ASSERT(!(X  <  X));
@@ -2492,7 +2534,7 @@ int main(int argc, char *argv[])
 
 #if 0
             {
-                typedef bsl::map<Obj, int, bcema_SharedPtrUtil::PtrLess<Obj> >
+                typedef bsl::map<Obj, int, bslstl::SharedPtrUtil::PtrLess<Obj> >
                    Map;
                 Map map1;
                 map1.insert(bsl::make_pair(X, 1));
@@ -2505,7 +2547,7 @@ int main(int argc, char *argv[])
 #endif
 
             {
-                typedef bsl::map<Obj, int, bcema_SharedPtrLess> Map;
+                typedef bsl::map<Obj, int, bsl::shared_ptrLess> Map;
                 Map map1;
                 map1.insert(bsl::make_pair(X, 1));
                 map1.insert(bsl::make_pair(Y, 2));
@@ -2516,7 +2558,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose)
-                bsl::cout << "\tFunctor comparisons with other." << bsl::endl;
+                  printf("\tFunctor comparisons with other.\n");
 
 #if 0  // Uncomment to generate compilation errors.
             ASSERT(X  < Y));
@@ -2530,6 +2572,7 @@ int main(int argc, char *argv[])
             ASSERT(LT(X,  YD));
             ASSERT(LT(XD, YD));
         }
+#endif
 
       } break;
       case 10: {
@@ -2547,25 +2590,23 @@ int main(int argc, char *argv[])
         //   size.
         //
         // Testing:
-        //   bcema_SharedPtr<char> createInplaceUninitializedBuffer(...)
+        //   bsl::shared_ptr<char> createInplaceUninitializedBuffer(...)
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl
-                 << "Testing 'createInplaceUninitializedBuffer'" << endl
-                 << "==========================================" << endl;
+            printf("\nTesting 'createInplaceUninitializedBuffer'"
+                   "\n==========================================\n");
 
         static const char EXP[] = "createInplaceUninitializedBuffer";
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
 
         if (verbose) {
-            cout << endl
-                 << "Sizes of InplaceRepImpl<TYPE>:" << endl
-                 << "------------------------------"<< endl;
+            printf("\nSizes of InplaceRepImpl<TYPE>:"
+                   "\n------------------------------\n");
 
             enum {
                 ONE_ALIGN = 1,
@@ -2580,61 +2621,60 @@ int main(int argc, char *argv[])
                                      : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
             };
 
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<TWO_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[3] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<FOUR_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[5] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<TWO_ALIGN>::Type[3] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[7] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                bsls::AlignmentToType<EIGHT_ALIGN>::Type[1] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[9] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<TWO_ALIGN>::Type[5] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[11] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<FOUR_ALIGN>::Type[3] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[13] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<TWO_ALIGN>::Type[7] >));
-            P(sizeof(bcema_SharedPtrInplaceRep<
+            P(sizeof(bslma::SharedPtrInplaceRep<
                                 bsls::AlignmentToType<ONE_ALIGN>::Type[15] >));
         }
 
         if (verbose)
-            cout << endl
-                 << "Testing 'createInplaceUninitializedBuffer'." << endl
-                 << "-------------------------------------------" << endl;
+            printf("\nTesting 'createInplaceUninitializedBuffer'."
+                   "\n-------------------------------------------\n");
 
         for (int size = 1;
              size < 5 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
              ++size) {
             {
-                bcema_SharedPtr<char> x;
-                const bcema_SharedPtr<char>& X = x;
+                bsl::shared_ptr<char> x;
+                const bsl::shared_ptr<char>& X = x;
 
-                x = bcema_SharedPtrUtil::createInplaceUninitializedBuffer(
+                x = bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(
                                                                     size, &ta);
-                bsl::strncpy(X.ptr(), EXP, size);
+                strncpy(X.ptr(), EXP, size);
 
                 static const int ALLOC_SIZE =
-                    sizeof(bcema_SharedPtrInplaceRep<char>) + size - 1;
+                    sizeof(bslma::SharedPtrInplaceRep<char>) + size - 1;
                 LOOP_ASSERT(size, ++numAllocations == ta.numAllocations());
                 LOOP_ASSERT(size, ALLOC_SIZE <= ta.lastAllocatedNumBytes());
 
                 LOOP_ASSERT(size, X);
-                LOOP_ASSERT(size, 0 == bsl::strncmp(EXP, X.ptr(), size));
+                LOOP_ASSERT(size, 0 == strncmp(EXP, X.ptr(), size));
 
                 int alignment =
                          bsls::AlignmentUtil::calculateAlignmentFromSize(size);
@@ -2671,19 +2711,18 @@ int main(int argc, char *argv[])
         // Plan: TBD
         //
         // Testing:
-        //  bcema_SharedPtr<TARGET> dynamicCast(bcema_SharedPtr<SOURCE> ..
-        //  bcema_SharedPtr<TARGET> staticCast(const bcema_SharedPtr<SOURCE>& )
-        //  bcema_SharedPtr<TARGET> constCast(const bcema_SharedPtr<SOURCE>& )
+        //  bsl::shared_ptr<TARGET> dynamicCast(bsl::shared_ptr<SOURCE> ..
+        //  bsl::shared_ptr<TARGET> staticCast(const bsl::shared_ptr<SOURCE>& )
+        //  bsl::shared_ptr<TARGET> constCast(const bsl::shared_ptr<SOURCE>& )
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Testing explicit cast operations" << endl
-                          << "================================" << endl;
+        if (verbose) printf("\nTesting explicit cast operations"
+                            "\n================================\n");
 
-        if (verbose) cout << "\nTesting 'dynamicCast'"
-                          << "\n---------------------\n";
+        if (verbose) printf("\nTesting 'dynamicCast'"
+                            "\n---------------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2695,14 +2734,14 @@ int main(int argc, char *argv[])
             ASSERT(static_cast<MyTestObject*>(p) == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bcema_SharedPtr<MyTestDerivedObject> y;
-            const bcema_SharedPtr<MyTestDerivedObject>& Y=y;
+            bsl::shared_ptr<MyTestDerivedObject> y;
+            const bsl::shared_ptr<MyTestDerivedObject>& Y=y;
 
             {
                 // This inner block necessary against Sun CC bug, the lifetime
                 // of the temporary copied into y would otherwise pollute the
                 // Y.numReferences below.
-                y = bcema_SharedPtrUtil::dynamicCast<MyTestDerivedObject>(X);
+                y = bslstl::SharedPtrUtil::dynamicCast<MyTestDerivedObject>(X);
             }
             if (veryVerbose) {
                 P_(Y.ptr());
@@ -2719,21 +2758,21 @@ int main(int argc, char *argv[])
         ASSERT(++numDeallocations == ta.numDeallocations());
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting 'staticCast'"
-                          << "\n--------------------\n";
+        if (verbose) printf("\nTesting 'staticCast'"
+                            "\n--------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
             numDeletes = 0;
             MyTestDerivedObject *p = new(ta) MyTestDerivedObject(&numDeletes);
-            bcema_SharedPtr<MyTestDerivedObject> x(p,&ta, 0);
-            const bcema_SharedPtr<MyTestDerivedObject>& X = x;
+            bsl::shared_ptr<MyTestDerivedObject> x(p,&ta, 0);
+            const bsl::shared_ptr<MyTestDerivedObject>& X = x;
 
             numAllocations = ta.numAllocations();
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            Obj y(bcema_SharedPtrUtil::staticCast<TObj>(X)); const Obj& Y=y;
+            Obj y(bslstl::SharedPtrUtil::staticCast<TObj>(X)); const Obj& Y=y;
 
             ASSERT(static_cast<MyTestObject*>(p) == Y.ptr());
             ASSERT(2 == X.numReferences());
@@ -2745,8 +2784,8 @@ int main(int argc, char *argv[])
         ASSERT(++numDeallocations == ta.numDeallocations());
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting 'constCast'"
-                          << "\n-------------------\n";
+        if (verbose) printf("\nTesting 'constCast'"
+                            "\n-------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2754,7 +2793,7 @@ int main(int argc, char *argv[])
             // This exposes a former const-safety bug.
             bsls::Types::Int64 counter = 0;
             const MyTestObject V(&counter);
-            ConstObj x(&V, bcema_SharedPtrNilDeleter(), 0);
+            ConstObj x(&V, bslstl::SharedPtrNilDeleter(), 0);
         }
         {
             numDeletes = 0;
@@ -2765,7 +2804,7 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            Obj y(bcema_SharedPtrUtil::constCast<TObj>(X)); const Obj& Y=y;
+            Obj y(bslstl::SharedPtrUtil::constCast<TObj>(X)); const Obj& Y=y;
 
             ASSERT(const_cast<TObj*>(p) == Y.ptr());
             ASSERT(2 == X.numReferences());
@@ -2786,17 +2825,16 @@ int main(int argc, char *argv[])
         // Plan: TBD
         //
         // Testing:
-        //   void loadAlias(const bcema_SharedPtr<OTHER>& target, TYPE *)
+        //   void loadAlias(const bsl::shared_ptr<OTHER>& target, TYPE *)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Testing alias operations" << endl
-                          << "========================" << endl;
+        if (verbose) printf("\nTesting alias operations"
+                            "\n========================\n");
 
-        if (verbose) cout << "\nTesting 'loadAlias' (unset target)"
-                          << "\n----------------------------------\n";
+        if (verbose) printf("\nTesting 'loadAlias' (unset target)"
+                            "\n----------------------------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2809,7 +2847,7 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bcema_SharedPtr<double> y; const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
 
             double dummy;
             y.loadAlias(X, &dummy);
@@ -2824,16 +2862,16 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'loadAlias' (unset target and src)"
-                          << "\n------------------------------------------\n";
+        if (verbose) printf("\nTesting 'loadAlias' (unset target and src)"
+                            "\n------------------------------------------\n");
         {
-            bcema_SharedPtr<MyTestObject2> x;
-            const bcema_SharedPtr<MyTestObject2>& X=x;
+            bsl::shared_ptr<MyTestObject2> x;
+            const bsl::shared_ptr<MyTestObject2>& X=x;
 
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
 
-            bcema_SharedPtr<double> y; const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
 
             double dummy;
             y.loadAlias(X, &dummy);
@@ -2842,8 +2880,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == Y.numReferences());
         }
 
-        if (verbose) cout << "\nTesting 'loadAlias' (partially unset)"
-                          << "\n-------------------------------------\n";
+        if (verbose) printf("\nTesting 'loadAlias' (partially unset)"
+                            "\n-------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2857,8 +2895,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
 
             double dummy;
-            bcema_SharedPtr<double> y(X, &dummy);
-            const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y(X, &dummy);
+            const bsl::shared_ptr<double>& Y=y;
             ASSERT(2 == X.numReferences());
             ASSERT(2 == Y.numReferences());
 
@@ -2874,8 +2912,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'loadAlias'(set)"
-                          << "\n------------------------\n";
+        if (verbose) printf("\nTesting 'loadAlias'(set)"
+                            "\n------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2887,7 +2925,7 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bcema_SharedPtr<double> y; const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
             double dummy;
 
             y.loadAlias(X, &dummy);
@@ -2899,8 +2937,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
 
             int dummy2;
-            bcema_SharedPtr<int> z;
-            const bcema_SharedPtr<int>& Z=z;
+            bsl::shared_ptr<int> z;
+            const bsl::shared_ptr<int>& Z=z;
             z.loadAlias(Y, &dummy2);
             ASSERT(&dummy2 == Z.ptr());
             ASSERT(3 == Z.numReferences());
@@ -2925,18 +2963,17 @@ int main(int argc, char *argv[])
         // Plan: TBD
         //
         // Testing:
-        //   bcema_SharedPtr(const bcema_SharedPtr<TYPE>& alias, TYPE *object);
+        //   bsl::shared_ptr(const bsl::shared_ptr<TYPE>& alias, TYPE *object);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl
-                 << "Testing explicit cast constructors" << endl
-                 << "==================================" << endl;
+            printf("\nTesting explicit cast constructors"
+                   "\n==================================\n");
 
-        if (verbose) cout << "\nTesting \"alias\" constructor"
-                          << "\n---------------------------\n";
+        if (verbose) printf("\nTesting \"alias\" constructor"
+                            "\n-----------------------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2949,8 +2986,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
 
             double dummy;
-            bcema_SharedPtr<double> y(X, &dummy);
-            const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y(X, &dummy);
+            const bsl::shared_ptr<double>& Y=y;
 
             ASSERT(&dummy == Y.ptr());
             ASSERT(2 == X.numReferences());
@@ -2962,8 +2999,8 @@ int main(int argc, char *argv[])
         ASSERT(++numDeallocations == ta.numDeallocations());
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting \"alias\" constructor (nil object)"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting \"alias\" constructor (nil object)"
+                            "\n------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -2975,8 +3012,8 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bcema_SharedPtr<double> y(X, 0);
-            const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y(X, 0);
+            const bsl::shared_ptr<double>& Y=y;
 
             ASSERT(0 == Y.ptr());
             ASSERT(1 == X.numReferences());
@@ -2988,8 +3025,8 @@ int main(int argc, char *argv[])
         ASSERT(++numDeallocations == ta.numDeallocations());
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting \"alias\" constructor (unset target)"
-                          << "\n------------------------------------------\n";
+        if (verbose) printf("\nTesting \"alias\" constructor (unset target)"
+                            "\n--------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3001,8 +3038,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numReferences());
 
             double dummy;
-            bcema_SharedPtr<double> y(X, &dummy);
-            const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y(X, &dummy);
+            const bsl::shared_ptr<double>& Y=y;
 
             ASSERT(0 == Y.ptr());
             ASSERT(0 == X.numReferences());
@@ -3022,8 +3059,8 @@ int main(int argc, char *argv[])
             ASSERT(0 != X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bcema_SharedPtr<double> y(X, (double *)0);
-            const bcema_SharedPtr<double>& Y=y;
+            bsl::shared_ptr<double> y(X, (double *)0);
+            const bsl::shared_ptr<double>& Y=y;
 
             ASSERT(0 == Y.ptr());
             ASSERT(1 == X.numReferences());
@@ -3050,11 +3087,10 @@ int main(int argc, char *argv[])
         //   void load(OTHER *ptr, const DELETER&, bslma::Allocator *)
         // --------------------------------------------------------------------
         if (verbose)
-            cout << endl
-                 << "Testing load of null ptr(on empty object)" << endl
-                 << "-----------------------------------------" << endl;
+            printf("\nTesting load of null ptr(on empty object)"
+                   "\n-----------------------------------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3080,9 +3116,8 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations == ta.numDeallocations());
 
         if (verbose)
-            cout << endl
-                 << "Testing load of null ptr(on non-empty object)" << endl
-                 << "---------------------------------------------" << endl;
+            printf("\nTesting load of null ptr(on non-empty object)"
+                   "\n---------------------------------------------\n");
         {
             numDeletes = 0;
             Obj x(new (ta) TObj(&numDeletes), &ta, 0); const Obj& X=x;
@@ -3134,8 +3169,8 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting load of non-null ptr (on non-empty object)"
-                 << "\n--------------------------------------------------\n";
+            printf("\nTesting load of non-null ptr (on non-empty object)"
+                   "\n--------------------------------------------------\n");
 
         {
             numDeletes = 0;
@@ -3220,9 +3255,8 @@ int main(int argc, char *argv[])
         //   void createInplace(bslma::Allocator *, const A1& a1,...a13);
         //   void createInplace(bslma::Allocator *, const A1& a1,...a14);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing 'createInplace'" << endl
-                          << "=======================" << endl;
+        if (verbose) printf("\nTesting 'createInplace'\n"
+                            "\n=======================\n");
 
         static const MyTestArg1 V1(1);
         static const MyTestArg2 V2(20);
@@ -3239,16 +3273,16 @@ int main(int argc, char *argv[])
         static const MyTestArg13 V13(712);
         static const MyTestArg14 V14(1414);
 
-        if (verbose) cout << "\nTesting 'createInplace' with 1 argument"
-                          << "\n---------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 1 argument"
+                            "\n---------------------------------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1);
 
             x.createInplace(&ta, V1);
@@ -3259,14 +3293,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 2 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 2 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2);
 
             x.createInplace(&ta, V1, V2);
@@ -3277,14 +3311,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 3 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 3 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3);
 
             x.createInplace(&ta, V1, V2, V3);
@@ -3295,14 +3329,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 4 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 4 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4);
 
             x.createInplace(&ta, V1, V2, V3, V4);
@@ -3313,14 +3347,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 5 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 5 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5);
@@ -3331,14 +3365,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 6 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 6 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6);
@@ -3349,14 +3383,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 7 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 7 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7);
@@ -3367,14 +3401,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 9 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 9 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                     V8);
 
@@ -3386,14 +3420,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 10 arguments"
-                          << "\n-----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 10 arguments"
+                            "\n-----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                     V8, V9);
 
@@ -3405,14 +3439,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 2 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 2 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                     V8, V9, V10);
 
@@ -3424,14 +3458,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 11 arguments"
-                          << "\n----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 11 arguments"
+                            "\n----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                     V8, V9, V10, V11);
 
@@ -3443,14 +3477,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 12 arguments"
-                          << "\n-----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 12 arguments"
+                            "\n-----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                     V8, V9, V10, V11, V12);
 
@@ -3463,14 +3497,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 13 arguments"
-                          << "\n-----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 13 arguments"
+                            "\n-----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                     V8, V9, V10, V11, V12, V13);
 
@@ -3483,14 +3517,14 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) cout << "\nTesting 'createInplace' with 14 arguments"
-                          << "\n-----------------------------------------\n";
+        if (verbose) printf("\nTesting 'createInplace' with 14 arguments"
+                            "\n-----------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            bcema_SharedPtr<MyInplaceTestObject> x;
-            const bcema_SharedPtr<MyInplaceTestObject>& X=x;
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                     V8, V9, V10, V11, V12, V13, V14);
 
@@ -3503,9 +3537,10 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
+#if 0 // TBD Waiting on a useable 'bind' facility to port to a good level
         if (verbose)
-            cout << "\nTesting 'createInplace' passing allocator to args"
-                 << "\n-------------------------------------------------\n";
+            printf("\nTesting 'createInplace' passing allocator to args"
+                   "\n-------------------------------------------------\n");
 
         bslma::TestAllocator ta0;
         bslma::TestAllocator ta1;
@@ -3542,8 +3577,8 @@ int main(int argc, char *argv[])
         };
 
         {
-            bcema_SharedPtr<bdef_Bind_TestTypeAlloc> x;
-            const bcema_SharedPtr<bdef_Bind_TestTypeAlloc>& X=x;
+            bsl::shared_ptr<bdef_Bind_TestTypeAlloc> x;
+            const bsl::shared_ptr<bdef_Bind_TestTypeAlloc>& X=x;
 
             const bdef_Bind_TestTypeAlloc EXP(Z0, VA1, VA2, VA3, VA4,
                     VA5, VA6, VA7, VA8, VA9, VA10, VA11, VA12, VA13);
@@ -3560,7 +3595,7 @@ int main(int argc, char *argv[])
             ASSERT(bdef_Bind_TestSlotsAlloc::verifySlots(ALLOC_SLOTS,
                                                          verbose));
         }
-
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -3572,16 +3607,15 @@ int main(int argc, char *argv[])
         // Plan: TBD
         //
         // Testing:
-        //   bcema_SharedPtr<TYPE>& operator=(const bcema_SharedPtr<TYPE>& r);
-        //   bcema_SharedPtr<TYPE>& operator=(const bcema_SharedPtr<OTHER>& r);
-        //   bcema_SharedPtr<TYPE>& operator=(bsl::auto_ptr<OTHER> rhs);
+        //   bsl::shared_ptr<TYPE>& operator=(const bsl::shared_ptr<TYPE>& r);
+        //   bsl::shared_ptr<TYPE>& operator=(const bsl::shared_ptr<OTHER>& r);
+        //   bsl::shared_ptr<TYPE>& operator=(std::auto_ptr<OTHER> rhs);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing ASSIGNMENT OPERATORS" << endl
-                          << "============================" << endl;
+        if (verbose) printf("\nTesting ASSIGNMENT OPERATORS"
+                            "\n============================\n");
 
-        if (verbose) cout << "\nTesting ASSIGNMENT to empty object"
-                          << "\n----------------------------------\n";
+        if (verbose) printf("\nTesting ASSIGNMENT to empty object"
+                            "\n----------------------------------\n");
         {
             Obj x1;
             const Obj& X1 = x1;
@@ -3616,8 +3650,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting ASSIGNMENT of auto_ptr"
-                          << "\n------------------------------\n";
+        if (verbose) printf("\nTesting ASSIGNMENT of auto_ptr"
+                            "\n------------------------------\n");
         {
             Obj x;
             const Obj& X = x;
@@ -3626,7 +3660,7 @@ int main(int argc, char *argv[])
 
             numDeletes = 0;
             TObj *p = new TObj(&numDeletes);
-            bsl::auto_ptr<TObj> ap(p);
+            std::auto_ptr<TObj> ap(p);
 
             x = ap;
 
@@ -3642,8 +3676,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting ASSIGNMENT of auto_ptr rvalue"
-                          << "\n-------------------------------------\n";
+        if (verbose) printf("\nTesting ASSIGNMENT of auto_ptr rvalue"
+                            "\n-------------------------------------\n");
         {
             Obj x;
             const Obj& X = x;
@@ -3665,8 +3699,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting ASSIGNMENT of empty object"
-                          << "\n----------------------------------\n";
+        if (verbose) printf("\nTesting ASSIGNMENT of empty object"
+                            "\n----------------------------------\n");
         {
             numDeletes = 0;
             TObj *p = new TObj(&numDeletes);
@@ -3700,8 +3734,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting ASSIGNMENT of loaded object"
-                          << "\n----------------------------------\n";
+        if (verbose) printf("\nTesting ASSIGNMENT of loaded object"
+                            "\n----------------------------------\n");
         {
             bsls::Types::Int64 numDeletes1 = 0;
             numDeletes = 0;
@@ -3742,8 +3776,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-        if (verbose) cout << "\nTesting ASSIGNMENT to self"
-                          << "\n--------------------------\n";
+        if (verbose) printf("\nTesting ASSIGNMENT to self"
+                            "\n--------------------------\n");
         {
             numDeletes = 0;
             TObj *p = new TObj(&numDeletes);
@@ -3778,25 +3812,23 @@ int main(int argc, char *argv[])
         // Plan: TBD
         //
         // Testing:
-        // * bcema_SharedPtr(OTHER *ptr)
-        // * bcema_SharedPtr(OTHER *ptr, bslma::Allocator *allocator)
-        //   bcema_SharedPtrTYPE *ptr, bcema_SharedPtrRep *rep)
-        //   bcema_SharedPtr(OTHER *ptr, DELETER *const& deleter)
-        //   bcema_SharedPtr(OTHER *ptr, const DELETER& deleter, ...
-        //   bcema_SharedPtr(nullptr_t, const DELETER&, bslma::Allocator * =0);
-        //   bcema_SharedPtr(bsl::auto_ptr<OTHER> autoPtr, bslma::Allocator*=0)
-        // * bcema_SharedPtr(const bcema_SharedPtr& original);
-        //   bcema_SharedPtr(bcema_SharedPtrRep *);
+        // * bsl::shared_ptr(OTHER *ptr)
+        // * bsl::shared_ptr(OTHER *ptr, bslma::Allocator *allocator)
+        //   bsl::shared_ptrTYPE *ptr, bslma::SharedPtrRep *rep)
+        //   bsl::shared_ptr(OTHER *ptr, DELETER *const& deleter)
+        //   bsl::shared_ptr(OTHER *ptr, const DELETER& deleter, ...
+        //   bsl::shared_ptr(nullptr_t, const DELETER&, bslma::Allocator * =0);
+        //   bsl::shared_ptr(std::auto_ptr<OTHER> autoPtr, bslma::Allocator*=0)
+        // * bsl::shared_ptr(const bsl::shared_ptr& original);
+        //   bsl::shared_ptr(bslma::SharedPtrRep *);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing Constructors and Destructor" << endl
-                          << "===================================" << endl;
+        if (verbose) printf("\nTesting Constructors and Destructor"
+                            "\n===================================\n");
 
-        if (verbose)
-            cout << "\nTesting null ptr constructor"
-                 << "\n----------------------------\n";
+        if (verbose) printf("\nTesting null ptr constructor"
+                            "\n----------------------------\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -3813,7 +3845,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
 
-            bsl::auto_ptr<TObj> apY(0);
+            std::auto_ptr<TObj> apY(0);
             Obj y(apY, &ta); const Obj& Y = y;
             ASSERT(0 == Y.ptr());
             ASSERT(0 == Y.numReferences());
@@ -3832,8 +3864,8 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting (cast) null ptr constructor"
-                 << "\n-----------------------------------\n";
+            printf("\nTesting (cast) null ptr constructor"
+                   "\n-----------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3855,8 +3887,8 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting constructor (with factory)"
-                 << "\n---------------------------------\n";
+            printf("\nTesting constructor (with factory)"
+                   "\n----------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3881,14 +3913,14 @@ int main(int argc, char *argv[])
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting auto_ptr constructor (with allocator)"
-                 << "\n--------------------------------------------\n";
+            printf("\nTesting auto_ptr constructor (with allocator)"
+                   "\n---------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
             numDeletes = 0;
             TObj  *p = new TObj(&numDeletes);
-            bsl::auto_ptr<TObj> ap(p);
+            std::auto_ptr<TObj> ap(p);
 
             numAllocations = ta.numAllocations();
 
@@ -3910,8 +3942,8 @@ int main(int argc, char *argv[])
         ASSERT((++numDeallocations) == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting auto_ptr rvalue constructor (with allocator)"
-                 << "\n----------------------------------------------------\n";
+            printf("\nTesting auto_ptr rvalue constructor (with allocator)"
+                   "\n----------------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3935,8 +3967,8 @@ int main(int argc, char *argv[])
         ASSERT((++numDeallocations) == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting constructor (with factory and allocator)"
-                 << "\n-----------------------------------------------\n";
+            printf("\nTesting constructor (with factory and allocator)"
+                   "\n-----------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3963,8 +3995,8 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations + 2 == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting constructor (with deleter object)"
-                 << "\n-----------------------------------------\n";
+            printf("\nTesting constructor (with deleter object)"
+                   "\n-----------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3990,8 +4022,8 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations + 1 == ta.numDeallocations());
 
         if (verbose)
-            cout << "\nTesting constructor (with deleter function pointer)"
-                 << "\n---------------------------------------------------\n";
+            printf("\nTesting constructor (with deleter function pointer)"
+                   "\n---------------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -4018,8 +4050,8 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_PLATFORM_CMP_IBM)
         if (verbose)
-            cout << "\nTesting constructor (with deleter function type)"
-                 << "\n------------------------------------------------\n";
+            printf("\nTesting constructor (with deleter function type)"
+                   "\n------------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -4046,8 +4078,8 @@ int main(int argc, char *argv[])
 #endif  // BSLS_PLATFORM_CMP_IBM
 
         if (verbose)
-            cout << "\nTesting constructor (with deleter and allocator)"
-                 << "\n------------------------------------------------\n";
+            printf("\nTesting constructor (with deleter and allocator)"
+                   "\n------------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -4074,8 +4106,8 @@ int main(int argc, char *argv[])
 
 
         if (verbose)
-            cout << "\nTesting ctor (with function pointer and allocator)"
-                 << "\n--------------------------------------------------\n";
+            printf("\nTesting ctor (with function pointer and allocator)"
+                   "\n--------------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -4102,8 +4134,8 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_PLATFORM_CMP_IBM)
         if (verbose)
-            cout << "\nTesting ctor (with function type and allocator)"
-                 << "\n-----------------------------------------------\n";
+            printf("\nTesting ctor (with function type and allocator)"
+                   "\n-----------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -4130,8 +4162,8 @@ int main(int argc, char *argv[])
 #endif  // BSLS_PLATFORM_CMP_IBM
 
         if (verbose)
-            cout << "\nTesting constructor (with rep)"
-                 << "\n------------------------------\n";
+            printf("\nTesting constructor (with rep)"
+                   "\n------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -4149,7 +4181,7 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bcema_SharedPtrRep *rep = x.rep();
+            bslma::SharedPtrRep *rep = x.rep();
             x.release();
 
             Obj xx(p, rep); const Obj& XX = xx;
@@ -4172,15 +4204,15 @@ int main(int argc, char *argv[])
         //   will break this test.
         //
         // Testing:
-        //   bcema_SharedPtr();
-        //   [bcema_SharedPtr(TYPE *ptr);]
-        //   [bcema_SharedPtr(TYPE *ptr, bslma::Allocator *allocator);]
-        //   operator bcema_SharedPtr_UnspecifiedBool() const;
-        //   typename bcema_SharedPtr<TYPE>::Reference operator[]() const;
-        //   typename bcema_SharedPtr<TYPE>::Reference operator*() const;
+        //   bsl::shared_ptr();
+        //   [bsl::shared_ptr(TYPE *ptr);]
+        //   [bsl::shared_ptr(TYPE *ptr, bslma::Allocator *allocator);]
+        //   operator bsl::shared_ptr_UnspecifiedBool() const;
+        //   typename bsl::shared_ptr<TYPE>::Reference operator[]() const;
+        //   typename bsl::shared_ptr<TYPE>::Reference operator*() const;
         //   TYPE *operator->() const;
         //   TYPE *ptr() const;
-        //   bcema_SharedPtrRep *rep() const;
+        //   bslma::SharedPtrRep *rep() const;
         //   int numReferences() const;
         //   TYPE *get() const;
         //   bool unique() const;
@@ -4188,15 +4220,13 @@ int main(int argc, char *argv[])
         //   void clear();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Testing Constructors and Destructor" << endl
-                          << "===================================" << endl;
+        if (verbose) printf("\nTesting Constructors and Destructor"
+                            "\n===================================\n");
 
-        bcema_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
-        if (verbose) cout << endl
-                          << "Testing default constructor" << endl
-                          << "---------------------------" << endl;
+        if (verbose) printf("\nTesting default constructor"
+                            "\n---------------------------\n");
         {
             Obj x; const Obj& X=x;
 
@@ -4209,9 +4239,8 @@ int main(int argc, char *argv[])
             ASSERT(false == X);
         }
 
-        if (verbose) cout << endl
-                          << "Testing basic constructor" << endl
-                          << "-------------------------" << endl;
+        if (verbose) printf("\nTesting basic constructor"
+                            "\n-------------------------\n");
         {
             numDeletes = 0;
             TObj *p = new TObj(&numDeletes);
@@ -4236,9 +4265,8 @@ int main(int argc, char *argv[])
             ASSERT(p == &X.operator[](0));
         }
 
-        if (verbose) cout << endl
-                          << "Testing 'clear' " << endl
-                          << "----------------" << endl;
+        if (verbose) printf("\nTesting 'clear'"
+                            "\n---------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -4284,9 +4312,8 @@ int main(int argc, char *argv[])
         //   This test exercises basic functionality but tests nothing.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST\n"
+                            "\n==============\n");
 
         bsls::Types::Int64 numDeletes = 0;
         {
@@ -4351,7 +4378,7 @@ int main(int argc, char *argv[])
             ConstObj x1(new MyTestObject(&numDeletes));
             const ConstObj& X1=x1;
 
-            Obj x2(bcema_SharedPtrUtil::constCast<TObj>(x1)); const Obj& X2=x2;
+            Obj x2(bslstl::SharedPtrUtil::constCast<TObj>(x1)); const Obj& X2=x2;
             if (veryVeryVerbose) {
                 P(numDeletes);
             }
@@ -4421,31 +4448,42 @@ int main(int argc, char *argv[])
         //   PERFORMANCE
         // --------------------------------------------------------------------
 
-        cout << endl
-             << "PERFORMANCE TEST" << endl
-             << "================" << endl;
+        printf("\nPERFORMANCE TEST"
+               "\n================\n");
 
         PerformanceTester<Obj>::test(verbose, veryVeryVerbose);
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,24 +1,15 @@
 // bslma_sharedptroutofplacerep.t.cpp                                -*-C++-*-
-
 #include <bslma_sharedptroutofplacerep.h>
 
 #include <bslma_testallocator.h>                // for testing only
-//#include <bdet_datetime.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-//#include <bsl_algorithm.h>       // for 'bsl::swap'
-//#include <bsl_iostream.h>
-
 #include <stdio.h>
 #include <stdlib.h>             // 'atoi'
-
-//using bsl::cout;
-//using bsl::endl;
-//using bsl::cerr;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC  // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS         // Microsoft Extensions Enabled
@@ -66,12 +57,11 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+//# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -207,8 +197,8 @@ class MyAllocTestDeleter {
     void             *d_someMemory;
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(MyAllocTestDeleter,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+//    BSLALG_DECLARE_NESTED_TRAITS(MyAllocTestDeleter,
+//                                 bslalg::TypeTraitUsesBslmaAllocator);
 
   public:
     // CREATORS
@@ -227,6 +217,13 @@ class MyAllocTestDeleter {
     template <class TYPE>
     void operator()(TYPE *ptr) const;
 };
+
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<MyAllocTestDeleter> : bsl::true_type {};
+}  // close namespace bslma
+}  // close namespace BloombergLP
                           // ------------------------
                           // class MyAllocTestDeleter
                           // ------------------------
@@ -380,7 +377,7 @@ int main(int argc, char *argv[])
     int numDeallocations;
     int numAllocations;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
@@ -456,13 +453,11 @@ int main(int argc, char *argv[])
         //                                const DELETER&    deleter,
         //                                bslma::Allocator *basicAllocator=0);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "Testing Constructors and Destructor" << endl
-                          << "===================================" << endl;
+        if (verbose) printf("\nTesting Constructors and Destructor"
+                            "\n===================================\n");
 
-        if (verbose) cout << endl
-                          << "Testing bslma::AllocatorDeleter" << endl
-                          << "-------------------------------" << endl;
+        if (verbose) printf("\nTesting bslma::AllocatorDeleter"
+                            "\n-------------------------------\n");
 
         {
             TObj *t = new(ta) TObj();
@@ -478,9 +473,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == TObj::getNumDeletes());
         }
 
-        if (verbose) cout << endl
-                          << "Testing Factory Deleter" << endl
-                          << "-----------------------" << endl;
+        if (verbose) printf("\nTesting Factory Deleter"
+                            "\n-----------------------\n");
         {
             enum { DELETER_TYPE =
               bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyTestFactory*>
@@ -507,9 +501,8 @@ int main(int argc, char *argv[])
             ta.deleteObject(factory);
         }
 
-        if (verbose) cout << endl
-                          << "Testing Function Deleter" << endl
-                          << "------------------------" << endl;
+        if (verbose) printf("\nTesting Function Deleter"
+                            "\n------------------------\n");
         {
             enum { DELETER_TYPE =
               bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<DeleteFunction>
@@ -534,9 +527,8 @@ int main(int argc, char *argv[])
             x.releaseWeakRef();
         }
 
-        if (verbose) cout << endl
-                          << "Testing Functor Deleter Without Alloc" << endl
-                          << "-------------------------------------" << endl;
+        if (verbose) printf("\nTesting Functor Deleter Without Alloc"
+                            "\n-------------------------------------\n");
         {
             enum { DELETER_TYPE =
              bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyDeleteFunctor>
@@ -560,9 +552,8 @@ int main(int argc, char *argv[])
             ASSERT(4 == TObj::getNumDeletes());
         }
 
-        if (verbose) cout << endl
-                          << "Testing Functor Deleter With Alloc" << endl
-                          << "----------------------------------" << endl;
+        if (verbose) printf("\nTesting Functor Deleter With Alloc"
+                            "\n----------------------------------\n");
         {
             enum { DELETER_TYPE =
           bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyAllocTestDeleter>
@@ -615,9 +606,8 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                        << "Testing 'releaseRef' and 'releaseWeakRef'" << endl
-                        << "=========================================" << endl;
+        if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+                            "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -646,9 +636,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numWeakReferences());
             ASSERT(true == X.hasUniqueOwner());
 
-            if (verbose) cout << endl
-                     << "Testing 'releaseRef' with no weak reference'" << endl
-                     << "--------------------------------------------" << endl;
+            if (verbose) printf(
+                        "\nTesting 'releaseRef' with no weak reference'"
+                        "\n--------------------------------------------\n");
 
             x.releaseRef();
 
@@ -657,9 +647,8 @@ int main(int argc, char *argv[])
             ASSERT(numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) cout << endl
-                        << "Testing 'releaseRef' with weak reference'" << endl
-                        << "-----------------------------------------" << endl;
+        if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+                            "\n-----------------------------------------\n");
 
         {
             TObj *t = new (ta) TObj();
@@ -713,9 +702,8 @@ int main(int argc, char *argv[])
         //   void *originalPtr() const;
         //   TYPE *ptr() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                         << "Testing 'disposeObject' and 'disposeRep'" << endl
-                         << "========================================" << endl;
+        if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
+                            "\n========================================\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -743,9 +731,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   This test exercises basic functionality but tests nothing.
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
@@ -784,15 +771,14 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
 
