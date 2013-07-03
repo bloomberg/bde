@@ -311,7 +311,7 @@ class bdem_ChoiceImp {
                                   bdeu_TypeTraitHasPrintMethod);
 
     // CLASS DATA
-    static const bdem_Descriptor d_choiceAttr;
+    static const bdem_Descriptor  s_choiceAttr;
         // Descriptor for the 'bdem_ChoiceImp' class.  Contains pointers to
         // functions for construction, destruction, assignment, equality test,
         // etc.

@@ -262,7 +262,7 @@ class bdem_RowData {
 
   public:
     // CLASS DATA
-    static const bdem_Descriptor d_rowAttr;
+    static const bdem_Descriptor  s_rowAttr;
         // Container for the 'bdem_Descriptor' attributes of 'bdem_RowData'.
         // Note that the attributes for construction, destruction, assignment,
         // and move are null.

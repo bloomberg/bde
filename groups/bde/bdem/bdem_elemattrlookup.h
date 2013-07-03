@@ -134,7 +134,7 @@ class bdet_TimeTz;
 
 struct bdem_ElemAttrLookup {
   private:
-    static const bdem_Descriptor *const *const d_lookupTable;
+    static const bdem_Descriptor *const *const s_lookupTable;
   public:
     static const bdem_Descriptor *const *lookupTable();
 };
@@ -168,7 +168,7 @@ struct bdem_ElemStreamOutAttrLookup {
 inline
 const bdem_Descriptor *const *bdem_ElemAttrLookup::lookupTable()
 {
-    return d_lookupTable;
+    return s_lookupTable;
 }
 
 template <class STREAM>

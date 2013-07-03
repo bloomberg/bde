@@ -214,7 +214,7 @@ bdem_RowData_AutoDtor& bdem_RowData_AutoDtor::operator++()
                         // ------------------
 
 // CLASS DATA
-const bdem_Descriptor bdem_RowData::d_rowAttr =
+const bdem_Descriptor bdem_RowData::s_rowAttr =
 {
     bdem_ElemType::BDEM_ROW,                           // element enumeration
     sizeof(bdem_RowData),                              // [minimum] size

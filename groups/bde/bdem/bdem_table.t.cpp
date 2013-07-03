@@ -577,7 +577,7 @@ static bdem_List                            fD20() {
        bdem_List t;              t.appendInt(D02); return t; }
 static bdem_List                            fE20() {
        bdem_List t;              t.appendInt(E02); return t; }
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fA20() and fB20() to t.appendInt() cause a runtime exception.
 #ifndef BSLS_PLATFORM_CMP_MSVC
@@ -771,7 +771,7 @@ static bdem_Choice                              fE30()
        return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -870,7 +870,7 @@ static bdem_ChoiceArray                         fE31()
        return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.

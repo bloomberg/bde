@@ -58,29 +58,29 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 struct bdescm_Version {
-    static const char *d_ident;
-    static const char *d_what;
+    static const char *s_ident;
+    static const char *s_what;
 
 #define BDESCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
 #define BDESCM_CONCAT(a,b,c,d,e,f)  BDESCM_CONCAT2(a,b,c,d,e,f)
 
-// 'BDESCM_D_VERSION' is a symbol whose name warns users of version mismatch
-// linking errors.  Note that the exact string "compiled_this_object" must be
+// 'BDESCM_S_VERSION' is a symbol whose name warns users of version mismatch
+// linking errors.  Note that the exact string "compiles_this_object" must be
 // present in this version coercion symbol.  Tools may look for this pattern to
 // warn users of mismatches.
-#define BDESCM_D_VERSION BDESCM_CONCAT(                \
-                       d_version_BDE_,                 \
+#define BDESCM_S_VERSION BDESCM_CONCAT(                \
+                       s_version_BDE_,                 \
                        BDE_VERSION_MAJOR, _,           \
                        BDE_VERSION_MINOR,              \
                        BDE_VERSION_RELEASETYPE_SYMBOL, \
-                       _compiled_this_object)
+                       _compiles_this_object)
 
-    static const char *BDESCM_D_VERSION;
+    static const char *BDESCM_S_VERSION;
 
-    static const char *d_dependencies;
-    static const char *d_buildInfo;
-    static const char *d_timestamp;
-    static const char *d_sourceControlInfo;
+    static const char *s_dependencies;
+    static const char *s_buildInfo;
+    static const char *s_timestamp;
+    static const char *s_sourceControlInfo;
 
     static const char *version();
 };
@@ -88,18 +88,18 @@ struct bdescm_Version {
 inline
 const char *bdescm_Version::version()
 {
-    return BDESCM_D_VERSION;
+    return BDESCM_S_VERSION;
 }
 
 // Force linker to pull in this component's object file.
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 static const char **bdescm_version_assertion =
-                                             &bdescm_Version::BDESCM_D_VERSION;
+                                             &bdescm_Version::BDESCM_S_VERSION;
 #else
 namespace {
     extern const char **const bdescm_version_assertion =
-                                             &bdescm_Version::BDESCM_D_VERSION;
+                                             &bdescm_Version::BDESCM_S_VERSION;
 }
 #endif
 

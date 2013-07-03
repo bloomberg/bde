@@ -141,9 +141,9 @@ BDES_IDENT("$Id: $")
 //      float f = -2.2;
 //      bsl::string s = "junk";
 //
-//      bdem_ElemRef iref(&i, &bdem_Properties::d_intAttr);
-//      bdem_ElemRef fref(&f, &bdem_Properties::d_floatAttr);
-//      bdem_ElemRef sref(&s, &bdem_Properties::d_stringAttr);
+//      bdem_ElemRef iref(&i, &bdem_Properties::s_intAttr);
+//      bdem_ElemRef fref(&f, &bdem_Properties::s_floatAttr);
+//      bdem_ElemRef sref(&s, &bdem_Properties::s_stringAttr);
 //
 //      setValue(iref, 9.8);
 //      assert(9 == i);

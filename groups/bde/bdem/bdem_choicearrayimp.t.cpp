@@ -140,7 +140,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] operator!=(const bdem_ChoiceArrayImp&, const bdem_ChoiceArrayImp&);
 // [10] bdex_OutStream& streamOut(bdex_OutStream& stream) const;
 // [10] bdex_OutStream& streamOut(bdex_OutStream& stream, int) const;
-// [15] static const bdem_Descriptor bdem_ChoiceArrayImp::d_choiceArrayAttr;
+// [15] static const bdem_Descriptor bdem_ChoiceArrayImp::s_choiceArrayAttr;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] populateCatalog
@@ -551,36 +551,36 @@ static const Desc *DESCRIPTORS[] =
     // This array stores the descriptors corresponding to each element
     // type specified in the spec string.
 {
-    &Prop::d_charAttr,
-    &Prop::d_shortAttr,
-    &Prop::d_intAttr,
-    &Prop::d_int64Attr,
-    &Prop::d_floatAttr,
-    &Prop::d_doubleAttr,
-    &Prop::d_stringAttr,
-    &Prop::d_datetimeAttr,
-    &Prop::d_dateAttr,
-    &Prop::d_timeAttr,
-    &Prop::d_charArrayAttr,
-    &Prop::d_shortArrayAttr,
-    &Prop::d_intArrayAttr,
-    &Prop::d_int64ArrayAttr,
-    &Prop::d_floatArrayAttr,
-    &Prop::d_doubleArrayAttr,
-    &Prop::d_stringArrayAttr,
-    &Prop::d_datetimeArrayAttr,
-    &Prop::d_dateArrayAttr,
-    &Prop::d_timeArrayAttr,
+    &Prop::s_charAttr,
+    &Prop::s_shortAttr,
+    &Prop::s_intAttr,
+    &Prop::s_int64Attr,
+    &Prop::s_floatAttr,
+    &Prop::s_doubleAttr,
+    &Prop::s_stringAttr,
+    &Prop::s_datetimeAttr,
+    &Prop::s_dateAttr,
+    &Prop::s_timeAttr,
+    &Prop::s_charArrayAttr,
+    &Prop::s_shortArrayAttr,
+    &Prop::s_intArrayAttr,
+    &Prop::s_int64ArrayAttr,
+    &Prop::s_floatArrayAttr,
+    &Prop::s_doubleArrayAttr,
+    &Prop::s_stringArrayAttr,
+    &Prop::s_datetimeArrayAttr,
+    &Prop::s_dateArrayAttr,
+    &Prop::s_timeArrayAttr,
     &listAttr,
     &tableAttr,
-    &Prop::d_boolAttr,
-    &Prop::d_datetimeTzAttr,
-    &Prop::d_dateTzAttr,
-    &Prop::d_timeTzAttr,
-    &Prop::d_boolArrayAttr,
-    &Prop::d_datetimeTzArrayAttr,
-    &Prop::d_dateTzArrayAttr,
-    &Prop::d_timeTzArrayAttr,
+    &Prop::s_boolAttr,
+    &Prop::s_datetimeTzAttr,
+    &Prop::s_dateTzAttr,
+    &Prop::s_timeTzAttr,
+    &Prop::s_boolArrayAttr,
+    &Prop::s_datetimeTzArrayAttr,
+    &Prop::s_dateTzArrayAttr,
+    &Prop::s_timeTzArrayAttr,
     &choiceAttr,
     &choiceArrayAttr,
 };
@@ -1061,42 +1061,42 @@ static bool isNull(const CAI& cai, int index)
 const bdem_Descriptor *const MY_DESCRIPTORS[] = {
 
     // Element attribute structures for fundamental and basic types:
-    &bdem_Properties::d_charAttr,
-    &bdem_Properties::d_shortAttr,
-    &bdem_Properties::d_intAttr,
-    &bdem_Properties::d_int64Attr,
-    &bdem_Properties::d_floatAttr,
-    &bdem_Properties::d_doubleAttr,
-    &bdem_Properties::d_stringAttr,
-    &bdem_Properties::d_datetimeAttr,
-    &bdem_Properties::d_dateAttr,
-    &bdem_Properties::d_timeAttr,
+    &bdem_Properties::s_charAttr,
+    &bdem_Properties::s_shortAttr,
+    &bdem_Properties::s_intAttr,
+    &bdem_Properties::s_int64Attr,
+    &bdem_Properties::s_floatAttr,
+    &bdem_Properties::s_doubleAttr,
+    &bdem_Properties::s_stringAttr,
+    &bdem_Properties::s_datetimeAttr,
+    &bdem_Properties::s_dateAttr,
+    &bdem_Properties::s_timeAttr,
 
     // Element attribute structures for array types:
-    &bdem_Properties::d_charArrayAttr,
-    &bdem_Properties::d_shortArrayAttr,
-    &bdem_Properties::d_intArrayAttr,
-    &bdem_Properties::d_int64ArrayAttr,
-    &bdem_Properties::d_floatArrayAttr,
-    &bdem_Properties::d_doubleArrayAttr,
-    &bdem_Properties::d_stringArrayAttr,
-    &bdem_Properties::d_datetimeArrayAttr,
-    &bdem_Properties::d_dateArrayAttr,
-    &bdem_Properties::d_timeArrayAttr,
+    &bdem_Properties::s_charArrayAttr,
+    &bdem_Properties::s_shortArrayAttr,
+    &bdem_Properties::s_intArrayAttr,
+    &bdem_Properties::s_int64ArrayAttr,
+    &bdem_Properties::s_floatArrayAttr,
+    &bdem_Properties::s_doubleArrayAttr,
+    &bdem_Properties::s_stringArrayAttr,
+    &bdem_Properties::s_datetimeArrayAttr,
+    &bdem_Properties::s_dateArrayAttr,
+    &bdem_Properties::s_timeArrayAttr,
 
     // Element attribute structures for list and table types
     (const bdem_Descriptor *) 0,
     (const bdem_Descriptor *) 0,
 
     // New bdem data types
-    &bdem_Properties::d_boolAttr,
-    &bdem_Properties::d_datetimeTzAttr,
-    &bdem_Properties::d_dateTzAttr,
-    &bdem_Properties::d_timeTzAttr,
-    &bdem_Properties::d_boolArrayAttr,
-    &bdem_Properties::d_datetimeTzArrayAttr,
-    &bdem_Properties::d_dateTzArrayAttr,
-    &bdem_Properties::d_timeTzArrayAttr,
+    &bdem_Properties::s_boolAttr,
+    &bdem_Properties::s_datetimeTzAttr,
+    &bdem_Properties::s_dateTzAttr,
+    &bdem_Properties::s_timeTzAttr,
+    &bdem_Properties::s_boolArrayAttr,
+    &bdem_Properties::s_datetimeTzArrayAttr,
+    &bdem_Properties::s_dateTzArrayAttr,
+    &bdem_Properties::s_timeTzArrayAttr,
 
     (const bdem_Descriptor *) 0,
     (const bdem_Descriptor *) 0
@@ -1479,10 +1479,10 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'd_choiceArrayAttr' STRUCT
+        // TESTING 's_choiceArrayAttr' STRUCT
         //
         // Concerns:
-        //   The 'd_choiceArrayAttr' struct is initialized such that:
+        //   The 's_choiceArrayAttr' struct is initialized such that:
         //   1. 'd_elemEnum == 31'
         //   2. 'd_size == sizeof(bdem_ChoiceArrayImp)'
         //   3.
@@ -1505,13 +1505,13 @@ int main(int argc, char *argv[])
         //   occurring.
         //
         // Testing:
-        //   static const bdem_Descriptor d_choiceArrayAttr;
+        //   static const bdem_Descriptor s_choiceArrayAttr;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting d_choiceArrayAttr Struct"
+        if (verbose) cout << "\nTesting s_choiceArrayAttr Struct"
                                << "\n================================"
                                << endl;
-        const Desc &d = CAI::d_choiceArrayAttr;
+        const Desc &d = CAI::s_choiceArrayAttr;
         {
             // TEST 1. d_elemENUM
             if (veryVerbose) cout << "Test d_elemEnum" << endl;

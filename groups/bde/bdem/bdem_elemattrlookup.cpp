@@ -20,59 +20,59 @@ const bdem_Descriptor *const rawLookupTable[TOTAL_NUM_TYPES] = {
 
     // *** element attribute structures for pseudo-types (negative indexes) ***
 
-    &bdem_ChoiceHeader::d_choiceItemAttr,       // CHOICE_ARRAY_ITEM (-3)
-    &bdem_RowData::d_rowAttr,                   // ROW               (-2)
-    &bdem_Properties::d_voidAttr,               // VOID              (-1)
+    &bdem_ChoiceHeader::s_choiceItemAttr,       // CHOICE_ARRAY_ITEM (-3)
+    &bdem_RowData::s_rowAttr,                   // ROW               (-2)
+    &bdem_Properties::s_voidAttr,               // VOID              (-1)
 
     // *** element attribute structures for scalar types ***
 
-    &bdem_Properties::d_charAttr,
-    &bdem_Properties::d_shortAttr,
-    &bdem_Properties::d_intAttr,
-    &bdem_Properties::d_int64Attr,
-    &bdem_Properties::d_floatAttr,
-    &bdem_Properties::d_doubleAttr,
-    &bdem_Properties::d_stringAttr,
-    &bdem_Properties::d_datetimeAttr,
-    &bdem_Properties::d_dateAttr,
-    &bdem_Properties::d_timeAttr,
+    &bdem_Properties::s_charAttr,
+    &bdem_Properties::s_shortAttr,
+    &bdem_Properties::s_intAttr,
+    &bdem_Properties::s_int64Attr,
+    &bdem_Properties::s_floatAttr,
+    &bdem_Properties::s_doubleAttr,
+    &bdem_Properties::s_stringAttr,
+    &bdem_Properties::s_datetimeAttr,
+    &bdem_Properties::s_dateAttr,
+    &bdem_Properties::s_timeAttr,
 
     // *** element attribute structures for array types ***
 
-    &bdem_Properties::d_charArrayAttr,
-    &bdem_Properties::d_shortArrayAttr,
-    &bdem_Properties::d_intArrayAttr,
-    &bdem_Properties::d_int64ArrayAttr,
-    &bdem_Properties::d_floatArrayAttr,
-    &bdem_Properties::d_doubleArrayAttr,
-    &bdem_Properties::d_stringArrayAttr,
-    &bdem_Properties::d_datetimeArrayAttr,
-    &bdem_Properties::d_dateArrayAttr,
-    &bdem_Properties::d_timeArrayAttr,
+    &bdem_Properties::s_charArrayAttr,
+    &bdem_Properties::s_shortArrayAttr,
+    &bdem_Properties::s_intArrayAttr,
+    &bdem_Properties::s_int64ArrayAttr,
+    &bdem_Properties::s_floatArrayAttr,
+    &bdem_Properties::s_doubleArrayAttr,
+    &bdem_Properties::s_stringArrayAttr,
+    &bdem_Properties::s_datetimeArrayAttr,
+    &bdem_Properties::s_dateArrayAttr,
+    &bdem_Properties::s_timeArrayAttr,
 
     // *** element attribute structures for list and table types ***
 
-    &bdem_ListImp::d_listAttr,
-    &bdem_TableImp::d_tableAttr,
+    &bdem_ListImp::s_listAttr,
+    &bdem_TableImp::s_tableAttr,
 
     // *** element attribute structures for newer 'bdem' types ***
 
-    &bdem_Properties::d_boolAttr,
-    &bdem_Properties::d_datetimeTzAttr,
-    &bdem_Properties::d_dateTzAttr,
-    &bdem_Properties::d_timeTzAttr,
-    &bdem_Properties::d_boolArrayAttr,
-    &bdem_Properties::d_datetimeTzArrayAttr,
-    &bdem_Properties::d_dateTzArrayAttr,
-    &bdem_Properties::d_timeTzArrayAttr,
+    &bdem_Properties::s_boolAttr,
+    &bdem_Properties::s_datetimeTzAttr,
+    &bdem_Properties::s_dateTzAttr,
+    &bdem_Properties::s_timeTzAttr,
+    &bdem_Properties::s_boolArrayAttr,
+    &bdem_Properties::s_datetimeTzArrayAttr,
+    &bdem_Properties::s_dateTzArrayAttr,
+    &bdem_Properties::s_timeTzArrayAttr,
 
-    &bdem_ChoiceImp::d_choiceAttr,
-    &bdem_ChoiceArrayImp::d_choiceArrayAttr
+    &bdem_ChoiceImp::s_choiceAttr,
+    &bdem_ChoiceArrayImp::s_choiceArrayAttr
 };
 
 }  // close unnamed namespace
 
-const bdem_Descriptor *const *const bdem_ElemAttrLookup::d_lookupTable =
+const bdem_Descriptor *const *const bdem_ElemAttrLookup::s_lookupTable =
     &rawLookupTable[bdem_ElemType::BDEM_NUM_PSEUDO_TYPES];
 
 }  // close namespace BloombergLP

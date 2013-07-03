@@ -40,14 +40,14 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 struct bbescm_Version {
-    static const char *d_ident;
-    static const char *d_what;
+    static const char *s_ident;
+    static const char *s_what;
 
-    static const char *d_version;
-    static const char *d_dependencies;
-    static const char *d_buildInfo;
-    static const char *d_timestamp;
-    static const char *d_sourceControlInfo;
+    static const char *s_version;
+    static const char *s_dependencies;
+    static const char *s_buildInfo;
+    static const char *s_timestamp;
+    static const char *s_sourceControlInfo;
 
     static const char *version();
 };
@@ -55,17 +55,17 @@ struct bbescm_Version {
 inline
 const char *bbescm_Version::version()
 {
-    return d_version;
+    return s_version;
 }
 
 // Force linker to pull in this component's object file.
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-static const char **bbescm_version_assertion = &bbescm_Version::d_version;
+static const char **bbescm_version_assertion = &bbescm_Version::s_version;
 #else
 namespace {
     extern const char **const bbescm_version_assertion =
-                                                    &bbescm_Version::d_version;
+                                                    &bbescm_Version::s_version;
 }
 #endif
 

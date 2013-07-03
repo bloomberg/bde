@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
             xyz.streamIn  = 0;  ASSERT(0 == xyz.streamIn);   // use xyz
             abc.streamOut = 0;  ASSERT(0 == abc.streamOut);  // use abc
 
-            const bdem_Descriptor& int64attr = bdem_Properties::d_int64Attr;
+            const bdem_Descriptor& int64attr = bdem_Properties::s_int64Attr;
             if (veryVerbose) {
                 bsl::cout << "Int64 size = "  << int64attr.d_size
                           << ", alignment = " << int64attr.d_alignment
@@ -127,44 +127,44 @@ int main(int argc, char *argv[])
         }
         {
             {
-                const bdem_Descriptor& d0  = bdem_Properties::d_voidAttr;
-                const bdem_Descriptor& d1  = bdem_Properties::d_boolAttr;
-                const bdem_Descriptor& d2  = bdem_Properties::d_charAttr;
-                const bdem_Descriptor& d3  = bdem_Properties::d_shortAttr;
-                const bdem_Descriptor& d4  = bdem_Properties::d_intAttr;
-                const bdem_Descriptor& d5  = bdem_Properties::d_int64Attr;
-                const bdem_Descriptor& d6  = bdem_Properties::d_floatAttr;
-                const bdem_Descriptor& d7  = bdem_Properties::d_doubleAttr;
-                const bdem_Descriptor& d8  = bdem_Properties::d_stringAttr;
-                const bdem_Descriptor& d9  = bdem_Properties::d_datetimeAttr;
-                const bdem_Descriptor& d10 = bdem_Properties::d_datetimeTzAttr;
-                const bdem_Descriptor& d11 = bdem_Properties::d_dateAttr;
-                const bdem_Descriptor& d12 = bdem_Properties::d_dateTzAttr;
-                const bdem_Descriptor& d13 = bdem_Properties::d_timeAttr;
-                const bdem_Descriptor& d14 = bdem_Properties::d_timeTzAttr;
+                const bdem_Descriptor& d0  = bdem_Properties::s_voidAttr;
+                const bdem_Descriptor& d1  = bdem_Properties::s_boolAttr;
+                const bdem_Descriptor& d2  = bdem_Properties::s_charAttr;
+                const bdem_Descriptor& d3  = bdem_Properties::s_shortAttr;
+                const bdem_Descriptor& d4  = bdem_Properties::s_intAttr;
+                const bdem_Descriptor& d5  = bdem_Properties::s_int64Attr;
+                const bdem_Descriptor& d6  = bdem_Properties::s_floatAttr;
+                const bdem_Descriptor& d7  = bdem_Properties::s_doubleAttr;
+                const bdem_Descriptor& d8  = bdem_Properties::s_stringAttr;
+                const bdem_Descriptor& d9  = bdem_Properties::s_datetimeAttr;
+                const bdem_Descriptor& d10 = bdem_Properties::s_datetimeTzAttr;
+                const bdem_Descriptor& d11 = bdem_Properties::s_dateAttr;
+                const bdem_Descriptor& d12 = bdem_Properties::s_dateTzAttr;
+                const bdem_Descriptor& d13 = bdem_Properties::s_timeAttr;
+                const bdem_Descriptor& d14 = bdem_Properties::s_timeTzAttr;
             }
 
             {
-                const bdem_Descriptor& d1  = bdem_Properties::d_boolArrayAttr;
-                const bdem_Descriptor& d2  = bdem_Properties::d_charArrayAttr;
-                const bdem_Descriptor& d3  = bdem_Properties::d_shortArrayAttr;
-                const bdem_Descriptor& d4  = bdem_Properties::d_intArrayAttr;
-                const bdem_Descriptor& d5  = bdem_Properties::d_int64ArrayAttr;
-                const bdem_Descriptor& d6  = bdem_Properties::d_floatArrayAttr;
+                const bdem_Descriptor& d1  = bdem_Properties::s_boolArrayAttr;
+                const bdem_Descriptor& d2  = bdem_Properties::s_charArrayAttr;
+                const bdem_Descriptor& d3  = bdem_Properties::s_shortArrayAttr;
+                const bdem_Descriptor& d4  = bdem_Properties::s_intArrayAttr;
+                const bdem_Descriptor& d5  = bdem_Properties::s_int64ArrayAttr;
+                const bdem_Descriptor& d6  = bdem_Properties::s_floatArrayAttr;
                 const bdem_Descriptor& d7  =
-                                            bdem_Properties::d_doubleArrayAttr;
+                                            bdem_Properties::s_doubleArrayAttr;
                 const bdem_Descriptor& d8  =
-                                            bdem_Properties::d_stringArrayAttr;
+                                            bdem_Properties::s_stringArrayAttr;
                 const bdem_Descriptor& d9  =
-                                          bdem_Properties::d_datetimeArrayAttr;
+                                          bdem_Properties::s_datetimeArrayAttr;
                 const bdem_Descriptor& d10 =
-                                        bdem_Properties::d_datetimeTzArrayAttr;
-                const bdem_Descriptor& d11 = bdem_Properties::d_dateArrayAttr;
+                                        bdem_Properties::s_datetimeTzArrayAttr;
+                const bdem_Descriptor& d11 = bdem_Properties::s_dateArrayAttr;
                 const bdem_Descriptor& d12 =
-                                            bdem_Properties::d_dateTzArrayAttr;
-                const bdem_Descriptor& d13 = bdem_Properties::d_timeArrayAttr;
+                                            bdem_Properties::s_dateTzArrayAttr;
+                const bdem_Descriptor& d13 = bdem_Properties::s_timeArrayAttr;
                 const bdem_Descriptor& d14 =
-                                            bdem_Properties::d_timeTzArrayAttr;
+                                            bdem_Properties::s_timeTzArrayAttr;
             }
         }
       } break;

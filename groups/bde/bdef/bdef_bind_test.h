@@ -80,8 +80,8 @@ BDES_IDENT("$Id: $")
 //
 //          const bdef_Bind_TestTypeNoAlloc EXPECTED_X(I1);
 //          const bdef_Bind_TestTypeNoAlloc DEFAULT_X(N1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(DEFAULT_X  == X);
+//          assert(EXPECTED_X != X);
+//          assert(DEFAULT_X  == X);
 //
 //          // For passing to the constructor of 'bdef_Bind'.
 //
@@ -99,27 +99,27 @@ BDES_IDENT("$Id: $")
 //
 //                Bind  mB1(&mX, L);
 //          const Bind& B1 = mB1;
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB1());
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB1());
+//          assert(EXPECTED_X == X);
 //
 //                Bind  mB2(&mX, M, Z0);
 //          const Bind& B2 = mB2;
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB2());
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB2());
+//          assert(DEFAULT_X == X);
 //
 //          Bind mB3(B1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB3());
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB3());
+//          assert(EXPECTED_X == X);
 //
 //          Bind mB4(B2, Z0);
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB4());
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB4());
+//          assert(DEFAULT_X == X);
 //
-//          ASSERT(NUM_ALLOCS == Z0->numAllocations());
+//          assert(NUM_ALLOCS == Z0->numAllocations());
 //      }
 //
 //      // 1 argument to function object, *with* placeholders.
@@ -133,8 +133,8 @@ BDES_IDENT("$Id: $")
 //
 //          const bdef_Bind_TestTypeNoAlloc EXPECTED_X(I1);
 //          const bdef_Bind_TestTypeNoAlloc DEFAULT_X(N1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(DEFAULT_X  == X);
+//          assert(EXPECTED_X != X);
+//          assert(DEFAULT_X  == X);
 //
 //          // For passing to the constructor of 'bdef_Bind'.
 //
@@ -147,27 +147,27 @@ BDES_IDENT("$Id: $")
 //
 //                Bind  mB1(&mX, L);
 //          const Bind& B1 = mB1;
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB1(I1));
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB1(I1));
+//          assert(EXPECTED_X == X);
 //
 //                Bind  mB2(&mX, L, Z0);
 //          const Bind& B2 = mB2;
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB2(N1));
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB2(N1));
+//          assert(DEFAULT_X == X);
 //
 //          Bind mB3(B1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB3(I1));
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB3(I1));
+//          assert(EXPECTED_X == X);
 //
 //          Bind mB4(B2, Z0);
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB4(N1));
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB4(N1));
+//          assert(DEFAULT_X == X);
 //
-//          ASSERT(NUM_ALLOCS == Z0->numAllocations());
+//          assert(NUM_ALLOCS == Z0->numAllocations());
 //      }
 //  }
 //..
@@ -199,8 +199,8 @@ BDES_IDENT("$Id: $")
 //
 //          const bdef_Bind_TestTypeAlloc EXPECTED_X(Z1, V1);
 //          const bdef_Bind_TestTypeAlloc DEFAULT_X(Z1, NV1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(DEFAULT_X  == X);
+//          assert(EXPECTED_X != X);
+//          assert(DEFAULT_X  == X);
 //
 //          typedef bdef_Bind_TestTypeAlloc *FUNC;
 //          typedef bdef_Bind_Tuple1<bdef_Bind_TestArgAlloc<1> > ListType;
@@ -216,25 +216,25 @@ BDES_IDENT("$Id: $")
 //
 //                Bind  mB1(&mX, L);
 //          const Bind& B1 = mB1;
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB1());
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB1());
+//          assert(EXPECTED_X == X);
 //
 //                Bind  mB2(&mX, M, Z2);
 //          const Bind& B2 = mB2;
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB2());
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB2());
+//          assert(DEFAULT_X == X);
 //
 //          Bind mB3(B1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB3());
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB3());
+//          assert(EXPECTED_X == X);
 //
 //          Bind mB4(B2, Z2);
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB4());
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB4());
+//          assert(DEFAULT_X == X);
 //      }
 //
 //      // 1 argument to function object, *with* placeholders.
@@ -246,8 +246,8 @@ BDES_IDENT("$Id: $")
 //
 //          const bdef_Bind_TestTypeAlloc EXPECTED_X(Z1, V1);
 //          const bdef_Bind_TestTypeAlloc DEFAULT_X(Z1, NV1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(DEFAULT_X  == X);
+//          assert(EXPECTED_X != X);
+//          assert(DEFAULT_X  == X);
 //
 //          typedef bdef_Bind_TestTypeAlloc *FUNC;
 //          typedef bdef_Bind_Tuple1<PH1> ListType;
@@ -260,25 +260,25 @@ BDES_IDENT("$Id: $")
 //
 //                Bind  mB1(&mX, L);
 //          const Bind& B1 = mB1;
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB1(V1));
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB1(V1));
+//          assert(EXPECTED_X == X);
 //
 //                Bind  mB2(&mX, L, Z2);
 //          const Bind& B2 = mB2;
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB2(NV1));
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB2(NV1));
+//          assert(DEFAULT_X == X);
 //
 //          Bind mB3(B1);
-//          ASSERT(EXPECTED_X != X);
-//          ASSERT(1 == mB3(V1));
-//          ASSERT(EXPECTED_X == X);
+//          assert(EXPECTED_X != X);
+//          assert(1 == mB3(V1));
+//          assert(EXPECTED_X == X);
 //
 //          Bind mB4(B2, Z2);
-//          ASSERT(DEFAULT_X != X);
-//          ASSERT(1 == mB4(NV1));
-//          ASSERT(DEFAULT_X == X);
+//          assert(DEFAULT_X != X);
+//          assert(1 == mB4(NV1));
+//          assert(DEFAULT_X == X);
 //      }
 //  }
 //..
@@ -324,7 +324,7 @@ struct bdef_Bind_TestSlotsBase {
 
   private:
     // PRIVATE CLASS DATA
-    static VALUE d_slots[NUM_SLOTS];
+    static VALUE s_slots[NUM_SLOTS];
 
   public:
     // CLASS METHODS
@@ -679,9 +679,9 @@ struct bdef_Bind_TestSlotsAllocBase
     // pointers are needed for the pretty printing in the 'verifySlots' method.
 
     // PRIVATE CLASS DATA
-    static AllocPtr d_Z0;
-    static AllocPtr d_Z1;
-    static AllocPtr d_Z2;
+    static AllocPtr s_Z0;
+    static AllocPtr s_Z1;
+    static AllocPtr s_Z2;
 
   public:
     // CLASS METHODS
@@ -1088,7 +1088,7 @@ struct bdef_Bind_TestFunctionsAlloc {
 // PRIVATE CLASS DATA
 template <typename VALUE>
 VALUE
-bdef_Bind_TestSlotsBase<VALUE>::d_slots[bdef_Bind_TestSlotsBase<VALUE>::
+bdef_Bind_TestSlotsBase<VALUE>::s_slots[bdef_Bind_TestSlotsBase<VALUE>::
                                                                     NUM_SLOTS];
 
 // CLASS METHODS
@@ -1096,14 +1096,14 @@ template <typename VALUE>
 inline
 VALUE bdef_Bind_TestSlotsBase<VALUE>::getSlot(int index)
 {
-    return d_slots[index];
+    return s_slots[index];
 }
 
 template <typename VALUE>
 void bdef_Bind_TestSlotsBase<VALUE>::resetSlots(VALUE value)
 {
     for (int i = 0; i < NUM_SLOTS; ++i) {
-        d_slots[i] = value;
+        s_slots[i] = value;
     }
 }
 
@@ -1111,7 +1111,7 @@ template <typename VALUE>
 inline
 void bdef_Bind_TestSlotsBase<VALUE>::setSlot(VALUE value, int index)
 {
-    d_slots[index] = value;
+    s_slots[index] = value;
 }
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -1801,55 +1801,55 @@ int bdef_Bind_TestFunctionsNoAlloc::func14(bdef_Bind_TestTypeNoAlloc *object,
 
 // CLASS DATA
 template <typename AllocPtr>
-AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::d_Z0 = 0;
+AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::s_Z0 = 0;
 
 template <typename AllocPtr>
-AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::d_Z1 = 0;
+AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::s_Z1 = 0;
 
 template <typename AllocPtr>
-AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::d_Z2 = 0;
+AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::s_Z2 = 0;
 
 // CLASS METHODS
 template <typename AllocPtr>
 inline
 void bdef_Bind_TestSlotsAllocBase<AllocPtr>::setZ0(AllocPtr Z0)
 {
-    d_Z0 = Z0;
+    s_Z0 = Z0;
 }
 
 template <typename AllocPtr>
 inline
 void bdef_Bind_TestSlotsAllocBase<AllocPtr>::setZ1(AllocPtr Z1)
 {
-    d_Z1 = Z1;
+    s_Z1 = Z1;
 }
 
 template <typename AllocPtr>
 inline
 void bdef_Bind_TestSlotsAllocBase<AllocPtr>::setZ2(AllocPtr Z2)
 {
-    d_Z2 = Z2;
+    s_Z2 = Z2;
 }
 
 template <typename AllocPtr>
 inline
 AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::getZ0()
 {
-    return d_Z0;
+    return s_Z0;
 }
 
 template <typename AllocPtr>
 inline
 AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::getZ1()
 {
-    return d_Z1;
+    return s_Z1;
 }
 
 template <typename AllocPtr>
 inline
 AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::getZ2()
 {
-    return d_Z2;
+    return s_Z2;
 }
 
                       // ----------------------------
