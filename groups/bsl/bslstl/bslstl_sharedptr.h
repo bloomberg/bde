@@ -10,17 +10,19 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a generic reference-counted shared pointer wrapper.
 //
 //@CLASSES:
-//  shared_ptr: shared pointer
+//  bsl::shared_ptr: shared pointer
+//  bsl::weak_ptr: "weak" reference to reference-counted shared object
 //  bslstl::SharedPtrUtil: shared pointer utility functions
-//  shared_ptrLess: comparator functor for STL containers
 //  bslstl::SharedPtrNilDeleter: no-op deleter
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //         Herve Bronnimann (hbronnim)
 //         Vlad Kliatchko (vkliatch)
 //         Raymond Chiu (schiu49)
+//         Henry Verschell (hversche)
+//         Rohan Bhindwale (rbhindwa)
 //
-//@SEE_ALSO: bslma_managedptr, bcema_weakptr
+//@SEE_ALSO: bslma_managedptr
 //
 //@DESCRIPTION: This component implements a thread-safe, generic,
 // reference-counted "smart pointer" to support "shared ownership" of objects
@@ -35,23 +37,23 @@ BSLS_IDENT("$Id$ $CSID$")
 // pointer passed to the copy constructor).  When a shared pointer is assigned
 // to or destroyed, then the number of shared references to the shared object
 // is decremented.  When all references to the shared object are released, both
-// the representation and the object are destroyed.  'shared_ptr' emulates
-// the interface of a native pointer.  The shared object may be accessed
-// directly using the '->' operator, or the dereference operator (operator '*')
-// can be used to obtain a reference to the shared object.
+// the representation and the object are destroyed.  'shared_ptr' emulates the
+// interface of a native pointer.  The shared object may be accessed directly
+// using the '->' operator, or the dereference operator (operator '*') can be
+// used to obtain a reference to the shared object.
 //
 ///Thread-Safety
 ///-------------
-// This section qualifies the thread-safety of 'shared_ptr' objects
-// themselves rather than the thread-safety of the objects being referenced.
+// This section qualifies the thread-safety of 'shared_ptr' objects themselves
+// rather than the thread-safety of the objects being referenced.
 //
 // It is safe to access or modify two distinct 'shared_ptr' objects
-// simultaneously, each from a separate thread, even if they share ownership
-// of a common object.  It is safe to access a single 'shared_ptr' object
+// simultaneously, each from a separate thread, even if they share ownership of
+// a common object.  It is safe to access a single 'shared_ptr' object
 // simultaneously from two or more separate threads, provided no other thread
 // is simultaneously modifying the object.  It is not safe to access or modify
-// a 'shared_ptr' object in one thread while another thread modifies the
-// same object.
+// a 'shared_ptr' object in one thread while another thread modifies the same
+// object.
 //
 // It is safe to access, modify, copy, or delete a shared pointer in one
 // thread, while other threads access or modify other shared pointers pointing
@@ -72,8 +74,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // 2) A weak reference provides users conditional access to an object without
 // sharing its ownership (or affecting its lifetime).  A shared object can be
 // destroyed even if there are weak references to it.  A weak reference to an
-// object can be obtained by creating a 'bcema_WeakPtr' referring to the object
-// from a 'shared_ptr' referring to that object.
+// object can be obtained by creating a 'weak_ptr' referring to the object from
+// a 'shared_ptr' referring to that object.
 //
 ///In-place/Out-of-place Representations
 ///-------------------------------------
@@ -130,11 +132,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // Creating an in-place shared pointer does not require the parameterized type
 // to inherit from a special class (such as 'bsl::enable_shared_from_this'); in
-// that case, 'shared_ptr' supports up to fourteen arguments that can be
-// passed directly to the object's constructor.  For in-place representations,
-// both the object and the representation can be constructed in one allocation
-// as opposed to two, effectively creating an "intrusive" reference counter.
-// Note that the size of the allocation is determined at compile-time from the
+// that case, 'shared_ptr' supports up to fourteen arguments that can be passed
+// directly to the object's constructor.  For in-place representations, both
+// the object and the representation can be constructed in one allocation as
+// opposed to two, effectively creating an "intrusive" reference counter.  Note
+// that the size of the allocation is determined at compile-time from the
 // combined footprint of the object and of the reference counter.  It is also
 // possible to create shared pointers to buffers whose sizes are determined at
 // runtime, although such buffers consist of raw (uninitialized) memory.
@@ -142,12 +144,11 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Weak Pointers using "in-place" or Pooled Shared Pointer Representations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A weak pointer that is not in the empty state shares a common representation
-// (used to refer to the shared object) with the shared (or other weak)
-// pointer from which it was constructed, and holds this representation until
-// it is either destroyed or reset.  This common representation is not
-// destroyed and deallocated (although the shared object itself may have been
-// destroyed) until all weak references to that common representation have been
-// released.
+// (used to refer to the shared object) with the shared (or other weak) pointer
+// from which it was constructed, and holds this representation until it is
+// either destroyed or reset.  This common representation is not destroyed and
+// deallocated (although the shared object itself may have been destroyed)
+// until all weak references to that common representation have been released.
 //
 // Due to this behavior the *memory* *footprint* of shared objects that are
 // constructed "in-place" in the shared pointer representation (see above) is
@@ -173,16 +174,16 @@ BSLS_IDENT("$Id$ $CSID$")
 //  };
 //..
 // We then create an "in-place" shared pointer to an object of
-// 'ClassWithLargeFootprint' using the 'createInplace' method of
-// 'shared_ptr'.  The 'sp' shared pointer representation of 'sp' will
-// create a 'ClassWithLargeFootprint' object "in-place":
+// 'ClassWithLargeFootprint' using the 'createInplace' method of 'shared_ptr'.
+// The 'sp' shared pointer representation of 'sp' will create a
+// 'ClassWithLargeFootprint' object "in-place":
 //..
 //  shared_ptr<ClassWithLargeFootprint> sp;
 //  sp.createInplace();
 //..
 // Next we construct a weak pointer from this (in-place) shared pointer:
 //..
-//  bcema_WeakPtr<ClassWithLargeFootprint> wp(sp);
+//  weak_ptr<ClassWithLargeFootprint> wp(sp);
 //..
 // Now releasing all shared references to the shared object (using the 'reset'
 // function) causes the object's destructor to be called, but the
@@ -228,16 +229,16 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Deleters
 ///--------
-// When the last shared reference to a shared object is released, the object
-// is destroyed using the "deleter" provided when the associated shared
-// pointer representation was created.  'shared_ptr' supports two
-// kinds of "deleter" objects, which vary in how they are invoked.  A
-// "function-like" deleter is any language entity that can be invoked such
-// that the expression 'deleterInstance(objectPtr)' is a valid expression, and
-// a "factory" deleter is any language entity that can be invoked such that the
-// expression 'deleterInstance.deleteObject(objectPtr)' is a valid expression,
-// where 'deleterInstance' is an instance of the "deleter" object, and
-// 'objectPtr' is a pointer to the shared object.  In summary:
+// When the last shared reference to a shared object is released, the object is
+// destroyed using the "deleter" provided when the associated shared pointer
+// representation was created.  'shared_ptr' supports two kinds of "deleter"
+// objects, which vary in how they are invoked.  A "function-like" deleter is
+// any language entity that can be invoked such that the expression
+// 'deleterInstance(objectPtr)' is a valid expression, and a "factory" deleter
+// is any language entity that can be invoked such that the expression
+// 'deleterInstance.deleteObject(objectPtr)' is a valid expression, where
+// 'deleterInstance' is an instance of the "deleter" object, and 'objectPtr' is
+// a pointer to the shared object.  In summary:
 //..
 //  Deleter                     Expression used to destroy 'objectPtr'
 //  - - - - - - - - - - - -     - - - - - - - - - - - - - - - - - - -
@@ -322,9 +323,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // by value in the above examples.  Function-like deleter objects (passed by
 // value) are stored by value in the representation and therefore *must* be
 // copy-constructible.  Note that even though the deleter may be passed by
-// reference, it is a copy (owned by the shared pointer representation) that
-// is invoked and thus the 'deleterInstance' is not required, nor assumed, to
-// be non-modifiable.  (For the example above, note that 'operator()' is
+// reference, it is a copy (owned by the shared pointer representation) that is
+// invoked and thus the 'deleterInstance' is not required, nor assumed, to be
+// non-modifiable.  (For the example above, note that 'operator()' is
 // intentionally *not* defined 'const'.)
 //
 ///Aliasing
@@ -433,8 +434,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Type Casting
 ///------------
-// A 'shared_ptr' object of a given type can be implicitly or explicitly
-// cast to a 'shared_ptr' of another type.
+// A 'shared_ptr' object of a given type can be implicitly or explicitly cast
+// to a 'shared_ptr' of another type.
 //
 ///Implicit Casting
 /// - - - - - - - -
@@ -459,16 +460,16 @@ BSLS_IDENT("$Id$ $CSID$")
 //  shared_ptr<A> spa(spb);
 //..
 // are also valid.  Note that in all of the above cases, the destructor of 'B'
-// will be invoked when the object is destroyed even if 'A' does not provide
-// a virtual destructor.
+// will be invoked when the object is destroyed even if 'A' does not provide a
+// virtual destructor.
 //
 ///Explicit Casting
 /// - - - - - - - -
 // Through "aliasing", a shared pointer of any type can be explicitly cast to a
 // shared pointer of any other type using any legal cast expression.  For
-// example, to statically cast a shared pointer to type 'A'
-// ('shared_ptr<A>') to a shared pointer to type 'B'
-// ('shared_ptr<B>'), one can simply do the following:
+// example, to statically cast a shared pointer to type 'A' ('shared_ptr<A>')
+// to a shared pointer to type 'B' ('shared_ptr<B>'), one can simply do the
+// following:
 //..
 //  shared_ptr<A> spa;
 //  shared_ptr<B> spb(spa, static_cast<B *>(spa.ptr()));
@@ -507,19 +508,20 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Converting to and from 'BloombergLP::bslma::ManagedPtr'
 ///-----------------------------------------
-// A 'shared_ptr' can be converted to a 'BloombergLP::bslma::ManagedPtr' while still
-// retaining proper reference counting.  When a shared pointer is converted to
-// a 'BloombergLP::bslma::ManagedPtr', the number of references to the shared object is
-// incremented.  When the managed pointer is destroyed (if not transferred to
-// another managed pointer first), the number of references will be
-// decremented.  If the number of references reaches zero, then the shared
-// object will be destroyed.  The 'managedPtr' function can be used to create a
-// managed pointer from a shared pointer.
+// A 'shared_ptr' can be converted to a 'BloombergLP::bslma::ManagedPtr' while
+// still retaining proper reference counting.  When a shared pointer is
+// converted to a 'BloombergLP::bslma::ManagedPtr', the number of references to
+// the shared object is incremented.  When the managed pointer is destroyed (if
+// not transferred to another managed pointer first), the number of references
+// will be decremented.  If the number of references reaches zero, then the
+// shared object will be destroyed.  The 'managedPtr' function can be used to
+// create a managed pointer from a shared pointer.
 //
-// A 'shared_ptr' also can be constructed from a 'BloombergLP::bslma::ManagedPtr'.  The
-// resulting shared pointer takes over the management of the object and will
-// use the deleter from the original 'BloombergLP::bslma::ManagedPtr' to destroy the managed
-// object when all the references to that shared object are released.
+// A 'shared_ptr' also can be constructed from a
+// 'BloombergLP::bslma::ManagedPtr'.  The resulting shared pointer takes over
+// the management of the object and will use the deleter from the original
+// 'BloombergLP::bslma::ManagedPtr' to destroy the managed object when all the
+// references to that shared object are released.
 //
 ///Storing a 'shared_ptr' in an Invokable in a 'bdef_Function' object
 ///-----------------------------------------------------------------------
@@ -534,12 +536,12 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'std::shared_ptr' (sections 2.2.3 of the final "Technical Report on C++
 // Library Extensions" and 20.9.12.2 of the current "Final Committee Draft,
 // Standard for Programming Language C++").  Support for 'std::weak_ptr' is
-// provided in the 'bcema_weakptr' component.  Also, this component allows
+// provided in the 'weak_ptr' component.  Also, this component allows
 // conversion or assignment from 'std::auto_ptr' and provides most of the
 // interface of 'std::shared_ptr'.  In addition, it does not collaborate with
-// types that derive from 'std::enable_shared_this': using 'shared_ptr'
-// with such types will result in (very destructive) undefined behavior.  The
-// only global free function supplied with this component is 'swap'.
+// types that derive from 'std::enable_shared_this': using 'shared_ptr' with
+// such types will result in (very destructive) undefined behavior.  The only
+// global free function supplied with this component is 'swap'.
 //
 // As mentioned in the section "Comparison of Shared Pointers" above, using
 // comparison operators 'operator<', 'operator<=', 'operator>', and
@@ -643,8 +645,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // shared pointer, but the object being passed is not owned by the caller
 // (e.g., a pointer to a static variable).  In these cases, it is possible to
 // create a shared pointer specifying 'bslstl::SharedPtrNilDeleter' as the
-// deleter.  The deleter function provided by 'bslstl::SharedPtrNilDeleter' is a
-// no-op and does not delete the object.  The following example demonstrates
+// deleter.  The deleter function provided by 'bslstl::SharedPtrNilDeleter' is
+// a no-op and does not delete the object.  The following example demonstrates
 // the use of 'shared_ptr' using a 'bslstl::SharedPtrNilDeleter'.  The code
 // uses the 'MyUser' class defined in Example 1.  In this example, an
 // asynchronous transaction manager is implemented.  Transactions are enqueued
@@ -701,14 +703,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //      return enqueueTransaction(user, transaction);
 //  }
 //..
-// For system transactions, we must use the 'MyUser' objected returned from
-// the 'systemUser' 'static' method.  Since we do not own the returned object,
-// we cannot directly construct a 'shared_ptr' object for it: doing so
-// would result in the singleton being destroyed when the last reference to
-// the shared pointer is released.  To solve this problem, we construct a
-// 'shared_ptr' object for the system user using a nil deleter.  When
-// the last reference to the shared pointer is released, although the deleter
-// will be invoked to destroy the object, it will do nothing.
+// For system transactions, we must use the 'MyUser' objected returned from the
+// 'systemUser' 'static' method.  Since we do not own the returned object, we
+// cannot directly construct a 'shared_ptr' object for it: doing so would
+// result in the singleton being destroyed when the last reference to the
+// shared pointer is released.  To solve this problem, we construct a
+// 'shared_ptr' object for the system user using a nil deleter.  When the last
+// reference to the shared pointer is released, although the deleter will be
+// invoked to destroy the object, it will do nothing.
 //..
 //  int MyTransactionManager::enqueueSystemTransaction(
 //                                        const MyTransactionInfo& transaction)
@@ -722,12 +724,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Example 3 - Custom Deleters
 /// -  -  -  -  -  -  -  -  -
-// The role of a "deleter" is to allow users to define a custom "cleanup"
-// for a shared object.  Although cleanup generally involves destroying the
-// object, this need not be the case.  The following example demonstrates the
-// use of a custom deleter to construct "locked" pointers.  First we declare a
-// custom deleter that, when invoked, releases the specified mutex and signals
-// the specified condition variable.
+// The role of a "deleter" is to allow users to define a custom "cleanup" for a
+// shared object.  Although cleanup generally involves destroying the object,
+// this need not be the case.  The following example demonstrates the use of a
+// custom deleter to construct "locked" pointers.  First we declare a custom
+// deleter that, when invoked, releases the specified mutex and signals the
+// specified condition variable.
 //..
 //  class my_MutexUnlockAndBroadcastDeleter {
 //
@@ -833,21 +835,21 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Implementation Hiding
 ///- - - - - - - - - - -
-// 'shared_ptr' refers to the parameterized type on which it is
-// instantiated "in name only".  This allows for the instantiation of shared
-// pointers to incomplete or 'void' types.  This feature is useful for
-// constructing interfaces where returning a pointer to a shared object is
-// desirable, but in order to control access to the object its interface cannot
-// be exposed.  The following examples demonstrate two techniques for achieving
-// this goal using a 'shared_ptr'.
+// 'shared_ptr' refers to the parameterized type on which it is instantiated
+// "in name only".  This allows for the instantiation of shared pointers to
+// incomplete or 'void' types.  This feature is useful for constructing
+// interfaces where returning a pointer to a shared object is desirable, but in
+// order to control access to the object its interface cannot be exposed.  The
+// following examples demonstrate two techniques for achieving this goal using
+// a 'shared_ptr'.
 //
 ///Example 4 - Hidden Interfaces
 /// -  -  -  -  -  -  -  -  -  -
 // Example 4 demonstrates the use of incomplete types to hide the interface of
-// a 'my_Session' type.  We begin by declaring the 'my_SessionManager'
-// 'class', which allocates and manages 'my_Session' objects.  The
-// interface ('.h') merely forward declares 'my_Session'.  The actual
-// definition of the interface is in the implementation ('.cpp') file.
+// a 'my_Session' type.  We begin by declaring the 'my_SessionManager' 'class',
+// which allocates and manages 'my_Session' objects.  The interface ('.h')
+// merely forward declares 'my_Session'.  The actual definition of the
+// interface is in the implementation ('.cpp') file.
 //
 // We forward-declare 'my_Session' to be used (in name only) in the definition
 // of 'my_SessionManager':
@@ -868,8 +870,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      bslma::Allocator *d_allocator_p;
 //
 //..
-// It is useful to have a designated name for the 'shared_ptr' to
-// 'my_Session':
+// It is useful to have a designated name for the 'shared_ptr' to 'my_Session':
 //..
 //    public:
 //      // TYPES
@@ -1034,14 +1035,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Notice that 'my_Handle', which is a shared pointer to 'void', can be
 // transparently assigned to a shared pointer to a 'my_Session' object.  This
-// is because the 'shared_ptr' interface allows shared pointers to types
-// that can be cast to one another to be assigned directly.
+// is because the 'shared_ptr' interface allows shared pointers to types that
+// can be cast to one another to be assigned directly.
 //..
 //      my_Handle session(new(*d_allocator_p) my_Session(sessionName,
 //                                                       d_nextSessionId++,
 //                                                       d_allocator_p));
 //      shared_ptr<my_Session> myhandle =
-//                        bslstl::SharedPtrUtil::staticCast<my_Session>(session);
+//                      bslstl::SharedPtrUtil::staticCast<my_Session>(session);
 //      d_handles[myhandle->handleId()] = session;
 //      return session;
 //  }
@@ -1051,11 +1052,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //  {
 //      bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 //..
-// Perform a static cast from 'shared_ptr<void>' to
-// 'shared_ptr<my_Session>'.
+// Perform a static cast from 'shared_ptr<void>' to 'shared_ptr<my_Session>'.
 //..
 //      shared_ptr<my_Session> myhandle =
-//                         bslstl::SharedPtrUtil::staticCast<my_Session>(handle);
+//                       bslstl::SharedPtrUtil::staticCast<my_Session>(handle);
 //..
 // Test to make sure that the pointer is non-null before using 'myhandle':
 //..
@@ -1072,12 +1072,447 @@ BSLS_IDENT("$Id$ $CSID$")
 //  bsl::string my_SessionManager::getSessionName(my_Handle handle) const
 //  {
 //      shared_ptr<my_Session> myhandle =
-//                         bslstl::SharedPtrUtil::staticCast<my_Session>(handle);
+//                       bslstl::SharedPtrUtil::staticCast<my_Session>(handle);
 //
 //      if (!myhandle.ptr()) {
 //          return bsl::string();
 //      } else {
 //          return myhandle->sessionName();
+//      }
+//  }
+//..
+//
+//   AND NOW WE POST A STRAIGHT COPY OF THE WEAK_PTR DOCUMENTATION
+//   THAT NEEDS TO BE PROPERLY INTEGRATED, INCLUDING A RENUMBERING
+//   OF THE USAGE EXAMPLES.
+//
+//
+//@DESCRIPTION: This component provides a mechanism, 'bcema_WeakPtr', used to
+// create weak references to reference-counted shared ('bcema_SharedPtr')
+// objects.  A weak reference provides conditional access to a shared object
+// managed by a 'bcema_SharedPtr', but, unlike a shared (or "strong")
+// reference, does not affect the shared object's lifetime.  An object having
+// even one shared reference to it will not be destroyed, but an object having
+// only weak references would have been destroyed when the last shared
+// reference was released.
+//
+// A weak pointer can be constructed from another weak pointer or a
+// 'bcema_SharedPtr'.  To access the shared object referenced by a weak pointer
+// clients must first obtain a shared pointer to that object using the
+// 'acquireSharedPtr' method.  If the shared object has been destroyed (as
+// indicated by the 'expired' method), then 'acquireSharedPtr' returns a shared
+// pointer in the default constructed (empty) state.
+//
+///Thread-Safety
+///-------------
+// This section qualifies the thread-safety of 'bcema_WeakPtr' objects
+// themselves rather than the thread-safety of the objects being referenced.
+//
+// It is safe to access or modify two distinct 'bcema_WeakPtr' objects
+// simultaneously, each from a separate thread, even if they reference the same
+// shared object.  It is safe to access a single 'bcema_WeakPtr' object
+// simultaneously from two or more threads, provided no other thread is
+// simultaneously modifying the object.  It is not safe to access or modify a
+// 'bcema_WeakPtr' object in one thread while another thread modifies the same
+// object.
+//
+// It is safe to access, modify, copy, or delete a weak pointer in one thread,
+// while other threads access or modify other weak pointers that reference the
+// same object.  However, there is no guarantee regarding the safety of
+// accessing or modifying the object *referenced* by the weak pointer
+// simultaneously from multiple threads (that depends on the thread-safety
+// guarantees of the shared object itself).
+//
+///Weak Pointers using "in-place" or Pooled Shared Pointer Representations
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// A weak pointer that is not in the empty state shares a common representation
+// (used to refer to the shared object) with the shared (or other weak)
+// pointer from which it was constructed, and holds this representation until
+// it is either destroyed or reset.  This common representation is not
+// destroyed and deallocated (although the shared object itself may have been
+// destroyed) until all weak references to that common representation have been
+// released.
+//
+// Due to this behavior the memory footprint of shared objects that are
+// constructed "in-place" in the shared pointer representation (refer to the
+// component-level documentation of 'bcema_sharedptr' for more information on
+// shared pointers with "in-place" representations) is not deallocated until
+// all weak references to that shared object are released.  Note that a
+// shared object is always destroyed when the last shared reference to it is
+// released.  Also note that the same behavior is applicable if the shared
+// objects were obtained from a class that pools shared pointer representations
+// (for example, 'bcec_SharedObjectPool').
+//
+// For example suppose we have a class with a large memory footprint:
+//..
+//  class ClassWithLargeFootprint {
+//      // This class has a large memory footprint.
+//
+//      // TYPES
+//      enum { BUFFER_SIZE = 1024 };
+//          // The size of the buffer owned by this 'class'.
+//
+//      // DATA
+//      char d_buffer[BUFFER_SIZE];
+//
+//      // ...
+//  };
+//..
+// We then create an "in-place" shared pointer to an object of
+// 'ClassWithLargeFootprint' using the 'createInplace' method of
+// 'bcema_SharedPtr'.  The 'sp' shared pointer representation of 'sp' will
+// create a 'ClassWithLargeFootprint' object "in-place":
+//..
+//  bcema_SharedPtr<ClassWithLargeFootprint> sp;
+//  sp.createInplace();
+//..
+// Next we construct a weak pointer from this (in-place) shared pointer:
+//..
+//  bcema_WeakPtr<ClassWithLargeFootprint> wp(sp);
+//..
+// Now releasing all shared references to the shared object (using the 'reset'
+// function) causes the object's destructor to be called, but the
+// representation is not destroyed (and the object's footprint is not
+// deallocated) until 'wp' releases its weak reference:
+//..
+//  sp.reset(); // The object's footprint is not deallocated until all weak
+//              // references to it are released.
+//
+//  wp.reset(); // The release of the *last* weak reference results in the
+//              // destruction and deallocation of the representation and the
+//              // object's footprint.
+//..
+// If a shared object has a large footprint, and the client anticipates there
+// will be weak references to it, then it may be advisable to create an
+// out-of-place shared pointer representation, which destroys the shared object
+// and deallocates its footprint when the last *shared* reference to it is
+// released, regardless of whether there are any outstanding weak references to
+// the same representation.
+//
+///Usage
+///-----
+// The following examples demonstrate various features and uses of weak
+// pointers.
+//
+///Example 1 - Basic Usage
+///- - - - - - - - - - - -
+// This example illustrates the basic syntax needed to create and use a
+// 'bcema_WeakPtr'.  Suppose that we want to construct a weak pointer that
+// refers to an 'int' managed by a shared pointer.  Next we define the shared
+// pointer and assign a value to the shared 'int':
+//..
+//  bcema_SharedPtr<int> intPtr;
+//  intPtr.createInplace(bslma::Default::allocator());
+//  *intPtr = 10;
+//  assert(10 == *intPtr);
+//..
+// Next we construct a weak pointer to the 'int':
+//..
+//  bcema_WeakPtr<int> intWeakPtr(intPtr);
+//  assert(!intWeakPtr.expired());
+//..
+// 'bcema_WeakPtr' does not provide direct access to the shared object being
+// referenced.  To access and manipulate the 'int' from the weak pointer, we
+// have to obtain a shared pointer from it:
+//..
+//  bcema_SharedPtr<int> intPtr2 = intWeakPtr.acquireSharedPtr();
+//  assert(intPtr2);
+//  assert(10 == *intPtr2);
+//
+//  *intPtr2 = 20;
+//  assert(20 == *intPtr);
+//  assert(20 == *intPtr2);
+//..
+// We remove the weak reference to the shared 'int' by calling the 'reset'
+// method:
+//..
+//  intWeakPtr.reset();
+//  assert(intWeakPtr.expired());
+//..
+// Note that resetting the weak pointer does not affect the shared pointers
+// referencing the 'int' object:
+//..
+//  assert(20 == *intPtr);
+//  assert(20 == *intPtr2);
+//..
+// Now, we construct another weak pointer referencing the shared 'int':
+//..
+//  bcema_WeakPtr<int> intWeakPtr2(intPtr);
+//  assert(!intWeakPtr2.expired());
+//..
+// Finally 'reset' all shared references to the 'int', which will cause the
+// weak pointer to become "expired"; any subsequent attempt to obtain a shared
+// pointer from the weak pointer will return a shared pointer in the default
+// constructed (empty) state:
+//..
+//  intPtr.reset();
+//  intPtr2.reset();
+//  assert(intWeakPtr2.expired());
+//  assert(!intWeakPtr2.acquireSharedPtr());
+//..
+///Example 2 - Breaking Cyclic Dependencies
+///- - - - - - - - - - - - - - - - - - - -
+// Weak pointers are frequently used to break cyclic dependencies among objects
+// that store references to each other via shared pointers.  Consider, for
+// example, a simplified broadcasting system that sends news alerts to users
+// based on user-selected keywords.  The user information is stored in the
+// 'NewsUser' class and the details of the news alert are stored in the
+// 'NewsAlert' class.  The class definitions for 'NewsUser' and 'NewsAlert' are
+// provided below (with any code not essential to this example elided):
+//..
+//  class NewsAlert;
+//
+//  class NewsUser {
+//      // This class stores the user information required for listening to
+//      // alerts.
+//
+//      // DATA
+//      bsl::vector<bcema_SharedPtr<NewsAlert> > d_alerts; // list of alerts
+//                                                         // for which a user
+//                                                         // is registered
+//
+//    public:
+//      // ...
+//
+//      // MANIPULATORS
+//      void addAlert(const bcema_SharedPtr<NewsAlert>& alertPtr)
+//          // Add the specified 'alertPtr' to the list of alerts being
+//          // monitored by this user.
+//      {
+//          d_alerts.push_back(alertPtr);
+//      }
+//
+//      // ...
+//  };
+//..
+// Now we define the alert class, 'NewsAlert':
+//..
+//  class NewsAlert {
+//      // This class stores the alert information required for sending
+//      // alerts.
+//
+//      // DATA
+//      bsl::vector<bcema_SharedPtr<NewsUser> > d_users;  // list of users
+//                                                        // who have
+//                                                        // registered for
+//                                                        // this alert
+//
+//    public:
+//      // ...
+//
+//      // MANIPULATORS
+//      void addUser(const bcema_SharedPtr<NewsUser>& userPtr)
+//          // Add the specified 'userPtr' to the list of users monitoring this
+//          // alert.
+//      {
+//          d_users.push_back(userPtr);
+//      }
+//
+//      // ...
+//  };
+//..
+// Note that the 'NewsUser' and 'NewsAlert' classes, as currently defined could
+// easily result in a memory leak under typical use due to a cyclic reference:
+//..
+//  bslma::TestAllocator ta;
+//  {
+//      bcema_SharedPtr<NewsUser> userPtr;
+//      userPtr.createInplace(&ta);
+//
+//      bcema_SharedPtr<NewsAlert> alertPtr;
+//      alertPtr.createInplace(&ta);
+//
+//      alertPtr->addUser(userPtr);
+//      userPtr->addAlert(alertPtr);
+//
+//      alertPtr.reset();
+//      userPtr.reset();
+//  }
+//
+//  // MEMORY LEAK !!
+//..
+// Even though we have released 'alertPtr' and 'userPtr', there still exists a
+// cyclic reference between the two objects, so none of the objects are
+// destroyed.
+//
+// We can break this cyclic dependency by modifying the alert class,
+// 'NewsAlert', to store a weak pointer, instead of a shared pointer, to a
+// 'NewsUser' object.  Below is the modified definition for the 'NewsAlert'
+// class:
+//..
+//  class NewsAlert {
+//      // This class stores the alert information required for sending
+//      // alerts.
+//
+//..
+// Note that the user is stored by a weak pointer instead of by a shared
+// pointer:
+//..
+//      // DATA
+//      bsl::vector<bcema_WeakPtr<NewsUser> > d_users; // list of users that
+//                                                     // have registered for
+//                                                     // this alert
+//
+//    public:
+//      // MANIPULATORS
+//      void addUser(const bcema_WeakPtr<NewsUser>& userPtr)
+//          // Add the specified 'userPtr' to the list of users monitoring this
+//          // alert.
+//      {
+//          d_users.push_back(userPtr);
+//      }
+//
+//      // ...
+//  };
+//..
+// The use of 'NewsUser' and 'NewsAlert' objects no longer causes a memory
+// leak:
+//..
+//  bslma::TestAllocator ta;
+//  {
+//      bcema_SharedPtr<NewsAlert> alertPtr;
+//      alertPtr.createInplace(&ta);
+//
+//      bcema_SharedPtr<NewsUser> userPtr;
+//      userPtr.createInplace(&ta);
+//
+//      bcema_WeakPtr<NewsUser> userWeakPtr(userPtr);
+//
+//      alertPtr->addUser(userWeakPtr);
+//      userPtr->addAlert(alertPtr);
+//
+//      alertPtr.reset();
+//      userPtr.reset();
+//  }
+//
+//  // No memory leak now.
+//..
+// Now both the user and alert objects are correctly destroyed, and the memory
+// returned to the allocator after 'alertPtr' and 'userPtr' are reset.
+//
+///Example 3 - Caching
+///- - - - - - - - - -
+// Suppose we want to implement a peer-to-peer file-sharing system that allows
+// users to search for files that match certain keywords.  A peer-to-peer
+// file-sharing system connects remotely to similar file-sharing systems
+// (peers) and determines which files stored by those peers best match the
+// keywords specified by the user.
+//
+// Typically, such a system would connect to hundreds of peers to increase the
+// probability of finding files that match any keyword.  When a user initiates
+// a request with certain keywords the system sends the search request to
+// connected peers to find out which one of them contains the files that best
+// match the requested keywords.  But it is inefficient to send every file
+// search request to all connected peers.  So the system may cache a subset of
+// the connected peers, and based on their connection bandwidth, relevancy of
+// previous search results, etc., send the search requests only to those cached
+// peers.
+//
+// To show the implementation of such a system we will first define a 'Peer'
+// class that stores the information about a peer (with code not relevant to
+// the usage example elided):
+//..
+//  class Peer {
+//      // This class stores relevant information for a peer.
+//
+//      // ...
+//  };
+//..
+// We will now define a 'PeerManager' class that maintains the information
+// about all connected 'Peer's.  The 'PeerManager' class creates a 'Peer'
+// object when a new connection occurs, manages the lifetime of that object,
+// and eventually destroys it when the peer disconnects.  In addition, the
+// 'PeerManager' class needs to pass 'Peer' objects to other objects that
+// need to communicate with the 'Peer'.  Therefore, 'PeerManager' stores
+// a 'bcema_SharedPtr' to each 'Peer' object.  The following would be a simple
+// definition for the 'PeerManager' classes:
+//..
+//  class PeerManager {
+//      // This class acts as a manager of peers and adds and removes peers
+//      // based on peer requests and disconnections.
+//
+//      // DATA
+//      bsl::map<int, bcema_SharedPtr<Peer> > d_peers; // list of all
+//                                                     // connected peers
+//
+//      // ...
+//  };
+//..
+// We now define a 'PeerCache' class that stores a subset of the peers that are
+// the primary recipients of search requests.  The 'PeerCache' stores a 'Peer'
+// object via a 'bcema_WeakPtr' (as opposed to via a 'bcema_SharedPtr').  This
+// allows the cache to store a reference to a 'Peer' object without affecting
+// its lifetime and allowing it to be destroyed asynchronously on disconnection
+// by that 'Peer'.  For brevity, the population and flushing of this cache is
+// not shown:
+//..
+//  class PeerCache {
+//      // This class caches a subset of all peers that match certain criteria.
+//
+//      // DATA
+//      bsl::list<bcema_WeakPtr<Peer> > d_cachedPeers;  // list of cached peers
+//
+//    public:
+//      // TYPES
+//      typedef bsl::list<bcema_WeakPtr<Peer> >::const_iterator PeerConstIter;
+//
+//      // ...
+//
+//      // ACCESSORS
+//      PeerConstIter begin() const
+//          // Return an iterator that refers to the first peer in the list of
+//          // peers stored by this peer cache.
+//      {
+//          return d_cachedPeers.begin();
+//      }
+//
+//      PeerConstIter end() const
+//          // Return an iterator that indicates the element one past the
+//          // last peer in the list of peers stored by this peer cache.
+//      {
+//          return d_cachedPeers.end();
+//      }
+//  };
+//..
+// We now need to store the information representing a search result that is
+// returned to the user and allows the user to decide which search result to
+// select for downloading.  A search result would contain a 'Peer' object and
+// the filename stored by that 'Peer' that best matches the specified keywords.
+// For simplicity we store the 'Peer' information and a 'bsl::string' storing
+// the filename as a 'bsl::pair'.  Again, note that because we do not want
+// search result objects to control the lifetime of 'Peer' objects we use a
+// 'bcema_WeakPtr' to 'Peer':
+//..
+//  typedef bsl::pair<bcema_WeakPtr<Peer>, bsl::string> SearchResult;
+//      // 'SearchResult' is an alias for a search result.
+//..
+// Finally, we provide a search function that retrieves the search results for
+// a set of keywords by querying all peers in the 'PeerCache'.  The
+// implementation of the search function is provided below:
+//..
+//  PeerCache cachedPeers;
+//
+//  void search(bsl::vector<SearchResult>       *results,
+//              const bsl::vector<bsl::string>&  keywords)
+//  {
+//      for (PeerConstIter iter = cachedPeers.begin();
+//           iter != cachedPeers.end();
+//           ++iter) {
+//..
+// In the following, we check if the peer is still connected by acquiring a
+// shared pointer to the peer.  If the acquire operation succeeds, then we can
+// send the peer a request to return the filename best matching the specified
+// keywords:
+//..
+//          bcema_SharedPtr<Peer> peerSharedPtr = iter->acquireSharedPtr();
+//          if (peerSharedPtr) {
+//
+//              // Search the peer for the file best matching the specified
+//              // keywords and, if a file is found, append the returned
+//              // 'SearchResult' object to 'result'.
+//
+//              // ...
+//          }
 //      }
 //  }
 //..
@@ -1126,6 +1561,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_addlvaluereference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -1146,55 +1585,33 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_unspecifiedbool.h>
 #endif
 
-#if 0
-
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>       // 'bsl::swap', found in <utility> in C++11
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
-#include <bsl_cstddef.h>         // 'bsl::ptrdiff_t', 'bsl::size_t'
-#endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
-#include <bsl_functional.h>      // 'bsl::binary_function', 'std::less'
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>          // 'std::auto_ptr'
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
-#include <bsl_utility.h>         // 'bsl::pair'
-#endif
-
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>               // 'std::size_t', 'std::ptrdiff_t'
+#define INCLUDED_CSTDDEF
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
-#include <functional>
+#include <functional>            // 'std::less'
 #define INCLUDED_FUNCTIONAL
 #endif
 
 #ifndef INCLUDED_MEMORY
-#include <memory>
+#include <memory>                // 'std::auto_ptr'
 #define INCLUDED_MEMORY
 #endif
 
 #ifndef INCLUDED_OSTREAM
-#include <ostream>  // for 'std::basic_ostream', 'sentry'
+#include <ostream>               // 'std::basic_ostream'
 #define INCLUDED_OSTREAM
 #endif
-
-#include <cstddef>
 
 namespace bsl {
 
 typedef native_std::size_t size_t;
 typedef native_std::ptrdiff_t ptrdiff_t;
+
+template <class ELEMENT_TYPE>
+class weak_ptr;
 
                         // ================
                         // class shared_ptr
@@ -1223,16 +1640,18 @@ class shared_ptr {
     // pointer semantic operations.
 
     // DATA
-    ELEMENT_TYPE               *d_ptr_p;  // pointer to the shared object
+    ELEMENT_TYPE                     *d_ptr_p; // pointer to the shared object
 
-    BloombergLP::bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
-                                  // that manages the shared object
+    BloombergLP::bslma::SharedPtrRep *d_rep_p; // pointer to the representation
+                                               // object that manages the
+                                               // shared object
 
     // PRIVATE TYPES
     typedef shared_ptr<ELEMENT_TYPE> SelfType;
         // 'SelfType' is an alias to this 'class'.
 
-    typedef typename BloombergLP::bsls::UnspecifiedBool<shared_ptr>::BoolType BoolType;
+    typedef typename BloombergLP::bsls::UnspecifiedBool<shared_ptr>::BoolType
+                                                                      BoolType;
 
     // FRIENDS
     template <class COMPATIBLE_TYPE> friend class shared_ptr;
@@ -1240,34 +1659,38 @@ class shared_ptr {
   private:
     // PRIVATE CLASS METHODS
     template <class INPLACE_REP>
-    static BloombergLP::bslma::SharedPtrRep *makeInternalRep(ELEMENT_TYPE       *,
-                                               INPLACE_REP        *,
-                                               BloombergLP::bslma::SharedPtrRep *rep);
+    static BloombergLP::bslma::SharedPtrRep *makeInternalRep(
+                                        ELEMENT_TYPE                     *,
+                                        INPLACE_REP                      *,
+                                        BloombergLP::bslma::SharedPtrRep *rep);
         // Return the specified 'rep'.
 
     template <class COMPATIBLE_TYPE, class ALLOCATOR>
-    static BloombergLP::bslma::SharedPtrRep *makeInternalRep(COMPATIBLE_TYPE  *ptr,
-                                               ALLOCATOR        *,
-                                               BloombergLP::bslma::Allocator *allocator);
+    static BloombergLP::bslma::SharedPtrRep *makeInternalRep(
+                                     COMPATIBLE_TYPE               *ptr,
+                                     ALLOCATOR                     *,
+                                     BloombergLP::bslma::Allocator *allocator);
         // Return an out of place representation for a shared pointer managing
         // the specified 'ptr' and using the specified 'allocator' to provide
         // storage.
 
     template <class COMPATIBLE_TYPE, class DELETER>
-    static BloombergLP::bslma::SharedPtrRep *makeInternalRep(COMPATIBLE_TYPE *ptr,
-                                               DELETER         *deleter,
-                                               ...);
+    static BloombergLP::bslma::SharedPtrRep *makeInternalRep(
+                                                   COMPATIBLE_TYPE *ptr,
+                                                   DELETER         *deleter,
+                                                   ...);
         // Return an out of place representation for a shared pointer managing
         // the specified 'ptr, that will destroy the object pointed to by the
         // specied 'ptr' using the specified 'deleter', using the currently
         // installed default allocator to provide storage.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
-        // Create a shared pointer taking ownership of the specified 'rep'
-        // and pointing to the object stored in the specified 'rep'.  The
-        // behavior is undefined unless 'rep->originalPtr()' points to an
-        // object of type 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT*
-        // increment the number of references to 'rep'.
+        // Create a shared pointer taking ownership of the specified 'rep' and
+        // pointing to the object stored in the specified 'rep'.  The behavior
+        // is undefined unless 'rep->originalPtr()' points to an object of type
+        // 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT* increment the
+        // number of references to 'rep'.
         //
         // DEPRECATED This constructor will be made inaccessible in the next
         // BDE release, as the undefined behavior is too easily triggered and
@@ -1276,6 +1699,7 @@ class shared_ptr {
         //..
         //  shared_ptr(TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
         //..
+#endif
 
   public:
     // TYPES
@@ -1283,9 +1707,10 @@ class shared_ptr {
         // 'ElementType' is an alias to the 'ELEMENT_TYPE' template parameter.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(shared_ptr,
-                                  BloombergLP::bslalg::TypeTraitHasPointerSemantics,
-                                  BloombergLP::bslalg::TypeTraitBitwiseMoveable);
+    BSLALG_DECLARE_NESTED_TRAITS2(
+                            shared_ptr,
+                            BloombergLP::bslalg::TypeTraitHasPointerSemantics,
+                            BloombergLP::bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     shared_ptr();
@@ -1306,30 +1731,30 @@ class shared_ptr {
         // pointer is created and no memory is allocated.  Note that as
         // mentioned in the "CAVEAT" in the "C++ Standard Compliance" section
         // of the component-level documentation, to comply with C++ standard
-        // specifications, future implementations of 'shared_ptr' may
-        // destroy the shared object using '::operator delete'.
+        // specifications, future implementations of 'shared_ptr' may destroy
+        // the shared object using '::operator delete'.
 
     template <class COMPATIBLE_TYPE>
-    shared_ptr(COMPATIBLE_TYPE *ptr, BloombergLP::bslma::Allocator *basicAllocator);
+    shared_ptr(COMPATIBLE_TYPE               *ptr,
+               BloombergLP::bslma::Allocator *basicAllocator);
         // Create a shared pointer that manages a modifiable object of
         // (template parameter) type 'COMPATIBLE_TYPE' and refers to
         // '(ELEMENT_TYPE *)ptr'.  If 'basicAllocator' is not 0 the specified
         // 'basicAllocator' used to allocate and deallocate the internal
         // representation of the shared pointer and to destroy the shared
         // object when all references have been released, otherwise the
-        // currently installed default allocator is used.  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
-        // 'ELEMENT_TYPE *' then a compiler diagnostic will be emitted
-        // indicating the error.  If 'ptr' is 0, an empty shared pointer is
-        // created and 'basicAllocator' is ignored.  Note that as mentioned in
-        // the "CAVEAT" in the "C++ Standard Compliance" section of the
-        // component-level documentation, to comply with C++ standard
-        // specifications, future implementations of 'shared_ptr' may
-        // destroy the shared object using '::operator delete' if an allocator
-        // is not specified.  Also note that if 'basicAllocator' is a pointer
-        // to a class derived from 'bslma::Allocator', the compiler will
-        // actually select the following (more general) constructor that has
-        // the same behavior:
+        // currently installed default allocator is used.  If 'COMPATIBLE_TYPE
+        // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  If 'ptr' is 0, an
+        // empty shared pointer is created and 'basicAllocator' is ignored.
+        // Note that as mentioned in the "CAVEAT" in the "C++ Standard
+        // Compliance" section of the component-level documentation, to comply
+        // with C++ standard specifications, future implementations of
+        // 'shared_ptr' may destroy the shared object using '::operator delete'
+        // if an allocator is not specified.  Also note that if
+        // 'basicAllocator' is a pointer to a class derived from
+        // 'bslma::Allocator', the compiler will actually select the following
+        // (more general) constructor that has the same behavior:
         //..
         //  template <class COMPATIBLE_TYPE, class DELETER>
         //  shared_ptr(COMPATIBLE_TYPE *ptr, DELETER *const&  dispatch);
@@ -1341,8 +1766,9 @@ class shared_ptr {
         // If 'ptr' is 0, an empty shared pointer is created.  Note that this
         // method *DOES* *NOT* increment the number of references to 'rep'.
         // Note that if 'rep' is a pointer to a class derived from
-        // 'BloombergLP::bslma::SharedPtrRep', the compiler will actually select the
-        // following (more general) constructor that has the same behavior:
+        // 'BloombergLP::bslma::SharedPtrRep', the compiler will actually
+        // select the following (more general) constructor that has the same
+        // behavior:
         //..
         //  template <class COMPATIBLE_TYPE, class DELETER>
         //  shared_ptr(COMPATIBLE_TYPE *ptr, DELETER *const&  dispatch);
@@ -1357,35 +1783,37 @@ class shared_ptr {
         // currently installed default allocator to allocate and deallocate the
         // internal representation of the shared pointer, unless 'DELETER' is a
         // class derived from either 'bslma::allocator' or
-        // 'BloombergLP::bslma::SharedPtrRep'; if 'DELETER' is a class derived from
-        // 'bslma::allocator' create a shared pointer as if calling the
+        // 'BloombergLP::bslma::SharedPtrRep'; if 'DELETER' is a class derived
+        // from 'bslma::allocator' create a shared pointer as if calling the
         // constructor:
         //..
         //  template <class COMPATIBLE_TYPE>
-        //  shared_ptr(COMPATIBLE_TYPE  *ptr,
-        //                  bslma::Allocator *basicAllocator);
+        //  shared_ptr(COMPATIBLE_TYPE               *ptr,
+        //             BloombergLP::bslma::Allocator *basicAllocator);
         //..
-        // If 'DELETER' is a class derived from 'BloombergLP::bslma::SharedPtrRep' create a
-        // shared pointer as if calling the constructor:
+        // If 'DELETER' is a class derived from
+        // 'BloombergLP::bslma::SharedPtrRep' create a shared pointer as if
+        // calling the constructor:
         //..
-        //  shared_ptr(ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
+        //  shared_ptr(ELEMENT_TYPE                     *ptr,
+        //             BloombergLP::bslma::SharedPtrRep *rep);
         //..
         // If 'DELETER' does not derive from either 'bslma::allocator' or
-        // 'BloombergLP::bslma::SharedPtrRep', then 'deleter' is assumed to be a pointer to a
-        // factory object that exposes a member function that can be invoked as
-        // 'deleteObject(ptr)' that will be called to destroy the object at the
-        // 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will be called to
-        // delete the shared object).  (See the "Deleters" section in the
-        // component-level documentation.)  If 'COMPATIBLE_TYPE *' is not
-        // implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // 'BloombergLP::bslma::SharedPtrRep', then 'deleter' is assumed to be
+        // a pointer to a factory object that exposes a member function that
+        // can be invoked as 'deleteObject(ptr)' that will be called to destroy
+        // the object at the 'ptr' address (i.e., 'deleter->deleteObject(ptr)'
+        // will be called to delete the shared object).  (See the "Deleters"
+        // section in the component-level documentation.)  If 'COMPATIBLE_TYPE
+        // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
         // diagnostic will be emitted indicating the error.  Also note that if
         // 'ptr' is 0, an empty shared pointer is created and 'deleter' is
         // ignored.
 
     template <class COMPATIBLE_TYPE, class DELETER>
-    shared_ptr(COMPATIBLE_TYPE  *ptr,
-                    const DELETER&    deleter,
-                    BloombergLP::bslma::Allocator *basicAllocator = 0);
+    shared_ptr(COMPATIBLE_TYPE               *ptr,
+               const DELETER&                 deleter,
+               BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create a shared pointer that manages a modifiable object of
         // (template parameter) type 'COMPATIBLE_TYPE' and refers to
         // '(ELEMENT_TYPE *)ptr', using the specified 'deleter' to delete the
@@ -1397,23 +1825,23 @@ class shared_ptr {
         // deleter that may be invoked to destroy the object referred to by a
         // single argument of type 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)'
         // will be called to destroy the shared object).  (See the "Deleters"
-        // section in the component- level documentation.)  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
-        // 'ELEMENT_TYPE *' then a compiler diagnostic will be emitted
-        // indicating the error.  Also note that if 'ptr' is 0, an empty shared
-        // pointer is created and 'deleter' and 'basicAllocator' are ignored.
+        // section in the component- level documentation.)  If 'COMPATIBLE_TYPE
+        // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  Also note that if
+        // 'ptr' is 0, an empty shared pointer is created and 'deleter' and
+        // 'basicAllocator' are ignored.
 
     template <class DELETER>
-    shared_ptr(nullptr_t    nullPointerLiteral,
-                    const DELETER&    deleter,
-                    BloombergLP::bslma::Allocator *basicAllocator = 0);
+    shared_ptr(nullptr_t                      nullPointerLiteral,
+               const DELETER&                 deleter,
+               BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create an empty shared pointer.  Note that for conformance with the
         // C++ Standard specification for 'shared_ptr', a future version of
         // this component may reference count the deleter, and uses the
         // specified 'basicAllocator' to create the storage area for the
         // reference counts and a copy of the specified 'deleter'.
 
-    shared_ptr(nullptr_t    nullPointerLiteral,
+    shared_ptr(nullptr_t                      nullPointerLiteral,
                BloombergLP::bslma::Allocator *basicAllocator);
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation, that does not refer to any object and has no
@@ -1421,8 +1849,9 @@ class shared_ptr {
 
     template <class COMPATIBLE_TYPE>
     shared_ptr(
-            BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
-            BloombergLP::bslma::Allocator                  *basicAllocator = 0); // IMPLICIT
+          BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
+          BloombergLP::bslma::Allocator                   *basicAllocator = 0);
+                                                                    // IMPLICIT
         // Create a shared pointer that takes over the management of the
         // modifiable object (if any) previously managed by the specified
         // 'managedPtr' to the (template parameter) type 'COMPATIBLE_TYPE', and
@@ -1431,11 +1860,11 @@ class shared_ptr {
         // all references have been released.  Optionally specify a
         // 'basicAllocator' used to allocate and deallocate the internal
         // representation of the shared pointer.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
-        // 'ELEMENT_TYPE *' then a compiler diagnostic will be emitted
-        // indicating the error.  Note that if 'managedPtr' is empty, then an
-        // empty shared pointer is created and 'basicAllocator' is ignored.
+        // currently installed default allocator is used.  If 'COMPATIBLE_TYPE
+        // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  Note that if
+        // 'managedPtr' is empty, then an empty shared pointer is created and
+        // 'basicAllocator' is ignored.
 
     template <class COMPATIBLE_TYPE>
     explicit shared_ptr(std::auto_ptr<COMPATIBLE_TYPE>  autoPtr,
@@ -1454,7 +1883,7 @@ class shared_ptr {
 
     template <class ANY_TYPE>
     shared_ptr(const shared_ptr<ANY_TYPE>&  source,
-               ELEMENT_TYPE                     *object);
+               ELEMENT_TYPE                *object);
         // Create a shared pointer that manages the same modifiable object (if
         // any) as the specified 'source' shared pointer to the (template
         // parameter) type 'ANY_TYPE', and that refers to the modifiable object
@@ -1537,7 +1966,8 @@ class shared_ptr {
         // DEPRECATED: Use 'reset' instead.
 
     template <class COMPATIBLE_TYPE>
-    void load(COMPATIBLE_TYPE *ptr, BloombergLP::bslma::Allocator *basicAllocator = 0);
+    void load(COMPATIBLE_TYPE               *ptr,
+              BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Modify this shared pointer to manage the modifiable object of the
         // (template parameter) type 'COMPATIBLE_TYPE' at the specified 'ptr'
         // address and refer to '(ELEMENT_TYPE *)ptr'.  If this shared pointer
@@ -1555,9 +1985,9 @@ class shared_ptr {
         // 'basicAllocator' will be ignored.  Also note that as mentioned in
         // the "CAVEAT" in the "C++ Standard Compliance" section of the
         // component-level documentation, to comply with C++ standard
-        // specifications, future implementations of 'shared_ptr' may
-        // destroy the shared object using '::operator delete' if an allocator
-        // is not specified.
+        // specifications, future implementations of 'shared_ptr' may destroy
+        // the shared object using '::operator delete' if an allocator is not
+        // specified.
 
     template <class COMPATIBLE_TYPE, class DELETER>
     void load(COMPATIBLE_TYPE  *ptr,
@@ -1637,78 +2067,76 @@ class shared_ptr {
         // allocator, use one of the other variants of 'createInplace' below.
 
     template <class A1>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1);
     template <class A1, class A2>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2);
     template <class A1, class A2, class A3>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3);
     template <class A1, class A2, class A3, class A4>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4);
     template <class A1, class A2, class A3, class A4, class A5>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5);
     template <class A1, class A2, class A3, class A4, class A5, class A6>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7,
-                       const A8& a8);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                       const A5& a5, const A6& a6, const A7& a7, const A8& a8);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7,
-                       const A8& a8, const A9& a9);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                       const A9& a9);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7,
-                       const A8& a8, const A9& a9, const A10& a10);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                       const A9& a9, const A10& a10);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7,
-                       const A8& a8, const A9& a9, const A10& a10,
-                       const A11& a11);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                       const A9& a9, const A10& a10, const A11& a11);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7,
-                       const A8& a8, const A9& a9, const A10& a10,
-                       const A11& a11, const A12& a12);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                       const A9& a9, const A10& a10, const A11& a11,
+                       const A12& a12);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7,
-                       const A8& a8, const A9& a9, const A10& a10,
-                       const A11& a11, const A12& a12, const A13& a13);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                       const A9& a9, const A10& a10, const A11& a11,
+                       const A12& a12, const A13& a13);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13, class A14>
-    void createInplace(BloombergLP::bslma::Allocator *basicAllocator, const A1& a1,
-                       const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7,
-                       const A8& a8, const A9& a9, const A10& a10,
-                       const A11& a11, const A12& a12, const A13& a13,
-                       const A14& a14);
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                       const A9& a9, const A10& a10, const A11& a11,
+                       const A12& a12, const A13& a13, const A14& a14);
         // Create "in-place" in a large enough contiguous memory region, using
         // the specified 'basicAllocator' to supply memory, both an internal
         // representation for this shared pointer and an object of
@@ -1736,8 +2164,9 @@ class shared_ptr {
         // safe to release the representation (thereby destroying the shared
         // object), but it is always safe to create another shared pointer with
         // this representation using the constructor with the signature
-        // 'shared_ptr(ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep)'.  Also
-        // note that this function returns a pair of null pointers if this
+        // 'shared_ptr(ELEMENT_TYPE                     *ptr,
+        //             BloombergLP::bslma::SharedPtrRep *rep)'.
+        // Also note that this function returns a pair of null pointers if this
         // shared pointer is empty.
 
     void swap(shared_ptr<ELEMENT_TYPE>& other);
@@ -1784,8 +2213,9 @@ class shared_ptr {
         // shared pointer, or 0 if this shared pointer is empty.
 
     BloombergLP::bslma::SharedPtrRep *rep() const;
-        // Return the address of the modifiable 'BloombergLP::bslma::SharedPtrRep' object
-        // used by this shared pointer, or 0 if this shared pointer is empty.
+        // Return the address of the modifiable
+        // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
+        // pointer, or 0 if this shared pointer is empty.
 
     int numReferences() const;
         // Return a "snapshot" of the number of shared pointers (including this
@@ -1794,8 +2224,8 @@ class shared_ptr {
 
     BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> managedPtr() const;
         // Return a managed pointer that refers to the same object as this
-        // shared pointer and which has a deleter that decrements the
-        // reference count for the shared object.
+        // shared pointer and which has a deleter that decrements the reference
+        // count for the shared object.
 
                         // *** std::tr1 COMPATIBILITY ***
 
@@ -1895,11 +2325,13 @@ class shared_ptr {
 
     template<class ANY_TYPE>
     bool owner_before(const shared_ptr<ANY_TYPE>& other) const;
-        // Return 'true' if the address of the 'BloombergLP::bslma::SharedPtrRep' object
-        // used by this shared pointer is ordered before the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'other' shared
-        // pointer under the total ordering supplied by
-        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false' otherwise.
+        // Return 'true' if the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
+        // pointer is ordered before the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified
+        // 'other' shared pointer under the total ordering supplied by
+        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
+        // otherwise.
 };
 
 // FREE OPERATORS
@@ -2052,13 +2484,174 @@ void swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b);
     // the other, and each will manage the object formerly referred to by the
     // other.
 
+                        // ==============
+                        // class weak_ptr
+                        // ==============
+
+template <class ELEMENT_TYPE>
+class weak_ptr {
+    // This 'class' provides a mechanism to create weak references to
+    // reference-counted shared ('shared_ptr') objects.  A weak reference
+    // provides conditional access to a shared object managed by a
+    // 'shared_ptr', but, unlike a shared (or "strong") reference, does not
+    // affect the shared object's lifetime.
+
+    // DATA
+    ELEMENT_TYPE                     *d_ptr_p; // pointer to the shared object
+                                               // (held, not owned)
+
+    BloombergLP::bslma::SharedPtrRep *d_rep_p; // pointer to the representation
+                                               // object that manages the
+                                               // shared object (held, not
+                                               // owned)
+
+    // FRIENDS
+    template <class COMPATIBLE_TYPE> friend class weak_ptr;
+        // This 'friend' declaration provides access to the internal data
+        // members while constructing a weak pointer from a weak pointer of a
+        // different type.
+
+  public:
+    // TYPES
+    typedef ELEMENT_TYPE ElementType;
+        // 'ElementType' is an alias for the 'TYPE' parameter of this class
+        // template.
+
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(
+                                weak_ptr,
+                                BloombergLP::bslalg::TypeTraitBitwiseMoveable);
+
+    // CREATORS
+    weak_ptr();
+        // Create a weak pointer in the empty state, i.e., a weak pointer
+        // having no representation that does not refer to any object.
+
+    weak_ptr(const weak_ptr<ELEMENT_TYPE>& original);
+        // Create a weak pointer that refers to the same object (if any) as the
+        // specified 'original' weak pointer, and increment the number of weak
+        // references to that object (if any).  Note that if 'original' is in
+        // the empty state, this weak pointer will be initialized to the empty
+        // state.
+
+    template <class COMPATIBLE_TYPE>
+    weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other);             // IMPLICIT
+    template <class COMPATIBLE_TYPE>
+    weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other);               // IMPLICIT
+        // Create a weak pointer that refers to the same object (if any) as the
+        // specified 'other' (shared or weak) pointer of the parameterized
+        // 'COMPATIBLE_TYPE', and increment the number of weak references to
+        // that object (if any).  If 'COMPATIBLE_TYPE *' is not implicitly
+        // convertible to 'TYPE *', then a compiler diagnostic will be emitted.
+        // Note that if 'other' is in the empty state, this weak pointer will
+        // be initialized to the empty state.
+
+    ~weak_ptr();
+        // Destroy this weak pointer object.  If this weak pointer refers to a
+        // (possibly shared) object, release the weak reference to that object.
+
+    // MANIPULATORS
+    weak_ptr<ELEMENT_TYPE>& operator=(const weak_ptr<ELEMENT_TYPE>& rhs);
+        // Make this weak pointer refer to the same object (if any) as the
+        // specified 'rhs' weak pointer.  Decrement the number of weak
+        // references to the object to which this weak pointer currently refers
+        // (if any), and increment the number of weak references to the object
+        // referred to by 'rhs' (if any).  Return a reference to this
+        // modifiable weak pointer.  Note that if 'rhs' is in the empty state,
+        // this weak pointer will be set to the empty state.
+
+    template <class COMPATIBLE_TYPE>
+    weak_ptr<ELEMENT_TYPE>& operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs);
+    template <class COMPATIBLE_TYPE>
+    weak_ptr<ELEMENT_TYPE>& operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs);
+        // Make this weak pointer refer to the same object (if any) as the
+        // specified 'rhs' (shared or weak) pointer to the parameterized
+        // 'COMPATIBLE_TYPE'.  Decrement the number of weak references to the
+        // object to which this weak pointer currently refers (if any), and
+        // increment the number of weak references to the object referred to by
+        // 'rhs' (if any).  Return a reference to this modifiable weak pointer.
+        // If 'COMPATIBLE_TYPE *' is not implicitly convertible to 'TYPE *',
+        // then a compiler diagnostic will be emitted.  Note that if 'rhs' is
+        // in the empty state, this weak pointer will be set to the empty
+        // state.
+
+    void swap(weak_ptr<ELEMENT_TYPE>& other);
+        // Efficiently exchange the states of this weak pointer and the
+        // specified 'other' weak pointer such that each will refer to the
+        // object (if any) and representation formerly referred to by the
+        // other.
+
+    // ACCESSORS
+    shared_ptr<ELEMENT_TYPE> acquireSharedPtr() const;
+        // Return a shared pointer to the object referred to by this weak
+        // pointer if 'false == expired()', and a shared pointer in the empty
+        // state otherwise.
+
+    int numReferences() const;
+        // Return a "snapshot" of the current number of shared pointers that
+        // share ownership of the object referred to by this weak pointer, or 0
+        // if this weak pointer is in the empty state.
+
+    BloombergLP::bslma::SharedPtrRep *rep() const;
+        // Return the address of the modifiable
+        // 'BloombergLP::bslma::SharedPtrRep' object held by this weak pointer,
+        // or 0 if this weak pointer is in the empty state.
+
+                        // C++0x Compatibility
+
+    // TYPES
+    typedef ELEMENT_TYPE element_type;
+        // 'element_type' is an alias for the 'TYPE' parameter of this class
+        // template, and is equivalent to 'ElementType'.
+
+    // MANIPULATORS
+    void reset();
+        // Reset this weak pointer to the empty state.  If this weak pointer
+        // refers to a (possibly shared) object, then decrement the number of
+        // weak references to that object.
+
+    // ACCESSORS
+    shared_ptr<ELEMENT_TYPE> lock() const;
+        // Return a shared pointer to the object referred to by this weak
+        // pointer if 'false == expired()', and a shared pointer in the empty
+        // state otherwise.  Note that the behavior of this method is the same
+        // as that of 'acquireSharedPtr'.
+
+    int use_count() const;
+        // Return a "snapshot" of the current number of shared pointers that
+        // share ownership of the object referred to by this weak pointer, or 0
+        // if this weak pointer is in the empty state.  Note that the behavior
+        // of this method is the same as that of 'numReferences'.
+
+    bool expired() const;
+        // Return 'true' if this weak pointer is in the empty state or the
+        // object that it originally referenced has been destroyed, and 'false'
+        // otherwise.
+
+    template <class COMPATIBLE_TYPE>
+    bool owner_before(const shared_ptr<COMPATIBLE_TYPE>& other) const;
+    template <class COMPATIBLE_TYPE>
+    bool owner_before(const weak_ptr<COMPATIBLE_TYPE>& other) const;
+        // Return 'true' if this weak pointer can be ordered before the
+        // specified 'other' (shared or weak) pointer, and 'false' otherwise.
+};
+
+                        // C++0x Compatibility
+
+// FREE METHODS
+template <class ELEMENT_TYPE>
+void swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b);
+    // Efficiently exchange the states of the specified 'a' and 'b' weak
+    // pointers such that each will refer to the object (if any) and
+    // representation formerly referred to by the other.
+
 }  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
-                        // ==========================
+                        // ============================
                         // struct bslstl::SharedPtrUtil
-                        // ==========================
+                        // ============================
 
 struct SharedPtrUtil {
     // This 'struct' provides a namespace for operations on shared pointers.
@@ -2113,10 +2706,10 @@ struct SharedPtrUtil {
         // Load into the specified 'target' shared pointer an alias of the
         // specified 'source' shared pointer referring to
         // 'static_cast<TARGET *>(source.ptr())'.  The previous 'target' shared
-        // pointer is destroyed (destroying the shared object if 'target'
-        // holds the last reference to this object).  Note that if 'source'
-        // cannot be statically cast to 'TARGET *', then a compiler diagnostic
-        // will be emitted indicating the error.
+        // pointer is destroyed (destroying the shared object if 'target' holds
+        // the last reference to this object).  Note that if 'source' cannot be
+        // statically cast to 'TARGET *', then a compiler diagnostic will be
+        // emitted indicating the error.
 
     template <class TARGET, class SOURCE>
     static
@@ -2125,10 +2718,10 @@ struct SharedPtrUtil {
         // Load into the specified 'target' shared pointer an alias of the
         // specified 'source' shared pointer referring to
         // 'const_cast<TARGET *>(source.ptr())'.  The previous 'target' shared
-        // pointer is destroyed (destroying the shared object if 'target'
-        // holds the last reference to this object).  Note that if 'source'
-        // cannot be statically cast to 'TARGET *', then a compiler diagnostic
-        // will be emitted indicating the error.
+        // pointer is destroyed (destroying the shared object if 'target' holds
+        // the last reference to this object).  Note that if 'source' cannot be
+        // statically cast to 'TARGET *', then a compiler diagnostic will be
+        // emitted indicating the error.
 
     static
     bsl::shared_ptr<char>
@@ -2173,9 +2766,9 @@ template <class COMPATIBLE_TYPE, class ALLOCATOR>
 inline
 BloombergLP::bslma::SharedPtrRep *
 shared_ptr<ELEMENT_TYPE>::makeInternalRep(
-                                       COMPATIBLE_TYPE  *ptr,
-                                       ALLOCATOR        *,
-                                       BloombergLP::bslma::Allocator *allocator)
+                                      COMPATIBLE_TYPE  *ptr,
+                                      ALLOCATOR        *,
+                                      BloombergLP::bslma::Allocator *allocator)
 {
     typedef BloombergLP::bslma::SharedPtrOutofplaceRep<
                                                COMPATIBLE_TYPE,
@@ -2193,9 +2786,11 @@ shared_ptr<ELEMENT_TYPE>::makeInternalRep(COMPATIBLE_TYPE *ptr,
                                           DELETER         *deleter,
                                           ...)
 {
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE, DELETER *> RepMaker;
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
+                                                       DELETER *>     RepMaker;
 
-    BloombergLP::bslma::Allocator *defaultAllocator = BloombergLP::bslma::Default::defaultAllocator();
+    BloombergLP::bslma::Allocator *defaultAllocator =
+                               BloombergLP::bslma::Default::defaultAllocator();
     return RepMaker::makeOutofplaceRep(ptr, deleter, defaultAllocator);
 }
 
@@ -2203,9 +2798,10 @@ template <class ELEMENT_TYPE>
 template <class INPLACE_REP>
 inline
 BloombergLP::bslma::SharedPtrRep *
-shared_ptr<ELEMENT_TYPE>::makeInternalRep(ELEMENT_TYPE       *,
-                                          INPLACE_REP        *,
-                                          BloombergLP::bslma::SharedPtrRep *rep)
+shared_ptr<ELEMENT_TYPE>::makeInternalRep(
+                                         ELEMENT_TYPE       *,
+                                         INPLACE_REP        *,
+                                         BloombergLP::bslma::SharedPtrRep *rep)
 {
     return rep;
 }
@@ -2226,10 +2822,13 @@ inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
 : d_ptr_p(ptr)
 {
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE, BloombergLP::bslma::Allocator *>
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<
+                                              COMPATIBLE_TYPE,
+                                              BloombergLP::bslma::Allocator *>
                                                                       RepMaker;
 
-    BloombergLP::bslma::Allocator *defaultAllocator = BloombergLP::bslma::Default::defaultAllocator();
+    BloombergLP::bslma::Allocator *defaultAllocator =
+                               BloombergLP::bslma::Default::defaultAllocator();
     d_rep_p = RepMaker::makeOutofplaceRep(ptr,
                                           defaultAllocator,
                                           defaultAllocator);
@@ -2239,11 +2838,13 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                                              COMPATIBLE_TYPE  *ptr,
-                                              BloombergLP::bslma::Allocator *basicAllocator)
+                                 COMPATIBLE_TYPE  *ptr,
+                                 BloombergLP::bslma::Allocator *basicAllocator)
 : d_ptr_p(ptr)
 {
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE, BloombergLP::bslma::Allocator *>
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<
+                                               COMPATIBLE_TYPE,
+                                               BloombergLP::bslma::Allocator *>
                                                                       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
@@ -2251,8 +2852,9 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
 template <class ELEMENT_TYPE>
 inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(ELEMENT_TYPE       *ptr,
-                                               BloombergLP::bslma::SharedPtrRep *rep)
+shared_ptr<ELEMENT_TYPE>::shared_ptr(
+                                 ELEMENT_TYPE                     *ptr,
+                                 BloombergLP::bslma::SharedPtrRep *rep)
 : d_ptr_p(ptr)
 , d_rep_p(rep)
 {
@@ -2262,7 +2864,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE, class DISPATCH>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE  *ptr,
-                                               DISPATCH *const&  dispatch)
+                                     DISPATCH *const&  dispatch)
 : d_ptr_p(ptr)
 , d_rep_p(makeInternalRep(ptr, dispatch, dispatch))
 {
@@ -2272,12 +2874,13 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE, class DELETER>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                                              COMPATIBLE_TYPE  *ptr,
-                                              const DELETER&    deleter,
-                                              BloombergLP::bslma::Allocator *basicAllocator)
+                                 COMPATIBLE_TYPE               *ptr,
+                                 const DELETER&                 deleter,
+                                 BloombergLP::bslma::Allocator *basicAllocator)
 : d_ptr_p(ptr)
 {
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE, DELETER> RepMaker;
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
+                                                       DELETER> RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
 }
@@ -2285,7 +2888,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
-                                               BloombergLP::bslma::Allocator *)
+                                     BloombergLP::bslma::Allocator *)
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -2295,8 +2898,8 @@ template <class ELEMENT_TYPE>
 template <class DELETER>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
-                                               const DELETER&,
-                                               BloombergLP::bslma::Allocator *)
+                                     const DELETER&,
+                                     BloombergLP::bslma::Allocator *)
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -2305,12 +2908,13 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                             BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
-                             BloombergLP::bslma::Allocator                  *basicAllocator)
+       BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
+       BloombergLP::bslma::Allocator                   *basicAllocator)
 : d_ptr_p(managedPtr.ptr())
 , d_rep_p(0)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> > Rep;
+    typedef BloombergLP::bslma::SharedPtrInplaceRep<
+                     BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> > Rep;
 
     if (d_ptr_p) {
         if (&BloombergLP::bslma::SharedPtrRep::managedPtrDeleter ==
@@ -2319,7 +2923,8 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
                                        (managedPtr.release().second.factory());
         }
         else {
-            basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
+            basicAllocator =
+                        BloombergLP::bslma::Default::allocator(basicAllocator);
             Rep *rep = new(*basicAllocator) Rep(basicAllocator);
             (*rep->ptr()) = managedPtr;
             d_rep_p = rep;
@@ -2335,10 +2940,12 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<std::auto_ptr<COMPATIBLE_TYPE> > Rep;
+    typedef BloombergLP::bslma::SharedPtrInplaceRep<
+                                          std::auto_ptr<COMPATIBLE_TYPE> > Rep;
 
     if (d_ptr_p) {
-        basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
+        basicAllocator =
+                        BloombergLP::bslma::Default::allocator(basicAllocator);
         Rep *rep = new (*basicAllocator) Rep(basicAllocator);
         (*rep->ptr()) = autoPtr;
         d_rep_p = rep;
@@ -2386,6 +2993,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const shared_ptr& original)
     }
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
@@ -2393,6 +3001,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
 , d_rep_p(rep)
 {
 }
+#endif
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::~shared_ptr()
@@ -2461,8 +3070,9 @@ void shared_ptr<ELEMENT_TYPE>::clear()
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
-void shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE  *ptr,
-                                         BloombergLP::bslma::Allocator *basicAllocator)
+void
+shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE  *ptr,
+                               BloombergLP::bslma::Allocator *basicAllocator)
 {
     SelfType(ptr, basicAllocator).swap(*this);
 }
@@ -2470,18 +3080,19 @@ void shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE  *ptr,
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE, class DELETER>
 inline
-void shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE  *ptr,
-                                         const DELETER&    deleter,
-                                         BloombergLP::bslma::Allocator *basicAllocator)
+void
+shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE  *ptr,
+                               const DELETER&    deleter,
+                               BloombergLP::bslma::Allocator *basicAllocator)
 {
     SelfType(ptr, deleter, basicAllocator).swap(*this);
 }
 
 template <class ELEMENT_TYPE>
 template <class ANY_TYPE>
-void shared_ptr<ELEMENT_TYPE>::loadAlias(
-                                      const shared_ptr<ANY_TYPE>&  source,
-                                      ELEMENT_TYPE                     *object)
+void
+shared_ptr<ELEMENT_TYPE>::loadAlias(const shared_ptr<ANY_TYPE>&  source,
+                                    ELEMENT_TYPE                *object)
 {
     if (source.d_rep_p == d_rep_p && object) {
         d_ptr_p = d_rep_p ? object : 0;
@@ -2493,7 +3104,8 @@ void shared_ptr<ELEMENT_TYPE>::loadAlias(
 
 template <class ELEMENT_TYPE>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2504,8 +3116,9 @@ shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllo
 template <class ELEMENT_TYPE>
 template <class A1>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2516,9 +3129,10 @@ shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllo
 template <class ELEMENT_TYPE>
 template <class A1, class A2>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2529,10 +3143,11 @@ shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllo
 template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2543,11 +3158,12 @@ shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllo
 template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2558,12 +3174,13 @@ shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllo
 template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2574,13 +3191,14 @@ shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllo
 template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2598,14 +3216,15 @@ template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2624,15 +3243,16 @@ template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7,
-                                             const A8&         a8)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7,
+                                 const A8&                      a8)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2652,16 +3272,17 @@ template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7,
-                                             const A8&         a8,
-                                             const A9&         a9)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7,
+                                 const A8&                      a8,
+                                 const A9&                      a9)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2682,17 +3303,18 @@ template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7,
-                                             const A8&         a8,
-                                             const A9&         a9,
-                                             const A10&        a10)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7,
+                                 const A8&                      a8,
+                                 const A9&                      a9,
+                                 const A10&                     a10)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2714,18 +3336,19 @@ template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7,
-                                             const A8&         a8,
-                                             const A9&         a9,
-                                             const A10&        a10,
-                                             const A11&        a11)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7,
+                                 const A8&                      a8,
+                                 const A9&                      a9,
+                                 const A10&                     a10,
+                                 const A11&                     a11)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2748,19 +3371,20 @@ template <class ELEMENT_TYPE>
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7,
-                                             const A8&         a8,
-                                             const A9&         a9,
-                                             const A10&        a10,
-                                             const A11&        a11,
-                                             const A12&        a12)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7,
+                                 const A8&                      a8,
+                                 const A9&                      a9,
+                                 const A10&                     a10,
+                                 const A11&                     a11,
+                                 const A12&                     a12)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2785,20 +3409,21 @@ template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7,
-                                             const A8&         a8,
-                                             const A9&         a9,
-                                             const A10&        a10,
-                                             const A11&        a11,
-                                             const A12&        a12,
-                                             const A13&        a13)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7,
+                                 const A8&                      a8,
+                                 const A9&                      a9,
+                                 const A10&                     a10,
+                                 const A11&                     a11,
+                                 const A12&                     a12,
+                                 const A13&                     a13)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2824,21 +3449,22 @@ template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13, class A14>
 void
-shared_ptr<ELEMENT_TYPE>::createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                                             const A1&         a1,
-                                             const A2&         a2,
-                                             const A3&         a3,
-                                             const A4&         a4,
-                                             const A5&         a5,
-                                             const A6&         a6,
-                                             const A7&         a7,
-                                             const A8&         a8,
-                                             const A9&         a9,
-                                             const A10&        a10,
-                                             const A11&        a11,
-                                             const A12&        a12,
-                                             const A13&        a13,
-                                             const A14&        a14)
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const A1&                      a1,
+                                 const A2&                      a2,
+                                 const A3&                      a3,
+                                 const A4&                      a4,
+                                 const A5&                      a5,
+                                 const A6&                      a6,
+                                 const A7&                      a7,
+                                 const A8&                      a8,
+                                 const A9&                      a9,
+                                 const A10&                     a10,
+                                 const A11&                     a11,
+                                 const A12&                     a12,
+                                 const A13&                     a13,
+                                 const A14&                     a14)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -2864,7 +3490,8 @@ template <class ELEMENT_TYPE>
 pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *>
 shared_ptr<ELEMENT_TYPE>::release()
 {
-    pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> ret(d_ptr_p, d_rep_p);
+    pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> ret(d_ptr_p,
+                                                                 d_rep_p);
     d_ptr_p = 0;
     d_rep_p = 0;
     return ret;
@@ -2882,8 +3509,7 @@ void shared_ptr<ELEMENT_TYPE>::swap(shared_ptr<ELEMENT_TYPE>& other)
 template <class ELEMENT_TYPE>
 inline
 #if defined(BSLS_PLATFORM_CMP_IBM)
-shared_ptr<ELEMENT_TYPE>::operator
-                                     typename shared_ptr::BoolType() const
+shared_ptr<ELEMENT_TYPE>::operator typename shared_ptr::BoolType() const
 #else
 shared_ptr<ELEMENT_TYPE>::operator BoolType() const
 #endif
@@ -2943,8 +3569,8 @@ shared_ptr<ELEMENT_TYPE>::managedPtr() const
         d_rep_p->acquireRef();
     }
     BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> ptr(d_ptr_p,
-                                       d_rep_p,
-                                       &BloombergLP::bslma::SharedPtrRep::managedPtrDeleter);
+                                                     d_rep_p,
+                         &BloombergLP::bslma::SharedPtrRep::managedPtrDeleter);
     return ptr;
 }
 
@@ -3030,7 +3656,179 @@ bool shared_ptr<ELEMENT_TYPE>::owner_before(
     return std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(), other.rep());
 }
 
-}   // close namespace bsl
+                        // --------------
+                        // class weak_ptr
+                        // --------------
+
+// CREATORS
+template <class ELEMENT_TYPE>
+inline
+weak_ptr<ELEMENT_TYPE>::weak_ptr()
+: d_ptr_p(0)
+, d_rep_p(0)
+{
+}
+
+template <class ELEMENT_TYPE>
+weak_ptr<ELEMENT_TYPE>::weak_ptr(const weak_ptr<ELEMENT_TYPE>& original)
+: d_ptr_p(original.d_ptr_p)
+, d_rep_p(original.d_rep_p)
+{
+    if (d_rep_p) {
+        d_rep_p->acquireWeakRef();
+    }
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+weak_ptr<ELEMENT_TYPE>::weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other)
+: d_ptr_p(other.ptr())
+, d_rep_p(other.rep())
+{
+    if (d_rep_p) {
+        d_rep_p->acquireWeakRef();
+    }
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+weak_ptr<ELEMENT_TYPE>::weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
+: d_ptr_p(other.d_ptr_p)
+, d_rep_p(other.d_rep_p)
+{
+    if (d_rep_p) {
+        d_rep_p->acquireWeakRef();
+    }
+}
+
+template <class ELEMENT_TYPE>
+inline
+weak_ptr<ELEMENT_TYPE>::~weak_ptr()
+{
+    if (d_rep_p) {
+        d_rep_p->releaseWeakRef();
+    }
+}
+
+// MANIPULATORS
+template <class ELEMENT_TYPE>
+weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
+                                             const weak_ptr<ELEMENT_TYPE>& rhs)
+{
+    weak_ptr<ELEMENT_TYPE> tmp(rhs);
+    tmp.swap(*this);
+    return *this;
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
+                                    const shared_ptr<COMPATIBLE_TYPE>& rhs)
+{
+    weak_ptr<ELEMENT_TYPE> tmp(rhs);
+    tmp.swap(*this);
+    return *this;
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
+                                      const weak_ptr<COMPATIBLE_TYPE>& rhs)
+{
+    weak_ptr<ELEMENT_TYPE> tmp(rhs);
+    tmp.swap(*this);
+    return *this;
+}
+
+template <class ELEMENT_TYPE>
+void weak_ptr<ELEMENT_TYPE>::swap(weak_ptr<ELEMENT_TYPE>& other)
+{
+    BloombergLP::bslalg::SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
+    BloombergLP::bslalg::SwapUtil::swap(&d_rep_p, &other.d_rep_p);
+}
+
+// ACCESSORS
+template <class ELEMENT_TYPE>
+shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::acquireSharedPtr() const
+{
+    if (d_rep_p && d_rep_p->tryAcquireRef()) {
+        return shared_ptr<ELEMENT_TYPE>(d_ptr_p, d_rep_p);            // RETURN
+    }
+    return shared_ptr<ELEMENT_TYPE>();
+}
+
+template <class ELEMENT_TYPE>
+inline
+int weak_ptr<ELEMENT_TYPE>::numReferences() const
+{
+    return d_rep_p ? d_rep_p->numReferences() : 0;
+}
+
+template <class ELEMENT_TYPE>
+inline
+BloombergLP::bslma::SharedPtrRep *weak_ptr<ELEMENT_TYPE>::rep() const
+{
+    return d_rep_p;
+}
+
+                        // C++0x Compatibility
+
+// MANIPULATORS
+template <class ELEMENT_TYPE>
+inline
+void weak_ptr<ELEMENT_TYPE>::reset()
+{
+    if (d_rep_p) {
+        d_rep_p->releaseWeakRef();
+    }
+
+    d_ptr_p = 0;
+    d_rep_p = 0;
+}
+
+// ACCESSORS
+template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::lock() const
+{
+    return acquireSharedPtr();
+}
+
+template <class ELEMENT_TYPE>
+inline
+int weak_ptr<ELEMENT_TYPE>::use_count() const
+{
+    return numReferences();
+}
+
+template <class ELEMENT_TYPE>
+inline
+bool weak_ptr<ELEMENT_TYPE>::expired() const
+{
+    return !(d_rep_p && d_rep_p->numReferences());
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+inline
+bool weak_ptr<ELEMENT_TYPE>::owner_before(
+                             const shared_ptr<COMPATIBLE_TYPE>& other) const
+{
+    return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
+                                                           other.rep());
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+inline
+bool weak_ptr<ELEMENT_TYPE>::owner_before(
+                                  const weak_ptr<COMPATIBLE_TYPE>& other) const
+{
+    return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
+                                                           other.d_rep_p);
+}
+
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
@@ -3250,6 +4048,14 @@ bsl::operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
 template <class ELEMENT_TYPE>
 inline
 void bsl::swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b)
+{
+    a.swap(b);
+}
+
+// FREE METHODS
+template <class ELEMENT_TYPE>
+inline
+void bsl::swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b)
 {
     a.swap(b);
 }

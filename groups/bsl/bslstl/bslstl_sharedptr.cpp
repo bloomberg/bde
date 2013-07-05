@@ -4,9 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslstl_list.h>           // for testing only
+#include <bslstl_map.h>            // for testing only
+#include <bslstl_string.h>         // for testing only
 #include <bslstl_vector.h>         // for testing only
 #include <bslma_testallocator.h>   // for testing only
-
 #include <bsls_alignmentutil.h>
 
 ///IMPLEMENTATION NOTES
@@ -40,7 +42,8 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
     // documentation for a definition of natural alignment.)  We achieve this
     // in the simplest way by always maximally aligning the returned pointer.
 
-    typedef bslma::SharedPtrInplaceRep<bsls::AlignmentUtil::MaxAlignedType> Rep;
+    typedef bslma::SharedPtrInplaceRep<bsls::AlignmentUtil::MaxAlignedType>
+                                                                           Rep;
 
     enum{
         ALIGNMENT_MASK = ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)

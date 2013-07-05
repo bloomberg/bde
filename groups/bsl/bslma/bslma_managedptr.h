@@ -1240,7 +1240,7 @@ class ManagedPtr {
         // will ultimately be destroyed, and the destructor for 'ptr' is not
         // called directly.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bslma::ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> release();
         // Return a raw pointer to the current target object (if any) and the
         // deleter for the currently managed object, and reset this managed
@@ -1728,7 +1728,7 @@ void ManagedPtr<TARGET_TYPE>::clear()
     d_members.clear();
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <typename TARGET_TYPE>
 bslma::ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
 ManagedPtr<TARGET_TYPE>::release()

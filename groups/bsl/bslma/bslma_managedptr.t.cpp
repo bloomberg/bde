@@ -130,7 +130,7 @@ void aSsErT(bool b, const char *s, int i)
 
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -178,6 +178,7 @@ void aSsErT(bool b, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+namespace {
 
 bool g_verbose;
 bool g_veryVerbose;

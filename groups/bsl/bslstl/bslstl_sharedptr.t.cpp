@@ -1,8 +1,6 @@
 // bslstl_sharedptr.t.cpp                                             -*-C++-*-
 #include <bslstl_sharedptr.h>
 
-//#include <bdef_bind_test.h>
-//#include <bdef_function.h>
 #include <bslma_managedptr.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -18,22 +16,14 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-//#include <bsl_algorithm.h>
-//#include <bsl_iostream.h>
-//#include <bsl_map.h>
-//#include <bsl_memory.h>
-//#include <bsl_new.h>          // placement syntax
-//#include <bsl_utility.h>
-//#include <bsl_vector.h>
-
+// Look what the usage examples drag in...
+#include <bslstl_list.h>
+#include <bslstl_map.h>
+#include <bslstl_string.h>
 #include <bslstl_vector.h>
 
 #include <stdlib.h>      // atoi
 #include <string.h>      // strcmp, strcpy
-
-//using bsl::endl;
-//using bsl::cerr;
-//using bsl::cout;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC   // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS          // Microsoft Extensions Enabled
@@ -42,7 +32,6 @@
 #endif
 
 using namespace BloombergLP;
-//using namespace bsl;  // automatically added by script
 
 //=============================================================================
 //                             TEST PLAN
@@ -166,6 +155,58 @@ using namespace BloombergLP;
 // [18] USAGE EXAMPLE // TBD
 //-----------------------------------------------------------------------------
 
+// ============================================================================
+//                                   TEST PLAN (weak_ptr)
+//
+// This component provides a mechanism to create weak references to
+// reference-counted shared objects (managed by 'bsl::shared_ptr'.  The
+// functions supported by 'bsl::weak_ptr' include creating weak references
+// (via multiple constructors), changing the weak pointer object being
+// referenced (via the assignment operators), getting a shared pointer (via
+// the 'acquireSharedPtr' and 'lock' functions), resetting the weak pointer
+// (via 'reset'), and destroying the weak pointer.
+//
+// All the functions in this component are reasonably straight-forward and
+// typically increment or decrement the number of strong or weak references as
+// a side effect.  In addition the destructor and the reset functions may
+// destroy the representation.  To test these functions we create a simple
+// test representation that allows us to check the current strong and weak
+// count and additionally stores the number of times the data value and the
+// representation were attempted to be destroyed.
+// ----------------------------------------------------------------------------
+// CREATORS
+// [24] bsl::weak_ptr<TYPE>(const bsl::shared_ptr<TYPE>& original);
+// [24] bsl::weak_ptr<TYPE>(const bsl::weak_ptr<TYPE>& original);
+// [24] template <typename COMPATIBLE_TYPE>
+//      bsl::weak_ptr(const bsl::shared_ptr<COMPATIBLE_TYPE>& original);
+// [24] template <typename COMPATIBLE_TYPE>
+//      bsl::weak_ptr(const bsl::weak_ptr<COMPATIBLE_TYPE>& original);
+// [24] ~bsl::weak_ptr();
+//
+// MANIPULATORS
+// [25] WeakPtr<TYPE>& operator=(const SharedPtr<TYPE>& original);
+// [25] WeakPtr<TYPE>& operator=(const WeakPtr<TYPE>& original);
+// [25] template <typename OTHER_TYPE>
+//      WeakPtr<TYPE>& operator=(const SharedPtr<OTHER_TYPE>& original);
+// [25] template <typename OTHER_TYPE>
+//      WeakPtr<TYPE>& operator=(const WeakPtr<OTHER_TYPE>& original);
+// [26] void reset();
+// [27] bsl::shared_ptr<TYPE> acquireSharedPtr();
+// [28] void swap(bsl::weak_ptr<TYPE>& src);
+//
+// ACCESSORS
+// [24] [[operator bcema_SharedPtr_UnspecifiedBool() const;]]
+// [24] int numReferences() const;
+// [24] bool isValid() const;
+// [24] bslma::SharedPtrRep *rep() const;
+// [24] int use_count() const;
+// [24] bool expired() const;
+// [27] bsl::shared_ptr<TYPE> lock() const;
+// [29] bool owner_before(const bsl::shared_ptr<OTHER_TYPE>& rhs);
+// [29] bool owner_before(const bsl::weak_ptr<OTHER_TYPE>& rhs);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [30] USAGE TEST
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -181,8 +222,6 @@ void aSsErT(bool b, const char *s, int i)
     }
 
 }
-
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 }  // close unnamed namespace
 
@@ -224,6 +263,261 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
+//=============================================================================
+//                                USAGE EXAMPLE (weak_ptr)
+//-----------------------------------------------------------------------------
+
+// Example 2 - Breaking cyclical dependencies
+// - - - - - - - - - - - - - - - - - - - - - -
+// Weak pointers are frequently used to break cyclical dependencies between
+// objects that store references to each other via a shared pointer.  Consider
+// for example a simplified news alert system that sends news alerts to users
+// based on keywords that they register for.  The user information is stored
+// in the 'User' class and the details of the news alert are stored in the
+// 'Alert' class.  The class definitions for 'User' and 'Alert' are provided
+// below (with any code not relevant to this example elided):
+//..
+    class Alert;
+//
+    class User {
+        // This class stores the user information required for listening to
+        // alerts.
+//
+        bsl::vector<bsl::shared_ptr<Alert> > d_alerts;  // alerts user is
+                                                        // registered for
+//
+        // ...
+//
+      public:
+        // MANIPULATORS
+        void addAlert(const bsl::shared_ptr<Alert>& alertPtr) {
+            // Add the specified 'alertPtr' to the list of alerts being
+            // monitored by this user.
+
+            d_alerts.push_back(alertPtr);
+        }
+
+//
+        // ...
+    };
+//..
+// Now we define an alert class, 'Alert':
+//..
+    class Alert {
+        // This class stores the alert information required for sending
+        // alerts.
+//
+        bsl::vector<bsl::shared_ptr<User> > d_users;  // users registered
+                                                      // for this alert
+//
+      public:
+        // MANIPULATORS
+        void addUser(const bsl::shared_ptr<User>& userPtr) {
+            // Add the specified 'userPtr' to the list of users monitoring this
+            // alert.
+
+            d_users.push_back(userPtr);
+        }
+//
+        // ...
+    };
+
+//..
+// Even though we have released 'alertPtr' and 'userPtr' there still exists a
+// cyclic reference between the two objects, so none of the objects are
+// destroyed.
+//
+// We can break this cyclical dependency we define a modified alert class
+// 'ModifiedAlert' that stores a weak pointer to a 'ModifiedUser' object.
+// Below is the definition for the 'ModifiedUser' class which is identical to
+// the 'User' class, the only difference being that it stores shared pointer to
+// 'ModifiedAlert's instead of 'Alert's:
+//..
+    class ModifiedAlert;
+//
+    class ModifiedUser {
+        // This class stores the user information required for listening to
+        // alerts.
+//
+        bsl::vector<bsl::shared_ptr<ModifiedAlert> > d_alerts;// alerts user is
+                                                              // registered for
+//
+        // ...
+//
+      public:
+        // MANIPULATORS
+        void addAlert(const bsl::shared_ptr<ModifiedAlert>& alertPtr) {
+            // Add the specified 'alertPtr' to the list of alerts being
+            // monitored by this user.
+
+            d_alerts.push_back(alertPtr);
+        }
+
+//
+        // ...
+    };
+//..
+// Now we define the 'ModifiedAlert' class:
+//..
+    class ModifiedAlert {
+        // This class stores the alert information required for sending
+        // alerts.
+//
+//..
+// Note that the user is stored by a weak pointer instead of by a shared
+// pointer:
+//..
+        bsl::vector<bsl::weak_ptr<ModifiedUser> > d_users;  // users registered
+                                                            // for this alert
+//
+      public:
+        // MANIPULATORS
+        void addUser(const bsl::weak_ptr<ModifiedUser>& userPtr) {
+            // Add the specified 'userPtr' to the list of users monitoring this
+            // alert.
+
+            d_users.push_back(userPtr);
+        }
+//
+        // ...
+    };
+
+// Usage example 3 - Caching example
+// - - - - - - - - - - - - - - - - -
+// Suppose we want to implement a peer to peer file sharing system that allows
+// users to search for files that match specific keywords.  A simplistic
+// version of such a system with code not relevant to the usage example
+// elided would have the following parts:
+//
+// a) A peer manager class that maintains a list of all connected peers and
+// updates the list based on incoming peer requests and disconnecting peers.
+// The following would be a simple interface for the Peer and PeerManager
+// classes:
+//..
+    class Peer {
+        // This class stores all the relevant information for a peer.
+
+        // ...
+    };
+
+    class PeerManager {
+        // This class acts as a manager of peers and adds and removes peers
+        // based on peer requests and disconnections.
+
+        // DATA
+//..
+// The peer objects are stored by shared pointer to allow peers to be passed
+// to search results and still allow their asynchronous destruction when peers
+// disconnect.
+//..
+        bsl::map<int, bsl::shared_ptr<Peer> > d_peers;
+
+        // ...
+    };
+//..
+// b) A peer cache class that stores a subset of the peers that are used for
+// sending search requests.  The cache may select peers based on their
+// connection bandwidth, relevancy of previous search results, etc.  For
+// brevity the population and flushing of this cache is not shown:
+//..
+    class PeerCache {
+        // This class caches a subset of all peers that match certain criteria
+        // including connection bandwidth, relevancy of previous search
+        // results, etc.
+
+//..
+// Note that the cached peers are stored as a weak pointer so as not to
+// interfere with the cleanup of Peer objects by the PeerManager if a Peer
+// goes down.
+//..
+        // DATA
+        bsl::list<bsl::weak_ptr<Peer> > d_cachedPeers;
+
+      public:
+        // TYPES
+        typedef bsl::list<bsl::weak_ptr<Peer> >::const_iterator PeerConstIter;
+
+        // ...
+
+        // ACCESSORS
+        PeerConstIter begin() const { return d_cachedPeers.begin(); }
+        PeerConstIter end() const   { return d_cachedPeers.end(); }
+    };
+//..
+// c) A search result class that stores a search result and encapsulates a peer
+// with the file name stored by the peer that best matches the specified
+// keywords:
+//..
+    class SearchResult {
+        // This class provides a search result and encapsulates a particular
+        // peer and filename combination that matches a specified set of
+        // keywords.
+
+//..
+// The peer is stored as a weak pointer because when the user decides to
+// select a particular file to download from this peer, the peer might have
+// disconnected.
+//..
+        // DATA
+        bsl::weak_ptr<Peer> d_peer;
+        bsl::string         d_filename;
+
+      public:
+        // CREATORS
+        SearchResult(const bsl::weak_ptr<Peer>& peer,
+                     const bsl::string&         filename)
+        : d_peer(peer)
+        , d_filename(filename)
+        {
+        }
+
+        // ...
+
+        // ACCESSORS
+        const bsl::weak_ptr<Peer>& peer() const { return d_peer; }
+        const bsl::string& filename() const { return d_filename; }
+    };
+//..
+// d) A search function that takes a list of keywords and returns available
+// results by searching the cached peers:
+//..
+    PeerCache peerCache;
+
+    void search(bsl::vector<SearchResult>       *results,
+                const bsl::vector<bsl::string>&  keywords)
+    {
+        for (PeerCache::PeerConstIter iter = peerCache.begin();
+             iter != peerCache.end();
+             ++iter) {
+//..
+// First we check if the peer is still connected by acquiring a shared pointer
+// to the peer.  If the acquire operation succeeds then we can send the peer a
+// request to send back the file best matching the specified keywords:
+//..
+            bsl::shared_ptr<Peer> peerSharedPtr = iter->acquireSharedPtr();
+            if (peerSharedPtr) {
+
+                // Search the peer for file best matching the specified
+                // keywords and if a file is found add the returned
+                // SearchResult object to result.
+
+                // ...
+            }
+        }
+    }
+//..
+// e) A download function that downloads a file selected by the user:
+//..
+    void download(const SearchResult& result)
+    {
+        bsl::shared_ptr<Peer> peerSharedPtr = result.peer().acquireSharedPtr();
+        if (peerSharedPtr) {
+            // Download the result.filename() file from peer knowing that
+            // the peer is still connected.
+        }
+    }
+//..
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -672,9 +966,9 @@ struct UsesBslmaAllocator<MyAllocTestDeleter>
 }  // close namespace bslma
 }  // close namespace BloombergLP
 
-                             // ==================
+                             // ===================
                              // class MyTestFunctor
-                             // ==================
+                             // ===================
 
 class MyTestFunctor {
     // This class implements a 'bcef_Function' which does nothing.
@@ -783,6 +1077,151 @@ void MyAllocTestDeleter::operator()(OBJECT_TYPE *ptr) const
 
 
 
+                        // ======================
+                        // class TestSharedPtrRep
+                        // ======================
+
+template <typename TYPE>
+class TestSharedPtrRep : public bslma::SharedPtrRep {
+    // Partially implemented shared pointer representation ("letter") protocol.
+    // This class provides a reference counter and a concrete implementation of
+    // the 'bcema_Deleter' protocol that decrements the number references and
+    // destroys itself if the number of references reaches zero.
+
+    // DATA
+    TYPE             *d_dataPtr_p;          // data ptr
+
+    int               d_disposeRepCount;    // counter storing number of time
+                                            // release is called
+
+    int               d_disposeObjectCount; // counter storing number of time
+                                            // releaseValue is called
+
+    bslma::Allocator *d_allocator_p;        // allocator
+
+    explicit TestSharedPtrRep(bslma::Allocator *basicAllocator);
+        // Construct a test shared ptr rep object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+        // AJM ADDED EXPLICIT, REMOVE THIS COMMENT IF NO NEW ISSUES ARISE
+
+  public:
+    // CREATORS
+
+    TestSharedPtrRep(TYPE *dataPtr_p, bslma::Allocator *basicAllocator);
+        // Construct a test shared ptr rep object owning the object pointed to
+        // by the specified 'dataPtr_p' and that should be destroyed using the
+        // specified 'basicAlloacator'.
+        // AJM CHANGING THE CONTRACT, TO SHARE TEST TYPES WITH THE ORIGINAL
+        // SHARED_PTR TEST DRIVER, WHICH ALSO MORE THOROUGHLY TESTS AWKWARD
+        // MULTIPLE-INHERITANCE CASES.
+
+    ~TestSharedPtrRep();
+        // Destroy this test shared ptr rep object.
+
+    // MANIPULATORS
+    virtual void disposeRep();
+        // Release this representation.
+
+    virtual void disposeObject();
+        // Release the value stored by this representation.
+
+    // ACCESSORS
+    virtual void *originalPtr() const;
+        // Return the original pointer stored by this representation.
+
+    TYPE *ptr() const;
+        // Return the data pointer stored by this representation.
+
+    int disposeRepCount() const;
+        // Return the number of time 'release' was called.
+
+    int disposeObjectCount() const;
+        // Return the number of time 'releaseValue' was called.
+};
+
+                        // ----------------------
+                        // class TestSharedPtrRep
+                        // ----------------------
+
+// CREATORS
+template <typename TYPE>
+inline
+TestSharedPtrRep<TYPE>::TestSharedPtrRep(bslma::Allocator *basicAllocator)
+: d_dataPtr_p(0)
+, d_disposeRepCount(0)
+, d_disposeObjectCount(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_dataPtr_p = new (*d_allocator_p) TYPE();
+}
+
+template <typename TYPE>
+inline
+TestSharedPtrRep<TYPE>::TestSharedPtrRep(TYPE *dataPtr_p,
+                                         bslma::Allocator *basicAllocator)
+: d_dataPtr_p(dataPtr_p)
+, d_disposeRepCount(0)
+, d_disposeObjectCount(0)
+, d_allocator_p(basicAllocator)
+{
+    BSLS_ASSERT_OPT(d_dataPtr_p);
+    BSLS_ASSERT_OPT(basicAllocator);
+}
+
+template <typename TYPE>
+TestSharedPtrRep<TYPE>::~TestSharedPtrRep()
+{
+    LOOP_ASSERT(numReferences(),      0 == numReferences());
+    LOOP_ASSERT(d_disposeRepCount,    1 == d_disposeRepCount);
+    LOOP_ASSERT(d_disposeObjectCount, 1 == d_disposeObjectCount);
+}
+
+// MANIPULATORS
+template <typename TYPE>
+inline
+void TestSharedPtrRep<TYPE>::disposeRep()
+{
+    ++d_disposeRepCount;
+}
+
+template <typename TYPE>
+inline
+void TestSharedPtrRep<TYPE>::disposeObject()
+{
+    ++d_disposeObjectCount;
+    d_allocator_p->deleteObject(d_dataPtr_p);
+}
+
+// ACCESSORS
+template <typename TYPE>
+inline
+void *TestSharedPtrRep<TYPE>::originalPtr() const
+{
+    return (void *) d_dataPtr_p;
+}
+
+template <typename TYPE>
+inline
+TYPE *TestSharedPtrRep<TYPE>::ptr() const
+{
+    return d_dataPtr_p;
+}
+
+template <typename TYPE>
+inline
+int TestSharedPtrRep<TYPE>::disposeRepCount() const
+{
+    return d_disposeRepCount;
+}
+
+template <typename TYPE>
+inline
+int TestSharedPtrRep<TYPE>::disposeObjectCount() const
+{
+    return d_disposeObjectCount;
+}
+
 // ============================================================================
 //                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
@@ -790,478 +1229,482 @@ void MyAllocTestDeleter::operator()(OBJECT_TYPE *ptr) const
 template <class POINTER>
 struct PerformanceTester
 {
-   static void test(bool verbose, bool allocVerbose) {
-        bslma::TestAllocator ta(allocVerbose);
+    static void test(bool verbose, bool allocVerbose);
+};
 
-        enum {
-            NUM_ITER        = 1000,
-            VECTOR_SIZE     = 1000,
-            BIG_VECTOR_SIZE = NUM_ITER * VECTOR_SIZE
-        };
+template <class POINTER>
+void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
+{
+    bslma::TestAllocator ta(allocVerbose);
 
-        bsls::Types::Int64 deleteCounter, copyCounter, numAlloc, numBytes;
+    enum {
+        NUM_ITER        = 1000,
+        VECTOR_SIZE     = 1000,
+        BIG_VECTOR_SIZE = NUM_ITER * VECTOR_SIZE
+    };
 
-        bsl::vector<TObj *> mZ(&ta);
-        const bsl::vector<TObj *>& Z = mZ;
+    bsls::Types::Int64 deleteCounter, copyCounter, numAlloc, numBytes;
 
-        bsls::Stopwatch timer;
+    bsl::vector<TObj *> mZ(&ta);
+    const bsl::vector<TObj *>& Z = mZ;
 
-        mZ.resize(BIG_VECTOR_SIZE);
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
-        }
-        timer.stop();
+    bsls::Stopwatch timer;
+
+    mZ.resize(BIG_VECTOR_SIZE);
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
+    }
+    timer.stop();
 #if 0 // TBD fix printing
-        printf("Creating " << BIG_VECTOR_SIZE << " owned objects in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
-#endif // 0 TBD fix printing
-
-        for (int i = 1; i < BIG_VECTOR_SIZE; ++i) {
-            mZ[i]->~TObj();
-        }
-
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        for (int i = 1; i < BIG_VECTOR_SIZE; ++i) {
-            new(mZ[i]) TObj(*Z[0]);
-        }
-        timer.stop();
-#if 0 // TBD fix printing
-        printf("Copy-constructing " << BIG_VECTOR_SIZE - 1
-             << " owned objects in " << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / (BIG_VECTOR_SIZE - 1) << "s each)"
+    printf("Creating " << BIG_VECTOR_SIZE << " owned objects in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
              << endl;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    }
 #endif // 0 TBD fix printing
 
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            ((bslma::Allocator *)&ta)->deleteObject(mZ[i]);
-        }
-        timer.stop();
+    for (int i = 1; i < BIG_VECTOR_SIZE; ++i) {
+        mZ[i]->~TObj();
+    }
+
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 1; i < BIG_VECTOR_SIZE; ++i) {
+        new(mZ[i]) TObj(*Z[0]);
+    }
+    timer.stop();
 #if 0 // TBD fix printing
-        printf("Destroying " << BIG_VECTOR_SIZE << " owned objects in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    printf("Copy-constructing " << BIG_VECTOR_SIZE - 1
+         << " owned objects in " << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / (BIG_VECTOR_SIZE - 1) << "s each)"
+         << endl;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
 #endif // 0 TBD fix printing
 
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
-        }
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        ((bslma::Allocator *)&ta)->deleteObject(mZ[i]);
+    }
+    timer.stop();
 #if 0 // TBD fix printing
-        printf("Rehydrated " << BIG_VECTOR_SIZE
-             << " owned objects\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    printf("Destroying " << BIG_VECTOR_SIZE << " owned objects in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
 #endif // 0 TBD fix printing
 
-        bsl::vector<POINTER> mX(&ta);
-        const bsl::vector<POINTER>& X = mX;
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
+    }
+#if 0 // TBD fix printing
+    printf("Rehydrated " << BIG_VECTOR_SIZE
+         << " owned objects\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
+#endif // 0 TBD fix printing
 
-        // -------------------------------------------------------------------
-        printf("\nCreating out-of-place representations."
-               "\n--------------------------------------\n");
+    bsl::vector<POINTER> mX(&ta);
+    const bsl::vector<POINTER>& X = mX;
 
-        mX.resize(BIG_VECTOR_SIZE);
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            // We first destroy the contents of mX in order to be able to
-            // recreate them in place.  Using push_back instead would involve
-            // an additional creation (for a temporary) and copy construction
-            // into the vector, which is not what we intend to measure.
+    // -------------------------------------------------------------------
+    printf("\nCreating out-of-place representations."
+           "\n--------------------------------------\n");
 
-            (&mX[i])->~POINTER();
-        }
+    mX.resize(BIG_VECTOR_SIZE);
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        // We first destroy the contents of mX in order to be able to
+        // recreate them in place.  Using push_back instead would involve
+        // an additional creation (for a temporary) and copy construction
+        // into the vector, which is not what we intend to measure.
+
+        (&mX[i])->~POINTER();
+    }
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        // If this code throws an exception, then the remaining elements
+        // will be destroyed twice, once above and another time with the
+        // destruction of mX.  But that is OK since they are empty.
+
+        new(&mX[i]) POINTER(Z[i], &ta);
+    }
+    timer.stop();
+#if 0 // TBD fix printing
+    printf("Creating " << BIG_VECTOR_SIZE
+         << " distinct shared pointers in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
+#endif // 0 TBD fix printing
+
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        (&mX[i])->~POINTER();
+    }
+    timer.stop();
+#if 0 // TBD fix printing
+    printf("Destroying " << BIG_VECTOR_SIZE
+         << " distinct shared pointers in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
+#endif // 0 TBD fix printing
+
+    // Note:  Z now contains dangling pointers.  Rehydrate!
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
+    }
+#if 0 // TBD fix printing
+    printf("Rehydrated " << BIG_VECTOR_SIZE
+         << " owned objects\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
+#endif // 0 TBD fix printing
+
+    {
+        POINTER Y(Z[0], &ta);
         timer.reset();
         deleteCounter = copyCounter = 0;
         numAlloc = ta.numAllocations();
         numBytes = ta.numBytesInUse();
         timer.start();
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            // If this code throws an exception, then the remaining elements
-            // will be destroyed twice, once above and another time with the
-            // destruction of mX.  But that is OK since they are empty.
-
-            new(&mX[i]) POINTER(Z[i], &ta);
+            new(&mX[i]) POINTER(Y);
         }
         timer.stop();
 #if 0 // TBD fix printing
         printf("Creating " << BIG_VECTOR_SIZE
-             << " distinct shared pointers in "
+             << " copies of the same shared pointer in "
              << timer.elapsedTime() << "s ("
              << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc
+                 << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
 #endif // 0 TBD fix printing
+    }
 
-        timer.reset();
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            (&mX[i])->~POINTER();
-        }
-        timer.stop();
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        (&mX[i])->~POINTER();
+    }
+    timer.stop();
 #if 0 // TBD fix printing
-        printf("Destroying " << BIG_VECTOR_SIZE
-             << " distinct shared pointers in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
-#endif // 0 TBD fix printing
-
-        // Note:  Z now contains dangling pointers.  Rehydrate!
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
-        }
-#if 0 // TBD fix printing
-        printf("Rehydrated " << BIG_VECTOR_SIZE
-             << " owned objects\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
-#endif // 0 TBD fix printing
-
-        {
-            POINTER Y(Z[0], &ta);
-            timer.reset();
-            deleteCounter = copyCounter = 0;
-            numAlloc = ta.numAllocations();
-            numBytes = ta.numBytesInUse();
-            timer.start();
-            for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-                new(&mX[i]) POINTER(Y);
-            }
-            timer.stop();
-#if 0 // TBD fix printing
-            printf("Creating " << BIG_VECTOR_SIZE
-                 << " copies of the same shared pointer in "
-                 << timer.elapsedTime() << "s ("
-                 << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-            if (verbose) {
-                printf("\t" << ta.numAllocations() - numAlloc
-                     << " allocations, "
-                     << ta.numBytesInUse() - numBytes << " bytes\n"
-                     << "\t" << copyCounter << " copies of test objects\n"
-                     << "\t" << deleteCounter << " deletions of test objects"
-                     << endl;
-            }
-#endif // 0 TBD fix printing
-        }
-
-        timer.reset();
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            (&mX[i])->~POINTER();
-        }
-        timer.stop();
-#if 0 // TBD fix printing
-        printf("Destroying " << BIG_VECTOR_SIZE
-             << " times the same shared pointer in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    printf("Destroying " << BIG_VECTOR_SIZE
+         << " times the same shared pointer in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
 #endif // TBD fix printing
 
-        // Note:  Z[0] is now dangling, and X contains only empty shared
-        // pointers.  Rehydrate, but with empty shared pointers!
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        mZ[0] = new(ta) TObj(&deleteCounter, &copyCounter);
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            new(&mX[i]) POINTER();
-        }
+    // Note:  Z[0] is now dangling, and X contains only empty shared
+    // pointers.  Rehydrate, but with empty shared pointers!
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    mZ[0] = new(ta) TObj(&deleteCounter, &copyCounter);
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        new(&mX[i]) POINTER();
+    }
 #if 0 // TBD fix printing
-        printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
-             << " empty shared pointers\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
+         << " empty shared pointers\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
 #endif // TBD fix printing
 
-        printf("\nCreating in-place representations."
-               "\n----------------------------------\n");
+    printf("\nCreating in-place representations."
+           "\n----------------------------------\n");
 
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        mX[i].createInplace(&ta, *Z[i]);
+    }
+    timer.stop();
+#if 0 // TBD fix printing
+    printf("Creating " << BIG_VECTOR_SIZE
+         << " distinct in-place shared pointers in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
+#endif // TBD fix printing
+
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        (&mX[i])->~POINTER();
+    }
+    timer.stop();
+#if 0 // TBD fix printing
+    printf("Destroying " << BIG_VECTOR_SIZE
+         << " distinct in-place shared pointers in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
+#endif // TBD fix printing
+
+    printf("\nCreating aliased shared pointers."
+           "\n---------------------------------\n");
+
+    {
+        POINTER Y(Z[0], &ta);
         timer.reset();
         deleteCounter = copyCounter = 0;
         numAlloc = ta.numAllocations();
         numBytes = ta.numBytesInUse();
         timer.start();
         for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            mX[i].createInplace(&ta, *Z[i]);
+            new(&mX[i]) POINTER(Y, Z[i]);
         }
         timer.stop();
 #if 0 // TBD fix printing
         printf("Creating " << BIG_VECTOR_SIZE
-             << " distinct in-place shared pointers in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
-#endif // TBD fix printing
-
-        timer.reset();
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            (&mX[i])->~POINTER();
-        }
-        timer.stop();
-#if 0 // TBD fix printing
-        printf("Destroying " << BIG_VECTOR_SIZE
-             << " distinct in-place shared pointers in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
-#endif // TBD fix printing
-
-        printf("\nCreating aliased shared pointers."
-               "\n---------------------------------\n");
-
-        {
-            POINTER Y(Z[0], &ta);
-            timer.reset();
-            deleteCounter = copyCounter = 0;
-            numAlloc = ta.numAllocations();
-            numBytes = ta.numBytesInUse();
-            timer.start();
-            for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-                new(&mX[i]) POINTER(Y, Z[i]);
-            }
-            timer.stop();
-#if 0 // TBD fix printing
-            printf("Creating " << BIG_VECTOR_SIZE
-                 << " aliases of the same shared pointer in "
-                 << timer.elapsedTime() << "s ("
-                 << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-            if (verbose) {
-                printf("\t" << ta.numAllocations() - numAlloc
-                     << " allocations, "
-                     << ta.numBytesInUse() - numBytes << " bytes\n"
-                     << "\t" << copyCounter << " copies of test objects\n"
-                     << "\t" << deleteCounter << " deletions of test objects"
-                     << endl;
-            }
-#endif // TBD fix printing
-        }
-
-        timer.reset();
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            (&mX[i])->~POINTER();
-        }
-        timer.stop();
-#if 0 // TBD fix printing
-        printf("Destroying " << BIG_VECTOR_SIZE
              << " aliases of the same shared pointer in "
              << timer.elapsedTime() << "s ("
              << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
         if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+            printf("\t" << ta.numAllocations() - numAlloc
+                 << " allocations, "
                  << ta.numBytesInUse() - numBytes << " bytes\n"
                  << "\t" << copyCounter << " copies of test objects\n"
                  << "\t" << deleteCounter << " deletions of test objects"
                  << endl;
         }
+#endif // TBD fix printing
+    }
+
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        (&mX[i])->~POINTER();
+    }
+    timer.stop();
+#if 0 // TBD fix printing
+    printf("Destroying " << BIG_VECTOR_SIZE
+         << " aliases of the same shared pointer in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
 #endif  // TBD fix printing
 
-        // Note:  Z[0] is now dangling, and X contains only empty shared
-        // pointers.  Rehydrate!
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        mZ[0] = new(ta) TObj(&deleteCounter, &copyCounter);
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            new(&mX[i]) POINTER(Z[i], &ta);
-        }
+    // Note:  Z[0] is now dangling, and X contains only empty shared
+    // pointers.  Rehydrate!
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    mZ[0] = new(ta) TObj(&deleteCounter, &copyCounter);
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        new(&mX[i]) POINTER(Z[i], &ta);
+    }
 #if 0 // TBD fix printing
-        printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
-             << " shared pointers\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
-#endif // TBD fix printing
-
-        // -------------------------------------------------------------------
-        printf("\nAssignment."
-               "\n-----------\n");
-
-        timer.reset();
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        {
-            POINTER Y = X[0];
-            for (int j = 1; j < BIG_VECTOR_SIZE; ++j) {
-                mX[j - 1] = X[j];
-            }
-            mX.back() = Y;
-        }
-        timer.stop();
-#if 0 // TBD fix printing
-        printf("Assigning " << BIG_VECTOR_SIZE + 1
-             << " distinct shared pointers in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / (BIG_VECTOR_SIZE + 1) << "s each)"
+    printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
+         << " shared pointers\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
              << endl;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    }
 #endif // TBD fix printing
 
-        timer.reset();
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        timer.start();
-        {
-            POINTER Y = X[0];
-            for (int j = 1; j < BIG_VECTOR_SIZE; ++j) {
-                mX[j] = Y;
-            }
+    // -------------------------------------------------------------------
+    printf("\nAssignment."
+           "\n-----------\n");
+
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    {
+        POINTER Y = X[0];
+        for (int j = 1; j < BIG_VECTOR_SIZE; ++j) {
+            mX[j - 1] = X[j];
         }
-        timer.stop();
+        mX.back() = Y;
+    }
+    timer.stop();
 #if 0 // TBD fix printing
-        printf("Assigning " << BIG_VECTOR_SIZE
-             << " times the same shared pointer in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    printf("Assigning " << BIG_VECTOR_SIZE + 1
+         << " distinct shared pointers in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / (BIG_VECTOR_SIZE + 1) << "s each)"
+         << endl;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
 #endif // TBD fix printing
 
-        // Note:  Z now contains dangling pointers, except Z[0].  Rehydrate!
-        // Note:  Z now contains dangling pointers.  Rehydrate!
-        deleteCounter = copyCounter = 0;
-        numAlloc = ta.numAllocations();
-        numBytes = ta.numBytesInUse();
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
+    timer.reset();
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    timer.start();
+    {
+        POINTER Y = X[0];
+        for (int j = 1; j < BIG_VECTOR_SIZE; ++j) {
+            mX[j] = Y;
         }
+    }
+    timer.stop();
 #if 0 // TBD fix printing
-        printf("Rehydrated " << BIG_VECTOR_SIZE
-             << " owned objects\n");;
-        if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
-        }
+    printf("Assigning " << BIG_VECTOR_SIZE
+         << " times the same shared pointer in "
+         << timer.elapsedTime() << "s ("
+         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
 #endif // TBD fix printing
 
-        // -------------------------------------------------------------------
-        printf("\nPooling out-of-place representations."
-               "\n-------------------------------------\n");
+    // Note:  Z now contains dangling pointers, except Z[0].  Rehydrate!
+    // Note:  Z now contains dangling pointers.  Rehydrate!
+    deleteCounter = copyCounter = 0;
+    numAlloc = ta.numAllocations();
+    numBytes = ta.numBytesInUse();
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
+    }
+#if 0 // TBD fix printing
+    printf("Rehydrated " << BIG_VECTOR_SIZE
+         << " owned objects\n");;
+    if (verbose) {
+        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
+             << ta.numBytesInUse() - numBytes << " bytes\n"
+             << "\t" << copyCounter << " copies of test objects\n"
+             << "\t" << deleteCounter << " deletions of test objects"
+             << endl;
+    }
+#endif // TBD fix printing
 
-        // TBD
+    // -------------------------------------------------------------------
+    printf("\nPooling out-of-place representations."
+           "\n-------------------------------------\n");
 
-        // -------------------------------------------------------------------
-        for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-            ta.deleteObject(mZ[i]);
-        }
-   }
-};
+    // TBD
+
+    // -------------------------------------------------------------------
+    for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
+        ta.deleteObject(mZ[i]);
+    }
+}
 
 template <typename T>
 class ManagedPtrTestDeleter {
@@ -1271,16 +1714,19 @@ class ManagedPtrTestDeleter {
   public:
     ManagedPtrTestDeleter() : d_providedObj(0) {}
 
-    void deleteObject(T* obj) {
+    void deleteObject(T* obj)
+    {
         ASSERT((int)(0 == d_providedObj));
         d_providedObj = obj;
     }
 
-    T* providedObj() {
+    T* providedObj()
+    {
         return d_providedObj;
     }
 
-    void reset() {
+    void reset()
+    {
         d_providedObj = 0;
     }
 };
@@ -1326,6 +1772,12 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    typedef bsl::weak_ptr<MyTestObject>           ObjWP;
+    typedef bsl::shared_ptr<MyTestObject>         ObjSP;
+    typedef bsl::weak_ptr<MyTestBaseObject>       BaseWP;
+    typedef bsl::weak_ptr<MyTestDerivedObject>    DerivedWP;
+    typedef bsl::shared_ptr<MyTestDerivedObject>  DerivedSP;
+
     bsls::Types::Int64 numDeallocations;
     bsls::Types::Int64 numAllocations;
     bsls::Types::Int64 numDeletes = 0;
@@ -1333,6 +1785,919 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE (weak_ptr)
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.  This usage
+        //   test also happens to exhaustively test the entire component
+        //   and is thus the only test in the suite.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   Test each enumeration type by assigning a variable the value
+        //   of each enumeration constant and verifying that the integral
+        //   value of the variable after assignment is as expected.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE (weak_ptr)"
+                            "\n========================\n");
+        {
+///Example 1 - Basic usage
+///- - - - - - - - - - - -
+// This example illustrates the basic syntax to create and use a
+// 'bsl::weak_ptr'.  Lets suppose that we want to construct a weak pointer that
+// references an 'int' managed by a shared pointer.  First we define the shared
+// pointer and assign a value to the shared 'int':
+//..
+    bsl::shared_ptr<int> intPtr;
+    intPtr.createInplace(bslma::Default::allocator());
+    *intPtr = 10;
+    ASSERT(10 == *intPtr);
+//..
+// Now we construct a weak pointer to the 'int':
+//..
+    bsl::weak_ptr<int> intWeakPtr(intPtr);
+    ASSERT(!intWeakPtr.expired());
+//..
+// 'bsl::weak_ptr' does not provide direct access to the shared object being
+// referenced.  So to access and manipulate the 'int' from the weak pointer we
+// have to get the shared pointer from it:
+//..
+    bsl::shared_ptr<int> intPtr2 = intWeakPtr.acquireSharedPtr();
+    ASSERT(intPtr2);
+    ASSERT(10 == *intPtr2);
+//
+    *intPtr2 = 20;
+    ASSERT(20 == *intPtr);
+    ASSERT(20 == *intPtr2);
+//..
+// We can remove the weak reference to the shared 'int' by calling the 'reset'
+// function:
+//..
+    intWeakPtr.reset();
+    ASSERT(intWeakPtr.expired());
+//..
+// Note that resetting the weak pointer does not affect the shared pointers
+// referencing the 'int' object:
+//..
+    ASSERT(20 == *intPtr);
+    ASSERT(20 == *intPtr2);
+//..
+// Finally, we construct another weak pointer referencing the shared 'int':
+//..
+    bsl::weak_ptr<int> intWeakPtr2(intPtr);
+    ASSERT(!intWeakPtr2.expired());
+//..
+// We now 'release' all shared references to the 'int'.  This causes the weak
+// pointer to be 'expired' and any attempt to get a shared pointer from it
+// will return an empty shared pointer:
+//..
+    intPtr.reset();
+    intPtr2.reset();
+    ASSERT(intWeakPtr2.expired());
+    ASSERT(!intWeakPtr2.acquireSharedPtr());
+        }
+//..
+// Example 2 - Breaking cyclical dependencies
+// - - - - - - - - - - - - - - - - - - - - - -
+//..
+// Note that the 'User' and 'Alert' classes could typically be used as
+// follows:
+//..
+        bslma::TestAllocator ta;
+        {
+            ta.setQuiet(1);
+
+            bsl::shared_ptr<User> userPtr;
+            userPtr.createInplace(&ta);
+//
+            bsl::shared_ptr<Alert> alertPtr;
+            alertPtr.createInplace(&ta);
+//
+            alertPtr->addUser(userPtr);
+            userPtr->addAlert(alertPtr);
+//
+            alertPtr.reset();
+            userPtr.reset();
+
+        }
+//
+//      // MEMORY LEAK !!
+//
+        {
+//
+            bsl::shared_ptr<ModifiedAlert> alertPtr;
+            alertPtr.createInplace(&ta);
+//
+            bsl::shared_ptr<ModifiedUser> userPtr;
+            userPtr.createInplace(&ta);
+//
+            bsl::weak_ptr<ModifiedUser> userWeakPtr(userPtr);
+//
+            alertPtr->addUser(userWeakPtr);
+            userPtr->addAlert(alertPtr);
+//
+            alertPtr.reset();
+            userPtr.reset();
+        }
+//
+//  // No memory leak now
+      } break;
+    case 29: {
+      // --------------------------------------------------------------------
+      // TEST 'owner_before' FUNCTION  (weak_ptr):
+      //
+      // Concerns:
+      //   Test that the 'owner_before' function works as expected.
+      //
+      // Plan:
+      //
+      // Testing:
+      //   bool owner_before(const bsl::shared_ptr<OTHER_TYPE>& rhs);
+      //   bool owner_before(const bsl::weak_ptr<OTHER_TYPE>& rhs);
+      // --------------------------------------------------------------------
+
+      if (verbose) printf("\nTESTING 'owner_before' (weak_ptr)"
+                          "\n=================================\n");
+
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
+
+          MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
+
+          MyTestObject *PTR1 = REP1.ptr();
+          MyTestObject *PTR2 = REP2.ptr();
+          ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
+          ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
+          {
+              const ObjWP EWP1;
+              const ObjWP EWP2;
+              const ObjSP ESP;
+
+              ObjSP mSA(PTR1, &rep1); const ObjSP& SA = mSA;
+              ObjSP mSB(PTR2, &rep2); const ObjSP& SB = mSB;
+
+              ObjWP mWA(SA); const ObjWP& WA = mWA;
+              ObjWP mWB(SB); const ObjWP& WB = mWB;
+
+              ASSERT(false == EWP1.owner_before(EWP1));
+              ASSERT(false == EWP1.owner_before(EWP2));
+              ASSERT(false == EWP1.owner_before(ESP));
+              ASSERT(true  == EWP1.owner_before(SA));
+              ASSERT(true  == EWP1.owner_before(WA));
+              ASSERT(true  == EWP1.owner_before(SB));
+              ASSERT(true  == EWP1.owner_before(WB));
+
+              ASSERT(false == WA.owner_before(EWP1));
+              ASSERT(false == WA.owner_before(ESP));
+              ASSERT(false == WA.owner_before(SA));
+              ASSERT(false == WA.owner_before(WA));
+              ASSERT(WA.owner_before(SB) == (&REP1 < &REP2));
+              ASSERT(WA.owner_before(WB) == (&REP1 < &REP2));
+          }
+      }
+    } break;
+    case 28: {
+      // --------------------------------------------------------------------
+      // TEST 'swap' FUNCTION  (weak_ptr):
+      //
+      // Concerns:
+      //   Test that the 'swap' function works as expected.
+      //
+      // Plan:
+      //
+      // Testing:
+      //   void swap(bsl::weak_ptr<TYPE>& src);
+      // --------------------------------------------------------------------
+
+      if (verbose) printf("\nTESTING 'swap'  (weak_ptr)"
+                          "\n==========================\n");
+
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP = rep;
+          MyTestObject *PTR = REP.ptr();
+          ASSERTV(REP_PTR, PTR,          REP_PTR == PTR);
+          {
+              ObjWP mX; const ObjWP& X = mX;
+              ObjWP mY; const ObjWP& Y = mY;
+
+              ASSERT(X.expired());
+              ASSERT(0 == X.rep());
+
+              ASSERT(Y.expired());
+              ASSERT(0 == Y.rep());
+
+              mX.swap(mY);
+
+              ASSERT(X.expired());
+              ASSERT(0 == X.rep());
+
+              ASSERT(Y.expired());
+              ASSERT(0 == Y.rep());
+
+              ObjSP mS(PTR, &rep);
+              const ObjSP& S = mS;
+
+              mX = S;
+
+              ASSERT(!X.expired());
+              ASSERT(&REP == X.rep());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(1 == REP.numWeakReferences());
+
+              mX.swap(mY);
+              ASSERT(X.expired());
+              ASSERT(!Y.expired());
+              ASSERT(0    == X.rep());
+              ASSERT(&REP == Y.rep());
+              ASSERT(1 == REP.numReferences());
+          }
+          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),
+                      1 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      1 == REP.disposeObjectCount());
+      }
+
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
+
+          MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
+
+          MyTestObject *PTR1 = REP1.ptr();
+          MyTestObject *PTR2 = REP2.ptr();
+          ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
+          ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
+          {
+              ObjSP mS1(PTR1, &rep1);
+              const ObjSP& S1 = mS1;
+
+              ObjSP mS2(PTR2, &rep2);
+              const ObjSP& S2 = mS2;
+
+              ObjWP mX(S1); const ObjWP& X = mX;
+              ObjWP mY(S2); const ObjWP& Y = mY;
+
+              ASSERT(&REP1  == X.rep());
+              ASSERT(&REP2  == Y.rep());
+
+              LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
+              LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
+
+              mX.swap(mY);
+
+              ASSERT(&REP2  == X.rep());
+              ASSERT(&REP1  == Y.rep());
+
+              LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
+              LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
+          }
+
+          LOOP_ASSERT(REP1.numReferences(), 0 == REP1.numReferences());
+          LOOP_ASSERT(REP1.disposeRepCount(), 1 == REP1.disposeRepCount());
+          LOOP_ASSERT(REP1.disposeObjectCount(),
+                                             1 == REP1.disposeObjectCount());
+
+          LOOP_ASSERT(REP2.numReferences(), 0 == REP2.numReferences());
+          LOOP_ASSERT(REP2.disposeRepCount(), 1 == REP2.disposeRepCount());
+          LOOP_ASSERT(REP2.disposeObjectCount(),
+                                             1 == REP2.disposeObjectCount());
+      }
+    } break;
+    case 27: {
+      // --------------------------------------------------------------------
+      // TEST 'acquireSharedPtr' and 'lock' FUNCTIONS:
+      //
+      // Concerns:
+      //   Test that the 'acquireSharedPtr' and 'lock' work as expected.
+      //
+      // Plan:
+      //
+      // Testing:
+      //   bsl::shared_ptr<TYPE> acquireSharedPtr();
+      //   bsl::shared_ptr<TYPE> lock() const;
+      // --------------------------------------------------------------------
+
+      if (verbose) printf("\nTESTING 'acquireSharedPtr' and 'lock'"
+                          "\n=====================================\n");
+
+      {
+          ObjWP mX; const ObjWP& X = mX;
+          ObjWP mY; const ObjWP& Y = mY;
+
+          ASSERT(X.expired());
+          ASSERT(0 == X.rep());
+
+          ASSERT(Y.expired());
+          ASSERT(0 == Y.rep());
+
+          ObjSP S1 = mX.acquireSharedPtr();
+          ASSERT(X.expired());
+          ASSERT(0 == X.rep());
+          ASSERT(!S1);
+          ASSERT(0 == S1.ptr());
+          ASSERT(0 == S1.rep());
+
+          ObjSP S2 = Y.lock();
+          ASSERT(Y.expired());
+          ASSERT(0 == Y.rep());
+          ASSERT(!S2);
+          ASSERT(0 == S2.ptr());
+          ASSERT(0 == S2.rep());
+      }
+
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP = rep;
+          MyTestObject *PTR = REP.ptr();
+          ASSERTV(REP_PTR, PTR,          REP_PTR == PTR);
+
+          ObjSP SC;
+          {
+              ObjSP mS(PTR, &rep);
+              const ObjSP& S = mS;
+
+              ObjWP mX(S); const ObjWP& X = mX;
+              ObjWP mY(S); const ObjWP& Y = mY;
+              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+
+              ObjSP SA = X.acquireSharedPtr();
+              ASSERT(SA);
+              ASSERT(PTR  == SA.ptr());
+              ASSERT(&REP == SA.rep());
+              LOOP_ASSERT(REP.numReferences(), 2 == REP.numReferences());
+
+              ObjSP SB = Y.lock();
+              ASSERT(SB);
+              ASSERT(PTR  == SB.ptr());
+              ASSERT(&REP == SB.rep());
+
+              LOOP_ASSERT(REP.numReferences(),   3 == REP.numReferences());
+
+              SC = X.acquireSharedPtr();
+              LOOP_ASSERT(REP.numReferences(),   4 == REP.numReferences());
+              ASSERT(PTR  == SC.ptr());
+              ASSERT(&REP == SC.rep());
+          }
+
+          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      0 == REP.disposeObjectCount());
+      }
+    } break;
+    case 26: {
+      // --------------------------------------------------------------------
+      // TEST 'reset' FUNCTIONS  (weak_ptr):
+      //
+      // Concerns:
+      //   Test that the 'reset' works as expected.
+      //
+      // Plan:
+      //
+      // Testing:
+      //   void reset();
+      // --------------------------------------------------------------------
+
+      if (verbose) printf("\nTESTING 'reset'  (weak_ptr)"
+                          "\n===============\n");
+
+      {
+          ObjWP mX; const ObjWP& X = mX;
+          ObjWP mY; const ObjWP& Y = mY;
+
+          ASSERT(X.expired());
+          ASSERT(0 == X.rep());
+
+          ASSERT(Y.expired());
+          ASSERT(0 == Y.rep());
+
+          mY.reset();
+          ASSERT(Y.expired());
+          ASSERT(0 == Y.rep());
+      }
+
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP = rep;
+          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      0 == REP.disposeObjectCount());
+          MyTestObject *PTR = REP.ptr();
+          ASSERTV(REP_PTR, PTR,                REP_PTR == PTR);
+          {
+              ObjWP mZ; const ObjWP& Z = mZ;
+              ASSERT(0 == Z.rep());
+              {
+                  ObjSP mS(PTR, &rep); const ObjSP& S = mS;
+                  {
+                      ObjWP mX(S); const ObjWP& X = mX;
+                      ObjWP mY(S); const ObjWP& Y = mY;
+                      LOOP_ASSERT(REP.numReferences(),
+                                                   1 == REP.numReferences());
+                      LOOP_ASSERT(REP.disposeRepCount(),
+                                                 0 == REP.disposeRepCount());
+                      LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+                      ASSERT(&REP == X.rep());
+                      ASSERT(&REP == Y.rep());
+
+                      mX.reset();
+                      LOOP_ASSERT(REP.numReferences(),
+                                                   1 == REP.numReferences());
+                      LOOP_ASSERT(REP.disposeRepCount(),
+                                                 0 == REP.disposeRepCount());
+                      LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+                      ASSERT(0    == X.rep());
+                      ASSERT(&REP == Y.rep());
+
+                      mY.reset();
+                      LOOP_ASSERT(REP.numReferences(),
+                                                   1 == REP.numReferences());
+                      LOOP_ASSERT(REP.disposeRepCount(),
+                                                 0 == REP.disposeRepCount());
+                      LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+                      ASSERT(0 == X.rep());
+                      ASSERT(0 == Y.rep());
+                  }
+
+                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+                  LOOP_ASSERT(REP.disposeRepCount(),
+                              0 == REP.disposeRepCount());
+                  LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+
+                  mZ = S;
+                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+                  LOOP_ASSERT(REP.disposeRepCount(),
+                              0 == REP.disposeRepCount());
+                  LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+                  ASSERT(&REP == Z.rep());
+              }
+
+              LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              1 == REP.disposeObjectCount());
+
+              mZ.reset();
+              LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 1 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              1 == REP.disposeObjectCount());
+              ASSERT(0 == Z.rep());
+          }
+
+          LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),  1 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      1 == REP.disposeObjectCount());
+      }
+    } break;
+    case 25: {
+      // --------------------------------------------------------------------
+      // TEST ASSIGNMENT OPERATORS  (weak_ptr):
+      //
+      // Concerns:
+      //   Test that the assignment operators work as expected.
+      //
+      // Plan:
+      //
+      // Testing:
+      //   WeakPtr<TYPE>& operator=(const SharedPtr<TYPE>& original);
+      //   WeakPtr<TYPE>& operator=(const WeakPtr<TYPE>& original);
+      //   template <typename OTHER_TYPE>
+      //   WeakPtr<TYPE>& operator=(const SharedPtr<OTHER_TYPE>& original);
+      //   template <typename OTHER_TYPE>
+      //   WeakPtr<TYPE>& operator=(const WeakPtr<OTHER_TYPE>& original);
+      // --------------------------------------------------------------------
+
+      if (verbose) printf("\nTESTING ASSIGNMENT OPERATORS (weak_ptr)"
+                          "\n=======================================\n");
+
+      if (verbose) printf("\nTesting assignment from same TYPE"
+                          "\n---------------------------------\n");
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          ASSERTV(REP_PTR, REP_PTR );
+          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP = rep;
+          MyTestObject *PTR = REP.ptr();
+          ASSERTV(REP_PTR, PTR,          REP_PTR == PTR);
+          {
+              ObjSP mS(PTR, &rep); const ObjSP& S = mS;
+
+              ObjWP mX; const ObjWP& X = mX;
+              ObjWP mY; const ObjWP& Y = mY;
+              ObjWP mZ; const ObjWP& Z = mZ;
+
+              ASSERT(1 == REP.numReferences());
+
+              mX = S;
+              ASSERT(!X.expired());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(&REP == X.rep());
+
+              mY = X;
+              ASSERT(!Y.expired());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(&REP == Y.rep());
+
+              mY = Z;
+              ASSERT(Y.expired());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(0 == Y.rep());
+          }
+
+          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                                            1 == REP.disposeObjectCount());
+      }
+
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
+
+          MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
+
+          MyTestObject *PTR1 = REP1.ptr();
+          MyTestObject *PTR2 = REP2.ptr();
+          ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
+          ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
+          {
+              ObjSP mS1(PTR1, &rep1); const ObjSP& S1 = mS1;
+              ObjSP mS2(PTR2, &rep2); const ObjSP& S2 = mS2;
+
+              ObjWP mX(S1); const ObjWP& X = mX;
+              LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
+              ASSERT(&REP1 == X.rep());
+
+              ObjWP mY(S2); const ObjWP& Y = mY;
+              ObjWP mZ(S2); const ObjWP& Z = mZ;
+              ASSERT(&REP2 == Y.rep());
+              ASSERT(&REP2 == Z.rep());
+
+              LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
+
+              mY = S1;
+              LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
+
+              LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
+              ASSERT(&REP1 == Y.rep());
+
+              mZ = X;
+              LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
+
+              LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
+              ASSERT(&REP1 == Z.rep());
+          }
+          LOOP_ASSERT(REP1.numReferences(), 0 == REP1.numReferences());
+
+          LOOP_ASSERT(REP2.numReferences(), 0 == REP2.numReferences());
+      }
+
+      if (verbose) printf("\nTesting different TYPE operators"
+                          "\n--------------------------------\n");
+      {
+          bslma::TestAllocator ta;
+          MyTestDerivedObject *REP_PTR = new(ta) MyTestDerivedObject(&numDeletes);
+          TestSharedPtrRep<MyTestDerivedObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestDerivedObject>& REP = rep;
+          MyTestDerivedObject *PTR = REP.ptr();
+          ASSERTV(REP_PTR, PTR,          REP_PTR == PTR);
+          {
+              DerivedSP mS1(PTR, &rep);
+              const DerivedSP& S1 = mS1;
+              DerivedSP mS2; const DerivedSP& S2 = mS2;
+
+              DerivedWP mC1(S1); const DerivedWP& C1 = mC1;
+              ASSERT(&REP == C1.rep());
+
+              DerivedWP mC2; const DerivedWP& C2 = mC2;
+              ASSERT(0 == C2.rep());
+
+              ObjWP mX; const ObjWP& X = mX;
+              ObjWP mY; const ObjWP& Y = mY;
+              ASSERT(0 == X.rep());
+              ASSERT(0 == Y.rep());
+
+              mX = S1;
+              ASSERT(!X.expired());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(&REP == X.rep());
+
+              mY = C1;
+              ASSERT(!Y.expired());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(&REP == Y.rep());
+
+              mX = S2;
+              ASSERT( X.expired());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(0 == X.rep());
+
+              mY = C2;
+              ASSERT( Y.expired());
+              ASSERT(1 == REP.numReferences());
+              ASSERT(0 == Y.rep());
+          }
+
+          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      1 == REP.disposeObjectCount());
+      }
+      {
+          bslma::TestAllocator ta;
+          MyTestDerivedObject *REP_PTR1 = new(ta) MyTestDerivedObject(&numDeletes);
+          TestSharedPtrRep<MyTestDerivedObject> rep1(REP_PTR1, &ta);
+          const TestSharedPtrRep<MyTestDerivedObject>& REP1 = rep1;
+
+          MyTestDerivedObject *REP_PTR2 = new(ta) MyTestDerivedObject(&numDeletes);
+          TestSharedPtrRep<MyTestDerivedObject> rep2(REP_PTR2, &ta);
+          const TestSharedPtrRep<MyTestDerivedObject>& REP2 = rep2;
+
+          MyTestDerivedObject *PTR1 = REP1.ptr();
+          MyTestDerivedObject *PTR2 = REP2.ptr();
+          ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
+          ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
+          {
+              DerivedSP mS1(PTR1, &rep1);
+              const DerivedSP& S1 = mS1;
+              DerivedSP mS2(PTR2, &rep2);
+              const DerivedSP& S2 = mS2;
+
+              ObjWP mX(S1); const ObjWP& X = mX;
+              LOOP_ASSERT(REP1.numReferences(),   1 == REP1.numReferences());
+              ASSERT(&REP1 == X.rep());
+
+              mX = S2;
+              LOOP_ASSERT(REP1.numReferences(),   1 == REP1.numReferences());
+
+              LOOP_ASSERT(REP2.numReferences(),   1 == REP2.numReferences());
+              ASSERT(&REP2 == X.rep());
+
+              ObjWP mY(S1); const ObjWP& Y = mY;
+              LOOP_ASSERT(REP1.numReferences(),   1 == REP1.numReferences());
+              ASSERT(&REP1 == Y.rep());
+
+              mY = X;
+              LOOP_ASSERT(REP1.numReferences(),   1 == REP1.numReferences());
+
+              LOOP_ASSERT(REP2.numReferences(),   1 == REP2.numReferences());
+              ASSERT(&REP2 == Y.rep());
+          }
+
+          LOOP_ASSERT(REP1.numReferences(), 0 == REP1.numReferences());
+          LOOP_ASSERT(REP1.disposeRepCount(), 1 == REP1.disposeRepCount());
+          LOOP_ASSERT(REP1.disposeObjectCount(),
+                                             1 == REP1.disposeObjectCount());
+
+          LOOP_ASSERT(REP2.numReferences(), 0 == REP2.numReferences());
+          LOOP_ASSERT(REP2.disposeRepCount(), 1 == REP2.disposeRepCount());
+          LOOP_ASSERT(REP2.disposeObjectCount(),
+                                             1 == REP2.disposeObjectCount());
+      }
+    } break;
+    case 24: {
+      // --------------------------------------------------------------------
+      // TEST CREATORS AND ACCESSORS (weak_ptr):
+      //
+      // Concerns:
+      //   Test that the creators work as expected.
+      //
+      // Plan:
+      //
+      // Testing:
+      //   bsl::weak_ptr<TYPE>(const bsl::shared_ptr<TYPE>& original);
+      //   bsl::weak_ptr<TYPE>(const bsl::weak_ptr<TYPE>& original);
+      //   template <typename COMPATIBLE_TYPE>
+      //   bsl::weak_ptr(const bsl::shared_ptr<COMPATIBLE_TYPE>& original);
+      //   template <typename COMPATIBLE_TYPE>
+      //   bsl::weak_ptr(const bsl::weak_ptr<COMPATIBLE_TYPE>& original);
+      //   ~bsl::weak_ptr();
+      //   [[operator bcema_SharedPtr_UnspecifiedBool() const;]]
+      //   int numReferences() const;
+      //   bslma::SharedPtrRep *rep() const;
+      //   int use_count() const;
+      //   bool expired() const;
+      // --------------------------------------------------------------------
+
+      if (verbose) printf("\nTESTING CREATORS (weak_ptr)"
+                          "\n===========================\n");
+
+      if (verbose) printf("\nTesting default constructor"
+                          "\n---------------------------\n");
+      {
+          ObjWP mX; const ObjWP& X = mX;
+          ASSERT(X.expired());
+          ASSERT(0 == X.numReferences());
+          ASSERT(0 == X.use_count());
+          ASSERT(0 == X.rep());
+          ObjSP mS1 = mX.acquireSharedPtr(); const ObjSP& S1 = mS1;
+          ObjSP mS2 = X.lock(); const ObjSP& S2 = mS2;
+
+          ASSERT(!S1);
+          ASSERT(0 == S1.ptr());
+          ASSERT(!S2);
+          ASSERT(0 == S2.ptr());
+      }
+
+      if (verbose) printf("\nTesting same TYPE constructors"
+                          "\n------------------------------\n");
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP = rep;
+          ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
+          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      0 == REP.disposeObjectCount());
+          MyTestObject *PTR = REP.ptr();
+          {
+              ObjSP mS(PTR, &rep);
+              const ObjSP& S = mS;
+              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+
+              ObjWP mX(S); const ObjWP& X = mX;
+              ASSERT(!X.expired());
+              ASSERT(&REP == X.rep());
+              LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
+              LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+
+              ObjWP mY(X); const ObjWP& Y = mY;
+              ASSERT(!Y.expired());
+              ASSERT(&REP == Y.rep());
+              LOOP_ASSERT(Y.numReferences(),     1 == Y.numReferences());
+              LOOP_ASSERT(Y.use_count(),         1 == Y.use_count());
+
+              LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
+
+              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+          }
+          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      1 == REP.disposeObjectCount());
+      }
+
+      if (verbose) printf("\nTesting different TYPE constructors"
+                          "\n-----------------------------------\n");
+      {
+          bslma::TestAllocator ta;
+          MyTestDerivedObject *REP_PTR = new(ta) MyTestDerivedObject(&numDeletes);
+          TestSharedPtrRep<MyTestDerivedObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestDerivedObject>& REP = rep;
+          ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
+          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                                            0 == REP.disposeObjectCount());
+          MyTestDerivedObject *PTR = REP.ptr();
+          {
+              DerivedSP mS(PTR, &rep);
+              const DerivedSP& S = mS;
+              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+
+              ObjWP mX(S); const ObjWP& X = mX;
+              ASSERT(!X.expired());
+              ASSERT(&REP == X.rep());
+              LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
+              LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+
+              DerivedWP mZ(S); const DerivedWP& Z = mZ;
+              ObjWP mY(Z); const ObjWP& Y = mY;
+              ASSERT(!Y.expired());
+              ASSERT(&REP == Y.rep());
+              LOOP_ASSERT(Y.numReferences(),     1 == Y.numReferences());
+              LOOP_ASSERT(Y.use_count(),         1 == Y.use_count());
+
+              LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
+
+              LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+          }
+          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      1 == REP.disposeObjectCount());
+      }
+
+      if (verbose) printf("\nTesting destructor"
+                          "\n------------------\n");
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+          const TestSharedPtrRep<MyTestObject>& REP = rep;
+          ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
+          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                      0 == REP.disposeObjectCount());
+          MyTestObject *PTR = REP.ptr();
+          {
+              ObjWP mY; const ObjWP& Y = mY;
+              {
+                  ObjSP mS(PTR, &rep); const ObjSP& S = mS;
+                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+                  LOOP_ASSERT(REP.disposeRepCount(),
+                                                 0 == REP.disposeRepCount());
+                  LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+
+                  {
+                      ObjWP mX(S); const ObjWP& X = mX;
+                      LOOP_ASSERT(REP.numReferences(),
+                                                   1 == REP.numReferences());
+                      LOOP_ASSERT(REP.disposeRepCount(),
+                                                 0 == REP.disposeRepCount());
+                      LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+                  }
+
+                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+                  LOOP_ASSERT(REP.disposeRepCount(),
+                                                 0 == REP.disposeRepCount());
+                  LOOP_ASSERT(REP.disposeObjectCount(),
+                                              0 == REP.disposeObjectCount());
+
+                  mY = S;
+                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+                  LOOP_ASSERT(REP.disposeRepCount(),
+                              0 == REP.disposeRepCount());
+                  LOOP_ASSERT(REP.disposeObjectCount(),
+                              0 == REP.disposeObjectCount());
+              }
+
+              LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
+              LOOP_ASSERT(REP.disposeRepCount(),
+                          0 == REP.disposeRepCount());
+              LOOP_ASSERT(REP.disposeObjectCount(),
+                          1 == REP.disposeObjectCount());
+          }
+
+          LOOP_ASSERT(REP.numReferences(),   0 == REP.numReferences());
+          LOOP_ASSERT(REP.disposeRepCount(), 1 == REP.disposeRepCount());
+          LOOP_ASSERT(REP.disposeObjectCount(),
+                                             1 == REP.disposeObjectCount());
+      }
+    } break;
     case 23: {
         // --------------------------------------------------------------------
         // TESTING 'bsl::shared_ptr<cv-void> (DRQS 33549823)
@@ -1508,7 +2873,8 @@ int main(int argc, char *argv[])
             ASSERT(&dY == static_cast<double *>(Y.get()));
         }
 
-        if (verbose) printf("Confirming bsl::shared_ptr<const void> support.\n");
+        if (verbose) printf(
+                          "Confirming bsl::shared_ptr<const void> support.\n");
         {
             typedef bsl::shared_ptr<const void> TestObj;
             const int iX = 42;
@@ -1535,7 +2901,7 @@ int main(int argc, char *argv[])
         // Note that the current failures occur in the out-of-place rep type.
 
         if (verbose) printf(
-                        "Confirming bsl::shared_ptr<volatile void> support.\n");
+                       "Confirming bsl::shared_ptr<volatile void> support.\n");
         {
             typedef bsl::shared_ptr<volatile void> TestObj;
             int iX = 42;
@@ -1557,7 +2923,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf(
-                  "Confirming bsl::shared_ptr<const volatile void> support.\n");
+                 "Confirming bsl::shared_ptr<const volatile void> support.\n");
         {
             typedef bsl::shared_ptr<const volatile void> TestObj;
             volatile int iX = 42;
@@ -1685,13 +3051,12 @@ int main(int argc, char *argv[])
             int *x                  = new int(0);
             int count               = 0;
 
-            bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator*> *implPtr =
-                     bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator*>::
-                                                         makeOutofplaceRep(x,
-                                                                           t,
-                                                                           t);
-            bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator*>&impl
-                                                              = *implPtr;
+            typedef bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator *>
+                                                                RepTypeForTest;
+            RepTypeForTest *implPtr = RepTypeForTest::makeOutofplaceRep(x,
+                                                                        t,
+                                                                        t);
+            RepTypeForTest& impl = *implPtr;
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
 
             impl.acquireRef();
@@ -2534,8 +3899,9 @@ int main(int argc, char *argv[])
 
 #if 0
             {
-                typedef bsl::map<Obj, int, bslstl::SharedPtrUtil::PtrLess<Obj> >
-                   Map;
+                typedef bsl::map<Obj,
+                                 int,
+                                 bslstl::SharedPtrUtil::PtrLess<Obj> > Map;
                 Map map1;
                 map1.insert(bsl::make_pair(X, 1));
                 map1.insert(bsl::make_pair(Y, 2));
@@ -2971,7 +4337,7 @@ int main(int argc, char *argv[])
                    "\n==================================\n");
 
         if (verbose) printf("\nTesting \"alias\" constructor"
-                            "\n-----------------------------\n");
+                            "\n---------------------------\n");
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
@@ -3000,7 +4366,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 
         if (verbose) printf("\nTesting \"alias\" constructor (nil object)"
-                            "\n------------------------------------------\n");
+                            "\n----------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3026,7 +4392,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
 
         if (verbose) printf("\nTesting \"alias\" constructor (unset target)"
-                            "\n--------------------------------------------\n");
+                            "\n------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -3537,7 +4903,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-#if 0 // TBD Waiting on a useable 'bind' facility to port to a good level
+#if 0 // TBD Waiting on a usable 'bind' facility to port to a good level
         if (verbose)
             printf("\nTesting 'createInplace' passing allocator to args"
                    "\n-------------------------------------------------\n");
@@ -4312,8 +5678,11 @@ int main(int argc, char *argv[])
         //   This test exercises basic functionality but tests nothing.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST\n"
+        if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+
+        if (verbose) printf("\nTesting shared_ptr"
+                            "\n------------------\n");
 
         bsls::Types::Int64 numDeletes = 0;
         {
@@ -4378,7 +5747,9 @@ int main(int argc, char *argv[])
             ConstObj x1(new MyTestObject(&numDeletes));
             const ConstObj& X1=x1;
 
-            Obj x2(bslstl::SharedPtrUtil::constCast<TObj>(x1)); const Obj& X2=x2;
+            Obj x2(bslstl::SharedPtrUtil::constCast<TObj>(x1));
+            const Obj& X2 = x2;
+
             if (veryVeryVerbose) {
                 P(numDeletes);
             }
@@ -4419,6 +5790,86 @@ int main(int argc, char *argv[])
 
         }
         ASSERT(1 == numDeletes);
+
+        
+        if (verbose) printf("\nTesting weak_ptr"
+                            "\n----------------\n");
+
+        numDeletes = 0;
+        {
+            MyTestObject *obj = new MyTestObject(&numDeletes);
+
+            ObjSP mS(obj); const ObjSP& S = mS;
+            ASSERT(1 == S.numReferences());
+
+            ObjWP mX(S); const ObjWP& X = mX;
+            ASSERT(!X.expired());
+            ASSERT(1 == X.numReferences());
+
+            ObjWP mY(X); const ObjWP& Y = mY;
+            ASSERT(!Y.expired());
+            ASSERT(1 == Y.numReferences());
+
+            ASSERT(1 == X.numReferences());
+
+            ObjWP mA; const ObjWP& A = mA;
+
+            mA = S;
+            ASSERT(!A.expired());
+            ASSERT(1 == A.numReferences());
+
+            ObjWP mB; const ObjWP& B = mB;
+
+            mB = X;
+            ASSERT(!B.expired());
+            ASSERT(1 == B.numReferences());
+
+            mA = Y;
+            ASSERT(!A.expired());
+            ASSERT(1 == A.numReferences());
+
+            ObjSP mT = mX.acquireSharedPtr(); const ObjSP& T = mT;
+            ASSERT(mT);
+            ASSERT(!X.expired());
+            ASSERT(2 == A.numReferences());
+            ASSERT(S == T);
+        }
+
+        numDeletes = 0;
+        {
+            MyTestDerivedObject *obj = new MyTestDerivedObject(&numDeletes);
+
+            DerivedSP mS(obj); const DerivedSP& S = mS;
+            ASSERT(1 == S.numReferences());
+
+            ObjWP mX(S); const ObjWP& X = mX;
+            ASSERT(!X.expired());
+            ASSERT(1 == X.numReferences());
+
+            DerivedWP mY(S); const DerivedWP& Y = mY;
+            ASSERT(!Y.expired());
+            ASSERT(1 == Y.numReferences());
+
+            ObjWP mZ(Y); const ObjWP& Z = mZ;
+            ASSERT(!Z.expired());
+            ASSERT(1 == Z.numReferences());
+
+            ObjWP mA; const ObjWP& A = mA;
+
+            mA = S;
+            ASSERT(!A.expired());
+            ASSERT(1 == A.numReferences());
+
+            ObjWP mB; const ObjWP& B = mB;
+
+            mB = Y;
+            ASSERT(!B.expired());
+            ASSERT(1 == B.numReferences());
+
+            mA = Y;
+            ASSERT(!A.expired());
+            ASSERT(1 == A.numReferences());
+        }
       } break;
       case -1: {
         // --------------------------------------------------------------------
