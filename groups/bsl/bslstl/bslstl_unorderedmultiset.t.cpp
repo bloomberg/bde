@@ -1346,7 +1346,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(SPEC);
+        const int         LENGTH = strlen(SPEC);
         const TestValues  EXP(SPEC, &scratch);
 
         TestValues CONT(SPEC, &scratch);
@@ -1366,14 +1366,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
             // 0 < n || 0 == n is identical to 0 <= n but
             // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
 
             ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
 
             ASSERTV(LINE, -1 == verifySpec(Y, SPEC));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
             ObjStlAlloc mZ;  const ObjStlAlloc& Z = mZ;
 
@@ -1383,8 +1382,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
             // 0 < n || 0 == n is identical to 0 <= n but
             // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1394,7 +1392,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
             mX.insert(BEGIN, END);
             ASSERTV(LINE, -1 == verifySpec(X, SPEC));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1410,8 +1408,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
             // 0 < n || 0 == n is identical to 0 <= n but
             // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
         }
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
