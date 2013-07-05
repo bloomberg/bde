@@ -22,6 +22,7 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 

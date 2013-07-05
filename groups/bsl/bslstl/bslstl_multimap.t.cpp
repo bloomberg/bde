@@ -20,6 +20,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 
+#include <limits.h>
+
 #include <algorithm>
 #include <functional>
 
