@@ -271,6 +271,7 @@ void init(volatile int *arrayA, volatile int *arrayB)
         __dcbf((const void *)(arrayB++));
     }
 #else
+    // suppress 'unused parameter' compiler warnings:
     (void)arrayA;
     (void)arrayB;
 #endif
@@ -339,6 +340,7 @@ void testCase3(int argc, bool assert)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    // suppress 'unused parameter' compiler warnings:
     (void)assert;
     (void)verbose;
     (void)veryVeryVerbose;
