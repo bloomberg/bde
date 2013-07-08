@@ -6,13 +6,11 @@
 
 #include <bslmf_issame.h>
 
+#include <bsls_bsltestutil.h>
+
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
-
-#include <bsls_bsltestutil.h>
-
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 using namespace BloombergLP;
 using namespace std;
@@ -70,6 +68,12 @@ void aSsErT(int c, const char *s, int i) {
 #define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 #define L_ __LINE__                           // current Line number
 #define T_ printf("\t");             // Print a tab (w/o newline)
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
 //                      GLOBAL PRINT FUNCTIONS

@@ -18,10 +18,7 @@
 #include <bsls_stopwatch.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
-
 #include <bsls_bsltestutil.h>
-
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 #include <algorithm>
 #include <cctype>
@@ -342,6 +339,12 @@ void aSsErT(int c, const char *s, int i) {
 #define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
 #define L_ __LINE__                        // current Line number
 #define T_ putchar('\t');                  // Print a tab (w/o newline)
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
