@@ -2,6 +2,7 @@
 
 #include <bslstl_stringref.h>
 
+#include <bsls_bsltestutil.h>
 #include <bsls_nativestd.h>
 
 #include <algorithm>
@@ -13,10 +14,6 @@
 #include <stdio.h>       // sprintf()
 #include <stdlib.h>      // atoi()
 #include <string.h>
-
-#include <bsls_bsltestutil.h>
-
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -151,6 +148,12 @@ static void aSsErT(int c, const char *s, int i)
                                                  // P(X) without '\n'
 #define L_ __LINE__                              // current Line number
 #define T_()  std::cout << "\t" << std::flush;   // Print tab w/o newline
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
