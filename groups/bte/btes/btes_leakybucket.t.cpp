@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
 
           // Round up the number of microseconds.
           bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
-                                   (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
+                                 ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0);
           bcemt_ThreadUtil::microSleep(uS);
       }
   }
@@ -2448,7 +2448,7 @@ int main(int argc, char *argv[])
         // C-5, C-10
         if (verbose) cout << endl << "Negative Testing" << endl;
         {
-            bsls::AssertFailureHandlerGuard 
+            bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
             Obj x1(1000, 1, Ti(0));
             Obj x2(1000, 1, Ti(0));

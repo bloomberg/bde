@@ -301,7 +301,7 @@ BDES_IDENT("$Id: $")
 //
 //          // Round up the number of microseconds.
 //          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
-//                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
+//                               ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0);
 //          bcemt_ThreadUtil::microSleep(uS);
 //      }
 //  }
