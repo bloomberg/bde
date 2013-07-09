@@ -277,7 +277,7 @@ int main(int argc, char *argv[]) {
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bsls_Assert::setFailureHandler(assertHandler);
+    bsls::Assert::setFailureHandler(assertHandler);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

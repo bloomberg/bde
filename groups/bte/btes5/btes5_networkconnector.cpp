@@ -4,6 +4,7 @@
 BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 
 #include <btes5_networkconnector.h>
+#include <btes5_negotiator.h>
 #include <btes5_testserver.h> // for testing only
 
 #include <bcema_sharedptr.h>
@@ -30,6 +31,44 @@ BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 // variables such as the SOCKS5 network description, and an 'Attempt' for the
 // state specific to one connection attempt.
 
+/* TODO: Pseudo-code
+set timeout
+create a vector of indices [levelCount], starting with 0.
+connect(level=0, vector):
+
+Connect:
+
+call real-connector
+ if index < level0.size
+    connect(level0[index], connect0-callback)
+connect0-callback(status)
+ if fail index++ and call real-connector
+ if succeed call negotiator(socket, level, order, socksConnectCb)
+
+connect(level, indices)
+ // theoretically, we have at least one more proxy to try
+ if (0 == level) tcp-connect(d_proxies[0].indices[0], socksConnectCb)
+ else negotiate
+
+socksConnectCb(socket, level, order
+ if success
+  if last level SUCCEED
+  else
+   set indices[level+1..levelCount] = 0
+   call negotiator(socket, level+1, 0, socksConnectCb)
+ else
+  if failure is bad password FAIL
+  indices[level]++
+  set indices[level+1..levelCount] = 0
+  while (indices[level] == d_proxies[level].size()) {
+   if (level == 0) FAIL
+   set indices[level..levelCount] = 0
+   indices[--level]++
+  }
+  connect(level=0, indices)
+
+***/
+
 namespace BloombergLP {
 
                               // ================
@@ -50,6 +89,8 @@ struct btes5_NetworkConnector::Connector {
     btemt_TcpTimerEventManager *d_eventManager_p; // event manager, not owned
 
     btes5_CredentialsProvider *d_provider_p; // credentials provider, not owned
+
+    btes5_Negotiator d_negotiator; // SOCKS5 negotiator
 
     bslma::Allocator *d_allocator_p; // memory allocator, not owned
 
@@ -81,6 +122,7 @@ btes5_NetworkConnector::Connector::Connector(
 , d_socketFactory_p(socketFactory)
 , d_eventManager_p(eventManager)
 , d_provider_p(provider)
+, d_negotiator(eventManager, allocator)
 , d_allocator_p(allocator)
 {
     BSLS_ASSERT(eventManager);
@@ -100,6 +142,7 @@ struct btes5_NetworkConnector::Attempt {
     // one of two states: it's created in the normal state  indicated by
     // 'd_terminating == 0', and it enters a terminating state when
     // 'd_terminating != 0'.
+    // TODO: describe d_indices
 
     // TYPES
     typedef bcema_SharedPtr<Attempt> Context;
@@ -118,12 +161,15 @@ struct btes5_NetworkConnector::Attempt {
     void                           *d_timerId_p;   // timer id, not owned
     bsls::AtomicInt                 d_terminating; // attempt being terminated
 
+    bsl::size_t d_level; // proxy level being tried
+
     bsl::vector<bsl::size_t>        d_indices;
         // sequence of 'd_connector->d_Socks5Servers.levelCount()' indices
         // indicating the next SOCKS5 server to try connecting to
 
     bteso_StreamSocket<bteso_IPv4Address> *d_socket_p;
         // socket for the connection to the first-level proxy, owned
+        // TODO: protect wrt deallocation in 'terminate'.
 
     bslma::Allocator                      *d_allocator_p;
         // memory allocator, not owned
@@ -145,6 +191,21 @@ struct btes5_NetworkConnector::Attempt {
 };
 
 namespace {
+
+// forward declarations for file-scope functions
+
+static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt);
+    // Establish a connection to the first-level proxy host in the specified
+    // 'attempt'. The results will be delivered, possibly from another thread,
+    // by invoking 'ConnectTcpCb'.
+
+static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt);
+    // Establish a TCP connection using a SOCKS5 proxy per the specified
+    // 'attempt'. Use 'attempt->d_socket_p' for communication with the proxy,
+    // and deliver the result, possibly from a different thread, to
+    // 'socksConnectCb'.
+
+// definitions for file-scope functions
 
 static void terminate(
     const btes5_NetworkConnector::AttemptHandle& connectionAttempt,
@@ -176,29 +237,127 @@ static void terminate(
     // TODO: cancel any negotiation in progress
 }
 
-static void tcpConnect(
-    btes5_NetworkConnector::AttemptHandle& connectionAttempt,
-    bsl::size_t index);
-    // Establish a connection to the first-level proxy host in the specified
-    // 'connectionAttempt' at or after the specified 'index'.
+static void socksConnectCb(
+    const btes5_NetworkConnector::AttemptHandle&  attempt,
+    btes5_Negotiator::NegotiationStatus           result,
+    const btes5_DetailedError&                    error)
+    // Process the specified 'result' of a SOCKS5 negotiation for the specified
+    // 'attempt' with the specified 'error'.
+{
+    bsl::size_t level = attempt->d_level;
+    if (btes5_Negotiator::e_SUCCESS == result) {
+        level++;
 
-static void connectCallback(
-    const btes5_NetworkConnector::AttemptHandle& connectionAttempt,
-    bsl::size_t                                  index)
-    // Process a connection event for a first-level proxy in the specified
-    // 'connectionAttempt' identified by the specified 'index'.
+        if (level == attempt->d_connector->d_socks5Servers.levelCount()) {
+            btes5_DetailedError error("Success");
+            terminate(attempt,
+                      btes5_NetworkConnector::e_SUCCESS,
+                      error);
+        } else {
+            attempt->d_level++;
+
+            // for all subsequent levels start from proxy 0
+
+            for (bsl::size_t l = level + 1;
+                 l < attempt->d_connector->d_socks5Servers.levelCount();
+                 l++) {
+                    attempt->d_indices[l] = 0;
+            }
+            socksConnect(attempt);
+        }
+    } else {
+        // TODO: special handling for password failure?
+        while (++attempt->d_indices[level]
+                == attempt->d_connector->d_socks5Servers.numProxies(level)) {
+            if (!level) {
+                terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
+                return;                                               // RETURN
+            }
+            level--; // try a lower (closer) proxy level
+        }
+
+        // More proxies left in this level: close socket, increment index
+        // and restart connection
+
+        for (bsl::size_t l = level + 1;
+             l < attempt->d_connector->d_socks5Servers.levelCount();
+             l++) {
+                attempt->d_indices[l] = 0;
+        }
+        // TODO: protect d_socket_p against termination?
+        attempt->d_connector->d_socketFactory_p->deallocate(
+                                                      attempt->d_socket_p);
+        attempt->d_level = level;
+        tcpConnect(attempt);
+    }
+}
+
+static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
+    // Invoke the SOCKS5 negotiator for the specified 'attempt'.
+{
+    const bsl::size_t level = attempt->d_level;          // proxy level to try
+    const bsl::size_t index = attempt->d_indices[level]; // specific proxy
+    const btes5_ProxyDescription& proxy
+        = attempt->d_connector->d_socks5Servers.beginLevel(level)[index];
+
+    const bsl::size_t nextLevel = level + 1;
+    const bteso_Endpoint *destination;
+    if (nextLevel == attempt->d_connector->d_socks5Servers.levelCount()) {
+        destination = &attempt->d_server;
+    } else {
+        const bsl::size_t nextIndex = attempt->d_indices[nextLevel];
+
+        destination = &attempt->d_connector->d_socks5Servers
+            .beginLevel(nextLevel)[nextIndex].address();
+    }
+
+    using namespace bdef_PlaceHolders;
+    btes5_Negotiator::NegotiationStateCallback
+        cb = bdef_BindUtil::bind(socksConnectCb, attempt, _1, _2);
+
+    int rc;
+    if (proxy.credentials().isSet()) {
+        rc = attempt->d_connector->d_negotiator.negotiate(attempt->d_socket_p,
+                                                          *destination,
+                                                          cb,
+                                                          proxy.credentials());
+    } else if (attempt->d_connector->d_provider_p) {
+        rc = attempt->d_connector->d_negotiator.negotiate(
+                                           attempt->d_socket_p,
+                                           *destination,
+                                           cb,
+                                           attempt->d_connector->d_provider_p);
+    } else {
+        rc = attempt->d_connector->d_negotiator.negotiate(attempt->d_socket_p,
+                                                          *destination,
+                                                          cb);
+    }
+    if (rc) {
+        socksConnectCb(attempt,
+                       btes5_Negotiator::e_ERROR,
+                       btes5_DetailedError("Unable to negotiate",
+                                           proxy.address()));
+    }
+}
+
+static void connectTcpCb(
+    const btes5_NetworkConnector::AttemptHandle& connectionAttempt)
+    // Process the result of a connection attempt to a first-level proxy in the
+    // specified 'connectionAttempt'.
 {
     // TODO: check for terminating attempt
 
     btes5_NetworkConnector::AttemptHandle attempt(connectionAttempt);
         // copy shared ptr because deregisterSocket removes the reference
 
+    const bsl::size_t index = attempt->d_indices[0]; // current proxy index
     attempt->d_connector->d_eventManager_p->deregisterSocket(
                                                 attempt->d_socket_p->handle());
     int rc = attempt->d_socket_p->connectionStatus();
     if (rc) {
         if (index < attempt->d_connector->d_socks5Servers.numProxies(0)) {
-            tcpConnect(attempt, index + 1);
+            attempt->d_indices[0]++; // try the next proximate proxy
+            tcpConnect(attempt);
         } else {
             btes5_DetailedError error(
                 "Unable to connect to any proximate proxies",
@@ -207,19 +366,29 @@ static void connectCallback(
             terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         }
     }
-    // TODO: start negotiation on socket
+
+    // start negotiation on socket
+
+    attempt->d_level = 0;
+    socksConnect(connectionAttempt);
 }
 
-static void tcpConnect(
-    btes5_NetworkConnector::AttemptHandle& connectionAttempt,
-    bsl::size_t index)
+static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 {
     btes5_DetailedError error("TCP connect");;
 
-    connectionAttempt->d_socket_p
-        = connectionAttempt->d_connector->d_socketFactory_p->allocate();
-    bteso_StreamSocket<bteso_IPv4Address>
-        *socket = connectionAttempt->d_socket_p;
+    bteso_StreamSocket<bteso_IPv4Address> *socket
+        = attempt->d_connector->d_socketFactory_p->allocate();
+    if (!socket) {
+        // socket allocation failed, retrying immediately isn't likely to work
+        // so return control to the client
+
+        error.setDescription("Unable to allocate a socket");
+        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
+        return;                                                       // RETURN
+    }
+    attempt->d_socket_p = socket;
+
     int rc = 0; // return code for socket operations
 
     // Note: to be compatible with bbcomm - only do this on unix
@@ -229,14 +398,14 @@ static void tcpConnect(
                            0);
     if (rc) {
         error.setDescription("Unable to set REUSEADDR option");
-        terminate(connectionAttempt, btes5_NetworkConnector::e_ERROR, error);
+        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         return;                                                       // RETURN
     }
 #endif
 
-    if (connectionAttempt->d_connector->d_minSourcePort > 0) {
-        const int begin = connectionAttempt->d_connector->d_minSourcePort;
-        const int end = connectionAttempt->d_connector->d_maxSourcePort + 1;
+    if (attempt->d_connector->d_minSourcePort > 0) {
+        const int begin = attempt->d_connector->d_minSourcePort;
+        const int end = attempt->d_connector->d_maxSourcePort + 1;
         int port = begin;
         for (; end != port; port++) {
             bteso_IPv4Address
@@ -250,7 +419,7 @@ static void tcpConnect(
             bsl::ostringstream description;
             description << "Unable to bind source address a port between "
                         << begin << " " << end;
-            terminate(connectionAttempt,
+            terminate(attempt,
                       btes5_NetworkConnector::e_ERROR,
                       error);
             return;                                                   // RETURN
@@ -259,7 +428,7 @@ static void tcpConnect(
     rc = socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
     if (rc) {
         error.setDescription("Unable to set socket mode to non-blocking");
-        terminate(connectionAttempt, btes5_NetworkConnector::e_ERROR, error);
+        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         return;                                                       // RETURN
     }
 
@@ -269,7 +438,7 @@ static void tcpConnect(
     rc = socket->setLingerOption(lingerData);
     if (rc) {
         error.setDescription("Unable to set linger option");
-        terminate(connectionAttempt, btes5_NetworkConnector::e_ERROR, error);
+        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         return;                                                       // RETURN
     }
 
@@ -278,7 +447,7 @@ static void tcpConnect(
                             1);
     if (rc) {
         error.setDescription("Unable to set KEEPALIVE option");
-        terminate(connectionAttempt, btes5_NetworkConnector::e_ERROR, error);
+        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         return;                                                       // RETURN
     }
 
@@ -287,16 +456,16 @@ static void tcpConnect(
                             1);
     if (rc) {
         error.setDescription("Unable to set TCPNODELAY option");
-        terminate(connectionAttempt, btes5_NetworkConnector::e_ERROR, error);
+        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         return;                                                       // RETURN
     }
 
     btes5_NetworkDescription::ProxyIterator
-        it = connectionAttempt->d_connector->d_socks5Servers.beginLevel(0);
-    it += index;
+        it = attempt->d_connector->d_socks5Servers.beginLevel(0);
+    it += attempt->d_indices[0];
     const btes5_NetworkDescription::ProxyIterator
-        end = connectionAttempt->d_connector->d_socks5Servers.endLevel(0);
-    for (; end != it; it++, index++) {
+        end = attempt->d_connector->d_socks5Servers.endLevel(0);
+    for (; end != it; it++, attempt->d_indices[0]++) {
         const bteso_Endpoint& destination = it->address();
         bteso_IPv4Address server;
 
@@ -315,19 +484,17 @@ static void tcpConnect(
                 description << "Unable to resolve " << destination.hostname()
                             << " error code " << errorCode;
                 error.setDescription(description.str());
-                continue;
+                continue;  // not fatal because there may be more servers
             }
         }
         server.setPortNumber(destination.port());
         rc = socket->connect(server);
         if (!rc) {
-            connectCallback(connectionAttempt, index);
+            connectTcpCb(attempt); // immediate success
         } else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
             bteso_EventManager::Callback
-                cb = bdef_BindUtil::bind(connectCallback,
-                                         connectionAttempt,
-                                         index);
-            rc = connectionAttempt->d_connector
+                cb = bdef_BindUtil::bind(connectTcpCb, attempt);
+            rc = attempt->d_connector
               ->d_eventManager_p->registerSocketEvent(socket->handle(),
                                                       bteso_EventType::CONNECT,
                                                       cb);
@@ -337,7 +504,7 @@ static void tcpConnect(
         }
     }
     if (end == it) {
-        terminate(connectionAttempt, btes5_NetworkConnector::e_ERROR, error);
+        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         return;                                                       // RETURN
     }
 }
@@ -360,6 +527,7 @@ btes5_NetworkConnector::Attempt::Attempt(
 , d_server(server, allocator)
 , d_connector(connector)
 , d_timerId_p(0)
+, d_level(0)
 , d_indices(connector->d_socks5Servers.levelCount(), 0, allocator)
 , d_socket_p(0)
 , d_allocator_p(allocator)
@@ -488,50 +656,8 @@ void btes5_NetworkConnector::startAttempt(AttemptHandle& connectionAttempt)
     connectionAttempt->d_timerId_p = connectionAttempt->d_connector
         ->d_eventManager_p->registerTimer(connectionAttempt->d_timeout, cb);
 
-    tcpConnect(connectionAttempt, 0);
-
-/*** TODO: put real logic here
-OK set timeout
-OK create a vector of indices [levelCount], starting with 0.
-connect(level=0, vector):
-
-OK Connect:
-OK  
-OK call real-connector
-OK  if index < level0.size
-OK     connect(level0[index], connect0-callback)
-OK connect0-callback(status)
-OK  if fail index++ and call real-connector
- if succeed call negotiator(socket, level, order, negotiatorCb)
-
-connect(level, indices)
- // theoretically, we have at least one more proxy to try
- if (0 == level) tcp-connect(d_proxies[0].indices[0], negotiatorCb)
- else negotiate
-
-negotiatorCb(socket, level, order
- if success
-  if last level SUCCEED
-  else
-   set indices[level+1..levelCount] = 0
-   call negotiator(socket, level+1, 0, negotiatorCb)
- else
-  if failure is bad password FAIL
-  indices[level]++
-  set indices[level+1..levelCount] = 0
-  while (indices[level] == d_proxies[level].size()) {
-   if (level == 0) FAIL
-   set indices[level..levelCount] = 0
-   indices[--level]++
-  }
-  connect(level=0, indices)
-
-***/
-    btes5_DetailedError error("not implemented yet");
-    connectionAttempt->d_callback(e_ERROR,
-             0,
-             connectionAttempt->d_connector->d_socketFactory_p,
-             error);
+    tcpConnect(connectionAttempt);
+    return;
 }
 
 }  // close enterprise namespace

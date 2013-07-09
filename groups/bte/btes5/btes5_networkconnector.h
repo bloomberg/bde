@@ -168,6 +168,10 @@ private:
     // DATA
     bcema_SharedPtr<Connector> d_connector; // persistent state
 
+    // NOT IMPLEMENTED
+    btes5_NetworkConnector(const btes5_NetworkConnector&);
+    btes5_NetworkConnector& operator=(const btes5_NetworkConnector&);
+
 public:
     // CREATORS
     btes5_NetworkConnector(
