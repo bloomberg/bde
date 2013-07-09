@@ -39,21 +39,6 @@
 #include <stdlib.h>
 #include <cstring>  // for 'strtok'
 
-// To resolve gcc warnings, while printing 'size_t' arguments portably on
-// Windows, we use a macro and string literal concatenation to produce the
-// correct 'printf' format flag.
-#ifdef ZU
-#undef ZU
-#endif
-
-#if defined BSLS_PLATFORM_CMP_MSVC
-#  define ZU "%Iu"
-#  define ZU4 "%4Iu"
-#else
-#  define ZU "%zu"
-#  define ZU4 "%4zu"
-#endif
-
 #if defined(BDE_BUILD_TARGET_EXC)
 enum { PLAT_EXC = 1 };
 #else
@@ -136,6 +121,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
 //                      TEST CONFIGURATION MACRO 
 // ----------------------------------------------------------------------------
 
@@ -156,12 +147,6 @@ void aSsErT(bool b, const char *s, int i)
 //=============================================================================
 //                              TEST SUPPORT
 //-----------------------------------------------------------------------------
-
-#if defined BSLS_PLATFORM_CMP_MSVC
-#  define ZU "%Iu"
-#else
-#  define ZU "%zu"
-#endif
 
 bool verbose;
 bool veryVerbose;
@@ -1567,8 +1552,10 @@ void usage()
     WordTally wordTally;
 
 if (verbose) {
-    printf("size             " ZU4 " initial\n", wordTally.size());
-    printf("bucket_count     " ZU4 " initial\n", wordTally.bucket_count());
+    printf("size             %4d initial\n",
+           static_cast<int>(wordTally.size()));
+    printf("bucket_count     %4d initial\n",
+           static_cast<int>(wordTally.bucket_count()));
     printf("load_factor      %f  initial\n", wordTally.load_factor());
     printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
 };
@@ -1699,8 +1686,9 @@ if (verbose) {
 // Next, after 'wordTally' has been loaded, we examine its metrics:
 //..
 if (verbose) {
-    printf("size             " ZU4 "\n", wordTally.size());
-    printf("bucket_count     " ZU4 "\n", wordTally.bucket_count());
+    printf("size             %4d\n", static_cast<int>(wordTally.size()));
+    printf("bucket_count     %4d\n",
+        static_cast<int>(wordTally.bucket_count()));
     printf("load_factor      %f\n",  wordTally.load_factor());
     printf("max_load_factor  %f\n",  wordTally.max_load_factor());
 }
@@ -1782,8 +1770,10 @@ if (verbose) {
     WordTally wordTally2(wordTally.bucket_count() * 2);
 
 if (verbose) {
-    printf("size2            " ZU4 " initial\n", wordTally2.size());
-    printf("bucket_count2    " ZU4 " initial\n", wordTally2.bucket_count());
+    printf("size2            %4d initial\n",
+        static_cast<int>(wordTally2.size()));
+    printf("bucket_count2    %4d initial\n",
+        static_cast<int>(wordTally2.bucket_count()));
     printf("load_factor2     %f  initial\n", wordTally2.load_factor());
     printf("max_load_factor2 %f  initial\n", wordTally2.max_load_factor());
 }
@@ -1805,8 +1795,9 @@ if (verbose) {
     wordTally2 = wordTally;
 
 if (verbose) {
-    printf("size2            " ZU4 "\n", wordTally2.size());
-    printf("bucket_count2    " ZU4 "\n", wordTally2.bucket_count());
+    printf("size2            %4d\n", static_cast<int>(wordTally2.size()));
+    printf("bucket_count2    %4d\n",
+        static_cast<int>(wordTally2.bucket_count()));
     printf("load_factor2     %f\n",  wordTally2.load_factor());
     printf("max_load_factor2 %f\n",  wordTally2.max_load_factor());
 }
