@@ -420,7 +420,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == virtualBaseObjectCount);
 
             const my_RightBase *pRBC = pMostCONST;
-            ASSERT((void const *) pRBC != (void const *) pMost);
+            ASSERT(static_cast<const void *>(pRBC) !=
+                   static_cast<const void *>(pMost));
 
             Obj::deleteObject(pRBC, &a);
             ASSERT(0 == mostDerivedObjectCount);
