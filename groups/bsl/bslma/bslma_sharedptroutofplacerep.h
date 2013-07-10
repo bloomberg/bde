@@ -37,13 +37,13 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Deleters
 ///--------
-// When the last shared reference to a shared object is released, the object
-// is destroyed using the "deleter" provided when the associated shared
-// pointer representation was created.  'bslma::SharedPtrOutofplaceRep'
-// supports two kinds of "deleter" objects, which vary in how they are invoked.
-// A "function-like" deleter is any language entity that can be invoked such
-// that the expression 'deleterInstance(objectPtr)' is a valid expression, and
-// a "factory" deleter is any language entity that can be invoked such that the
+// When the last shared reference to a shared object is released, the object is
+// destroyed using the "deleter" provided when the associated shared pointer
+// representation was created.  'bslma::SharedPtrOutofplaceRep' supports two
+// kinds of "deleter" objects, which vary in how they are invoked.  A
+// "function-like" deleter is any language entity that can be invoked such that
+// the expression 'deleterInstance(objectPtr)' is a valid expression, and a
+// "factory" deleter is any language entity that can be invoked such that the
 // expression 'deleterInstance.deleteObject(objectPtr)' is a valid expression,
 // where 'deleterInstance' is an instance of the "deleter" object, and
 // 'objectPtr' is a pointer to the shared object.  In summary:
@@ -157,7 +157,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  {
 //      d_ptr_p = ptr;
 //      d_rep_p =
-//            bslma::SharedPtrOutofplaceRep<bdet_Datetime, bslma::Allocator *>::
+//           bslma::SharedPtrOutofplaceRep<bdet_Datetime, bslma::Allocator *>::
 //                      makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 //  }
 //
@@ -263,13 +263,12 @@ struct SharedPtrOutofplaceRep_DeleterType {
         // Enumeration used to discriminate among the different deleters.
 
         BSLMA_ALLOCATOR_PTR = 0,     // Used to indicate that a deleter is a
-                                     // pointer that follows the
-                                     // 'Allocator' protocol.
+                                     // pointer that follows the 'Allocator'
+                                     // protocol.
 
         BSLMA_FACTORY_PTR = 1,       // Used to indicate that a deleter is a
                                      // pointer to a factory object that
-                                     // implements the 'deleteObject'
-                                     // protocol.
+                                     // implements the 'deleteObject' protocol.
 
         BSLMA_FUNCTOR_WITH_ALLOC = 2,// Used to indicate that a deleter is a
                                      // functor that takes an allocator at
@@ -288,11 +287,10 @@ struct SharedPtrOutofplaceRep_DeleterType {
 
 template <class TYPE, class DELETER>
 class SharedPtrOutofplaceRep : public SharedPtrRep {
-    // This class provides a concrete implementation of the
-    // 'SharedPtrRep' protocol for out-of-place instances of the
-    // parameterized 'TYPE'.  Upon destruction of this object, the
-    // parameterized 'DELETER' type is invoked on the pointer to the shared
-    // object.
+    // This class provides a concrete implementation of the 'SharedPtrRep'
+    // protocol for out-of-place instances of the parameterized 'TYPE'.  Upon
+    // destruction of this object, the parameterized 'DELETER' type is invoked
+    // on the pointer to the shared object.
 
     // PRIVATE TYPES
     typedef SharedPtrOutofplaceRep_DeleterType DeleterType;
@@ -332,11 +330,11 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
                            const DELETER&  deleter,
                            Allocator      *basicAllocator,
                      bslmf::MetaInt<DeleterType::BSLMA_FUNCTOR_WITHOUT_ALLOC>);
-        // Create a 'SharedPtrOutofplaceRep' that manages the lifetime of
-        // the specified 'ptr', using the specified 'deleter' to destroy 'ptr',
-        // and using the specified 'basicAllocator' to supply memory.  Note
-        // that 'basicAllocator' will be used to destroy this representation
-        // object, but not necessarily to destroy 'ptr'.  Also note that
+        // Create a 'SharedPtrOutofplaceRep' that manages the lifetime of the
+        // specified 'ptr', using the specified 'deleter' to destroy 'ptr', and
+        // using the specified 'basicAllocator' to supply memory.  Note that
+        // 'basicAllocator' will be used to destroy this representation object,
+        // but not necessarily to destroy 'ptr'.  Also note that
         // 'SharedPtrOutofplaceRep' should be created using
         // 'makeOutofplaceRep', which will call the appropriate private
         // constructor depending on the parameterized 'DELETER' type.
@@ -396,8 +394,8 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
 template <class DELETER, bool IS_ALLOC_PTR>
 class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
     // This 'class' provides the implementation of the
-    // 'SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER'
-    // template parameter type which is not 'Allocator *'.
+    // 'SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER' template
+    // parameter type which is not 'Allocator *'.
 
     // PRIVATE TYPES
     enum {
@@ -435,8 +433,8 @@ class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
 template <class DELETER>
 class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp<DELETER, true> {
     // This 'class' provides the implementation of the
-    // 'SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER'
-    // template parameter type which is 'Allocator *'.
+    // 'SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER' template
+    // parameter type which is 'Allocator *'.
 
     // PRIVATE TYPES
     typedef SharedPtrOutofplaceRep_DeleterType DeleterType;
@@ -500,8 +498,8 @@ struct SharedPtrOutofplaceRep_DeleterHelper {
                              DELETER&  deleter,
                              bslmf::MetaInt<DeleterType::BSLMA_ALLOCATOR_PTR>);
         // Delete the specified 'ptr' using the specified 'deleter' that
-        // implements the 'Allocator' protocol, which provides a
-        // 'deleteObject' function that can be invoked to delete 'ptr'.
+        // implements the 'Allocator' protocol, which provides a 'deleteObject'
+        // function that can be invoked to delete 'ptr'.
 
     template <class TYPE, class DELETER>
     static void deleteObject(TYPE     *ptr,
@@ -544,13 +542,13 @@ template <class TYPE, class DELETER>
 struct SharedPtrOutofplaceRep_InitGuard {
     // This guard is used for out-of-place shared pointer instantiations.
     // Generally, a guard is created prior to constructing a
-    // 'SharedPtrOutofplaceRep' and released after successful
-    // construction.  In the event that an exception is thrown during
-    // construction of the representation, the guard will delete the provided
-    // pointer using the provided deleter.  Note that the provided deleter is
-    // held by reference and must remain valid for the lifetime of the guard.
-    // If the guard is not released before it's destruction, a copy of the
-    // deleter is instantiated to delete the pointer (in case 'operator()' is
+    // 'SharedPtrOutofplaceRep' and released after successful construction.  In
+    // the event that an exception is thrown during construction of the
+    // representation, the guard will delete the provided pointer using the
+    // provided deleter.  Note that the provided deleter is held by reference
+    // and must remain valid for the lifetime of the guard.  If the guard is
+    // not released before it's destruction, a copy of the deleter is
+    // instantiated to delete the pointer (in case 'operator()' is
     // non-'const').  Also note that if the deleter throws during
     // copy-construction, the provided pointer will not be destroyed.
 
@@ -671,12 +669,12 @@ inline
 void SharedPtrOutofplaceRep<TYPE, DELETER>::disposeRep()
 {
     // If 'd_allocator_p->deleteObject' is used to destroy the
-    // 'SharedPtrOutofplaceRep' object, a virtual function call will be
-    // used and a 'dynamic_cast' is required to obtain the address of the most
-    // derived object to deallocate it.  Knowing 'SharedPtrOutofplaceRep'
-    // is the most derived class, this unnecessary overhead of a virtual
-    // function call can be avoided by explicitly calling the destructor.  This
-    // behavior is guaranteed by the standard ([class.virtual] 13: "Explicit
+    // 'SharedPtrOutofplaceRep' object, a virtual function call will be used
+    // and a 'dynamic_cast' is required to obtain the address of the most
+    // derived object to deallocate it.  Knowing 'SharedPtrOutofplaceRep' is
+    // the most derived class, this unnecessary overhead of a virtual function
+    // call can be avoided by explicitly calling the destructor.  This behavior
+    // is guaranteed by the standard ([class.virtual] 13: "Explicit
     // qualification with the scope operator (5.1) suppresses the virtual call
     // mechanism.", page 224 of Working Draft 2007-10).
 

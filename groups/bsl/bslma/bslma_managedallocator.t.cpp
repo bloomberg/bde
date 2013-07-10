@@ -104,7 +104,7 @@ class TestAllocator : public bslma::ManagedAllocator {
 class LinkedListMA : public bslma::ManagedAllocator {
 
     class Node {
-    public:
+      public:
         Node *d_next;
         int   d_dataSize;
         // Data implicitly here.
@@ -118,7 +118,7 @@ class LinkedListMA : public bslma::ManagedAllocator {
     void changeLists(Node *moveItem, Node **from, Node **to);
     void removeAll(Node **list);
 
-public:
+  public:
 
     // CREATORS
     LinkedListMA();
@@ -139,8 +139,8 @@ public:
 // i.e., if it says to move an item from a particular list, then the item
 // is in fact on that list.
 
-void LinkedListMA::changeLists(Node *moveItem, Node **from, Node **to) {
-
+void LinkedListMA::changeLists(Node *moveItem, Node **from, Node **to)
+{
     // Quick sanity check.
     ASSERT(0 != from);
     ASSERT(0 != *from);
@@ -192,11 +192,11 @@ void * LinkedListMA::allocate(size_type size)
 {
     // Search the free list -- cheap "first-fit" strategy.
     Node *localNext = d_freeList;
-    while(localNext != 0) {
+    while (localNext != 0) {
         // Is this block big enough to satisfy the request?
-        if(localNext->d_dataSize >= size) {
+        if (localNext->d_dataSize >= size) {
             changeLists(localNext, &d_freeList, &d_usedList);
-            return((char *)localNext + DATAOFFSET);
+            return ((char *)localNext + DATAOFFSET);                  // RETURN
         }
         localNext = localNext->d_next;
     }
@@ -317,10 +317,10 @@ class Logger {
     void push(char *ptr);
     void reset(void) { d_stackBottom = 0; }
 
-public:
+  public:
     enum Severity { RECORD = 0, PASS = 1, TRIGGER = 2 };
 
-    Logger(int verbose) {
+    explicit Logger(int verbose) {
                d_verbose = verbose; d_stackBottom = -1;
                d_stack = (char **)d_stackMem.allocate(
                                             InitialStackSize * sizeof(char *));
@@ -371,9 +371,9 @@ void Logger::publish(int remove)
 {
     if (d_stackBottom == -1) {
         if (d_verbose) cout << "[there are no messages in the logger]" << endl;
-        return;
+        return;                                                       // RETURN
     }
-    for(int i = d_stackBottom; i >= 0; --i) {
+    for (int i = d_stackBottom; i >= 0; --i) {
         if (d_verbose) cout << d_stack[i] << endl;
     }
     if (remove) {

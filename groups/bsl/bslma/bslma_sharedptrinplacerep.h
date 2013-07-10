@@ -28,8 +28,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Thread-Safety
 ///-------------
-// 'bslma::SharedPtrInplaceRep' is thread-safe provided that 'disposeObject' and
-// 'disposeRep' are not called explicitly, meaning that all non-creator
+// 'bslma::SharedPtrInplaceRep' is thread-safe provided that 'disposeObject'
+// and 'disposeRep' are not called explicitly, meaning that all non-creator
 // operations other than 'disposeObject' and 'disposeRep' on a given instance
 // can be safely invoked simultaneously from multiple threads ('disposeObject'
 // and 'disposeRep' are meant to be invoked only by 'releaseRef' and
@@ -182,23 +182,21 @@ namespace bslma {
 
 template <class TYPE>
 class SharedPtrInplaceRep : public SharedPtrRep {
-    // This class provides a concrete implementation of the
-    // 'SharedPtrRep' protocol for "in-place" instances of the
-    // parameterized 'TYPE'.  Upon destruction of this object, the destructor
-    // of 'TYPE' is invoked.
+    // This class provides a concrete implementation of the 'SharedPtrRep'
+    // protocol for "in-place" instances of the parameterized 'TYPE'.  Upon
+    // destruction of this object, the destructor of 'TYPE' is invoked.
 
     // DATA
     Allocator *d_allocator_p; // memory allocator (held, not owned)
 
     TYPE       d_instance;    // beginning of the in-place buffer
-                              // note that this must be last in this
-                              // layout to allow for the possibility of
-                              // creating in-place uninitialized buffer,
-                              // where it is possible to access memory
-                              // beyond the 'd_instance' footprint
-                              // (refer to 'bsl::share_ptr::
-                              // createInplaceUninitializedBuffer' for
-                              // sample usage)
+                              // note that this must be last in this layout to
+                              // allow for the possibility of creating in-place
+                              // uninitialized buffer, where it is possible to
+                              // access memory beyond the 'd_instance'
+                              // footprint (refer to 'bsl::share_ptr::
+                              // createInplaceUninitializedBuffer' for sample
+                              // usage)
 
   private:
     // NOT IMPLEMENTED
@@ -207,11 +205,11 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 
     // PRIVATE CREATORS
     ~SharedPtrInplaceRep();
-    // Destroy this representation object and the embedded instance of
-    // parameterized 'TYPE'.  Note that this destructor is never called.
-    // Instead, 'disposeObject' destroys the in-place object and
-    // 'disposeRep' deallocates this representation object (including the
-    // shared object's footprint).
+        // Destroy this representation object and the embedded instance of
+        // parameterized 'TYPE'.  Note that this destructor is never called.
+        // Instead, 'disposeObject' destroys the in-place object and
+        // 'disposeRep' deallocates this representation object (including the
+        // shared object's footprint).
 
   public:
     // CREATORS
@@ -364,13 +362,12 @@ class SharedPtrInplaceRep : public SharedPtrRep {
                         const A12&        a12,
                         const A13&        a13,
                         const A14&        a14);
-        // Create a 'SharedPtrInplaceRep' object having an "in-place"
-        // instance of the parameterized 'TYPE' using the 'TYPE' constructor
-        // that takes the specified arguments, 'a1' up to 'aN', where 'N' (at
-        // most 14) is the number of arguments passed to this method.  Use the
-        // specified 'basicAllocator' to supply memory and, upon a call to
-        // 'disposeRep', to destroy this representation (and the "in-place"
-        // shared object).
+        // Create a 'SharedPtrInplaceRep' object having an "in-place" instance
+        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
+        // the specified arguments, 'a1' up to 'aN', where 'N' (at most 14) is
+        // the number of arguments passed to this method.  Use the specified
+        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
+        // to destroy this representation (and the "in-place" shared object).
 
     // MANIPULATORS
     TYPE *ptr();

@@ -6,7 +6,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
-#include <algorithm>  // std::swap
+#include <algorithm>  // std::swap (bslalg::SwapUtil is levelized above!)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -149,26 +149,26 @@ typedef bslma::ManagedPtrDeleter Obj;
 //                      GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 template<typename T>
-struct statelessFactory
+struct StatelessFactory
 {
     void destroy(T *object) const;
 };
 
 template<typename T>
-void statelessFactory<T>::destroy(T *object) const
+void StatelessFactory<T>::destroy(T *object) const
 {
     ASSERT(object);
     ++*object;
 }
 
 template<typename T>
-class statefulFactory
+class StatefulFactory
 {
     T d_data;
     mutable bool d_empty;
 
   public:
-    statefulFactory() : d_data(), d_empty(true) {}
+    StatefulFactory() : d_data(), d_empty(true) {}
 
     T *create();
 
@@ -176,7 +176,7 @@ class statefulFactory
 };
 
 template<typename T>
-T *statefulFactory<T>::create()
+T *StatefulFactory<T>::create()
 {
     if (!d_empty) { return 0; }
 
@@ -185,7 +185,7 @@ T *statefulFactory<T>::create()
 }
 
 template<typename T>
-void statefulFactory<T>::destroy(T *object) const
+void StatefulFactory<T>::destroy(T *object) const
 {
     ASSERT(object == &d_data);
     d_empty = true;
@@ -205,7 +205,7 @@ void destroyWithStatelessFactory(void * object, void *factory)
 {
     ASSERT(object);
     ASSERT(factory);
-    reinterpret_cast<statelessFactory<int>*>(factory)->destroy(
+    reinterpret_cast<StatelessFactory<int>*>(factory)->destroy(
                                               reinterpret_cast<int *>(object));
 }
 
@@ -213,7 +213,7 @@ void destroyWithStatefulFactory(void * object, void *factory)
 {
     ASSERT(object);
     ASSERT(factory);
-    reinterpret_cast<statefulFactory<int>*>(factory)->destroy(
+    reinterpret_cast<StatefulFactory<int>*>(factory)->destroy(
                                               reinterpret_cast<int *>(object));
 }
 
@@ -244,7 +244,7 @@ static int g_i1 = 0;
 static int g_i2 = 0;
 static int g_i3 = 0;
 
-static statelessFactory<int> g_stateless;
+static StatelessFactory<int> g_stateless;
 
 static const struct {
     int           d_line;           // source line number
@@ -307,41 +307,30 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
-///Usage
-///-----
-//// The following snippets of code illustrate how to set and get linger options
-//// on a socket having the specified 'socketHandle'.
-////..
-//    bslma::ManagedPtrDeleter lingerOptions;
-////
-//    // Set the lingering option with a timeout of 2 seconds
-//    lingerOptions.setUseLingeringFlag(true);
-//    lingerOptions.setTimeout(2);
-////..
-//// We can then use set these linger options on any socket handle using
-//// 'bteso_SocketOptions'.
+
+        // TBD: USAGE EXAMPLE IS YET TO BE WRITTEN
       } break;
       case 12: {
         // --------------------------------------------------------------------
         // ACCESSOR 'deleteManagedObject'
-        ////   Ensure that the method correctly set the object to its default
-        ////   value.
-        ////
-        //// Concerns:
-        ////: 1 The method correctly set the object to its default value.
-        ////
-        //// Plan:
-        ////: 1 Using the table-driven technique:
-        ////:   1 Specify a set of (unique) valid object values (one per row) in
-        ////:     terms of their individual attributes, including (a) first, the
-        ////:     default value, and (b) boundary values corresponding to every
-        ////:     range of values that each individual attribute can
-        ////:     independently attain.
-        ////:
-        ////: 2 For each row (representing a distinct attribute value, 'V') in
-        ////:   the table of P-1, verify that the method sets the object to its
-        ////:   default state.
-        ////
+        //   Ensure that the method correctly set the object to its default
+        //   value.
+        //
+        // Concerns:
+        //: 1 The method correctly set the object to its default value.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, and (b) boundary values corresponding to every
+        //:     range of values that each individual attribute can
+        //:     independently attain.
+        //:
+        //: 2 For each row (representing a distinct attribute value, 'V') in
+        //:   the table of P-1, verify that the method sets the object to its
+        //:   default state.
+        //
         // Testing:
         //   deleteManagedObject()
         // --------------------------------------------------------------------
@@ -698,8 +687,8 @@ int main(int argc, char *argv[])
         //:   1 Specify a set of (unique) valid object values (one per row) in
         //:     terms of their individual attributes, including (a) first, the
         //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can independently
-        //:     attain.
+        //:     range of values that each individual attribute can
+        //:     independently attain.
         //:
         //: 2 For each row (representing a distinct object value, 'V') in the
         //:   table described in P-1:  (C-1..3)
@@ -1551,7 +1540,7 @@ int main(int argc, char *argv[])
 //        const T2 D3 = 0;               // default value
 ////        const T2 A3 = true;
 //
-//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //        if (verbose) printf("\n 1. Create an object 'w' (default ctor)."
 //                             "\t\t{ w:D             }\n");
@@ -1570,7 +1559,7 @@ int main(int argc, char *argv[])
 //
 //        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 //
-//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
 //        if (verbose) printf("\n 2. Create an object 'x' (copy from 'w')."
 //                             "\t\t{ w:D x:D         }\n");
@@ -1590,7 +1579,7 @@ int main(int argc, char *argv[])
 //        ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
 //        ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 //
-        //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) printf("\n 3. Set 'x' to 'A' (value distinct from 'D')."
         //                     "\t\t{ w:D x:A         }\n");
@@ -1630,7 +1619,7 @@ int main(int argc, char *argv[])
         //ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
         //ASSERT(1 == (Y == Y));        ASSERT(0 == (Y != Y));
 
-        //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) printf("\n 5. Create an object 'z' (copy from 'y')."
         //                     "\t\t{ w:D x:A y:A z:A }\n");
@@ -1651,7 +1640,7 @@ int main(int argc, char *argv[])
         //ASSERT(1 == (Z == Y));        ASSERT(0 == (Z != Y));
         //ASSERT(1 == (Z == Z));        ASSERT(0 == (Z != Z));
 
-        //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) printf("\n 6. Set 'z' to 'D' (the default value)."
         //                     "\t\t\t{ w:D x:A y:A z:D }\n");
@@ -1673,7 +1662,7 @@ int main(int argc, char *argv[])
         //ASSERT(0 == (Z == Y));        ASSERT(1 == (Z != Y));
         //ASSERT(1 == (Z == Z));        ASSERT(0 == (Z != Z));
 
-        //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) printf("\n 7. Assign 'w' from 'x'."
         //                     "\t\t\t\t{ w:A x:A y:A z:D }\n");
@@ -1693,7 +1682,7 @@ int main(int argc, char *argv[])
         //ASSERT(1 == (W == Y));        ASSERT(0 == (W != Y));
         //ASSERT(0 == (W == Z));        ASSERT(1 == (W != Z));
 
-        //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) printf("\n 8. Assign 'w' from 'z'."
         //                     "\t\t\t\t{ w:D x:A y:A z:D }\n");
@@ -1713,7 +1702,7 @@ int main(int argc, char *argv[])
         //ASSERT(0 == (W == Y));        ASSERT(1 == (W != Y));
         //ASSERT(1 == (W == Z));        ASSERT(0 == (W != Z));
 
-        //// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //if (verbose) printf("\n 9. Assign 'x' from 'x' (aliasing)."
         //                     "\t\t\t{ w:D x:A y:A z:D }\n");

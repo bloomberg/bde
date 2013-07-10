@@ -21,11 +21,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //           bslma_sharedptrrep_outofplace
 //
 //@DESCRIPTION: This component provides a partially implemented abstract class
-// for managing the lifetime of a shared object.  'bslma::SharedPtrRep' provides
-// a count of both shared and weak references to a shared object (described in
-// more detail in the next section).  In addition, 'bslma::SharedPtrRep'
-// provides protocol methods that allows a concrete implementation to specify
-// what action should be taken when these reference counts reach zero.
+// for managing the lifetime of a shared object.  'bslma::SharedPtrRep'
+// provides a count of both shared and weak references to a shared object
+// (described in more detail in the next section).  In addition,
+// 'bslma::SharedPtrRep' provides protocol methods that allows a concrete
+// implementation to specify what action should be taken when these reference
+// counts reach zero.
 //
 ///Shared and Weak References
 ///--------------------------
@@ -48,9 +49,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'bslma::SharedPtrRep' is thread-safe provided that 'disposeObject' and
 // 'disposeRep' are not called explicitly, meaning that all non-creator
 // operations other than 'disposeObject' and 'disposeRep' on a given instance
-// can be safely invoked simultaneously from multiple threads
-// ('disposeObject' and 'disposeRep' are meant to be implemented by types
-// inheriting 'bslma::SharedPtrRep', and invoked only by 'releaseRef' and
+// can be safely invoked simultaneously from multiple threads ('disposeObject'
+// and 'disposeRep' are meant to be implemented by types inheriting
+// 'bslma::SharedPtrRep', and invoked only by 'releaseRef' and
 // 'releaseWeakRef').  Note that there is no thread safety guarantees for
 // operations on the managed object.
 //
@@ -62,8 +63,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // object.  'disposeObject' will be called when the last shared reference to
 // the object has been released using 'releaseRef'.
 //
-// 'disposeRep' is meant to act as the destructor of 'bslma::SharedPtrRep'.  The
-// destructor of 'bslma::SharedPtrRep' is declared as private and cannot be
+// 'disposeRep' is meant to act as the destructor of 'bslma::SharedPtrRep'.
+// The destructor of 'bslma::SharedPtrRep' is declared as private and cannot be
 // called.  The derived class must override 'disposeRep' to perform an action
 // such as deallocating the memory of the instance of the derived class.
 // 'disposeRep' will be called when both the last shared reference and the last
@@ -292,8 +293,8 @@ namespace bslma {
 
 class SharedPtrRep {
     // This class provides a partially implemented shared pointer
-    // representation ("letter") protocol.  The class provides two counters
-    // for storing the number of shared and weak references, and functions to
+    // representation ("letter") protocol.  The class provides two counters for
+    // storing the number of shared and weak references, and functions to
     // increment and decrement these counters.  In addition, this class
     // provides protocol methods that allow concrete implementations to specify
     // what action should be taken when these counts reach zero.  The function
@@ -304,21 +305,18 @@ class SharedPtrRep {
 
     // DATA
     bsls::AtomicInt d_adjustedSharedCount;
-                                  // Counter storing a value that allows us to
-                                  // calculate the number of shared references.
-                                  // The numerical value of
-                                  // 'd_adjustedSharedCount' is:
-                                  // 2 * number of shared references, plus 1 if
-                                  // any weak references were *ever* created.
+                              // Counter storing a value that allows us to
+                              // calculate the number of shared references.
+                              // The numerical value of 'd_adjustedSharedCount'
+                              // is: 2 * number of shared references, plus 1 if
+                              // any weak references were *ever* created.
 
     bsls::AtomicInt d_adjustedWeakCount;
-                                  // Counter storing a value that allows us to
-                                  // calculate the number of weak references.
-                                  // The numerical value of
-                                  // 'd_adjustedWeakCount' is:
-                                  // 2 * number of weak references, plus 1 if
-                                  // there are any *outstanding* shared
-                                  // references.
+                              // Counter storing a value that allows us to
+                              // calculate the number of weak references.  The
+                              // numerical value of 'd_adjustedWeakCount' is:
+                              // 2 * number of weak references, plus 1 if there
+                              // are any *outstanding* shared references.
 
   protected:
     // PROTECTED CREATORS
@@ -328,16 +326,16 @@ class SharedPtrRep {
   public:
     // CLASS METHODS
     static void managedPtrDeleter(void *, void *rep);
-        // Delete the shared object referred to by this representation
-        // if all the shared references to the shared object are released.
-        // Note that the first argument is ignored.  Also note that this
-        // function serves as the managed ptr deleter when converting a
-        // 'bsl::shared_ptr' to a 'bslma::ManagedPtr'.
+        // Delete the shared object referred to by this representation if all
+        // the shared references to the shared object are released.  Note that
+        // the first argument is ignored.  Also note that this function serves
+        // as the managed ptr deleter when converting a 'bsl::shared_ptr' to a
+        // 'bslma::ManagedPtr'.
 
     // CREATORS
     SharedPtrRep();
-        // Create a 'SharedPtrRep' object having one shared reference and
-        // no weak references.
+        // Create a 'SharedPtrRep' object having one shared reference and no
+        // weak references.
 
     // MANIPULATORS
     void acquireRef();
@@ -369,8 +367,8 @@ class SharedPtrRep {
         // '0 < numReferences()'.
 
     void releaseWeakRef();
-        // Atomically release a weak reference to the shared object referred
-        // to by this representation, disposing of this representation if all
+        // Atomically release a weak reference to the shared object referred to
+        // by this representation, disposing of this representation if all
         // (shared and weak) references to the shared object are released.  The
         // behavior is undefined unless '0 < numWeakReferences()'.
 
@@ -386,9 +384,9 @@ class SharedPtrRep {
         // references stored by this representation to the specified
         // 'numSharedReferences' and 'numWeakReferences' respectively.  This
         // function is *not* thread-safe and users must ensure that they
-        // serialize access to the 'SharedPtrRep' object when calling
-        // this function.  Note that this function updates the counts, but does
-        // not dispose of the representation or the object irrespective of the
+        // serialize access to the 'SharedPtrRep' object when calling this
+        // function.  Note that this function updates the counts, but does not
+        // dispose of the representation or the object irrespective of the
         // values of 'numSharedReferences' and 'numWeakReferences'.
 
     virtual void disposeRep() = 0;
@@ -422,8 +420,8 @@ class SharedPtrRep {
         // the shared object referred to by this representation object.
 
     int numWeakReferences() const;
-        // Return a "snapshot" of the current number of weak references to
-        // the shared object referred to by this representation object.
+        // Return a "snapshot" of the current number of weak references to the
+        // shared object referred to by this representation object.
 
     bool hasUniqueOwner() const;
         // Return 'true' if there is only one shared reference and no weak

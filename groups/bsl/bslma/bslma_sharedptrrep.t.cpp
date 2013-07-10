@@ -139,7 +139,7 @@ class MyTestImplementation : public bslma::SharedPtrRep{
     bool getNumObjectDisposed();
     virtual void *originalPtr() const;
 
-    // MUTATORS
+    // MANIPULATORS
     virtual void disposeRep();
     virtual void disposeObject();
 };
@@ -151,30 +151,37 @@ class MyTestImplementation : public bslma::SharedPtrRep{
 // CREATORS
 MyTestImplementation::MyTestImplementation()
 : d_numRepDisposed(0)
-, d_numObjectDisposed(0) {
+, d_numObjectDisposed(0)
+{
 }
 
-bool MyTestImplementation::getNumRepDisposed() {
+bool MyTestImplementation::getNumRepDisposed()
+{
     return d_numRepDisposed;
 }
 
 // ACCESSORS
-bool MyTestImplementation::getNumObjectDisposed() {
+bool MyTestImplementation::getNumObjectDisposed()
+{
     return d_numObjectDisposed;
 }
-void *MyTestImplementation::originalPtr() const {
+
+void *MyTestImplementation::originalPtr() const
+{
    return NULL;
 }
 
-// MUTATORS
-void MyTestImplementation::disposeRep() {
+// MANIPULATORS
+void MyTestImplementation::disposeRep()
+{
     // The implementation of this method allows verification on whether
     // 'disposeRep' is called or not.
 
     ++d_numRepDisposed;
 }
 
-void MyTestImplementation::disposeObject() {
+void MyTestImplementation::disposeObject()
+{
     // The implementation of this method allows verification on whether
     // 'disposeObject' is called or not.
 
@@ -200,9 +207,9 @@ class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
                             int               year,
                             int               month,
                             int               day);
-        // Create a shared representation of a 'bdet_Datetime' object
-        // having the specified 'year', 'month' and 'day' using the
-        // specified 'basicAllocator' to allocate memory.
+        // Create a shared representation of a 'bdet_Datetime' object having
+        // the specified 'year', 'month' and 'day' using the specified
+        // 'basicAllocator' to allocate memory.
 
     // MANIPULATORS
     virtual void disposeRep();
@@ -213,12 +220,10 @@ class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
 
     // ACCESSORS
     bdet_Datetime *ptr();
-        // Returns a modifiable pointer to the managed 'bdet_Datetime'
-        // object.
+        // Returns a modifiable pointer to the managed 'bdet_Datetime' object.
 
     virtual void *originalPtr() const;
-        // Returns a void pointer to the to the managed 'bdet_Datetime'
-        // object;
+        // Returns a void pointer to the to the managed 'bdet_Datetime' object;
 };
 
 
@@ -261,7 +266,7 @@ class MySharedDatetime {
     // shared ownership of a 'bdet_Datetime' object.
 
   private:
-    bdet_Datetime      *d_ptr_p;  // pointer to the managed object
+    bdet_Datetime       *d_ptr_p;  // pointer to the managed object
     bslma::SharedPtrRep *d_rep_p;  // pointer to the representation object
 
   public:
@@ -274,12 +279,12 @@ class MySharedDatetime {
         // 'ptr' and the specified 'rep.
 
     MySharedDatetime(const MySharedDatetime& original);
-        // Create a shared datetime that refers to the same object managed
-        // by the specified 'original'
+        // Create a shared datetime that refers to the same object managed by
+        // the specified 'original'
 
     ~MySharedDatetime();
-        // Destroy this shared datetime and release the reference any
-        // object it might be referring to.
+        // Destroy this shared datetime and release the reference any object it
+        // might be referring to.
 
     // MANIPULATORS
     void createInplace(bslma::Allocator *basicAllocator,
@@ -288,20 +293,20 @@ class MySharedDatetime {
                        int               day);
         // Create a new 'MySharedDatetimeRepImpl', using the specified
         // 'basicAllocator' to supply memory, using the specified 'year',
-        // 'month' and 'day' to initialize the 'bdet_Datetime' within the
-        // newly created 'MySharedDatetimeRepImpl', and make this
-        // 'MySharedDatetime' refer to the newly created 'bdet_Datetime'.
+        // 'month' and 'day' to initialize the 'bdet_Datetime' within the newly
+        // created 'MySharedDatetimeRepImpl', and make this 'MySharedDatetime'
+        // refer to the newly created 'bdet_Datetime'.
 
     bdet_Datetime& operator*() const;
         // Return a modifiable reference to the shared datetime.
 
     bdet_Datetime *operator->() const;
-        // Return the address of the modifiable 'bdet_Datetime' to which
-        // this object refers.
+        // Return the address of the modifiable 'bdet_Datetime' to which this
+        // object refers.
 
     bdet_Datetime *ptr() const;
-        // Return the address of the modifiable 'bdet_Datetime' to which
-        // this object refers.
+        // Return the address of the modifiable 'bdet_Datetime' to which this
+        // object refers.
 };
 
                          // ----------------------
@@ -591,11 +596,11 @@ int main(int argc, char *argv[])
         //   and no weak reference.
         //
         // Plan:
-        //   Create an object and call 'releaseRef'.  Then verify that
-        //   both 'disposeObject' and 'disposeRep' is called.
-        //   Create another object and call 'acquireWeakRef' before calling
-        //   'releaseRef'.  Verify that only 'disposeObject' is called.  Then
-        //   call 'releaseWeakRef' and verify that 'disposeRep' is called.
+        //   Create an object and call 'releaseRef'.  Then verify that both
+        //   'disposeObject' and 'disposeRep' is called.  Create another object
+        //   and call 'acquireWeakRef' before calling 'releaseRef'.  Verify
+        //   that only 'disposeObject' is called.  Then call 'releaseWeakRef'
+        //   and verify that 'disposeRep' is called.
         //
         // Testing:
         //   void disposeObject();
@@ -651,8 +656,8 @@ int main(int argc, char *argv[])
         //   count correctly.
         //
         // Plan:
-        //   Call 'acquireRef' then 'releaseRef' and verify 'numReference'
-        //   did not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
+        //   Call 'acquireRef' then 'releaseRef' and verify 'numReference' did
+        //   not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
         //   verify 'numWeakReference' did not change.
         //
         // Testing:

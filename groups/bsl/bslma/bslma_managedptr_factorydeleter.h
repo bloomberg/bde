@@ -21,7 +21,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // that will destroy an object of a parameterized type, using a factory of
 // another parameterized type that provides a 'deleteObject' method.
 
-#ifndef INCLUDED_BDESCM_VERSION
+#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
@@ -41,6 +41,7 @@ struct ManagedPtr_FactoryDeleter {
     // This utility provides a general deleter for objects that provide
     // a 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdema_Pool').
 
+    // CLASS METHODS
     static void deleter(void *object, void *factory);
         // Deleter function that deletes the specified 'object' by invoking
         // 'deleteObject' on the specified 'factory', casting 'object' to

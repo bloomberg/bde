@@ -45,23 +45,23 @@ namespace bslma {
                      // ==============================
 
 class ManagedPtr_Members {
-    // Non-type-specific managed pointer member variables.  This type exists
-    // so that a 'ManagedPtr_Ref' can point to the representation of a
-    // 'ManagedPtr' even if the '_Ref' object is instantiated on a
-    // different type than the managed pointer type (e.g., in the case of
-    // conversions or aliasing).  'ManagerPtr_Members' also "erases" the
-    // types of each member, so that the same object code can be shared between
-    // multiple instantiations of the 'ManagedPtr' class template,
-    // reducing template bloat.  Note that objects of this type may have an
-    // "unset" state, where the 'd_obj_p' pointer has a null value, and the
-    // 'd_deleter' member does not have a specified value.  If 'd_obj_p' has
-    // a null pointer value, then this object must be in an unset state.
+    // Non-type-specific managed pointer member variables.  This type exists so
+    // that a 'ManagedPtr_Ref' can point to the representation of a
+    // 'ManagedPtr' even if the '_Ref' object is instantiated on a different
+    // type than the managed pointer type (e.g., in the case of conversions or
+    // aliasing).  'ManagerPtr_Members' also "erases" the types of each member,
+    // so that the same object code can be shared between multiple
+    // instantiations of the 'ManagedPtr' class template, reducing template
+    // bloat.  Note that objects of this type may have an "unset" state, where
+    // the 'd_obj_p' pointer has a null value, and the 'd_deleter' member does
+    // not have a specified value.  If 'd_obj_p' has a null pointer value, then
+    // this object must be in an unset state.
 
   private:
     // PRIVATE TYPES
     typedef ManagedPtrDeleter::Deleter DeleterFunc;
 
-    void              *d_obj_p;     // pointer to the managed instance.
+    void              *d_obj_p;     // pointer to the managed object.
                                     // A pointer to void is used so that this
                                     // single (non-template) class may be used
                                     // for any instantiation of the
@@ -74,49 +74,46 @@ class ManagedPtr_Members {
     ManagedPtr_Members& operator=(const ManagedPtr_Members&);
 
   public:
-    //CREATORS
-
+    // CREATORS
     ManagedPtr_Members();
         // Create a 'ManagedPtr_Members' object in an unset state.  Sets
         // 'pointer' to 0.
 
     explicit ManagedPtr_Members(ManagedPtr_Members& other);
-        // Create a 'ManagedPtr_Members' object having the same 'pointer'
-        // as the specified 'other' object, and, if 'pointer' is not 0, the
-        // same deleter as 'other', and then put 'other' into an unset state.
+        // Create a 'ManagedPtr_Members' object having the same 'pointer' as
+        // the specified 'other' object, and, if 'pointer' is not 0, the same
+        // deleter as 'other', and then put 'other' into an unset state.
 
     ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
-        // If 'object' is 0, create a 'ManagedPtr_Members' object that
-        // does not manage a pointer; otherwise create a
-        // 'ManagedPtr_Members' object having the specified 'object',
-        // 'factory' and 'deleter'.
+        // If 'object' is 0, create a 'ManagedPtr_Members' object that does not
+        // manage a pointer; otherwise create a 'ManagedPtr_Members' object
+        // having the specified 'object', 'factory' and 'deleter'.
 
     ManagedPtr_Members(void        *object,
                        void        *factory,
                        DeleterFunc  deleter,
                        void        *alias);
-        // If 'object' is 0, create a 'ManagedPtr_Members' object that
-        // does not manage a pointer; otherwise create a
-        // 'ManagedPtr_Members' object having the specified 'object',
-        // 'factory' and 'deleter', but aliasing 'alias'.  Note that this
-        // constructor is important for managed pointers pointing to one of
-        // multiple base classes of a class using multiple inheritance.
+        // If 'object' is 0, create a 'ManagedPtr_Members' object that does not
+        // manage a pointer; otherwise create a 'ManagedPtr_Members' object
+        // having the specified 'object', 'factory' and 'deleter', but aliasing
+        // 'alias'.  Note that this constructor is important for managed
+        // pointers pointing to one of multiple base classes of a class using
+        // multiple inheritance.
 
     //! ~ManagedPtr_Members() = default;
-        // Destroy this 'ManagedPtr_Members' object.  Note that this
-        // trivial destructor's definition is compiler generated.
+        // Destroy this 'ManagedPtr_Members' object.  Note that this trivial
+        // destructor's definition is compiler generated.
 
-    //MANIPULATORS
-
+    // MANIPULATORS
     void clear();
         // Reset this object to an unset state.  Note that any previously
         // managed object will not be destroyed.
 
     void move(ManagedPtr_Members *other);
-        // Re-initialize this object,  having the same 'pointer'
-        // as the specified 'other' object, and, if 'pointer' is not 0, the
-        // same deleter as 'other', and then put 'other' into an unset set.
-        // Note that any previously managed object will not be destroyed.
+        // Re-initialize this object,  having the same 'pointer' as the
+        // specified 'other' object, and, if 'pointer' is not 0, the same
+        // deleter as 'other', and then put 'other' into an unset set.  Note
+        // that any previously managed object will not be destroyed.
 
     void moveAssign(ManagedPtr_Members *other);
         // Destroy the currently managed object (if any) unless the specified
@@ -126,14 +123,13 @@ class ManagedPtr_Members {
         // 'other' into an unset set.
 
     void set(void *object, void *factory, DeleterFunc deleter);
-        // Re-initialize this object with the specified 'object' pointer
-        // value, and the specified 'deleter' function, using the specified
-        // 'factory'.  Note that any previously managed object will not be
-        // destroyed.
+        // Re-initialize this object with the specified 'object' pointer value,
+        // and the specified 'deleter' function, using the specified 'factory'.
+        // Note that any previously managed object will not be destroyed.
 
     void setAliasPtr(void *ptr);
-        // Set 'pointer' to have the specified 'ptr' value.  If 'ptr' is 0
-        // then this object will have an unset state.
+        // Set 'pointer' to have the specified 'ptr' value.  If 'ptr' is 0 then
+        // this object will have an unset state.
 
     void swap(ManagedPtr_Members& other);
         // Efficiently exchange the state of this object with the state of the
@@ -142,7 +138,7 @@ class ManagedPtr_Members {
         // unset state, there are no guarantees about the unset state that may
         // be exchanged, other than 'pointer' shall be null.
 
-    //ACCESSORS
+    // ACCESSORS
     void runDeleter() const;
         // Destroy the currently managed object(if any).  Note that calling
         // this method twice without assigning a new pointer to manage will
@@ -153,9 +149,9 @@ class ManagedPtr_Members {
         // Return a pointer to the currently managed object.
 
     const ManagedPtrDeleter& deleter() const;
-        // Return the 'ManagedPtrDeleter' object that should be used to
-        // destroy the currently managed object, if any.  Behavior is
-        // undefined unless 'pointer' is not null.
+        // Return the 'ManagedPtrDeleter' object that should be used to destroy
+        // the currently managed object, if any.  Behavior is undefined unless
+        // 'pointer' is not null.
 };
 
 // ============================================================================

@@ -107,7 +107,7 @@ void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 enum { TEST_ALLOCATOR_DELETER =
-   bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<bslma::Allocator *>::VALUE
+  bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<bslma::Allocator *>::VALUE
 };
 
 // TEST IMPLEMENTATION (defined below)
@@ -147,15 +147,18 @@ class MyTestObject{
                          // ------------------
 // CREATORS
 MyTestObject::MyTestObject()
-: d_data(0) {
+: d_data(0)
+{
 }
 
-MyTestObject::~MyTestObject() {
+MyTestObject::~MyTestObject()
+{
     ++d_deleteCounter;
 }
 
 // ACCESSORS
-int MyTestObject::getNumDeletes() {
+int MyTestObject::getNumDeletes()
+{
     return d_deleteCounter;
 }
 
@@ -176,7 +179,8 @@ struct MyDeleteFunctor {
     }
 };
 
-void myDeleteFunction(MyTestObject *object) {
+void myDeleteFunction(MyTestObject *object)
+{
     // Delete the specified 'object'.
     delete object;
 }
@@ -275,8 +279,8 @@ class MyTestFactory {
     // MANIPULATORS
     MyTestObject *createObject(bslma::Allocator *basicAllocator = 0) {
         // Create a 'MyTestObject' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
         return new MyTestObject();
     }
 
@@ -292,8 +296,8 @@ class MyTestFactory {
                               // ================
 
 class MySharedDatetime {
-    // This class provide a reference counted smart pointer to support
-    // shared ownership of a 'bdet_Datetime' object.
+    // This class provide a reference counted smart pointer to support shared
+    // ownership of a 'bdet_Datetime' object.
 
   private:
     bdet_Datetime      *d_ptr_p;  // pointer to the managed object
@@ -311,12 +315,12 @@ class MySharedDatetime {
         // Dereference the shared Datetime
 
     bdet_Datetime *operator->() const;
-        // Return address of the modifiable 'bdet_Datetime' referred to by
-        // this class.
+        // Return address of the modifiable 'bdet_Datetime' referred to by this
+        // class.
 
     bdet_Datetime *ptr() const;
-        // Return address of the modifiable 'bdet_Datetime' referred to by
-        // this class.
+        // Return address of the modifiable 'bdet_Datetime' referred to by this
+        // class.
 };
 
                               // ----------------
@@ -327,7 +331,8 @@ MySharedDatetime::MySharedDatetime(bdet_Datetime    *ptr,
                                    bslma::Allocator *basicAllocator)
 {
     d_ptr_p = ptr;
-    d_rep_p = bslma::SharedPtrOutofplaceRep<bdet_Datetime, bslma::Allocator *>::
+    d_rep_p = bslma::SharedPtrOutofplaceRep<bdet_Datetime,
+                                            bslma::Allocator *>::
                         makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 }
 
@@ -425,7 +430,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Construct bslma::SharedPtrOutofplaceRep using each of the
         //   constructor and call releaseRef() to remove the last reference and
-        //   check the that destructor fo the object is called.
+        //   check the that destructor for the object is called.
         //
         // Testing:
         //   bslma::SharedPtrOutofplaceRep(
@@ -476,21 +481,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Factory Deleter"
                             "\n-----------------------\n");
         {
-            enum { DELETER_TYPE =
-              bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyTestFactory*>
-              ::VALUE };
+            enum { DELETER_TYPE = bslma::
+                                   SharedPtrOutofplaceRep_DeleterDiscriminator<
+                                                        MyTestFactory *>::VALUE
+            };
 
             MyTestFactory *factory = new(ta) MyTestFactory();
 
 
-            TObj *t = factory->createObject();
-            bslma::SharedPtrOutofplaceRep<MyTestObject, MyTestFactory *> *xPtr =
-                   bslma::SharedPtrOutofplaceRep<MyTestObject, MyTestFactory*>::
-                   makeOutofplaceRep(t, factory, &ta);
-            bslma::SharedPtrOutofplaceRep<MyTestObject, MyTestFactory *>& x =
-                                                                         *xPtr;
-            const bslma::SharedPtrOutofplaceRep<MyTestObject, MyTestFactory *>&
-                                                                         X = x;
+            typedef bslma::SharedPtrOutofplaceRep<MyTestObject,
+                                                  MyTestFactory *> TestRep;
+            TObj     *t    = factory->createObject();
+            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, factory, &ta);
+            TestRep&  x    = *xPtr;   const TestRep& X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -505,17 +508,18 @@ int main(int argc, char *argv[])
                             "\n------------------------\n");
         {
             enum { DELETER_TYPE =
-              bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<DeleteFunction>
-              ::VALUE };
+             bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<DeleteFunction>
+                                                                        ::VALUE
+            };
+
+            typedef bslma::SharedPtrOutofplaceRep<MyTestObject, DeleteFunction>
+                                                                       TestRep;
 
             TObj *t = new TObj();
-            bslma::SharedPtrOutofplaceRep<MyTestObject, DeleteFunction> *xPtr =
-                   bslma::SharedPtrOutofplaceRep<MyTestObject, DeleteFunction>::
-                   makeOutofplaceRep(t, myDeleteFunction, &ta);
-            bslma::SharedPtrOutofplaceRep<MyTestObject, DeleteFunction >& x =
-                                                                         *xPtr;
-            const bslma::SharedPtrOutofplaceRep<MyTestObject, DeleteFunction >&
-                                                                         X = x;
+            TestRep *xPtr = TestRep::makeOutofplaceRep(t,
+                                                       myDeleteFunction,
+                                                       &ta);
+            TestRep&  x    = *xPtr;   const TestRep& X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -531,18 +535,16 @@ int main(int argc, char *argv[])
                             "\n-------------------------------------\n");
         {
             enum { DELETER_TYPE =
-             bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyDeleteFunctor>
-             ::VALUE };
+            bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyDeleteFunctor>
+                                                                        ::VALUE
+            };
 
-            TObj *t = new TObj();
+            typedef bslma::SharedPtrOutofplaceRep<MyTestObject,
+                                                  MyDeleteFunctor> TestRep;
             MyDeleteFunctor deleteFunctor;
-            bslma::SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor> *xPtr=
-                  bslma::SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor>::
-                  makeOutofplaceRep(t, deleteFunctor, &ta);
-            bslma::SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor >& x =
-                                                                         *xPtr;
-            const bslma::SharedPtrOutofplaceRep<MyTestObject, MyDeleteFunctor >&
-                                                                         X = x;
+            TObj     *t = new TObj();
+            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, deleteFunctor, &ta);
+            TestRep&  x    = *xPtr;   const TestRep& X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -556,22 +558,18 @@ int main(int argc, char *argv[])
                             "\n----------------------------------\n");
         {
             enum { DELETER_TYPE =
-          bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyAllocTestDeleter>
-          ::VALUE };
+                            bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<
+                                                     MyAllocTestDeleter>::VALUE
+            };
 
             TObj* t = new(ta) TObj();
             MyAllocTestDeleter deleteFunctor(&ta, &ta);
 
-            bslma::SharedPtrOutofplaceRep<MyTestObject, MyAllocTestDeleter>
-               *xPtr = bslma::SharedPtrOutofplaceRep<MyTestObject,
-                                                    MyAllocTestDeleter>::
-                                      makeOutofplaceRep(t, deleteFunctor, &ta);
+            typedef bslma::SharedPtrOutofplaceRep<MyTestObject,
+                                                  MyAllocTestDeleter>  TestRep;
 
-            bslma::SharedPtrOutofplaceRep<MyTestObject, MyAllocTestDeleter>& x =
-                                                                         *xPtr;
-
-            const bslma::SharedPtrOutofplaceRep<MyTestObject,
-                                               MyAllocTestDeleter>& X = x;
+            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, deleteFunctor, &ta);
+            TestRep&  x    = *xPtr;   const TestRep& X = x;
 
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
@@ -587,20 +585,22 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
-        //   count correctly.
+        //      count correctly.
         //   2) disposeObject() is called when there is no shared reference.
         //   3) disposeRep() is called only when there is no shared reference
-        //   and no weak reference.
+        //      and no weak reference.
         //
         // Plan:
         //   1) Call 'acquireRef' then 'releaseRef' and verify 'numReference'
-        //   did not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
-        //   verify 'numWeakReference' did not change.
+        //      did not change.  Call 'acquireWeakRef' then 'releaseWeakRef'
+        //      and verify 'numWeakReference' did not change.
         //   2) Call 'releaseRef' when there is only one reference remaining.
-        //   Then verify that both 'disposeObject' and 'disposeRep' is called.
+        //      Then verify that both 'disposeObject' and 'disposeRep' is
+        //      called.
         //   3) Create another object and call 'acquireWeakRef' before calling
-        //   'releaseRef'.  Verify that only 'disposeObject' is called.  Then
-        //   call 'releaseWeakRef' and verify that 'disposeRep' is called.
+        //      'releaseRef'.  Verify that only 'disposeObject' is called.
+        //      Then call 'releaseWeakRef' and verify that 'disposeRep' is
+        //      called.
         //
         // Testing:
         //   void releaseRef();
@@ -685,7 +685,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Construct bslma::SharedPtrOutofplaceRep using each of the
         //   constructor and call releaseRef() to remove the last reference and
-        //   check the that destructor fo the object is called.
+        //   check the that destructor for the object is called.
         //
         // Testing:
         //   bslma::SharedPtrOutofplaceRep(

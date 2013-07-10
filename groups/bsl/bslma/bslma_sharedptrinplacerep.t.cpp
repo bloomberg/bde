@@ -26,21 +26,21 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrInplaceRep
 //------------------------
-// [ 2] bslma::SharedPtrInplaceRep(bslma::Allocator *basicAllocator);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1& a1);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a2);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a3);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a4);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a5);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a6);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a7);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a8);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a9);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a10);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a11);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a12);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a13);
-// [ 3] bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, const A1...a14);
+// [ 2] SharedPtrInplaceRep(bslma::Allocator *basicAllocator);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1& a1);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a2);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a3);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a4);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a5);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a6);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a7);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a8);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a9);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a10);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a11);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a12);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a13);
+// [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a14);
 // [ 2] TYPE *ptr();
 // [ 2] void disposeRep();
 // [ 4] void disposeObject();
@@ -379,8 +379,8 @@ int MyInplaceTestObject::d_numDeletes = 0;
                               // ================
 
 class MySharedDatetime {
-    // This class provide a reference counted smart pointer to support
-    // shared ownership of a 'bdet_Datetime' object.
+    // This class provide a reference counted smart pointer to support shared
+    // ownership of a 'bdet_Datetime' object.
 
   private:
     bdet_Datetime      *d_ptr_p;  // pointer to the managed object
@@ -400,13 +400,13 @@ class MySharedDatetime {
         // 'ptr' and the specified 'rep.
 
     MySharedDatetime(const MySharedDatetime& original);
-        // Create a shared datetime that refers to the same object managed
-        // by the specified 'original'
+        // Create a shared datetime that refers to the same object managed by
+        // the specified 'original'
 
     ~MySharedDatetime();
-        // Destroy this shared datetime and release the reference any
-        // object it might be referring to.  If this is the last shared
-        // reference, deleted the managed object.
+        // Destroy this shared datetime and release the reference any object it
+        // might be referring to.  If this is the last shared reference,
+        // deleted the managed object.
 
     // MANIPULATORS
     void createInplace(bslma::Allocator *allocator,
@@ -414,22 +414,21 @@ class MySharedDatetime {
                        int               month,
                        int               day);
         // Create a new 'MySharedDatetimeRepImpl', using the specified
-        // 'allocator' to supply memory, using the specified 'year',
-        // 'month' and 'day' to initialize the 'bdet_Datetime' within the
-        // newly created 'MySharedDatetimeRepImpl', and make this
-        // 'MySharedDatetime' refer to the 'bdet_Datetime'.
+        // 'allocator' to supply memory, using the specified 'year', 'month'
+        // and 'day' to initialize the 'bdet_Datetime' within the newly created
+        // 'MySharedDatetimeRepImpl', and make this 'MySharedDatetime' refer to
+        // the 'bdet_Datetime'.
 
     bdet_Datetime& operator*() const;
-        // Return a modifiable reference to the shared 'bdet_Datetime'
-        // object.
+        // Return a modifiable reference to the shared 'bdet_Datetime' object.
 
     bdet_Datetime *operator->() const;
-        // Return the address of the modifiable 'bdet_Datetime' to which
-        // this object refers.
+        // Return the address of the modifiable 'bdet_Datetime' to which this
+        // object refers.
 
     bdet_Datetime *ptr() const;
-        // Return the address of the modifiable 'bdet_Datetime' to which
-        // this object refers.
+        // Return the address of the modifiable 'bdet_Datetime' to which this
+        // object refers.
 };
 
                               // ----------------
@@ -559,20 +558,22 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
-        //   count correctly.
+        //      count correctly.
         //   2) disposeObject() is called when there is no shared reference.
         //   3) disposeRep() is called only when there is no shared reference
-        //   and no weak reference.
+        //      and no weak reference.
         //
         // Plan:
         //   1) Call 'acquireRef' then 'releaseRef' and verify 'numReference'
-        //   did not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
-        //   verify 'numWeakReference' did not change.
+        //      did not change.  Call 'acquireWeakRef' then 'releaseWeakRef'
+        //      and verify 'numWeakReference' did not change.
         //   2) Call 'releaseRef' when there is only one reference remaining.
-        //   Then verify that both 'disposeObject' and 'disposeRep' is called.
+        //      Then verify that both 'disposeObject' and 'disposeRep' is
+        //      called.
         //   3) Create another object and call 'acquireWeakRef' before calling
-        //   'releaseRef'.  Verify that only 'disposeObject' is called.  Then
-        //   call 'releaseWeakRef' and verify that 'disposeRep' is called.
+        //      'releaseRef'.  Verify that only 'disposeObject' is called.
+        //      Then call 'releaseWeakRef' and verify that 'disposeRep' is
+        //      called.
         //
         // Testing:
         //   void releaseRef();

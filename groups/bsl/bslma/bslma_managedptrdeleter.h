@@ -47,17 +47,13 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
-
-//#ifndef INCLUDED_BSLALG_TYPETRAITS
-//#include <bslalg_typetraits.h>
-//#endif
 
 //#ifndef INCLUDED_BSL_IOSFWD
 //#include <bsl_iosfwd.h>
@@ -78,9 +74,9 @@ class ManagedPtrDeleter {
     // through the 'set' method.  It is stored in a sub-structure to allow the
     // compiler to copy it more efficiently.
 
-    //See the Attributes section under @DESCRIPTION in the
-    // component-level documentation.  Note that the class invariants are
-    // identically the constraints on the individual attributes.
+    // See the Attributes section under @DESCRIPTION in the component-level
+    // documentation.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -103,17 +99,17 @@ class ManagedPtrDeleter {
   public:
     // CREATORS
     ManagedPtrDeleter();
-        // Create an uninitialized 'ManagedPtrDeleter' object that does
-        // not refer to any object or factory instance.
+        // Create an uninitialized 'ManagedPtrDeleter' object that does not
+        // refer to any object or factory instance.
 
     //! ManagedPtrDeleter(const ManagedPtrDeleter& original);
-        // Create a 'ManagedPtrDeleter' object having the same value as
-        // the specified 'original' object.  Note that this trivial copy
+        // Create a 'ManagedPtrDeleter' object having the same value as the
+        // specified 'original' object.  Note that this trivial copy
         // constructor's definition is compiler generated.
 
     ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
-        // Create a 'ManagedPtrDeleter' struct that refers to the object
-        // and factory instance located at the specified 'object' and 'factory'
+        // Create a 'ManagedPtrDeleter' struct that refers to the object and
+        // factory instance located at the specified 'object' and 'factory'
         // memory locations, and the specified 'deleter'.  The behavior is
         // undefined unless 'deleter' is either 0, or points to a function
         // whose behavior is also defined if called once with 'object' and
@@ -131,9 +127,9 @@ class ManagedPtrDeleter {
         // generated.
 
     void set(void *object, void *factory, Deleter deleter);
-        // Set this 'ManagedPtrDeleter' to refer to the object and
-        // factory instance located at the specified 'object' and 'factory'
-        // memory locations, and to the specified 'deleter'.  The behavior is
+        // Set this 'ManagedPtrDeleter' to refer to the object and factory
+        // instance located at the specified 'object' and 'factory' memory
+        // locations, and to the specified 'deleter'.  The behavior is
         // undefined unless 'deleter' is either 0, or points to a function
         // whose behavior is also defined if called once with 'object' and
         // 'factory' as arguments.
@@ -161,17 +157,17 @@ class ManagedPtrDeleter {
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to 'stream'.
         // Optionally specify an initial indentation 'level', whose absolute
         // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute
-        // value indicates the number of spaces per indentation level for this
-        // and all of its nested objects.  If 'level' is negative, suppress
+        // specified, optionally specify 'spacesPerLevel', whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If 'level' is negative, suppress
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  Note that the
-        // format is not fully specified, and can change without notice.
+        // initial indentation (as governed by 'level').  Note that the format
+        // is not fully specified, and can change without notice.
 #endif
 };
 

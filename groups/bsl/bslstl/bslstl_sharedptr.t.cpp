@@ -9,12 +9,11 @@
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
-
-#include <bsls_asserttest.h>
-#include <bsls_bsltestutil.h>
 
 // Look what the usage examples drag in...
 #include <bslstl_deque.h>
@@ -286,7 +285,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_1 {
         // DATA
         bsl::string d_name;
         int         d_id;
-  
+
       public:
         // CREATORS
         MyUser(bslma::Allocator *alloc = 0) : d_name(alloc), d_id(0) {}
@@ -300,11 +299,11 @@ namespace NAMESPACE_USAGE_EXAMPLE_1 {
         , d_id(original.d_id)
         {
         }
-  
+
         // MANIPULATORS
         void setName(const bsl::string& name) { d_name = name; }
         void setId(int id) { d_id = id; }
-  
+
         // ACCESSORS
         const bsl::string& name() const { return d_name; }
         int id() const { return d_id; }
@@ -362,10 +361,10 @@ namespace NAMESPACE_USAGE_EXAMPLE_2 {
 // shared pointer, but the object being passed is not owned by the caller
 // (e.g., a pointer to a static variable).  In these cases, it is possible to
 // create a shared pointer specifying 'bslstl::SharedPtrNilDeleter' as the
-// deleter.  The deleter function provided by 'bslstl::SharedPtrNilDeleter' is a
-// no-op and does not delete the object.  The following example demonstrates
-// the use of 'bsl::shared_ptr' using a 'bslstl::SharedPtrNilDeleter'.  The code
-// uses the 'MyUser' class defined in Example 1.  In this example, an
+// deleter.  The deleter function provided by 'bslstl::SharedPtrNilDeleter' is
+// a no-op and does not delete the object.  The following example demonstrates
+// the use of 'bsl::shared_ptr' using a 'bslstl::SharedPtrNilDeleter'.  The
+// code uses the 'MyUser' class defined in Example 1.  In this example, an
 // asynchronous transaction manager is implemented.  Transactions are enqueued
 // into the transaction manager to be processed at some later time.  The user
 // associated with the transaction is passed as a shared pointer.  Transactions
@@ -376,22 +375,22 @@ namespace NAMESPACE_USAGE_EXAMPLE_2 {
     class MyTransactionInfo {
         // Transaction Info...
     };
-  
+
     class MyTransactionManager {
-  
+
         // PRIVATE MANIPULATORS
         int enqueueTransaction(bsl::shared_ptr<MyUser>  user,
                                const MyTransactionInfo& transaction);
       public:
         // CLASS METHODS
         static MyUser *systemUser(bslma::Allocator *basicAllocator = 0);
-  
+
         // MANIPULATORS
         int enqueueSystemTransaction(const MyTransactionInfo& transaction);
-  
+
         int enqueueUserTransaction(const MyTransactionInfo& transaction,
                                    bsl::shared_ptr<MyUser>  user);
-  
+
     };
 //..
 // The 'systemUser' class method returns the same 'MyUser' object and should
@@ -403,7 +402,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_2 {
         if (!systemUserSingleton) {
             // instantiate singleton in a thread-safe manner passing
             // 'basicAllocator'
-  
+
             // . . .
         }
         return systemUserSingleton;
@@ -420,14 +419,14 @@ namespace NAMESPACE_USAGE_EXAMPLE_2 {
         return enqueueTransaction(user, transaction);
     }
 //..
-// For system transactions, we must use the 'MyUser' objected returned from
-// the 'systemUser' 'static' method.  Since we do not own the returned object,
-// we cannot directly construct a 'bsl::shared_ptr' object for it: doing so
-// would result in the singleton being destroyed when the last reference to
-// the shared pointer is released.  To solve this problem, we construct a
-// 'bsl::shared_ptr' object for the system user using a nil deleter.  When
-// the last reference to the shared pointer is released, although the deleter
-// will be invoked to destroy the object, it will do nothing.
+// For system transactions, we must use the 'MyUser' objected returned from the
+// 'systemUser' 'static' method.  Since we do not own the returned object, we
+// cannot directly construct a 'bsl::shared_ptr' object for it: doing so would
+// result in the singleton being destroyed when the last reference to the
+// shared pointer is released.  To solve this problem, we construct a
+// 'bsl::shared_ptr' object for the system user using a nil deleter.  When the
+// last reference to the shared pointer is released, although the deleter will
+// be invoked to destroy the object, it will do nothing.
 //..
     int MyTransactionManager::enqueueSystemTransaction(
                                           const MyTransactionInfo& transaction)
@@ -446,37 +445,37 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
 //
 ///Example 3 - Custom Deleters
 /// -  -  -  -  -  -  -  -  -
-// The role of a "deleter" is to allow users to define a custom "cleanup"
-// for a shared object.  Although cleanup generally involves destroying the
-// object, this need not be the case.  The following example demonstrates the
-// use of a custom deleter to construct "locked" pointers.  First we declare a
-// custom deleter that, when invoked, releases the specified mutex and signals
-// the specified condition variable.
+// The role of a "deleter" is to allow users to define a custom "cleanup" for a
+// shared object.  Although cleanup generally involves destroying the object,
+// this need not be the case.  The following example demonstrates the use of a
+// custom deleter to construct "locked" pointers.  First we declare a custom
+// deleter that, when invoked, releases the specified mutex and signals the
+// specified condition variable.
 //..
     class my_MutexUnlockAndBroadcastDeleter {
-  
+
         // DATA
         bcemt_Mutex     *d_mutex_p;  // mutex to lock (held, not owned)
         bcemt_Condition *d_cond_p;   // condition variable used to broadcast
                                      // (held, not owned)
-  
+
       public:
         // CREATORS
         my_MutexUnlockAndBroadcastDeleter(bcemt_Mutex     *mutex,
                                           bcemt_Condition *cond)
-            // Create this 'my_MutexUnlockAndBroadcastDeleter' object.  Use
-            // the specified 'cond' to broadcast a signal and the specified
-            // 'mutex' to serialize access to 'cond'.  The behavior is
-            // undefined unless 'mutex' is not 0 and 'cond' is not 0.
+            // Create this 'my_MutexUnlockAndBroadcastDeleter' object.  Use the
+            // specified 'cond' to broadcast a signal and the specified 'mutex'
+            // to serialize access to 'cond'.  The behavior is undefined unless
+            // 'mutex' is not 0 and 'cond' is not 0.
         : d_mutex_p(mutex)
         , d_cond_p(cond)
         {
             BSLS_ASSERT(mutex);
             BSLS_ASSERT(cond);
-  
+
             d_mutex_p->lock();
         }
-  
+
         my_MutexUnlockAndBroadcastDeleter(
                                    my_MutexUnlockAndBroadcastDeleter& original)
         : d_mutex_p(original.d_mutex_p)
@@ -507,23 +506,23 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
 //..
     template <class ELEMENT_TYPE>
     class my_SafeQueue {
-  
+
         // DATA
         bcemt_Mutex      d_mutex;
         bcemt_Condition  d_cond;
         bsl::deque<ELEMENT_TYPE> d_queue;
-  
+
         // . . .
-  
+
       public:
         // MANIPULATORS
         void push(const ELEMENT_TYPE& obj);
-  
+
         ELEMENT_TYPE pop();
-  
+
         bsl::shared_ptr<bsl::deque<ELEMENT_TYPE> > queue();
     };
-  
+
     template <class ELEMENT_TYPE>
     void my_SafeQueue<ELEMENT_TYPE>::push(const ELEMENT_TYPE& obj)
     {
@@ -531,7 +530,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
         d_queue.push_back(obj);
         d_cond.signal();
     }
-  
+
     template <class ELEMENT_TYPE>
     ELEMENT_TYPE my_SafeQueue<ELEMENT_TYPE>::pop()
     {
@@ -543,7 +542,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
         d_queue.pop_front();
         return value;
     }
-  
+
     template <class ELEMENT_TYPE>
     bsl::shared_ptr<bsl::deque<ELEMENT_TYPE> >
     my_SafeQueue<ELEMENT_TYPE>::queue()
@@ -572,10 +571,10 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
 ///Example 4 - Hidden Interfaces
 /// -  -  -  -  -  -  -  -  -  -
 // Example 4 demonstrates the use of incomplete types to hide the interface of
-// a 'my_Session' type.  We begin by declaring the 'my_SessionManager'
-// 'class', which allocates and manages 'my_Session' objects.  The
-// interface ('.h') merely forward declares 'my_Session'.  The actual
-// definition of the interface is in the implementation ('.cpp') file.
+// a 'my_Session' type.  We begin by declaring the 'my_SessionManager' 'class',
+// which allocates and manages 'my_Session' objects.  The interface ('.h')
+// merely forward declares 'my_Session'.  The actual definition of the
+// interface is in the implementation ('.cpp') file.
 //
 // We forward-declare 'my_Session' to be used (in name only) in the definition
 // of 'my_SessionManager':
@@ -585,16 +584,16 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
 // Next, we define the 'my_SessionManager' class:
 //..
     class my_SessionManager {
-  
+
         // TYPES
         typedef bsl::map<int, bsl::shared_ptr<my_Session> > HandleMap;
-  
+
         // DATA
         bcemt_Mutex       d_mutex;
         HandleMap         d_handles;
         int               d_nextSessionId;
         bslma::Allocator *d_allocator_p;
-  
+
 //..
 // It is useful to have a designated name for the 'bsl::shared_ptr' to
 // 'my_Session':
@@ -616,7 +615,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
         // MANIPULATORS
         my_Handle openSession(const bsl::string& sessionName);
         void closeSession(my_Handle handle);
-  
+
         // ACCESSORS
         bsl::string getSessionName(my_Handle handle) const;
     };
@@ -625,22 +624,22 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
 // 'my_Session' class:
 //..
     class my_Session {
-  
+
         // DATA
         bsl::string d_sessionName;
         int         d_handleId;
-  
+
       public:
         // CREATORS
         my_Session(const bsl::string&  sessionName,
                    int                 handleId,
                    bslma::Allocator   *basicAllocator = 0);
-  
+
         // ACCESSORS
         int handleId() const;
         const bsl::string& sessionName() const;
     };
-  
+
     // CREATORS
     inline
     my_Session::my_Session(const bsl::string&  sessionName,
@@ -650,14 +649,14 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
     , d_handleId(handleId)
     {
     }
-  
+
     // ACCESSORS
     inline
     int my_Session::handleId() const
     {
         return d_handleId;
     }
-  
+
     inline
     const bsl::string& my_Session::sessionName() const
     {
@@ -673,7 +672,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
     , d_allocator_p(bslma::Default::allocator(allocator))
     {
     }
-  
+
     inline
     my_SessionManager::my_Handle
     my_SessionManager::openSession(const bsl::string& sessionName)
@@ -685,7 +684,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
         d_handles[session->handleId()] = session;
         return session;
     }
-  
+
     inline
     void my_SessionManager::closeSession(my_Handle handle)
     {
@@ -695,7 +694,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_4 {
             d_handles.erase(it);
         }
     }
-  
+
     inline
     bsl::string my_SessionManager::getSessionName(my_Handle handle) const
     {
@@ -721,10 +720,10 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
 // In the interface, define 'my_SessionManager' as follows:
 //..
     class my_SessionManager {
-  
+
         // TYPES
         typedef bsl::map<int, bsl::shared_ptr<void> > HandleMap;
-  
+
         // DATA
         bcemt_Mutex       d_mutex;
         HandleMap         d_handles;
@@ -736,14 +735,14 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
        public:
         // TYPES
         typedef bsl::shared_ptr<void> my_Handle;
-  
+
         // CREATORS
         my_SessionManager(bslma::Allocator *allocator = 0);
-  
+
         // MANIPULATORS
         my_Handle openSession(const bsl::string& sessionName);
         void closeSession(my_Handle handle);
-  
+
         // ACCESSORS
         bsl::string getSessionName(my_Handle handle) const;
     };
@@ -757,7 +756,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
     , d_allocator_p(bslma::Default::allocator(allocator))
     {
     }
-  
+
     // MANIPULATORS
     inline
     my_SessionManager::my_Handle
@@ -778,7 +777,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
         d_handles[myhandle->handleId()] = session;
         return session;
     }
-  
+
     inline
     void my_SessionManager::closeSession(my_Handle handle)
     {
@@ -795,18 +794,18 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
         if (!myhandle.ptr()) {
             return;                                                   // RETURN
         }
-  
+
         HandleMap::iterator it = d_handles.find(myhandle->handleId());
         if (it != d_handles.end()) {
             d_handles.erase(it);
         }
     }
-  
+
     bsl::string my_SessionManager::getSessionName(my_Handle handle) const
     {
         bsl::shared_ptr<my_Session> myhandle =
                            bcema_SharedPtrUtil::staticCast<my_Session>(handle);
-  
+
         if (!myhandle.ptr()) {
             return bsl::string();
         } else {
@@ -818,7 +817,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
 //..
 #endif
 
-// Function definitions elided from usage examples, but rquiring definitions
+// Function definitions elided from usage examples, but requiring definitions
 // for the test driver to link.
 
 namespace NAMESPACE_USAGE_EXAMPLE_2 {
@@ -840,10 +839,10 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 // Weak pointers are frequently used to break cyclical dependencies between
 // objects that store references to each other via a shared pointer.  Consider
 // for example a simplified news alert system that sends news alerts to users
-// based on keywords that they register for.  The user information is stored
-// in the 'User' class and the details of the news alert are stored in the
-// 'Alert' class.  The class definitions for 'User' and 'Alert' are provided
-// below (with any code not relevant to this example elided):
+// based on keywords that they register for.  The user information is stored in
+// the 'User' class and the details of the news alert are stored in the 'Alert'
+// class.  The class definitions for 'User' and 'Alert' are provided below
+// (with any code not relevant to this example elided):
 //..
     class Alert;
 //
@@ -954,8 +953,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 // - - - - - - - - - - - - - - - - -
 // Suppose we want to implement a peer to peer file sharing system that allows
 // users to search for files that match specific keywords.  A simplistic
-// version of such a system with code not relevant to the usage example
-// elided would have the following parts:
+// version of such a system with code not relevant to the usage example elided
+// would have the following parts:
 //
 // a) A peer manager class that maintains a list of all connected peers and
 // updates the list based on incoming peer requests and disconnecting peers.
@@ -974,8 +973,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
         // DATA
 //..
-// The peer objects are stored by shared pointer to allow peers to be passed
-// to search results and still allow their asynchronous destruction when peers
+// The peer objects are stored by shared pointer to allow peers to be passed to
+// search results and still allow their asynchronous destruction when peers
 // disconnect.
 //..
         bsl::map<int, bsl::shared_ptr<Peer> > d_peers;
@@ -995,8 +994,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
 //..
 // Note that the cached peers are stored as a weak pointer so as not to
-// interfere with the cleanup of Peer objects by the PeerManager if a Peer
-// goes down.
+// interfere with the cleanup of Peer objects by the PeerManager if a Peer goes
+// down.
 //..
         // DATA
         bsl::list<bsl::weak_ptr<Peer> > d_cachedPeers;
@@ -1022,8 +1021,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
         // keywords.
 
 //..
-// The peer is stored as a weak pointer because when the user decides to
-// select a particular file to download from this peer, the peer might have
+// The peer is stored as a weak pointer because when the user decides to select
+// a particular file to download from this peer, the peer might have
 // disconnected.
 //..
         // DATA
@@ -1678,7 +1677,7 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
     TestSharedPtrRep(TYPE *dataPtr_p, bslma::Allocator *basicAllocator);
         // Construct a test shared ptr rep object owning the object pointed to
         // by the specified 'dataPtr_p' and that should be destroyed using the
-        // specified 'basicAlloacator'.
+        // specified 'basicAllocator'.
         // AJM CHANGING THE CONTRACT, TO SHARE TEST TYPES WITH THE ORIGINAL
         // SHARED_PTR TEST DRIVER, WHICH ALSO MORE THOROUGHLY TESTS AWKWARD
         // MULTIPLE-INHERITANCE CASES.
@@ -2959,7 +2958,8 @@ int main(int argc, char *argv[])
                           "\n--------------------------------\n");
       {
           bslma::TestAllocator ta;
-          MyTestDerivedObject *REP_PTR = new(ta) MyTestDerivedObject(&numDeletes);
+          MyTestDerivedObject *REP_PTR =
+                                      new(ta) MyTestDerivedObject(&numDeletes);
           TestSharedPtrRep<MyTestDerivedObject> rep(REP_PTR, &ta);
           const TestSharedPtrRep<MyTestDerivedObject>& REP = rep;
           MyTestDerivedObject *PTR = REP.ptr();
@@ -3008,11 +3008,13 @@ int main(int argc, char *argv[])
       }
       {
           bslma::TestAllocator ta;
-          MyTestDerivedObject *REP_PTR1 = new(ta) MyTestDerivedObject(&numDeletes);
+          MyTestDerivedObject *REP_PTR1 =
+                                      new(ta) MyTestDerivedObject(&numDeletes);
           TestSharedPtrRep<MyTestDerivedObject> rep1(REP_PTR1, &ta);
           const TestSharedPtrRep<MyTestDerivedObject>& REP1 = rep1;
 
-          MyTestDerivedObject *REP_PTR2 = new(ta) MyTestDerivedObject(&numDeletes);
+          MyTestDerivedObject *REP_PTR2 =
+                                      new(ta) MyTestDerivedObject(&numDeletes);
           TestSharedPtrRep<MyTestDerivedObject> rep2(REP_PTR2, &ta);
           const TestSharedPtrRep<MyTestDerivedObject>& REP2 = rep2;
 
@@ -3157,7 +3159,8 @@ int main(int argc, char *argv[])
                           "\n-----------------------------------\n");
       {
           bslma::TestAllocator ta;
-          MyTestDerivedObject *REP_PTR = new(ta) MyTestDerivedObject(&numDeletes);
+          MyTestDerivedObject *REP_PTR =
+                                      new(ta) MyTestDerivedObject(&numDeletes);
           TestSharedPtrRep<MyTestDerivedObject> rep(REP_PTR, &ta);
           const TestSharedPtrRep<MyTestDerivedObject>& REP = rep;
           ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
@@ -6364,7 +6367,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-        
+
         if (verbose) printf("\nTesting weak_ptr"
                             "\n----------------\n");
 

@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n--------------\n");
 
-        // Construct a simple instance of the class
+        // Construct an object using a simple instantiation of the template.
         bslma::ManagedPtr_PairProxy<Dummy, int> x = {0, 0};
       } break;
       default: {

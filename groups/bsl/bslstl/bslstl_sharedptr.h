@@ -526,7 +526,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Storing a 'shared_ptr' in an Invokable in a 'bdef_Function' object
 ///-----------------------------------------------------------------------
 // In addition to the guarantees already made in the 'bdef_function' component,
-// 'bcema_sharedptr' also guarantees that storing a shared pointer to an
+// 'bsl::shared_ptr' also guarantees that storing a shared pointer to an
 // invokable object in a 'bdef_Function' object will be "in-place", i.e., it
 // will not trigger memory allocation.
 //

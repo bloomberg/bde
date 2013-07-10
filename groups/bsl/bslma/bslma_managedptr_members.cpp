@@ -16,7 +16,7 @@ namespace bslma {
 ManagedPtr_Members::ManagedPtr_Members(ManagedPtr_Members& other)
 : d_obj_p(other.d_obj_p)
 {
-    if(d_obj_p) {
+    if (d_obj_p) {
         d_deleter = other.d_deleter;
     }
     other.clear();
@@ -48,7 +48,8 @@ void ManagedPtr_Members::moveAssign(ManagedPtr_Members *other)
 {
     BSLS_ASSERT(other);
 
-    // Must protect against self-assignment due to destructive move
+    // Must protect against self-assignment due to destructive move.
+
     if (this != other) {
         runDeleter();
         move(other);

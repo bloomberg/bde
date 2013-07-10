@@ -23,13 +23,8 @@ using namespace BloombergLP;
 //                             ---------
 // [ 3] ManagedPtr_Members();
 // [ 4] ManagedPtr_Members(ManagedPtr_Members& other);
-// [ 4] ManagedPtr_Members(void *object,
-//                               void *factory,
-//                               DeleterFunc deleter);
-// [ 4] ManagedPtr_Members(void        *object,
-//                               void        *factory,
-//                               DeleterFunc  deleter,
-//                               void        *alias);
+// [ 4] ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
+// [ 4] ManagedPtr_Members(void *obj, void *fct, DeleterFunc del, void *alias);
 // [ 3] ~ManagedPtr_Members() = default;
 // [ 4] void clear();
 // [ 4] void move(ManagedPtr_Members *other);
@@ -113,9 +108,9 @@ class MyTestObject {
     // This test-class serves three purposes.  It provides a base class for the
     // test classes in this test driver, so that derived -> base conversions
     // can be tested.  It also signals when its destructor is run by
-    // incrementing an externally managed counter, supplied when each object
-    // is created.  Finally, it exposes an internal data structure that can be
-    // use to demonstrate the 'ManagedPtr' aliasing facility.
+    // incrementing an externally managed counter, supplied when each object is
+    // created.  Finally, it exposes an internal data structure that can be use
+    // to demonstrate the 'ManagedPtr' aliasing facility.
 
     // DATA
     volatile int *d_deleteCounter_p;
@@ -383,8 +378,8 @@ int main(int argc, char *argv[])
                     ASSERT_SAFE_FAIL(empty.deleter());
 
                     int x;
-                    ASSERT_SAFE_FAIL(bslma::ManagedPtr_Members bd(&x, &del, 0));
-                    ASSERT_SAFE_PASS(bslma::ManagedPtr_Members gd( 0, &del, 0));
+                    ASSERT_SAFE_FAIL(bslma::ManagedPtr_Members b(&x, &del, 0));
+                    ASSERT_SAFE_PASS(bslma::ManagedPtr_Members g( 0, &del, 0));
                 }
 #else
                 if (verbose) printf("\tNegative testing disabled due to lack"
@@ -602,23 +597,23 @@ int main(int argc, char *argv[])
             ASSERT(0 == deleteCount);
             ASSERT(1 == g_deleteCount);
 
-            struct local {
+            struct Local {
                 int d_x;
                 static void deleter(void *a, void *b)
                 {
-                    local * pThis = reinterpret_cast<local *>(a);
+                    Local * pThis = reinterpret_cast<Local *>(a);
                     ASSERT(&pThis->d_x == b);
                     ASSERT(13 == pThis->d_x);
                     pThis->d_x = 42;
                 }
             };
 
-            local test = { 13 };
-            members.set(&test, &test.d_x, &local::deleter);
+            Local test = { 13 };
+            members.set(&test, &test.d_x, &Local::deleter);
             members.runDeleter();
             LOOP_ASSERT(test.d_x, 42 == test.d_x);
 
-            local alias = { 99 };
+            Local alias = { 99 };
             members.setAliasPtr(&alias);
             test.d_x = 13;
             members.runDeleter();
