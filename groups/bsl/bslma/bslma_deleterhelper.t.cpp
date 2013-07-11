@@ -437,13 +437,13 @@ int main(int argc, char *argv[])
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
+            (void)null;            
 
             my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
             new(pC1) my_Class1;
 
             ASSERT_SAFE_FAIL(Obj::deleteObject(pC1, null));
             ASSERT_SAFE_PASS(Obj::deleteObject(pC1, &a));
-            (void)null;            
         }
       } break;
       case 1: {
@@ -573,14 +573,13 @@ int main(int argc, char *argv[])
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
+            (void)null;
 
             my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
             new(pC1) my_Class1;
 
             ASSERT_SAFE_FAIL(Obj::deleteObjectRaw(pC1, null));
             ASSERT_SAFE_PASS(Obj::deleteObjectRaw(pC1, &a));
-
-            (void)null;
         }
 
       } break;

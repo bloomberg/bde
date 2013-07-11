@@ -361,11 +361,11 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         B *pB2 = smart_cast<B>(pC);
         C *pC2 = smart_cast<C>(pB);
 
+        (void)pA;
+
         ASSERT(&object == pA2);
         ASSERT(&object == pB2);
         ASSERT(&object == pC2);
-
-        (void)pA;
 
         // These lines would fail to compile
         // A *pA3 = smart_cast<A>(pB);
