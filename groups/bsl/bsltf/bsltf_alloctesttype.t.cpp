@@ -451,7 +451,7 @@ int main(int argc, char *argv[]) {
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -879,8 +879,8 @@ int main(int argc, char *argv[]) {
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            (void) operatorEq;  // quash potential compiler warnings
+            (void) operatorNe;
         }
 
 

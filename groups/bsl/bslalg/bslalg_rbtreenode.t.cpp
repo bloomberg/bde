@@ -852,7 +852,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nUse table of distinct object values.\n");

@@ -295,7 +295,7 @@ void TestDriver<VALUE_TYPE, BLOCK_LENGTH>::testCase1()
     const Obj         *values     = 0;
     const Obj *const&  VALUES     = values;
     const int          NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (verbose) printf("\n1) Create an object x1 (ctor from A)."

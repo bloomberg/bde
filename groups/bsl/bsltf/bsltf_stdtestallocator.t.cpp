@@ -277,8 +277,8 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 4;
 
-    (void)veryVerbose;
-    (void)veryVeryVerbose;
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -630,7 +630,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
         Obj mW, mX; const Obj& X = mX;
@@ -728,8 +728,8 @@ int main(int argc, char *argv[])
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            (void) operatorEq;  // quash potential compiler warnings
+            (void) operatorNe;
         }
 
         const Obj X;

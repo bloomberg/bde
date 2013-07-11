@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
-            (void)null;            
+            (void) null;            
 
             my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
             new(pC1) my_Class1;
@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
-            (void)null;
+            (void) null;
 
             my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
             new(pC1) my_Class1;

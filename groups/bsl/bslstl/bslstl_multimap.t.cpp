@@ -2286,7 +2286,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
 
             Obj mX;  const Obj& X = mX;
 
-            (void)X;            
+            (void) X;            
 
             Iter it = mX.insert(mX.end(), VALUES[0]);
 
@@ -4268,8 +4268,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -4891,8 +4891,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
         operatorPtr operatorEq = operator==;
         operatorPtr operatorNe = operator!=;
 
-        (void)operatorEq;  // quash potential compiler warnings
-        (void)operatorNe;
+        (void) operatorEq;  // quash potential compiler warnings
+        (void) operatorNe;
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;

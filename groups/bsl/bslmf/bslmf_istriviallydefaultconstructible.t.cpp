@@ -172,9 +172,9 @@ int main(int argc, char *argv[])
     int veryVeryVerbose     = argc > 4;
     int veryVeryVeryVerbose = argc > 5;
 
-    (void)veryVerbose;
-    (void)veryVeryVerbose;
-    (void)veryVeryVeryVerbose;
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
+    (void) veryVeryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

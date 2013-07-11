@@ -199,8 +199,8 @@ int main(int argc, char *argv[]) {
     bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    (void)veryVeryVerbose;
-    (void)veryVeryVeryVerbose;
+    (void) veryVeryVerbose;
+    (void) veryVeryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -314,7 +314,7 @@ int main(int argc, char *argv[]) {
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
@@ -519,8 +519,8 @@ int main(int argc, char *argv[]) {
             operatorPtr operatorEq = isEqual;
             operatorPtr operatorNe = isNotEqual;
 
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            (void) operatorEq;  // quash potential compiler warnings
+            (void) operatorNe;
         }
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;

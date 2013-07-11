@@ -115,7 +115,7 @@ void time_computeHash(const TYPE&   key,
     printf("Hashing 1M values (in seconds): %g\tof type %s\n",
            timer.elapsedTime(),
            TYPEID);
-    (void)value;
+    (void) value;
 }
 
 int countBits(native_std::size_t value)

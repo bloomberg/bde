@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorPredecrement = &operator--;
 
-            (void)operatorPredecrement;  // quash potential compiler warning
+            (void) operatorPredecrement;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");
@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorPostincrement = &operator++;
 
-            (void)operatorPostincrement;  // quash potential compiler warning
+            (void) operatorPostincrement;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");
@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorPredecrement = &Obj::operator--;
 
-            (void)operatorPredecrement;  // quash potential compiler warning
+            (void) operatorPredecrement;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");
@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorPredecrement = &Obj::operator++;
 
-            (void)operatorPredecrement;  // quash potential compiler warning
+            (void) operatorPredecrement;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");
@@ -830,7 +830,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
 
@@ -1055,8 +1055,8 @@ int main(int argc, char *argv[])
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            (void) operatorEq;  // quash potential compiler warnings
+            (void) operatorNe;
         }
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");
@@ -1172,7 +1172,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorDereference = &Obj::operator*;
 
-            (void)operatorDereference;  // quash potential compiler warning
+            (void) operatorDereference;  // quash potential compiler warning
         }
 
         if (verbose)
@@ -1185,7 +1185,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorArrow = &Obj::operator->;
 
-            (void)operatorArrow;  // quash potential compiler warning
+            (void) operatorArrow;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");

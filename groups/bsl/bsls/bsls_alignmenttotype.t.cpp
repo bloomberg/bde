@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void)veryVerbose;
+    (void) veryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -548,8 +548,8 @@ int main(int argc, char *argv[])
         void        *V  = 0;
         long long    LL = 0;
 
-        (void)V;
-        (void)LL;
+        (void) V;
+        (void) LL;
 
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
         bsls::AlignmentImp8ByteAlignedType _8BAT;

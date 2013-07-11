@@ -308,7 +308,7 @@ BSLS_IDENT("$Id: $")
 //                                     bslmf::MatchArithmeticType  ,
 //                                     bslmf::Nil                  )
 //  {
-//      (void)message;
+//      (void) message;
 //
 //      privateInit(static_cast<std::size_t>(numElements),
 //                  static_cast<VALUE_TYPE>(value),

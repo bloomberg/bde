@@ -627,7 +627,7 @@ void TestConfigurationMacros();
             // ...
 
             double d = fact(-1);        // Out-of-contract call to 'fact'.
-            (void)d;
+            (void) d;
 
             // ...
         }
@@ -1160,7 +1160,7 @@ int main(int argc, char *argv[])
                              "const char *f, int line);'" << endl;
         {
             bsls::Assert::Handler f = bsls::Assert::failAbort;
-            (void)f;
+            (void) f;
 
             if (veryVerbose) {
                 cout << "\t(Aborting behavior must be tested by hand.)" <<

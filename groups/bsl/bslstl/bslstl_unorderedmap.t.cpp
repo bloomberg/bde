@@ -7134,8 +7134,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -9454,7 +9454,7 @@ void testMapLookup(CONTAINER& mX)
     try {
         mapped_type v = x.at(key_type());
         ASSERT(false); // prior line should throw
-        (void)v;       // resolve unused variable warning
+        (void) v;      // resolve unused variable warning
     }
     catch(const std::exception&) {
         // expected code path
@@ -9464,7 +9464,7 @@ void testMapLookup(CONTAINER& mX)
     try {
         mapped_type v = mX.at(key_type());
         ASSERT(false); // prior line should throw
-        (void)v;       // resolve unused variable warning
+        (void) v;      // resolve unused variable warning
     }
     catch(const std::exception&) {
         // expected code path
@@ -9506,7 +9506,7 @@ void testImplicitInsert(CONTAINER& mX)
     try {
         mapped_type v = x.at(key_type());
         ASSERT(false); // prior line should throw
-        (void)v;       // resolve unused variable warning
+        (void) v;      // resolve unused variable warning
     }
     catch(const std::out_of_range&) {
         // expected code path
@@ -9516,7 +9516,7 @@ void testImplicitInsert(CONTAINER& mX)
     try {
         mapped_type v = mX.at(key_type());
         ASSERT(false); // prior line should throw
-        (void)v;       // resolve unused variable warning
+        (void) v;      // resolve unused variable warning
     }
     catch(const std::out_of_range&) {
         // expected code path
