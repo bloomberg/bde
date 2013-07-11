@@ -2301,8 +2301,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         FuncPtr     memberSwap = &Obj::swap;
         FreeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (veryVerbose) printf(

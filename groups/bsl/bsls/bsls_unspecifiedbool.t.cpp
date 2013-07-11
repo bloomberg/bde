@@ -269,8 +269,8 @@ int main(int argc, char *argv[])
         FuncType trueFunc  = &HostType::trueValue;
 
         // Silence unused variable warnings.
-        (void)falseFunc;
-        (void)trueFunc;
+        (void) falseFunc;
+        (void) trueFunc;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

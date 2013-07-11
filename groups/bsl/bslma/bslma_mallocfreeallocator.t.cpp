@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
     static int veryVerbose = argc > 3;
     static int veryVeryVerbose = globalVeryVeryVerbose = argc > 4;
 
-    (void)veryVeryVerbose;
+    (void) veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

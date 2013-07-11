@@ -325,7 +325,7 @@ static int verifyPrint(const bslma::TestAllocator& ta,
     int veryVerbose = verboseFlag > 3;
     int veryVeryVerbose = verboseFlag > 4;
 
-    (void)veryVeryVerbose;
+    (void) veryVeryVerbose;
 
     if (verbose) cout << "\tCompare with expected result." <<endl;
 

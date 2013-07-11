@@ -630,7 +630,7 @@ int main(int argc, char *argv[])
         {
             MyInterfaceTest testObj;
             bsls::ProtocolTest_MethodReturnType proxy = testObj.markDone();
-            (void)proxy;
+            (void) proxy;
         }
 
         if (veryVerbose) printf("\t'markDoneRef' has a proper return type "
@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
             MyInterfaceTest testObj;
             bsls::ProtocolTest_MethodReturnRefType proxy
                                                        = testObj.markDoneRef();
-            (void)proxy;
+            (void) proxy;
         }
 
         if (veryVerbose) printf("\t'markDoneVal' has a proper return type\n");
@@ -715,12 +715,12 @@ int main(int argc, char *argv[])
                 void const * const_vptr
                                        = bsls::ProtocolTest_MethodReturnType();
                 
-                (void)val;
-                (void)const_ref;
-                (void)const_ptr;
-                (void)ptr;
-                (void)vptr;
-                (void)const_vptr;
+                (void) val;
+                (void) const_ref;
+                (void) const_ptr;
+                (void) ptr;
+                (void) vptr;
+                (void) const_vptr;
             }
 
             if (veryVerbose) printf("\tbsls_ProtocolTest_MethodReturnRefType "
@@ -731,8 +731,8 @@ int main(int argc, char *argv[])
                 NonCopyable & ref = bsls::ProtocolTest_MethodReturnRefType();
                 NonCopyable const & const_ref =
                                       bsls::ProtocolTest_MethodReturnRefType();
-                (void)ref;
-                (void)const_ref;
+                (void) ref;
+                (void) const_ref;
             }
 
             if (veryVerbose) printf("\tbsls_ProtocolTest_Status\n");

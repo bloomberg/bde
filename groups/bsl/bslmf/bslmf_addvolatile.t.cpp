@@ -85,8 +85,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void)verbose;
-    (void)veryVerbose;
+    (void) verbose;
+    (void) veryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

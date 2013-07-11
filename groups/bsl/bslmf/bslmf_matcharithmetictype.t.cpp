@@ -306,8 +306,8 @@ namespace usageExample1 {
         if(globalVerbose) {
             printf("CTOR: repeated value: %s\n", message);
         }
-        (void)numElements;
-        (void)value;
+        (void) numElements;
+        (void) value;
 #endif
     }
 
@@ -326,8 +326,8 @@ namespace usageExample1 {
         if(globalVerbose) {
             printf("CTOR: range         : %s\n", message);
         }
-        (void)first;
-        (void)last;
+        (void) first;
+        (void) last;
 #endif
     }
 //..
@@ -534,8 +534,8 @@ namespace usageExample1 {
         if(globalVerbose) {
             printf("INIT: range         : %s\n", message);
         }
-        (void)first;
-        (void)last;
+        (void) first;
+        (void) last;
 #endif
     }
 //..
@@ -559,7 +559,7 @@ namespace usageExample1 {
                                        bslmf::MatchArithmeticType  ,
                                        bslmf::Nil                  )
     {
-        (void)message;
+        (void) message;
 
         privateInit(static_cast<std::size_t>(numElements),
                     static_cast<VALUE_TYPE>(value),

@@ -361,7 +361,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         B *pB2 = smart_cast<B>(pC);
         C *pC2 = smart_cast<C>(pB);
 
-        (void)pA;
+        (void) pA;
 
         ASSERT(&object == pA2);
         ASSERT(&object == pB2);
@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    (void)veryVeryVerbose;
+    (void) veryVeryVerbose;
 
     setbuf(stdout, 0);    // Use unbuffered output
 

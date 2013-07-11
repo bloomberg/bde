@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
         Obj mX;
 
-        (void)mX;
+        (void) mX;
 
       } break;
 

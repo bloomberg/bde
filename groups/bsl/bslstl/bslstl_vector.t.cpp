@@ -6262,7 +6262,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
-                (void)LINE;
+                (void) LINE;
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P(LENGTH);
@@ -6298,7 +6298,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
                 const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
-                (void)LINE;
+                (void) LINE;
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
@@ -6672,7 +6672,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     if (verbose)
         printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
@@ -6765,7 +6765,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // --------------------------------------------------------------------
 
@@ -8666,7 +8666,7 @@ void TestDriver<TYPE,ALLOC>::testCase1()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (verbose) printf("\n 1) Create an object x1 (default ctor)."

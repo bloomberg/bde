@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 5;
 
-    (void)veryVeryVerbose;
+    (void) veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         const char *password = "hello";
 
         double result = evaluatePassword(password, &ta);
-        (void)result;
+        (void) result;
 
       } break;
       case 3: {
