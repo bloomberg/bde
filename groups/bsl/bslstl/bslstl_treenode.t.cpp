@@ -494,7 +494,8 @@ int main(int argc, char *argv[])
             ASSERTV(!Type::isConstructed());
 
             Obj *xPtr = AllocTraits::allocate(allocator, 1);
-            Obj& mX = *xPtr;
+            Obj& mX = *xPtr; const Obj& X = mX;
+            (void)X;
 
             AllocTraits::construct(allocator,
                                    bsls::Util::addressOf(mX.value()));
