@@ -13832,9 +13832,10 @@ int main(int argc, char *argv[])
 
             // Copy constructor
             Employee e3(e1);  const Employee& E3 = e3;
+            (void)E3;
 
-            ASSERT(   e1 == E3);
-            ASSERT(! (e1 != E3));
+            ASSERT(   e1 == e3);
+            ASSERT(! (e1 != e3));
         }
 
 ///Example 3: A 'string' replace function
