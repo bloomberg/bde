@@ -45,7 +45,7 @@ void populateWarnRecord(bael_Record         *record,
                         const bael_Category *category, 
                         int                  numDropped) {
     record->fixedFields().setFileName(__FILE__);
-    record->fixedFields().setLineNumber(__LINE__);
+    record->fixedFields().setLineNumber(lineNumber);
     record->fixedFields().setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
     record->fixedFields().setCategory(category->categoryName());
     record->fixedFields().setSeverity(bael_Severity::BAEL_WARN);
