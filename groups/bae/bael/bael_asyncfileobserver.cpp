@@ -32,10 +32,8 @@ namespace BloombergLP {
 namespace {
 
 enum {
-    // This enumeration provides the default values for the attributes of
-    // 'bael_AsyncFileObserver'.
-
-    DEFAULT_FIXED_QUEUE_SIZE     =  8192
+    DEFAULT_FIXED_QUEUE_SIZE     =  8192,
+    FORCE_WARN_THRESHOLD         =  5000
 };
 
 const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
@@ -97,10 +95,17 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
                                    asyncRecord.d_context);
         }
 
-        
-        int numDropped = d_dropCount.swap(0);
-        if (0 < numDropped) {
-            logDroppedMessageWarning(numDropped);
+        // Check the dropped record counter if the queue is half empty
+        // or the number of dropped messages exceeds a limit or the queue
+        // is being drained (in which case this code may not ever execute
+        // with the queue half-empty)
+        if (d_recordQueue.length() <= d_recordQueue.size() / 2
+        ||  d_dropCount.relaxedLoad() >= FORCE_WARN_THRESHOLD
+        ||  d_clearing) {
+            int numDropped = d_dropCount.swap(0);
+            if (0 < numDropped) {
+                logDroppedMessageWarning(numDropped);
+            }
         }
     }
 }
