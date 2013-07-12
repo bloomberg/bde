@@ -1381,6 +1381,7 @@ int main(int argc, char *argv[])
         int maxNumAllocated = 0;
 
         TestAllocator mX;    const TestAllocator &X = mX;
+        (void) X;
         for (int i = 0; i < MAX_NUM_POINTERS; ++i) {
             if (rand() & 0x10) {  // allocate
 
@@ -1420,7 +1421,7 @@ int main(int argc, char *argv[])
             maxNumAllocated = intMax(maxNumAllocated, numAllocated);
 
             LOOP2_ASSERT(X.numOutstandingAllocations(), numAllocated,
-                         NUMALLOCATED == X.numOutstandingAllocations());
+                         NUMALLOCATED == mX.numOutstandingAllocations());
         }
 
         if (verbose) printf("Max num allocated: %d\n", maxNumAllocated);
