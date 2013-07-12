@@ -6,17 +6,19 @@ BDES_IDENT_RCSID(bael_asyncfileobserver_cpp,"$Id$ $CSID$")
 
 #ifdef FOR_TESTING_ONLY
 #include <bael_defaultobserver.h>             // for testing only
-#include <bael_log.h>                         // for testing only
 #include <bael_loggermanager.h>               // for testing only
 #include <bael_loggermanagerconfiguration.h>  // for testing only
 #include <bael_multiplexobserver.h>           // for testing only
 #endif
+
+#include <bael_log.h>
 
 #include <bcemt_lockguard.h>
 
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bdef_memfn.h>
+#include <bdesu_processutil.h>
 
 #include <bslma_default.h>
 #include <bsl_iostream.h>
@@ -27,25 +29,79 @@ namespace BloombergLP {
                        // class bael_AsyncFileObserver
                        // ----------------------------
 
+namespace {
+
 enum {
     // This enumeration provides the default values for the attributes of
     // 'bael_AsyncFileObserver'.
 
-    DEFAULT_FIXED_QUEUE_SIZE     =  8192,
-    DEFAULT_DROP_ALERT_THRESHOLD =  5000
+    DEFAULT_FIXED_QUEUE_SIZE     =  8192
 };
 
+const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
+
+void populateWarnRecord(bael_Record         *record,
+                        int                  lineNumber,
+                        const bael_Category *category, 
+                        int                  numDropped) {
+    record->fixedFields().setFileName(__FILE__);
+    record->fixedFields().setLineNumber(__LINE__);
+    record->fixedFields().setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
+    record->fixedFields().setCategory(category->categoryName());
+    record->fixedFields().setSeverity(bael_Severity::BAEL_WARN);
+    static int pid = bdesu_ProcessUtil::getProcessId();
+    record->fixedFields().setProcessID(pid);
+    record->fixedFields().setThreadID(bcemt_ThreadUtil::selfIdAsUint64());
+    bsl::ostream os(&record->fixedFields().messageStreamBuf());
+    os << "Dropped " << numDropped << " log records." << bsl::ends;
+}
+                            
+
+}
+
 // PRIVATE METHODS
+void bael_AsyncFileObserver::logDroppedMessageWarning(int numDropped)
+{
+    BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
+
+    // This is equivalent to BAEL_LOG_WARN, but logs directly to the file 
+    // observer rather than through the logger manager to avoid a loop.
+    if (BAEL_LOG_THRESHOLD >= bael_Severity::BAEL_WARN &&
+        bael_Log::isCategoryEnabled(&BAEL_LOG_CATEGORYHOLDER, 
+                                    bael_Severity::BAEL_WARN)) {
+        
+        bcema_SharedPtr<bael_Record> record;
+        record.createInplace(d_allocator_p, d_allocator_p);
+        populateWarnRecord(record.ptr(), __LINE__, 
+                           BAEL_LOG_CATEGORY, numDropped);
+        bael_Context context(bael_Transmission::BAEL_PASSTHROUGH, 0, 0);
+        d_fileObserver.publish(record, context);
+    }
+}
+
 void bael_AsyncFileObserver::publishThreadEntryPoint()
 {
-    while (1) {
+    bool done = false;
+    while (!done) {
         AsyncRecord asyncRecord = d_recordQueue.popFront();
+
+        // Publish the record only if not shutting down; but check 
+        // the dropped message counter whether shutting down or not.  
         if (bael_Transmission::BAEL_END
                 == asyncRecord.d_context.transmissionCause()
             || d_clearing) {
-            break;
+            done = true;
         }
-        d_fileObserver.publish(*asyncRecord.d_record, asyncRecord.d_context);
+        else {
+            d_fileObserver.publish(*asyncRecord.d_record, 
+                                   asyncRecord.d_context);
+        }
+
+        
+        int numDropped = d_dropCount.swap(0);
+        if (0 < numDropped) {
+            logDroppedMessageWarning(numDropped);
+        }
     }
 }
 
@@ -90,7 +146,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
-, d_dropCount(-1)
+, d_dropCount(0)
 , d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -110,7 +166,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
-, d_dropCount(-1)
+, d_dropCount(0)
 , d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -132,7 +188,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
-, d_dropCount(-1)
+, d_dropCount(0)
 , d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -154,7 +210,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(dropRecordsOnFullQueueThreshold)
-, d_dropCount(-1)
+, d_dropCount(0)
 , d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -195,15 +251,7 @@ void bael_AsyncFileObserver::publish(
     asyncRecord.d_context = context;
     if (record->fixedFields().severity() > d_dropRecordsOnFullQueueThreshold) {
         if (0 != d_recordQueue.tryPushBack(asyncRecord)) {
-
-            // Drop the record and increase the counter
-
-            if (0 ==
-                    d_dropCount.relaxedAdd(1) % DEFAULT_DROP_ALERT_THRESHOLD) {
-                bsl::cerr << "WARN: bael_AsyncFileObserver: dropped "
-                          << DEFAULT_DROP_ALERT_THRESHOLD
-                          << " records." << bsl::endl;
-            }
+            d_dropCount.relaxedAdd(1);        
         }
     }
     else {

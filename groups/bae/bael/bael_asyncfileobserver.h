@@ -372,9 +372,9 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // indicates if the queue
                                                      // drops records when full
 
-    bces_AtomicInt                d_dropCount;       // counter that keeps
-                                                     // tracking dropped
-                                                     // records
+    bces_AtomicInt                d_dropCount;       // number of dropped 
+                                                     // records, reset when 
+                                                     // published
 
     bdef_Function<void (*)()>     d_publishThreadEntryPoint;
                                                      // functor that contains
@@ -392,6 +392,11 @@ class bael_AsyncFileObserver : public bael_Observer {
     bael_AsyncFileObserver& operator=(const bael_AsyncFileObserver&);
 
     // PRIVATE MANIPULATORS
+    void logDroppedMessageWarning(int numDropped);
+        // Synchronously write an entry into the underlying file observer
+        // indicating that the specified 'numDropped' number of records
+        // have been dropped.  
+
     void publishThreadEntryPoint();
         // Thread function of the publication thread.  The publication thread
         // pops record shared pointers and contexts from queue and writes the
