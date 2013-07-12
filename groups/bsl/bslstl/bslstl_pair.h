@@ -882,7 +882,7 @@ pair<T1, T2>::pair(const native_std::pair<U1, U2>&  rhs,
 template <typename T1, typename T2>
 template <typename U1, typename U2>
 pair<T1, T2>::pair(const BloombergLP::bslma::ManagedPtr_PairProxy<U1, U2>& rhs)
-: Base(rhs.d_ptr, rhs.d_second)
+: Base(rhs.first, rhs.second)
 {
 }
 #endif

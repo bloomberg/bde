@@ -38,8 +38,8 @@ namespace bslma {
 
 template <class ELEMENT_TYPE, typename FACTORY>
 struct ManagedPtr_FactoryDeleter {
-    // This utility provides a general deleter for objects that provide
-    // a 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdema_Pool').
+    // This utility provides a general deleter for objects that provide a
+    // 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdema_Pool').
 
     // CLASS METHODS
     static void deleter(void *object, void *factory);
@@ -77,7 +77,6 @@ void ManagedPtr_FactoryDeleter<ELEMENT_TYPE, FACTORY>::deleter(void *object,
 }  // close enterprise namespace
 
 #endif
-
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.

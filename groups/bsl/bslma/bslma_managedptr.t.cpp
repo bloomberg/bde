@@ -7775,7 +7775,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTest accessors on simple object\n");
 
-        typename bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>
+        typedef bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>
                                                         TestcaseFactoryDeleter;
         LOOP_ASSERT(numDeletes, 0 == numDeletes);
         {
