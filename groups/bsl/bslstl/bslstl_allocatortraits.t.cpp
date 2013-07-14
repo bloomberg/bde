@@ -1355,7 +1355,7 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const int blockSize = N * sizeof(value_type);
+        const bsls::Types::Int64 blockSize = N * sizeof(value_type);
 
         g_lastHint = nonHint;
         if (useHint) {
@@ -1374,13 +1374,11 @@ void testAllocateDeallocate(const char *name)
         // Check memory allocation
         LOOP2_ASSERT(name, N, ta.lastAllocatedAddress() ==
                               bsls::Util::addressOf(*pointers[i]));
-        LOOP2_ASSERT(name, N, ta.lastAllocatedNumBytes() == blockSize);
+        LOOP2_ASSERT(name, N, static_cast<bsls::Types::Int64>(
+                                     ta.lastAllocatedNumBytes()) == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB + 1);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB + 1);
-        LOOP2_ASSERT(
-            name,
-            N,
-            (size_type) ta.numBytesInUse() == bytesInUseB + blockSize);
+        LOOP2_ASSERT(name, N, ta.numBytesInUse() == bytesInUseB + blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);
@@ -1395,18 +1393,16 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const int blockSize = N * sizeof(value_type);
+        const bsls::Types::Int64 blockSize = N * sizeof(value_type);
 
         TraitsT::deallocate(a, pointers[i], N);
 
         // Check memory deallocation
-        LOOP2_ASSERT(name, N, ta.lastDeallocatedNumBytes() == blockSize);
+        LOOP2_ASSERT(name, N, static_cast<bsls::Types::Int64>(
+                                   ta.lastDeallocatedNumBytes()) == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB - 1);
-        LOOP2_ASSERT(
-            name,
-            N,
-            (size_type) ta.numBytesInUse() == bytesInUseB - blockSize);
+        LOOP2_ASSERT(name, N, ta.numBytesInUse() == bytesInUseB - blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);
