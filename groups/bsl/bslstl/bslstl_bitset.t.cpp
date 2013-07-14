@@ -348,8 +348,8 @@ bool isPrime(int candidate)
 // Next, we compute 'sqrt(candidate)', which is as far as we need to look:
 //..
     // We need to cast the 'sqrt' argument to avoid an overload ambiguity.
-    const size_t sqrtOfCandidate = std::sqrt(static_cast<double>(candidate))
-                                   + 0.01;  // fudge factor
+    const int sqrtOfCandidate = std::sqrt(static_cast<double>(candidate))
+                                + 0.01;  // fudge factor
 //..
 // Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
 // eliminate non-primes:
@@ -357,15 +357,15 @@ bool isPrime(int candidate)
     // Note that we treat 'false' values as potential primes,
     // since that is how 'bsl::bitset' is default-initialized.
 
-    for (std::size_t i = 2; i <= sqrtOfCandidate; ++i) {
+    for (int i = 2; i <= sqrtOfCandidate; ++i) {
         if (compositeFlags[i]) {
             continue;  // Skip this value: it's flagged as composite, so all
                        // of its multiples are already flagged as composite as
                        // well.
         }
 
-        for (std::size_t flagValue = i;
-             flagValue <= (std::size_t) candidate;
+        for (int flagValue = i;
+             flagValue <= candidate;
              flagValue += i) {
             compositeFlags[flagValue] = true;
         }

@@ -1346,8 +1346,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const int         LENGTH = strlen(SPEC);
+        const ptrdiff_t   LENGTH = strlen(SPEC);
         const TestValues  EXP(SPEC, &scratch);
+        ASSERT(0 <= LENGTH);
 
         TestValues CONT(SPEC, &scratch);
 
@@ -1363,8 +1364,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
 
             const int v = verifySpec(X, SPEC);
             ASSERTV(LINE, v, SPEC, X.size(), -1 == v);
-            // 0 < n || 0 == n is identical to 0 <= n but
-            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
                     TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
 
@@ -1379,8 +1378,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
             mZ.swap(mX);
 
             ASSERTV(LINE, -1 == verifySpec(Z, SPEC));
-            // 0 < n || 0 == n is identical to 0 <= n but
-            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
                     2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
         }
@@ -1405,8 +1402,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
                 ASSERTV(LINE, tj, LENGTH, CONT[tj] == *RESULT);
             }
             ASSERTV(LINE, -1 == verifySpec(X, SPEC));
-            // 0 < n || 0 == n is identical to 0 <= n but
-            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
                     TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
         }
@@ -2683,12 +2678,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
                            "with test allocator:\n");
                 }
 
-                const native_std::size_t A = oa.numBlocksTotal();
+                const bsls::Types::Int64 A = oa.numBlocksTotal();
 
                 Obj Y11(X, &oa);
 
-                ASSERT(0 == LENGTH ||
-                       (native_std::size_t) oa.numBlocksTotal() > A);
+                ASSERT(0 == LENGTH || oa.numBlocksTotal() > A);
 
                 // Due of pooling of memory alloctioon, we can't predict
                 // whether this insert will allocate or not.

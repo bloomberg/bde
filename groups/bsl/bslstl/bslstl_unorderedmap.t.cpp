@@ -7513,12 +7513,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
                            "with test allocator:\n");
                 }
 
-                const native_std::size_t A = oa.numBlocksTotal();
+                const bsls::Types::Int64 A = oa.numBlocksTotal();
 
                 Obj Y11(X, &oa);
 
-                ASSERT(0 == LENGTH ||
-                       (native_std::size_t) oa.numBlocksTotal() > A);
+                ASSERT(0 == LENGTH || oa.numBlocksTotal() > A);
 
                 // Due of pooling of memory alloctioon, we can't predict
                 // whether this insert will allocate or not.

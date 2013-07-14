@@ -1437,8 +1437,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const ptrdiff_t   LENGTH = strlen(DATA[ti].d_results);
         const TestValues  EXP(DATA[ti].d_results, &scratch);
+        ASSERT(0 <= LENGTH);
 
         TestValues CONT(SPEC, &scratch);
 
@@ -1454,13 +1455,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
 
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
             Obj mY(X);  const Obj& Y = mY;
 
             ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
             Obj mZ;  const Obj& Z = mZ;
 
@@ -1468,7 +1469,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
 
             ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1478,7 +1479,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
             mX.insert(BEGIN, END);
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1492,7 +1493,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
             }
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());

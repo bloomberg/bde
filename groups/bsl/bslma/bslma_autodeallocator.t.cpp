@@ -1469,8 +1469,8 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_TEST; ++i) {
             memory[i] = ta.allocate(sizeof(int) * (i + 1));
-            ASSERT(sizeof(int) * (i + 1) * (i + 2) / 2 ==
-                   (size_t) TA.numBytesInUse());
+            ASSERT(static_cast<ptrdiff_t>(sizeof(int)) * (i + 1) * (i + 2) / 2
+                                                        == TA.numBytesInUse());
         }
 
         ASSERT(sizeof(int) * NUM_TEST * (NUM_TEST + 1) / 2
@@ -1489,8 +1489,8 @@ int main(int argc, char *argv[])
         char *cmemory[NUM_TEST];
         for (int i = 0; i < NUM_TEST; ++i) {
             cmemory[i] = (char *)ta.allocate(sizeof(int) * (i + 1));
-            ASSERT(sizeof(int) * (i + 1) * (i + 2) / 2 ==
-                   (size_t) TA.numBytesInUse());
+            ASSERT(static_cast<ptrdiff_t>(sizeof(int)) * (i + 1) * (i + 2) / 2
+                                                        == TA.numBytesInUse());
         }
 
         ASSERT(sizeof(int) * NUM_TEST * (NUM_TEST + 1) / 2
