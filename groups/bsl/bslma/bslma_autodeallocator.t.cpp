@@ -1420,7 +1420,7 @@ int main(int argc, char *argv[])
 
             maxNumAllocated = intMax(maxNumAllocated, numAllocated);
 
-            LOOP2_ASSERT(X.numOutstandingAllocations(), numAllocated,
+            LOOP2_ASSERT(mX.numOutstandingAllocations(), numAllocated,
                          NUMALLOCATED == mX.numOutstandingAllocations());
         }
 
