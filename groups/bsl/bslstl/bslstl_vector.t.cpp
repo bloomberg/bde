@@ -2163,7 +2163,7 @@ void TestDriver<TYPE,ALLOC>::testCase22()
                &testAllocator);
         //const Obj& X = mX;
 
-        Obj mY(X, &testAllocator);  const Obj& Y = mY;
+        Obj mY(mX, &testAllocator);  const Obj& Y = mY;
         ASSERT(TYPE() == Y[0]);
 
         mX.push_back(TYPE());
