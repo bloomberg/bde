@@ -389,6 +389,8 @@ void btemt_SessionPool::poolStateCb(int state, int source, int)
         d_poolStateCB(ACCEPT_FAILED, source, handle->d_userData_p);
       } break;
 
+      case btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
+      case btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS:          // FALL THROUGH
       case btemt_PoolMsg::BTEMT_ERROR_CONNECTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {

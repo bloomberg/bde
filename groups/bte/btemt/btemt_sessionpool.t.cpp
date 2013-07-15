@@ -21,13 +21,17 @@
 
 #include <bteso_ipv4address.h>
 #include <bteso_inetstreamsocketfactory.h>
+#include <bteso_socketoptions.h>
 #include <bteso_streamsocket.h>
+
+#include <btemt_channelpoolchannel.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>     // atoi()
 
 using namespace BloombergLP;
+using namespace bsl;
 using namespace bdef_PlaceHolders;
 
 //=============================================================================
@@ -119,7 +123,8 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef btemt_SessionPool Obj;
+typedef btemt_SessionPool   Obj;
+typedef bteso_SocketOptions SocketOptions;
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -130,6 +135,199 @@ static bcemt_Mutex coutMutex;
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS {
+
+void poolStateCallback(int            state,
+                       int            source,
+                       void          *userData,
+                       int           *poolState,
+                       bcemt_Barrier *barrier)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state callback called with"
+               << " State: " << state
+               << " Source: "  << source << MTENDL;
+    }
+    *poolState = state;
+    barrier->wait();
+}
+
+void sessionStateCallback(int            state,
+                          int            handle,
+                          btemt_Session *session,
+                          void          *userData,
+                          bcemt_Barrier *barrier)
+{
+    switch(state) {
+      case btemt_SessionPool::SESSION_DOWN: {
+          if (veryVerbose) {
+              MTCOUT << "Client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+      } break;
+      case btemt_SessionPool::SESSION_UP: {
+          if (veryVerbose) {
+              MTCOUT << "Client connected from "
+                     << session->channel()->peerAddress()
+                     << MTENDL;
+          }
+          barrier->wait();
+      } break;
+    }
+}
+
+                            // ===================
+                            // class TesterSession
+                            // ===================
+
+class TesterSession : public btemt_Session {
+    // This class is a concrete implementation of the 'btemt_Session' protocol
+    // to use along with 'Tester' objects.
+
+    // DATA
+    btemt_AsyncChannel *d_channel_p; // underlying channel (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    TesterSession(const TesterSession&);
+    TesterSession& operator=(const TesterSession&);
+
+  public:
+    // CREATORS
+    TesterSession(btemt_AsyncChannel *channel);
+        // Create a new 'TesterSession' object for the specified 'channel'.
+
+    ~TesterSession();
+        // Destroy this object.
+
+    // MANIPULATORS
+    virtual int start();
+        // Begin the asynchronous operation of this session.
+
+    virtual int stop();
+        // Stop the operation of this session.
+
+    // ACCESSORS
+    virtual btemt_AsyncChannel *channel() const;
+        // Return the channel associate with this session.
+};
+
+                            // -------------------
+                            // class TesterSession
+                            // -------------------
+
+// CREATORS
+TesterSession::TesterSession(btemt_AsyncChannel *channel)
+: d_channel_p(channel)
+{
+}
+
+TesterSession::~TesterSession()
+{
+}
+
+// MANIPULATORS
+int TesterSession::start()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session started" << MTENDL;
+    }
+
+    return 0;
+}
+
+int TesterSession::stop()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session stopped" << MTENDL;
+    }
+
+    d_channel_p->close();
+    return 0;
+}
+
+// ACCESSORS
+btemt_AsyncChannel *TesterSession::channel() const
+{
+    return d_channel_p;
+}
+
+                    // ===================
+                    // class TesterFactory
+                    // ===================
+
+class TesterFactory : public btemt_SessionFactory {
+    // This class is a concrete implementation of the 'btemt_SessionFactory'
+    // that simply allocates 'TesterSession' objects.  No specific allocation
+    // strategy (such as pooling) is implemented.
+
+    // DATA
+    btemt_Session    *d_session_p;
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+
+  public:
+    // CREATORS
+    TesterFactory(bslma::Allocator *basicAllocator = 0);
+        // Create a new 'TesterFactory' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    virtual ~TesterFactory();
+        // Destroy this factory.
+
+    // MANIPULATORS
+    virtual void allocate(btemt_AsyncChannel                    *channel,
+                          const btemt_SessionFactory::Callback&  callback);
+        // Asynchronously allocate a 'btemt_Session' object for the
+        // specified 'channel', and invoke the specified 'callback' with
+        // this session.
+
+    virtual void deallocate(btemt_Session *session);
+        // Deallocate the specified 'session'.
+};
+
+                        // -------------------
+                        // class TesterFactory
+                        // -------------------
+
+// CREATORS
+TesterFactory::TesterFactory(bslma::Allocator *basicAllocator)
+: d_session_p(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+TesterFactory::~TesterFactory()
+{
+}
+
+// MANIPULATORS
+void TesterFactory::allocate(btemt_AsyncChannel                    *channel,
+                             const btemt_SessionFactory::Callback&  callback)
+{
+    if (veryVerbose) {
+        MTCOUT << "Allocate factory called: " << MTENDL;
+    }
+
+    d_session_p = new (*d_allocator_p) TesterSession(channel);
+
+    callback(0, d_session_p);
+}
+
+void TesterFactory::deallocate(btemt_Session *session)
+{
+    if (veryVerbose) {
+        MTCOUT << "Deallocate factory called: " << MTENDL;
+    }
+
+    d_allocator_p->deleteObjectRaw(session);
+}
+
+}  // close namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS
+
 
 namespace BTEMT_SESSION_POOL_SETWRITECACHEWATERMARKS {
 
@@ -3247,6 +3445,198 @@ int main(int argc, char *argv[])
     bcema_TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'connect' and 'listen' with socket options
+        //   Ensure that the 'connect' and 'listen' functions that take
+        //   socket options and client address return a user callback on error
+        //   and the session up callback on success.
+        //
+        // Concerns:
+        //   1. A user callback is invoked on encountering an asynchronous
+        //      failure while setting the socket options or binding to a
+        //      provided local address.
+        //
+        //   2. The session state callback is called with success if setting
+        //      the socket option succeeds.
+        //
+        // Plan:
+        //   1. For concern 1, invoke 'connect' with a socket option expected
+        //      to fail and with a bad IP address.  In both cases verify that
+        //      a pool state callback with is invoked informing the user of
+        //      the connect error.
+        //
+        //   2. For concern 2, invoke 'connect' with a socket option expected
+        //      to succeed and with a good IP address.  In both cases verify
+        //      that a session state callback is invoked informing the user of
+        //      connect success.
+        //
+        // Testing:
+        //   int connect(host, ...., *socketOptions, *clientAddr);
+        //   int connect(serverAddr, ...., *socketOptions, *clientAddr);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING 'connect' and 'listen' "
+                               << "with socket options"
+                               << bsl::endl
+                               << "==============================="
+                               << "==================="
+                               << bsl::endl;
+
+        using namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS;
+
+        if (verbose) cout << "connect(IPv4Address...) with socket options"
+                          << endl;
+        {
+            btemt_ChannelPoolConfiguration config;
+            config.setMaxThreads(1);
+
+            typedef btemt_SessionPool::SessionPoolStateCallback PoolCb;
+
+            bcemt_Barrier   channelCbBarrier(2);
+            btemt_SessionPool::SessionStateCallback sessionStateCb(
+                                     bdef_BindUtil::bind(&sessionStateCallback,
+                                                         _1, _2, _3, _4,
+                                                         &channelCbBarrier));
+
+            int             poolState;
+            bcemt_Barrier   poolCbBarrier(2);
+            btemt_SessionPool::SessionPoolStateCallback
+                            poolStateCb(bdef_BindUtil::bind(&poolStateCallback,
+                                                            _1, _2, _3,
+                                                            &poolState,
+                                                            &poolCbBarrier));
+
+            TesterFactory sessionFactory;
+
+            btemt_SessionPool pool(config, poolStateCb, false);
+
+            ASSERT(0 == pool.start());
+
+            bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
+            for (int i = 0; i < 2; ++i) {
+                SocketOptions opt;  const SocketOptions& OPT = opt;
+                if (0 == i) {
+                    opt.setKeepAlive(true);  // should succeed on all platforms
+                }
+                else {
+                    opt.setSendTimeout(1);   // should fail on all platforms
+                }
+
+                if (veryVerbose) { P(OPT); }
+
+                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                      socketFactory.allocate();
+                ASSERT(socket);
+
+                ASSERT(0 == socket->bind(bteso_IPv4Address()));
+                ASSERT(0 == socket->listen(1));
+
+                bteso_IPv4Address serverAddr;
+                ASSERT(0 == socket->localAddress(&serverAddr));
+
+                int handleBuffer;
+                int rc = pool.connect(&handleBuffer,
+                                      sessionStateCb,
+                                      serverAddr,
+                                      1,
+                                      bdet_TimeInterval(1),
+                                      &sessionFactory,
+                                      (void *) 0,
+                                      &OPT);
+                ASSERT(!rc);
+
+                if (0 == i) {
+                    channelCbBarrier.wait();
+                }
+                else {
+                    poolCbBarrier.wait();
+                    ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
+                }
+
+                socketFactory.deallocate(socket);
+            }
+
+            ASSERT(0 == pool.stopAndRemoveAllSessions());
+        }
+
+        if (verbose) cout << "connect(IPv4Address...) with client address"
+                          << endl;
+        {
+            btemt_ChannelPoolConfiguration config;
+            config.setMaxThreads(1);
+
+            typedef btemt_SessionPool::SessionPoolStateCallback PoolCb;
+
+            bcemt_Barrier   channelCbBarrier(2);
+            btemt_SessionPool::SessionStateCallback sessionStateCb(
+                                     bdef_BindUtil::bind(&sessionStateCallback,
+                                                         _1, _2, _3, _4,
+                                                         &channelCbBarrier));
+
+            int             poolState;
+            bcemt_Barrier   poolCbBarrier(2);
+            btemt_SessionPool::SessionPoolStateCallback
+                            poolStateCb(bdef_BindUtil::bind(&poolStateCallback,
+                                                            _1, _2, _3,
+                                                            &poolState,
+                                                            &poolCbBarrier));
+
+            TesterFactory sessionFactory;
+
+            btemt_SessionPool pool(config, poolStateCb, false);
+
+            ASSERT(0 == pool.start());
+
+            bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
+
+            bteso_IPv4Address ADDRS[2];
+
+            ADDRS[0].setIpAddress("127.0.0.1");
+            ADDRS[0].setPortNumber(45000);
+
+            ADDRS[1].setIpAddress("1.1.1.1");   // Bad local address
+            ADDRS[1].setPortNumber(45000);
+
+            for (int i = 0; i < 2; ++i) {
+                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                      socketFactory.allocate();
+                ASSERT(socket);
+
+                ASSERT(0 == socket->bind(bteso_IPv4Address()));
+                
+                ASSERT(0 == socket->listen(1));
+
+                bteso_IPv4Address serverAddr;
+                ASSERT(0 == socket->localAddress(&serverAddr));
+
+                int handleBuffer;
+                int rc = pool.connect(&handleBuffer,
+                                      sessionStateCb,
+                                      serverAddr,
+                                      1,
+                                      bdet_TimeInterval(1),
+                                      &sessionFactory,
+                                      (void *) 0,
+                                      (bteso_SocketOptions *) 0,
+                                      &ADDRS[i]);
+
+                ASSERT(!rc);
+
+                if (0 == i) {
+                    channelCbBarrier.wait();
+                }
+                else {
+                    poolCbBarrier.wait();
+                    ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
+                }
+
+                socketFactory.deallocate(socket);
+            }
+
+            ASSERT(0 == pool.stopAndRemoveAllSessions());
+        }
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING 'setWriteCacheWatermarks'
