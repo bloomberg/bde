@@ -1882,6 +1882,7 @@ void TestDriver<TYPE,ALLOC>::testCase22()
                BSLS_UTIL_ADDRESSOF(element) + 1,
                &testAllocator);
         const Obj& X = mX;
+        (void) X;
 
         Obj mY(mX, &testAllocator);  const Obj& Y = mY;
         ASSERT(TYPE() == Y[0]);
