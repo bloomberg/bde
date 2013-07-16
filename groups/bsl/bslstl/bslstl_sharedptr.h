@@ -1528,8 +1528,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_HASH
+#include <bslstl_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_HASHUTIL
+#include <bslalg_hashutil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
@@ -1618,7 +1626,13 @@ typedef native_std::size_t size_t;
 typedef native_std::ptrdiff_t ptrdiff_t;
 
 template <class ELEMENT_TYPE>
+class shared_ptr;
+
+template <class ELEMENT_TYPE>
 class weak_ptr;
+
+template <class ELEMENT_TYPE>
+struct hash<shared_ptr<ELEMENT_TYPE> >;
 
                         // ================
                         // class shared_ptr
@@ -2651,6 +2665,46 @@ void swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b);
     // Efficiently exchange the states of the specified 'a' and 'b' weak
     // pointers such that each will refer to the object (if any) and
     // representation formerly referred to by the other.
+
+
+                        // =========================
+                        // class hash specialization
+                        // =========================
+
+template <class ELEMENT_TYPE>
+struct hash<shared_ptr<ELEMENT_TYPE> > {
+    // Specialization of 'hash' for shared pointers.
+
+    // STANDARD TYPEDEFS
+    typedef shared_ptr<ELEMENT_TYPE> argument_type;
+    typedef size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    size_t operator()(const shared_ptr<ELEMENT_TYPE>& x) const;
+        // Return a hash value computed using the specified 'x'.  Two
+        // 'shared_ptr' objects will have the same hash value if they point to
+        // the same object, whether or not they share ownership of the same
+        // object.  Likewise, two shared pointers that share ownership of the
+        // same object may have different hash values if they do not both alias
+        // the same pointer.
+};
 
 }  // close namespace bsl
 
@@ -3833,6 +3887,17 @@ bool weak_ptr<ELEMENT_TYPE>::owner_before(
 {
     return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
                                                            other.d_rep_p);
+}
+
+                        // ---------------------------
+                        // struct hash<shared_ptr<T> >
+                        // ---------------------------
+
+template <class ELEMENT_TYPE>
+size_t hash<shared_ptr<ELEMENT_TYPE> >::operator()(
+                                       const shared_ptr<ELEMENT_TYPE>& x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x.get());
 }
 
 }  // close namespace bsl

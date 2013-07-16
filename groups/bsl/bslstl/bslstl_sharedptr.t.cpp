@@ -137,7 +137,7 @@ using namespace BloombergLP;
 // [15] void swap(bsl::shared_ptr<TYPE>& a, bsl::shared_ptr<TYPE>& b);
 //
 // bslstl::SharedPtrUtil
-//--------------------
+//----------------------
 // [ 9] bsl::shared_ptr<TARGET> dynamicCast(const bsl::shared_ptr<SOURCE>&);
 // [ 9] bsl::shared_ptr<TARGET> staticCast(const bsl::shared_ptr<SOURCE>&);
 // [ 9] bsl::shared_ptr<TARGET> constCast(const bsl::shared_ptr<SOURCE>&);
@@ -146,9 +146,13 @@ using namespace BloombergLP;
 // [  ] void constCast(bsl::shared_ptr<TRGT> *, const bsl::shared_ptr<SRC>&);
 // [10] bsl::shared_ptr<char> createInplaceUninitializedBuffer(...)
 //
+// bsl::hash< shared_ptr<T> >
+//---------------------------
+// [30] void operator()(const shared_ptr<T>& ) const;
+//
 // bslstl::SharedPtrNilDeleter
 //--------------------------
-// [  ] void operator()(const void *);
+// [  ] void operator()(const void *) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] bsl::shared_ptr(TYPE *ptr);
@@ -209,7 +213,7 @@ using namespace BloombergLP;
 // [29] bool owner_before(const bsl::weak_ptr<OTHER_TYPE>& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [30] USAGE TEST
+// [31] USAGE TEST
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -2351,7 +2355,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE (weak_ptr)
         //   The usage example provided in the component header file must
@@ -2474,6 +2478,70 @@ int main(int argc, char *argv[])
 //
 //  // No memory leak now
       } break;
+    case 30: {
+      // --------------------------------------------------------------------
+      // TEST 'hash' FUNCTOR  (shared_ptr):
+      //
+      // Concerns:
+      //   Test that the 'hash' specialization works as expected.
+      //   'hash' is a CopyConstructible POD
+      //   'operator()' produces distinct hash values for distinct inputs
+      //   'operator()' produces the same result for shared pointers aliasing
+      //      the same object, regardless of ownership
+      //   'operator()' supports empty shared pointers
+      //   'operator()' is const-qualified and can be called with const objects
+      //   'operator()' does not modify its argument
+      //
+      // Plan:
+      //
+      // Testing:
+      //   size_t hash<...>::operator()(const bsl::shared_ptr<TYPE>& x) const;
+      // --------------------------------------------------------------------
+
+      if (verbose) printf("\nTESTING 'hash' FUNCTOR (shared_ptr)"
+                          "\n===================================\n");
+
+      {
+          bslma::TestAllocator ta;
+          MyTestObject *OBJ_PTR_1 = new(ta) MyTestObject(&numDeletes);
+          const Obj obj1(OBJ_PTR_1, &ta);
+          
+          MyTestObject *OBJ_PTR_2 = new(ta) MyTestObject(&numDeletes);
+          const Obj obj2(OBJ_PTR_2, &ta);
+
+          // wacky aliased hybrid relies on nested object lifetime for validity
+          const Obj obj3(obj2, obj1.get());
+
+          {
+              const bsl::hash<Obj> hashX;
+              bsl::hash<Obj> hashY = hashX;
+
+              Obj x;
+              const bsl::size_t hashValueNull = bsl::hash<Obj>()(x);
+              ASSERT(!x);
+
+              const bsl::size_t hashValue_1   = bsl::hash<Obj>()(obj1);
+              const bsl::size_t hashValue_2   = bsl::hash<Obj>()(obj2);
+              
+              ASSERTV(hashValueNull,   hashValue_1,
+                      hashValueNull != hashValue_1);
+
+              ASSERTV(hashValueNull,   hashValue_2,
+                      hashValueNull != hashValue_2);
+
+              ASSERTV(hashValue_1, hashValue_2, hashValue_1 != hashValue_2);
+
+              const bsl::size_t hashValue_3 = bsl::hash<Obj>()(obj3);
+              ASSERTV(hashValue_1, hashValue_3, hashValue_1 == hashValue_3);
+
+              x = obj1;
+              const Obj X = x;
+              const bsl::size_t hashValue_4 = bsl::hash<Obj>()(x);
+              ASSERTV(hashValue_1, hashValue_4, hashValue_1 == hashValue_4);
+              ASSERT(X == x);
+          }
+      }
+    } break;
     case 29: {
       // --------------------------------------------------------------------
       // TEST 'owner_before' FUNCTION  (weak_ptr):
