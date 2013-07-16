@@ -328,9 +328,11 @@ int countLoggedRecords(const bsl::string& fileName)
     return numLines / 2;
 }
 
-int countMatchingRecords(const bsl::string& fileName,
-                         const char *pattern)
+int countMatchingRecords(const bsl::string&  fileName,
+                         const char         *pattern)
 {
+    // Return the number of lines in the specified 'fileName' matching
+    // the specified regex 'pattern'.  
     bsl::string line;
     int numLines = 0;
     bsl::ifstream fs;
@@ -350,9 +352,14 @@ int countMatchingRecords(const bsl::string& fileName,
     return numLines;
 }
 
-int accumulateMatchingRecords(const bsl::string& fileName,
-                              const char *pattern)
+int accumulateMatchingRecords(const bsl::string&  fileName,
+                              const char         *pattern)
 {
+    // Apply the specified regex 'pattern', which must contain one 
+    // integer-matching subpattern, to each line in the specified 'fileName', 
+    // and return the sum of all the values of the subpattern for matching 
+    // lines.  
+
     bsl::string line;
     int sum = 0;
     bsl::ifstream fs;

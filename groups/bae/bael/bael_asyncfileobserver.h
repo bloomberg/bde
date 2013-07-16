@@ -381,6 +381,10 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // publication thread
                                                      // function
 
+    bael_Record                   d_warnRecord;      // published directly to
+                                                     // file observer by 
+                                                     // publication thread
+
     mutable bcemt_Mutex           d_mutex;           // serialize operations
 
     bslma::Allocator             *d_allocator_p;     // memory allocator (held,
@@ -395,12 +399,16 @@ class bael_AsyncFileObserver : public bael_Observer {
     void logDroppedMessageWarning(int numDropped);
         // Synchronously write an entry into the underlying file observer
         // indicating that the specified 'numDropped' number of records
-        // have been dropped.  
+        // have been dropped.  The behavior is undefined if this method
+        // is invoked concurrently from multiple threads (i.e., it is *not*
+        // *threadsafe*).
 
     void publishThreadEntryPoint();
         // Thread function of the publication thread.  The publication thread
         // pops record shared pointers and contexts from queue and writes the
         // records referred by these shared pointers to files or 'stdout'.
+        // The behavior is undefined if this method is invoked concurrently 
+        // from multiple threads (i.e., it is *not* *threadsafe*).
 
     int startThread();
         // Create publication thread using the thread function
