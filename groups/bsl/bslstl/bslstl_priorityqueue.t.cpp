@@ -18,6 +18,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
@@ -198,6 +199,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -1861,7 +1868,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
             const size_t      LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", (int) LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
             {   // Testing concern 1..3.
@@ -2240,7 +2247,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase3()
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", (int) LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -2401,8 +2408,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'push' (bootstrap).\n"); }
 
             if (veryVeryVerbose) {
-                printf("\t\tOn an object of initial length %d.\n",
-                       (int) LENGTH);
+                printf("\t\tOn an object of initial length " ZU ".\n", LENGTH);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
@@ -2423,8 +2429,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
             if (veryVerbose) printf("\n\tTesting 'pop'.\n");
 
             if (verbose) {
-                printf("\t\tOn an object of initial length %d.\n",
-                       (int) LENGTH + 1);
+                printf("\t\tOn an object of initial length " ZU ".\n",
+                       LENGTH + 1);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
