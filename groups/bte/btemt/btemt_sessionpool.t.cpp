@@ -176,6 +176,8 @@ void sessionStateCallback(int            state,
           }
           barrier->wait();
       } break;
+      default: {
+      } break;
     }
 }
 
@@ -190,18 +192,10 @@ class TesterSession : public btemt_Session {
     // DATA
     btemt_AsyncChannel *d_channel_p; // underlying channel (held, not owned)
 
-  private:
-    // NOT IMPLEMENTED
-    TesterSession(const TesterSession&);
-    TesterSession& operator=(const TesterSession&);
-
   public:
     // CREATORS
     TesterSession(btemt_AsyncChannel *channel);
         // Create a new 'TesterSession' object for the specified 'channel'.
-
-    ~TesterSession();
-        // Destroy this object.
 
     // MANIPULATORS
     virtual int start();
@@ -222,10 +216,6 @@ class TesterSession : public btemt_Session {
 // CREATORS
 TesterSession::TesterSession(btemt_AsyncChannel *channel)
 : d_channel_p(channel)
-{
-}
-
-TesterSession::~TesterSession()
 {
 }
 
@@ -324,6 +314,31 @@ void TesterFactory::deallocate(btemt_Session *session)
     }
 
     d_allocator_p->deleteObjectRaw(session);
+}
+
+int createConnection(Obj                                     *sessionPool,
+                     btemt_SessionPool::SessionStateCallback *sessionStateCb, 
+                     btemt_SessionFactory                    *sessionFactory,
+                     bteso_StreamSocket<bteso_IPv4Address>   *socket,
+                     SocketOptions                           *socketOptions,
+                     const bteso_IPv4Address                 *ipAddress)
+{
+    ASSERT(0 == socket->bind(bteso_IPv4Address()));
+    ASSERT(0 == socket->listen(1));
+
+    bteso_IPv4Address serverAddr;
+    ASSERT(0 == socket->localAddress(&serverAddr));
+
+    int handleBuffer;
+    return sessionPool->connect(&handleBuffer,
+                                *sessionStateCb,
+                                serverAddr,
+                                1,
+                                bdet_TimeInterval(1),
+                                sessionFactory,
+                                0,
+                                socketOptions,
+                                ipAddress);
 }
 
 }  // close namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS
@@ -3445,42 +3460,37 @@ int main(int argc, char *argv[])
     bcema_TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'connect' and 'listen' with socket options
-        //   Ensure that the 'connect' and 'listen' functions that take
-        //   socket options and client address return a user callback on error
-        //   and the session up callback on success.
+        // TESTING 'connect' with socket options
+        //   Ensure that the 'connect' that takes a socket option object
+        //   returns a session up callback on success and user callback on
+        //   error.
         //
         // Concerns:
-        //   1. A user callback is invoked on encountering an asynchronous
-        //      failure while setting the socket options or binding to a
-        //      provided local address.
+        //   1. The session state callback is called with success if setting of
+        //      the socket options succeeds.
         //
-        //   2. The session state callback is called with success if setting
-        //      the socket option succeeds.
+        //   2. A user callback is invoked on encountering an asynchronous
+        //      failure while setting the socket options.
         //
         // Plan:
         //   1. For concern 1, invoke 'connect' with a socket option expected
-        //      to fail and with a bad IP address.  In both cases verify that
-        //      a pool state callback with is invoked informing the user of
-        //      the connect error.
+        //      to succeed.  Verify that a session state callback is invoked
+        //      informing the user of connect success.
         //
-        //   2. For concern 2, invoke 'connect' with a socket option expected
-        //      to succeed and with a good IP address.  In both cases verify
-        //      that a session state callback is invoked informing the user of
-        //      connect success.
+        //   1. For concern 2, invoke 'connect' with a socket option expected
+        //      to fail.  Verify that a pool state callback with is invoked
+        //      informing the user of the connect error.
         //
         // Testing:
-        //   int connect(host, ...., *socketOptions, *clientAddr);
-        //   int connect(serverAddr, ...., *socketOptions, *clientAddr);
+        //   int connect(host, ...., *socketOptions);
+        //   int connect(serverAddr, ...., *socketOptions);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "TESTING 'connect' and 'listen' "
-                               << "with socket options"
+        if (verbose) bsl::cout << "TESTING 'connect' with socket options"
                                << bsl::endl
-                               << "==============================="
-                               << "==================="
+                               << "====================================="
                                << bsl::endl;
 
         using namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS;
@@ -3514,51 +3524,81 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.start());
 
             bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
-            for (int i = 0; i < 2; ++i) {
-                SocketOptions opt;  const SocketOptions& OPT = opt;
-                if (0 == i) {
-                    opt.setKeepAlive(true);  // should succeed on all platforms
-                }
-                else {
-                    opt.setSendTimeout(1);   // should fail on all platforms
-                }
 
-                if (veryVerbose) { P(OPT); }
-
+            {
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                       socketFactory.allocate();
                 ASSERT(socket);
 
-                ASSERT(0 == socket->bind(bteso_IPv4Address()));
-                ASSERT(0 == socket->listen(1));
-
-                bteso_IPv4Address serverAddr;
-                ASSERT(0 == socket->localAddress(&serverAddr));
-
-                int handleBuffer;
-                int rc = pool.connect(&handleBuffer,
-                                      sessionStateCb,
-                                      serverAddr,
-                                      1,
-                                      bdet_TimeInterval(1),
-                                      &sessionFactory,
-                                      (void *) 0,
-                                      &OPT);
+                SocketOptions opt;  opt.setKeepAlive(true); // always succeeds 
+                const int rc = createConnection(&pool,
+                                                &sessionStateCb,
+                                                &sessionFactory,
+                                                socket,
+                                                &opt,
+                                                0);
                 ASSERT(!rc);
 
-                if (0 == i) {
-                    channelCbBarrier.wait();
-                }
-                else {
-                    poolCbBarrier.wait();
-                    ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
-                }
+                channelCbBarrier.wait();
+                socketFactory.deallocate(socket);
+            }
 
+            {
+                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                      socketFactory.allocate();
+                ASSERT(socket);
+
+                SocketOptions opt;  opt.setSendTimeout(1); // fails on all
+                                                           // platforms 
+                const int rc = createConnection(&pool,
+                                                &sessionStateCb,
+                                                &sessionFactory,
+                                                socket,
+                                                &opt,
+                                                0);
+                ASSERT(!rc);
+
+                poolCbBarrier.wait();
+                ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
                 socketFactory.deallocate(socket);
             }
 
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'connect' with a user-specified local address
+        //   Ensure that the 'connect' that takes a client address returns a
+        //   session up callback on success and user callback on error.
+        //
+        // Concerns:
+        //   1. The session state callback is called with success if binding
+        //      to the local address succeeds.
+        //
+        //   2. A user callback is invoked on encountering an asynchronous
+        //      failure while binding to a provided local address.
+        //
+        // Plan:
+        //   1. For concern 1, invoke 'connect' with a good IP address.  Verify
+        //      that a session state callback is invoked informing the user of
+        //      connect success.
+        //
+        //   2. For concern 2, invoke 'connect' with a bad IP address.  Verify
+        //      that a pool state callback is invoked informing the user of
+        //      the connect error.
+        //
+        // Testing:
+        //   int connect(host, ...., *socketOptions, *clientAddr);
+        //   int connect(serverAddr, ...., *socketOptions, *clientAddr);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING 'connect' with a local address"
+                               << bsl::endl
+                               << "======================================"
+                               << bsl::endl;
+
+        using namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS;
 
         if (verbose) cout << "connect(IPv4Address...) with client address"
                           << endl;
@@ -3590,47 +3630,40 @@ int main(int argc, char *argv[])
 
             bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
 
-            bteso_IPv4Address ADDRS[2];
-
-            ADDRS[0].setIpAddress("127.0.0.1");
-            ADDRS[0].setPortNumber(45000);
-
-            ADDRS[1].setIpAddress("1.1.1.1");   // Bad local address
-            ADDRS[1].setPortNumber(45000);
-
-            for (int i = 0; i < 2; ++i) {
+            {
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                       socketFactory.allocate();
                 ASSERT(socket);
 
-                ASSERT(0 == socket->bind(bteso_IPv4Address()));
-                
-                ASSERT(0 == socket->listen(1));
-
-                bteso_IPv4Address serverAddr;
-                ASSERT(0 == socket->localAddress(&serverAddr));
-
-                int handleBuffer;
-                int rc = pool.connect(&handleBuffer,
-                                      sessionStateCb,
-                                      serverAddr,
-                                      1,
-                                      bdet_TimeInterval(1),
-                                      &sessionFactory,
-                                      (void *) 0,
-                                      (bteso_SocketOptions *) 0,
-                                      &ADDRS[i]);
-
+                bteso_IPv4Address address("127.0.0.1", 45000); // good address
+                const int rc = createConnection(&pool,
+                                                &sessionStateCb,
+                                                &sessionFactory,
+                                                socket,
+                                                0,
+                                                &address);
                 ASSERT(!rc);
 
-                if (0 == i) {
-                    channelCbBarrier.wait();
-                }
-                else {
-                    poolCbBarrier.wait();
-                    ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
-                }
+                channelCbBarrier.wait();
+                socketFactory.deallocate(socket);
+            }
 
+            {
+                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                      socketFactory.allocate();
+                ASSERT(socket);
+
+                bteso_IPv4Address address("1.1.1.1", 45000);  // bad address
+                const int rc = createConnection(&pool,
+                                                &sessionStateCb,
+                                                &sessionFactory,
+                                                socket,
+                                                0,
+                                                &address);
+                ASSERT(!rc);
+
+                poolCbBarrier.wait();
+                ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
                 socketFactory.deallocate(socket);
             }
 
