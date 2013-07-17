@@ -8,140 +8,240 @@ BDES_IDENT_RCSID(bdet_calendarcache_cpp,"$Id$ $CSID$")
 #include <bdet_datetime.h>
 #include <bdet_packedcalendar.h>
 #include <bdet_systemtimeutil.h>
-#include <bdet_timeinterval.h>
 
-#include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_deleterhelper.h>
 #include <bslma_rawdeleterproctor.h>
 
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_types.h>
 
 #include <bsl_functional.h>
-#include <bsl_string.h>
 
 namespace BloombergLP {
 
-                        // =============================
-                        // class bdet_CalendarCacheEntry
-                        // =============================
+// STATIC HELPER FUNCTIONS
+static
+bool hasExpired(const bdet_TimeInterval& interval,
+                const bdet_Datetime&     loadTime)
+    // Return 'true' if at least the specified time 'interval' has elapsed
+    // since the specified 'loadTime, and 'false' otherwise.
+{
+    const bsls::Types::Int64 elapsedTime =
+      (bdet_SystemTimeUtil::nowAsDatetimeUtc() - loadTime).totalMilliseconds();
 
-class bdet_CalendarCacheEntry {
-    // This class implements an entry in the calendar cache.  It contains the
-    // calendar object, the time when it is loaded into the cache, and a flag
-    // which indicates a forced reload of the calendar object if set to true.
+    return elapsedTime >= interval.totalMilliseconds() ? true : false;
+}
 
-    bdet_Calendar     d_calendar;         // the calendar object
-    bdet_Datetime     d_loadTime;         // the time when this entry is loaded
-    bool              d_forceReloadFlag;  // set it to 'true' to force a reload
-    bool              d_firstLoadFlag;    // 'true' if 'd_calendar' has never
-                                          // been loaded and 'false' otherwise
-    bslma::Allocator *d_allocator_p;      // memory allocator(held, not owned)
+                     // ====================================
+                     // class bdet_CalendarCache_EntryPtrRep
+                     // ====================================
+
+class bdet_CalendarCache_EntryPtrRep {
+    // This class provides the representation object for a shared calendar
+    // cache entry.  A reference to a shared calendar, via the representation
+    // object that manages it. is acquired via 'acquireRef' and released via
+    // 'releaseRef'.  The resources of a representation object, and of the
+    // shared calendar to which it refers, are automatically recovered (via
+    // 'dispose') when the number of outstanding references goes to 0.  Note
+    // that an explicit allocator is *required* to create a representation
+    // object.
+
+    // DATA
+    bsls::AtomicInt   d_sharedCount;  // number of references to this rep
+
+    bdet_Datetime     d_loadTime;     // time when calendar was loaded
+
+    bdet_Calendar    *d_ptr_p;        // pointer to out-of-place instance
+                                      // (held, not owned)
+
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED
-    bdet_CalendarCacheEntry(const bdet_CalendarCacheEntry&);
-    bdet_CalendarCacheEntry& operator=(const bdet_CalendarCacheEntry&);
+    bdet_CalendarCache_EntryPtrRep(const bdet_CalendarCache_EntryPtrRep&);
+    bdet_CalendarCache_EntryPtrRep& operator=(
+                                   const bdet_CalendarCache_EntryPtrRep&);
 
   public:
     // CREATORS
-    explicit bdet_CalendarCacheEntry(bslma::Allocator *basicAllocator = 0);
-        // Create an empty calendar cache entry object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+    bdet_CalendarCache_EntryPtrRep(bdet_Calendar        *calendar,
+                                   const bdet_Datetime&  loadTime,
+                                   bslma::Allocator     *allocator);
+        // Create a representation object for managing the specified shared
+        // 'calendar' that was loaded at the specified 'loadTime' using the
+        // specified 'allocator'.  The behavior is undefined unless the memory
+        // for 'calendar' and the footprint of this object were both obtained
+        // from 'allocator'.
 
-    ~bdet_CalendarCacheEntry();
-        // Destroy this object.
+    ~bdet_CalendarCache_EntryPtrRep();
+        // Destroy this representation object.
 
     // MANIPULATORS
-    void invalidate();
-        // Mark this entry expired.
+    void acquireRef();
+        // Atomically acquire a reference to the shared calendar referred to by
+        // this representation object.
 
-    const bdet_Calendar *calendar(bdet_CalendarLoader      *loader,
-                                  const char               *name,
-                                  const bdet_TimeInterval&  timeout);
-        // Return the calendar from the cache if the cache entry is valid, or
-        // load it into the cache using the calendar loader otherwise.
+    void dispose();
+        // Destroy the shared calendar referred to by this representation
+        // object, destroy this representation object, and deallocate any
+        // associated memory.  This method is automatically invoked by
+        // 'releaseRef' when the number of references reaches 0 and should not
+        // be explicitly invoked otherwise.
 
-    const bdet_Calendar *calendar(bdet_CalendarLoader *loader,
-                                  const char          *name);
-        // Reload the calendar from the calendar loader if 'd_forceReloadFlag'
-        // is set; return the calendar from the cache otherwise.
+    void releaseRef();
+        // Atomically release a reference to the shared calendar referred to by
+        // this representation object, disposing of the shared object and this
+        // representation object if the number of references reaches 0.
+
+    // ACCESSORS
+    int numReferences() const;
+        // Return the number of references to the shared calendar referred to
+        // by this representation object.
+
+    bdet_Datetime loadTime() const;
+        // Return the time at which the shared calendar referred to by this
+        // representation object was loaded.
+
+    const bdet_Calendar *ptr() const;
+        // Return an address providing non-modifiable access to the shared
+        // calendar referred to by this representation object.
 };
 
+                     // ------------------------------------
+                     // class bdet_CalendarCache_EntryPtrRep
+                     // ------------------------------------
+
 // CREATORS
-inline
-bdet_CalendarCacheEntry::bdet_CalendarCacheEntry(
-                                              bslma::Allocator *basicAllocator)
-: d_calendar(basicAllocator)
-, d_forceReloadFlag(true)
-, d_firstLoadFlag(true)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+bdet_CalendarCache_EntryPtrRep::bdet_CalendarCache_EntryPtrRep(
+                                               bdet_Calendar        *calendar,
+                                               const bdet_Datetime&  loadTime,
+                                               bslma::Allocator     *allocator)
+: d_sharedCount(0)                              // minimum consistency: relaxed
+, d_loadTime(loadTime)
+, d_ptr_p(calendar)
+, d_allocator_p(allocator)
 {
 }
 
-bdet_CalendarCacheEntry::~bdet_CalendarCacheEntry()
+bdet_CalendarCache_EntryPtrRep::~bdet_CalendarCache_EntryPtrRep()
 {
 }
 
 // MANIPULATORS
-const bdet_Calendar *bdet_CalendarCacheEntry::calendar(
-                                                   bdet_CalendarLoader *loader,
-                                                   const char          *name)
+void bdet_CalendarCache_EntryPtrRep::acquireRef()
 {
-    BSLS_ASSERT(loader);
-    BSLS_ASSERT(name);
+    BSLS_ASSERT(0 <= numReferences());
 
-    if (d_forceReloadFlag) {
-        bdet_PackedCalendar packedCalendar(d_allocator_p);
-        int ret = loader->load(&packedCalendar, name);
-        if (ret != 0) {
-            if (d_firstLoadFlag) {
-                return 0;
-            }
-            else {
-                return &d_calendar;
-            }
+    d_sharedCount.addRelaxed(1);                // minimum consistency: relaxed
+}
+
+void bdet_CalendarCache_EntryPtrRep::dispose()
+{
+    BSLS_ASSERT(0 == numReferences());
+
+    bslma::DeleterHelper::deleteObjectRaw(d_ptr_p, d_allocator_p);
+
+    this->bdet_CalendarCache_EntryPtrRep::~bdet_CalendarCache_EntryPtrRep();
+    d_allocator_p->deallocate(this);
+}
+
+void bdet_CalendarCache_EntryPtrRep::releaseRef()
+{
+    BSLS_ASSERT(0 < numReferences());
+
+    if (0 == d_sharedCount.add(-1)) {   // release consistency: acquire/release
+        dispose();
+    }
+}
+
+// ACCESSORS
+bdet_Datetime bdet_CalendarCache_EntryPtrRep::loadTime() const
+{
+    return d_loadTime;
+}
+
+int bdet_CalendarCache_EntryPtrRep::numReferences() const
+{
+    return d_sharedCount.loadRelaxed();        // minimum consistency: relaxed;
+}
+
+const bdet_Calendar *bdet_CalendarCache_EntryPtrRep::ptr() const
+{
+    return d_ptr_p;
+}
+
+                      // --------------------------------
+                      // class bdet_CalendarCacheEntryPtr
+                      // --------------------------------
+
+// PRIVATE CREATORS
+bdet_CalendarCacheEntryPtr::bdet_CalendarCacheEntryPtr(
+                                           bdet_CalendarCache_EntryPtrRep *rep)
+: d_rep_p(rep)
+{
+    BSLS_ASSERT(d_rep_p);
+
+    d_rep_p->acquireRef();
+}
+
+// PRIVATE ACCESSORS
+const bdet_CalendarCache_EntryPtrRep *bdet_CalendarCacheEntryPtr::rep() const
+{
+    return d_rep_p;
+}
+
+// CREATORS
+bdet_CalendarCacheEntryPtr::bdet_CalendarCacheEntryPtr()
+: d_rep_p(0)
+{
+}
+
+bdet_CalendarCacheEntryPtr::bdet_CalendarCacheEntryPtr(
+                                    const bdet_CalendarCacheEntryPtr& original)
+: d_rep_p(original.d_rep_p)
+{
+    if (d_rep_p) {
+        d_rep_p->acquireRef();
+    }
+}
+
+bdet_CalendarCacheEntryPtr::~bdet_CalendarCacheEntryPtr()
+{
+    if (d_rep_p) {
+        d_rep_p->releaseRef();
+    }
+}
+
+// MANIPULATORS
+bdet_CalendarCacheEntryPtr& bdet_CalendarCacheEntryPtr::operator=(
+                                         const bdet_CalendarCacheEntryPtr& rhs)
+{
+    if (this != &rhs) {
+        if (d_rep_p) {
+            d_rep_p->releaseRef();
         }
-        d_loadTime = bdet_SystemTimeUtil::nowAsDatetimeUtc();
-        bdet_Calendar calendar(packedCalendar, d_allocator_p);
-        d_calendar.swap(calendar);
-        d_forceReloadFlag = false;
-        d_firstLoadFlag = false;
-    }
-    return &d_calendar;
-}
 
-const bdet_Calendar *bdet_CalendarCacheEntry::calendar(
-                                             bdet_CalendarLoader      *loader,
-                                             const char               *name,
-                                             const bdet_TimeInterval&  timeout)
-{
-    BSLS_ASSERT(loader);
-    BSLS_ASSERT(name);
+        d_rep_p = rhs.d_rep_p;
 
-    // Determine whether calendar should be reloaded by checking whether the
-    // elapsed time is greater than the time out time.  Note that the elapsed
-    // time has milliseconds precision while time out time has nanoseconds
-    // precision, and that the behavior is undefined unless 'timeout' is small
-    // enough to fit in a 64-bit integer value in milliseconds.
-
-    bsls::Types::Int64 elapsedTime =
-    (bdet_SystemTimeUtil::nowAsDatetimeUtc() - d_loadTime).totalMilliseconds();
-
-    if (elapsedTime >= timeout.totalMilliseconds()) {
-
-        // This entry has expired.
-
-        d_forceReloadFlag = true;
+        if (d_rep_p) {
+            d_rep_p->acquireRef();
+        }
     }
 
-    return calendar(loader, name);
+    return *this;
 }
 
-inline void bdet_CalendarCacheEntry::invalidate()
+// ACCESSORS
+const bdet_Calendar *bdet_CalendarCacheEntryPtr::operator->() const
 {
-    d_forceReloadFlag = true;
+    return d_rep_p ? d_rep_p->ptr() : 0;
+}
+
+const bdet_Calendar *bdet_CalendarCacheEntryPtr::ptr() const
+{
+    return d_rep_p ? d_rep_p->ptr() : 0;
 }
 
                         // ------------------------
@@ -152,12 +252,12 @@ inline void bdet_CalendarCacheEntry::invalidate()
 bdet_CalendarCache::bdet_CalendarCache(bdet_CalendarLoader *loader,
                                        bslma::Allocator    *basicAllocator)
 
-// We have to pass 'bsl::less<key>()' because 'bsl::map' does not have
-// a constructor which takes only an allocator.
+// We have to supply 'bsl::less<key>()' because 'bsl::map' does not have
+// a constructor that takes only an allocator.
 
 : d_cache(bsl::less<bsl::string>(), basicAllocator)
 , d_loader_p(loader)
-, d_useTimeOutFlag(false)
+, d_hasTimeOutFlag(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(loader);
@@ -168,13 +268,13 @@ bdet_CalendarCache::bdet_CalendarCache(
                                       const bdet_TimeInterval&  timeout,
                                       bslma::Allocator         *basicAllocator)
 
-// We have to pass 'bsl::less<key>()' because 'bsl::map' does not have
-// a constructor which takes only an allocator.
+// We have to supply 'bsl::less<key>()' because 'bsl::map' does not have
+// a constructor that takes only an allocator.
 
 : d_cache(bsl::less<bsl::string>(), basicAllocator)
 , d_loader_p(loader)
 , d_timeOut(timeout)
-, d_useTimeOutFlag(true)
+, d_hasTimeOutFlag(true)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(loader);
@@ -182,130 +282,108 @@ bdet_CalendarCache::bdet_CalendarCache(
 
 bdet_CalendarCache::~bdet_CalendarCache()
 {
-    for (CacheIterator it = d_cache.begin(); it != d_cache.end(); ++it) {
-        d_allocator_p->deleteObjectRaw(it->second);
-    }
 }
 
 // MANIPULATORS
-const bdet_Calendar *bdet_CalendarCache::calendar(const char *calendarName)
+bdet_CalendarCacheEntryPtr
+bdet_CalendarCache::calendar(const char *calendarName)
 {
-    if (!calendarName) {
-        return 0;
-    }
-    CacheIterator it = d_cache.find(calendarName);
-    if (it != d_cache.end()) {
-        if (d_useTimeOutFlag) {
-            return it->second->calendar(d_loader_p, calendarName, d_timeOut);
-        }
-        else {
-            return it->second->calendar(d_loader_p, calendarName);
-        }
-    }
+    BSLS_ASSERT(calendarName);
 
-    // Insert a new entry.
+    bsls::MutexImpProctor lockProctor(&d_lock);
 
-    bdet_CalendarCacheEntry *entry_p;
-    entry_p = new(*d_allocator_p) bdet_CalendarCacheEntry(d_allocator_p);
-    if (0 == entry_p) {
-        return 0;
+    CacheIterator iter = d_cache.find(calendarName);
+
+    if (iter != d_cache.end()) {
+       if (!d_hasTimeOutFlag || !hasExpired(d_timeOut,
+                                            iter->second.rep()->loadTime())) {
+           return iter->second;
+       }
+       else {
+           d_cache.erase(iter);  // calendar has expired; remove it from cache
+       }
     }
 
-    // The 'bslma::RawDeleterProctor' object below is used to release the
-    // memory pointed to by 'entry_p' in the case when an exception takes
-    // place.  It will release the memory when it is destroyed.
+    // Load calendar identified by 'calendarName'.
 
-    bslma::RawDeleterProctor<bdet_CalendarCacheEntry, bslma::Allocator>
-                                        deleterProctor(entry_p, d_allocator_p);
+    bdet_PackedCalendar packedCalendar;  // temporary, so use default allocator
 
-    const bdet_Calendar *calendar_p = entry_p->calendar(d_loader_p,
-                                                        calendarName);
-    if (0 == calendar_p) {
-        return 0;
+    if (d_loader_p->load(&packedCalendar, calendarName)) {
+        return bdet_CalendarCacheEntryPtr();
     }
 
-    d_cache[calendarName] = entry_p;
+    // Create shared calendar object and proctor it.
 
-    // No exception is thrown.  Release the auto deleter object so it won't
-    // free the memory pointer to by entry_p.
+    bdet_Calendar *calendarPtr =
+                             new (*d_allocator_p) bdet_Calendar(packedCalendar,
+                                                                d_allocator_p);
 
-    deleterProctor.release();
+    bslma::RawDeleterProctor<bdet_Calendar, bslma::Allocator>
+                                                calendarProctor(calendarPtr,
+                                                                d_allocator_p);
 
-    return calendar_p;
+    // Create rep object.
+
+    bdet_CalendarCache_EntryPtrRep *repPtr =
+                  new (*d_allocator_p) bdet_CalendarCache_EntryPtrRep(
+                                       calendarPtr,
+                                       bdet_SystemTimeUtil::nowAsDatetimeUtc(),
+                                       d_allocator_p);
+
+    // The management of 'repPtr' and (indirectly) 'calendarPtr' are adopted by
+    // the 'bdet_CalendarCacheEntryPtr' that is inserted into the cache, so no
+    // proctors are necessary from this point.
+
+    calendarProctor.release();
+
+    // Insert newly-loaded calendar into cache.
+
+    d_cache[calendarName] = bdet_CalendarCacheEntryPtr(repPtr);
+
+    return bdet_CalendarCacheEntryPtr(repPtr);
 }
 
 void bdet_CalendarCache::invalidate(const char *calendarName)
 {
-    if (calendarName) {
-        CacheIterator it = d_cache.find(calendarName);
-        if (it != d_cache.end()) {
-            it->second->invalidate();
-        }
+    BSLS_ASSERT(calendarName);
+
+    bsls::MutexImpProctor lockProctor(&d_lock);
+
+    CacheIterator iter = d_cache.find(calendarName);
+
+    if (iter != d_cache.end()) {
+        d_cache.erase(iter);
     }
 }
 
 void bdet_CalendarCache::invalidateAll()
 {
-    for (CacheIterator it = d_cache.begin(); it != d_cache.end(); ++it) {
-        it->second->invalidate();
-    }
-}
+    bsls::MutexImpProctor lockProctor(&d_lock);
 
-                        // ----------------------------
-                        // class bdet_CalendarCacheIter
-                        // ----------------------------
-
-// CREATORS
-bdet_CalendarCacheIter::bdet_CalendarCacheIter(
-                                     const CacheConstIterator&  iter,
-                                     bdet_CalendarLoader       *loader,
-                                     bool                       useTimeOutFlag,
-                                     const bdet_TimeInterval&   timeout)
-: d_iterator(iter)
-, d_loader_p(loader)
-, d_useTimeOutFlag(useTimeOutFlag)
-, d_timeOut_p(&timeout)
-{
-}
-
-// MANIPULATORS
-bdet_CalendarCacheIter&
-bdet_CalendarCacheIter::operator=(const bdet_CalendarCacheIter& original)
-{
-    d_iterator       = original.d_iterator;
-    d_loader_p       = original.d_loader_p;
-    d_useTimeOutFlag = original.d_useTimeOutFlag;
-    d_timeOut_p      = original.d_timeOut_p;
-    return *this;
-}
-
-bdet_CalendarCacheIter operator++(bdet_CalendarCacheIter& iter, int)
-{
-    bdet_CalendarCacheIter imp(iter);
-    ++iter;
-    return imp;
-}
-
-bdet_CalendarCacheIter operator--(bdet_CalendarCacheIter& iter, int)
-{
-    bdet_CalendarCacheIter imp(iter);
-    --iter;
-    return imp;
+    d_cache.clear();
 }
 
 // ACCESSORS
-bdet_CalendarCache_PairRef bdet_CalendarCacheIter::operator*() const
+bdet_CalendarCacheEntryPtr
+bdet_CalendarCache::calendar(const char *calendarName) const
 {
-    return bdet_CalendarCache_PairRef(bdet_CalendarCache_Pair
-                                   (d_iterator->first,
-                                    d_useTimeOutFlag
-                                    ? *d_iterator->second->calendar(
-                                                  d_loader_p,
-                                                  d_iterator->first.c_str(),
-                                                 *d_timeOut_p)
-                                    : *d_iterator->second->calendar(
-                                                  d_loader_p,
-                                                  d_iterator->first.c_str())));
+    BSLS_ASSERT(calendarName);
+
+    bsls::MutexImpProctor lockProctor(&d_lock);
+
+    ConstCacheIterator iter = d_cache.find(calendarName);
+
+    if (iter != d_cache.end()) {
+       if (!d_hasTimeOutFlag || !hasExpired(d_timeOut,
+                                            iter->second.rep()->loadTime())) {
+           return iter->second;
+       }
+       else {
+           d_cache.erase(iter);  // calendar has expired; remove it from cache
+       }
+    }
+
+    return bdet_CalendarCacheEntryPtr();
 }
 
 }  // close namespace BloombergLP

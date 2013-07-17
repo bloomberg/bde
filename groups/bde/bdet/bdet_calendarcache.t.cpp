@@ -1,9 +1,8 @@
 // bdet_calendarcache.t.cpp                                           -*-C++-*-
 #include <bdet_calendarcache.h>
 
-#include <bdex_testoutstream.h>
-#include <bdex_testinstream.h>
-#include <bdex_testinstreamexception.h>
+#include <bdet_calendarloader.h>
+#include <bdet_packedcalendar.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -15,13 +14,11 @@
 #include <bsl_cstring.h>      // strcmp()
 #include <bsl_iostream.h>
 
-#include <bdet_calendarloader.h>
-#include <bdet_packedcalendar.h>
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
 #else
+#include <pthread.h>
 #include <unistd.h>
 #endif
 
@@ -36,13 +33,29 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// TBD
+// ----------------------------------------------------------------------------
+// bdet_CalendarCacheEntryPtr class:
+// [ ?] bdet_CalendarCacheEntryPtr();
+// [ ?] bdet_CalendarCacheEntryPtr(const CacheEntryPtr& original);
+// [ ?] ~bdet_CalendarCacheEntryPtr();
+// [ ?] bdet_CalendarCacheEntryPtr& operator=(const CacheEntryPtr& rhs);
+// [ ?] const bdet_Calendar *operator->() const;
+// [ ?] const bdet_Calendar *ptr() const;
+//
+// bdet_CalendarCache class:
+// [ ?] bdet_CalendarCache(Loader *loader, Alloc *ba=0);
+// [ ?] bdet_CalendarCache(Loader *loader, const bdet_TI& to, Alloc *ba=0);
+// [ ?] ~bdet_CalendarCache();
+// [ ?] bdet_CalendarCacheEntryPtr calendar(const char *calendarName);
+// [ ?] void invalidate(const char *calendarName);
+// [ ?] void invalidateAll();
+// [ ?] bdet_CalendarCacheEntryPtr calendar(const char *calendarName) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] THE ITERATORS
-// [ 3] const bdet_Calendar *bdet_CalendarCache::calendar()
-// [ 4] invalidate() and invalidateAll()
-// [ 5] EXCEPTION NEUTRALITY
-//
+// [ 5] USAGE EXAMPLE
+// [ 4] EXCEPTION NEUTRALITY
+
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
@@ -99,65 +112,107 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-// ITERATOR TEST UTILITY FUNCTIONS
-// ----------------------------------------------------------------------------
-
-template <typename U, typename V>
-struct IsSame
-{
-    enum { VALUE = 0 };
-};
-
-template <typename U>
-struct IsSame<U, U>
-{
-    enum { VALUE = 1 };
-};
-
-
-// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdet_CalendarCache Obj;
-typedef bdet_CalendarCache::ConstIterator Iterator;
+typedef bdet_CalendarCache         Obj;
+typedef bdet_CalendarCacheEntryPtr Entry;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+typedef HANDLE    ThreadId;
+#else
+typedef pthread_t ThreadId;
+#endif
+
+typedef void *(*ThreadFunction)(void *arg);
+
+// ============================================================================
+//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+static
+ThreadId createThread(ThreadFunction func, void *arg)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)func, arg, 0, 0);
+#else
+    ThreadId id;
+    pthread_create(&id, 0, func, arg);
+    return id;
+#endif
+}
+
+static
+void joinThread(ThreadId id)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    WaitForSingleObject(id, INFINITE);
+    CloseHandle(id);
+#else
+    pthread_join(id, 0);
+#endif
+}
+
+static
+void sleepSeconds(int seconds)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    Sleep(seconds * 1000);
+#else
+    sleep(seconds);
+#endif
+}
+
+// TBD test loader that loads three named calendars (or somesuch small number)
 
 static int holidayOffset = 38;
 
-class testLoader : public bdet_CalendarLoader {
-  private:
-    testLoader(const testLoader&);
-    testLoader& operator=(const testLoader&);
+class TestLoader : public bdet_CalendarLoader {
 
+    // DATA
     bdet_Date d_firstDate;
 
- public:
-    testLoader(bslma::Allocator *basicAllocator = 0);
-    ~testLoader();
+  private:
+    // NOT IMPLEMENTED
+    TestLoader(const TestLoader&);
+    TestLoader& operator=(const TestLoader&);
 
+  public:
+    // CREATORS
+    TestLoader(bslma::Allocator *basicAllocator = 0);
+
+    ~TestLoader();
+
+    // MANIPULATORS
     int load(bdet_PackedCalendar *result, const char *calendarName);
+
     void getFirstDate(bdet_Date *date);
 };
 
+// CREATORS
 inline
-testLoader::testLoader(bslma::Allocator *basicAllocator)
+TestLoader::TestLoader(bslma::Allocator *)
 {
 }
 
 inline
-testLoader::~testLoader()
+TestLoader::~TestLoader()
 {
 }
 
-inline
-int testLoader::load(bdet_PackedCalendar *result, const char *calendarName)
+int TestLoader::load(bdet_PackedCalendar *result, const char *calendarName)
 {
-    if (!calendarName || bsl::strcmp("ERROR", calendarName) == 0) {
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(calendarName);
+
+    if (0 == bsl::strcmp("ERROR", calendarName)) {
         return -1;
     }
-    if (bsl::strcmp("NOTFOUND", calendarName) == 0) {
+
+    if (0 == bsl::strcmp("NOT_FOUND", calendarName)) {
         return 1;
     }
+
     result->removeAll();
     result->setValidRange(d_firstDate, bdet_Date(9999,12,31));
     result->addHoliday(d_firstDate + holidayOffset);
@@ -166,14 +221,76 @@ int testLoader::load(bdet_PackedCalendar *result, const char *calendarName)
     return 0;
 }
 
-inline
-void testLoader::getFirstDate(bdet_Date *date)
+void TestLoader::getFirstDate(bdet_Date *date)
 {
+    BSLS_ASSERT(date);
+
     *date = d_firstDate;
 }
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                                USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+// Define the 'my_CalendarLoader' class that is used in the Usage example.
+
+class my_CalendarLoader : public bdet_CalendarLoader {
+
+  private:
+    // NOT IMPLEMENTED
+    my_CalendarLoader(const my_CalendarLoader&);
+    my_CalendarLoader& operator=(const my_CalendarLoader&);
+
+  public:
+    // CREATORS
+    my_CalendarLoader(bslma::Allocator *basicAllocator = 0);
+
+    ~my_CalendarLoader();
+
+    // MANIPULATORS
+    int load(bdet_PackedCalendar *result, const char *calendarName);
+};
+
+// CREATORS
+inline
+my_CalendarLoader::my_CalendarLoader(bslma::Allocator *)
+{
+}
+
+inline
+my_CalendarLoader::~my_CalendarLoader()
+{
+}
+
+int my_CalendarLoader::load(bdet_PackedCalendar *result,
+                            const char          *calendarName)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(calendarName);
+
+    result->removeAll();
+    result->setValidRange(bdet_Date(2000, 1, 1), bdet_Date(2020, 12, 31));
+
+    if (     0 == bsl::strcmp("DE", calendarName)) {  // Germany
+        return 0;                                                     // RETURN
+    }
+    else if (0 == bsl::strcmp("FR", calendarName)) {  // France
+        result->addHoliday(bdet_Date(2011, 7, 14));
+
+        return 0;                                                     // RETURN
+    }
+    else if (0 == bsl::strcmp("US", calendarName)) {  // USA
+        result->addHoliday(bdet_Date(2011, 7,  4));
+
+        return 0;                                                     // RETURN
+    }
+    else {                                            // others not supported
+        return -1;
+    }
+}
+
+// ============================================================================
+//                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -196,6 +313,213 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+        if (verbose) cout << "Example 1: Using a 'bdet_CalendarCache'" << endl;
+        {
+///Usage
+///-----
+// The following examples illustrate how to use a 'bdet_CalendarCache'.
+//
+///Example 1: Using a 'bdet_CalendarCache'
+///- - - - - - - - - - - - - - - - - - - -
+// This first example shows basic use of a 'bdet_CalendarCache' object with no
+// timeout value specified at construction.
+//
+// In this example and the next, we assume a hypothetical calendar loader,
+// 'my_CalendarLoader', the details of which are not important other than that
+// it supports calendars identified by "DE", "FR", and "US", which nominally
+// identify the major holidays in Germany, France, and the United States,
+// respectively.  Furthermore, we cite two specific dates of interest:
+// 2011/07/04, which was a holiday in the US (Independence Day), but not in
+// France, and 2011/07/14, which was a holiday in France (Bastille Day), but
+// not in the US.
+//
+// First, we create a calendar loader, an instance of 'my_CalendarLoader', and
+// use it, in turn, to create a cache.  For the purposes of this example, it is
+// sufficient to let the cache use the default allocator:
+//..
+    my_CalendarLoader  loader;
+    bdet_CalendarCache cache(&loader);
+//..
+// Next, we retrieve the calendar identified by "US", verify that the loading
+// of that calendar into the cache was successful ('usA.ptr()' is non-null),
+// and verify that 2011/07/04 is recognized as a holiday in the "US" calendar,
+// whereas 2011/07/14 is not:
+//..
+    bdet_CalendarCacheEntryPtr usA = cache.calendar("US");
+
+                               ASSERT( usA.ptr());
+                               ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT(!usA->isHoliday(bdet_Date(2011, 7, 14)));
+//..
+// Next, we fetch the calendar identified by "FR", this time verifying that
+// 2011/07/14 is recognized as a holiday in the "FR" calendar, but 2011/07/04
+// is not:
+//..
+    bdet_CalendarCacheEntryPtr frA = cache.calendar("FR");
+
+                               ASSERT( frA.ptr());
+                               ASSERT(!frA->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT( frA->isHoliday(bdet_Date(2011, 7, 14)));
+//..
+// Next, we retrieve the "FR" calendar again, this time via the 'calendar'
+// accessor, and note that the request is satisfied by the calendar that is
+// already in the cache:
+//..
+    const bdet_CalendarCache& readonlyCache = cache;
+
+    bdet_CalendarCacheEntryPtr frB = readonlyCache.calendar("FR");
+
+                               ASSERT( frA.ptr() == frB.ptr());
+//..
+// Next, we invalidate the "US" calendar in the cache and immediately fetch it
+// again.  The call to 'invalidate' removed the "US" calendar from the cache,
+// so it had to be reloaded into the cache to satisfy the request:
+//..
+    cache.invalidate("US");
+
+    bdet_CalendarCacheEntryPtr usB = cache.calendar("US");
+
+                               ASSERT( usB.ptr() != usA.ptr());
+                               ASSERT( usB.ptr());
+                               ASSERT( usB->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT(!usB->isHoliday(bdet_Date(2011, 7, 14)));
+//..
+// Next, all calendars in the cache are invalidated, then reloaded:
+//..
+    cache.invalidateAll();
+
+    bdet_CalendarCacheEntryPtr usC = cache.calendar("US");
+
+                               ASSERT( usC.ptr() != usA.ptr());
+                               ASSERT( usC.ptr() != usB.ptr());
+                               ASSERT( usC.ptr());
+                               ASSERT( usC->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT(!usC->isHoliday(bdet_Date(2011, 7, 14)));
+
+    bdet_CalendarCacheEntryPtr frC = cache.calendar("FR");
+
+                               ASSERT( frC.ptr() != frA.ptr());
+                               ASSERT( frC.ptr() != frB.ptr());
+                               ASSERT( frC.ptr());
+                               ASSERT(!frC->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT( frC->isHoliday(bdet_Date(2011, 7, 14)));
+//..
+// Now, verify that references to calendars that were invalidated in the cache
+// are still valid for clients that obtained references to them before they
+// were made invalid:
+//..
+                               ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT(!usA->isHoliday(bdet_Date(2011, 7, 14)));
+
+                               ASSERT( usB->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT(!usB->isHoliday(bdet_Date(2011, 7, 14)));
+
+                               ASSERT(!frA->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT( frA->isHoliday(bdet_Date(2011, 7, 14)));
+
+                               ASSERT(!frB->isHoliday(bdet_Date(2011, 7,  4)));
+                               ASSERT( frB->isHoliday(bdet_Date(2011, 7, 14)));
+//..
+// When 'usA', 'usB', 'frA', and 'frB' go out of scope, the resources used by
+// the calendars to which they refer are automatically reclaimed.
+//
+// Finally, using the 'calendar' accessor, we attempt to retrieve a calendar
+// that has not yet been loaded into the cache, but which we *know* to be
+// supported by the calendar loader.  Since the 'calendar' accessor does not
+// load calendars into the cache as a side-effect, the request fails:
+//..
+    bdet_CalendarCacheEntryPtr de = readonlyCache.calendar("DE");
+
+                               ASSERT(!de.ptr());
+//..
+        }
+
+        if (verbose) cout << "Example 2: A Calendar Cache with a Timeout"
+                          << endl;
+        {
+///Example 2: A Calendar Cache with a Timeout
+///- - - - - - - - - - - - - - - - - - - - -
+// This second example shows the affects on a 'bdet_CalendarCache' object that
+// is constructed to have a timeout value.  Note that the following snippets of
+// code assume a platform-independent 'sleepSeconds' method that sleeps for the
+// specified number of seconds.
+//
+// First, we create a calendar loader and a calendar cache.  The cache is
+// constructed to have a timeout of 3 seconds.  Of course, such a short timeout
+// is inappropriate for production use, but it is necessary for illustrating
+// the affects of a timeout in this example.  As in example 1 (above), we again
+// let the cache use the default allocator:
+//..
+    my_CalendarLoader  loader;
+    bdet_CalendarCache cache(&loader, bdet_TimeInterval(3));
+    const bdet_CalendarCache& readonlyCache = cache;
+//..
+// Next, we retrieve the calendar identified by "DE" from the cache:
+//..
+    bdet_CalendarCacheEntryPtr deA = cache.calendar("DE");
+
+                               ASSERT( deA.ptr());
+//..
+// Next, we sleep for 2 seconds before retrieving the "FR" calendar:
+//..
+    sleepSeconds(2);
+
+    bdet_CalendarCacheEntryPtr frA = cache.calendar("FR");
+
+                               ASSERT( frA.ptr());
+//..
+// Next, we sleep for 2 more seconds before attempting to retrieve the "DE"
+// calendar again, this time using the 'calendar' *accessor*.  Since the
+// cumulative sleep time exceeds the timeout value established for the cache
+// when it was constructed, the "DE" calendar has expired; hence, it has been
+// removed from the cache:
+//..
+    sleepSeconds(2);
+
+    bdet_CalendarCacheEntryPtr deB = readonlyCache.calendar("DE");
+
+                               ASSERT(!deB.ptr());
+//..
+// Next, we verify that the "FR" calendar is still available in the cache:
+//..
+    bdet_CalendarCacheEntryPtr frB = readonlyCache.calendar("FR");
+
+                               ASSERT( frA.ptr() == frB.ptr());
+//..
+// Finally, we sleep for an additional 2 seconds and verify that the "FR"
+// calendar has also expired:
+//..
+    sleepSeconds(2);
+
+    bdet_CalendarCacheEntryPtr frC = readonlyCache.calendar("FR");
+
+                               ASSERT(!frC.ptr());
+//..
+        }
+
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING EXCEPTION NEUTRALITY
         //
@@ -227,68 +551,65 @@ int main(int argc, char *argv[])
         {
             // Testing a calendar cache without a timeout value.
 
-            testLoader loader;
+            TestLoader loader;
             Obj X(&loader, &testAllocator);
-            const bdet_Calendar *cal;
+            Entry e;
 
             BEGIN_BSLMA_EXCEPTION_TEST {
-                cal = X.calendar("ERROR");
-                ASSERT(0 == cal);
-                cal = X.calendar("VALID");
-                ASSERT(0 != cal);
-                cal = X.calendar("VALID1");
-                ASSERT(0 != cal);
-                cal = X.calendar("VALID");
-                ASSERT(0 != cal);
+              e = X.calendar("ERROR");
+              ASSERT(0 == e.ptr());
+              e = X.calendar("VALID");
+              ASSERT(0 != e.ptr());
+              e = X.calendar("VALID1");
+              ASSERT(0 != e.ptr());
+              e = X.calendar("VALID");
+              ASSERT(0 != e.ptr());
 
-                X.invalidate("VALID1");
-                cal = X.calendar("VALID1");
-                ASSERT(0 != cal);
+              X.invalidate("VALID1");
+              e = X.calendar("VALID1");
+              ASSERT(0 != e.ptr());
 
-                X.invalidateAll();
-                cal = X.calendar("VALID");
-                ASSERT(0 != cal);
-                cal = X.calendar("VALID1");
-                ASSERT(0 != cal);
+              X.invalidateAll();
+              e = X.calendar("VALID");
+              ASSERT(0 != e.ptr());
+              e = X.calendar("VALID1");
+              ASSERT(0 != e.ptr());
             } END_BSLMA_EXCEPTION_TEST
         }
         {
             // Testing a calendar cache with a timeout value.
 
-            testLoader loader;
+            TestLoader loader;
             Obj X(&loader, bdet_TimeInterval(1), &testAllocator);
             bdet_Date date1, date2;
-            const bdet_Calendar *cal;
+            Entry e;
 
             BEGIN_BSLMA_EXCEPTION_TEST {
-                cal = X.calendar("VALID");
-                ASSERT(0 != cal);
-                cal = X.calendar("VALID1");
-                ASSERT(0 != cal);
+              e = X.calendar("VALID");
+              ASSERT(0 != e.ptr());
+              e = X.calendar("VALID1");
+              ASSERT(0 != e.ptr());
 
-                #ifdef BSLS_PLATFORM_CMP_MSVC
-                Sleep(2 * 1000);
-                #else
-                sleep(2);
-                #endif
+              sleepSeconds(2);
 
-                loader.getFirstDate(&date1);
-                cal = X.calendar("VALID");
-                loader.getFirstDate(&date2);
-                ASSERT(0 != cal);
-                ASSERT(date1 != date2);
+              loader.getFirstDate(&date1);
+              e = X.calendar("VALID");
+              loader.getFirstDate(&date2);
+              ASSERT(0 != e.ptr());
+              ASSERT(date1 != date2);
 
-                loader.getFirstDate(&date1);
-                cal = X.calendar("VALID1");
-                loader.getFirstDate(&date2);
-                ASSERT(0 != cal);
-                ASSERT(date1 != date2);
+              loader.getFirstDate(&date1);
+              e = X.calendar("VALID1");
+              loader.getFirstDate(&date2);
+              ASSERT(0 != e.ptr());
+              ASSERT(date1 != date2);
             } END_BSLMA_EXCEPTION_TEST
         }
+
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
-        // TESTING THE 'invalidate()' and 'invalidateAll()' METHODS
+        // TESTING THE 'invalidate' and 'invalidateAll' METHODS
         //
         // We want to demonstrate that 'invalidate()' will mark the specified
         // calendar entry in the cache for reload, and 'invalidateAll()' will
@@ -324,98 +645,114 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << " TESTING 'invalidate()' and 'invalidateAll()"
-                          << endl
-                          << "============================================"
-                          << endl;
+                          << "TESTING 'invalidate' and 'invalidateAll" << endl
+                          << "=======================================" << endl;
 
-        testLoader loader;
-        Obj X(&loader, &testAllocator);
-        Iterator it;
+        TestLoader loader;
+        Obj mX(&loader, &testAllocator);
+
         bdet_Date date1, date2;
-        const bdet_Calendar *cal, *calValid, *calValid1;
+        Entry e, eV, eV2;
 
-        // try 'invalidate()' on an empty cache
+        // try 'invalidate' on an empty cache
 
-        X.invalidate("VALID");
-        ASSERT(X.begin() == X.end());
+        mX.invalidate("VALID");
 
-        // try 'invalidateAll()' on an empty cache
+        // try 'invalidateAll' on an empty cache
 
-        X.invalidateAll();
-        ASSERT(X.begin() == X.end());
+        mX.invalidateAll();
 
         // load two entries into the cache
 
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
-        calValid = cal;
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
-        calValid1 = cal;
+        e = mX.calendar("VALID");
+        ASSERT(0 != e.ptr());
+        eV = e;
+
+        e = mX.calendar("VALID1");
+        ASSERT(0 != e.ptr());
+        eV2 = e;
 
         // invalidate a non-exist entry
 
-        X.invalidate("NONEXIST");
+        mX.invalidate("NONEXIST");
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
-        ASSERT(calValid == cal);
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+
+        e = mX.calendar("VALID");
+        ASSERT(       0 != e.ptr());
+        ASSERT(eV.ptr() == e.ptr());
+
+        e = mX.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV2.ptr() == e.ptr());
+
         loader.getFirstDate(&date2);
         ASSERT(date1 == date2);       // verify both are in the cache
 
         // invalidate a valid entry
 
-        X.invalidate("VALID");
+        mX.invalidate("VALID");
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
-        ASSERT(calValid == cal);
+
+        e = mX.calendar("VALID");
+        ASSERT(       0 != e.ptr());
+        ASSERT(eV.ptr() != e.ptr());
+        eV = e;
+
         loader.getFirstDate(&date2);
         ASSERT(date1 != date2);       // verify "VALID" is reloaded
+
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+        e = mX.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV2.ptr() == e.ptr());
+
         loader.getFirstDate(&date2);
         ASSERT(date1 == date2);       // verify "VALID1" is still in cache
 
         // invalidate another valid entry
 
-        X.invalidate("VALID1");
+        mX.invalidate("VALID1");
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+
+        e = mX.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV2.ptr() != e.ptr());
+        eV2 = e;
+
         loader.getFirstDate(&date2);
         ASSERT(date1 != date2);       // verify "VALID1" is reloaded
 
         // try 'invalidateAll()' on a non-empty cache
 
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
-        ASSERT(calValid == cal);
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
-        X.invalidateAll();
+        e = mX.calendar("VALID");
+        ASSERT(       0 != e.ptr());
+        ASSERT(eV.ptr() == e.ptr());
+
+        e = mX.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV2.ptr() == e.ptr());
+
+        mX.invalidateAll();
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
-        ASSERT(calValid == cal);
+
+        e = mX.calendar("VALID");
+        ASSERT(       0 != e.ptr());
+        ASSERT(eV.ptr() != e.ptr());
+
         loader.getFirstDate(&date2);
         ASSERT(date1 != date2);       // verify "VALID" is reloaded
+
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+        e = mX.calendar("VALID1");
+
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV2.ptr() != e.ptr());
+
         loader.getFirstDate(&date2);
         ASSERT(date1 != date2);       // verify "VALID1" is reloaded
+
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING THE 'calendar' METHOD
         //
@@ -488,583 +825,174 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << " TESTING THE 'calendar()' METHOD" << endl
                           << "================================" << endl;
-        testLoader loader;
-        Obj X(&loader, &testAllocator);
-        Iterator it;
+
+        TestLoader loader;
+        Obj mX(&loader, &testAllocator);
+
         bdet_Date date1, date2;
         const bdet_Date FirstDate(1,1,1), FirstDate1(1,1,2);
-        const bdet_Calendar *cal, *cal1, *cal0;
+        Entry e, e1, e0;
 
         // Concern 1
 
         if (verbose) cout << endl
                           << "   Testing concern 1" << endl;
-        ASSERT(0 == X.calendar(0));
-        ASSERT(X.end() == X.begin());
-        ASSERT(0 == X.calendar("ERROR"));
-        ASSERT(X.end() == X.begin());
-        ASSERT(0 == X.calendar("NOTFOUND"));
-        ASSERT(X.end() == X.begin());
+
+        e = mX.calendar("ERROR");
+        ASSERT(0 == e.ptr());
+
+        e = mX.calendar("NOT_FOUND");
+        ASSERT(0 == e.ptr());
+
 
         // Concern 2 for empty cache
 
         if (verbose) cout << endl
                           << "  Testing concern 2 (empty cache)" << endl;
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
+        e = mX.calendar("VALID");
+        ASSERT(0 != e.ptr());
         loader.getFirstDate(&date2);
         ASSERT(date1 != date2); // Verify 'load' method is called.
-        ASSERT(date1 == cal->firstDate());
-        ASSERT(1 == cal->isHoliday(cal->firstDate()+holidayOffset));
-        it = X.begin();
-        ASSERT(X.end() != it);
-        ASSERT("VALID" == it->first);
-        ASSERT(cal == &it->second);
-        ASSERT(X.end() == ++it);
+        ASSERT(date1 == e->firstDate());
+        ASSERT(    1 == e->isHoliday(e->firstDate()+holidayOffset));
 
         // Concern 2 for non-empty cache
 
         if (verbose) cout << endl
                           << "   Testing concern 2 (non-empty cache)" << endl;
         loader.getFirstDate(&date1);
-        cal1 = X.calendar("VALID1");
-        ASSERT(0 != cal1);
+        e1 = mX.calendar("VALID1");
+        ASSERT(    0 != e1.ptr());
+
         loader.getFirstDate(&date2);
         ASSERT(date1 != date2); // Verify 'load' method is called.
-        ASSERT(date1 == cal1->firstDate());
-        ASSERT(1 == cal1->isHoliday(cal1->firstDate()+holidayOffset));
-        it = X.begin();
-        ASSERT(X.end() != it);
-        ASSERT("VALID" == it->first);
-        ASSERT(cal == &it->second);
-        ++it;
-        ASSERT(X.end() != it);
-        ASSERT("VALID1" == it->first);
-        ASSERT(cal1 == &it->second);
-        ASSERT(X.end() == ++it);
+        ASSERT(date1 == e1->firstDate());
+        ASSERT(    1 == e1->isHoliday(e1->firstDate()+holidayOffset));
 
-        cal0 = X.calendar("VALID0"); // Insert an entry between them.
-        ASSERT(0 != cal0);
-        it = X.begin();
-        ASSERT(X.end() != it);
-        ASSERT("VALID" == it->first);
-        ASSERT(cal == &it->second);
-        ++it;
-        ASSERT(X.end() != it);
-        ASSERT("VALID0" == it->first);
-        ASSERT(cal0 == &it->second);
-        ++it;
-        ASSERT(X.end() != it);
-        ASSERT("VALID1" == it->first);
-        ASSERT(cal1 == &it->second);
-        ASSERT(X.end() == ++it);
+        e0 = mX.calendar("VALID0");  // Insert an entry between them.
+        ASSERT(0 != e0.ptr());
 
         // Concern 3
 
         if (verbose) cout << endl
                           << "   Testing concern 3" << endl;
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
-        loader.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
-        ASSERT(FirstDate == cal->firstDate());
-        ASSERT(1 == cal->isHoliday(cal->firstDate()+holidayOffset));
+        e = mX.calendar("VALID");
+        ASSERT(0 != e.ptr());
 
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
         loader.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
-        ASSERT(FirstDate1 == cal->firstDate());
-        ASSERT(1 == cal->isHoliday(cal->firstDate()+holidayOffset));
+        ASSERT(    date1 == date2); // Verify 'load' method is not called.
+        ASSERT(FirstDate == e->firstDate());
+        ASSERT(        1 == e->isHoliday(e->firstDate()+holidayOffset));
+
+        e = mX.calendar("VALID1");
+        ASSERT(0 != e.ptr());
+
+        loader.getFirstDate(&date2);
+        ASSERT(     date1 == date2); // Verify 'load' method is not called.
+        ASSERT(FirstDate1 == e->firstDate());
+        ASSERT(         1 == e->isHoliday(e->firstDate()+holidayOffset));
 
         // Concern 4 and 5
 
-        testLoader loaderY;
+        TestLoader loaderY;
         Obj Y(&loaderY, bdet_TimeInterval(4), &testAllocator);
-        const bdet_Calendar *calValid, *calValid1;
+        Entry eV, eV1;
 
         // load first entry into Y
 
-        cal = Y.calendar("VALID");
-        ASSERT(0 != cal);
-        calValid = cal;
+        e = Y.calendar("VALID");
+        ASSERT(0 != e.ptr());
+        eV = e;
 
-        #ifdef BSLS_PLATFORM_CMP_MSVC
-        Sleep(2 * 1000);
-        #else
-        sleep(2);
-        #endif
+        sleepSeconds(2);
 
         // load second entry into Y
 
-        cal = Y.calendar("VALID1");
-        ASSERT(0 != cal);
-        calValid1 = cal;
+        e = Y.calendar("VALID1");
+        ASSERT(0 != e.ptr());
+        eV1 = e;
 
-        #ifdef BSLS_PLATFORM_CMP_MSVC
-        Sleep(1 * 1000);
-        #else
-        sleep(1);
-        #endif
+        sleepSeconds(1);
 
         // now access both entries from cache to verify they still there
 
         loaderY.getFirstDate(&date1);
-        cal = Y.calendar("VALID");
-        ASSERT(0 != cal);
-        ASSERT(calValid == cal);
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
-        loaderY.getFirstDate(&date1);
-        cal = Y.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+        e = Y.calendar("VALID");
+        ASSERT(       0 != e.ptr());
+        ASSERT(eV.ptr() == e.ptr());
+
         loaderY.getFirstDate(&date2);
         ASSERT(date1 == date2); // Verify 'load' method is not called.
 
-        #ifdef BSLS_PLATFORM_CMP_MSVC
-        Sleep(2 * 1000);
-        #else
-        sleep(2);
-        #endif
+        loaderY.getFirstDate(&date1);
+
+        e = Y.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV1.ptr() == e.ptr());
+
+        loaderY.getFirstDate(&date2);
+        ASSERT(date1 == date2); // Verify 'load' method is not called.
+
+        sleepSeconds(2);
 
         // now only the second entry should be in the cache
 
         loaderY.getFirstDate(&date1);
-        cal = Y.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+        e = Y.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV1.ptr() == e.ptr());
+
         loaderY.getFirstDate(&date2);
         ASSERT(date1 == date2); // Verify 'load' method is not called.
+
         loaderY.getFirstDate(&date1);
-        cal = Y.calendar("VALID");
-        ASSERT(0 != cal);
-        ASSERT(calValid == cal);
+
+        e = Y.calendar("VALID");
+        ASSERT(       0 != e.ptr());
+        ASSERT(eV.ptr() != e.ptr());
+
         loaderY.getFirstDate(&date2);
         ASSERT(date1 != date2); // Verify 'load' method is called.
 
-        #ifdef BSLS_PLATFORM_CMP_MSVC
-        Sleep(2 * 1000);
-        #else
-        sleep(2);
-        #endif
+        sleepSeconds(2);
 
         // now the second entry should expire
 
-
         loaderY.getFirstDate(&date1);
-        cal = Y.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+
+        e = Y.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV1.ptr() != e.ptr());
+
         loaderY.getFirstDate(&date2);
         ASSERT(date1 != date2); // Verify 'load' method is called.
 
         // verify that after reload, the reload flag is cleared
 
         loaderY.getFirstDate(&date1);
-        cal = Y.calendar("VALID1");
-        ASSERT(0 != cal);
-        ASSERT(calValid1 == cal);
+
+        e = Y.calendar("VALID1");
+        ASSERT(        0 != e.ptr());
+        ASSERT(eV1.ptr() != e.ptr());
+
         loaderY.getFirstDate(&date2);
         ASSERT(date1 == date2); // Verify 'load' method is not called.
 
-        // the entries in X should still be there
+        // the entries in mX should still be there
 
         loader.getFirstDate(&date1);
-        cal = X.calendar("VALID");
-        ASSERT(0 != cal);
-        cal = X.calendar("VALID1");
-        ASSERT(0 != cal);
+
+        e = mX.calendar("VALID");
+        ASSERT(0 != e.ptr());
+
+        e = mX.calendar("VALID1");
+        ASSERT(0 != e.ptr());
+
         loader.getFirstDate(&date2);
         ASSERT(date1 == date2); // Verify 'load' method is not called.
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING THE ITERATORS
-        //
-        // Concerns:
-        //  1. The class 'bdet_CalendarCacheIter_PairProxy' properly proxies a
-        //     'bdet_CalendarCache_Pair' object.
-        //  2. 'begin()' returns the first element if it exists and
-        //     'end()' returns one element past the last one.  If the
-        //     container is empty, 'begin()' must be equal to 'end()'.
-        //  3. 'operator++()' and 'operator--()' move the iterator
-        //     forward/backward by one element.  'operator=()' assigns an
-        //     iterator to another one of the same type and returns a reference
-        //     to the iterator.
-        //  4. 'operator*()' and 'operator->()' return the actual value
-        //     associated with the iterator.  If the entry has expired or is
-        //     marked for reload, it is reloaded using its loader.
-        //  5. 'operator==()' and 'operator!=()' compare the values of
-        //     the two iterators and return the expected result.
-        //  6. The reverse iterators are working properly.
-        //
-        //  To address concern 1, we will construct a
-        //  'bdet_CalendarCacheIter_PairProxy' object based on a pre-selected
-        //  'bdet_CalendarCache_Pair' in order to test the constructor
-        //  'bdet_CalendarCacheIter_PairProxy(const bdet_CalendarCache_Pair&
-        //  pair);'.  Then we will create another pair proxy object based on
-        //  the first object in order to test the copy constructor.  We will
-        //  then compare the pre-selected 'bdet_CalendarCache_Pair' object
-        //  with the 'bdet_CalendarCache_Pair' objects returned by
-        //  'operator->()' of these two objects and make sure they all match.
-        //  We will also use 'operator->()' to access one of the data members
-        //  of the 'bdet_CalendarCache_Pair' class and verify that the return
-        //  value matches the value obtained by accessing the data member
-        //  through 'bdet_CalendarCache_Pair'.
-        //
-        //  To address concern 2, we first start with an empty calendar cache
-        //  and verify that 'begin' equals 'end'.  We then insert a set of
-        //  calendars in alphabetical order and make sure 'begin' always
-        //  references the first calendar and 'end' always references the new
-        //  calendar being loaded.  Finally we insert a set of calendars into
-        //  another calendar cache object in reverse-alphabetical order and
-        //  make sure 'begin' always references the new calendar being loaded
-        //  and 'end' always references the element pass the last calendar.
-        //
-        //  To address concerns 3, and 4, we load calendars into the cache, use
-        //  'begin', 'end', 'operator++', and 'operator--' to move back and
-        //  forth, and use 'operator*' and 'operator->' to verify the content
-        //  of the entry.  Finally we invalidate all entries in the cache and
-        //  use an iterator and 'operator*' to access them again and verify all
-        //  the entries are reloaded via the test loader.
-        //
-        //  To address concern 5, we will first compare an iterator to itself.
-        //  Then we will compare it with another iterator that points to the
-        //  same entry and make sure they are equal.  Finally we will compare
-        //  it with an iterator which points to a different entry and make sure
-        //  they are not equal.
-        //
-        //  To address concern 6, we will compare the results returned by the
-        //  reverse iterators with the results returned by the forward
-        //  iterators moving backwards and make sure they are identical.  It is
-        //  not necessary to apply all the tests for the forward iterators to
-        //  these reverse iterators because they are implemented as the
-        //  'bsl::reverse_iterator<>' version of the forward iterators.
-        //
-        //  Tactics:
-        //      - Ad Hoc test data selection method
-        //      - Brute force/loop based test case implementation technique
-        //
-        //  Testing:
-        //      bdet_CalendarCache::ConstIterator
-        //      bdet_CalendarCache::ConstReverseIterator
-        // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING THE ITERATOR" << endl
-                          << "====================" << endl;
-
-        {
-            // Testing the 'bdet_CalendarCacheIter_PairProxy' class
-
-            if (verbose) cout << endl
-                              << "Testing 'bdet_CalendarCacheIter_PairProxy'"
-                              << endl
-                              << "=========================================="
-                              << endl;
-
-            testLoader loader;
-            const bdet_Calendar *cal;
-            Obj X(&loader, &testAllocator);
-            bsl::string name("VALID");
-            cal = X.calendar(name.c_str());
-            ASSERT(0 != cal);
-            bdet_CalendarCache_Pair pair(name, *cal);
-            bdet_CalendarCacheIter_PairProxy proxy1(pair);
-            bdet_CalendarCacheIter_PairProxy proxy2(proxy1);
-            ASSERT(pair == *(proxy1.operator->()));
-            ASSERT(pair == *(proxy2.operator->()));
-
-            ASSERT(pair.first == proxy1->first);
-            ASSERT(pair.first == proxy2->first);
-        }
-        {
-            typedef bdet_CalendarCache_Pair          IteratorValue;
-            typedef int                               IteratorDifference;
-            typedef bdet_CalendarCacheIter_PairProxy IteratorPointer;
-            typedef bdet_CalendarCache_PairRef       IteratorReference;
-
-            typedef bsl::bidirectional_iterator_tag   IteratorCategory;
-            // *** TYPEDEF TESTS ***
-
-            if (veryVerbose) cout << "\ttypedef test" << endl;
-            {
-                typedef bsl::iterator_traits<Iterator> IterTraits;
-                ASSERT((IsSame<IterTraits::value_type, IteratorValue>::VALUE));
-                ASSERT((IsSame<IterTraits::difference_type,
-                                                  IteratorDifference>::VALUE));
-                ASSERT((IsSame<IterTraits::pointer, IteratorPointer>::VALUE));
-                ASSERT((IsSame<IterTraits::reference,
-                                                   IteratorReference>::VALUE));
-                ASSERT((IsSame<IterTraits::iterator_category,
-                                                    IteratorCategory>::VALUE));
-            }
-        }
-        {
-            // Testing 'begin' and 'end'
-
-            if (verbose) cout << endl
-                              << "Testing 'begin' and 'end'" << endl
-                              << "=========================" << endl;
-
-            testLoader loader;
-            const bdet_Calendar *cal;
-            const char *DATA[] = {
-                                 "AAAA", "CH", "EN", "FR", "IS", "US", "ZZZZ"};
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            {
-                Obj X(&loader, &testAllocator);
-
-                ASSERT(X.begin() == X.end());
-                ASSERT(X.begin() == X.begin());
-                ASSERT(X.end()   == X.end());
-
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    cal = X.calendar(DATA[i]);
-                    LOOP_ASSERT(i, 0 != cal);
-                    LOOP2_ASSERT(i, X.begin()->first, DATA[0] ==
-                                                             X.begin()->first);
-                    Iterator it = X.end();
-                    --it;
-                    LOOP3_ASSERT(i, DATA[i], it->first, DATA[i] == it->first);
-                }
-            }
-            {
-                Obj X(&loader, &testAllocator);
-
-                for (int i = NUM_DATA - 1; i >= 0; --i) {
-                    cal = X.calendar(DATA[i]);
-                    LOOP_ASSERT(i, 0 != cal);
-                    LOOP3_ASSERT(i, DATA[i], X.begin()->first, DATA[i] ==
-                                                             X.begin()->first);
-                    Iterator it = X.end();
-                    --it;
-                    LOOP2_ASSERT(i, it->first, DATA[NUM_DATA - 1] ==
-                                                                    it->first);
-                }
-            }
-        }
-        {
-            // Testing 'operator++()', 'operator--()', 'operator*()', and
-            // 'operator->()'
-
-            if (verbose) cout << endl
-                              << "Testing 'begin()', 'end()',        " << endl
-                              << "  'operator++()', 'operator--()',  " << endl
-                              << "  'operator*()', and 'operator->()'" << endl
-                              << "===================================" << endl;
-
-            const char *DATA[] = {
-                                 "AAAA", "CH", "EN", "FR", "IS", "US", "ZZZZ"};
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            testLoader loader;
-            Obj X(&loader, &testAllocator);
-            bdet_Date date1, date2;
-            const bdet_Calendar *cal1, *cal2;
-
-            // *** NON-MUTATING FORWARD ITERATOR TESTS ***
-
-            if (veryVerbose) cout << "\tnon-mutating forward iterator "
-                                  << "tests" << endl;
-
-            // Breathing test
-
-            ASSERT(X.begin() == X.end());
-            ASSERT(X.begin() == X.begin());
-            ASSERT(X.end()   == X.end());
-
-            for (int nb = 0; nb < NUM_DATA; ++nb) {
-                for (int j = 0; j < nb; ++j) {
-                    cal1 = X.calendar(DATA[j]);
-                    ASSERT(0 != cal1);
-                }
-                LOOP_ASSERT(nb, X.begin() == X.begin());
-                LOOP_ASSERT(nb, X.end() == X.end());
-                LOOP_ASSERT(nb, !nb || X.begin() != X.end());
-                LOOP_ASSERT(nb,  nb || X.begin() == X.end());
-
-                // Primary manipulators and accessors test
-                // pre-increment, deference, copy constructor, 'operator==()'
-                // test
-
-                {
-                    Iterator i = X.begin();
-                    for (int c = 0; c < nb; ++c) {
-                        LOOP2_ASSERT(nb, c, !(i == X.end()));
-                        LOOP4_ASSERT(nb, c, DATA[c], i->first,
-                                                          DATA[c] == i->first);
-
-                        // copy construction
-
-                        Iterator j(i);
-                        LOOP2_ASSERT(nb, c, j != X.end());
-                        LOOP4_ASSERT(nb, c, DATA[c], j->first,
-                                                          DATA[c] == j->first);
-
-                        // 'operator++()'
-
-                        Iterator k(++i);
-                        if (c < (nb - 1)) {
-                            LOOP2_ASSERT(nb, c, *i == *k);
-                            LOOP2_ASSERT(nb, c, *i != *j);
-                        }
-                        else {
-                            LOOP2_ASSERT(nb, c, i == X.end());
-                            LOOP2_ASSERT(nb, c, k == X.end());
-                        }
-                    }
-                    LOOP_ASSERT(nb, i == X.end());
-                }
-
-                // 'operator==()' and 'operator!=()'
-
-                {
-                    // Note that in the double loop below, each loop runs 'nb'
-                    // + 1 times because we compare the 'nb' iterators
-                    // referencing the 'nb' holidays plus the end iterator.
-
-                    Iterator i = X.begin();
-                    for (int c = 0; c <= nb; ++c) {
-                        Iterator j = X.begin();
-                        for (int d = 0; d <= nb; ++d) {
-
-                            // The two tests are necessary because
-                            // 'operator!=()' is NOT implemented as "return
-                            // !(lhs == rhs);".
-
-                            if (c == d) {
-                                LOOP3_ASSERT(nb, c, d, i == j);
-                                LOOP3_ASSERT(nb, c, d, !(i != j));
-                            }
-                            else {
-                                LOOP3_ASSERT(nb, c, d, i != j);
-                                LOOP3_ASSERT(nb, c, d, !(i == j));
-                            }
-                            if (d < nb)
-                                ++j;
-                        }
-                        if (c < nb)
-                            ++i;
-                    }
-                }
-
-                // assignment operator
-
-                {
-                    Iterator i = X.begin();
-                    for (int c = 0; c < nb; ++c) {
-                        Iterator j = X.begin();
-                        for (int d = 0; d < nb; ++d) {
-                            Iterator k(i);
-
-                            i = i;
-                            LOOP3_ASSERT(nb, c, d, k == i);
-
-                            k = j;
-                            LOOP3_ASSERT(nb, c, d, k == j);
-                            ++j;
-                        }
-                        ++i;
-                    }
-                }
-
-                // 'operator->()'
-
-                Iterator i;
-                for (i = X.begin(); i != X.end(); ++i) {
-                    LOOP_ASSERT(nb, (*i).first == i->first);
-                }
-
-                // post-increment operator test
-
-                i = X.begin();
-                for (int c = 0; c < nb; ++c) {
-                    LOOP2_ASSERT(nb, c, i != X.end());
-                    LOOP4_ASSERT(nb, c, DATA[c], i->first, DATA[c] ==
-                                                                 (i++)->first);
-                }
-                LOOP_ASSERT(nb, i == X.end());
-
-                // *** NON-MUTATING BIDIRECTIONAL ITERATOR TESTS ***
-
-                if (veryVerbose) cout << "\tnon-mutating bidirectional "
-                                      << "iterator tests" << endl;
-
-                // pre-decrement operator test
-
-                i = X.end();
-                for (int c = (nb - 1); c >= 0; --c) {
-                    Iterator j = --i;
-                    LOOP4_ASSERT(nb, c, DATA[c], i->first,
-                                                          DATA[c] == i->first);
-                    LOOP2_ASSERT(nb, c, j == i);
-                }
-
-                // post-decrement operator test
-
-                i = X.end();
-                if (i != X.begin())
-                    --i;
-                for (int c = (nb - 1); c > 0; --c) {
-                    LOOP4_ASSERT(nb, c, DATA[c], i->first, DATA[c] ==
-                                                                 (i--)->first);
-                }
-
-                // Test last value, if size > 0
-
-                LOOP_ASSERT(nb, !nb || i->first == DATA[0]);
-
-                // *** REVERSE ITERATOR TESTS ***
-                // The following tests are very simple because
-                // 'HolidayReverseIterator' is implemented using a TESTED
-                // bsl::reverse_iterator<Iterator>-like template.
-
-                if (veryVerbose) cout << "\treverse iterator tests" << endl;
-
-                typedef Obj::ConstReverseIterator ReverseIterator;
-
-                if (nb == 0) {
-                    LOOP_ASSERT(nb, X.rbegin() == X.rend());
-                }
-                else {
-                    ReverseIterator ri;
-
-                    for (i = X.end(), ri = X.rbegin(); ri != X.rend(); ++ri) {
-                        --i;
-                        LOOP_ASSERT(nb, *i == *ri);
-                        LOOP_ASSERT(nb, i->first == ri->first);
-                    }
-                    LOOP_ASSERT(nb, X.begin() == i);
-
-                    for (ri = X.rend(), i = X.begin(); i != X.end(); ++i) {
-                        --ri;
-                        LOOP_ASSERT(nb, *i == *ri);
-                        LOOP_ASSERT(nb, i->first == ri->first);
-                    }
-                    LOOP_ASSERT(nb, X.rbegin() == ri);
-                }
-            }
-            {
-                // Verify 'operator*' causes a reload.
-
-                X.invalidateAll();
-                int index = 0;
-                for (Iterator it = X.begin(); it != X.end(); ++it, ++index) {
-                    loader.getFirstDate(&date1);
-
-                    //'operator*' below will cause a reload
-
-                    ASSERT(DATA[index] == (*it).first);
-
-                    loader.getFirstDate(&date2);
-                    ASSERT(date1 != date2);
-                }
-            }
-        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1077,26 +1005,27 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
-        testLoader loader;
-        Obj X(&loader);
 
-        ASSERT(0 == X.calendar(0));
-        ASSERT(0 == X.calendar("ERROR"));
-        ASSERT(0 == X.calendar("NOTFOUND"));
-        ASSERT(0 != X.calendar("VALID"));
+        TestLoader loader;
+        Obj mX(&loader);
+
+        Entry e = mX.calendar("ERROR");       ASSERT(0 == e.ptr());
+
+              e = mX.calendar("NOT_FOUND");   ASSERT(0 == e.ptr());
+
+              e = mX.calendar("VALID");       ASSERT(0 != e.ptr());
 
       } break;
-
       case -1: {
         // --------------------------------------------------------------------
         // TESTING TIMEOUT GREATER THAN 60 SECONDS
         //
         // Concerns:
-        //: 1 An object having a timeout value greater than 60 seconds
+        //: 1 An object having a timeout value greater than 20 seconds
         //    correctly expire any of its cache entries.
         //
         // Plan:
-        //: 1 Create an object that has a timeout of greater than 60 seconds,
+        //: 1 Create an object that has a timeout of greater than 20 seconds,
         //:   and use the 'calendar' method to load a calendar using the
         //:   object.
         //:
@@ -1113,37 +1042,31 @@ int main(int argc, char *argv[])
         //      const bdet_Calendar *calendar(const char *calendarName);
         // --------------------------------------------------------------------
 
-        testLoader loaderY;
-        Obj Y(&loaderY, bdet_TimeInterval(70), &testAllocator);
-        const bdet_Calendar *cal, *calValid;
+        TestLoader loaderY;
+        Obj Y(&loaderY, bdet_TimeInterval(30), &testAllocator);
+
+        Entry e, eV;
         bdet_Date date1, date2;
 
-        cal = Y.calendar("VALID");
-        ASSERT(0 != cal);
-        calValid = cal;
+        e = Y.calendar("VALID");
+        ASSERT(0 != e.ptr());
+        eV = e;
         loaderY.getFirstDate(&date1);
 
-        #ifdef BSLS_PLATFORM_CMP_MSVC
-        Sleep(2 * 1000);
-        #else
-        sleep(2);
-        #endif
+        sleepSeconds(2);
 
-        cal = Y.calendar("VALID");
-        ASSERT(calValid == cal);
+        e = Y.calendar("VALID");
+        ASSERT(eV.ptr() == e.ptr());
         loaderY.getFirstDate(&date2);
         ASSERT(date1 == date2);
 
-        #ifdef BSLS_PLATFORM_CMP_MSVC
-        Sleep(70 * 1000);
-        #else
-        sleep(70);
-        #endif
+        sleepSeconds(30);
 
-        cal = Y.calendar("VALID");
-        ASSERT(calValid == cal);
+        e = Y.calendar("VALID");
+        ASSERT(eV.ptr() != e.ptr());
         loaderY.getFirstDate(&date2);
         ASSERT(date1 != date2);
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
