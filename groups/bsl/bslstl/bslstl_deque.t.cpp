@@ -296,37 +296,44 @@ const int NUM_INTERNAL_STATE_TEST = 10;
 inline
 void dbg_print(char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 inline
 void dbg_print(unsigned char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 inline
 void dbg_print(signed char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 inline
 void dbg_print(short val)
 {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline
 void dbg_print(unsigned short val)
 {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline
 void dbg_print(int val)
 {
-    printf("%d", val); fflush(stdout);
+    printf("%d", val);
+    fflush(stdout);
 }
 inline
 void dbg_print(bsls::Types::Int64 val)
 {
-    printf("%lld", val); fflush(stdout);
+    printf("%lld", val);
+    fflush(stdout);
 }
 #if defined(BSLS_PLATFORM_OS_AIX)
 inline
@@ -345,18 +352,21 @@ void dbg_print(size_t val)
 inline
 void dbg_print(float val)
 {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 inline
 void dbg_print(double val)
 {
-    printf("'%f'", val); fflush(stdout);
+    printf("'%f'", val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(const char* s)
 {
-    printf("\"%s\"", s); fflush(stdout);
+    printf("\"%s\"", s);
+    fflush(stdout);
 }
 
 // Deque-specific print function.
