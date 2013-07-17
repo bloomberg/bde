@@ -150,7 +150,8 @@ inline void debugprint(const RbTreeAnchor& val) {
     fflush(stdout);
 }
 inline void debugprint(const RbTreeNode *val) {
-    printf("%p", val); fflush(stdout);
+    printf("%p", val);
+    fflush(stdout);
 }
 
 }  // close namespace bslalg
