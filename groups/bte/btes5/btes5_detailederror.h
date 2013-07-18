@@ -14,8 +14,8 @@ BDES_IDENT("$Id: $")
 //
 //@SEE ALSO:
 //
-//@DESCRIPTION: This component provides a value-semantic attribute class
-// describing an error as a result of SOCKS5 connection.
+//@DESCRIPTION: This component provides a value-semantic attribute class,
+// 'btes5_DetailedError', describing an error as a result of SOCKS5 connection.
 //
 ///Usage
 ///-----

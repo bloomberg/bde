@@ -23,7 +23,7 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
+///Example 1: TODO
 ///- - - - - -
 // Suppose that ...
 //

@@ -16,11 +16,11 @@ BDES_IDENT("$Id: $")
 //@SEE ALSO:
 //  btes5_ProxyDescription, btes5_NetworkConnector
 //
-//@DESCRIPTION: This component provides a value-semantic class describing a
-// network of SOCKS5 proxies necessary to reach one or more destimation hosts.
-// An object of this type is used with btes5_NetworkConnector, see
-// the btes5_networkconnector component for usage examples.
-//
+//@DESCRIPTION: This component provides a value-semantic class,
+// 'btes5_ProxyDescription', describing a network of SOCKS5 proxies necessary
+// to reach one or more destimation hosts. An object of this type is used with
+// btes5_NetworkConnector, see the btes5_networkconnector component for usage
+// examples.
 
 #ifndef INCLUDED_BTES5_PROXYDESCRIPTION
 #include <btes5_proxydescription.h>

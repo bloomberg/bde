@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //  btes5_NetworkDescripttion
 //
 //@DESCRIPTION: This component provides a value-semantic attribute class,
-// bteso_ProxyDecsription, describing a SOCKS5 proxy.
+// 'bteso_ProxyDecsription', describing a SOCKS5 proxy.
 //
 ///Usage
 ///-----

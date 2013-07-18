@@ -21,7 +21,7 @@
 // the callback function.
 //..
 //  void negotiateCb(btes5_Negotiator::NegotiationStatus  result,
-//                      btes5_DetailedError              *error)
+//                   btes5_DetailedError                 *error)
 //  {
 //      assert(result == btes5_Negotiator::SUCCESS);
 //  }
@@ -193,6 +193,8 @@ class btes5_Negotiator {
         // 'provider' to acquire credentials for authentication. Invoke the
         // specified 'callback' when negotiation is finished. Return 0 on
         // successful start, and a non-zero value on immediate failure.
+
+    // TODO: do we need a cancel interface?
 
 };
 

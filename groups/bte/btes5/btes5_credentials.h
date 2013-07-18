@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //  btes5_Negotiator
 //
 //@DESCRIPTION: This component provides a value-semantic attribute class,
-// bteso_UserCredentials containing the credentials to authenticate a
+// bteso_UserCredentials, containing the credentials to authenticate a
 // a connection with a SOCKS5 proxy. Currently, the only authentication method
 // supported is USERNAME/PASSWORD as defined in RFC 1929.
 //
