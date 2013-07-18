@@ -84,8 +84,6 @@ struct AtomicOperations_X64_ALL_GCC
 
     static int getInt(const AtomicTypes::Int *atomicInt);
 
-    static int getIntAcquire(const AtomicTypes::Int *atomicInt);
-
     static void setInt(AtomicTypes::Int *atomicInt, int value);
 
     static void setIntRelease(AtomicTypes::Int *atomicInt, int value);
@@ -101,8 +99,6 @@ struct AtomicOperations_X64_ALL_GCC
         // *** atomic functions for Int64 ***
 
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
-
-    static Types::Int64 getInt64Acquire(const AtomicTypes::Int64 *atomicInt);
 
     static void setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value);
 
@@ -135,7 +131,6 @@ int AtomicOperations_X64_ALL_GCC::
     int ret;
 
     asm volatile (
-        "       mfence                  \n\t"
         "       movl %[obj], %[ret]     \n\t"
 
                 : [ret] "=r" (ret)
@@ -146,32 +141,16 @@ int AtomicOperations_X64_ALL_GCC::
 }
 
 inline
-int AtomicOperations_X64_ALL_GCC::
-    getIntAcquire(const AtomicTypes::Int *atomicInt)
-{
-    int result;
-
-    asm volatile (
-        "       movl %[obj], %[res]     \n\t"
-
-                : [res] "=r" (result)
-                : [obj] "m"  (*atomicInt)
-                : "memory");
-
-    return result;
-}
-
-inline
 void AtomicOperations_X64_ALL_GCC::
     setInt(AtomicTypes::Int *atomicInt, int value)
 {
     asm volatile (
         "       movl %[val], %[obj]     \n\t"
-        "       mfence                  \n\t"
+        "       lock addq $0, 0(%%rsp)  \n\t"
 
                 : [obj] "=m" (*atomicInt)
                 : [val] "r"  (value)
-                : "memory");
+                : "memory", "cc");
 }
 
 inline
@@ -226,23 +205,6 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
     Types::Int64 result;
 
     asm volatile (
-        "       mfence                      \n\t"
-        "       movq %[obj], %[res]         \n\t"
-
-                : [res] "=r" (result)
-                : [obj] "m"  (*atomicInt)
-                : "memory");
-
-    return result;
-}
-
-inline
-Types::Int64 AtomicOperations_X64_ALL_GCC::
-    getInt64Acquire(const AtomicTypes::Int64 *atomicInt)
-{
-    Types::Int64 result;
-
-    asm volatile (
         "       movq %[obj], %[res]         \n\t"
 
                 : [res] "=r" (result)
@@ -258,11 +220,11 @@ void AtomicOperations_X64_ALL_GCC::
 {
     asm volatile (
         "       movq %[val], %[obj]         \n\t"
-        "       mfence                      \n\t"
+        "       lock addq $0, 0(%%rsp)      \n\t"
 
                 : [obj] "=m" (*atomicInt)
                 : [val] "r"  (value)
-                : "memory");
+                : "memory", "cc");
 }
 
 inline

@@ -76,8 +76,6 @@ struct AtomicOperations_X86_ALL_GCC
 
     static int getInt(const AtomicTypes::Int *atomicInt);
 
-    static int getIntAcquire(const AtomicTypes::Int *atomicInt);
-
     static void setInt(AtomicTypes::Int *atomicInt, int value);
 
     static void setIntRelease(AtomicTypes::Int *atomicInt, int value);
@@ -121,33 +119,6 @@ int AtomicOperations_X86_ALL_GCC::
 {
     int result;
 
-#ifdef __SSE2__
-    asm volatile (
-        "       mfence                  \n\t"
-        "       movl %[obj], %[res]     \n\t"
-
-                : [res] "=r" (result)
-                : [obj] "m"  (*atomicInt)
-                : "memory");
-#else
-    asm volatile (
-        "       lock addl $0, 0(%%esp)  \n\t"
-        "       movl %[obj], %[res]     \n\t"
-
-                : [res] "=r" (result)
-                : [obj] "m"  (*atomicInt)
-                : "memory", "cc");
-#endif
-
-    return result;
-}
-
-inline
-int AtomicOperations_X86_ALL_GCC::
-    getIntAcquire(const AtomicTypes::Int *atomicInt)
-{
-    int result;
-
     asm volatile (
         "       movl %[obj], %[res]     \n\t"
 
@@ -162,15 +133,6 @@ inline
 void AtomicOperations_X86_ALL_GCC::
     setInt(AtomicTypes::Int *atomicInt, int value)
 {
-#ifdef __SSE2__
-    asm volatile (
-        "       movl %[val], %[obj]     \n\t"
-        "       mfence                  \n\t"
-
-                : [obj] "=m" (*atomicInt)
-                : [val] "r"  (value)
-                : "memory");
-#else
     asm volatile (
         "       movl %[val], %[obj]     \n\t"
         "       lock addl $0, 0(%%esp)  \n\t"
@@ -178,7 +140,6 @@ void AtomicOperations_X86_ALL_GCC::
                 : [obj] "=m" (*atomicInt)
                 : [val] "r"  (value)
                 : "memory", "cc");
-#endif
 }
 
 inline
