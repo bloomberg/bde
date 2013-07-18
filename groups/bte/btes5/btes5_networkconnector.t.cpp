@@ -266,6 +266,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE 1" << endl
                           << "===============" << endl;
         btes5_TestServerArgs args;
+        args.d_expectedPort = 1080;
         // TODO: configure to simulate connection on valid request
 
         bteso_Endpoint proxy;

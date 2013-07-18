@@ -29,7 +29,7 @@ struct Socks5MethodRequest
 {
     char d_version;
     char d_numMethods;
-    char d_method;
+    char d_methods[255]; // max. 255 methods, only first 2 used
 
     //Socks5MethodRequest()
     //: d_version(5), d_numMethods(1), d_method(0) { }
@@ -137,10 +137,14 @@ static void ServerThread(
         if (rc <= 0) {
             break;
         }
-        LOG_DEBUG << "Read MethodRequest" << LOG_END;
+        LOG_DEBUG << "Read MethodRequest"
+                  << " version=" << (int) methodRequest.d_version
+                  << " numMethods=" << (int) methodRequest.d_numMethods
+                  << " methods[0]=" << (int) methodRequest.d_methods[0]
+                  << LOG_END;
         BSLS_ASSERT(5 == methodRequest.d_version);
-        BSLS_ASSERT(1 == methodRequest.d_numMethods);
-        BSLS_ASSERT(0 == methodRequest.d_method);
+        BSLS_ASSERT(1 <= methodRequest.d_numMethods);
+        BSLS_ASSERT(0 == methodRequest.d_methods[0]);
 
         Socks5MethodResponse methodResponse;
         rc = args->d_connection_p->write((char *)&methodResponse,
@@ -159,8 +163,9 @@ static void ServerThread(
                             << LOG_END;
             break;
         }
-        LOG_DEBUG << "Read ConnectBase, address type"
-                       << (int)connectBase.d_addressType
+        LOG_DEBUG << "Read ConnectBase"
+                       << " address type=" << (int)connectBase.d_addressType
+                       << " command=" << (int)connectBase.d_command
                        << LOG_END;
         BSLS_ASSERT(5 == connectBase.d_version);
         BSLS_ASSERT(1 == connectBase.d_command);
@@ -241,6 +246,7 @@ static void ServerThread(
             LOG_DEBUG << "Wrote ResponseBase" << LOG_END;
         }
     }
+    sleep(1);
     factory->deallocate(socket);
 
     LOG_DEBUG << "ServerThread ending." << LOG_END;

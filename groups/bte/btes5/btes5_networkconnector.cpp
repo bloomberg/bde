@@ -9,6 +9,7 @@ BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 
 #include <bcema_sharedptr.h>
 #include <bdef_bind.h>
+#include <bdetu_systemtime.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsl_sstream.h>
@@ -208,31 +209,34 @@ static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt);
 // definitions for file-scope functions
 
 static void terminate(
-    const btes5_NetworkConnector::AttemptHandle& connectionAttempt,
+    const btes5_NetworkConnector::AttemptHandle& attempt,
     btes5_NetworkConnector::ConnectionStatus     status,
     const btes5_DetailedError&                   error)
-    // Terminate the specified 'connectionAttempt' with the specified 'status'
+    // Terminate the specified 'attempt' with the specified 'status'
     // and 'error'.
 {
-    if (connectionAttempt->d_terminating.testAndSwap(1, 1)) {
+    if (attempt->d_terminating.testAndSwap(1, 1)) {
         return; // this attempt is already being terminated
     }
+    if (attempt->d_timerId_p) {
+        attempt->d_connector->d_eventManager_p->deregisterTimer(
+                                                         attempt->d_timerId_p);
+    }
+    // TODO: deregister connect event if appropriate
     if (btes5_NetworkConnector::e_SUCCESS == status) {
-        connectionAttempt->d_callback(
-                             status,
-                             connectionAttempt->d_socket_p,
-                             connectionAttempt->d_connector->d_socketFactory_p,
-                             error);
+        attempt->d_callback(status,
+                            attempt->d_socket_p,
+                            attempt->d_connector->d_socketFactory_p,
+                            error);
     } else {
-        if (connectionAttempt->d_socket_p) {
-           connectionAttempt->d_connector->d_socketFactory_p
-            ->deallocate(connectionAttempt->d_socket_p);
+        if (attempt->d_socket_p) {
+           attempt->d_connector->d_socketFactory_p
+                                           ->deallocate(attempt->d_socket_p);
         }
-        connectionAttempt->d_callback(
-                             status,
-                             connectionAttempt->d_socket_p,
-                             connectionAttempt->d_connector->d_socketFactory_p,
-                             error);
+        attempt->d_callback(status,
+                            attempt->d_socket_p,
+                            attempt->d_connector->d_socketFactory_p,
+                            error);
     }
     // TODO: cancel any negotiation in progress
 }
@@ -373,21 +377,26 @@ static void connectTcpCb(
     socksConnect(connectionAttempt);
 }
 
-static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
+static bteso_StreamSocket<bteso_IPv4Address> *makeSocket(
+               bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+               btes5_DetailedError                          *error,
+               int                                           minSourcePort = 0,
+               int                                           maxSourcePort = 0)
+    // Allocate a socket suitable for SOCKS5 negotiation using the specified
+    // 'socketFactory'. Return the socket if successful, otherwise return 0 and
+    // load information into the specified 'error'. Optionally specify
+    // 'minSourcePort' and 'maxSourcePort' to bind the socket to a port in this
+    // range. The behavior is undefined unless
+    // '0 == minSourcePort && 0 == maxSourcePort' or
+    // '1 <= minSourcePort <= maxSourcePort <= 65535'.
 {
-    btes5_DetailedError error("TCP connect");;
-
-    bteso_StreamSocket<bteso_IPv4Address> *socket
-        = attempt->d_connector->d_socketFactory_p->allocate();
+    bteso_StreamSocket<bteso_IPv4Address> *socket = socketFactory->allocate();
     if (!socket) {
-        // socket allocation failed, retrying immediately isn't likely to work
-        // so return control to the client
-
-        error.setDescription("Unable to allocate a socket");
-        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
-        return;                                                       // RETURN
+        error->setDescription("Unable to allocate a socket");
+        return 0;                                                     // RETURN
     }
-    attempt->d_socket_p = socket;
+    bteso_StreamSocketFactoryAutoDeallocateGuard<bteso_IPv4Address>
+        socketGuard(socket, socketFactory);
 
     int rc = 0; // return code for socket operations
 
@@ -397,39 +406,35 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
                            bteso_SocketOptUtil::BTESO_REUSEADDRESS,
                            0);
     if (rc) {
-        error.setDescription("Unable to set REUSEADDR option");
-        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
-        return;                                                       // RETURN
+        error->setDescription("Unable to set REUSEADDR option");
+        return 0;                                                     // RETURN
     }
 #endif
 
-    if (attempt->d_connector->d_minSourcePort > 0) {
-        const int begin = attempt->d_connector->d_minSourcePort;
-        const int end = attempt->d_connector->d_maxSourcePort + 1;
+    if (minSourcePort > 0) {
+        const int begin = minSourcePort;
+        const int end = maxSourcePort + 1;
         int port = begin;
         for (; end != port; port++) {
             bteso_IPv4Address
                 srcAddress(bteso_IPv4Address::BTESO_ANY_ADDRESS, port);
             rc = socket->bind(srcAddress);
             if (!rc) {
-                break;
+                break; // bound successfully
             }
         }
         if (end == port) {
             bsl::ostringstream description;
-            description << "Unable to bind source address a port between "
-                        << begin << " " << end;
-            terminate(attempt,
-                      btes5_NetworkConnector::e_ERROR,
-                      error);
-            return;                                                   // RETURN
+            description << "Unable to bind source address to a port between "
+                        << begin << " and " << end;
+            error->setDescription(description.str());
+            return 0;                                                 // RETURN
         }
     }
     rc = socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
     if (rc) {
-        error.setDescription("Unable to set socket mode to non-blocking");
-        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
-        return;                                                       // RETURN
+        error->setDescription("Unable to set socket mode to non-blocking");
+        return 0;                                                     // RETURN
     }
 
     bteso_SocketOptUtil::LingerData lingerData;
@@ -437,28 +442,32 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
     lingerData.l_linger = 0;    // 0 seconds
     rc = socket->setLingerOption(lingerData);
     if (rc) {
-        error.setDescription("Unable to set linger option");
-        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
-        return;                                                       // RETURN
+        error->setDescription("Unable to set linger option");
+        return 0;                                                     // RETURN
     }
 
-    rc = socket->setOption( bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
-                            bteso_SocketOptUtil::BTESO_KEEPALIVE,
-                            1);
+    rc = socket->setOption(bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+                           bteso_SocketOptUtil::BTESO_KEEPALIVE,
+                           1);
     if (rc) {
-        error.setDescription("Unable to set KEEPALIVE option");
-        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
-        return;                                                       // RETURN
+        error->setDescription("Unable to set KEEPALIVE option");
+        return 0;                                                     // RETURN
     }
 
     rc = socket->setOption(bteso_SocketOptUtil::BTESO_TCPLEVEL,
-                            bteso_SocketOptUtil::BTESO_TCPNODELAY,
-                            1);
+                           bteso_SocketOptUtil::BTESO_TCPNODELAY,
+                           1);
     if (rc) {
-        error.setDescription("Unable to set TCPNODELAY option");
-        terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
-        return;                                                       // RETURN
+        error->setDescription("Unable to set TCPNODELAY option");
+        return 0;                                                     // RETURN
     }
+    socketGuard.release();
+    return socket;
+}
+
+static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
+{
+    btes5_DetailedError error("TCP connect");
 
     btes5_NetworkDescription::ProxyIterator
         it = attempt->d_connector->d_socks5Servers.beginLevel(0);
@@ -488,18 +497,31 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
             }
         }
         server.setPortNumber(destination.port());
-        rc = socket->connect(server);
+        attempt->d_socket_p = makeSocket(
+            attempt->d_connector->d_socketFactory_p,
+            &error,
+            attempt->d_connector->d_minSourcePort,
+            attempt->d_connector->d_maxSourcePort);
+        if (!attempt->d_socket_p) {
+            continue; // try again if more servers
+        }
+        int rc = attempt->d_socket_p->connect(server);
         if (!rc) {
             connectTcpCb(attempt); // immediate success
+            break;
         } else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
             bteso_EventManager::Callback
                 cb = bdef_BindUtil::bind(connectTcpCb, attempt);
-            rc = attempt->d_connector
-              ->d_eventManager_p->registerSocketEvent(socket->handle(),
-                                                      bteso_EventType::CONNECT,
-                                                      cb);
+            rc = attempt->d_connector->d_eventManager_p->registerSocketEvent(
+                                                 attempt->d_socket_p->handle(),
+                                                 bteso_EventType::CONNECT,
+                                                 cb);
+            break; // now wait for connection callback
         } else {
-            error.setDescription("Unable to conect");
+            bsl::ostringstream description;
+            description << "Unable to connect: " << rc;
+            error.setDescription(description.str());
+            error.setAddress(destination);
             continue; // do not terminate because there may be more servers
         }
     }
@@ -651,13 +673,15 @@ btes5_NetworkConnector::makeAttemptHandle(
 
 void btes5_NetworkConnector::startAttempt(AttemptHandle& connectionAttempt)
 {
-    bteso_EventManager::Callback
-        cb = bdef_BindUtil::bind(timeoutAttempt, connectionAttempt);
-    connectionAttempt->d_timerId_p = connectionAttempt->d_connector
-        ->d_eventManager_p->registerTimer(connectionAttempt->d_timeout, cb);
-
+    if (bdet_TimeInterval() != connectionAttempt->d_timeout) {
+        bdet_TimeInterval expiration
+            = bdetu_SystemTime::now() + connectionAttempt->d_timeout;
+        bteso_EventManager::Callback
+           cb = bdef_BindUtil::bind(timeoutAttempt, connectionAttempt);
+        connectionAttempt->d_timerId_p = connectionAttempt->d_connector
+           ->d_eventManager_p->registerTimer(expiration, cb);
+    }
     tcpConnect(connectionAttempt);
-    return;
 }
 
 }  // close enterprise namespace
