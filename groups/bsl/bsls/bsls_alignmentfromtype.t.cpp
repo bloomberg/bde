@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
 
         {
             long double  LD = 0.0;
-            void         *V = 0;
+            void        *V  = 0;
             long long    LL = 0;
 
             (void) V;
