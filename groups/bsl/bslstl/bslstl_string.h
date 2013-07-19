@@ -1022,6 +1022,46 @@ class basic_string
         // 'privateReplaceDispatch' to separate the integral type from iterator
         // types.
 
+    basic_string& privateAssign(const CHAR_TYPE *characterString,
+                                size_type        numChars)
+    {
+        if (numChars <= capacity()) {
+            // no reallocation required, perform assignment in-place
+
+            this->d_length = 0;
+            return privateAppendRaw(characterString, numChars);
+        }
+        else {
+            // reallocation required, ensure strong exception-safety
+
+            basic_string cpy(get_allocator());
+            cpy.reserve(numChars);
+            cpy.privateAppendRaw(characterString, numChars);
+            cpy.swap(*this);
+            return *this;
+        }
+    }
+
+    basic_string& privateAssign(size_type numChars,
+                                CHAR_TYPE character)
+    {
+        if (numChars <= capacity()) {
+            // no reallocation required, perform assignment in-place
+
+            this->d_length = 0;
+            return privateAppendRaw(numChars, character);
+        }
+        else {
+            // reallocation required, ensure strong exception-safety
+
+            basic_string cpy(get_allocator());
+            cpy.reserve(numChars);
+            cpy.privateAppendRaw(numChars, character);
+            cpy.swap(*this);
+            return *this;
+        }
+    }
+
     basic_string& privateAppendRaw(const CHAR_TYPE *characterString,
                                    size_type        numChars);
         // Append characters from the specified 'characterString' array of
@@ -3289,6 +3329,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
 {
+    // perform a validity check
+    BSLS_ASSERT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT(capacity() >= length());
+
     privateDeallocate();
     this->d_length = npos;  // invalid length
 }
@@ -3616,8 +3660,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                      "string<...>::assign(string const&...): string too long");
     }
-    this->d_length = 0;
-    return privateAppendRaw(string.data() + position, numChars);
+
+    return privateAssign(string.data() + position, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3643,8 +3687,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                              "string<...>::assign(char*...): string too long");
     }
-    this->d_length = 0;
-    return privateAppendRaw(characterString, numChars);
+
+    return privateAssign(characterString, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3657,8 +3701,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                                   "string<...>::assign(n,c): string too long");
     }
-    this->d_length = 0;
-    return privateAppendRaw(numChars, character);
+
+    return privateAssign(numChars, character);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3668,8 +3712,24 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    this->d_length = 0;
-    return privateAppendDispatch(first, last);
+    basic_string cpy(*this, get_allocator());
+
+    try
+    {
+        cpy.d_length = 0;  // after d_length assignment the string object is in
+                           // the inconsistent state
+        cpy.privateAppendDispatch(first, last);
+        cpy.swap(*this);
+    }
+    catch (...)
+    {
+        // since we modified the length above, make sure to put the NULL
+        // terminator to restore the consistent state of the string object
+        cpy[cpy.d_length] = '\0';
+        throw;
+    }
+
+    return *this;
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>

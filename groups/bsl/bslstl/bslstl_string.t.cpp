@@ -8690,14 +8690,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     const size_t LENGTH = DATA[ti].d_length;
                     const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
 
-                    const size_t CAP = computeNewCapacity(LENGTH,
-                                                          X.length(),
-                                                          X.capacity(),
-                                                          X.max_size());
                     if (veryVerbose) {
                         printf("\t\tAssign "); P_(LENGTH);
                         printf(" using "); P(VALUE);
-                        P(CAP);
                     }
 
                     mX.assign(LENGTH, VALUE);
@@ -8707,7 +8702,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     }
 
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
-                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti, CAP == X.capacity());
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                 X.capacity() >= X.size());
 
                     for (size_t j = 0; j < LENGTH; ++j) {
                         LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, VALUE == X[j]);
@@ -8771,6 +8767,161 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             }
         }
     }
+
+#ifndef BDE_BUILD_TARGET_EXC
+    if (verbose) printf("\nSkip testing assign() exception-safety.\n");
+#else
+    if (verbose) printf("\nTesting assign() exception-safety.\n");
+
+    {
+        size_t defaultCapacity = Obj().capacity();
+
+        Obj src(defaultCapacity + 1, '1', &testAllocator);
+
+        Obj dst(defaultCapacity, '2', &testAllocator);
+        Obj dstCopy(dst, &testAllocator);
+
+        bsls::Types::Int64 oldLimit = testAllocator.allocationLimit();
+
+
+        {
+            // make the allocator throw on the next allocation
+            testAllocator.setAllocationLimit(0);
+            bool exceptionCaught = false;
+
+            try
+            {
+                // the assignment will require to allocate more memory
+                dst.assign(src);
+            }
+            catch (bslma::TestAllocatorException &)
+            {
+                exceptionCaught = true;
+            }
+            catch (...)
+            {
+                exceptionCaught = true;
+                ASSERT(0 && "Wrong exception caught");
+            }
+
+            ASSERT(exceptionCaught);
+            ASSERT(dst == dstCopy);
+        }
+
+        {
+            testAllocator.setAllocationLimit(0);
+            bool exceptionCaught = false;
+
+            try
+            {
+                dst.assign(src, 0, Obj::npos);
+            }
+            catch (bslma::TestAllocatorException &)
+            {
+                exceptionCaught = true;
+            }
+            catch (...)
+            {
+                exceptionCaught = true;
+                ASSERT(0 && "Wrong exception caught");
+            }
+
+            ASSERT(exceptionCaught);
+            ASSERT(dst == dstCopy);
+        }
+
+        {
+            testAllocator.setAllocationLimit(0);
+            bool exceptionCaught = false;
+
+            try
+            {
+                dst.assign(src.c_str());
+            }
+            catch (bslma::TestAllocatorException &)
+            {
+                exceptionCaught = true;
+            }
+            catch (...)
+            {
+                exceptionCaught = true;
+                ASSERT(0 && "Wrong exception caught");
+            }
+
+            ASSERT(exceptionCaught);
+            ASSERT(dst == dstCopy);
+        }
+
+        {
+            testAllocator.setAllocationLimit(0);
+            bool exceptionCaught = false;
+
+            try
+            {
+                dst.assign(src.c_str(), src.size());
+            }
+            catch (bslma::TestAllocatorException &)
+            {
+                exceptionCaught = true;
+            }
+            catch (...)
+            {
+                exceptionCaught = true;
+                ASSERT(0 && "Wrong exception caught");
+            }
+
+            ASSERT(exceptionCaught);
+            ASSERT(dst == dstCopy);
+        }
+
+        {
+            testAllocator.setAllocationLimit(0);
+            bool exceptionCaught = false;
+
+            try
+            {
+                dst.assign(src.size(), 'c');
+            }
+            catch (bslma::TestAllocatorException &)
+            {
+                exceptionCaught = true;
+            }
+            catch (...)
+            {
+                exceptionCaught = true;
+                ASSERT(0 && "Wrong exception caught");
+            }
+
+            ASSERT(exceptionCaught);
+            ASSERT(dst == dstCopy);
+        }
+
+        {
+            testAllocator.setAllocationLimit(0);
+            bool exceptionCaught = false;
+
+            try
+            {
+                dst.assign(src.begin(), src.end());
+            }
+            catch (bslma::TestAllocatorException &)
+            {
+                exceptionCaught = true;
+            }
+            catch (...)
+            {
+                exceptionCaught = true;
+                ASSERT(0 && "Wrong exception caught");
+            }
+
+            ASSERT(exceptionCaught);
+            ASSERT(dst == dstCopy);
+        }
+
+        // restore the allocator state
+        testAllocator.setAllocationLimit(oldLimit);
+    }
+#endif
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
@@ -8892,10 +9043,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
 
                 CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
 
-                const size_t CAP = computeNewCapacity(LENGTH,
-                                                      X.length(),
-                                                      X.capacity(),
-                                                      X.max_size());
                 if (veryVerbose) {
                     printf("\t\tAssign "); P_(LENGTH);
                     printf(" using "); P(SPEC);
@@ -8909,7 +9056,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
 
                 LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
                 if (!INPUT_ITERATOR_TAG) {
-                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti, CAP == X.capacity());
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                 X.capacity() >= X.size());
                 }
 
                 Obj mY(g(SPEC)); const Obj& Y = mY;
@@ -10280,6 +10428,48 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             }
         }
     }
+
+#ifndef BDE_BUILD_TARGET_EXC
+    if (verbose) printf("\nSkip testing assignment exception-safety.\n");
+#else
+    if (verbose) printf("\nTesting assignment exception-safety.\n");
+
+    {
+        size_t defaultCapacity = Obj().capacity();
+
+        Obj src(defaultCapacity + 1, '1', &testAllocator);
+
+        Obj dst(defaultCapacity, '2', &testAllocator);
+        Obj dstCopy(dst, &testAllocator);
+
+        // make the allocator throw on the next allocation
+        bsls::Types::Int64 oldLimit = testAllocator.allocationLimit();
+        testAllocator.setAllocationLimit(0);
+
+        bool exceptionCaught = false;
+
+        try
+        {
+            // the assignment will require to allocate more memory
+            dst = src;
+        }
+        catch (bslma::TestAllocatorException &)
+        {
+            exceptionCaught = true;
+        }
+        catch (...)
+        {
+            exceptionCaught = true;
+            ASSERT(0 && "Wrong exception caught");
+        }
+
+        // restore the allocator state
+        testAllocator.setAllocationLimit(oldLimit);
+
+        ASSERT(exceptionCaught);
+        ASSERT(dst == dstCopy);
+    }
+#endif
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
