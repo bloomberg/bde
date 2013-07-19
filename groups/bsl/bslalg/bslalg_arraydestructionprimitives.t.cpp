@@ -363,7 +363,7 @@ class CleanupGuard {
     const char  *d_spec_p;
     TYPE       **d_endPtr_p;
     TYPE        *d_initialEndPtr_p;
-    int          d_length;
+    size_t      d_length;
 
   public:
     // CREATORS
@@ -448,7 +448,7 @@ void fillWithJunk(void *buf, int size)
     char *p = reinterpret_cast<char*>(buf);
 
     for (int i = 0; i < size; ++i) {
-        p[i] = (i % MAX_VALUE) + 1;
+        p[i] = (char)(i % MAX_VALUE) + 1;
     }
 }
 
