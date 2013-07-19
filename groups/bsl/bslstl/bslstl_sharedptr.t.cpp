@@ -70,6 +70,7 @@ using namespace BloombergLP;
 // [  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& alias, ELEMENT_TYPE *ptr)
 // [  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& other);
 //*[ 3] bsl::shared_ptr(const bsl::shared_ptr& original);
+// [  ] bsl::shared_ptr(const bsl::weak_ptr<OTHER>& alias);
 // [ 3] bsl::shared_ptr(bslma::SharedPtrRep *rep);
 // [ 2] ~bsl::shared_ptr();
 // [ 4] bsl::shared_ptr& operator=(const bsl::shared_ptr& rhs);
@@ -110,7 +111,7 @@ using namespace BloombergLP;
 // [15] void reset(const bsl::shared_ptr<OTHER>& source, TYPE *ptr);
 // [ 2] TYPE *get() const;
 // [ 2] bool unique() const;
-// [ 2] int use_count() const;
+// [ 2] long use_count() const;
 //
 // Free functions
 //---------------
@@ -202,15 +203,14 @@ using namespace BloombergLP;
 // [28] void swap(bsl::weak_ptr<TYPE>& src);
 //
 // ACCESSORS
-// [24t l] [[operator bcema_SharedPtr_UnspecifiedBool() const;]]
 // [24] int numReferences() const;
-// [24] bool isValid() const;
+// [27] shared_ptr<TYPE> acquireSharedPtr() const;
 // [24] bslma::SharedPtrRep *rep() const;
-// [24] int use_count() const;
 // [24] bool expired() const;
-// [27] bsl::shared_ptr<TYPE> lock() const;
-// [29] bool owner_before(const bsl::shared_ptr<OTHER_TYPE>& rhs);
-// [29] bool owner_before(const bsl::weak_ptr<OTHER_TYPE>& rhs);
+// [24] long use_count() const;
+// [27] shared_ptr<TYPE> lock() const;
+// [29] bool owner_before(const shared_ptr<OTHER_TYPE>& rhs);
+// [29] bool owner_before(const weak_ptr<OTHER_TYPE>& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [31] USAGE TEST
@@ -3138,18 +3138,15 @@ int main(int argc, char *argv[])
       // Plan:
       //
       // Testing:
-      //   bsl::weak_ptr<TYPE>(const bsl::shared_ptr<TYPE>& original);
-      //   bsl::weak_ptr<TYPE>(const bsl::weak_ptr<TYPE>& original);
-      //   template <class COMPATIBLE_TYPE>
-      //   bsl::weak_ptr(const bsl::shared_ptr<COMPATIBLE_TYPE>& original);
-      //   template <class COMPATIBLE_TYPE>
-      //   bsl::weak_ptr(const bsl::weak_ptr<COMPATIBLE_TYPE>& original);
-      //   ~bsl::weak_ptr();
-      //   [[operator bcema_SharedPtr_UnspecifiedBool() const;]]
-      //   int numReferences() const;
-      //   bslma::SharedPtrRep *rep() const;
-      //   int use_count() const;
+      //   weak_ptr();
+      //   weak_ptr(const weak_ptr& original);
+      //   weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& ptr);
+      //   weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& ptr);
+      //   ~weak_ptr();
+      //   BloombergLP::bslma::SharedPtrRep *rep() const;
       //   bool expired() const;
+      //   int numReferences() const;
+      //   long use_count() const;
       // --------------------------------------------------------------------
 
       if (verbose) printf("\nTESTING CREATORS (weak_ptr)"
@@ -6226,7 +6223,7 @@ int main(int argc, char *argv[])
         //   int numReferences() const;
         //   TYPE *get() const;
         //   bool unique() const;
-        //   int use_count() const;
+        //   long use_count() const;
         //   void clear();
         // --------------------------------------------------------------------
 
@@ -6240,13 +6237,15 @@ int main(int argc, char *argv[])
         {
             Obj x; const Obj& X=x;
 
-            ASSERT(0 == X.ptr());
             ASSERT(0 == X.get());
             ASSERT(0 == X.rep());
-            ASSERT(0 == X.numReferences());
             ASSERT(0 == X.use_count());
             ASSERT(false == X.unique());
             ASSERT(false == X);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ASSERT(0 == X.ptr());
+            ASSERT(0 == X.numReferences());
+#endif
         }
 
         if (verbose) printf("\nTesting basic constructor"
@@ -6261,18 +6260,20 @@ int main(int argc, char *argv[])
                 P_(numDeletes); P(X.numReferences());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
+            ASSERT(p == X.get());
             ASSERT(0 != X.rep());
             ASSERT(1 == X.rep()->numReferences());
             ASSERT((void *) p == X.rep()->originalPtr());
-            ASSERT(p == X.get());
-            ASSERT(1 == X.numReferences());
             ASSERT(1 == X.use_count());
             ASSERT(true == X.unique());
             ASSERT(false != X);
             ASSERT(p == X.operator->());
             ASSERT(p == &X.operator*());
             ASSERT(p == &X.operator[](0));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ASSERT(p == X.ptr());
+            ASSERT(1 == X.numReferences());
+#endif
         }
 
         if (verbose) printf("\nTesting 'clear'"
@@ -6291,20 +6292,32 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
+            ASSERT(p == X.get());
             ASSERT(0 != X.rep());
             ASSERT(1 == X.rep()->numReferences());
             ASSERT((void *) p == X.rep()->originalPtr());
+            ASSERT(1 == X.use_count());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
+#endif
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             x.clear();
+#else
+            x.reset();
+#endif
 
             numDeallocations += 2;
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(1 == numDeletes);
-            ASSERT(0 == X.ptr());
+            ASSERT(0 == X.get());
             ASSERT(0 == X.rep());
+            ASSERT(0 == X.use_count());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
+#endif
         }
 
         ASSERT(1 == numDeletes);

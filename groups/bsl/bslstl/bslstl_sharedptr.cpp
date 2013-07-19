@@ -23,9 +23,9 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslstl {
 
-                         // -------------------------
+                         // ---------------------------
                          // class bslstl::SharedPtrUtil
-                         // -------------------------
+                         // ---------------------------
 
 // MANIPULATORS
 bsl::shared_ptr<char>
@@ -46,7 +46,7 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
     typedef bslma::SharedPtrInplaceRep<bsls::AlignmentUtil::MaxAlignedType>
                                                                            Rep;
 
-    enum{
+    enum {
         ALIGNMENT_MASK = ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
     };
 
