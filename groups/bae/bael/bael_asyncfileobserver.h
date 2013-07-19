@@ -381,9 +381,11 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // publication thread
                                                      // function
 
-    bael_Record                   d_warnRecord;      // published directly to
-                                                     // file observer by 
-                                                     // publication thread
+    bael_Record                   d_droppedRecordWarning;      
+                                                     // cached record object 
+                                                     // used to publish the
+                                                     // count of dropped log
+                                                     // records
 
     mutable bcemt_Mutex           d_mutex;           // serialize operations
 
@@ -396,6 +398,11 @@ class bael_AsyncFileObserver : public bael_Observer {
     bael_AsyncFileObserver& operator=(const bael_AsyncFileObserver&);
 
     // PRIVATE MANIPULATORS
+    void construct();
+        // Initialize members of this object that do not vary between 
+        // constructor overloads.  Note that this method should be 
+        // removed when C++11 constructor chaining is available.  
+
     void logDroppedMessageWarning(int numDropped);
         // Synchronously write an entry into the underlying file observer
         // indicating that the specified 'numDropped' number of records

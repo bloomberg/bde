@@ -29,6 +29,7 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_cmath.h>
 
 #include <bsl_c_stdio.h>     // 'tempname'
 #include <bsl_c_stdlib.h>    // 'unsetenv'
@@ -329,10 +330,13 @@ int countLoggedRecords(const bsl::string& fileName)
 }
 
 int countMatchingRecords(const bsl::string&  fileName,
-                         const char         *pattern)
-{
+                         const char         *pattern, 
+                         bool                isNegativePattern = false)
     // Return the number of lines in the specified 'fileName' matching
-    // the specified regex 'pattern'.  
+    // the specified regex 'pattern'.  If the optionally specified 
+    // 'isNegativePattern' flag is 'true', return instead the number of lines
+    // *not* matching 'pattern'.  
+{
     bsl::string line;
     int numLines = 0;
     bsl::ifstream fs;
@@ -344,7 +348,8 @@ int countMatchingRecords(const bsl::string&  fileName,
     BSLS_ASSERT_OPT(0 == rc); // test invariant
 
     while (getline(fs, line)) {
-        if(0 == regex.match(line.c_str(), line.length())) {
+        bool matches = 0 == regex.match(line.c_str(), line.length());
+        if (!isNegativePattern == matches) {
             ++numLines;
         }
     }
@@ -354,12 +359,11 @@ int countMatchingRecords(const bsl::string&  fileName,
 
 int accumulateMatchingRecords(const bsl::string&  fileName,
                               const char         *pattern)
-{
     // Apply the specified regex 'pattern', which must contain one 
     // integer-matching subpattern, to each line in the specified 'fileName', 
     // and return the sum of all the values of the subpattern for matching 
     // lines.  
-
+{
     bsl::string line;
     int sum = 0;
     bsl::ifstream fs;
@@ -711,7 +715,9 @@ int main(int argc, char *argv[])
             const int queueLength = X.recordQueueLength();
             mX.disableFileLogging();
 
-            const int numLoggedRecords = countLoggedRecords(fileName);
+            const int numLoggedRecords = 
+                countMatchingRecords(fileName, 
+                                     "Dropped \\d+ log records", true);
 
             mX.shutdownPublicationThread();
 
@@ -720,7 +726,8 @@ int main(int argc, char *argv[])
                 P(MAX_QUEUE_LENGTH - queueLength);
             }
             ASSERT(MAX_QUEUE_LENGTH > queueLength);
-            ASSERT(numLoggedRecords >= MAX_QUEUE_LENGTH - queueLength);
+            LOOP2_ASSERT(numLoggedRecords, queueLength, 
+                         numLoggedRecords >= MAX_QUEUE_LENGTH - queueLength);
 
             // After shutting down the publication thread, the queue should be
             // cleared.
@@ -1448,7 +1455,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //   - Asynchronous observer is configured to drop records when the
         //     fixed queue is full by default.  An alert should be printed
-        //     to the logfile for all dropped records.
+        //     to the logfile for all dropped records.  This alert should
+        //     not be printed excessively.  (Specifically, it should be 
+        //     printed when the queue is half empty or the count has reached
+        //     a threshold).  
         //
         //   - Asynchronous observer can be configured to block the caller of
         //     'publish'  when the fixed queue is full instead of dropping
@@ -1559,8 +1569,23 @@ int main(int argc, char *argv[])
             int numDroppedRecords = accumulateMatchingRecords(
                                        fileName,
                                        "Dropped (\\d+) log records");
+            int numDroppedRecordMessages = countMatchingRecords(
+                                       fileName,
+                                       "Dropped \\d+ log records");
+       
             LOOP2_ASSERT(numRecords, numDroppedRecords, 
                          numTestRecords == numRecords + numDroppedRecords);
+
+            // The dropped records messages are printed only when the queue
+            // is half empty or when there are 5000.  The way we've set up 
+            // this test, there should be one printed for every 5000 dropped
+            // messages plus an additional one, with any remainder, printed
+            // while the queue is draining.  
+            int expectDroppedRecordMessages = (int)bsl::ceil(
+                                                  numDroppedRecords / 5000.0);
+            LOOP2_ASSERT(
+                     numDroppedRecordMessages, expectDroppedRecordMessages,
+                     numDroppedRecordMessages == expectDroppedRecordMessages);
 
             if (0 < test) {
                 removeFilesByPrefix(fileName.c_str());

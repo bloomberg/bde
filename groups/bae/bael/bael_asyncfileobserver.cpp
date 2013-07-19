@@ -52,26 +52,26 @@ static void populateWarnRecord(bael_Record         *record,
 // PRIVATE METHODS
 void bael_AsyncFileObserver::logDroppedMessageWarning(int numDropped)
 {
-    // Log directly to the file observer rather than through the logger
-    // manager to avoid a loop.  Also, log unconditionally (i.e., not 
+    // Log the record, unconditionally, to the file observer (i.e., without
     // consulting the logger manager as to whether WARN is enabled) to avoid
-    // an observer->loggermanager dependency. 
+    // an observer->loggermanager dependency.
     
-    populateWarnRecord(&d_warnRecord, __LINE__, numDropped);
+    populateWarnRecord(&d_droppedRecordWarning, __LINE__, numDropped);
     bael_Context context(bael_Transmission::BAEL_PASSTHROUGH, 0, 0);
-    d_fileObserver.publish(d_warnRecord, context);
+    d_fileObserver.publish(d_droppedRecordWarning, context);
 }
 
 void bael_AsyncFileObserver::publishThreadEntryPoint()
 {
     bool done = false;
-    d_warnRecord.fixedFields().setThreadID(bcemt_ThreadUtil::selfIdAsUint64());
+    d_droppedRecordWarning.fixedFields().setThreadID(
+                                          bcemt_ThreadUtil::selfIdAsUint64());
     
     while (!done) {
         AsyncRecord asyncRecord = d_recordQueue.popFront();
 
-        // Publish the record only if not shutting down; but check 
-        // the dropped message counter whether shutting down or not.  
+        // Publish the next log record on the queue only if the observer is
+        // not shutting down.
 
         if (bael_Transmission::BAEL_END
                 == asyncRecord.d_context.transmissionCause()
@@ -83,9 +83,13 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
                                    asyncRecord.d_context);
         }
 
-        // To avoid excess verbosity, clear and log the dropped record count
-        // only if the queue is half empty or shutting down, or if a limit
-        // has been exceeded.  
+        
+        // Publish the count of dropped records.  To avoid repeatedly
+        // publishing this information when the record queue is full, we 
+        // publish the number of dropped records only when the queue becomes 
+        // half empty or when a sufficient number of records have been 
+        // dropped.  Finally, we publish the dropped record count if the 
+        // observer is shutting down, so the information is not lost.
 
         if (0 < d_dropCount.relaxedLoad()) {
             if (d_recordQueue.length() <= d_recordQueue.size() / 2
@@ -133,28 +137,35 @@ int bael_AsyncFileObserver::stopThread()
 }
 
 // CREATORS
-bael_AsyncFileObserver::bael_AsyncFileObserver(
-                                         bael_Severity::Level  stdoutThreshold,
-                                         bslma::Allocator     *basicAllocator)
-: d_fileObserver(stdoutThreshold, basicAllocator)
-, d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
-, d_clearing(false)
-, d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
-, d_dropCount(0)
-, d_warnRecord(basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+void
+bael_AsyncFileObserver::construct()
 {
+    d_threadHandle = bcemt_ThreadUtil::invalidHandle();
+    d_clearing = false;
+    d_dropCount = 0;
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
               bdef_MemFnUtil::memFn(
                       &bael_AsyncFileObserver::publishThreadEntryPoint,
                       this),
               d_allocator_p);
-    d_warnRecord.fixedFields().setFileName(__FILE__);
-    d_warnRecord.fixedFields().setCategory(LOG_CATEGORY);
-    d_warnRecord.fixedFields().setSeverity(bael_Severity::BAEL_WARN);
-    d_warnRecord.fixedFields().setProcessID(bdesu_ProcessUtil::getProcessId());
+    d_droppedRecordWarning.fixedFields().setFileName(__FILE__);
+    d_droppedRecordWarning.fixedFields().setCategory(LOG_CATEGORY);
+    d_droppedRecordWarning.fixedFields().setSeverity(
+                                          bael_Severity::BAEL_WARN);
+    d_droppedRecordWarning.fixedFields().setProcessID(
+                                          bdesu_ProcessUtil::getProcessId());
+}    
+bael_AsyncFileObserver::bael_AsyncFileObserver(
+                                         bael_Severity::Level  stdoutThreshold,
+                                         bslma::Allocator     *basicAllocator)
+: d_fileObserver(stdoutThreshold, basicAllocator)
+, d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
+, d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
+, d_droppedRecordWarning(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    construct();
 }
 
 bael_AsyncFileObserver::bael_AsyncFileObserver(
@@ -162,24 +173,12 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bool                  publishInLocalTime,
                                       bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
-, d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
-, d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
-, d_dropCount(0)
-, d_warnRecord(basicAllocator)
+, d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_publishThreadEntryPoint
-        = bdef_Function<void (*)()>(
-              bdef_MemFnUtil::memFn(
-                      &bael_AsyncFileObserver::publishThreadEntryPoint,
-                      this),
-              d_allocator_p);
-    d_warnRecord.fixedFields().setFileName(__FILE__);
-    d_warnRecord.fixedFields().setCategory(LOG_CATEGORY);
-    d_warnRecord.fixedFields().setSeverity(bael_Severity::BAEL_WARN);
-    d_warnRecord.fixedFields().setProcessID(bdesu_ProcessUtil::getProcessId());
+    construct();
 }
 
 
@@ -189,24 +188,12 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       int                   maxRecordQueueSize,
                                       bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
-, d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
-, d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
-, d_dropCount(0)
-, d_warnRecord(basicAllocator)
+, d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_publishThreadEntryPoint
-        = bdef_Function<void (*)()>(
-              bdef_MemFnUtil::memFn(
-                      &bael_AsyncFileObserver::publishThreadEntryPoint,
-                      this),
-              d_allocator_p);
-    d_warnRecord.fixedFields().setFileName(__FILE__);
-    d_warnRecord.fixedFields().setCategory(LOG_CATEGORY);
-    d_warnRecord.fixedFields().setSeverity(bael_Severity::BAEL_WARN);
-    d_warnRecord.fixedFields().setProcessID(bdesu_ProcessUtil::getProcessId());
+    construct();
 }
 
 bael_AsyncFileObserver::bael_AsyncFileObserver(
@@ -216,24 +203,12 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                          bael_Severity::Level  dropRecordsOnFullQueueThreshold,
                          bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
-, d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
-, d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(dropRecordsOnFullQueueThreshold)
-, d_dropCount(0)
-, d_warnRecord(basicAllocator)
+, d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_publishThreadEntryPoint
-        = bdef_Function<void (*)()>(
-              bdef_MemFnUtil::memFn(
-                      &bael_AsyncFileObserver::publishThreadEntryPoint,
-                      this),
-              d_allocator_p);
-    d_warnRecord.fixedFields().setFileName(__FILE__);
-    d_warnRecord.fixedFields().setCategory(LOG_CATEGORY);
-    d_warnRecord.fixedFields().setSeverity(bael_Severity::BAEL_WARN);
-    d_warnRecord.fixedFields().setProcessID(bdesu_ProcessUtil::getProcessId());
+    construct();
 }
 
 bael_AsyncFileObserver::~bael_AsyncFileObserver()
