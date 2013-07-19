@@ -3088,7 +3088,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
 
                 size_t count = 0, countKey = 0;
                 bool firstTime = true;
-                KEY prevKey;
+                KEY prevKey = KEY();
                 Iter endRange = end;
                 for (Iter it = begin; end != it; ++it) {
                     ++count;
