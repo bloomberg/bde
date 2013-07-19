@@ -373,6 +373,8 @@ void TestConfigurationMacros();
 
     void HashTable::resize(double loadFactor)
     {
+        // silence "unused parameter" warning in release builds:
+        (void) loadFactor;
         BSLS_ASSERT(0 < loadFactor);
 
         // ...
