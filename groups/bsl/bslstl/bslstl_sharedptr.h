@@ -2381,10 +2381,6 @@ class shared_ptr {
         // shared pointer, or 0 if this shared pointer is empty.  Note that the
         // behavior of this function is the same as 'get'.
 #endif
-
-        // *** std::tr1 COMPATIBILITY ***
-
-
 };
 
 // FREE OPERATORS
@@ -2528,14 +2524,28 @@ operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
     // referred to by the specified 'rhs' shared pointer and return a reference
     // to the modifiable 'stream'.
 
-                        // *** std::tr1 COMPATIBILITY ***
-
+// ASPECTS
 template <class ELEMENT_TYPE>
 void swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b);
     // Efficiently exchange the states of the specified 'a' and 'b' shared
     // pointers such that each will refer to the object formerly referred to by
     // the other, and each will manage the object formerly referred to by the
     // other.
+
+
+// STANDARD CAST FUNCTIONS
+template<class TO_TYPE, class FROM_TYPE>
+shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& r);
+
+template<class TO_TYPE, class FROM_TYPE>
+shared_ptr<TO_TYPE> dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& r);
+
+template<class TO_TYPE, class FROM_TYPE>
+shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>& r);
+
+// STANDARD FREE FUNCTIONS
+template<class DELETER, class ELEMENT_TYPE>
+DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
 
                         // ==============
                         // class weak_ptr
@@ -3954,6 +3964,34 @@ size_t hash<shared_ptr<ELEMENT_TYPE> >::operator()(
 
 }  // close namespace bsl
 
+// STANDARD CAST FUNCTIONS
+template<class TO_TYPE, class FROM_TYPE>
+bsl::shared_ptr<TO_TYPE>
+bsl::const_pointer_cast(const shared_ptr<FROM_TYPE>& r) {
+    return shared_ptr<TO_TYPE>(source, const_cast<TO_TYPE *>(source.ptr()));
+}
+
+template<class TO_TYPE, class FROM_TYPE>
+bsl::shared_ptr<TO_TYPE>
+bsl::dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& r) {
+    return shared_ptr<TO_TYPE>(source, dynamic_cast<TO_TYPE *>(source.ptr()));
+}
+
+template<class TO_TYPE, class FROM_TYPE>
+bsl::shared_ptr<TO_TYPE>
+bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& r) {
+    return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.ptr()));
+}
+
+// STANDARD FREE FUNCTIONS
+template<class DELETER, class ELEMENT_TYPE>
+DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p) {
+    // TBD Check if the deleter owned by p.rep() hsa the same typeid as DELETER
+    // and if so, return a pointer to that deleter.
+
+    return 0;
+}
+
 namespace BloombergLP {
 namespace bslstl {
 
@@ -4012,9 +4050,9 @@ void SharedPtrUtil::constCast(bsl::shared_ptr<TARGET>        *target,
     target->loadAlias(source, const_cast<TARGET *>(source.ptr()));
 }
 
-                      // --------------------------------
+                      // ----------------------------------
                       // struct bslstl::SharedPtrNilDeleter
-                      // --------------------------------
+                      // ----------------------------------
 
 // ACCESSORS
 inline
