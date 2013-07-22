@@ -6003,6 +6003,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         const float FLT_TINY = std::numeric_limits<float>::denorm_min();
         const float FLT_NAN  = std::numeric_limits<float>::quiet_NaN();
         const float FLT_INF  = std::numeric_limits<float>::infinity();
+        // silence the "unused variable" warning(s) in release builds:
+        (void) FLT_TINY;
+        (void) FLT_NAN;
+        (void) FLT_INF;
 
         ASSERT_PASS_RAW(Obj(HASH, COMPARE, 0,      1.0f, objAlloc));
         ASSERT_PASS_RAW(Obj(HASH, COMPARE, 0,  FLT_TINY, objAlloc));
