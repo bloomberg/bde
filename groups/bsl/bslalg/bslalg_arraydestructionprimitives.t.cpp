@@ -363,7 +363,7 @@ class CleanupGuard {
     const char  *d_spec_p;
     TYPE       **d_endPtr_p;
     TYPE        *d_initialEndPtr_p;
-    size_t      d_length;
+    size_t       d_length;
 
   public:
     // CREATORS
@@ -378,7 +378,7 @@ class CleanupGuard {
 
     ~CleanupGuard()
     {
-        for (int i = 0; d_spec_p[i] && i < d_length; ++i) {
+        for (int i = 0; d_spec_p[i] && i < static_cast<int>(d_length); ++i) {
             char c = d_spec_p[i];
             if (isalpha(c)) {
                 if (d_endPtr_p && *d_endPtr_p - d_array_p <= i &&
