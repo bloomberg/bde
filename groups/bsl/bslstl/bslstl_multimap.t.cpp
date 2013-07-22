@@ -20,6 +20,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 
+#include <stdlib.h> // atoi
+
 #include <algorithm>
 #include <functional>
 
