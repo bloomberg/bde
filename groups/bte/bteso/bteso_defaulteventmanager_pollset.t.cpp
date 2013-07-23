@@ -530,7 +530,7 @@ int main(int argc, char *argv[])
                 int savedErrno = errno;
 
                 bsl::cout << "rc = " << result << ", errno = " << savedErrno
-                    << ": " << strerror(savedErrno) << bsl::endl;
+                          << ": " << strerror(savedErrno) << bsl::endl;
             }
 
             ASSERT(result != 0); // connection failed
