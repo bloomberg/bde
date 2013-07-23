@@ -1026,25 +1026,25 @@ class basic_string
                                 size_type        numChars);
         // Assign characters from the specified 'characterString' array of
         // characters of the specified 'numChars' length to this string
-        // discarding the old content of the string, and return a reference to
-        // this modifiable string.  The behavior is undefined unless
-        // 'numChars <= max_size() - length()', and the 'characterString' array
-        // is at least 'numChars' long.
+        // discarding the old content of the string, and return a reference
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'numChars <= max_size()', and the 'characterString'
+        // array is at least 'numChars' long.
 
     basic_string& privateAssign(size_type numChars,
                                 CHAR_TYPE character);
         // Assign the specified 'numChars' copies of the specified 'character'
         // to this string discarding the old content of the string, and return
-        // a reference this modifiable string.  The behavior is undefined
-        // unless 'numChars <= max_size() - length()'.
+        // a reference providing modifiable access to this string.  The
+        // behavior is undefined unless 'numChars <= max_size()'.
 
     basic_string& privateAppendRaw(const CHAR_TYPE *characterString,
                                    size_type        numChars);
         // Append characters from the specified 'characterString' array of
         // characters of the specified 'numChars' length to this string, and
-        // return a reference to this modifiable string.  The behavior is
-        // undefined unless 'numChars <= max_size() - length()', and the
-        // 'characterString' array is at least 'numChars' long.
+        // return a reference providing modifiable access to this string.  The
+        // behavior is undefined unless 'numChars <= max_size() - length()',
+        // and the 'characterString' array is at least 'numChars' long.
 
     basic_string& privateAppendRaw(size_type numChars,
                                    CHAR_TYPE character);
@@ -1116,11 +1116,12 @@ class basic_string
         // Replace the specified 'outNumChars' characters of this object
         // starting at the specified 'outPosition' by the specified 'numChars'
         // starting at the specified 'characterString', and return a reference
-        // to this modifiable string.  The behavior is undefined unless
-        // 'outPosition <= length()', 'outNumChars <= length()',
-        // 'outPosition <= length() - outNumChars', 'numChars <= max_size()',
-        // and 'length() - outNumChars <= max_size() - numChars'.  Note that
-        // this method is alias-safe, i.e., it works correctly even if
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'outPosition <= length()',
+        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
+        // 'numChars <= max_size()', and
+        // 'length() - outNumChars <= max_size() - numChars'.  Note that this
+        // method is alias-safe, i.e., it works correctly even if
         // 'characterString' points into this string object.
 
     basic_string& privateReplaceRaw(size_type outPosition,
@@ -1129,11 +1130,11 @@ class basic_string
                                     CHAR_TYPE character);
         // Replace the specified 'outNumChars' characters of this string
         // starting at the specified 'outPosition' by the specified 'numChars'
-        // copies of the specified 'character', and return a reference to this
-        // modifiable string.  The behavior is undefined unless
-        // 'outPosition <= length()', 'outNumChars <= length()',
-        // 'outPosition <= length() - outNumChars' and
-        // 'length() <= max_size() - numChars'.
+        // copies of the specified 'character', and return a reference
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'outPosition <= length()',
+        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars'
+        // and 'length() <= max_size() - numChars'.
 
     template <typename INPUT_ITER>
     basic_string& privateReplaceDispatch(
@@ -2567,6 +2568,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
+    BSLS_ASSERT_SAFE(numChars <= max_size());
+
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
 
@@ -2577,7 +2580,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
         // reallocation required, ensure strong exception-safety
 
         basic_string cpy(get_allocator());
-        cpy.reserve(numChars);
         cpy.privateAppendRaw(characterString, numChars);
         cpy.swap(*this);
         return *this;
@@ -2590,6 +2592,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
                                                            size_type numChars,
                                                            CHAR_TYPE character)
 {
+    BSLS_ASSERT_SAFE(numChars <= max_size());
+
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
 
@@ -2600,7 +2604,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
         // reallocation required, ensure strong exception-safety
 
         basic_string cpy(get_allocator());
-        cpy.reserve(numChars);
         cpy.privateAppendRaw(numChars, character);
         cpy.swap(*this);
         return *this;
@@ -3734,23 +3737,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    basic_string cpy(*this, get_allocator());
-
-    try
-    {
-        cpy.d_length = 0;  // after d_length assignment the string object is in
-                           // the inconsistent state
-        cpy.privateAppendDispatch(first, last);
-        cpy.swap(*this);
-    }
-    catch (...)
-    {
-        // since we modified the length above, make sure to put the NULL
-        // terminator to restore the consistent state of the string object
-        cpy[cpy.d_length] = CHAR_TYPE();
-        throw;
-    }
-
+    basic_string(first, last, get_allocator()).swap(*this);
     return *this;
 }
 
