@@ -1023,44 +1023,20 @@ class basic_string
         // types.
 
     basic_string& privateAssign(const CHAR_TYPE *characterString,
-                                size_type        numChars)
-    {
-        if (numChars <= capacity()) {
-            // no reallocation required, perform assignment in-place
-
-            this->d_length = 0;
-            return privateAppendRaw(characterString, numChars);
-        }
-        else {
-            // reallocation required, ensure strong exception-safety
-
-            basic_string cpy(get_allocator());
-            cpy.reserve(numChars);
-            cpy.privateAppendRaw(characterString, numChars);
-            cpy.swap(*this);
-            return *this;
-        }
-    }
+                                size_type        numChars);
+        // Assign characters from the specified 'characterString' array of
+        // characters of the specified 'numChars' length to this string
+        // discarding the old content of the string, and return a reference to
+        // this modifiable string.  The behavior is undefined unless
+        // 'numChars <= max_size() - length()', and the 'characterString' array
+        // is at least 'numChars' long.
 
     basic_string& privateAssign(size_type numChars,
-                                CHAR_TYPE character)
-    {
-        if (numChars <= capacity()) {
-            // no reallocation required, perform assignment in-place
-
-            this->d_length = 0;
-            return privateAppendRaw(numChars, character);
-        }
-        else {
-            // reallocation required, ensure strong exception-safety
-
-            basic_string cpy(get_allocator());
-            cpy.reserve(numChars);
-            cpy.privateAppendRaw(numChars, character);
-            cpy.swap(*this);
-            return *this;
-        }
-    }
+                                CHAR_TYPE character);
+        // Assign the specified 'numChars' copies of the specified 'character'
+        // to this string discarding the old content of the string, and return
+        // a reference this modifiable string.  The behavior is undefined
+        // unless 'numChars <= max_size() - length()'.
 
     basic_string& privateAppendRaw(const CHAR_TYPE *characterString,
                                    size_type        numChars);
@@ -2587,6 +2563,52 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
+                                              const CHAR_TYPE *characterString,
+                                              size_type        numChars)
+{
+    if (numChars <= capacity()) {
+        // no reallocation required, perform assignment in-place
+
+        this->d_length = 0;
+        return privateAppendRaw(characterString, numChars);
+    }
+    else {
+        // reallocation required, ensure strong exception-safety
+
+        basic_string cpy(get_allocator());
+        cpy.reserve(numChars);
+        cpy.privateAppendRaw(characterString, numChars);
+        cpy.swap(*this);
+        return *this;
+    }
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
+                                                           size_type numChars,
+                                                           CHAR_TYPE character)
+{
+    if (numChars <= capacity()) {
+        // no reallocation required, perform assignment in-place
+
+        this->d_length = 0;
+        return privateAppendRaw(numChars, character);
+    }
+    else {
+        // reallocation required, ensure strong exception-safety
+
+        basic_string cpy(get_allocator());
+        cpy.reserve(numChars);
+        cpy.privateAppendRaw(numChars, character);
+        cpy.swap(*this);
+        return *this;
+    }
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
@@ -3725,7 +3747,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
     {
         // since we modified the length above, make sure to put the NULL
         // terminator to restore the consistent state of the string object
-        cpy[cpy.d_length] = '\0';
+        cpy[cpy.d_length] = CHAR_TYPE();
         throw;
     }
 
