@@ -266,10 +266,11 @@ int main(int argc, char *argv[])
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-/*
-    bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&da);
- */
+    const btes5_TestServerArgs::Severity verbosity =
+        veryVerbose ? btes5_TestServerArgs::e_DEBUG
+                    : verbose
+                    ? btes5_TestServerArgs::e_ERROR
+                    : btes5_TestServerArgs::e_NONE;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -295,6 +296,7 @@ int main(int argc, char *argv[])
 
         bteso_Endpoint destination;
         btes5_TestServerArgs destinationArgs;
+        destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
         destinationArgs.d_mode = btes5_TestServerArgs::e_IGNORE;
         btes5_TestServer destinationServer(&destination, &destinationArgs);
@@ -304,6 +306,7 @@ int main(int argc, char *argv[])
 
         bteso_Endpoint region;
         btes5_TestServerArgs regionArgs;
+        regionArgs.d_verbosity = verbosity;
         regionArgs.d_label = "regionProxy";
         regionArgs.d_mode = btes5_TestServerArgs::e_CONNECT;
         regionArgs.d_expectedDestination.set("destination.example.com", 8194);
@@ -314,6 +317,7 @@ int main(int argc, char *argv[])
         }
 
         btes5_TestServerArgs corpArgs;
+        corpArgs.d_verbosity = verbosity;
         corpArgs.d_label = "corpProxy";
         corpArgs.d_destination = region; // override connection address
         corpArgs.d_mode = btes5_TestServerArgs::e_CONNECT;
@@ -354,6 +358,7 @@ int main(int argc, char *argv[])
                           << "==================================" << endl;
 
         btes5_TestServerArgs args;
+        args.d_verbosity = verbosity;
 
         bteso_Endpoint destination;
         args.d_mode = btes5_TestServerArgs::e_IGNORE;
@@ -455,6 +460,7 @@ int main(int argc, char *argv[])
 
         bteso_Endpoint destination;
         btes5_TestServerArgs destinationArgs;
+        destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
         btes5_TestServer destinationServer(&destination, &destinationArgs);
         if (verbose) {
@@ -463,6 +469,7 @@ int main(int argc, char *argv[])
 
         bteso_Endpoint proxy;
         btes5_TestServerArgs proxyArgs;
+        proxyArgs.d_verbosity = verbosity;
         proxyArgs.d_label = "proxy";
         proxyArgs.d_mode = btes5_TestServerArgs::e_CONNECT;
         btes5_TestServer proxyServer(&proxy, &proxyArgs);

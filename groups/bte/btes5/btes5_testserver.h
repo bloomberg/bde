@@ -58,8 +58,20 @@ BDES_IDENT("$Id: $")
 #include <bdeut_bigendian.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include <bsl_ostream.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BTESO_ENDPOINT
@@ -68,14 +80,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BTESO_INETSTREAMSOCKETFACTORY
 #include <bteso_inetstreamsocketfactory.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -87,7 +91,9 @@ namespace BloombergLP {
 struct btes5_TestServerArgs {
     // This struct is used to control behavior of 'btes5_TestServer' objects.
 
+    // TYPES
     enum Mode {
+        // Modes of operation of the test SOCKS5 server.
         e_IGNORE,             // ignore any requests
         e_FAIL,               // send an error response
         e_SUCCEED_AND_CLOSE,  // send success and close the connection
@@ -95,11 +101,23 @@ struct btes5_TestServerArgs {
         e_CONNECT             // try to connect and proxy if requested
     };
 
+    enum Severity {
+        // Severity of log messages.
+        e_NONE,   // no logging
+        e_ERROR,  // error condition
+        e_DEBUG   // debugging information
+    };
+
     Mode        d_mode;
     int         d_reply; // SOCSK5 reply field
-    bsl::string d_label; // use this label for diagnostic output
 
     bteso_Endpoint d_destination; // override the connection address if set
+
+    // logging settings
+
+    bsl::string   d_label;        // use this label for diagnostic output
+    Severity      d_verbosity;    // minimum severity for logging
+    bsl::ostream *d_logStream_p;  // stream to log to
 
     // The following values, if set (not 0) are used to validate request fields
 
@@ -108,9 +126,19 @@ struct btes5_TestServerArgs {
     bteso_Endpoint       d_expectedDestination;
 
     // CONSTRUCTORS
-    btes5_TestServerArgs(int numWaitThreads = 3);
-        // Create an empty 'btes5_TestServerArgs' object, with 'd_mode' set to
-        // 'e_SUCCEED_AND_CLOSE', and unset expected parameters.
+    btes5_TestServerArgs(bslma::Allocator *allocator = 0);
+        // Create a 'btes5_TestServerArgs' object initialized as follows:
+        //: o 'd_mode = e_SUCCEED_AND_CLOSE'
+        //: o 'd_reply = 0'
+        //: o 'd_label' unset
+        //: o 'd_verbosity = e_DEBUG'
+        //: o 'd_logStream_p = &bsl::cout'
+        //: o 'd_expectedIp = 0'
+        //: o 'd_expectedPort = 0'
+        //: o 'd_expectedDestination' unset
+        // Optionally specify an ’allocator’ used to supply memory. If
+        // ’allocator’ is 0, the currently installed default allocator is used. 
+
 };
 
                         // ======================

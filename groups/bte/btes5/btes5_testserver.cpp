@@ -19,10 +19,6 @@ BDES_IDENT_RCSID(btes5_testserver_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace {
-// TODO: more flexible way of diagnostics?
-#define LOG_DEBUG bsl::cout
-#define LOG_ERROR bsl::cout
-#define LOG_END bsl::endl
 
 static int globalNumSuccessfulConnections = 0;
 static bool globalDone = false;
@@ -110,7 +106,19 @@ static void ServerThread(
     // memory. This thread will terminate after either a successful or failure
     // condition.
 {
-    LOG_DEBUG << args->d_label << " ServerThread starting." << LOG_END;
+#define LOG_STREAM(severity, args) {                       \
+    if (severity >= (args)->d_verbosity) {                 \
+        *(args)->d_logStream_p << (args)->d_label << ": "; \
+        *(args)->d_logStream_p
+
+#define LOG_END bsl::endl; \
+    }                      \
+}
+
+#define LOG_DEBUG LOG_STREAM(btes5_TestServerArgs::e_DEBUG, args)
+#define LOG_ERROR LOG_STREAM(btes5_TestServerArgs::e_ERROR, args)
+
+    LOG_DEBUG << "ServerThread starting, mode=" << args->d_mode << LOG_END;
 
     bteso_StreamSocketFactoryAutoDeallocateGuard<bteso_IPv4Address>
         socketGuard(socket, factory.ptr());
@@ -120,21 +128,19 @@ static void ServerThread(
         bteso_StreamSocket<bteso_IPv4Address> *clientSocket;
         int acceptStatus = socket->accept(&clientSocket);
         if (0 != acceptStatus) {
-            LOG_ERROR << args->d_label << " accept failed: " << acceptStatus
-                      << LOG_END;
+            LOG_ERROR << "accept failed: " << acceptStatus << LOG_END;
             break;
         }
         bteso_StreamSocketFactoryAutoDeallocateGuard<bteso_IPv4Address>
             clientGuard(clientSocket, factory.ptr());
 
-        LOG_DEBUG << args->d_label << " Accepted connection." << LOG_END;
+        LOG_DEBUG << "Accepted connection." << LOG_END;
         clientSocket->setBlockingMode(bteso_Flag::BLOCKING_MODE);
 
         if (btes5_TestServerArgs::e_IGNORE == args->d_mode) {
             char buf[256];
             while (clientSocket->read(buf, sizeof buf) > 0) {
-                LOG_DEBUG << args->d_label << " received a request, ignoring"
-                          << LOG_END;
+                LOG_DEBUG << "received a request, ignoring" << LOG_END;
             }
             continue;
         }
@@ -144,10 +150,10 @@ static void ServerThread(
         rc = clientSocket->read((char *)&methodRequest,
                                         sizeof(methodRequest));
         if (rc <= 0) {
-            LOG_DEBUG << args->d_label << " read returned " << rc << LOG_END;
+            LOG_DEBUG << "read returned " << rc << LOG_END;
             break;
         }
-        LOG_DEBUG << args->d_label << " Read MethodRequest"
+        LOG_DEBUG << "Read MethodRequest"
                   << " version=" << (int) methodRequest.d_version
                   << " numMethods=" << (int) methodRequest.d_numMethods
                   << " methods[0]=" << (int) methodRequest.d_methods[0]
@@ -163,20 +169,19 @@ static void ServerThread(
         if (rc <= 0) {
             break;
         }
-        LOG_DEBUG << args->d_label << " Wrote MethodResponse" << LOG_END;
+        LOG_DEBUG << "Wrote MethodResponse" << LOG_END;
 
         Socks5ConnectBase connectBase;
         rc = clientSocket->read((char *)&connectBase,
                                 sizeof(connectBase));
         if (rc <= 0) {
-            LOG_ERROR << args->d_label << " read connect request failed, rc "
-                      << rc << LOG_END;
+            LOG_ERROR << "read connect request failed, rc " << rc << LOG_END;
             break;
         }
-        LOG_DEBUG << args->d_label << " Read ConnectBase"
-                       << " address type=" << (int)connectBase.d_addressType
-                       << " command=" << (int)connectBase.d_command
-                       << LOG_END;
+        LOG_DEBUG << "Read ConnectBase"
+                  << " address type=" << (int)connectBase.d_addressType
+                  << " command=" << (int)connectBase.d_command
+                  << LOG_END;
         BSLS_ASSERT(5 == connectBase.d_version);
         BSLS_ASSERT(1 == connectBase.d_command);
         BSLS_ASSERT(0 == connectBase.d_reserved);
@@ -209,7 +214,7 @@ static void ServerThread(
                     || body1.d_port == args->d_expectedPort);
             connectAddr.setIpAddress(body1.d_ip);
             connectAddr.setPortNumber(body1.d_port);
-            LOG_DEBUG << args->d_label << " connect addr=" << connectAddr
+            LOG_DEBUG << "connect addr=" << connectAddr
                       << LOG_END;
 
             Socks5ConnectResponse1
@@ -238,8 +243,7 @@ static void ServerThread(
             }
             unsigned short nativePort = (short) port;
             destination.set(bsl::string(hostBuffer, hostLen), nativePort);
-            LOG_DEBUG << args->d_label << " connect addr=" << destination
-                      << LOG_END;
+            LOG_DEBUG << "connect addr=" << destination << LOG_END;
             BSLS_ASSERT(!args->d_expectedDestination.isSet()
                     || args->d_expectedDestination == destination);
 
@@ -250,7 +254,7 @@ static void ServerThread(
             respLen = sizeof(Socks5ConnectResponse3) - 1
                 + hostLen + sizeof(port);
         } else {
-            LOG_ERROR << args->d_label << " unsupported request address type "
+            LOG_ERROR << "unsupported request address type "
                       << connectBase.d_addressType << ", closing"
                       << LOG_END;
             BSLS_ASSERT(false);
@@ -262,7 +266,7 @@ static void ServerThread(
             if (args->d_reply) {
                 reply = args->d_reply;
             }
-            LOG_DEBUG << args->d_label << " sending error code " << reply
+            LOG_DEBUG << "sending error code " << reply
                       << " and closing" << LOG_END;
             respBase->d_reply = reply;
             rc = clientSocket->write((char *)respBuffer, respLen);
@@ -271,8 +275,7 @@ static void ServerThread(
         }
 
         if (btes5_TestServerArgs::e_SUCCEED_AND_CLOSE == args->d_mode) {
-            LOG_DEBUG << args->d_label << " sending success and closing"
-                      << LOG_END;
+            LOG_DEBUG << "sending success and closing" << LOG_END;
             rc = clientSocket->write((char *)respBuffer, respLen);
             BSLS_ASSERT(rc > 0);
             continue;
@@ -303,7 +306,7 @@ static void ServerThread(
                 if (rc <= 0) {
                     break;
                 }
-                LOG_DEBUG << args->d_label << " Connected to " << connectAddr
+                LOG_DEBUG << "Connected to " << connectAddr
                           << "; wrote ResponseBase (" << respLen << " bytes)"
                           << LOG_END;
 
@@ -337,14 +340,18 @@ static void ServerThread(
                     }
                 }
             } else {
-                LOG_ERROR << args->d_label << " Connect to " << connectAddr
+                LOG_ERROR << "Connect to " << connectAddr
                           << " failed: " << rc << LOG_END;
             }
         }
     }
     sleep(1);
 
-    LOG_DEBUG << args->d_label << " ServerThread ending." << LOG_END;
+    LOG_DEBUG << "ServerThread ending." << LOG_END;
+#undef LOG_STREAM
+#undef LOG_END
+#undef LOG_ERROR
+#undef LOG_DEBUG
 }
 
 static int createServerThread(
@@ -355,7 +362,7 @@ static int createServerThread(
     // Create a thread that implements a SOCKS5 server configured per the
     // specified 'args', and load its identifier into the specified
     // 'threadHandle' and the server's IP adddress into the specified 'proxy',
-    // using the specified 'allocator' to supply memory.. Return 0 for success
+    // using the specified 'allocator' to supply memory. Return 0 for success
     // and a non-zero value on error. Note that the server thread will be
     // "detached" as defined in 'bcemt_threadutil'.
 {
@@ -378,6 +385,7 @@ static int createServerThread(
     BSLS_ASSERT(0 == rc);
 
     rc = socket->bind(serverAddress);
+    BSLS_ASSERT(0 == rc);
 
     bteso_IPv4Address localAddress;
     rc = socket->localAddress(&localAddress);
@@ -389,9 +397,6 @@ static int createServerThread(
         s << *proxy;
         args->d_label = s.str();  // default label is proxy address
     }
-
-    rc = socket->setBlockingMode(bteso_Flag::BLOCKING_MODE);
-    BSLS_ASSERT(0 == rc);
 
     rc = socket->setBlockingMode(bteso_Flag::BLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
@@ -420,11 +425,14 @@ static int createServerThread(
                          // ---------------------------
                          // struct btes5_TestServerArgs
                          // ---------------------------
-btes5_TestServerArgs::btes5_TestServerArgs(int numWaitThreads)
+btes5_TestServerArgs::btes5_TestServerArgs(bslma::Allocator *allocator)
 : d_mode(e_SUCCEED_AND_CLOSE)
 , d_reply(0)
-, d_destination()
-, d_expectedDestination()
+, d_destination(allocator)
+, d_label(allocator)
+, d_verbosity(e_DEBUG)
+, d_logStream_p(&bsl::cout)
+, d_expectedDestination(allocator)
 {
     d_expectedIp = 0;
     d_expectedPort = 0;
