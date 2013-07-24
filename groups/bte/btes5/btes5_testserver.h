@@ -58,6 +58,10 @@ BDES_IDENT("$Id: $")
 #include <bdeut_bigendian.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BTESO_ENDPOINT
 #include <bteso_endpoint.h>
 #endif
@@ -70,24 +74,45 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
 namespace BloombergLP {
 
                          // ===========================
                          // struct btes5_TestServerArgs
                          // ===========================
+
 struct btes5_TestServerArgs {
     // This struct is used to control behavior of 'btes5_TestServer' objects.
 
-    bteso_StreamSocket<bteso_IPv4Address>   *d_connection_p;
-    int                                      d_reply;
-    int                                      d_status;
-    bool                                     d_ignoreConnectAttempts;
-    bdeut_BigEndianInt32                     d_expectedIp;
-    bdeut_BigEndianInt16                     d_expectedPort;
+    enum Mode {
+        e_IGNORE,             // ignore any requests
+        e_FAIL,               // send an error response
+        e_SUCCEED_AND_CLOSE,  // send success and close the connection
+        e_ECHO,               // echo back any received data
+        e_CONNECT             // try to connect and proxy if requested
+    };
+
+    Mode        d_mode;
+    int         d_reply; // SOCSK5 reply field
+    bsl::string d_label; // use this label for diagnostic output
+
+    bteso_Endpoint d_destination; // override the connection address if set
+
+    // The following values, if set (not 0) are used to validate request fields
+
+    bdeut_BigEndianInt32 d_expectedIp;
+    bdeut_BigEndianInt16 d_expectedPort;
+    bteso_Endpoint       d_expectedDestination;
 
     // CONSTRUCTORS
     btes5_TestServerArgs(int numWaitThreads = 3);
+        // Create an empty 'btes5_TestServerArgs' object, with 'd_mode' set to
+        // 'e_SUCCEED_AND_CLOSE', and unset expected parameters.
 };
+
                         // ======================
                         // class btes5_TestServer
                         // ======================
@@ -97,6 +122,7 @@ class btes5_TestServer {
     // protocol.
 
     // DATA
+    bslma::Allocator *d_allocator_p;  // memory allocator, not owned
 
     // NOT IMPLEMENTED
     btes5_TestServer(const btes5_TestServer&); // = delete
@@ -106,11 +132,17 @@ class btes5_TestServer {
 
     // CREATORS
     btes5_TestServer(bteso_Endpoint             *proxy,
-                     const btes5_TestServerArgs *userArgs = 0);
+                     const btes5_TestServerArgs *userArgs = 0,
+                     bslma::Allocator           *allocator = 0);
         // Create a 'btes5_TestServer' object, loading its address into the
         // specified 'proxy'. The server will run as a thread on 'localhost'
         // with a system-assigned port. If the optionally specified 'userArgs'
-        // is not 0 use it to control the SOCKS5 server behavior.
+        // is not 0 use it to control the SOCKS5 server behavior. Optionally
+        // specify an ’allocator’ used to supply memory. If ’allocator’ is 0,
+        // the currently installed default allocator is used. The behavior is
+        // undefined unless the lifetime of 'allocator' extends past the end of
+        // the server thread, which may exist longer than the lifetime of this
+        // object.
 
     // ~btes5_TestServer() = default;
         // Destroy this object.

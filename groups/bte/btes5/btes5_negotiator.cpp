@@ -276,7 +276,7 @@ void Negotiation::methodCallback(Context negotiation)
     int rc = d_socket_p->read(reinterpret_cast<char *>(&pkt), sizeof(pkt));
     if (sizeof(pkt) != rc) {
         terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error reading method request"));
+                  btes5_DetailedError("error reading method response"));
         return;
     }
 
@@ -536,7 +536,8 @@ int btes5_Negotiator::negotiate(
                                                      destination,
                                                      callback,
                                                      d_eventManager_p,
-                                                     d_allocator_p));
+                                                     d_allocator_p),
+                        d_allocator_p);
     return negotiation->sendMethodRequest(negotiation);
 }
 
@@ -551,7 +552,8 @@ int btes5_Negotiator::negotiate(
                                                      destination,
                                                      callback,
                                                      d_eventManager_p,
-                                                     d_allocator_p));
+                                                     d_allocator_p),
+                        d_allocator_p);
     negotiation->d_credentials = credentials;
     return negotiation->sendMethodRequest(negotiation);
 }
@@ -567,7 +569,8 @@ int btes5_Negotiator::negotiate(
                                                      destination,
                                                      callback,
                                                      d_eventManager_p,
-                                                     d_allocator_p));
+                                                     d_allocator_p),
+                        d_allocator_p);
     negotiation->d_provider_p = provider;
     return negotiation->sendMethodRequest(negotiation);
 }

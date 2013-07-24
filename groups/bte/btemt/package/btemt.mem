@@ -1,10 +1,10 @@
 btemt_asyncchannel
+btemt_channelstatus
 btemt_channeloutstreambuf
 btemt_channelpool
 btemt_channelpoolchannel
 btemt_channelpoolconfiguration
 btemt_channelqueuepool
-btemt_channelstatus
 btemt_channeltype
 btemt_message
 btemt_query
@@ -17,5 +17,3 @@ btemt_queryxferutil
 btemt_session
 btemt_sessionpool
 btemt_tcptimereventmanager
-btemt_testchannel
-btemt_testchannelutil

@@ -119,7 +119,7 @@ btes5_NetworkConnector::Connector::Connector(
                    bslma::Allocator                             *allocator)
 : d_minSourcePort(minSourcePort)
 , d_maxSourcePort(maxSourcePort)
-, d_socks5Servers(socks5Servers)
+, d_socks5Servers(socks5Servers, allocator)
 , d_socketFactory_p(socketFactory)
 , d_eventManager_p(eventManager)
 , d_provider_p(provider)
@@ -242,7 +242,7 @@ static void terminate(
 }
 
 static void socksConnectCb(
-    const btes5_NetworkConnector::AttemptHandle&  attempt,
+    btes5_NetworkConnector::AttemptHandle         attempt,
     btes5_Negotiator::NegotiationStatus           result,
     const btes5_DetailedError&                    error)
     // Process the specified 'result' of a SOCKS5 negotiation for the specified
@@ -250,7 +250,7 @@ static void socksConnectCb(
 {
     bsl::size_t level = attempt->d_level;
     if (btes5_Negotiator::e_SUCCESS == result) {
-        level++;
+        ++level;
 
         if (level == attempt->d_connector->d_socks5Servers.levelCount()) {
             btes5_DetailedError error("Success");
@@ -258,13 +258,13 @@ static void socksConnectCb(
                       btes5_NetworkConnector::e_SUCCESS,
                       error);
         } else {
-            attempt->d_level++;
+            ++attempt->d_level;
 
             // for all subsequent levels start from proxy 0
 
             for (bsl::size_t l = level + 1;
                  l < attempt->d_connector->d_socks5Servers.levelCount();
-                 l++) {
+                 ++l) {
                     attempt->d_indices[l] = 0;
             }
             socksConnect(attempt);
@@ -277,7 +277,7 @@ static void socksConnectCb(
                 terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
                 return;                                               // RETURN
             }
-            level--; // try a lower (closer) proxy level
+            --level; // try a lower (closer) proxy level
         }
 
         // More proxies left in this level: close socket, increment index
@@ -285,7 +285,7 @@ static void socksConnectCb(
 
         for (bsl::size_t l = level + 1;
              l < attempt->d_connector->d_socks5Servers.levelCount();
-             l++) {
+             ++l) {
                 attempt->d_indices[l] = 0;
         }
         // TODO: protect d_socket_p against termination?
@@ -345,7 +345,7 @@ static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 }
 
 static void connectTcpCb(
-    const btes5_NetworkConnector::AttemptHandle& connectionAttempt)
+    btes5_NetworkConnector::AttemptHandle connectionAttempt)
     // Process the result of a connection attempt to a first-level proxy in the
     // specified 'connectionAttempt'.
 {
@@ -369,12 +369,13 @@ static void connectTcpCb(
                     [index].address());
             terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
         }
+    } else {
+
+        // start negotiation on socket
+
+        attempt->d_level = 0;
+        socksConnect(connectionAttempt);
     }
-
-    // start negotiation on socket
-
-    attempt->d_level = 0;
-    socksConnect(connectionAttempt);
 }
 
 static bteso_StreamSocket<bteso_IPv4Address> *makeSocket(
@@ -415,7 +416,7 @@ static bteso_StreamSocket<bteso_IPv4Address> *makeSocket(
         const int begin = minSourcePort;
         const int end = maxSourcePort + 1;
         int port = begin;
-        for (; end != port; port++) {
+        for (; end != port; ++port) {
             bteso_IPv4Address
                 srcAddress(bteso_IPv4Address::BTESO_ANY_ADDRESS, port);
             rc = socket->bind(srcAddress);
@@ -474,7 +475,7 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
     it += attempt->d_indices[0];
     const btes5_NetworkDescription::ProxyIterator
         end = attempt->d_connector->d_socks5Servers.endLevel(0);
-    for (; end != it; it++, attempt->d_indices[0]++) {
+    for (; end != it; ++it, ++attempt->d_indices[0]) {
         const bteso_Endpoint& destination = it->address();
         bteso_IPv4Address server;
 
@@ -531,6 +532,15 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
     }
 }
 
+static void timeoutAttempt(
+                btes5_NetworkConnector::AttemptHandle connectionAttempt)
+    // Process a timeout for the specified 'connectionAttempt'.
+{
+    btes5_DetailedError error("Connection attempt timed out",
+                              connectionAttempt->d_connector->d_allocator_p);
+    terminate(connectionAttempt, btes5_NetworkConnector::e_TIMEOUT, error);
+}
+
 }  // close unnamed namespace
 
 
@@ -554,21 +564,15 @@ btes5_NetworkConnector::Attempt::Attempt(
 , d_socket_p(0)
 , d_allocator_p(allocator)
 {
+    // TODO: clean up
+    bsl::cout << "Attempt::Attempt connection to " << d_server << bsl::endl;
 }
 
 btes5_NetworkConnector::Attempt::~Attempt()
 {
+    // TODO: clean up
+    bsl::cout << "Attempt::~Attempt " << d_server << bsl::endl;
 }
-
-static void timeoutAttempt(
-                const btes5_NetworkConnector::AttemptHandle& connectionAttempt)
-    // Process a timeout for the specified 'connectionAttempt'.
-{
-    btes5_DetailedError error("Connection attempt timed out",
-                              connectionAttempt->d_connector->d_allocator_p);
-    terminate(connectionAttempt, btes5_NetworkConnector::e_TIMEOUT, error);
-}
-
                         // ----------------------------
                         // class btes5_NetworkConnector
                         // ----------------------------
@@ -589,7 +593,8 @@ btes5_NetworkConnector::btes5_NetworkConnector(
                                                 minSourcePort,
                                                 maxSourcePort,
                                                 provider,
-                                                allocator));
+                                                allocator),
+                     allocator);
 }
 
 btes5_NetworkConnector::btes5_NetworkConnector(
@@ -606,7 +611,8 @@ btes5_NetworkConnector::btes5_NetworkConnector(
                                                 0,
                                                 0,
                                                 provider,
-                                                allocator));
+                                                allocator),
+                     allocator);
 }
 
 btes5_NetworkConnector::btes5_NetworkConnector(
@@ -624,7 +630,8 @@ btes5_NetworkConnector::btes5_NetworkConnector(
                                                 minSourcePort,
                                                 maxSourcePort,
                                                 0,
-                                                allocator));
+                                                allocator),
+                     allocator);
 }
 
 btes5_NetworkConnector::btes5_NetworkConnector(
@@ -640,7 +647,8 @@ btes5_NetworkConnector::btes5_NetworkConnector(
                                                 0,
                                                 0,
                                                 0,
-                                                allocator));
+                                                allocator),
+                     allocator);
 }
 
 btes5_NetworkConnector::~btes5_NetworkConnector()
@@ -658,7 +666,7 @@ btes5_NetworkConnector::makeAttemptHandle(
 
     const bsl::size_t levels = d_connector->d_socks5Servers.levelCount();
     BSLS_ASSERT(levels > 0);
-    for (bsl::size_t i = 0; i < levels; i++) {
+    for (bsl::size_t i = 0; i < levels; ++i) {
         BSLS_ASSERT(d_connector->d_socks5Servers.numProxies(i));
     }
 
@@ -667,7 +675,8 @@ btes5_NetworkConnector::makeAttemptHandle(
                                       timeout,
                                       server,
                                       d_connector,
-                                      d_connector->d_allocator_p));
+                                      d_connector->d_allocator_p),
+                          d_connector->d_allocator_p);
     return attempt;
 }
 
