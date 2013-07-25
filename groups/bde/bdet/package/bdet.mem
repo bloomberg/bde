@@ -9,6 +9,7 @@ bdet_datetimetz
 bdet_datetz
 bdet_dayofweek
 bdet_dayofweekset
+bdet_defaultcalendarcache
 bdet_epochutil
 bdet_intervalconversionutil
 bdet_month
