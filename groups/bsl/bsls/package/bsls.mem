@@ -32,6 +32,7 @@ bsls_exceptionutil
 bsls_ident
 bsls_int64
 bsls_macroincrement
+bsls_macrorepeat
 bsls_nativestd
 bsls_nullptr
 bsls_objectbuffer
