@@ -1339,6 +1339,20 @@ struct ManagedPtr_FactoryDeleterType
     // 'deleteObject').
 };
 
+              // ========================================
+              // private struct ManagedPtr_DefaultDeleter
+              // ========================================
+
+template <class MANAGED_TYPE>
+struct ManagedPtr_DefaultDeleter {
+    // This 'struct' provides a function-like shared pointer deleter that
+    // invokes 'delete' with the passed pointer.
+
+    // MANIPULATORS
+    static void deleter(void *ptr, void *);
+        // Calls 'delete(ptr)' after casting 'ptr' to a 'MANAGED_TYPE *'.
+};
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -1431,6 +1445,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *)
 {
 }
 
+#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
@@ -1442,6 +1457,19 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
 }
+#else
+template <class TARGET_TYPE>
+template <class MANAGED_TYPE>
+inline
+ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
+: d_members(stripCompletePointerType(ptr),
+            0,
+            &ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter,
+            stripBasePointerType(ptr))
+{
+    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+}
+#endif
 
 template <class TARGET_TYPE>
 inline
@@ -1867,6 +1895,18 @@ template <class TARGET_TYPE>
 inline
 void ManagedPtrNilDeleter<TARGET_TYPE>::deleter(void *, void *)
 {
+}
+
+              // ----------------------------------------
+              // private struct ManagedPtr_DefaultDeleter
+              // ----------------------------------------
+
+// ACCESSORS
+template <class MANAGED_TYPE>
+inline
+void ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter(void *ptr, void *)
+{
+    delete reinterpret_cast<MANAGED_TYPE *>(ptr);
 }
 
 }  // close package namespace

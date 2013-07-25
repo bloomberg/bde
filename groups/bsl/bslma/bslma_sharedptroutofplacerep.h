@@ -281,9 +281,9 @@ struct SharedPtrOutofplaceRep_DeleterType {
     };
 };
 
-                     // ==================================
+                     // ============================
                      // class SharedPtrOutofplaceRep
-                     // ==================================
+                     // ============================
 
 template <class TYPE, class DELETER>
 class SharedPtrOutofplaceRep : public SharedPtrRep {
@@ -652,7 +652,7 @@ SharedPtrOutofplaceRep<TYPE, DELETER> *
 
     if (ptr) {
         basicAllocator = Default::allocator(basicAllocator);
-        rep = new (*basicAllocator) SharedPtrOutofplaceRep<TYPE, DELETER>(
+        rep = new (*basicAllocator) SharedPtrOutofplaceRep(
                                          ptr,
                                          deleter,
                                          basicAllocator,

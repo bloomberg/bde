@@ -9,7 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_map.h>            // for testing only
 #include <bslstl_string.h>         // for testing only
 #include <bslstl_vector.h>         // for testing only
-#include <bslma_testallocator.h>   // for testing only
+//#include <bslma_testallocator.h>   // for testing only
 #include <bsls_alignmentutil.h>
 
 ///IMPLEMENTATION NOTES
