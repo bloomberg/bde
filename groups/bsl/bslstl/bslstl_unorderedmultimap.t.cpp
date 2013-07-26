@@ -2316,7 +2316,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
     {
         for (size_t ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const char *const SPEC        = DEFAULT_DATA[ti].d_spec;
-            const size_t      LENGTH      = (int) strlen(SPEC);
+            const size_t      LENGTH      = strlen(SPEC);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);

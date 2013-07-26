@@ -1870,7 +1870,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const char *const SPEC   = DATA[ti].d_spec;
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -2247,7 +2247,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         EXPR   = DATA[ti].d_return;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);
 

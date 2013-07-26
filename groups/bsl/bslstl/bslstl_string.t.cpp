@@ -10556,7 +10556,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t    LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
                 printf("\tFor an object of length " ZU ":\t", LENGTH);
@@ -11580,10 +11580,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase3()
 
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
-            const int          LINE   = DATA[ti].d_lineNum;
-            const char *const SPEC    = DATA[ti].d_spec_p;
-            const int         INDEX   = DATA[ti].d_index;
-            const size_t      LENGTH  = (int)strlen(SPEC);
+            const int         LINE   = DATA[ti].d_lineNum;
+            const char *const SPEC   = DATA[ti].d_spec_p;
+            const int         INDEX  = DATA[ti].d_index;
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(Z);
 

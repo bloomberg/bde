@@ -6917,7 +6917,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
 
         for (int ui = 0; SPECS[ui]; ++ui) {
             const char *const U_SPEC = SPECS[ui];
-            const size_t    uLen   = (int) strlen(U_SPEC);
+            const size_t      uLen   = strlen(U_SPEC);
 
             if (verbose) {
                 printf("\tFor lhs objects of length " ZU ":\t", uLen);
@@ -6930,7 +6930,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
             // int vOldLen = -1;
             for (int vi = 0; SPECS[vi]; ++vi) {
                 const char *const V_SPEC = SPECS[vi];
-                const size_t    vLen   = (int) strlen(V_SPEC);
+                const size_t      vLen   = strlen(V_SPEC);
 
                 if (veryVerbose) {
                     printf("\t\tFor rhs objects of length " ZU ":\t", vLen);
@@ -7202,7 +7202,7 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t    LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -7917,10 +7917,10 @@ void TestDriver<TYPE,ALLOC>::testGeneratorGG()
 
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
-            const int          LINE   = DATA[ti].d_lineNum;
-            const char *const SPEC    = DATA[ti].d_spec_p;
-            const int         INDEX   = DATA[ti].d_index;
-            const size_t      LENGTH  = (int)strlen(SPEC);
+            const int         LINE   = DATA[ti].d_lineNum;
+            const char *const SPEC   = DATA[ti].d_spec_p;
+            const int         INDEX  = DATA[ti].d_index;
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(Z);
 
