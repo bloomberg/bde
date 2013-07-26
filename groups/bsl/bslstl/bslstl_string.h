@@ -682,6 +682,10 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTRING
 #endif
 
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>
+#define INCLUDED_ALGORITHM
+#endif
 
 namespace bsl {
 
