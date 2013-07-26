@@ -5443,6 +5443,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                         Obj *result = &mX.erase(BEGIN_POS, NUM_ELEMENTS);
                                                              // test erase here
+                        (void) result;
 
                         for (m = 0; m < BEGIN_POS; ++m) {
                             LOOP5_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP,
