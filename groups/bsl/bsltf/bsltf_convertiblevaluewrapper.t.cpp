@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
     bool veryVerbose     = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
-    (void)veryVerbose;
-    (void)veryVeryVerbose;
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

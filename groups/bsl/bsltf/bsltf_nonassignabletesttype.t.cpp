@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
     bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    (void)veryVeryVerbose;
+    (void) veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -360,8 +360,8 @@ int main(int argc, char *argv[]) {
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            (void) operatorEq;  // quash potential compiler warnings
+            (void) operatorNe;
         }
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;

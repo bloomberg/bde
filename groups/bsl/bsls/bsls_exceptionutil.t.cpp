@@ -158,7 +158,7 @@ static volatile bool g_inTest = false;
 
 extern "C" {
 
-void abortSignalHandler(int)
+void abortSignalHandler(int /* x */)
    // If the global variable 'g_inTest' is 'true' then long jump to the global
    // jump buffer 'g_jumpBuffer', otherwise this function has no effect (and,
    // if the function were called to handle an abort signal, the task will

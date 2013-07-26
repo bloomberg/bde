@@ -1346,8 +1346,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(SPEC);
+        const ptrdiff_t   LENGTH = strlen(SPEC);
         const TestValues  EXP(SPEC, &scratch);
+        ASSERT(0 <= LENGTH);
 
         TestValues CONT(SPEC, &scratch);
 
@@ -1363,28 +1364,22 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
 
             const int v = verifySpec(X, SPEC);
             ASSERTV(LINE, v, SPEC, X.size(), -1 == v);
-            // 0 < n || 0 == n is identical to 0 <= n but
-            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
 
             ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
 
             ASSERTV(LINE, -1 == verifySpec(Y, SPEC));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
             ObjStlAlloc mZ;  const ObjStlAlloc& Z = mZ;
 
             mZ.swap(mX);
 
             ASSERTV(LINE, -1 == verifySpec(Z, SPEC));
-            // 0 < n || 0 == n is identical to 0 <= n but
-            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1394,7 +1389,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
             mX.insert(BEGIN, END);
             ASSERTV(LINE, -1 == verifySpec(X, SPEC));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1407,11 +1402,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
                 ASSERTV(LINE, tj, LENGTH, CONT[tj] == *RESULT);
             }
             ASSERTV(LINE, -1 == verifySpec(X, SPEC));
-            // 0 < n || 0 == n is identical to 0 <= n but
-            // doesn't generate a warning if n is unsigned:
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH < (size_t) da.numBlocksInUse() ||
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
         }
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
@@ -2304,8 +2296,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         FuncPtr     memberSwap = &Obj::swap;
         FreeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (veryVerbose) printf(
@@ -2624,8 +2616,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
         const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
-            const char *const SPEC        = SPECS[ti];
-            const size_t      LENGTH      = (int) strlen(SPEC);
+            const char *const SPEC   = SPECS[ti];
+            const size_t      LENGTH = strlen(SPEC);
 
             if (veryVerbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -2686,12 +2678,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
                            "with test allocator:\n");
                 }
 
-                const native_std::size_t A = oa.numBlocksTotal();
+                const bsls::Types::Int64 A = oa.numBlocksTotal();
 
                 Obj Y11(X, &oa);
 
-                ASSERT(0 == LENGTH ||
-                       (native_std::size_t) oa.numBlocksTotal() > A);
+                ASSERT(0 == LENGTH || oa.numBlocksTotal() > A);
 
                 // Due of pooling of memory alloctioon, we can't predict
                 // whether this insert will allocate or not.
@@ -3097,7 +3088,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
 
                 size_t count = 0, countKey = 0;
                 bool firstTime = true;
-                KEY prevKey;
+                KEY prevKey = KEY();
                 Iter endRange = end;
                 for (Iter it = begin; end != it; ++it) {
                     ++count;
@@ -3303,7 +3294,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);    const Obj& X = mX;
 

@@ -117,7 +117,7 @@ void busyFunction()
     for (int i = 0; i < 10; ++i) {
         for (int j  = 0;j < 10; ++j) {
             int k = i*j+ j*i;
-            (void)k;
+            (void) k;
         }
     }
 }
@@ -161,8 +161,8 @@ Int64 osSystemCall(RawTimerFunction timerFn)
     pid_t p = getpid();
     struct tms tt;
     clock_t c = times(&tt);
-    (void)p;
-    (void)c;
+    (void) p;
+    (void) c;
 #elif defined BSLS_PLATFORM_OS_WINDOWS
     HANDLE ph = ::GetCurrentProcess();
     FILETIME crtnTm, exitTm, krnlTm, userTm;
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
                 busyFunction();
                 w.stop();
                 double d = w.elapsedTime();
-                (void)d;
+                (void) d;
             }
             watch.stop();
             const double testTime = watch.elapsedTime();
@@ -922,7 +922,7 @@ int main(int argc, char *argv[])
                 busyFunction();
                 w.stop();
                 double d = w.elapsedTime();
-                (void)d;
+                (void) d;
             }
             testWatch.stop();
             const double testTimeSys  = testWatch.accumulatedSystemTime();

@@ -146,7 +146,6 @@ int main(int argc, char *argv[])
         bslmf::RemoveCvq<int **           >::Type i5; // int **
         bslmf::RemoveCvq<int *const       >::Type i6; // int *
         bslmf::RemoveCvq<int *const *     >::Type i7; // int *const *
-        bslmf::RemoveCvq<int *const *const>::Type i8; // int *const *
         bslmf::RemoveCvq<MyType           >::Type m1; // MyType
         bslmf::RemoveCvq<MyType const     >::Type m2; // MyType
 
@@ -160,13 +159,11 @@ int main(int argc, char *argv[])
         i5 = &i4;
         i6 = &i;
         i7 = &J;
-        i8 = &J;
 
         int *pi;
         int **ppi;
         int ***pppi;
         int *const **ppcpi;
-        int *const **ppcpi1;
         MyType *pm;
 
         pi      = &i1;
@@ -176,11 +173,10 @@ int main(int argc, char *argv[])
         pppi    = &i5;
         ppi     = &i6;
         ppcpi   = &i7;
-        ppcpi1  = &i8;
         pm      = &m1;
         pm      = &m2;
 
-        ASSERT(pi && ppi && pppi && ppcpi && ppcpi1 && pm);
+        ASSERT(pi && ppi && pppi && ppcpi && pm);
 
         // References should remain unchanged.
 

@@ -1381,6 +1381,7 @@ int main(int argc, char *argv[])
         int maxNumAllocated = 0;
 
         TestAllocator mX;    const TestAllocator &X = mX;
+        (void) X;
         for (int i = 0; i < MAX_NUM_POINTERS; ++i) {
             if (rand() & 0x10) {  // allocate
 
@@ -1419,8 +1420,8 @@ int main(int argc, char *argv[])
 
             maxNumAllocated = intMax(maxNumAllocated, numAllocated);
 
-            LOOP2_ASSERT(X.numOutstandingAllocations(), numAllocated,
-                         NUMALLOCATED == X.numOutstandingAllocations());
+            LOOP2_ASSERT(mX.numOutstandingAllocations(), numAllocated,
+                         NUMALLOCATED == mX.numOutstandingAllocations());
         }
 
         if (verbose) printf("Max num allocated: %d\n", maxNumAllocated);
@@ -1468,8 +1469,8 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_TEST; ++i) {
             memory[i] = ta.allocate(sizeof(int) * (i + 1));
-            ASSERT(sizeof(int) * (i + 1) * (i + 2) / 2 ==
-                   (size_t) TA.numBytesInUse());
+            ASSERT(static_cast<ptrdiff_t>(sizeof(int)) * (i + 1) * (i + 2) / 2
+                                                        == TA.numBytesInUse());
         }
 
         ASSERT(sizeof(int) * NUM_TEST * (NUM_TEST + 1) / 2
@@ -1488,8 +1489,8 @@ int main(int argc, char *argv[])
         char *cmemory[NUM_TEST];
         for (int i = 0; i < NUM_TEST; ++i) {
             cmemory[i] = (char *)ta.allocate(sizeof(int) * (i + 1));
-            ASSERT(sizeof(int) * (i + 1) * (i + 2) / 2 ==
-                   (size_t) TA.numBytesInUse());
+            ASSERT(static_cast<ptrdiff_t>(sizeof(int)) * (i + 1) * (i + 2) / 2
+                                                        == TA.numBytesInUse());
         }
 
         ASSERT(sizeof(int) * NUM_TEST * (NUM_TEST + 1) / 2

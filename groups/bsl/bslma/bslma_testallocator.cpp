@@ -505,8 +505,7 @@ void *TestAllocator::allocate(size_type size)
     }
 #endif
 
-    if (std::numeric_limits<size_type>::is_signed &&
-            size <= static_cast<size_type>(-1)) {
+    if (size < 0) {
         ++d_numMismatches;
         if (!d_quietFlag) {
 #ifdef BSLS_PLATFORM_CPU_64_BIT

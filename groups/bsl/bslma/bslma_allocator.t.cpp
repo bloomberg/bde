@@ -634,6 +634,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == class3ObjectCount);
             my_Class3 *pC3 = (my_Class3 *) a.allocate(sizeof(my_Class3));
             const my_Class3Base *pC3bCONST = pC3;
+            (void) pC3bCONST;
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(5 == myA.getCount());
@@ -644,7 +645,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == myA.getCount());
-            a.deleteObjectRaw(pC3bCONST);
+            a.deleteObjectRaw(pC3);
             if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
@@ -841,7 +842,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == leftBaseObjectCount);
             ASSERT(1 == virtualBaseObjectCount);
 
-            ASSERT((void const *) pRightCONST != (void const *) pMost);
+            ASSERT(static_cast<const void *>(pRightCONST) !=
+                   static_cast<const void *>(pMost));
 
             a.deleteObject(pRightCONST);
             ASSERT(6 == myA.getCount());

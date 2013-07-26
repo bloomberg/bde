@@ -706,6 +706,9 @@ int main(int argc, char *argv[])
 
 #if defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
+#else
+        // silence "set but not used variable" warning:
+        (void) C_STRING_HASH;
 #endif
 
 //#endif

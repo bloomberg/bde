@@ -170,10 +170,10 @@ void testCase1(int argc, bool assert)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    (void)assert;
-    (void)verbose;
-    (void)veryVerbose;
-    (void)veryVeryVerbose;
+    (void) assert;
+    (void) verbose;
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
 
     BloombergLP::bsls::Stopwatch timer;
 
@@ -271,8 +271,9 @@ void init(volatile int *arrayA, volatile int *arrayB)
         __dcbf((const void *)(arrayB++));
     }
 #else
-    (void)arrayA;
-    (void)arrayB;
+    // suppress 'unused parameter' compiler warnings:
+    (void) arrayA;
+    (void) arrayB;
 #endif
 }
 
@@ -339,9 +340,10 @@ void testCase3(int argc, bool assert)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    (void)assert;
-    (void)verbose;
-    (void)veryVeryVerbose;
+    // suppress 'unused parameter' compiler warnings:
+    (void) assert;
+    (void) verbose;
+    (void) veryVeryVerbose;
 
     if (veryVerbose) {
         cout << "Adding with prefetch" << endl;
@@ -423,7 +425,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    (void)veryVeryVerbose;
+    (void) veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 

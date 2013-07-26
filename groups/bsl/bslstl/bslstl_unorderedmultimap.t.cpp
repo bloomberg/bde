@@ -22,6 +22,7 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -2017,8 +2018,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -2315,7 +2316,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
     {
         for (size_t ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
             const char *const SPEC        = DEFAULT_DATA[ti].d_spec;
-            const size_t      LENGTH      = (int) strlen(SPEC);
+            const size_t      LENGTH      = strlen(SPEC);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -2373,12 +2374,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
                            "with test allocator:\n");
                 }
 
-                const native_std::size_t A = oa.numBlocksTotal();
+                const bsls::Types::Int64 A = oa.numBlocksTotal();
 
                 Obj Y11(X, &oa);
 
-                ASSERT(0 == LENGTH ||
-                       (native_std::size_t) oa.numBlocksTotal() > A);
+                ASSERT(0 == LENGTH || oa.numBlocksTotal() > A);
 
                 // Due of pooling of memory alloctioon, we can't predict
                 // whether this insert will allocate or not.
@@ -2580,8 +2580,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    size_t numX = xa.numBlocksTotal();
-                    size_t numY = ya.numBlocksTotal();
+                    bsls::Types::Int64 numX = xa.numBlocksTotal();
+                    bsls::Types::Int64 numY = ya.numBlocksTotal();
 
                     // EQUAL::disableFunctor();
                             // TBD -- fails this test EQUAL is used to
@@ -2598,8 +2598,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
 
-                    ASSERTV((size_t) xa.numBlocksTotal() == numX);
-                    ASSERTV((size_t) ya.numBlocksTotal() == numY);
+                    ASSERTV(xa.numBlocksTotal() == numX);
+                    ASSERTV(ya.numBlocksTotal() == numY);
 
                     if (EXP) {
                         const Iter end = mX.end();
@@ -2618,8 +2618,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2,   X != Y);
                             ASSERTV(LINE1, LINE2,   Y != X);
 
-                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
-                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
 
                             it->second = v;
 
@@ -2631,8 +2631,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2, !(X != Y));
                             ASSERTV(LINE1, LINE2, !(Y != X));
 
-                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
-                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
                         }
                     }
 
@@ -2652,8 +2652,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
 
 //                  EQUAL::enableFunctor();
 
-                    ASSERTV((size_t) xa.numBlocksTotal() == numX);
-                    ASSERTV((size_t) ya.numBlocksTotal() == numY);
+                    ASSERTV(xa.numBlocksTotal() == numX);
+                    ASSERTV(ya.numBlocksTotal() == numY);
 
                     if (EXP) {
                         const Iter end = mX.end();
@@ -2672,8 +2672,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2,   X != Y);
                             ASSERTV(LINE1, LINE2,   Y != X);
 
-                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
-                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
 
                             it->second = v;
 
@@ -2685,8 +2685,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                             ASSERTV(LINE1, LINE2, !(X != Y));
                             ASSERTV(LINE1, LINE2, !(Y != X));
 
-                            ASSERTV((size_t) xa.numBlocksTotal() == numX);
-                            ASSERTV((size_t) ya.numBlocksTotal() == numY);
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
                         }
                     }
                 }

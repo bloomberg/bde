@@ -6003,6 +6003,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         const float FLT_TINY = std::numeric_limits<float>::denorm_min();
         const float FLT_NAN  = std::numeric_limits<float>::quiet_NaN();
         const float FLT_INF  = std::numeric_limits<float>::infinity();
+        // silence the "unused variable" warning(s) in release builds:
+        (void) FLT_TINY;
+        (void) FLT_NAN;
+        (void) FLT_INF;
 
         ASSERT_PASS_RAW(Obj(HASH, COMPARE, 0,      1.0f, objAlloc));
         ASSERT_PASS_RAW(Obj(HASH, COMPARE, 0,  FLT_TINY, objAlloc));
@@ -7447,8 +7451,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bslstl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -8738,8 +8742,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
         static const float FLT_NAN  = std::numeric_limits<float>::quiet_NaN();
         static const float FLT_INF  = std::numeric_limits<float>::infinity();
 
-        (void)FLT_TINY;
-        (void)FLT_NAN;
+        (void) FLT_TINY;
+        (void) FLT_NAN;
 
         Obj mX(HASH, COMPARE, 0, 1.0f, scratchAlloc);
 
@@ -9081,8 +9085,8 @@ void mainTestCase1()
         if (veryVeryVerbose) printf("Call *all* 'const' functions.\n");
         // As a simple compile-check of the template, call every 'const'
         // function member, unless they require a non-empty container.
-        ::bsl::hash<int>     h = X.hasher();      (void)h;
-        ::bsl::equal_to<int> c = X.comparator();  (void)c;
+        ::bsl::hash<int>     h = X.hasher();      (void) h;
+        ::bsl::equal_to<int> c = X.comparator();  (void) c;
         bsl::allocator<int>  a = X.allocator();
         ASSERTV(&dummyAllocator == a.mechanism());
 
@@ -9104,7 +9108,7 @@ void mainTestCase1()
 
         ASSERTV(X.numBuckets() < X.maxNumBuckets());
 
-        bslalg::HashTableBucket bkt = X.bucketAtIndex(0); (void)bkt;
+        bslalg::HashTableBucket bkt = X.bucketAtIndex(0); (void) bkt;
         ASSERTV(0 == X.countElementsInBucket(0));
 
         ASSERTV(X == X);

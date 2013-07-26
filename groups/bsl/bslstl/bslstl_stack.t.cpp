@@ -23,8 +23,6 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
-
 #include <algorithm>
 #include <functional>
 #include <typeinfo>
@@ -190,6 +188,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -1712,8 +1716,8 @@ void TestDriver<CONTAINER>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -1995,7 +1999,7 @@ void TestDriver<CONTAINER>::testCase7()
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -2172,8 +2176,8 @@ void TestDriver<CONTAINER>::testCase6()
         operatorPtr operatorEq = operator==;
         operatorPtr operatorNe = operator!=;
 
-        (void)operatorEq;  // quash potential compiler warnings
-        (void)operatorNe;
+        (void) operatorEq;  // quash potential compiler warnings
+        (void) operatorNe;
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -2533,7 +2537,7 @@ void TestDriver<CONTAINER>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);
 

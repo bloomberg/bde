@@ -18,10 +18,7 @@
 #include <bsls_stopwatch.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
-
 #include <bsls_bsltestutil.h>
-
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 #include <algorithm>
 #include <cctype>
@@ -343,6 +340,12 @@ void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                        // current Line number
 #define T_ putchar('\t');                  // Print a tab (w/o newline)
 
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -424,21 +427,25 @@ inline void dbg_print(wchar_t c) { printf("%lc", wint_t(c)); fflush(stdout); }
 inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
 inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
 inline void dbg_print(bsls::Types::Int64 val) {
-    printf("%lld", val); fflush(stdout);
+    printf("%lld", val);
+    fflush(stdout);
 }
 inline void dbg_print(size_t val) { printf(ZU, val); fflush(stdout); }
 inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(const void* val)
 {
-    printf("\"%p\"", val); fflush(stdout);
+    printf("\"%p\"", val);
+    fflush(stdout);
 }
 
 // String-specific print function.
@@ -1731,7 +1738,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             a.setMaxSize(limit);
 
             if (veryVerbose)
-                printf("\t\tWith max_size() equal to limit = %u\n", (int)limit);
+                printf("\t\tWith max_size() equal to limit = " ZU "\n", limit);
 
             try {
                 LimitObj mX(a);
@@ -2629,8 +2636,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     Obj mX(g("ABCDE"));
     const Obj& X = mX;
 
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
     const TYPE *nullStr = NULL;
+    // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+    (void) nullStr;
 #endif
 
     if (veryVerbose) printf("\tcompare(s)\n");
@@ -2902,8 +2911,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23Negative()
         Obj mX(g("ABCDE"));
         const Obj& X = mX;
 
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
         TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
 #endif
 
         TYPE dest[10];
@@ -3625,8 +3636,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     Obj mX(g("ABCDE"));
     const Obj& X = mX;
 
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
     const TYPE *nullStr = NULL;
+    // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+    (void) nullStr;
 #endif
 
     if (veryVerbose) printf("\tfind(s, pos, n)\n");
@@ -5042,8 +5055,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         Obj mX(g("ABCDE"));
         const Obj& X = mX;
 
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
         const TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
 #endif
 
         // characterString == NULL
@@ -5059,8 +5074,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         Obj mX(g("ABCDE"));
         const Obj& X = mX;
 
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
         const TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+       (void) nullStr;
 #endif
 
         // first < begin()
@@ -5091,8 +5108,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         Obj mX(g("ABCDE"));
         const Obj& X = mX;
 
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
         const TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
 #endif
 
         // first < begin()
@@ -5424,6 +5443,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                         Obj *result = &mX.erase(BEGIN_POS, NUM_ELEMENTS);
                                                              // test erase here
+                        (void) result;
 
                         for (m = 0; m < BEGIN_POS; ++m) {
                             LOOP5_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP,
@@ -6951,8 +6971,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
 
     {
         Obj mX(g("ABCDE"));
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
         const TYPE *nullStr = 0;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
 #endif
 
         ASSERT_SAFE_FAIL(mX.insert(1, nullStr));
@@ -6966,6 +6988,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     {
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
+#endif
 
         ASSERT_SAFE_PASS(mX.insert(1, nullStr, 0));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr, 10));
@@ -7933,9 +7959,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
     {
         Obj mX;
         Obj mY(g("ABCDE"));
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
         const Obj& Y = mY;
-#endif
+        (void) Y; // to disable "unused variable" warning
 
         ASSERT_SAFE_FAIL(mX.append(mY.end(), mY.begin()));
         ASSERT_SAFE_FAIL(mX.append(Y.end(), Y.begin()));
@@ -8293,8 +8318,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
             Obj mX(g(SPEC));
             const Obj& X = mX;
 
-            for (int i = -int(X.size()) - 1; i < int(X.size() * 2) + 2; ++i) {
-                if (i >= 0 && i <= (int)X.size()) {
+            const int numChars = X.size();
+            for (int i = -numChars - 1; i < numChars * 2 + 2; ++i) {
+                if (i >= 0 && i <= numChars) {
                     ASSERT_SAFE_PASS(X[i]);
                     ASSERT_SAFE_PASS(mX[i]);
                 }
@@ -9449,12 +9475,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             LOOP2_ASSERT(LINE, ti, Y[POS] == X[0]);
                         } else {
                             LOOP2_ASSERT(LINE, ti, 0 == X.size());
-                            // 0 < n || 0 == n is identical to 0 <= n but
-                            // doesn't generate a warning if n is unsigned:
-                            LOOP2_ASSERT(LINE,
-                                         ti,
-                                         0 < X.capacity() ||
-                                         0 == X.capacity());
                             LOOP2_ASSERT(LINE, ti, TYPE() == X[0]);
                         }
                     }
@@ -9601,7 +9621,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
             const char  *SPEC   = DATA[ti].d_spec;
             const size_t LENGTH = strlen(SPEC);
             const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
-            (void)LINE;
+            (void) LINE;
 
             if (veryVerbose) {
                 printf("\t\tCreating object of "); P(LENGTH);
@@ -9937,8 +9957,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
-    (void)VALUES;
+    (void) NUM_VALUES;
+    (void) VALUES;
 
     if (verbose)
         printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
@@ -10016,7 +10036,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // --------------------------------------------------------------------
 
@@ -10333,9 +10353,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Negative()
     if (verbose) printf("\tassigning a NULL C-string\n");
 
     {
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
         const TYPE *s = 0;
-#endif
+        (void) s; // to disable "unused variable" warning
         ASSERT_SAFE_FAIL(X = s);
     }
 
@@ -10537,7 +10556,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t    LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
                 printf("\tFor an object of length " ZU ":\t", LENGTH);
@@ -11009,8 +11028,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6Negative()
     Obj mX(g("ABCDE"));
     const Obj& X = mX;
 
-#if defined BSLS_ASSERT_SAFE_IS_ACTIVE
     TYPE *nullStr = NULL;
+    // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+    (void) nullStr;
 #endif
 
     if (veryVerbose) printf("\toperator==(s, str)\n");
@@ -11559,10 +11580,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase3()
 
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
-            const int          LINE   = DATA[ti].d_lineNum;
-            const char *const SPEC    = DATA[ti].d_spec_p;
-            const int         INDEX   = DATA[ti].d_index;
-            const size_t      LENGTH  = (int)strlen(SPEC);
+            const int         LINE   = DATA[ti].d_lineNum;
+            const char *const SPEC   = DATA[ti].d_spec_p;
+            const int         INDEX  = DATA[ti].d_index;
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(Z);
 
@@ -12056,7 +12077,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase1()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (verbose) printf("\n 1) Create an object x1 (default ctor)."
@@ -13843,9 +13864,10 @@ int main(int argc, char *argv[])
 
             // Copy constructor
             Employee e3(e1);  const Employee& E3 = e3;
+            (void) E3;
 
-            ASSERT(   e1 == E3);
-            ASSERT(! (e1 != E3));
+            ASSERT(   e1 == e3);
+            ASSERT(! (e1 != e3));
         }
 
 ///Example 3: A 'string' replace function

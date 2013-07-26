@@ -24,10 +24,6 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
-#include <bsls_bsltestutil.h>
-
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
-
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -218,6 +214,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -1421,8 +1423,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const ptrdiff_t   LENGTH = strlen(DATA[ti].d_results);
         const TestValues  EXP(DATA[ti].d_results, &scratch);
+        ASSERT(0 <= LENGTH);
 
         TestValues CONT(SPEC, &scratch);
 
@@ -1438,13 +1441,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
 
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
             Obj mY(X);  const Obj& Y = mY;
 
             ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
             Obj mZ;  const Obj& Z = mZ;
 
@@ -1452,7 +1455,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
 
             ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1462,7 +1465,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
             mX.insert(BEGIN, END);
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         CONT.resetIterators();
@@ -1476,7 +1479,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
             }
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == (size_t) da.numBlocksInUse());
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
@@ -2171,7 +2174,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase18()
             const TestValues VALUES;
 
             Obj mX;  const Obj& X = mX;
-            (void)X;
+            (void) X;
             Iter it = mX.insert(mX.end(), VALUES[0]);
 
             ASSERT_SAFE_FAIL(mX.erase(X.end()));
@@ -4191,8 +4194,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -4445,7 +4448,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7_1()
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
             TestValues VALUES(SPEC);
 
             if (verbose) {
@@ -4566,7 +4569,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -4821,8 +4824,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
         operatorPtr operatorEq = operator==;
         operatorPtr operatorNe = operator!=;
 
-        (void)operatorEq;  // quash potential compiler warnings
-        (void)operatorNe;
+        (void) operatorEq;  // quash potential compiler warnings
+        (void) operatorNe;
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -5206,7 +5209,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);
 

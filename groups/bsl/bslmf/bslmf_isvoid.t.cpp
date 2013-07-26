@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void)veryVerbose;
+    (void) veryVerbose;
 
     setbuf(stdout, 0);  // Use unbuffered output.
 

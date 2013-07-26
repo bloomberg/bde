@@ -713,6 +713,7 @@ int main(int argc, char *argv[])
         // 'A' values: Boundary values.
         // -------------------------------------------------------
 
+        const T1 A1 = BLACK;
         const T2 A2 = PTR1;
         const T3 A3 = PTR2;
         const T4 A4 = PTR2;
@@ -852,7 +853,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nUse table of distinct object values.\n");

@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }

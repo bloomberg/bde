@@ -488,7 +488,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void)veryVerbose;
+    (void) veryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -615,10 +615,8 @@ int main(int argc, char *argv[])
             int EXP_S2_ALIGNMENT          = 4;
             int EXP_S3_ALIGNMENT          = 8;
             int EXP_S4_ALIGNMENT          = 2;
-#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)) \
- && defined(BSLS_PLATFORM_CPU_X86)
             int EXP_S5_ALIGNMENT          = 8;
-#endif
+            (void) EXP_S5_ALIGNMENT;
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
@@ -709,11 +707,11 @@ int main(int argc, char *argv[])
 
         {
             long double  LD = 0.0;
+            void        *V  = 0;
             long long    LL = 0;
-            void         *V = 0;
 
-            (void)V;
-            (void)LL;           
+            (void) V;
+            (void) LL;           
 
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
             bsls::AlignmentImp8ByteAlignedType _8BAT;

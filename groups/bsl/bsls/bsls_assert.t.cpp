@@ -373,6 +373,8 @@ void TestConfigurationMacros();
 
     void HashTable::resize(double loadFactor)
     {
+        // silence "unused parameter" warning in release builds:
+        (void) loadFactor;
         BSLS_ASSERT(0 < loadFactor);
 
         // ...
@@ -558,7 +560,7 @@ void TestConfigurationMacros();
 //..
 // Now we can install it just as we would any any other handler:
 //..
-        bsls::Assert::setFailureHandler(f);
+        bsls::Assert::setFailureHandler(&::ourFailureHandler);
 //..
 // We can now invoke the default handler directly:
 //..
@@ -627,7 +629,7 @@ void TestConfigurationMacros();
             // ...
 
             double d = fact(-1);        // Out-of-contract call to 'fact'.
-            (void)d;
+            (void) d;
 
             // ...
         }
@@ -1160,7 +1162,7 @@ int main(int argc, char *argv[])
                              "const char *f, int line);'" << endl;
         {
             bsls::Assert::Handler f = bsls::Assert::failAbort;
-            (void)f;
+            (void) f;
 
             if (veryVerbose) {
                 cout << "\t(Aborting behavior must be tested by hand.)" <<

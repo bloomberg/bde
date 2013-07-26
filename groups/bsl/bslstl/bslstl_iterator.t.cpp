@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    (void)veryVeryVerbose;
+    (void) veryVeryVerbose;
 
     setbuf(stdout, NULL);    // Use unbuffered output
 

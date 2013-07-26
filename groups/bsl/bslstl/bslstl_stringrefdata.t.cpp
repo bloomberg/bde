@@ -140,24 +140,29 @@ inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
 inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
 inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
 inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
 inline void dbg_print(unsigned long val) {
-    printf("%lu", val); fflush(stdout);
+    printf("%lu", val);
+    fflush(stdout);
 }
 inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
 inline void dbg_print(unsigned long long val) {
-    printf("%llu", val); fflush(stdout);
+    printf("%llu", val);
+    fflush(stdout);
 }
 inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(long double val) {
-    printf("'%Lf'", val); fflush(stdout);
+    printf("'%Lf'", val);
+    fflush(stdout);
 }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
@@ -534,7 +539,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
             Y = X;
 
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin() == (int) strlen(STR));
+            LOOP_ASSERT(LINE, Y.end() - Y.begin()
+                                       == static_cast<ptrdiff_t>(strlen(STR)));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
 
@@ -720,7 +726,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
             bslstl::StringRefData<char> Y(X);
 
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin() == (int) strlen(STR));
+            LOOP_ASSERT(LINE, Y.end() - Y.begin()
+                                       == static_cast<ptrdiff_t>(strlen(STR)));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
       } break;
@@ -963,7 +970,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
             bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin() == (int) strlen(STR));
+            LOOP_ASSERT(LINE, Y.end() - Y.begin()
+                                       == static_cast<ptrdiff_t>(strlen(STR)));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
 
@@ -1120,7 +1128,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
             bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, (size_t)(Y.end() - Y.begin()) == strlen(STR));
+            LOOP_ASSERT(LINE, Y.end() - Y.begin()
+                                       == static_cast<ptrdiff_t>(strlen(STR)));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
         }
 
