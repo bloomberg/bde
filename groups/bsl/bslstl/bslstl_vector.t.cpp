@@ -18,6 +18,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -239,6 +240,12 @@ void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                         // current Line number
 #define T_ putchar('\t');                   // Print a tab (w/o newline)
 
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -250,7 +257,6 @@ class BitwiseMoveableTestType;
 class BitwiseCopyableTestType;
 class BitwiseEqComparableTestType;
 
-typedef long unsigned                 LU;
 typedef TestType                      T;    // uses 'bslma' allocators
 typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
 typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
@@ -2490,13 +2496,13 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     };
 
     if (verbose) printf("\nConstructor 'vector(n, T x, a = A())'"
-                        " and 'max_size()' equal to %lu.\n", (LU)EXP_MAX_SIZE);
+                        " and 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int i = 0; DATA[i]; ++i)
     {
         bool exceptionCaught = false;
 
-        if (veryVerbose) printf("\tWith 'n' = %lu\n", (LU) DATA[i]);
+        if (veryVerbose) printf("\tWith 'n' = " ZU "\n", DATA[i]);
 
         try {
             Obj mX(DATA[i], DEFAULT_VALUE);  // test here
@@ -2519,7 +2525,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     ASSERT(0 == testAllocator.numBytesInUse());
 
     if (verbose) printf("\nWith 'reserve/resize' and"
-                        " 'max_size()' equal to %lu.\n", (LU) EXP_MAX_SIZE);
+                        " 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int capacityMethod = 0; capacityMethod <= 2; ++capacityMethod)
     {
@@ -2536,7 +2542,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
         {
             bool exceptionCaught = false;
 
-            if (veryVerbose) printf("\t\tWith 'n' = %lu\n", (LU) DATA[i]);
+            if (veryVerbose) printf("\t\tWith 'n' = " ZU "\n", DATA[i]);
 
             try {
                 Obj mX;
@@ -2567,14 +2573,14 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to %lu.\n",
-                        (LU) EXP_MAX_SIZE);
+    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to " ZU ".\n",
+                        EXP_MAX_SIZE);
 
     for (int i = 0; DATA[i]; ++i)  {
         bool exceptionCaught = false;
 
-        if (veryVerbose) printf("\tCreating vector of length %lu.\n",
-                                (LU) DATA[i]);
+        if (veryVerbose) printf("\tCreating vector of length " ZU ".\n",
+                                DATA[i]);
 
         try {
             Obj mX(PADDING, DEFAULT_VALUE, a);  const Obj& X = mX;
@@ -6803,7 +6809,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                 const size_t      uLen   = strlen(U_SPEC);
 
                 if (verbose) {
-                    printf("\tFor lhs objects of length %lu:\t", (LU) uLen);
+                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
                     P(U_SPEC);
                 }
 
@@ -6818,8 +6824,8 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                     const size_t      vLen   = strlen(V_SPEC);
 
                     if (veryVerbose) {
-                        printf("\t\tFor rhs objects of length %lu:\t",
-                               (LU) vLen);
+                        printf("\t\tFor rhs objects of length " ZU ":\t",
+                               vLen);
                         P(V_SPEC);
                     }
 
@@ -6902,7 +6908,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                 const size_t    uLen   = (int) strlen(U_SPEC);
 
                 if (verbose) {
-                    printf("\tFor lhs objects of length %lu:\t", (LU) uLen);
+                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
                     P(U_SPEC);
                 }
 
@@ -6918,8 +6924,8 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                     const size_t    vLen   = (int) strlen(V_SPEC);
 
                     if (veryVerbose) {
-                        printf("\t\tFor rhs objects of length %lu:\t",
-                               (LU) vLen);
+                        printf("\t\tFor rhs objects of length " ZU ":\t",
+                               vLen);
                         P(V_SPEC);
                     }
 
@@ -7213,7 +7219,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
             const size_t    LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %lu:\n", (LU) LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -7557,8 +7563,8 @@ void TestDriver<TYPE,ALLOC>::testCase6()
 
                 if ((int)LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length %lu.\n",
-                                                                  (LU) LENGTH);
+                        printf( "\tUsing lhs objects of length " ZU ".\n",
+                                                                  LENGTH);
                     LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);//non-decreasing
                     oldLen = LENGTH;
                 }
@@ -7611,8 +7617,8 @@ void TestDriver<TYPE,ALLOC>::testCase6()
 
                 if ((int)LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length %lu.\n",
-                                                                  (LU) LENGTH);
+                        printf( "\tUsing lhs objects of length " ZU ".\n",
+                                                                  LENGTH);
                     LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);
                     oldLen = LENGTH;
                 }
@@ -7795,7 +7801,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                 LOOP2_ASSERT(ti, ai, LENGTH == X.size()); // same lengths
 
                 if (veryVerbose) {
-                    printf( "\ton objects of length %lu:\n", (LU) LENGTH);
+                    printf( "\ton objects of length " ZU ":\n", LENGTH);
                 }
 
                 if ((int)LENGTH != oldLen) {
@@ -7880,7 +7886,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                 LOOP2_ASSERT(ti, ai, LENGTH == X.size()); // same lengths
 
                 if (veryVerbose) {
-                    printf("\tOn objects of length %lu:\n", (LU) LENGTH);
+                    printf("\tOn objects of length " ZU ":\n", LENGTH);
                 }
 
                 if ((int)LENGTH != oldLen) {
@@ -8158,7 +8164,7 @@ void TestDriver<TYPE,ALLOC>::testCase3()
             Obj mX(&testAllocator);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %lu:\n", (LU) LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                 // LOOP_ASSERT(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -8326,7 +8332,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                printf("\t\tOn an object of initial length %lu.\n", (LU) li);
+                printf("\t\tOn an object of initial length " ZU ".\n", li);
 
             Obj mX;  const Obj& X = mX;
 
@@ -8365,7 +8371,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                    printf("\t\tOn an object of initial length %lu.\n",(LU)li);
+                    printf("\t\tOn an object of initial length " ZU ".\n",li);
 
             Obj mX(&testAllocator);  const Obj& X = mX;
 
@@ -8431,7 +8437,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                    printf("\t\tOn an object of initial length %lu.\n",(LU)li);
+                    printf("\t\tOn an object of initial length " ZU ".\n", li);
 
             Obj mX;  const Obj& X = mX;
 
@@ -8476,7 +8482,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                    printf("\t\tOn an object of initial length %lu.\n",(LU)li);
+                    printf("\t\tOn an object of initial length " ZU ".\n", li);
 
             Obj mX(&testAllocator);  const Obj& X = mX;
 
@@ -8544,7 +8550,7 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
         for (size_t li = 0; li < NUM_TRIALS; ++li) { // i is the length
-            if (verbose) printf("\t\t\tOn an object of length %lu.\n",(LU) li);
+            if (verbose) printf("\t\t\tOn an object of length " ZU ".\n", li);
 
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
@@ -8581,11 +8587,11 @@ void TestDriver<TYPE,ALLOC>::testCase2()
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
         for (size_t i = 0; i < NUM_TRIALS; ++i) { // i is first length
             if (verbose)
-                printf("\t\t\tOn an object of initial length %lu.\n", (LU) i);
+                printf("\t\t\tOn an object of initial length " ZU ".\n", i);
 
             for (size_t j = 0; j < NUM_TRIALS; ++j) { // j is second length
                 if (veryVerbose)
-                    printf("\t\t\t\tAnd with final length %lu.\n", (LU) j);
+                    printf("\t\t\t\tAnd with final length " ZU ".\n", j);
 
               BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 size_t k; // loop index
