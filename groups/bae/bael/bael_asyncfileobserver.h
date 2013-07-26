@@ -372,8 +372,8 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // indicates if the queue
                                                      // drops records when full
 
-    bces_AtomicInt                d_dropCount;       // number of dropped 
-                                                     // records, reset when 
+    bces_AtomicInt                d_dropCount;       // number of dropped
+                                                     // records, reset when
                                                      // published
 
     bdef_Function<void (*)()>     d_publishThreadEntryPoint;
@@ -381,8 +381,8 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // publication thread
                                                      // function
 
-    bael_Record                   d_droppedRecordWarning;      
-                                                     // cached record object 
+    bael_Record                   d_droppedRecordWarning;
+                                                     // cached record object
                                                      // used to publish the
                                                      // count of dropped log
                                                      // records
@@ -399,9 +399,9 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     // PRIVATE MANIPULATORS
     void construct();
-        // Initialize members of this object that do not vary between 
-        // constructor overloads.  Note that this method should be 
-        // removed when C++11 constructor chaining is available.  
+        // Initialize members of this object that do not vary between
+        // constructor overloads.  Note that this method should be
+        // removed when C++11 constructor chaining is available.
 
     void logDroppedMessageWarning(int numDropped);
         // Synchronously write an entry into the underlying file observer
@@ -414,7 +414,7 @@ class bael_AsyncFileObserver : public bael_Observer {
         // Thread function of the publication thread.  The publication thread
         // pops record shared pointers and contexts from queue and writes the
         // records referred by these shared pointers to files or 'stdout'.
-        // The behavior is undefined if this method is invoked concurrently 
+        // The behavior is undefined if this method is invoked concurrently
         // from multiple threads (i.e., it is *not* *threadsafe*).
 
     int startThread();

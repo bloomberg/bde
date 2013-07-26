@@ -330,12 +330,12 @@ int countLoggedRecords(const bsl::string& fileName)
 }
 
 int countMatchingRecords(const bsl::string&  fileName,
-                         const char         *pattern, 
+                         const char         *pattern,
                          bool                isNegativePattern = false)
     // Return the number of lines in the specified 'fileName' matching
-    // the specified regex 'pattern'.  If the optionally specified 
+    // the specified regex 'pattern'.  If the optionally specified
     // 'isNegativePattern' flag is 'true', return instead the number of lines
-    // *not* matching 'pattern'.  
+    // *not* matching 'pattern'.
 {
     bsl::string line;
     int numLines = 0;
@@ -359,10 +359,10 @@ int countMatchingRecords(const bsl::string&  fileName,
 
 int accumulateMatchingRecords(const bsl::string&  fileName,
                               const char         *pattern)
-    // Apply the specified regex 'pattern', which must contain one 
-    // integer-matching subpattern, to each line in the specified 'fileName', 
-    // and return the sum of all the values of the subpattern for matching 
-    // lines.  
+    // Apply the specified regex 'pattern', which must contain one
+    // integer-matching subpattern, to each line in the specified 'fileName',
+    // and return the sum of all the values of the subpattern for matching
+    // lines.
 {
     bsl::string line;
     int sum = 0;
@@ -378,7 +378,7 @@ int accumulateMatchingRecords(const bsl::string&  fileName,
     while (getline(fs, line)) {
         bsl::vector<bsl::pair<int, int> > result;
         if(0 == regex.match(&result, line.c_str(), line.length())) {
-            bsl::istringstream iss(line.substr(result[1].first, 
+            bsl::istringstream iss(line.substr(result[1].first,
                                                result[1].second));
             int value = 0;
             iss >> value;
@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
 
             mX.startPublicationThread();
 
-            
+
             bsls::Stopwatch timer;
             timer.start();
             while (MAX_QUEUE_LENGTH == X.recordQueueLength() &&
@@ -715,8 +715,8 @@ int main(int argc, char *argv[])
             const int queueLength = X.recordQueueLength();
             mX.disableFileLogging();
 
-            const int numLoggedRecords = 
-                countMatchingRecords(fileName, 
+            const int numLoggedRecords =
+                countMatchingRecords(fileName,
                                      "Dropped \\d+ log records", true);
 
             mX.shutdownPublicationThread();
@@ -726,7 +726,7 @@ int main(int argc, char *argv[])
                 P(MAX_QUEUE_LENGTH - queueLength);
             }
             ASSERT(MAX_QUEUE_LENGTH > queueLength);
-            LOOP2_ASSERT(numLoggedRecords, queueLength, 
+            LOOP2_ASSERT(numLoggedRecords, queueLength,
                          numLoggedRecords >= MAX_QUEUE_LENGTH - queueLength);
 
             // After shutting down the publication thread, the queue should be
@@ -1175,7 +1175,7 @@ int main(int argc, char *argv[])
 
                 bsls::Stopwatch timer;
                 timer.start();
-              
+
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
@@ -1364,7 +1364,7 @@ int main(int argc, char *argv[])
 
                 // Wait up to 3 seconds for the async logging to complete
                 bsls::Stopwatch timer;
-                timer.start();                
+                timer.start();
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
@@ -1410,7 +1410,7 @@ int main(int argc, char *argv[])
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
-                
+
                 {
                     ASSERT(2 == countLoggedRecords(globbuf.gl_pathv[0]));
                     globfree(&globbuf);
@@ -1456,16 +1456,16 @@ int main(int argc, char *argv[])
         //   - Asynchronous observer is configured to drop records when the
         //     fixed queue is full by default.  An alert should be printed
         //     to the logfile for all dropped records.  This alert should
-        //     not be printed excessively.  (Specifically, it should be 
+        //     not be printed excessively.  (Specifically, it should be
         //     printed when the queue is half empty or the count has reached
-        //     a threshold).  
+        //     a threshold).
         //
         //   - Asynchronous observer can be configured to block the caller of
         //     'publish'  when the fixed queue is full instead of dropping
         //     records.  In that case no record should be dropped.
         //
         //   - Note, this test can be run as a negative test case.  Doing so
-        //     will preserve the logfiles.  
+        //     will preserve the logfiles.
         //
         // Plan:
         //   To test non-blocking caller thread, we will first create an async
@@ -1474,10 +1474,10 @@ int main(int argc, char *argv[])
         //
         //   To test blocking caller thread, we will first create an async file
         //   observer by passing 'true' in the 'blocking' parameter.  Then
-        //   publish a fairly large amount of records.  We verify all the 
+        //   publish a fairly large amount of records.  We verify all the
         //   records published are actually written to file and nothing gets
         //   dropped.
-        //   
+        //
         // Testing:
         //   This test is for testing non-blocking and blocking caller thread,
         //   not for any particular public method.
@@ -1572,15 +1572,15 @@ int main(int argc, char *argv[])
             int numDroppedRecordMessages = countMatchingRecords(
                                        fileName,
                                        "Dropped \\d+ log records");
-       
-            LOOP2_ASSERT(numRecords, numDroppedRecords, 
+
+            LOOP2_ASSERT(numRecords, numDroppedRecords,
                          numTestRecords == numRecords + numDroppedRecords);
 
             // The dropped records messages are printed only when the queue
-            // is half empty or when there are 5000.  The way we've set up 
+            // is half empty or when there are 5000.  The way we've set up
             // this test, there should be one printed for every 5000 dropped
             // messages plus an additional one, with any remainder, printed
-            // while the queue is draining.  
+            // while the queue is draining.
             int expectDroppedRecordMessages = (int)bsl::ceil(
                                                   numDroppedRecords / 5000.0);
             LOOP2_ASSERT(

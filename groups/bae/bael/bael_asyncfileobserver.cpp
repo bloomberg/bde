@@ -39,7 +39,11 @@ const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
 
 static void populateWarnRecord(bael_Record         *record,
                                int                  lineNumber,
-                               int                  numDropped) {
+                               int                  numDropped)
+    // Load the specified 'record' with a warning message indicating the
+    // specified 'numDropped' records have been dropped as recorded at the
+    // specified 'lineNumber'.
+{
     record->fixedFields().messageStreamBuf().pubseekpos(0);
     record->fixedFields().setLineNumber(lineNumber);
     record->fixedFields().setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
@@ -47,7 +51,7 @@ static void populateWarnRecord(bael_Record         *record,
     os << "Dropped " << numDropped << " log records." << bsl::ends;
 }
 
-}
+}  // close unnamed namespace
 
 // PRIVATE METHODS
 void bael_AsyncFileObserver::logDroppedMessageWarning(int numDropped)
@@ -55,7 +59,7 @@ void bael_AsyncFileObserver::logDroppedMessageWarning(int numDropped)
     // Log the record, unconditionally, to the file observer (i.e., without
     // consulting the logger manager as to whether WARN is enabled) to avoid
     // an observer->loggermanager dependency.
-    
+
     populateWarnRecord(&d_droppedRecordWarning, __LINE__, numDropped);
     bael_Context context(bael_Transmission::BAEL_PASSTHROUGH, 0, 0);
     d_fileObserver.publish(d_droppedRecordWarning, context);
@@ -66,7 +70,7 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
     bool done = false;
     d_droppedRecordWarning.fixedFields().setThreadID(
                                           bcemt_ThreadUtil::selfIdAsUint64());
-    
+
     while (!done) {
         AsyncRecord asyncRecord = d_recordQueue.popFront();
 
@@ -79,16 +83,15 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
             done = true;
         }
         else {
-            d_fileObserver.publish(*asyncRecord.d_record, 
+            d_fileObserver.publish(*asyncRecord.d_record,
                                    asyncRecord.d_context);
         }
 
-        
         // Publish the count of dropped records.  To avoid repeatedly
-        // publishing this information when the record queue is full, we 
-        // publish the number of dropped records only when the queue becomes 
-        // half empty or when a sufficient number of records have been 
-        // dropped.  Finally, we publish the dropped record count if the 
+        // publishing this information when the record queue is full, we
+        // publish the number of dropped records only when the queue becomes
+        // half empty or when a sufficient number of records have been
+        // dropped.  Finally, we publish the dropped record count if the
         // observer is shutting down, so the information is not lost.
 
         if (0 < d_dropCount.relaxedLoad()) {
@@ -96,7 +99,7 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
             ||  d_dropCount.relaxedLoad() >= FORCE_WARN_THRESHOLD
             ||  d_clearing) {
                 int numDropped = d_dropCount.swap(0);
-                BSLS_ASSERT(0 < numDropped); // No other thread should have 
+                BSLS_ASSERT(0 < numDropped); // No other thread should have
                                              // cleared the count.
                 logDroppedMessageWarning(numDropped);
             }
@@ -155,7 +158,7 @@ bael_AsyncFileObserver::construct()
                                           bael_Severity::BAEL_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
                                           bdesu_ProcessUtil::getProcessId());
-}    
+}
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                                          bael_Severity::Level  stdoutThreshold,
                                          bslma::Allocator     *basicAllocator)
@@ -241,7 +244,7 @@ void bael_AsyncFileObserver::publish(
     asyncRecord.d_context = context;
     if (record->fixedFields().severity() > d_dropRecordsOnFullQueueThreshold) {
         if (0 != d_recordQueue.tryPushBack(asyncRecord)) {
-            d_dropCount.relaxedAdd(1);        
+            d_dropCount.relaxedAdd(1);
         }
     }
     else {
