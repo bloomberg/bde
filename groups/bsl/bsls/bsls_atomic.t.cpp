@@ -1524,19 +1524,13 @@ int main(int argc, char *argv[])
                 int d_expValue;      // expected value after the operations
                 int d_expResult;     // expected result
             } VALUES[] = {
-                //line value swapValue    cmpValue expValue      expResult
-                //---- ----- ------------ -------- ------------- ---------
-                { L_,   0   , 11         , 33     , 0          , 0       },
-                { L_,   1   , 19         , 1      , 19         , 1       },
-                { L_,  -1   , 4          , 1      , -1         , -1      },
-                { L_,
-                  2,
-                  (int) 0xFFFFFFFF,
-                  2,
-                  (int) 0xFFFFFFFF,
-                  2
-                },
-                { L_,  -2   , 16         , 0      , -2         , -2      }
+        //line value swapValue          cmpValue expValue            expResult
+        //---- ----- ------------------ -------- ------------------- ---------
+        { L_,   0   , 11               , 33     , 0                , 0       },
+        { L_,   1   , 19               , 1      , 19               , 1       },
+        { L_,  -1   , 4                , 1      , -1               , -1      },
+        { L_,   2   , (int) 0xFFFFFFFF , 2      , (int) 0xFFFFFFFF , 2       },
+        { L_,  -2   , 16               , 0      , -2               , -2      }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
