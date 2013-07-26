@@ -941,7 +941,7 @@ class CleanupGuard {
 
     ~CleanupGuard()
     {
-        for (int i = 0; d_spec_p[i] && i < d_length; ++i) {
+        for (int i = 0; d_spec_p[i] && i < static_cast<int>(d_length); ++i) {
             char c = d_spec_p[i];
             if (isalpha(c)) {
                 if (d_endPtr_p && *d_endPtr_p - d_array_p <= i &&
