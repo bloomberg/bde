@@ -718,6 +718,11 @@ int main(int argc, char *argv[])
         const T3 A3 = PTR2;
         const T4 A4 = PTR2;
 
+        // N.B. 'setColor' -- which would use 'A1' -- is not tested in this
+        // test case.
+
+        (void) A1;
+
         if (verbose) printf("\nCreate an object.\n");
 
         Obj mX;  const Obj& X = gg(&mX, D1, D2, D3, D4);
@@ -734,7 +739,7 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                  "\nApply primary manipulators and verify expected values.\n");
 
-         
+
 
         if (veryVerbose) { T_ Q(parent) }
         {

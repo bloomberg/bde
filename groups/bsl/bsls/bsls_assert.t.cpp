@@ -560,7 +560,7 @@ void TestConfigurationMacros();
 //..
 // Now we can install it just as we would any any other handler:
 //..
-        bsls::Assert::setFailureHandler(&::ourFailureHandler);
+        bsls::Assert::setFailureHandler(f);
 //..
 // We can now invoke the default handler directly:
 //..

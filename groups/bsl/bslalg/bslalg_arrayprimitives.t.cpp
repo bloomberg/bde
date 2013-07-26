@@ -3488,7 +3488,10 @@ int main(int argc, char *argv[])
             NUM_ITER    = 4
         };
 
-        const int rawBufferSize = (argc > 2) ? atoi(argv[2]) : BUFFER_SIZE;
+        typedef bslalg::ArrayPrimitives::size_type size_type;
+
+        const size_type rawBufferSize = (argc > 2) ? atoi(argv[2])
+                                                   : BUFFER_SIZE;
         const int numIter = (argc > 3) ? atoi(argv[3]) : NUM_ITER;
         char *rawBuffer = (char *)Z->allocate(rawBufferSize);  // max alignment
 
@@ -3498,13 +3501,13 @@ int main(int argc, char *argv[])
 
         printf("\n\tuninitializedFillN with char\n");
         {
-            const int bufferSize = rawBufferSize;
+            const size_type bufferSize = rawBufferSize;
             char *buffer = rawBuffer;
 
             bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = 0;
                 }
             }
@@ -3523,7 +3526,7 @@ int main(int argc, char *argv[])
             buffer[0] = (char)numIter;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = buffer[0];
                 }
             }
@@ -3554,13 +3557,13 @@ int main(int argc, char *argv[])
 
         printf("\n\tuninitializedFillN with int\n");
         {
-            const unsigned long bufferSize = rawBufferSize / sizeof(int);
+            const size_type bufferSize = rawBufferSize / sizeof(int);
             int *buffer = (int *) (void *) rawBuffer;
 
             bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = 0;
                 }
             }
@@ -3579,7 +3582,7 @@ int main(int argc, char *argv[])
             buffer[0] = numIter;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = buffer[0];
                 }
             }
@@ -3611,13 +3614,13 @@ int main(int argc, char *argv[])
 
         printf("\n\tuninitializedFillN with double\n");
         {
-            const unsigned long bufferSize = rawBufferSize / sizeof(double);
+            const size_type bufferSize = rawBufferSize / sizeof(double);
             double *buffer = (double *) (void *) rawBuffer;
 
             bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = 0.;
                 }
             }
@@ -3636,7 +3639,7 @@ int main(int argc, char *argv[])
             buffer[0] = (double)numIter;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = buffer[0];
                 }
             }
@@ -3669,13 +3672,13 @@ int main(int argc, char *argv[])
 
         printf("\n\tuninitializedFillN with void *\n");
         {
-            const unsigned long bufferSize = rawBufferSize / sizeof(void *);
+            const size_type bufferSize = rawBufferSize / sizeof(void *);
             void **buffer = (void **) (void *) rawBuffer;
 
             bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = 0;
                 }
             }
@@ -3694,7 +3697,7 @@ int main(int argc, char *argv[])
             buffer[0] = (void *)buffer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                for (int j = 0; j < bufferSize; ++j) {
+                for (size_type j = 0; j < bufferSize; ++j) {
                     buffer[j] = buffer[0];
                 }
             }

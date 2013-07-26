@@ -2135,13 +2135,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     };
 
     if (verbose) printf("\nConstructor 'string(n, c, a = A())'"
-                        " and 'max_size()' equal to %lu.\n", EXP_MAX_SIZE);
+                        " and 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int i = 0; DATA[i]; ++i)
     {
         bool exceptionCaught = false;
 
-        if (veryVerbose) printf("\tWith 'n' = %lu\n", DATA[i]);
+        if (veryVerbose) printf("\tWith 'n' = " ZU "\n", DATA[i]);
 
         try {
             Obj mX(DATA[i], DEFAULT_VALUE);  // test here
@@ -2170,7 +2170,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numBytesInUse());
 
     if (verbose) printf("\nWith 'reserve/resize' and"
-                        " 'max_size()' equal to %lu.\n", EXP_MAX_SIZE);
+                        " 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int capacityMethod = 0; capacityMethod < 3; ++capacityMethod)
     {
@@ -2187,7 +2187,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         {
             bool exceptionCaught = false;
 
-            if (veryVerbose) printf("\t\tWith 'n' = %lu\n", DATA[i]);
+            if (veryVerbose) printf("\t\tWith 'n' = " ZU "\n", DATA[i]);
 
             try {
                 Obj mX;
@@ -2224,7 +2224,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'append' and 'max_size()' equal to %lu.\n",
+    if (verbose) printf("\nWith 'append' and 'max_size()' equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int appendMethod = 4; appendMethod <= 4; ++appendMethod) {
@@ -2240,7 +2240,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             bool exceptionCaught = false;
 
             if (veryVerbose)
-                printf("\t\tCreating string of length %lu.\n", DATA[i]);
+                printf("\t\tCreating string of length " ZU ".\n", DATA[i]);
 
             try {
                 Obj mX(PADDING, DEFAULT_VALUE, a);
@@ -2272,7 +2272,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to %lu.\n",
+    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int insertMethod = 5; insertMethod <= 7; insertMethod += 2) {
@@ -2289,7 +2289,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             bool exceptionCaught = false;
 
             if (veryVerbose)
-                printf("\t\tCreating string of length %lu.\n", DATA[i]);
+                printf("\t\tCreating string of length " ZU ".\n", DATA[i]);
 
             try {
                 Obj mX(PADDING, DEFAULT_VALUE, a);
@@ -2330,7 +2330,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'replace' and 'max_size()' equal to %lu.\n",
+    if (verbose) printf("\nWith 'replace' and 'max_size()' equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int replaceMethod = 5; replaceMethod <= 8; replaceMethod += 3) {
@@ -2349,7 +2349,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             bool exceptionCaught = false;
 
             if (veryVerbose)
-                printf("\t\tCreating string of length %lu.\n", DATA[i]);
+                printf("\t\tCreating string of length " ZU ".\n", DATA[i]);
 
             try {
                 Obj mX(3 * PADDING, DEFAULT_VALUE);

@@ -548,6 +548,7 @@ int main(int argc, char *argv[])
         void        *V  = 0;
         long long    LL = 0;
 
+        (void) LD;
         (void) V;
         (void) LL;
 
