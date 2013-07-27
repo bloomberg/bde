@@ -18,6 +18,7 @@ BDES_IDENT_RCSID(bael_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bdef_bind.h>
 #include <bdef_memfn.h>
 #include <bdesu_processutil.h>
+#include <bdetu_systemtime.h>
 
 #include <bslma_default.h>
 #include <bsl_iostream.h>
