@@ -755,12 +755,20 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE           = DATA[ti].d_line;
             const char       *NAME           = DATA[ti].d_name_p;
             const int         NUM_ALLOCS     = DATA[ti].d_numAllocs;
+            const int        *ALLOCS         = DATA[ti].d_allocs;
             const int         NUM_DEALLOCS   = DATA[ti].d_numDeallocs;
+            const int        *DEALLOCS       = DATA[ti].d_deallocs;
                   void       *addresses[MAX_ENTRIES];
                   int         numRemAllocs   = 0;
                   int         remAllocs[MAX_ENTRIES] = { 0 };
+
+            (void) LINE;
+            (void) ALLOCS;
+            (void) DEALLOCS;
+
 
             bslma::TestAllocator ta;
             bslma::TestAllocator *mXPtr = NAME

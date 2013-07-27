@@ -4221,7 +4221,7 @@ void TestDriver<TYPE, ALLOC>::testCase17Variadic(int numOfArgs)
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                    printf("\t\tOn an object of initial length %lu.\n",(LU)li);
+                    printf("\t\tOn an object of initial length " ZU ".\n", li);
 
             Obj mX(&testAllocator);  const Obj& X = mX;
 
@@ -4299,7 +4299,7 @@ void TestDriver<TYPE, ALLOC>::testCase17Variadic(int numOfArgs)
 
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
         for (size_t li = 0; li < NUM_TRIALS; ++li) { // i is the length
-            if (verbose) printf("\t\t\tOn an object of length %lu.\n",(LU) li);
+            if (verbose) printf("\t\t\tOn an object of length " ZU ".\n", li);
 
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
