@@ -2873,7 +2873,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
 
             bool outOfRangeCaught = false;
             try {
-                (void)X.copy(buffer + 1, MAX_LEN - 2, LENGTH + 1);
+                (void) X.copy(buffer + 1, MAX_LEN - 2, LENGTH + 1);
                 ASSERT(0);
             }
             catch (std::out_of_range) {
@@ -8313,7 +8313,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
 
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
             const char   *SPEC   = DATA[ti].d_spec;
+            const size_t  LENGTH = strlen(SPEC);
+
+            (void) LINE;
+            (void) LENGTH;
 
             Obj mX(g(SPEC));
             const Obj& X = mX;
@@ -9621,6 +9626,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
             const char  *SPEC   = DATA[ti].d_spec;
             const size_t LENGTH = strlen(SPEC);
             const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
+
             (void) LINE;
 
             if (veryVerbose) {
@@ -9957,6 +9963,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
+
     (void) NUM_VALUES;
     (void) VALUES;
 
@@ -10036,6 +10043,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
+
     (void) NUM_VALUES;
 
     // --------------------------------------------------------------------
@@ -12077,6 +12085,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase1()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
+
     (void) NUM_VALUES;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13962,7 +13971,7 @@ int main(int argc, char *argv[])
 
             const wchar_t *pw =
                            std::char_traits<wchar_t>::find(L"bcabcd", 2, L'a');
-            P((const void *)pw);
+            P((const void *) pw);
             ASSERT(0 == pw);
 
             bsl::basic_string<wchar_t, std::char_traits<wchar_t> > s =
