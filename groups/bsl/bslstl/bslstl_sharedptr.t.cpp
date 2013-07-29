@@ -973,7 +973,7 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 // 'ModifiedAlert's instead of 'Alert's:
 //..
     class ModifiedAlert;
-//
+
     class ModifiedUser {
         // This class stores the user information required for listening to
         // alerts.
