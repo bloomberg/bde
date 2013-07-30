@@ -144,7 +144,7 @@ using namespace BloombergLP;
 // [23] bool operator> (bsl::nullptr_t,            const bsl::shared_ptr<B>&);
 // [  ] bsl::ostream& operator<<(bsl::ostream&, const bsl::shared_ptr<TYPE>&);
 // [15] void swap(bsl::shared_ptr<TYPE>& a, bsl::shared_ptr<TYPE>& b);
-// [  ] DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>&);
+// [15] DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>&);
 // [ 9] shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>&);
 // [ 9] shared_ptr<TO_TYPE> dynamic_pointer_cast(const shared_ptr<FROM_TYPE>&);
 // [ 9] shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>&);
@@ -1368,7 +1368,7 @@ class MyTestArg {
 
   public:
     // CREATORS
-    MyTestArg(int value = -1) : d_value(value) {}
+    explicit MyTestArg(int value = -1) : d_value(value) {}
 
     // MANIPULATORS
     operator int&()      { return d_value; }
@@ -1812,6 +1812,11 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
 
     int disposeObjectCount() const;
         // Return the number of time 'releaseValue' was called.
+
+    virtual void *getDeleter(const std::type_info& type) { return 0; }
+        // Return a pointer to the deleter stored by the derived representation
+        // (if any) if the deleter has the same type as that described by the
+        // specified 'type', and a null pointer otherwise.
 };
 
                         // ----------------------
@@ -4256,6 +4261,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
+
+            ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());
@@ -4282,6 +4289,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
+
+            ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
         }
         ASSERT(1 == numDeletes);
         if (veryVerbose) {
@@ -4300,6 +4309,8 @@ int main(int argc, char *argv[])
             MyTestDeleter deleter(&ta);
             Obj x; const Obj& X=x;
 
+            ASSERT(0 == bsl::get_deleter<MyTestDeleter>(x));
+
             x.reset(p, deleter);
 
             ASSERT(numAllocations == ta.numAllocations());
@@ -4310,6 +4321,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
+
+            ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
+            ASSERT(0 != bsl::get_deleter<MyTestDeleter>(x));
         }
         ASSERT(1 == numDeletes);
         ASSERT(++numDeallocations == ta.numDeallocations());
@@ -4355,6 +4369,7 @@ int main(int argc, char *argv[])
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
 
+            ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
         ASSERT(1 == numDeletes);

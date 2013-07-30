@@ -2559,17 +2559,38 @@ void swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b);
 
 // STANDARD CAST FUNCTIONS
 template<class TO_TYPE, class FROM_TYPE>
-shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& r);
+shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>& source);
+    // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
+    // object as the specified 'source' shared pointer to the parameterized
+    // 'FROM_TYPE', and referring to 'const_cast<TO_TYPE *>(source.ptr())'.
+    // Note that if 'source' cannot be 'const'-cast to 'TO_TYPE *', then a
+    // compiler diagnostic will be emitted indicating the error.
 
 template<class TO_TYPE, class FROM_TYPE>
-shared_ptr<TO_TYPE> dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& r);
+shared_ptr<TO_TYPE> dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source);
+    // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
+    // object as the specified 'source' shared pointer to the parameterized
+    // 'FROM_TYPE', and referring to 'dynamic_cast<TO_TYPE*>(source.get())'.
+    // If 'source' cannot be dynamically cast to 'TO_TYPE *', then an empty
+    // 'shared_ptr<TO_TYPE>' object is returned.
 
 template<class TO_TYPE, class FROM_TYPE>
-shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>& r);
+shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source);
+    // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
+    // object as the specified 'source' shared pointer to the parameterized
+    // 'FROM_TYPE', and referring to 'static_cast<TO_TYPE *>(source.get())'.
+    // Note that if 'source' cannot be statically cast to 'TO_TYPE *', then a
+    // compiler diagnostic will be emitted indicating the error.
 
 // STANDARD FREE FUNCTIONS
 template<class DELETER, class ELEMENT_TYPE>
 DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
+
+// template<class ELEMENT_TYPE, class... Args>
+// shared_ptr<ELEMENT_TYPE> make_shared(Args&&... args);
+//
+// template<class ELEMENT_TYPE, class ALLOC, class... Args>
+// shared_ptr<ELEMENT_TYPE> allocate_shared(const ALLOC& a, Args&&... args);
 
                         // ==============
                         // class weak_ptr
@@ -4072,7 +4093,11 @@ template<class DELETER, class ELEMENT_TYPE>
 DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p) {
     // TBD Check if the deleter owned by p.rep() hsa the same typeid as DELETER
     // and if so, return a pointer to that deleter.
-
+    if (BloombergLP::bslma::SharedPtrRep *rep = p.rep()) {
+        if (void *del = rep->getDeleter(typeid(DELETER))) {
+            return static_cast<DELETER *>(del);
+        }
+    }
     return 0;
 }
 

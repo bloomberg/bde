@@ -194,34 +194,43 @@ volatile int* MyTestObject::copyCounter() const
                          // class MyInplaceTestObject
                          // =========================
 
-#define DECLARE_TEST_ARG(NAME)                                            \
-class NAME {                                                              \
-    int d_value;                                                          \
-  public:                                                                 \
-    NAME(int value = -1) : d_value(value) {}                              \
-    operator int&()      { return d_value; }                              \
-    operator int() const { return d_value; }                              \
-};
-    // This macro declares a separate type with the specified 'NAME' that wraps
-    // an integer value and provides implicit conversion to and from 'int'.
-    // Its main purpose is that having separate types allows to distinguish
-    // them in function interface, thereby avoiding ambiguities or accidental
-    // switching of arguments in the implementation of in-place constructors.
+template <int N>
+class MyTestArg {
+    // This class template declares a separate type for each parmaterizing 'N'
+    // that wraps an integer value and provides implicit conversion to and from
+    // 'int'.  Its main purpose is that having separate types allows to
+    // distinguish them in function interface, thereby avoiding ambiguities or
+    // accidental switching of arguments in the implementation of in-place
+    // constructors.
 
-DECLARE_TEST_ARG(MyTestArg1)
-DECLARE_TEST_ARG(MyTestArg2)
-DECLARE_TEST_ARG(MyTestArg3)
-DECLARE_TEST_ARG(MyTestArg4)
-DECLARE_TEST_ARG(MyTestArg5)
-DECLARE_TEST_ARG(MyTestArg6)
-DECLARE_TEST_ARG(MyTestArg7)
-DECLARE_TEST_ARG(MyTestArg8)
-DECLARE_TEST_ARG(MyTestArg9)
-DECLARE_TEST_ARG(MyTestArg10)
-DECLARE_TEST_ARG(MyTestArg11)
-DECLARE_TEST_ARG(MyTestArg12)
-DECLARE_TEST_ARG(MyTestArg13)
-DECLARE_TEST_ARG(MyTestArg14)
+    // DATA
+    int d_value;
+
+  public:
+    // CREATORS
+    explicit MyTestArg(int value = -1) : d_value(value) {}
+
+    // MANIPULATORS
+    operator int&()      { return d_value; }
+
+    // ACCESSORS
+    operator int() const { return d_value; }
+};
+
+typedef MyTestArg< 1> MyTestArg1;
+typedef MyTestArg< 2> MyTestArg2;
+typedef MyTestArg< 3> MyTestArg3;
+typedef MyTestArg< 4> MyTestArg4;
+typedef MyTestArg< 5> MyTestArg5;
+typedef MyTestArg< 6> MyTestArg6;
+typedef MyTestArg< 7> MyTestArg7;
+typedef MyTestArg< 8> MyTestArg8;
+typedef MyTestArg< 9> MyTestArg9;
+typedef MyTestArg<10> MyTestArg10;
+typedef MyTestArg<11> MyTestArg11;
+typedef MyTestArg<12> MyTestArg12;
+typedef MyTestArg<13> MyTestArg13;
+typedef MyTestArg<14> MyTestArg14;
     // Define fourteen test argument types 'MyTestArg1..14' to be used with the
     // in-place constructors of 'MyInplaceTestObject'.
 
@@ -231,21 +240,21 @@ class MyInplaceTestObject {
     // of the correct types and values.
 
     // DATA
-    MyTestArg1 d_a1;
-    MyTestArg2 d_a2;
-    MyTestArg3 d_a3;
-    MyTestArg4 d_a4;
-    MyTestArg5 d_a5;
-    MyTestArg6 d_a6;
-    MyTestArg7 d_a7;
-    MyTestArg8 d_a8;
-    MyTestArg9 d_a9;
+    MyTestArg1  d_a1;
+    MyTestArg2  d_a2;
+    MyTestArg3  d_a3;
+    MyTestArg4  d_a4;
+    MyTestArg5  d_a5;
+    MyTestArg6  d_a6;
+    MyTestArg7  d_a7;
+    MyTestArg8  d_a8;
+    MyTestArg9  d_a9;
     MyTestArg10 d_a10;
     MyTestArg11 d_a11;
     MyTestArg12 d_a12;
     MyTestArg13 d_a13;
     MyTestArg14 d_a14;
-    static int d_numDeletes;
+    static int  s_numDeletes;
 
   public:
     // CREATORS
@@ -346,7 +355,7 @@ class MyInplaceTestObject {
         : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
         , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
         , d_a11(a11), d_a12(a12), d_a13(a13), d_a14(a14) {}
-    ~MyInplaceTestObject() { ++d_numDeletes; };
+    ~MyInplaceTestObject() { ++s_numDeletes; };
 
     // ACCESSORS
     bool operator == (MyInplaceTestObject const& rhs) const
@@ -368,10 +377,10 @@ class MyInplaceTestObject {
                d_a14 == rhs.d_a14;
     }
 
-    int getNumDeletes() { return d_numDeletes; }
+    int getNumDeletes() { return s_numDeletes; }
 };
 
-int MyInplaceTestObject::d_numDeletes = 0;
+int MyInplaceTestObject::s_numDeletes = 0;
 
 #if 0  // TBD Need an appropriately levelized usage example
                               // ================

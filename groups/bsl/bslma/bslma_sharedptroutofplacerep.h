@@ -241,6 +241,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
+#ifndef INCLUDED_TYPEINFO
+#include <typeinfo>
+#define INCLUDED_TYPEINFO
+#endif
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -377,6 +386,11 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // shared references reaches zero and should not be explicitly invoked
         // otherwise.
 
+    virtual void *getDeleter(const std::type_info& type);
+        // Return a pointer to the deleter stored by the derived representation
+        // (if any) if the deleter has the same type as that described by the
+        // specified 'type', and a null pointer otherwise.
+
     // ACCESSORS
     virtual void *originalPtr() const;
         // Return the (untyped) address of the modifiable shared object to
@@ -387,9 +401,9 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // object refers.
 };
 
-          // ================================================
+          // =================================================
           // class SharedPtrOutofplaceRep_DeleterDiscriminator
-          // ================================================
+          // =================================================
 
 template <class DELETER, bool IS_ALLOC_PTR>
 class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
@@ -687,6 +701,16 @@ void SharedPtrOutofplaceRep<TYPE, DELETER>::disposeObject()
 {
     SharedPtrOutofplaceRep_DeleterHelper::deleteObject(d_ptr_p, d_deleter);
     d_ptr_p = 0;
+}
+
+template <class TYPE, class DELETER>
+inline
+void *
+SharedPtrOutofplaceRep<TYPE, DELETER>::getDeleter(const std::type_info& type)
+{
+    return (typeid(d_deleter) == type)
+         ? bsls::Util::addressOf(d_deleter)
+         : 0;
 }
 
 // ACCESSORS

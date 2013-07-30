@@ -391,6 +391,11 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // otherwise.  Note that this function calls the destructor for the
         // shared object, but does not deallocate its footprint.
 
+    void *getDeleter(const std::type_info& type);
+        // Return a null pointer.  Note that an in-place representation for a
+        // shared pointer can never store a user-supplied deleter, as there is
+        // no function that might try to create one.
+
     // ACCESSORS
     virtual void *originalPtr() const;
         // Return the (untyped) address of the modifiable (in-place) object
@@ -661,12 +666,11 @@ void SharedPtrInplaceRep<TYPE>::disposeObject()
     d_instance.~TYPE();
 }
 
-// ACCESSORS
 template <class TYPE>
 inline
-void *SharedPtrInplaceRep<TYPE>::originalPtr() const
+void *SharedPtrInplaceRep<TYPE>::getDeleter(const std::type_info& type)
 {
-    return const_cast<void *>(static_cast<const void *>(&d_instance));
+    return 0;
 }
 
 template <class TYPE>
@@ -674,6 +678,14 @@ inline
 TYPE *SharedPtrInplaceRep<TYPE>::ptr()
 {
     return &d_instance;
+}
+
+// ACCESSORS
+template <class TYPE>
+inline
+void *SharedPtrInplaceRep<TYPE>::originalPtr() const
+{
+    return const_cast<void *>(static_cast<const void *>(&d_instance));
 }
 
 }  // close namespace bslma

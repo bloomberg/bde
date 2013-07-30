@@ -410,6 +410,14 @@ class SharedPtrRep {
         // that derived classes must override this method to perform the
         // appropriate action such as deleting the shared object.
 
+    virtual void *getDeleter(const std::type_info& type) = 0;
+        // Return a pointer to the deleter stored by the derived representation
+        // (if any) if the deleter has the same type as that described by the
+        // specified 'type', and a null pointer otherwise.  Note that while
+        // this methods appears to be a simple accessor, it is declared as non-
+        // 'const' qualified to support representations storing the deleter
+        // directly as a data member.
+
     // ACCESSORS
     virtual void *originalPtr() const = 0;
         // Return the (untyped) address of the modifiable shared object
@@ -427,6 +435,7 @@ class SharedPtrRep {
         // Return 'true' if there is only one shared reference and no weak
         // references to the object referred to by this representation, and
         // 'false' otherwise.
+
 };
 
 // ============================================================================
