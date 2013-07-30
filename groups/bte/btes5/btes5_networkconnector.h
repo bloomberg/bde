@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //                                   const bteso_Endpoint& regionProxy1,
 //                                   const bteso_Endpoint& regionProxy2)
 //  {
-//      btemt::btes5_NetworkDescription proxies;
+//      btes5_NetworkDescription proxies;
 //      proxies.addProxy(0, corpProxy1);
 //      proxies.addProxy(0, corpProxy2);
 //      proxies.addProxy(1, regionProxy1);

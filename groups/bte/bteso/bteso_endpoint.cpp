@@ -1,11 +1,11 @@
 // bteso_endpoint.cpp                                                 -*-C++-*-
 #include <bteso_endpoint.h>
 
-#include <bsl_ostream.h>
-#include <bsls_assert.h>
-
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_endpoint_cpp, "$Id$ $CSID$")
+
+#include <bsl_ostream.h>
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 
@@ -18,7 +18,7 @@ namespace {
                             // --------------------
 
 // CREATORS
-bteso_Endpoint::bteso_Endpoint(bslma_Allocator *allocator)
+bteso_Endpoint::bteso_Endpoint(bslma::Allocator *allocator)
 : d_hostname(bslma::Default::allocator(allocator))
 , d_port(-1)
 {
