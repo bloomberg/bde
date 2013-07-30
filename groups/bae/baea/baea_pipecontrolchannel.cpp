@@ -265,7 +265,8 @@ int baea_PipeControlChannel::readNamedPipe()
                 continue;
             }
             BAEL_LOG_ERROR << "Failed to poll pipe '"
-                           << d_pipeName << "', errno = " << savedErrno << ": "
+                           << d_pipeName << "', rc = " << rc
+                           << ", errno = " << savedErrno << ": "
                            << bsl::strerror(savedErrno) << BAEL_LOG_END;
             return -1;
         }
