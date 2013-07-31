@@ -115,6 +115,17 @@ void btemt_SessionPoolSessionIterator::operator++()
 
 typedef bcema_SharedPtr<btemt_SessionPool_Handle> HandlePtr;
 
+static btemt_ChannelPool::ConnectResolutionMode mapResolutionMode(
+                               btemt_SessionPool::ConnectResolutionMode mode) 
+{
+    if (mode == btemt_SessionPool::RESOLVE_AT_EACH_ATTEMPT) {
+        return btemt_ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT;
+    } 
+    
+    BSLS_ASSERT(mode == btemt_SessionPool::RESOLVE_ONCE);
+    return btemt_ChannelPool::BTEMT_RESOLVE_ONCE;
+}
+
                           // -----------------------
                           // class btemt_SessionPool
                           // -----------------------
@@ -432,6 +443,26 @@ void btemt_SessionPool::poolStateCb(int state, int source, int)
     }
 }
 
+int btemt_SessionPool::makeConnectHandle(                     
+               const btemt_SessionPool::SessionStateCallback&  cb, 
+               int                                             numAttempts,
+               void                                           *userData,
+               btemt_SessionFactory                           *factory) {
+    HandlePtr handle(new (*d_allocator_p) btemt_SessionPool_Handle(),
+                     bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
+                                           this),
+                     d_allocator_p);
+
+    handle->d_type = btemt_SessionPool_Handle::CONNECT_SESSION;
+    handle->d_sessionStateCB = cb;
+    handle->d_session_p = 0;
+    handle->d_channel_p = 0;
+    handle->d_numAttemptsRemaining = numAttempts;
+    handle->d_userData_p = userData;
+    handle->d_sessionFactory_p = factory;
+    return (handle->d_handleId = d_handles.add(handle));
+}
+        
 void btemt_SessionPool::sessionAllocationCb(int             result,
                                             btemt_Session  *session,
                                             int             handleId)
@@ -752,38 +783,15 @@ int btemt_SessionPool::connect(
         return -1;
     }
 
-    int handleId;
-    {
-        HandlePtr handle(new(*d_allocator_p) btemt_SessionPool_Handle(),
-                       bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
-                                             this),
-                         d_allocator_p);
-        handle->d_type = btemt_SessionPool_Handle::CONNECT_SESSION;
-        handle->d_sessionStateCB = cb;
-        handle->d_session_p = 0;
-        handle->d_channel_p = 0;
-        handle->d_numAttemptsRemaining = numAttempts;
-        handle->d_userData_p = userData;
-        handle->d_sessionFactory_p = factory;
-        handle->d_handleId = d_handles.add(handle);
-        handleId = handle->d_handleId;
-    }
+    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
     *handleBuffer = handleId;
-
-    btemt_ChannelPool::ConnectResolutionMode cpResolutionMode;
-    if (resolutionMode == RESOLVE_AT_EACH_ATTEMPT) {
-        cpResolutionMode = btemt_ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT;
-    } else {
-        BSLS_ASSERT(resolutionMode == RESOLVE_ONCE);
-        cpResolutionMode = btemt_ChannelPool::BTEMT_RESOLVE_ONCE;
-    }
 
     int ret = d_channelPool_p->connect(hostname,
                                        port,
                                        numAttempts,
                                        interval,
                                        handleId,
-                                       cpResolutionMode,
+                                       mapResolutionMode(resolutionMode),
                                        false,
                                        btemt_ChannelPool::BTEMT_CLOSE_BOTH,
                                        socketOptions,
@@ -817,23 +825,7 @@ int btemt_SessionPool::connect(
         return -1;
     }
 
-    int handleId;
-    {
-        HandlePtr handle(new (*d_allocator_p) btemt_SessionPool_Handle(),
-                       bdef_MemFnUtil::memFn(&btemt_SessionPool::handleDeleter,
-                                             this),
-                       d_allocator_p);
-
-        handle->d_type = btemt_SessionPool_Handle::CONNECT_SESSION;
-        handle->d_sessionStateCB = cb;
-        handle->d_session_p = 0;
-        handle->d_channel_p = 0;
-        handle->d_numAttemptsRemaining = numAttempts;
-        handle->d_userData_p = userData;
-        handle->d_sessionFactory_p = factory;
-        handle->d_handleId = d_handles.add(handle);
-        handleId = handle->d_handleId;
-    }
+    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
     *handleBuffer = handleId;
 
     int ret = d_channelPool_p->connect(endpoint,
@@ -853,10 +845,95 @@ int btemt_SessionPool::connect(
     return 0;
 }
 
+int btemt_SessionPool::connect(
+                int                                            *handleBuffer,
+                const btemt_SessionPool::SessionStateCallback&  cb,
+                const char                                     *hostname,
+                int                                             port,
+                int                                             numAttempts,
+                const bdet_TimeInterval&                        interval,
+                btemt_SessionFactory                           *factory,
+                bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                                                               *socket,
+                void                                           *userData,
+                ConnectResolutionMode                           resolutionMode,
+                const bteso_IPv4Address                        *localAddress)
+{
+    BSLS_ASSERT(d_channelPool_p);
+
+    if (0 == d_channelPool_p->numThreads()) {
+        // Going down.
+
+        return -1;
+    }
+
+    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
+    *handleBuffer = handleId;
+
+    int ret = d_channelPool_p->connect(hostname,
+                                       port,
+                                       numAttempts,
+                                       interval,
+                                       handleId,
+                                       socket,
+                                       mapResolutionMode(resolutionMode),
+                                       false,
+                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH,
+                                       localAddress);
+    if (ret) {
+        HandlePtr handle;
+        int rc = d_handles.remove(handleId, &handle);
+        BSLS_ASSERT(0 == rc);
+        handle->d_handleId = 0; // Do not call back anybody
+        return ret;
+    }
+    return 0;
+}
+
+int btemt_SessionPool::connect(
+                 int                                            *handleBuffer,
+                 const btemt_SessionPool::SessionStateCallback&  cb,
+                 bteso_IPv4Address const&                        endpoint,
+                 int                                             numAttempts,
+                 const bdet_TimeInterval&                        interval,
+                 btemt_SessionFactory                           *factory,
+                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                                                                *socket,
+                 void                                           *userData,
+                 const bteso_IPv4Address                        *localAddress)
+{
+    BSLS_ASSERT(d_channelPool_p);
+
+    if (0 == d_channelPool_p->numThreads()) {
+        // Going down.
+
+        return -1;
+    }
+
+    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
+    *handleBuffer = handleId;
+
+    int ret = d_channelPool_p->connect(endpoint,
+                                       numAttempts,
+                                       interval,
+                                       handleId,
+                                       socket,
+                                       false,
+                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH,
+                                       localAddress);
+    if (ret) {
+        HandlePtr handle;
+        d_handles.remove(handleId, &handle);
+        handle->d_handleId = 0; // Do not call back anybody
+        return ret;
+    }
+    return 0;
+}
+
 int btemt_SessionPool::import(int *handleBuffer,
                   const btemt_SessionPool::SessionStateCallback& cb,
-                  bteso_StreamSocket<bteso_IPv4Address>        *streamSocket,
-                  bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+                  bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                                                               *streamSocket,
                   btemt_SessionFactory                         *sessionFactory,
                   void                                         *userData)
 {
@@ -877,7 +954,6 @@ int btemt_SessionPool::import(int *handleBuffer,
     *handleBuffer = handle->d_handleId;
 
     int ret = d_channelPool_p->import(streamSocket,
-                                      socketFactory,
                                       handle->d_handleId,
                                       false);
     if (ret) {

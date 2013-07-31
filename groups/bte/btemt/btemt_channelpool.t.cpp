@@ -11,6 +11,7 @@
 #include <bteso_resolveutil.h>
 #include <bteso_streamsocket.h>
 #include <bteso_socketoptions.h>
+#include <bteso_socketoptutil.h>
 
 #include <btesos_tcptimedacceptor.h>
 #include <btesos_tcpchannel.h>
@@ -343,6 +344,18 @@ bsl::ostream& operator<<(bsl::ostream& s, const my_PoolEvent& event) {
       << "}";
     return s;
 }
+
+static
+bteso_IPv4Address getLocalAddress() {
+    // On Cygwin, binding to bteso_IPv4Address() doesn't seem to work.
+    // Wants to bind to localhost/127.0.0.1.  
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+    return bteso_IPv4Address("127.0.0.1", 0);
+#else
+    return bteso_IPv4Address();
+#endif
+}
+    
 
 static
 void recordChannelState(int                           channelId,
@@ -804,7 +817,7 @@ void *listenFunction(void *args)
 
     serverSockets[INDEX] = factory.allocate();
 
-    ASSERT(0 == serverSockets[INDEX]->bind(bteso_IPv4Address()));
+    ASSERT(0 == serverSockets[INDEX]->bind(getLocalAddress()));
     ASSERT(0 == serverSockets[INDEX]->listen(1));
 
     bteso_StreamSocket<bteso_IPv4Address> *client;
@@ -1457,6 +1470,69 @@ void blobBasedReadCb(int             *needed,
 
 namespace CASE32 {
 
+class SocketPool {
+
+    bteso_InetStreamSocketFactory<bteso_IPv4Address> d_factory;
+    
+public:
+    
+    int connectWithOptions(Obj                *pool,
+                           bteso_IPv4Address   serverAddr,
+                           int                 sourceId,
+                           const               SocketOptions *opt,
+                           bool                setManually)
+    {
+        int rc;
+        if (setManually && opt) {
+            bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                socket(d_factory.allocate(), &d_factory);
+            
+            if (0 != bteso_SocketOptUtil::setSocketOptions(socket->handle(),
+                                                           *opt)) {
+                return -1;
+            }
+            rc = pool->connect(serverAddr, 1, bdet_TimeInterval(1), 
+                               sourceId, &socket);
+                               
+        }
+        else {
+            rc = pool->connect(serverAddr, 1, bdet_TimeInterval(1), 
+                               sourceId, true, Obj::BTEMT_CLOSE_BOTH, opt);
+        }
+        ASSERT(0 == rc);
+        return 0;
+    }
+
+    int connectWithOptions(Obj                *pool,
+                           const char*         host,
+                           int                 port,
+                           int                 sourceId,
+                           const               SocketOptions *opt,
+                           bool                setManually)
+    {
+        int rc;
+        if (setManually && opt) {
+            bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                socket(d_factory.allocate(), &d_factory);
+            
+            if (0 != bteso_SocketOptUtil::setSocketOptions(socket->handle(),
+                                                           *opt)) {
+                return -1;
+            }
+            rc = pool->connect(host, port, 1, bdet_TimeInterval(1), 
+                               sourceId, &socket);
+                               
+        }
+        else {
+            rc = pool->connect(host, port, 1, bdet_TimeInterval(1), 
+                               sourceId, Obj::BTEMT_RESOLVE_ONCE, true, 
+                               Obj::BTEMT_CLOSE_BOTH, opt);
+        }
+        ASSERT(0 == rc);
+        return 0;
+    }
+};
+
 void poolStateCb(int            state,
                  int            source,
                  int            severity,
@@ -1710,8 +1786,10 @@ int verify(const Obj&                 pool,
             return rc;                                                // RETURN
         }
 
+#ifndef BSLS_PLATFORM_OS_CYGWIN        
         LOOP2_ASSERT((bool) result, options.reuseAddress().value(),
                      (bool) result == options.reuseAddress().value());
+#endif
     }
 
     if (!options.keepAlive().isNull()) {
@@ -4948,144 +5026,6 @@ void case20ChannelStateCallback(int                 channelId,
 } // closing namespace TEST_CASE_20_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE XX supporting classes and methods
-// Apparently unused
-//-----------------------------------------------------------------------------
-
-#if 0
-namespace TEST_CASE_XX_NAMESPACE {
-
-struct CaseXXImporterInfo {
-    btemt_ChannelPool                                *pool;
-    bteso_InetStreamSocketFactory<bteso_IPv4Address> *factory;
-    bteso_IPv4Address                                 address;
-    bcemt_Barrier                                    *barrier;
-};
-
-//extern "C"
-void *caseXXImporterThread(void *arg)
-{
-    const CaseXXImporterInfo& info = *(struct CaseXXImporterInfo*) arg;
-    typedef bteso_StreamSocket<bteso_IPv4Address> Socket;
-
-    info.barrier->wait();
-    for (int i = 0; i < 10; ++i) {
-        Socket  *socket = info.factory->allocate();
-
-        ASSERT(0 == socket->connect(info.address));
-        ASSERT(0 == info.pool->import(socket, info.factory, 0));
-    }
-    return 0;
-}
-
-struct CaseXXCloserInfo {
-    btemt_ChannelPool *pool;
-    bcec_ObjectCatalog<int> *handles;
-    bcemt_Barrier                                    *barrier;
-};
-
-//extern "C"
-void *caseXXCloserThread(void *arg) {
-    const CaseXXCloserInfo& info = *(struct CaseXXCloserInfo *) arg;
-
-    info.barrier->wait();
-    for (int i = 0; i < 10; ++i) {
-        int channelHandle;
-
-        while (1) {
-            bool handleFound = false;
-            int handle;
-            {
-                bcec_ObjectCatalogIter<int> it(*info.handles);
-                if (static_cast<const void *>(it)) {
-                    handle = it().first;
-                    handleFound = true;
-                }
-            }
-            if (handleFound &&
-                0 == info.handles->remove(handle, &channelHandle)) {
-                break;
-            }
-            bcemt_ThreadUtil::yield();
-            bcemt_ThreadUtil::microSleep(50); // 50 microseconds
-        }
-        ASSERT(0 == info.pool->shutdown(channelHandle,
-                                        btemt_ChannelPool::BTEMT_IMMEDIATE));
-    }
-    return 0;
-}
-
-static
-void caseXXClientDataReadCallback(
-        int             *consumed,
-        int             *needed,
-        btemt_DataMsg    msg,
-        void            *arg)
-{
-    ASSERT(consumed);
-    ASSERT(needed);
-    ASSERT(msg.data());
-
-    bcema_PooledBufferChain *chain = msg.data();
-    int numAvailable = chain->length();
-
-    *consumed = numAvailable / 2;
-    *needed = numAvailable - *consumed + 1;
-    //*consumed = 0;
-    //*needed = numAvailable + 1;
-}
-
-static
-void caseXXClientChannelStateCallback(
-        int                 channelId,
-        int                 serverId,
-        int                 state,
-        void               *arg,
-        bcec_ObjectCatalog<int> *catalog)
-{
-    ASSERT(catalog);
-
-    switch (state) {
-      case btemt_ChannelPool::BTEMT_CHANNEL_UP: {
-        //bcemt_ThreadUtil::microSleep(50);  // 50 microsecs.
-        catalog->add(channelId);
-      } break;
-    }
-}
-
-static
-void caseXXServerChannelStateCallback(
-        int                 channelId,
-        int                 serverId,
-        int                 state,
-        void               *arg,
-        btemt_ChannelPool **poolAddr)
-{
-    ASSERT(poolAddr && *poolAddr)
-    btemt_ChannelPool *pool = *poolAddr;
-
-    switch (state) {
-      case btemt_ChannelPool::BTEMT_CHANNEL_UP: {
-        int i;
-        for (i = 0; i < 100; ++i) {
-            bcema_PooledBufferChain *chain =
-                                    pool->outboundBufferFactory()->allocate(0);
-            chain->setLength(chain->bufferSize());
-            bsl::memset(chain->buffer(0), 0xab, chain->bufferSize());
-            btemt_DataMsg msg(chain, pool->outboundBufferFactory(), channelId);
-            if (0 != pool->write(channelId, msg)){
-                break;
-            }
-        }
-        //MTCOUT << "stopped at " << i << MTENDL;
-      } break;
-    }
-}
-
-} // closing namespace TEST_CASE_XX_NAMESPACE
-#endif
-
-//-----------------------------------------------------------------------------
 // CASE 19 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_19_NAMESPACE {
@@ -5658,18 +5598,22 @@ void runTestCase11(bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
 
     // Establish clients and connect them to server
     for (int i = 0; i < NUM_SOCKETS; ++i) {
-        bteso_StreamSocket<bteso_IPv4Address> *socket = factory->allocate();
-#if 0
-        ASSERT(0 == socket->setOption(bteso_SocketOptUtil::BTESO_TCPNODELAY,
-                                      bteso_SocketOptUtil::BTESO_TCPLEVEL,
-                                      1));
-#endif
-        ASSERT(0 == socket->connect(PEER));
-
-        mX.import(socket, factory, i);
+        if (0 == i % 2) {
+            bteso_StreamSocket<bteso_IPv4Address> *socket = 
+                factory->allocate();
+            ASSERT(0 == socket->connect(PEER));
+            mX.import(socket, factory, i);
+        } else {
+            // for some of the sockets, provide a ManagedPtr to exercise
+            // the ManagedPtr-based import() function
+            bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > socket
+                (factory->allocate(), factory);
+            ASSERT(0 == socket->connect(PEER));
+            mX.import(&socket, i);
+        }
     }
     bcemt_ThreadUtil::yield();
-    bcemt_ThreadUtil::microSleep(0, 15); // 5 sec should be good enough
+    bcemt_ThreadUtil::microSleep(0, 15); 
 
     ASSERT(NUM_SOCKETS     == mX.numChannels());
     ASSERT(2 * NUM_SOCKETS == channelEvents.size());
@@ -8680,7 +8624,7 @@ void TestDriver::testCase42()
 
         bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
         bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-        ASSERT(0 == socket->bind(bteso_IPv4Address()));
+        ASSERT(0 == socket->bind(getLocalAddress()));
         ASSERT(0 == socket->listen(5));
 
         bteso_IPv4Address serverAddr;
@@ -8791,7 +8735,7 @@ void TestDriver::testCase41()
 
         bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
         bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-        ASSERT(0 == socket->bind(bteso_IPv4Address()));
+        ASSERT(0 == socket->bind(getLocalAddress()));
         ASSERT(0 == socket->listen(5));
 
         bteso_IPv4Address serverAddr;
@@ -9540,7 +9484,6 @@ void TestDriver::testCase33()
             P(data);
         }
 }
-
 void TestDriver::testCase32()
 {
         // --------------------------------------------------------------------
@@ -9568,6 +9511,8 @@ void TestDriver::testCase32()
 
         using namespace CASE32;
 
+        SocketPool sp;
+
         const struct {
             int         d_line;
             const char *d_spec_p;
@@ -9584,9 +9529,13 @@ void TestDriver::testCase32()
             {   L_,   "GY",         0 },
 #endif
 
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+            {   L_,   "HN",         -1 },
+#else
             {   L_,   "HN",         0 },
+#endif
 
-#ifndef BSLS_PLATFORM_OS_AIX
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
             {   L_,   "HY",         0 },
 #endif
 
@@ -9614,9 +9563,15 @@ void TestDriver::testCase32()
             {   L_,   "LY",         0 },
 #endif
 
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+            {   L_,   "GNHN",      -1 },
+            {   L_,   "GNIN",       0 },
+            {   L_,   "GNIYKY",     0 },
+#else
             {   L_,   "GNHN",       0 },
             {   L_,   "GNHYIN",     0 },
             {   L_,   "GNHYIYKY",   0 },
+#endif
 
             {   L_,   "A0",         0 },
             {   L_,   "A1",         0 },
@@ -9642,7 +9597,7 @@ void TestDriver::testCase32()
 //             {   L_,   "C2",        -1 },
 // #endif
 
-#ifdef BSLS_PLATFORM_OS_SOLARIS
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_CYGWIN)
             {   L_,   "D0",        -1 },
             {   L_,   "D1",        -1 },
             {   L_,   "D2",        -1 },
@@ -9654,17 +9609,15 @@ void TestDriver::testCase32()
 
             // Fails on all platforms TBD Uncomment
 
-#ifndef BSLS_PLATFORM_OS_HPUX
-// TBD on HPUX setting this option succeeds but the timeout value is not what
-// was specified.
-//               {   L_,   "E0",         0 },
-//               {   L_,   "E1",         0 },
-//               {   L_,   "E2",         0 },
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+            {   L_,   "E0",         0 },
+            {   L_,   "E1",         0 },
+            {   L_,   "E2",         0 },
 
-//               {   L_,   "F0",         0 },
-//               {   L_,   "F1",         0 },
-//               {   L_,   "F2",         0 },
-// #else
+            {   L_,   "F0",         0 },
+            {   L_,   "F1",         0 },
+            {   L_,   "F2",         0 },
+#else
             {   L_,   "E0",        -1 },
             {   L_,   "E1",        -1 },
             {   L_,   "E2",        -1 },
@@ -9722,51 +9675,59 @@ void TestDriver::testCase32()
             vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
             int numExpChannels = 0;
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_line;
-                const char *SPEC   = DATA[i].d_spec_p;
-                const int   EXP_RC = DATA[i].d_expReturnCode;
-
-                SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
-
-                if (veryVerbose) { P_(LINE) P(OPT); }
-
-                const int SERVER_ID = 100;
-                const int SOURCE_ID = 200;
-
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                for (int j = 0; j < 2; ++j) {
+                    const int   LINE   = DATA[i].d_line;
+                    const char *SPEC   = DATA[i].d_spec_p;
+                    const int   EXP_RC = DATA[i].d_expReturnCode;
+                    
+                    SocketOptions opt = g(SPEC); 
+                    const SocketOptions& OPT = opt;
+                    
+                    if (veryVerbose) { P_(LINE) P(OPT); }
+                    
+                    const int SERVER_ID = 100;
+                    const int SOURCE_ID = 200;
+                    
+                    bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
-                ASSERT(socket);
-                sockets.push_back(socket);
+                    ASSERT(socket);
+                    sockets.push_back(socket);
+                    
+                    ASSERT(0 == socket->bind(getLocalAddress()));
+                    
+                    ASSERT(0 == socket->listen(5));
+                    
+                    bteso_IPv4Address serverAddr;
+                    ASSERT(0 == socket->localAddress(&serverAddr));
 
-                ASSERT(0 == socket->bind(bteso_IPv4Address()));
-
-                ASSERT(0 == socket->listen(5));
-
-                bteso_IPv4Address serverAddr;
-                ASSERT(0 == socket->localAddress(&serverAddr));
-
-                int rc = pool.connect(serverAddr,
-                                      1,
-                                      bdet_TimeInterval(1),
-                                      SOURCE_ID + i,
-                                      true,
-                                      Obj::BTEMT_CLOSE_BOTH,
-                                      &OPT);
-
-                ASSERT(!rc);
-
-                if (EXP_RC) {
-                    poolCbBarrier.wait();
+                    bool setManually = (bool)j;
+                    int rc = sp.connectWithOptions(&pool, 
+                                                   serverAddr, 
+                                                   SOURCE_ID + i, 
+                                                   &OPT, setManually);
+                    if (EXP_RC) {
+                        if (setManually) {
+                            LOOP2_ASSERT(LINE, j, EXP_RC == rc);
+                        }
+                        else {
+                            if (veryVerbose) {
+                                MTCOUT << "Waiting on pool callback" << MTENDL;
+                            }
+                            poolCbBarrier.wait();
+                        }
+                    }
+                    else {
+                        if (veryVerbose) {
+                            MTCOUT << "Waiting on channel callback" << MTENDL;
+                        }
+                        channelCbBarrier.wait();
+                        ++numExpChannels;
+                        LOOP2_ASSERT(LINE, j, !verify(pool, channelId, OPT));
+                    }
+                    LOOP3_ASSERT(LINE, j, numExpChannels,
+                                 numExpChannels == pool.numChannels());
                 }
-                else {
-                    channelCbBarrier.wait();
-                    ++numExpChannels;
-                    LOOP_ASSERT(LINE, !verify(pool, channelId, OPT));
-                }
-                LOOP2_ASSERT(LINE, numExpChannels,
-                             numExpChannels == pool.numChannels());
             }
-
             for (int i = 0; i < sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
             }
@@ -9804,47 +9765,55 @@ void TestDriver::testCase32()
             vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
             int numExpChannels = 0;
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_line;
-                const char *SPEC   = DATA[i].d_spec_p;
-                const int   EXP_RC = DATA[i].d_expReturnCode;
+                for (int j = 0; j < 2; ++j) {
+                    const int   LINE   = DATA[i].d_line;
+                    const char *SPEC   = DATA[i].d_spec_p;
+                    const int   EXP_RC = DATA[i].d_expReturnCode;
+                    
+                    SocketOptions opt = g(SPEC); 
+                    const SocketOptions& OPT = opt;
+                    
+                    if (veryVerbose) { P(LINE) P(OPT) }
 
-                SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
-
-                if (veryVerbose) { P(LINE) P(OPT) }
-
-                const int SERVER_ID = 100;
-                const int SOURCE_ID = 200;
-
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                            factory.allocate();
-                ASSERT(socket);
-                sockets.push_back(socket);
-
-                ASSERT(0 == socket->bind(bteso_IPv4Address()));
-                ASSERT(0 == socket->listen(5));
-
-                bteso_IPv4Address serverAddr;
-                ASSERT(0 == socket->localAddress(&serverAddr));
-
-                const char *host = "127.0.0.1";
-                int rc = pool.connect(host,
-                                      serverAddr.portNumber(),
-                                      1,
-                                      bdet_TimeInterval(1),
-                                      SOURCE_ID + i,
-                                      Obj::BTEMT_RESOLVE_ONCE,
-                                      true,
-                                      Obj::BTEMT_CLOSE_BOTH,
-                                      &OPT);
-
-                ASSERT(!rc);
-
-                if (EXP_RC) {
-                    poolCbBarrier.wait();
-                }
-                else {
-                    channelCbBarrier.wait();
-                    LOOP_ASSERT(LINE, !verify(pool, channelId, OPT));
+                    const int SERVER_ID = 100;
+                    const int SOURCE_ID = 200;
+                    
+                    bteso_StreamSocket<bteso_IPv4Address> *socket =
+                        factory.allocate();
+                    ASSERT(socket);
+                    sockets.push_back(socket);
+                    
+                    ASSERT(0 == socket->bind(getLocalAddress()));
+                    ASSERT(0 == socket->listen(5));
+                    
+                    bteso_IPv4Address serverAddr;
+                    ASSERT(0 == socket->localAddress(&serverAddr));
+                    
+                    const char *host = "127.0.0.1";
+                    bool setManually = (bool)j;
+                    int rc = sp.connectWithOptions(&pool, 
+                                                   host, 
+                                                   serverAddr.portNumber(),
+                                                   SOURCE_ID + i, 
+                                                   &OPT, setManually);
+                    if (EXP_RC) {
+                        if (setManually) {
+                            LOOP2_ASSERT(LINE, j, EXP_RC == rc);
+                        }
+                        else {
+                            if (veryVerbose) {
+                                MTCOUT << "Waiting on pool callback" << MTENDL;
+                            }
+                            poolCbBarrier.wait();
+                        }
+                    }
+                    else {
+                        if (veryVerbose) {
+                            MTCOUT << "Waiting on channel callback" << MTENDL;
+                        }
+                        channelCbBarrier.wait();
+                        LOOP2_ASSERT(LINE, j, !verify(pool, channelId, OPT));
+                    }
                 }
             }
 
@@ -9888,7 +9857,7 @@ void TestDriver::testCase32()
 
             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
 
-            ASSERT(0 == socket->bind(bteso_IPv4Address()));
+            ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
 
             bteso_IPv4Address serverAddr;
@@ -9950,7 +9919,7 @@ void TestDriver::testCase32()
             const int SOURCE_ID = 200;
 
             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-            ASSERT(0 == socket->bind(bteso_IPv4Address()));
+            ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
 
             bteso_IPv4Address serverAddr;
@@ -10031,12 +10000,15 @@ void TestDriver::testCase32()
                 const int SERVER_PORT = 1700;
                 const int SERVER_ID   = 100;
 
-                int rc = pool.listen(SERVER_PORT + i,
+                bteso_IPv4Address serverAddr = getLocalAddress();
+                serverAddr.setPortNumber(SERVER_PORT + i);
+                int rc = pool.listen(serverAddr,
                                      5,
                                      SERVER_ID + i,
                                      bdet_TimeInterval(1),
                                      true,
                                      true,
+                                     Obj::BTEMT_CLOSE_BOTH,
                                      &OPT);
 
                 if (!OPT.reuseAddress().isNull()
@@ -10051,7 +10023,6 @@ void TestDriver::testCase32()
                 }
 
                 LOOP_ASSERT(LINE, !rc);
-                bteso_IPv4Address serverAddr;
                 ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID + i));
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
@@ -10123,12 +10094,15 @@ void TestDriver::testCase32()
                 const int SERVER_PORT = 1700;
                 const int SERVER_ID   = 100;
 
-                int rc = pool.listen(SERVER_PORT + i,
+                bteso_IPv4Address serverAddr = getLocalAddress();
+                serverAddr.setPortNumber(SERVER_PORT + i);
+                int rc = pool.listen(serverAddr,
                                      5,
                                      SERVER_ID + i,
                                      bdet_TimeInterval(1),
                                      true,
                                      true,
+                                     Obj::BTEMT_CLOSE_BOTH,
                                      &OPT);
 
                 if (!OPT.reuseAddress().isNull()
@@ -10144,7 +10118,6 @@ void TestDriver::testCase32()
 
                 LOOP_ASSERT(LINE, !rc);
 
-                bteso_IPv4Address serverAddr;
                 ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID + i));
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
@@ -10215,7 +10188,7 @@ void TestDriver::testCase32()
 
                 const int SERVER_ID = 100;
 
-                bteso_IPv4Address serverAddr;
+                bteso_IPv4Address serverAddr = getLocalAddress();
                 int rc = pool.listen(serverAddr,
                                      5,
                                      SERVER_ID + i,
@@ -10305,7 +10278,7 @@ void TestDriver::testCase32()
 
                 const int SERVER_ID = 100;
 
-                bteso_IPv4Address serverAddr;
+                bteso_IPv4Address serverAddr = getLocalAddress();
                 int rc = pool.listen(serverAddr,
                                      5,
                                      SERVER_ID + i,

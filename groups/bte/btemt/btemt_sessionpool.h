@@ -729,6 +729,16 @@ class btemt_SessionPool {
         // Session allocation callback passed to the factory at allocation
         // time.
 
+    int makeConnectHandle(
+               const btemt_SessionPool::SessionStateCallback&  cb, 
+               int                                             numAttempts,
+               void                                           *userData,
+               btemt_SessionFactory                           *factory);
+       // Add a handle for a connection session with the specified
+       // 'numAttempts', 'userData', and 'cb' parameters to this session 
+       // pool. The factory will be allocated from the specified 'factory'. 
+       // Return the identifier for the new handle.  
+
     // FRIENDS
     friend class btemt_SessionPoolSessionIterator;
 
@@ -858,6 +868,20 @@ class btemt_SessionPool {
             int                                             numAttempts,
             const bdet_TimeInterval&                        interval,
             btemt_SessionFactory                           *factory,
+            bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                                                           *socket,
+            void                                           *userData = 0,
+            ConnectResolutionMode                           resolutionMode
+                                                               = RESOLVE_ONCE,
+            const bteso_IPv4Address                        *localAddress = 0);
+    int connect(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            const char                                     *hostname,
+            int                                             port,
+            int                                             numAttempts,
+            const bdet_TimeInterval&                        interval,
+            btemt_SessionFactory                           *factory,
             void                                           *userData = 0,
             ConnectResolutionMode                           resolutionMode
                                                                = RESOLVE_ONCE,
@@ -876,13 +900,27 @@ class btemt_SessionPool {
         // 'handleBuffer'.  Whenever this session state changes (i.e., is
         // established), the specified 'callback' will be invoked along with a
         // pointer to newly created 'btemt_Session' and the optionally
-        // specified 'userData'.  Optionally specify 'socketOptions' that will
-        // be used to specify what options should be set on the connecting
-        // socket.  Optionally specify the 'localAddress' that should be used
-        // as the source address.  Return 0 on successful initiation, and a
-        // non-zero value otherwise.  The behavior is undefined unless
-        // '0 < numAttempts', and '0 < interval' or '1 == numAttempts'.
+        // specified 'userData'.  Optionally specify either 'socketOptions' 
+        // that will be used to specify what options should be set on the
+        // connecting socket, or 'socket' to use as the connecting socket
+        // (with any desired options already set; ownership will be 
+        // transferred from 'socket').  Optionally specify the 'localAddress'
+        // that should be used as the source address.  Return 0 on successful
+        // initiation, and a non-zero value otherwise.  The behavior is
+        // undefined unless '0 < numAttempts', and '0 < interval' or 
+        // '1 == numAttempts'.
 
+    int connect(
+            int                                            *handleBuffer,
+            const btemt_SessionPool::SessionStateCallback&  callback,
+            bteso_IPv4Address const&                        endpoint,
+            int                                             numAttempts,
+            const bdet_TimeInterval&                        interval,
+            btemt_SessionFactory                           *factory,
+            bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                                                           *socket,
+            void                                           *userData = 0,
+            const bteso_IPv4Address                        *localAddress = 0);
     int connect(
             int                                            *handleBuffer,
             const btemt_SessionPool::SessionStateCallback&  callback,
@@ -901,12 +939,14 @@ class btemt_SessionPool {
         // this session state changes (i.e., is established), the specified
         // 'callback' will be invoked along with a pointer to newly created
         // 'btemt_Session' and the optionally specified 'userData'.  Optionally
-        // specify 'socketOptions' that will be used to specify what options
-        // should be set on the connecting socket.  Optionally specify the
-        // 'localAddress' that should be used as the source address.  Return 0
-        // on successful initiation, and a non-zero value otherwise.  The
-        // behavior is undefined unless '0 < numAttempts', and '0 < interval'
-        // or '1 == numAttempts'.
+        // specify either 'socketOptions' that will be used to specify what 
+        // options should be set on the connecting socket, or 'socket' to use
+        // as the conecting socket (with any desired options already set; 
+        // ownership will be transferred from 'socket').  Optionally specify
+        // the 'localAddress' that should be used as the source address.  
+        // Return 0 on successful initiation, and a non-zero value otherwise.
+        // The behavior is undefined unless '0 < numAttempts', and
+        // '0 < interval' or '1 == numAttempts'.
 
     int import(int                                            *handleBuffer,
                const btemt_SessionPool::SessionStateCallback&  callback,
@@ -914,15 +954,23 @@ class btemt_SessionPool {
                bteso_StreamSocketFactory<bteso_IPv4Address>   *socketFactory,
                btemt_SessionFactory                           *sessionFactory,
                void                                           *userData = 0);
+    int import(int                                            *handleBuffer,
+               const btemt_SessionPool::SessionStateCallback&  callback,
+               bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                                                              *streamSocket,
+               btemt_SessionFactory                           *sessionFactory,
+               void                                           *userData = 0);
         // Asynchronously import the specified 'streamSocket' into this session
         // pool.  Load into the specified 'handleBuffer' the handle to the
         // corresponding internally-allocated session through the specified
-        // 'sessionFactory'.  Upon destruction of this session pool,
-        // 'streamSocket' is destroyed via the specified 'socketFactory'.  When
-        // the session state changes (i.e., is established), the specified
-        // 'callback' will be invoked along with the allocated 'btemt_Session'
-        // and the optionally specified 'userData'.  Return 0 on success, and a
-        // non-zero value with no effect on the session pool otherwise.
+        // 'sessionFactory'.  If 'streamSocket' is a 'bdema_ManagedPtr', then
+        // ownership is transferred from it; otherwise, upon destruction of 
+        // this session pool, 'streamSocket' is destroyed via the specified
+        // 'socketFactory'.  When the session state changes (i.e., is 
+        // established), the specified 'callback' will be invoked along with 
+        // the allocated 'btemt_Session' and the optionally specified 
+        // 'userData'.  Return 0 on success, and a non-zero value with no 
+        // effect on the session pool otherwise.
 
     int setWriteCacheWatermarks(int handleId,
                                 int lowWatermark,
@@ -1015,6 +1063,22 @@ inline
 int btemt_SessionPool::numSessions() const
 {
     return d_numSessions;
+}
+
+// MANIPULATORS
+inline
+int btemt_SessionPool::import(
+               int                                            *handleBuffer,
+               const btemt_SessionPool::SessionStateCallback&  callback,
+               bteso_StreamSocket<bteso_IPv4Address>          *streamSocket,
+               bteso_StreamSocketFactory<bteso_IPv4Address>   *socketFactory,
+               btemt_SessionFactory                           *sessionFactory,
+               void                                           *userData)
+{
+    bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > socket_sp
+        (streamSocket, socketFactory);
+    return import(handleBuffer, callback, &socket_sp, sessionFactory, 
+                  userData);
 }
 
 }  // close namespace BloombergLP

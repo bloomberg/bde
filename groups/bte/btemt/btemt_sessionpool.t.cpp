@@ -135,6 +135,16 @@ static bcemt_Mutex coutMutex;
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
+static
+bteso_IPv4Address getLocalAddress() {
+    // On Cygwin, binding to bteso_IPv4Address() doesn't seem to work.
+    // Wants to bind to localhost/127.0.0.1.  
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+    return bteso_IPv4Address("127.0.0.1", 0);
+#else
+    return bteso_IPv4Address();
+#endif
+}
 
 namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS {
 
@@ -316,29 +326,47 @@ void TesterFactory::deallocate(btemt_Session *session)
     d_allocator_p->deleteObjectRaw(session);
 }
 
-int createConnection(Obj                                     *sessionPool,
-                     btemt_SessionPool::SessionStateCallback *sessionStateCb, 
-                     btemt_SessionFactory                    *sessionFactory,
-                     bteso_StreamSocket<bteso_IPv4Address>   *socket,
-                     SocketOptions                           *socketOptions,
-                     const bteso_IPv4Address                 *ipAddress)
+int createConnection(
+                Obj                                          *sessionPool,
+                btemt_SessionPool::SessionStateCallback      *sessionStateCb, 
+                btemt_SessionFactory                         *sessionFactory,
+                bteso_StreamSocket<bteso_IPv4Address>        *serverSocket,
+                SocketOptions                                *socketOptions,
+                bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+                const bteso_IPv4Address                      *ipAddress)
 {
-    ASSERT(0 == socket->bind(bteso_IPv4Address()));
-    ASSERT(0 == socket->listen(1));
+    ASSERT(0 == serverSocket->bind(getLocalAddress()));
+    ASSERT(0 == serverSocket->listen(1));
 
     bteso_IPv4Address serverAddr;
-    ASSERT(0 == socket->localAddress(&serverAddr));
+    ASSERT(0 == serverSocket->localAddress(&serverAddr));
 
     int handleBuffer;
-    return sessionPool->connect(&handleBuffer,
-                                *sessionStateCb,
-                                serverAddr,
-                                1,
-                                bdet_TimeInterval(1),
-                                sessionFactory,
-                                0,
-                                socketOptions,
-                                ipAddress);
+    if (socketOptions) {
+        return sessionPool->connect(&handleBuffer,
+                                    *sessionStateCb,
+                                    serverAddr,
+                                    1,
+                                    bdet_TimeInterval(1),
+                                    sessionFactory,
+                                    0,
+                                    socketOptions,
+                                    ipAddress);
+    } else {
+        BSLS_ASSERT_OPT(socketFactory); // test invariant
+        bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+            clientSocket(socketFactory->allocate(), socketFactory);
+        
+        return sessionPool->connect(&handleBuffer,
+                                    *sessionStateCb,
+                                    serverAddr,
+                                    1,
+                                    bdet_TimeInterval(1),
+                                    sessionFactory,
+                                    &clientSocket,
+                                    0,
+                                    ipAddress);
+    }
 }
 
 }  // close namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS
@@ -624,7 +652,7 @@ void *listenFunction(void *args)
 
     serverSockets[INDEX] = factory.allocate();
 
-    ASSERT(0 == serverSockets[INDEX]->bind(bteso_IPv4Address()));
+    ASSERT(0 == serverSockets[INDEX]->bind(getLocalAddress()));
     ASSERT(0 == serverSockets[INDEX]->listen(1));
 
     bteso_StreamSocket<bteso_IPv4Address> *client;
@@ -3526,26 +3554,23 @@ int main(int argc, char *argv[])
             bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
 
             {
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                      socketFactory.allocate();
-                ASSERT(socket);
+                bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                    socket(socketFactory.allocate(), &socketFactory);
 
                 SocketOptions opt;  opt.setKeepAlive(true); // always succeeds 
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
-                                                socket,
-                                                &opt,
-                                                0);
+                                                socket.ptr(),
+                                                &opt, 0, 0);
                 ASSERT(!rc);
 
                 channelCbBarrier.wait();
-                socketFactory.deallocate(socket);
             }
 
             {
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                      socketFactory.allocate();
+                bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                    socket(socketFactory.allocate(), &socketFactory);
                 ASSERT(socket);
 
                 SocketOptions opt;  opt.setSendTimeout(1); // fails on all
@@ -3553,14 +3578,12 @@ int main(int argc, char *argv[])
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
-                                                socket,
-                                                &opt,
-                                                0);
+                                                socket.ptr(),
+                                                &opt, 0, 0);
                 ASSERT(!rc);
 
                 poolCbBarrier.wait();
                 ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
-                socketFactory.deallocate(socket);
             }
 
             ASSERT(0 == pool.stopAndRemoveAllSessions());
@@ -3631,40 +3654,42 @@ int main(int argc, char *argv[])
             bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
 
             {
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                      socketFactory.allocate();
-                ASSERT(socket);
+                bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                    socket(socketFactory.allocate(), &socketFactory);
 
                 bteso_IPv4Address address("127.0.0.1", 45000); // good address
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
-                                                socket,
-                                                0,
+                                                socket.ptr(),
+                                                0, &socketFactory,
                                                 &address);
                 ASSERT(!rc);
 
+                if (veryVerbose) {
+                    MTCOUT << "Waiting on channel barrier..." << MTENDL;
+                }
                 channelCbBarrier.wait();
-                socketFactory.deallocate(socket);
             }
 
             {
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                      socketFactory.allocate();
-                ASSERT(socket);
+                bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                    socket(socketFactory.allocate(), &socketFactory);
 
                 bteso_IPv4Address address("1.1.1.1", 45000);  // bad address
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
-                                                socket,
-                                                0,
+                                                socket.ptr(),
+                                                0, &socketFactory,
                                                 &address);
                 ASSERT(!rc);
 
+                if (veryVerbose) {
+                    MTCOUT << "Waiting on pool barrier..." << MTENDL;
+                }
                 poolCbBarrier.wait();
                 ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
-                socketFactory.deallocate(socket);
             }
 
             ASSERT(0 == pool.stopAndRemoveAllSessions());
@@ -4319,7 +4344,7 @@ int main(int argc, char *argv[])
 
         using namespace BTEMT_SESSION_POOL_DRQS;
 
-        Tester tester(Tester::LISTENER, bteso_IPv4Address());
+        Tester tester(Tester::LISTENER, getLocalAddress());
 
         bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
         bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();

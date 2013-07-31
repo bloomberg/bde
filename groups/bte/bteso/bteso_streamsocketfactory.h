@@ -1,4 +1,4 @@
-// bteso_streamsocketfactory.h       -*-C++-*-
+// bteso_streamsocketfactory.h                                        -*-C++-*-
 #ifndef INCLUDED_BTESO_STREAMSOCKETFACTORY
 #define INCLUDED_BTESO_STREAMSOCKETFACTORY
 
@@ -6,8 +6,6 @@
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
-
-
 
 //@PURPOSE: Provide protocol for a factory producing stream sockets.
 //
@@ -91,6 +89,11 @@ class bteso_StreamSocketFactory {
         // 'streamSocket' was allocated using this factory (or created through
         // an 'accept' operation on a stream socket allocated using this
         // factory) and has not since been deallocated.
+    
+    void deleteObject(bteso_StreamSocket<ADDRESS> *streamSocket);
+        // Invoke 'deallocate', passing the specified 'streamSocket'.  This
+        // method is provided for compatibility with the 'bdema_ManagedPtr'
+        // template interface.  
 };
 
              // ==================================================
@@ -153,8 +156,17 @@ inline
 bteso_StreamSocketFactory<ADDRESS>::~bteso_StreamSocketFactory()
 {
 }
-
 // Implementation note: destructor is inlined to avoid template repository.
+
+// MANIPULATORS
+template <class ADDRESS>
+inline void
+bteso_StreamSocketFactory<ADDRESS>::deleteObject(
+                                   bteso_StreamSocket<ADDRESS> *streamObject)
+{
+    deallocate(streamObject);
+}
+    
 
              // --------------------------------------------------
              // class bteso_StreamSocketFactoryAutoDeallocateGuard
