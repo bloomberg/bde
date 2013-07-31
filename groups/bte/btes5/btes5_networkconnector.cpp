@@ -564,14 +564,10 @@ btes5_NetworkConnector::Attempt::Attempt(
 , d_socket_p(0)
 , d_allocator_p(allocator)
 {
-    // TODO: clean up
-    bsl::cout << "Attempt::Attempt connection to " << d_server << bsl::endl;
 }
 
 btes5_NetworkConnector::Attempt::~Attempt()
 {
-    // TODO: clean up
-    bsl::cout << "Attempt::~Attempt " << d_server << bsl::endl;
 }
                         // ----------------------------
                         // class btes5_NetworkConnector

@@ -215,8 +215,6 @@ Negotiation::~Negotiation()
 void Negotiation::terminate(btes5_Negotiator::NegotiationStatus status,
                             const btes5_DetailedError&          error)
 {
-    // TODO: take this out
-    bsl::cout << "Negotiation::terminate" << bsl::endl;
     d_eventManager_p->deregisterSocket(d_handle);
     if (status) {
         d_socket_p->shutdown(bteso_Flag::SHUTDOWN_BOTH);
