@@ -253,7 +253,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(basicAllocator ? basicAllocator
+, d_failureHandler(&failAbort,
+                   basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(DEFAULT_NUM_RECORDED_FRAMES + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(DEFAULT_NUM_RECORDED_FRAMES))
@@ -264,8 +265,6 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 {
     BSLS_ASSERT_SAFE(d_maxRecordedFrames >= DEFAULT_NUM_RECORDED_FRAMES);
     BSLS_ASSERT_SAFE(d_traceBufferLength >= d_maxRecordedFrames);
-
-    d_failureHandler = &failAbort;
 }
 
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
@@ -276,7 +275,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(basicAllocator ? basicAllocator
+, d_failureHandler(&failAbort,
+                   basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
@@ -288,9 +288,6 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
     BSLS_ASSERT_OPT(numRecordedFrames >= 2);
     BSLS_ASSERT(d_maxRecordedFrames >= numRecordedFrames);
     BSLS_ASSERT(d_traceBufferLength >= d_maxRecordedFrames);
-
-    d_failureHandler = &failAbort;
-
 }
 
 baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
@@ -320,7 +317,7 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
     // the size passed.  The alignment must be large enough to accommodate the
     // stack addresses (type 'void *') in the buffer, it must be large enough
     // to accommodate the 'BlockHeader's alignment requirements, and it must be
-    // large enough to accomodate whatever the alignment requirements of
+    // large enough to accommodate whatever the alignment requirements of
     // whatever the client intends to store in their portion of the block.  We
     // can infer the requirements of our pointers and block header at compile
     // time in 'FIXED_ALIGN', then we infer the alignment requirement of the

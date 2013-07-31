@@ -92,7 +92,7 @@ using bsl::flush;
 //        each size.  Calculate alignment
 //        via 'bsls::AlignmentUtil::calculateAlignmentFromSize', and verify
 //        that the block return always satisfies the alignment requirement.
-//        Write over the full length of the block. Use 'bslma::TestAllocator'
+//        Write over the full length of the block.  Use 'bslma::TestAllocator'
 //        as the underlying allocator as it will detect overruns if the any of
 //        the blocks were smaller than requested.
 //      o fill blocks with random byte, verify they still contain this byte
@@ -167,8 +167,8 @@ using bsl::flush;
 //      o repeat all tests with and without abort flag (no abort is expected
 //        in this case
 //      o call 'ASSERT(oss.str().empty());' before d'tor is called
-//      o call one instance of object, destroy it with no memory outstanding,
-//        verify no report written by d'tor
+//      o create one object, destroy it with no memory outstanding, verify no
+//        report written by d'tor
 //      o verify allocator name in report
 //      o verify operation of release with & without memory allocated.
 // [ 1] Breathing test
@@ -183,10 +183,10 @@ using bsl::flush;
 // 'longjmp's would provide a flexible, portable testing mechanism that would
 // work even when exceptions were disabled.  This turned out to work very well
 // on Unix, but on Windows 'longjmp' turned out to be very flaky and caused
-// unpredictable crashes, so we had to go through the test driver and
-// disable the many places 'longjmp' was called on Windows.  Fortunately,
-// 'setjmp' by itself turned out to be reasonably benign and we did not have
-// to circumvent the 'setjmp' calls on Windows.
+// unpredictable crashes, so we had to go through the test driver and disable
+// the many places 'longjmp' was called on Windows.  Fortunately, 'setjmp' by
+// itself turned out to be reasonably benign and we did not have to circumvent
+// the 'setjmp' calls on Windows.
 //
 // It is inadvisable to use 'setjmp' / 'longjmp' in future test drivers.
 //
@@ -487,7 +487,7 @@ ShipsCrew::~ShipsCrew()
     }
 }
 //..
-// Then, we implment the public accessors:
+// Then, we implement the public accessors:
 //..
 // ACCESSORS
 const char *ShipsCrew::captain()
@@ -566,7 +566,7 @@ jmp_buf my_setJmpBuf;    // Note 'jmp_buf' is an array type
 
 void my_assertHandlerLongJmp(const char *,  // text
                              const char *,  // fail
-                             int         )  // lineo
+                             int         )  // line number
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // setjmp / longjmp is flaky on Windows
@@ -751,7 +751,7 @@ class TouchyAllocator : public bslma::Allocator {
 };
 
 struct Functor {
-    // Multithreaded opeartor.
+    // Multithreaded operator.
 
     enum { NUM_THREADS = 10 };
 
@@ -1676,7 +1676,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Underruns are detected via a magic number that is flush against
         //   the client's area of the block.  All of the underruns detected
-        //   are detected by this magic number being perterbed.  The data
+        //   are detected by this magic number being perturbed.  The data
         //   before this magic number consists of pointers, so we cannot
         //   guarantee that corruption of these pointers will be detectable.
         //
@@ -1716,7 +1716,7 @@ int main(int argc, char *argv[])
         bsl::stringstream ss(&sta);
 
         // The most likely garbage chars are 0, 1, and 0xff, so it is important
-        // our magic numbers are chosen so as to detect stray occurrances of
+        // our magic numbers are chosen so as to detect stray occurrences of
         // those chars.
 
         const unsigned char fillChars[] = { 0, 1, 0xff };
@@ -1858,7 +1858,7 @@ int main(int argc, char *argv[])
         //: 5 Freeing a 'new' allocated block by an STTA
         //: 6 Freeing a 'bslma::TestAllocator' allocated block by an STTA
         //: 7 Freeing a 'bcema_TestAllocator' allocated block by an STTA
-        //: 8 Freeing a misaligned semgent
+        //: 8 Freeing a misaligned segment
         //
         // Plan:
         //: 1 Iterate through both values of the boolean ABORT
@@ -2788,7 +2788,7 @@ int main(int argc, char *argv[])
         //:   o Freeing one of the 4 blocks in random order
         //:   o After every allocate or free, verify that the 'numBlocksInUse'
         //:     accessor accurately tracks the number of unfreed blocks in
-        //:     existance.
+        //:     existence.
         //: 7 After the loop, 3 blocks should remain allocated.  Verify this.
         //: 8 Call 'reportBlocksInUse' twice.
         //:   o The first time, call it with output redirected to 'oss'.
@@ -2920,7 +2920,7 @@ int main(int argc, char *argv[])
         // Concern: Need to test creators and all manipulators
         //
         // Plan:
-        //: 1 Monitor use of the default alloctor throughout this example,
+        //: 1 Monitor use of the default allocator throughout this example,
         //:   updating 'expectedDefaultAllocations' every time we deliberately
         //:   use it (only for getting the string value of a 'stringstream'
         //:   object), to verify that the object under test never uses the
