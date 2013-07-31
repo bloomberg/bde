@@ -30,7 +30,7 @@
 #include <functional>
 #include <stdexcept>
 
-#include <limits.h>
+#include <limits.h>  // CHAR_MAX
 #include <stdio.h>
 #include <stdlib.h>
 
