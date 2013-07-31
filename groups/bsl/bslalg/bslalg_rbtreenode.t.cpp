@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
             mX.setColor(A1);
 
             const T1& color = mX.color();
-            ASSERTV(A4, X.color(), A1 == color);
+            ASSERTV(A1, X.color(), A1 == color);
         }
 
         if (veryVerbose) { T_ Q(parent) }
