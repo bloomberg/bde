@@ -215,16 +215,19 @@ public:
         // Destroy this object. Established connections are not closed.
 
     // MANIPULATORS
-    AttemptHandle makeAttemptHandle(const ConnectionStateCallback& callback,
-                                    const bdet_TimeInterval&       timeout,
-                                    const bteso_Endpoint&          server);
+    AttemptHandle makeAttemptHandle(
+                                   const ConnectionStateCallback& callback,
+                                   const bdet_TimeInterval&       proxyTimeout,
+                                   const bdet_TimeInterval&       totalTimeout,
+                                   const bteso_Endpoint&          server);
         // Return a 'AttemptHandle' object that can be used to asynchronously
         // connect to the specified 'server'; the specified 'callback' will be
-        // invoked with connection status. If the specified 'timeout' is not
-        // empty, a successful connection must occur within that time. The
-        // handle can be used to start the connection attempt by calling
-        // 'startAttempt()' and cancel the attempt by calling
-        // 'cancelAttempt()'.
+        // invoked with connection status.  If the specified 'proxyTimeout' is
+        // not empty, a successful connection attempt to each proxy must occur
+        // within that time.  If the specified 'totalTimeout' is not empty, a
+        // successful connection must occur within that time.  The handle can
+        // be used to start the connection attempt by calling 'startAttempt'
+        // and cancel the attempt by calling 'cancelAttempt'.
 
     void startAttempt(AttemptHandle& connectionAttempt);
         // Start the specified 'connectionAttempt'.

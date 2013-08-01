@@ -230,7 +230,8 @@ static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
 // signal the using 'state', with the access protected by a mutex and condition
 // variable.
 //..
-    const bdet_TimeInterval timeout(30.0);
+    const bdet_TimeInterval proxyTimeout(5.0);
+    const bdet_TimeInterval totalTimeout(30.0);
     bcemt_Mutex     stateLock;
     bcemt_Condition stateChanged;
     volatile int    state = 0; // value > 0 indicates success, < 0 is error
@@ -241,7 +242,8 @@ static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
                                                           &stateLock,
                                                           &stateChanged,
                                                           &state),
-                      timeout,
+                      proxyTimeout,
+                      totalTimeout,
                       bteso_Endpoint("destination.example.com", 8194));
     connector.startAttempt(attempt);
     bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
@@ -395,7 +397,7 @@ int main(int argc, char *argv[])
                  << " via " << proxy
                  << endl;
         }
-        const bdet_TimeInterval timeout(30.0);
+        const bdet_TimeInterval proxyTimeout(10.0);
         bcemt_Mutex     stateLock;
         bcemt_Condition stateChanged;
         volatile int    state = 0; // value > 0 indicates success, < 0 is error
@@ -423,7 +425,9 @@ int main(int argc, char *argv[])
                                          &ea);
 
         btes5_NetworkConnector::AttemptHandle attempt
-            = connector.makeAttemptHandle(cb, timeout, destination);
+            = connector.makeAttemptHandle(cb,
+                                          proxyTimeout, bdet_TimeInterval(),
+                                          destination);
         connector.startAttempt(attempt);
         while (!state) {
             stateChanged.wait(&stateLock);
@@ -490,14 +494,16 @@ int main(int argc, char *argv[])
         eventManager.enable();
 
         btes5_NetworkConnector connector(proxies, &factory, &eventManager);
-        const bdet_TimeInterval timeout(2);
+        const bdet_TimeInterval proxyTimeout(2);
+        const bdet_TimeInterval totalTimeout(10);
         bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus> queue(1);
         using namespace bdef_PlaceHolders;
         btes5_NetworkConnector::AttemptHandle attempt
             = connector.makeAttemptHandle(bdef_BindUtil::bind(breathingTestCb,
                                                               _1, _2, _3, _4,
                                                               &queue),
-                                          timeout,
+                                          proxyTimeout,
+                                          totalTimeout,
                                           destination);
         connector.startAttempt(attempt);
 

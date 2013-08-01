@@ -7,15 +7,19 @@
 #include <bcema_blob.h>
 #include <bcema_blobutil.h>
 #include <bcema_sharedptr.h>
+#include <bcemt_lockguard.h>
+#include <bcemt_mutex.h>
 #include <bdef_bind.h>
 #include <bdef_function.h>
 #include <bdef_memfn.h>
 #include <bdef_placeholder.h>
+#include <bdetu_systemtime.h>
 #include <bdeut_bigendian.h>
 #include <bdeut_stringref.h>
 #include <bsl_iostream.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -98,7 +102,9 @@ struct ConnectRspBase {
 struct Negotiation {
     // Objects describing the state of a SOCKS connection negotiation. The
     // object lifetime is managed by using a 'bcema_SharedPtr<Negotiation>' in
-    // callback registration.
+    // callback registration. A 'Negotiation' object is in one of two states:
+    // it's created in the normal state  indicated by 'd_terminating == 0', and
+    // it enters a terminating state when 'd_terminating != 0'.
 
     // TYPES
     typedef bcema_SharedPtr<Negotiation> Context;
@@ -125,6 +131,13 @@ struct Negotiation {
     bteso_TimerEventManager                   *d_eventManager_p;
         // asynchronous event registration manager, not owned
 
+    bdet_TimeInterval      d_timeout;   // timeout
+    void                  *d_timer;     // expiration timer
+    bcemt_Mutex            d_timerLock; // 'd_timer' access
+
+    bsls::AtomicInt                            d_terminating;
+        // negotiation being terminated
+
     bslma::Allocator                          *d_allocator_p;
         // memory allocator, not owned
 
@@ -132,12 +145,15 @@ struct Negotiation {
     Negotiation(bteso_StreamSocket<bteso_IPv4Address>     *socket,
                 const bteso_Endpoint&                      destination,
                 btes5_Negotiator::NegotiationStateCallback callback,
+                const bdet_TimeInterval&                   timeout,
                 bteso_TimerEventManager                   *eventManager,
                 bslma::Allocator                          *allocator);
         // Create a 'Negotiation' object to connect to the specified
         // 'destination' over the specified 'socket' and asynchrounously invoke
         // the specified 'callback', using the specified 'eventManager' to
-        // schedule callbacks and 'allocator' to supply memory.
+        // schedule callbacks and 'allocator' to supply memory.  If the
+        // specified 'timeout' is not empty a successful negotiation must
+        // complete within this time period.
 
     ~Negotiation();
         // Destroy this object.
@@ -153,7 +169,12 @@ struct Negotiation {
 
     void authenticationCallback(Context negotiation);
 
+    void timeoutCallback(Context negotiation);
+        // Expire the specified 'negotiation'.
+
     void connectCallback(Context negotiation);
+        // Process response from the SOCKS5 connect request for the specified
+        // 'negotiation'.
 
     void sendAuthenticationRequest(Context negotiation);
         // Send the username and password credentials to authenticate with the
@@ -194,6 +215,7 @@ Negotiation::Negotiation(
     bteso_StreamSocket<bteso_IPv4Address>      *socket,
     const bteso_Endpoint&                      destination,
     btes5_Negotiator::NegotiationStateCallback callback,
+    const bdet_TimeInterval&                    timeout,
     bteso_TimerEventManager                    *eventManager,
     bslma::Allocator                           *allocator)
 : d_credentials(allocator)
@@ -202,20 +224,41 @@ Negotiation::Negotiation(
 , d_socket_p(socket)
 , d_handle(socket->handle())
 , d_callback(callback, allocator)
+, d_timeout(timeout)
 , d_eventManager_p(eventManager)
+, d_timer(0)
 , d_allocator_p(allocator)
 {
 }
 
 Negotiation::~Negotiation()
 {
+    // clean up in case 'terminate' was called prior to registering timer
+    {
+        bcemt_LockGuard<bcemt_Mutex> lock(&d_timerLock);
+        if (d_timer) {
+            d_eventManager_p->deregisterTimer(d_timer);
+        }
+    }
 }
 
 // MANIPULATORS
 void Negotiation::terminate(btes5_Negotiator::NegotiationStatus status,
                             const btes5_DetailedError&          error)
 {
+    if (d_terminating.testAndSwap(1, 1)) {
+        return; // this negotiation is already being terminated
+    }
+
     d_eventManager_p->deregisterSocket(d_handle);
+
+    {
+        bcemt_LockGuard<bcemt_Mutex> lock(&d_timerLock);
+        if (d_timer) {
+            d_eventManager_p->deregisterTimer(d_timer);
+        }
+    }
+
     if (status) {
         d_socket_p->shutdown(bteso_Flag::SHUTDOWN_BOTH);
     }
@@ -256,6 +299,19 @@ int Negotiation::sendMethodRequest(Context negotiation)
 
     if (registerReadCb(&Negotiation::methodCallback, negotiation)) {
         return -1;
+    }
+
+    if (bdet_TimeInterval() != d_timeout) {
+        bdet_TimeInterval expiration
+            = bdetu_SystemTime::now() + d_timeout;
+        bteso_EventManager::Callback
+           cb = bdef_BindUtil::bind(&Negotiation::timeoutCallback,
+                                    negotiation,
+                                    negotiation);
+        {
+            bcemt_LockGuard<bcemt_Mutex> lock(&d_timerLock);
+            d_timer = d_eventManager_p->registerTimer(expiration, cb);
+        }
     }
 
     int rc = d_socket_p->write(reinterpret_cast<const char *>(&pkt), length);
@@ -404,6 +460,13 @@ void Negotiation::authenticationCallback(Context negotiation)
     connectToEndpoint(negotiation);
 }
 
+void Negotiation::timeoutCallback(Context negotiation)
+{
+    // TODO: if 'terminate' is called now, it may deregister an invalid timer
+    d_timer = 0;
+    terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError("timeout"));
+}
+
 void Negotiation::connectCallback(Context negotiation)
 {
     bsl::ostringstream e("connect response: ", d_allocator_p);
@@ -527,12 +590,14 @@ btes5_Negotiator::~btes5_Negotiator()
 int btes5_Negotiator::negotiate(
     bteso_StreamSocket<bteso_IPv4Address> *socket,
     const bteso_Endpoint&                  destination,
-    NegotiationStateCallback               callback)
+    NegotiationStateCallback               callback,
+    const bdet_TimeInterval&               timeout)
 {
     Negotiation::Context
         negotiation(new (*d_allocator_p) Negotiation(socket,
                                                      destination,
                                                      callback,
+                                                     timeout,
                                                      d_eventManager_p,
                                                      d_allocator_p),
                         d_allocator_p);
@@ -543,12 +608,14 @@ int btes5_Negotiator::negotiate(
     bteso_StreamSocket<bteso_IPv4Address> *socket,
     const bteso_Endpoint&                  destination,
     NegotiationStateCallback               callback,
+    const bdet_TimeInterval&               timeout,
     const btes5_Credentials&               credentials)
 {
     Negotiation::Context
         negotiation(new (*d_allocator_p) Negotiation(socket,
                                                      destination,
                                                      callback,
+                                                     timeout,
                                                      d_eventManager_p,
                                                      d_allocator_p),
                         d_allocator_p);
@@ -560,12 +627,14 @@ int btes5_Negotiator::negotiate(
     bteso_StreamSocket<bteso_IPv4Address> *socket,
     const bteso_Endpoint&                  destination,
     NegotiationStateCallback               callback,
+    const bdet_TimeInterval&               timeout,
     btes5_CredentialsProvider             *provider)
 {
     Negotiation::Context
         negotiation(new (*d_allocator_p) Negotiation(socket,
                                                      destination,
                                                      callback,
+                                                     timeout,
                                                      d_eventManager_p,
                                                      d_allocator_p),
                         d_allocator_p);

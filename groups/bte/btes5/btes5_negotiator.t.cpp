@@ -188,6 +188,7 @@ int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
                                              &stateLock,
                                              &stateChanged,
                                              &state),
+                         bdet_TimeInterval(),
                          credentials);
 //..
 // Next, we block until the negotiation ends and 'socks5Callback' updates
@@ -259,6 +260,7 @@ int negotiateWithAcquiredCredentials(
                                              &stateLock,
                                              &stateChanged,
                                              &state),
+                         bdet_TimeInterval(),
                          &credentialsProvider);
     bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
     while (!state) {
@@ -339,7 +341,8 @@ int main(int argc, char *argv[]) {
                                                         _2,
                                                         &stateLock,
                                                         &stateChanged,
-                                                        &state));
+                                                        &state),
+                             bdet_TimeInterval());
         bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
         while (!state) {
             veryVeryVerbose && cout << "waiting for state change" << endl;

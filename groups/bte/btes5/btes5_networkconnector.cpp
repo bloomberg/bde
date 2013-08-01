@@ -151,15 +151,16 @@ struct btes5_NetworkConnector::Attempt {
         // for object lifetime management.
 
     // DATA
-    const ConnectionStateCallback   d_callback;    // client callback
-    const bdet_TimeInterval         d_timeout;     // expiration time
-    const bteso_Endpoint            d_server;      // destination address
-    bteso_SocketHandle::Handle      d_handle;      // OS-level socket
+    const ConnectionStateCallback   d_callback;      // client callback
+    const bdet_TimeInterval         d_proxyTimeout;  // step timeout
+    const bdet_TimeInterval         d_totalTimeout;  // total attempt timeout
+    const bteso_Endpoint            d_server;        // destination address
+    bteso_SocketHandle::Handle      d_handle;        // OS-level socket
 
     bcema_SharedPtr<Connector>      d_connector;
         // persistent state of the connector associated with this attempt
 
-    void                           *d_timerId_p;   // timer id, not owned
+    void                           *d_timer;       // total expiration timer id
     bsls::AtomicInt                 d_terminating; // attempt being terminated
 
     bsl::size_t d_level; // proxy level being tried
@@ -177,14 +178,18 @@ struct btes5_NetworkConnector::Attempt {
 
     // CREATORS
     Attempt(const ConnectionStateCallback&  callback,
-            const bdet_TimeInterval&        timeout,
+            const bdet_TimeInterval&        proxyTimeout,
+            const bdet_TimeInterval&        totalTimeout,
             const bteso_Endpoint&           destination,
             bcema_SharedPtr<Connector>&     connector,
             bslma::Allocator               *allocator);
         // Create an 'Attempt' object associated with the specified 'connector'
         // to connect to the specified 'destination' and asynchrounously invoke
         // the specified 'callback', using the specified 'allocator' to supply
-        // memory.
+        // memory.  If the specified 'proxyTimeout' is not empty, each proxy
+        // connection attempt must succeed within that period. If the specified
+        // 'totalTimeout' is not empty, the entire connection attempt must
+        // succeed within this time period.
 
     ~Attempt();
         // Destroy this object. Do not deallocate  or close 'd_socket_p'.
@@ -218,9 +223,10 @@ static void terminate(
     if (attempt->d_terminating.testAndSwap(1, 1)) {
         return; // this attempt is already being terminated
     }
-    if (attempt->d_timerId_p) {
+
+    if (attempt->d_timer) {
         attempt->d_connector->d_eventManager_p->deregisterTimer(
-                                                         attempt->d_timerId_p);
+                                                         attempt->d_timer);
     }
     // TODO: deregister connect event if appropriate
     if (btes5_NetworkConnector::e_SUCCESS == status) {
@@ -321,20 +327,25 @@ static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 
     int rc;
     if (proxy.credentials().isSet()) {
-        rc = attempt->d_connector->d_negotiator.negotiate(attempt->d_socket_p,
-                                                          *destination,
-                                                          cb,
-                                                          proxy.credentials());
+        rc = attempt->d_connector
+            ->d_negotiator.negotiate(attempt->d_socket_p,
+                                     *destination,
+                                     cb,
+                                     attempt->d_proxyTimeout,
+                                     proxy.credentials());
     } else if (attempt->d_connector->d_provider_p) {
         rc = attempt->d_connector->d_negotiator.negotiate(
                                            attempt->d_socket_p,
                                            *destination,
                                            cb,
+                                           attempt->d_proxyTimeout,
                                            attempt->d_connector->d_provider_p);
     } else {
-        rc = attempt->d_connector->d_negotiator.negotiate(attempt->d_socket_p,
-                                                          *destination,
-                                                          cb);
+        rc = attempt->d_connector
+            ->d_negotiator.negotiate(attempt->d_socket_p,
+                                     *destination,
+                                     cb,
+                                     attempt->d_proxyTimeout);
     }
     if (rc) {
         socksConnectCb(attempt,
@@ -550,15 +561,17 @@ static void timeoutAttempt(
 // CREATORS
 btes5_NetworkConnector::Attempt::Attempt(
     const ConnectionStateCallback&  callback,
-    const bdet_TimeInterval&        timeout,
+    const bdet_TimeInterval&        proxyTimeout,
+    const bdet_TimeInterval&        totalTimeout,
     const bteso_Endpoint&           server,
     bcema_SharedPtr<Connector>&     connector,
     bslma::Allocator               *allocator)
 : d_callback(callback, allocator)
-, d_timeout(timeout)
+, d_proxyTimeout(proxyTimeout)
+, d_totalTimeout(totalTimeout)
 , d_server(server, allocator)
 , d_connector(connector)
-, d_timerId_p(0)
+, d_timer(0)
 , d_level(0)
 , d_indices(connector->d_socks5Servers.levelCount(), 0, allocator)
 , d_socket_p(0)
@@ -654,11 +667,12 @@ btes5_NetworkConnector::~btes5_NetworkConnector()
 // MANIPULATORS
 btes5_NetworkConnector::AttemptHandle
 btes5_NetworkConnector::makeAttemptHandle(
-                                    const ConnectionStateCallback& callback,
-                                    const bdet_TimeInterval&       timeout,
-                                    const bteso_Endpoint&          server)
+                                   const ConnectionStateCallback& callback,
+                                   const bdet_TimeInterval&       proxyTimeout,
+                                   const bdet_TimeInterval&       totalTimeout,
+                                   const bteso_Endpoint&          server)
 {
-    // check at least one level, and each proxy level has at least one proxy
+    // verify at least one level, and each proxy level has at least one proxy
 
     const bsl::size_t levels = d_connector->d_socks5Servers.levelCount();
     BSLS_ASSERT(levels > 0);
@@ -668,7 +682,8 @@ btes5_NetworkConnector::makeAttemptHandle(
 
     AttemptHandle attempt(new (*d_connector->d_allocator_p)
                               Attempt(callback,
-                                      timeout,
+                                      proxyTimeout,
+                                      totalTimeout,
                                       server,
                                       d_connector,
                                       d_connector->d_allocator_p),
@@ -678,12 +693,12 @@ btes5_NetworkConnector::makeAttemptHandle(
 
 void btes5_NetworkConnector::startAttempt(AttemptHandle& connectionAttempt)
 {
-    if (bdet_TimeInterval() != connectionAttempt->d_timeout) {
+    if (bdet_TimeInterval() != connectionAttempt->d_totalTimeout) {
         bdet_TimeInterval expiration
-            = bdetu_SystemTime::now() + connectionAttempt->d_timeout;
+            = bdetu_SystemTime::now() + connectionAttempt->d_totalTimeout;
         bteso_EventManager::Callback
            cb = bdef_BindUtil::bind(timeoutAttempt, connectionAttempt);
-        connectionAttempt->d_timerId_p = connectionAttempt->d_connector
+        connectionAttempt->d_timer = connectionAttempt->d_connector
            ->d_eventManager_p->registerTimer(expiration, cb);
     }
     tcpConnect(connectionAttempt);

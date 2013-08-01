@@ -173,26 +173,33 @@ class btes5_Negotiator {
     // MANIPULATORS
     int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
                   const bteso_Endpoint&                  destination,
-                  NegotiationStateCallback               callback);
+                  NegotiationStateCallback               callback,
+                  const bdet_TimeInterval&               timeout);
     int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
                   const bteso_Endpoint&                  destination,
                   NegotiationStateCallback               callback,
+                  const bdet_TimeInterval&               timeout,
                   const btes5_Credentials&               credentials);
         // Start SOCKS5 client-side negotiation on the specified 'socket' to
         // connect to the specified 'destination' using the optionally
-        // specified 'credentials' to authenticate the SOCKS5 connection.
-        // Invoke the specified 'callback' when negotiation is finished. Return
-        // 0 on successful start, and a non-zero value on immediate failure.
+        // specified 'credentials' to authenticate the SOCKS5 connection.  If
+        // the specified 'timeout' is not empty, complete the negotiation
+        // within this time period or time out.  Invoke the specified
+        // 'callback' when negotiation is finished. Return 0 on successful
+        // start, and a non-zero value on immediate failure.
 
     int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
                   const bteso_Endpoint&                  destination,
                   NegotiationStateCallback               callback,
+                  const bdet_TimeInterval&               timeout,
                   btes5_CredentialsProvider             *provider);
         // Start SOCKS5 client-side negotiation on the specified 'socket' to
         // connect to the specified 'destination' using the specified
-        // 'provider' to acquire credentials for authentication. Invoke the
-        // specified 'callback' when negotiation is finished. Return 0 on
-        // successful start, and a non-zero value on immediate failure.
+        // 'provider' to acquire credentials for authentication.  If the
+        // specified 'timeout' is not empty, complete the negotiation within
+        // this time period or time out. Invoke the specified 'callback' when
+        // negotiation is finished. Return 0 on successful start, and a
+        // non-zero value on immediate failure.
 
     // TODO: do we need a cancel interface?
 
