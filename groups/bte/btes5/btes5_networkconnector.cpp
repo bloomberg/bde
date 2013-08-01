@@ -160,8 +160,9 @@ struct btes5_NetworkConnector::Attempt {
     bcema_SharedPtr<Connector>      d_connector;
         // persistent state of the connector associated with this attempt
 
-    void                           *d_timer;       // total expiration timer id
-    bsls::AtomicInt                 d_terminating; // attempt being terminated
+    void           *d_timer;       // total expiration timer id
+    void           *d_proxyTimer;  // per-proxy expiration timer id
+    bsls::AtomicInt d_terminating; // attempt being terminated
 
     bsl::size_t d_level; // proxy level being tried
 
@@ -356,14 +357,22 @@ static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 }
 
 static void connectTcpCb(
-    btes5_NetworkConnector::AttemptHandle connectionAttempt)
+    btes5_NetworkConnector::AttemptHandle connectionAttempt,
+    bool                                  timeout)
     // Process the result of a connection attempt to a first-level proxy in the
-    // specified 'connectionAttempt'.
+    // specified 'connectionAttempt'.  If the specified 'timeout' is 'true' the
+    // TCP connection timed out.
 {
     // TODO: check for terminating attempt
+    // TODO: can CONNECT and TIMEOUT callbacks be interleaved?
 
     btes5_NetworkConnector::AttemptHandle attempt(connectionAttempt);
         // copy shared ptr because deregisterSocket removes the reference
+
+    if (!timeout && bdet_TimeInterval() != attempt->d_proxyTimeout) {
+        attempt->d_connector->d_eventManager_p
+            ->deregisterTimer(attempt->d_proxyTimer);
+    }
 
     const bsl::size_t index = attempt->d_indices[0]; // current proxy index
     attempt->d_connector->d_eventManager_p->deregisterSocket(
@@ -519,15 +528,26 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
         }
         int rc = attempt->d_socket_p->connect(server);
         if (!rc) {
-            connectTcpCb(attempt); // immediate success
+            connectTcpCb(attempt, false); // immediate success
             break;
         } else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
             bteso_EventManager::Callback
-                cb = bdef_BindUtil::bind(connectTcpCb, attempt);
+                cb = bdef_BindUtil::bind(connectTcpCb, attempt, false);
             rc = attempt->d_connector->d_eventManager_p->registerSocketEvent(
                                                  attempt->d_socket_p->handle(),
                                                  bteso_EventType::CONNECT,
                                                  cb);
+
+            if (bdet_TimeInterval() != attempt->d_proxyTimeout) {
+                bdet_TimeInterval expiration = bdetu_SystemTime::now()
+                    + attempt->d_proxyTimeout;
+                bteso_EventManager::Callback
+                    cb = bdef_BindUtil::bind(connectTcpCb, attempt, true);
+                attempt->d_proxyTimer
+                    = attempt->d_connector->d_eventManager_p->registerTimer(
+                                                                    expiration,
+                                                                    cb);
+            }
             break; // now wait for connection callback
         } else {
             bsl::ostringstream description;
