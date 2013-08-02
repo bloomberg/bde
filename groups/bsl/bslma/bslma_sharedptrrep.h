@@ -284,6 +284,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_atomic.h>
 #endif
 
+#ifndef INCLUDED_TYPEINFO
+#include <typeinfo>
+#define INCLUDED_TYPEINFO
+#endif
+
 namespace BloombergLP {
 namespace bslma {
 

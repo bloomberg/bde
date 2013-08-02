@@ -173,6 +173,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_TYPEINFO
+#include <typeinfo>
+#define INCLUDED_TYPEINFO
+#endif
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -668,7 +673,7 @@ void SharedPtrInplaceRep<TYPE>::disposeObject()
 
 template <class TYPE>
 inline
-void *SharedPtrInplaceRep<TYPE>::getDeleter(const std::type_info& type)
+void *SharedPtrInplaceRep<TYPE>::getDeleter(const std::type_info&)
 {
     return 0;
 }

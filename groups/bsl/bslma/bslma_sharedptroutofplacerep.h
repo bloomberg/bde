@@ -664,14 +664,14 @@ SharedPtrOutofplaceRep<TYPE, DELETER> *
 
     SharedPtrOutofplaceRep<TYPE, DELETER> *rep = 0;
 
-    if (ptr) {
+//   if (ptr) {  // For C++11, we reference count null pointers
         basicAllocator = Default::allocator(basicAllocator);
         rep = new (*basicAllocator) SharedPtrOutofplaceRep(
                                          ptr,
                                          deleter,
                                          basicAllocator,
                                          bslmf::MetaInt<BSLMA_DELETER_TYPE>());
-    }
+//    }
 
     guard.release();
 
