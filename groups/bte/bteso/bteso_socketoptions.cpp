@@ -39,6 +39,7 @@ bteso_SocketOptions::bteso_SocketOptions()
 , d_keepAlive()
 , d_bypassNormalRouting()
 , d_leaveOutOfBandDataInline()
+, d_tcpNoDelay()
 {
 }
 
@@ -56,6 +57,7 @@ bteso_SocketOptions::bteso_SocketOptions(const bteso_SocketOptions& original)
 , d_keepAlive(original.d_keepAlive)
 , d_bypassNormalRouting(original.d_bypassNormalRouting)
 , d_leaveOutOfBandDataInline(original.d_leaveOutOfBandDataInline)
+, d_tcpNoDelay(original.d_tcpNoDelay)
 {
 }
 
@@ -81,6 +83,7 @@ bteso_SocketOptions::operator=(const bteso_SocketOptions& rhs)
         d_minimumReceiveBufferSize = rhs.d_minimumReceiveBufferSize;
         d_sendTimeout = rhs.d_sendTimeout;
         d_receiveTimeout = rhs.d_receiveTimeout;
+        d_tcpNoDelay = rhs.d_tcpNoDelay;
     }
     return *this;
 }
@@ -100,6 +103,7 @@ void bteso_SocketOptions::reset()
     bdeat_ValueTypeFunctions::reset(&d_minimumReceiveBufferSize);
     bdeat_ValueTypeFunctions::reset(&d_sendTimeout);
     bdeat_ValueTypeFunctions::reset(&d_receiveTimeout);
+    bdeat_ValueTypeFunctions::reset(&d_tcpNoDelay);
 }
 
 // ACCESSORS
@@ -187,6 +191,11 @@ bsl::ostream& bteso_SocketOptions::print(
         bdeu_PrintMethods::print(stream, d_receiveTimeout,
                                  -levelPlus1, spacesPerLevel);
 
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "TcpNoDelay = ";
+        bdeu_PrintMethods::print(stream, d_tcpNoDelay,
+                                 -levelPlus1, spacesPerLevel);
+
         bdeu_Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
     }
@@ -258,6 +267,11 @@ bsl::ostream& bteso_SocketOptions::print(
         stream << ' ';
         stream << "ReceiveTimeout = ";
         bdeu_PrintMethods::print(stream, d_receiveTimeout,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "TcpNoDelay = ";
+        bdeu_PrintMethods::print(stream, d_tcpNoDelay,
                                  -levelPlus1, spacesPerLevel);
 
         stream << " ]";

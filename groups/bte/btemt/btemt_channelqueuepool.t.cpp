@@ -157,7 +157,7 @@ bces_AtomicInt    portNumber = 0;
         int processedMessages = 0;
 
         while(length > (int)sizeof(int) && length <= minIncomingMessageSize) {
-            int msgLength = ntohl(*(int*)data);  // decode message length
+            int msgLength = ntohl(*(const int*)data);  // decode message length
 
             // As a guard against malicious user, the 'msgLength' should be
             // limited in the protocol.
@@ -200,7 +200,7 @@ bces_AtomicInt    portNumber = 0;
             return;
         }
 
-        int msgLength = ntohl(*(int*)data); // decode message length
+        int msgLength = ntohl(*(const int*)data); // decode message length
         ASSERT((int)sizeof(int) < msgLength);
 
         if (length < msgLength) {  // not enough bytes for message

@@ -1082,7 +1082,8 @@ int baea_SerializableObjectProxyUtil_ChoiceAccessorProxy::operator()(
                                           const SELECTED_TYPE&       selection,
                                           const bdeat_SelectionInfo& info)
 {
-    d_proxy_p->loadChoiceForEncoding((void *)&selection,
+    d_proxy_p->loadChoiceForEncoding((void *) const_cast<SELECTED_TYPE *>(
+                                                                   &selection),
                                      &info,
                                      d_className,
                                      &baea_SerializableObjectProxyUtil::
@@ -1148,8 +1149,8 @@ int baea_SerializableObjectProxyUtil_SequenceAccessorProxy::operator()(
                                                    const bdeat_AttributeInfo&)
 {
     baea_SerializableObjectProxyUtil::makeEncodeProxyRaw<ELEMENT_TYPE>(
-                                                             d_proxy_p,
-                                                             (void *)&element);
+                              d_proxy_p,
+                              (void *) const_cast<ELEMENT_TYPE *>(&element));
     return 0;
 }
 
@@ -1174,8 +1175,8 @@ int baea_SerializableObjectProxyUtil_SequenceManipulatorProxy::operator() (
                                                    const bdeat_AttributeInfo&)
 {
     baea_SerializableObjectProxyUtil::makeDecodeProxyRaw<ELEMENT_TYPE>(
-                                                             d_proxy_p,
-                                                             (void *)&element);
+        d_proxy_p,
+        (void *) const_cast<ELEMENT_TYPE *>(&element));
     return 0;
 }
 

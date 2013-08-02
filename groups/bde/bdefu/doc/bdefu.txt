@@ -23,6 +23,47 @@
  returning void.  Each component is used in conjunction with the corresponding
  'bdef' component.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdefu' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bdefu_vfunc0
+     bdefu_vfunc1
+     bdefu_vfunc2
+     bdefu_vfunc3
+     bdefu_vfunc4
+     bdefu_vfunc5
+     bdefu_vfunc6
+..
+
+/Component Synopsis
+/------------------
+: 'bdefu_vfunc0':
+:      Provide factory methods for populating 0-arg void function objects.
+:
+: 'bdefu_vfunc1':
+:      Provide factory methods for populating 1-arg void function objects.
+:
+: 'bdefu_vfunc2':
+:      Provide factory methods for populating 2-arg void function objects.
+:
+: 'bdefu_vfunc3':
+:      Provide factory methods for populating 3-arg void function objects.
+:
+: 'bdefu_vfunc4':
+:      Provide factory methods for populating 4-arg void function objects.
+:
+: 'bdefu_vfunc5':
+:      Provide factory methods for populating 5-arg void function objects.
+:
+: 'bdefu_vfunc6':
+:      Provide factory methods for populating 6-arg void function objects.
+
+/Component Overview
+/------------------
  Four families of populators are supported in each component.
 ..
    bdefu_Vfunc*::makeF:    Initialize the functor by embedding a function

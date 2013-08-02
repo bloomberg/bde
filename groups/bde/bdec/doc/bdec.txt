@@ -8,11 +8,33 @@
 
 @DESCRIPTION: The 'bdec' package provides a variety of container classes that
  are either more specialized than those provided by STL, or else offer
- alternative performance characteristics.  Note that some of the containers
+ alternative performance characteristics.  Note that many of the containers
  in this package have been *DEPRECATED* in favor of the equivalent STL type.
- 'bdec' container classes include:
-..
-  1. A days-of-the-week set class.
 
-  2. Queue template classes.
+/Hierarchical Synopsis
+/---------------------
+ The 'bdec' package currently has 4 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
+  2. bdec_ptrqueue
+
+  1. bdec_dayofweekset
+     bdec_queue
+     bdec_voidptrqueue
+..
+
+/Component Synopsis
+/------------------
+: 'bdec_dayofweekset':
+:      Provide an ordered set of (unique) 'bdet_DayOfWeek::Day' values.
+:
+: 'bdec_ptrqueue':
+:      Provide an in-place double-ended queue of 'T *' values.
+:
+: 'bdec_queue':
+:      Provide an in-place double-ended queue of 'T' values.
+:
+: 'bdec_voidptrqueue':
+:      Provide an in-place double-ended queue of 'void *' values.

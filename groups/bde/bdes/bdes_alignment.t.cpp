@@ -89,7 +89,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define A(X) cout << #X " = " << ((void *) X) << endl;  // Print address
+#define A(X) cout << #X " = " << ((const void *) X) << endl;  // Print address
 #define A_(X) cout << #X " = " << ((void *) X) << ", " << flush;
 #define L_ __LINE__                           // current Line number
 #define TAB cout << '\t';

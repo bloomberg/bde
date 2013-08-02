@@ -8,11 +8,6 @@
 
 @SEE_ALSO: bcema, bcemt, bcef
 
-@COMPONENTS:
- bcep_threadpool: provides a general, portable thread pool
- becp_multiqueuethreadpool: provides a dynamic, configurable pool of queues
- bcep_timereventscheduler: provides thread-safe (non)recurring event scheduler
-
 @DESCRIPTION: Components in package 'bcep' support various pooling mechanisms
  for sharing CPU resources among multiple competing "jobs".  In release 1.0,
  the single mechanism for sharing CPU resources is a "thread pool", supplied
@@ -38,6 +33,46 @@
  provides methods to schedule and cancel recurring and non-recurring events
  (also referred to as clock).  The callbacks are processed by a separate
  thread (called dispatcher thread).
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bcep' package currently has 7 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bcep_multiqueuethreadpool
+     bcep_threadmultiplexor
+
+  1. bcep_eventscheduler
+     bcep_fixedthreadpool
+     bcep_multiprioritythreadpool
+     bcep_threadpool
+     bcep_timereventscheduler
+..
+
+/Component Synopsis
+/------------------
+: 'bcep_eventscheduler':
+:      Provide a thread-safe recurring and one-time event scheduler.
+:
+: 'bcep_fixedthreadpool':
+:      Provide portable implementation for a fixed-size pool of threads.
+:
+: 'bcep_multiprioritythreadpool':
+:      Provide a mechanism to parallelize a prioritized sequence of jobs.
+:
+: 'bcep_multiqueuethreadpool':
+:      Provide a pool of queues, each processed serially by a thread pool.
+:
+: 'bcep_threadmultiplexor':
+:      Provide a mechanism for partitioning a collection of threads.
+:
+: 'bcep_threadpool':
+:      Provide portable implementation for a dynamic pool of threads.
+:
+: 'bcep_timereventscheduler':
+:      Provide a thread-safe recurring and non-recurring event scheduler.
 
 /Generic Overview of Thread Pools
 /--------------------------------

@@ -13,26 +13,24 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bcecs' currently has three components having 2 levels of dependency.  The
- table below shows the hierarchical ordering of the components.  The package
- prefix and underscore ('bcecs_') are omitted from the full component names for
- layout efficiency.
+ The 'bcecs' package currently has 3 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  Level 2: bcecs_failover
+  2. bcecs_failover
 
-  Level 1: bcecs_callbackregistry   bcecs_roundrobin
+  1. bcecs_callbackregistry
+     bcecs_roundrobin
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bcecs'.
-..
-  'bcecs_callbackregistry' - Provide a template for a registry of callbacks
-                             grouped by category.
-
-  'bcecs_failover'         - Provide a generic failover and basic
-                             load-balancing facility.
-
-  'bcecs_roundrobin'       - Provide a thread-safe, templatized, round-robin
-                             container.
-..
+: 'bcecs_callbackregistry':
+:      Provide a template for a registry of callbacks grouped by category.
+:
+: 'bcecs_failover':
+:      Provide a generic failover and basic load balancing facility.
+:
+: 'bcecs_roundrobin':
+:      Provide a thread-safe, templatized, round robin container.

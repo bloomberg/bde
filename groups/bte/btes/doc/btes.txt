@@ -12,16 +12,20 @@
  implement the Unix 'iovec' ("scatter/gather") buffer structure in a
  platform-neutral form.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'btes' package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. btes_iovecutil
+
+  1. btes_iovec
+..
+
 /Component Synopsis
 /------------------
- The following is a list of the components in 'btes'.
-..
-  btes_iovec
-  btes_iovecutil
-..
-
-@Usage
- The usage examples for the 'btes' package are under construction.  Please
- see the individual usage examples in the various components for now. 
-
-
+: 'btes_iovec':
+:      Provide platform-independent data structures for scatter/gather IO.
+:
+: 'btes_iovecutil':
+:      Provide utilities to manipulate iovec structures.

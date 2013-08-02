@@ -19,3 +19,21 @@
  deployed independently from one another.
 
  In normal usage, developers should not need to refer to this component.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bbescm' package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. bbescm_version
+
+  1. bbescm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'bbescm_version':
+:      Provide source control management (versioning) information.
+:
+: 'bbescm_versiontag':
+:      Provide versioning information for the 'bbe' package group.

@@ -27,6 +27,7 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -548,7 +549,7 @@ namespace BloombergLP {
 
 namespace {
 
-namespace Local {
+namespace local {
 
 enum {
     SCRATCH_BUF_LEN = (32 * 1024) - 64, // length in bytes of 'd_scratchBuf_p'.
@@ -562,19 +563,19 @@ typedef baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>
 
 typedef bsls::Types::UintPtr UintPtr;
 
-}  // close namespace Local
+}  // close namespace local
 
 }  // close unnamed namespace
 
 template <typename TYPE>
 inline static
-Local::UintPtr parseNumber(const TYPE& text)
+local::UintPtr parseNumber(const TYPE& text)
     // Parse the specified 'text' object as a char representation of a decimal
     // number and return that number, stopping at the first character which is
     // not a decimal digit, or at the end 'text'.  Return the number.  The
     // behavior is undefined unless the number fits into an UintPtr value.
 {
-    Local::UintPtr result = 0;
+    local::UintPtr result = 0;
     const char *p = (const char *) &text;
     const char *end = (const char *) &text + sizeof(text);
     for (; p < end && '0' <= *p && *p <= '9'; ++p) {
@@ -586,15 +587,15 @@ Local::UintPtr parseNumber(const TYPE& text)
 
  // ===========================================================================
  // struct baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>::AuxInfo
- //               == struct Local::StackTraceResolver::AuxInfo
+ //               == struct local::StackTraceResolver::AuxInfo
  // ===========================================================================
 
-bcemt_QLock Local::StackTraceResolver::s_demangleQLock =
+bcemt_QLock local::StackTraceResolver::s_demangleQLock =
                                                        BCEMT_QLOCK_INITIALIZER;
 
-struct Local::StackTraceResolver::AuxInfo {
+struct local::StackTraceResolver::AuxInfo {
     // Objects of this type exist in the array 'd_auxInfo' in class
-    // Local::StackTraceResolver in a 1-1 correspondence with the elements of
+    // local::StackTraceResolver in a 1-1 correspondence with the elements of
     // the 'd_segFramePtrs_p' and 'd_segAddresses_p' arrays in that class.
     // Note that 'SYMENT' and 'AUXENT' are types defined as part of the Xcoff
     // standard.
@@ -633,7 +634,7 @@ struct Local::StackTraceResolver::AuxInfo {
     bool    d_sourceSymEntValid;   // whether 'd_sourceSymEnt' is valid
 };
 
-struct Local::StackTraceResolver::LoadAuxInfosInfo {
+struct local::StackTraceResolver::LoadAuxInfosInfo {
     // This 'struct' contains pointers to variables in the routine
     // 'loadSymbols' with the same names (minus the 'd_' prefix.  This struct
     // is only used for communicating between 'loadSymbols' and 'loadAuxInfos'.
@@ -659,11 +660,11 @@ struct Local::StackTraceResolver::LoadAuxInfosInfo {
 
       // -----------------------------------------------------------------
       // class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff>
-      //                == class Local::StackTraceResolver
+      //                == class local::StackTraceResolver
       // -----------------------------------------------------------------
 
 // PRIVATE CREATORS
-Local::StackTraceResolver::baesu_StackTraceResolverImpl(
+local::StackTraceResolver::baesu_StackTraceResolverImpl(
                                               baesu_StackTrace *stackTrace,
                                               bool              demangle)
 : d_helper(0)
@@ -694,16 +695,16 @@ Local::StackTraceResolver::baesu_StackTraceResolverImpl(
     d_segAuxInfos_p = (AuxInfo *) allocator()->allocate(
                                              sizeof(AuxInfo) * totalNumFrames);
 
-    d_scratchBuf_p = (char *) allocator()->allocate(Local::SCRATCH_BUF_LEN);
-    d_symbolBuf_p  = (char *) allocator()->allocate(Local::SYMBOL_BUF_LEN);
+    d_scratchBuf_p = (char *) allocator()->allocate(local::SCRATCH_BUF_LEN);
+    d_symbolBuf_p  = (char *) allocator()->allocate(local::SYMBOL_BUF_LEN);
 }
 
-Local::StackTraceResolver::~baesu_StackTraceResolverImpl()
+local::StackTraceResolver::~baesu_StackTraceResolverImpl()
 {
 }
 
 // PRIVATE MANIPULATORS
-int Local::StackTraceResolver::findArchiveMember(const char *memberName)
+int local::StackTraceResolver::findArchiveMember(const char *memberName)
 {
     fl_hdr archiveHeader;
     if (d_helper->readExact(&archiveHeader, sizeof(archiveHeader), 0)) {
@@ -735,7 +736,7 @@ int Local::StackTraceResolver::findArchiveMember(const char *memberName)
             return -1;                                                // RETURN
         }
         bsls::Types::IntPtr nameLength = parseNumber(memberHeader.ar_namlen);
-        if (nameLength >= Local::SCRATCH_BUF_LEN) {
+        if (nameLength >= local::SCRATCH_BUF_LEN) {
             return -1;                                                // RETURN
         }
 
@@ -773,7 +774,7 @@ int Local::StackTraceResolver::findArchiveMember(const char *memberName)
     return -1;
 }
 
-Local::UintPtr Local::StackTraceResolver::findCsectIndex(
+local::UintPtr local::StackTraceResolver::findCsectIndex(
                                                    const char *symbolAddress,
                                                    const char *csectEndAddress,
                                                    UintPtr     primarySymIndex)
@@ -804,7 +805,7 @@ Local::UintPtr Local::StackTraceResolver::findCsectIndex(
     return (UintPtr) - 1;
 }
 
-int Local::StackTraceResolver::findIncludeFile(
+int local::StackTraceResolver::findIncludeFile(
                                           SYMENT  *includeSymEnt,
                                           UintPtr  firstLineNumberOffset,
                                           UintPtr  lineNumberOffset,
@@ -818,7 +819,7 @@ int Local::StackTraceResolver::findIncludeFile(
 
     UintPtr symBufStartIndex = symStartIndex;
     UintPtr symBufEndIndex = symBufStartIndex;
-    const UintPtr maxSymsInBuf = Local::SYMBOL_BUF_LEN / SYMESZ;
+    const UintPtr maxSymsInBuf = local::SYMBOL_BUF_LEN / SYMESZ;
 
     int numAux = 0;
     bool bincl = false;
@@ -882,7 +883,7 @@ int Local::StackTraceResolver::findIncludeFile(
     return 0;
 }
 
-int Local::StackTraceResolver::findLineNumber(int       *outLineNumber,
+int local::StackTraceResolver::findLineNumber(int       *outLineNumber,
                                               UintPtr   *outLineNumberOffset,
                                               UintPtr    lineBufStartOffset,
                                               const void *segAddress)
@@ -894,7 +895,7 @@ int Local::StackTraceResolver::findLineNumber(int       *outLineNumber,
     // multiple of LINESZ.
 
     enum { SHORT_BUF_LEN = 4000 - 4000 % LINESZ };
-    BSLMF_ASSERT(SHORT_BUF_LEN <= Local::SCRATCH_BUF_LEN);
+    BSLMF_ASSERT(SHORT_BUF_LEN <= local::SCRATCH_BUF_LEN);
 
     UintPtr       lineBufEndOffset = lineBufStartOffset;
     UintPtr       maxScan          = d_archiveMemberSize - lineBufStartOffset;
@@ -984,7 +985,7 @@ int Local::StackTraceResolver::findLineNumber(int       *outLineNumber,
     return 0;
 }
 
-void Local::StackTraceResolver::loadAuxInfos(
+void local::StackTraceResolver::loadAuxInfos(
                                   const LoadAuxInfosInfo *info,
                                   const char             *functionBeginAddress,
                                   const char             *functionEndAddress)
@@ -1030,7 +1031,7 @@ void Local::StackTraceResolver::loadAuxInfos(
     }
 }
 
-int Local::StackTraceResolver::loadSymbols(UintPtr numSyms,
+int local::StackTraceResolver::loadSymbols(UintPtr numSyms,
                                            int     textSectionNum)
 {
     if (0 == numSyms) {
@@ -1079,7 +1080,7 @@ int Local::StackTraceResolver::loadSymbols(UintPtr numSyms,
 
     UintPtr symIndex = 0;             // index of the current SYMENT or AUXENT
 
-    enum { NUM_TOTAL_SYMS = Local::SYMBOL_BUF_LEN / SYMESZ };
+    enum { NUM_TOTAL_SYMS = local::SYMBOL_BUF_LEN / SYMESZ };
                                       // number of SYMENT's / AUXENT's that
                                       // will fit into the buffer
 
@@ -1324,21 +1325,21 @@ int Local::StackTraceResolver::loadSymbols(UintPtr numSyms,
     return 0;
 }
 
-const char *Local::StackTraceResolver::getSourceName(
+const char *local::StackTraceResolver::getSourceName(
                                                     const AUXENT *sourceAuxEnt)
 {
     return 0 == sourceAuxEnt->x_file._x.x_zeroes
            ? d_helper->loadString(d_stringTableOffset +
                                               sourceAuxEnt->x_file._x.x_offset,
                                   d_scratchBuf_p,
-                                  Local::SCRATCH_BUF_LEN,
+                                  local::SCRATCH_BUF_LEN,
                                   allocator())
            : bdeu_String::copy(sourceAuxEnt->x_file.x_fname,
                                FILNMLEN,
                                allocator());
 }
 
-const char *Local::StackTraceResolver::getSymbolName(const SYMENT *symEnt)
+const char *local::StackTraceResolver::getSymbolName(const SYMENT *symEnt)
 {
     const char *srcName = 0;
 
@@ -1351,14 +1352,14 @@ const char *Local::StackTraceResolver::getSymbolName(const SYMENT *symEnt)
     if (0 == srcName) {
         srcName = d_helper->loadString(d_stringTableOffset + symEnt->n_offset,
                                        d_scratchBuf_p,
-                                       Local::SCRATCH_BUF_LEN,
+                                       local::SCRATCH_BUF_LEN,
                                        allocator());
     }
 
     return srcName;
 }
 
-int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
+int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
                                               UintPtr     segmentSize,
                                               const char *libraryFileName,
                                               const char *displayFileName,
@@ -1503,36 +1504,36 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
         if (auxInfo->d_symEntValid) {
             const char *symbolName = getSymbolName(&auxInfo->d_symEnt);
-            frame->setMangledSymbolName(bdeu_String::copy(symbolName,
-                                                          allocator()));
+            frame->setMangledSymbolName(symbolName);
             zprintf("Loaded symbol name: %s\n", frame->mangledSymbolName());
 
-            Name *name = 0;
+            bsl::auto_ptr<Name> name;
             if (d_demangle) {
                 // Note that 'Demangle' is not thread safe.
 
                 bcemt_QLockGuard guard(&s_demangleQLock);
 
-                // Note that 'Demangle' allocates with 'malloc', and that
-                // 'rest' is is passed as a reference to a modifiable.  Also
+                // Note that 'Demangle' allocates with 'new', and that
+                // 'remainder' is passed as a reference to a modifiable.  Also
                 // note that whoever wrote 'Demangle' didn't know how to use
                 // 'const'.
 
-                char *rest = 0;
-                name = Demangle((char *) symbolName, rest);
-                if (name && rest && *rest) {
+                char *remainder = 0;
+                name.reset(Demangle(const_cast<char *>(symbolName),
+                                    remainder));
+                if (name.get() && remainder && *remainder) {
                     // For some reason, Demangle may leave some trailing crud
-                    // at the end of the string pointed at by 'name'.  'rest'
-                    // points to the end of the identifier and the beginning of
-                    // that crud.
+                    // at the end of the string pointed at by 'name'.
+                    // 'remainder' points to the end of the identifier and the
+                    // beginning of that crud.
 
-                    *rest = 0;
+                    *remainder = 0;
                 }
             }
-            if (name) {
+            if (name.get()) {
                 char *text = name->Text();
                 zprintf("Demangled to %s\n", text);
-                frame->setSymbolName(bdeu_String::copy(text, allocator()));
+                frame->setSymbolName(text);
             }
             else {
                 zprintf("Did not demangle: %s\n", frame->mangledSymbolName());
@@ -1614,10 +1615,10 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 }
 
 // PUBLIC CLASS METHODS
-int Local::StackTraceResolver::resolve(baesu_StackTrace *stackTrace,
+int local::StackTraceResolver::resolve(baesu_StackTrace *stackTrace,
                                        bool              demangle)
 {
-    Local::StackTraceResolver resolver(stackTrace,
+    local::StackTraceResolver resolver(stackTrace,
                                        demangle);
 
     enum { BUF_SIZE = (8 << 10) - 64 };

@@ -1,4 +1,4 @@
-// bdeut_variant.h                -*-C++-*-
+// bdeut_variant.h                                                    -*-C++-*-
 #ifndef INCLUDED_BDEUT_VARIANT
 #define INCLUDED_BDEUT_VARIANT
 
@@ -674,6 +674,10 @@ BDES_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISCLASS
 #include <bslmf_isclass.h>
 #endif
@@ -764,29 +768,6 @@ struct bdeut_Variant_ReturnValueHelper {
         // 'false' otherwise.
 };
 
-                        // =============================
-                        // struct bdeut_Variant_EnableIf
-                        // =============================
-
-template <bool CONDITION, class RETURN_TYPE>
-struct bdeut_Variant_EnableIf {
-    // This struct is a component-private meta-function.  Do not use.  This
-    // struct is left empty and does not provide a 'typedef' for 'Type' (see
-    // the specialized version).  This struct can be used as a default
-    // parameter or return type in a function.  This will force the compiler
-    // to drop the function from the overload set due to SFINAE.
-};
-
-template <class RETURN_TYPE>
-struct bdeut_Variant_EnableIf<true, RETURN_TYPE> {
-    // This struct is a component-private meta-function.  Do not use.  This
-    // struct specializes the case when 'CONDITION' is true.  It provides a
-    // 'typedef' for 'Type' using 'RETURN_TYPE', which will enable the
-    // function that uses this 'type' from the overload set.
-
-    typedef RETURN_TYPE Type;  // return type
-};
-
                    // ===========================================
                    // class bdeut_VariantImp_AllocatorBase<TYPES>
                    // ===========================================
@@ -870,8 +851,8 @@ class bdeut_VariantImp_AllocatorBase {
     friend class bdeut_VariantImp;
 
     template <typename VARIANT_TYPES>
-    friend bool operator==(const bdeut_VariantImp<VARIANT_TYPES>& lhs,
-                           const bdeut_VariantImp<VARIANT_TYPES>& rhs);
+    friend bool operator==(const bdeut_VariantImp<VARIANT_TYPES>&,
+                           const bdeut_VariantImp<VARIANT_TYPES>&);
 
   public:
     // TRAITS
@@ -979,8 +960,8 @@ class bdeut_VariantImp_NonAllocatorBase {
     friend class bdeut_VariantImp;
 
     template <typename VARIANT_TYPES>
-    friend bool operator==(const bdeut_VariantImp<VARIANT_TYPES>& lhs,
-                           const bdeut_VariantImp<VARIANT_TYPES>& rhs);
+    friend bool operator==(const bdeut_VariantImp<VARIANT_TYPES>&,
+                           const bdeut_VariantImp<VARIANT_TYPES>&);
 
   public:
     // CREATORS
@@ -1313,9 +1294,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // 'rhs' object.
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1337,9 +1318,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1361,9 +1342,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1384,9 +1365,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1407,8 +1388,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1429,8 +1410,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1451,8 +1432,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1472,8 +1453,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1514,9 +1495,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // unset, the specified 'defaultValue' will be passed to the visitor.
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1532,9 +1513,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1550,8 +1531,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     applyRaw(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1566,8 +1547,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     applyRaw(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1710,9 +1691,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
 
     // ACCESSORS
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
@@ -1733,9 +1714,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
@@ -1756,9 +1737,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
@@ -1778,9 +1759,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
@@ -1800,8 +1781,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1822,8 +1803,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1844,8 +1825,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1865,8 +1846,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR, class TYPE>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1906,9 +1887,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
         // 'defaultValue' will be passed to the visitor.
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
@@ -1924,9 +1905,9 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
+    typename bsl::enable_if<
                           bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
-                          typename VISITOR::ResultType>::Type
+                          typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()', and
@@ -1942,8 +1923,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     applyRaw(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1957,8 +1938,8 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
     }
 
     template <class VISITOR>
-    typename bdeut_Variant_EnableIf<
-             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::Type
+    typename bsl::enable_if<
+             bdeut_Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
     applyRaw(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -5041,7 +5022,7 @@ struct bdeut_Variant_DefaultConstructVisitor {
     bslma::Allocator *d_allocator_p;
 
     // CREATORS
-    bdeut_Variant_DefaultConstructVisitor(bslma::Allocator *allocator)
+    explicit bdeut_Variant_DefaultConstructVisitor(bslma::Allocator *allocator)
     : d_allocator_p(allocator)
     {
     }
@@ -5121,7 +5102,7 @@ struct bdeut_Variant_AssignVisitor {
     void *d_buffer_p;
 
     // CREATORS
-    bdeut_Variant_AssignVisitor(void *buffer)
+    explicit bdeut_Variant_AssignVisitor(void *buffer)
     : d_buffer_p(buffer)
     {
         BSLS_ASSERT_SAFE(d_buffer_p);
@@ -5150,7 +5131,7 @@ struct bdeut_Variant_SwapVisitor {
     void *d_buffer_p;
 
     // CREATORS
-    bdeut_Variant_SwapVisitor(void *buffer)
+    explicit bdeut_Variant_SwapVisitor(void *buffer)
     : d_buffer_p(buffer)
     {
         BSLS_ASSERT_SAFE(d_buffer_p);
@@ -5217,6 +5198,7 @@ struct bdeut_Variant_BdexStreamInVisitor {
     STREAM& d_stream;   // held, not owned
     int     d_version;  // 'bdex' version
 
+    // CREATORS
     bdeut_Variant_BdexStreamInVisitor(STREAM& stream, int version)
     : d_stream(stream)
     , d_version(version)
@@ -5254,6 +5236,7 @@ struct bdeut_Variant_BdexStreamOutVisitor {
     STREAM& d_stream;   // held, not owned
     int     d_version;  // 'bdex' version
 
+    // CREATORS
     bdeut_Variant_BdexStreamOutVisitor(STREAM& stream, int version)
     : d_stream(stream)
     , d_version(version)
@@ -5291,9 +5274,10 @@ struct bdeut_Variant_PrintVisitor {
     int           d_level;
     int           d_spacesPerLevel;
 
+    // CREATORS
     bdeut_Variant_PrintVisitor(bsl::ostream *stream,
-                                  int           level,
-                                  int           spacesPerLevel)
+                               int           level,
+                               int           spacesPerLevel)
     : d_stream_p(stream)
     , d_level(level)
     , d_spacesPerLevel(spacesPerLevel)
@@ -5334,7 +5318,8 @@ struct bdeut_Variant_EqualityTestVisitor {
     mutable bool  d_result;
     const void   *d_buffer_p;  // held, not owned
 
-    bdeut_Variant_EqualityTestVisitor(const void *buffer)
+    // CREATORS
+    explicit bdeut_Variant_EqualityTestVisitor(const void *buffer)
     : d_result(true)
     , d_buffer_p(buffer)
     {

@@ -9,6 +9,8 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide thread-safe adapter for 'bdema_ProtectableBlockDispenser'.
 //
+//@DEPRECATED: Do not use.
+//
 //@CLASSES:
 //  bcema_ProtectableBlockDispenserAdapter: thread-enabled protocol adapter
 //

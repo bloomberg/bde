@@ -52,12 +52,51 @@
  'bdefi_Vfunc*' to declare their destructors 'private' and limit object
  instantiation to the heap.
 
-/USAGE
+/Hierarchical Synopsis
+/---------------------
+ The 'bdefi' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bdefi_vfunc0
+     bdefi_vfunc1
+     bdefi_vfunc2
+     bdefi_vfunc3
+     bdefi_vfunc4
+     bdefi_vfunc5
+     bdefi_vfunc6
+..
+
+/Component Synopsis
+/------------------
+: 'bdefi_vfunc0':
+:      Provide concrete representations for 0-arg void function objects.
+:
+: 'bdefi_vfunc1':
+:      Provide concrete representations for 1-arg void function objects.
+:
+: 'bdefi_vfunc2':
+:      Provide concrete representations for 2-arg void function objects.
+:
+: 'bdefi_vfunc3':
+:      Provide concrete representations for 3-arg void function objects.
+:
+: 'bdefi_vfunc4':
+:      Provide concrete representations for 4-arg void function objects.
+:
+: 'bdefi_vfunc5':
+:      Provide concrete representations for 5-arg void function objects.
+:
+: 'bdefi_vfunc6':
+:      Provide concrete representations for 6-arg void function objects.
+
+/Usage
 /-----
  Most clients will not use 'bdefr' or 'bdefi' classes directly; rather, they
  will create 'bdef' functors, and populate them with utility functions from the
- 'bdefu' package.  See the package documentation for package 'bdef' for
+ 'bdefu' package.  See the package documentation for package {'bdef'} for
  examples that illustrate this usage.
 
  In order to understand in detail how the 'bdefi' components and classes work,
- refer to the usage example in Component 'bdefi_vfunc2'.
+ refer {'bdefi_vfunc2'|USAGE}.

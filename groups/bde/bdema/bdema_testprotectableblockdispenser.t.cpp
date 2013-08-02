@@ -1418,9 +1418,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nMake sure allocate/deallocate invalid "
                           << "size/address is recorded." << endl;
-        static const bool BSLMA_SIZE_IS_SIGNED =
-                   bsl::numeric_limits<bslma::Allocator::size_type>::is_signed;
-
         a.setNoAbort(1);
         a.setQuiet(1);
 
@@ -1435,49 +1432,14 @@ int main(int argc, char *argv[])
         ASSERT(4 == a.numAllocations());
         ASSERT(3 == a.numDeallocations());
 
-        if (BSLMA_SIZE_IS_SIGNED) {
-            if (verbose) cout << "\tallocate -1" << endl;
-            BlkDesc bad1 = a.allocate(-1);
-            ASSERT( 0 == bad1.address());
-            ASSERT( 0 == bad1.size())
-            ASSERT( -1 == a.lastAllocateNumBytes());
-            ASSERT( 0 == a.lastAllocateAddress());
-            ASSERT( X == a.lastDeallocateNumBytes());
-            ASSERT( desc1.address() == a.lastDeallocateAddress());
-            ASSERT( 5 == a.numAllocations());
-            ASSERT( 3 == a.numDeallocations());
-
-            if (verbose) cout << "\tdeallocate -1" << endl;
-            a.deallocate(bad1);
-            ASSERT(-1 == a.lastAllocateNumBytes());
-            ASSERT( 0 == a.lastAllocateAddress());
-            ASSERT( 0 == a.lastDeallocateNumBytes());
-            ASSERT( 0 == a.lastDeallocateAddress());
-            ASSERT( 5 == a.numAllocations());
-            ASSERT( 4 == a.numDeallocations());
-
-            if (verbose) cout << "deallocate -1" << endl;
-            a.deallocate(bad1);
-            ASSERT(-1 == a.lastAllocateNumBytes());
-            ASSERT( 0 == a.lastAllocateAddress());
-            ASSERT( 0 == a.lastDeallocateNumBytes());
-            ASSERT( 0 == a.lastDeallocateAddress());
-            ASSERT( 5 == a.numAllocations());
-            ASSERT( 5 == a.numDeallocations());
-        } else {
-            if (verbose) cout << "\nTest for invalid size/address cannot be "
-                                 "executed if 'bslma::Allocator::size_type' "
-                                 "is unsigned." << endl;
-
-            if (verbose) cout << "deallocate 0" << endl;
-            a.deallocate(nullBlk);
-            ASSERT(0 == a.lastAllocateNumBytes());
-            ASSERT(0 == a.lastAllocateAddress());
-            ASSERT(0 == a.lastDeallocateNumBytes());
-            ASSERT(0 == a.lastDeallocateAddress());
-            ASSERT(4 == a.numAllocations());
-            ASSERT(4 == a.numDeallocations());
-        }
+        if (verbose) cout << "deallocate 0" << endl;
+        a.deallocate(nullBlk);
+        ASSERT(0 == a.lastAllocateNumBytes());
+        ASSERT(0 == a.lastAllocateAddress());
+        ASSERT(0 == a.lastDeallocateNumBytes());
+        ASSERT(0 == a.lastDeallocateAddress());
+        ASSERT(4 == a.numAllocations());
+        ASSERT(4 == a.numDeallocations());
 
         if (verbose) cout << "\nEnsure new and delete are not called." << endl;
         ASSERT(0 == globalNewCalledCount);

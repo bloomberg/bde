@@ -51,6 +51,7 @@ BDES_IDENT("$Id: $")
 //                         |              isFileLoggingEnabled
 //                         |              isStdoutLoggingPrefixEnabled
 //                         |              isUserFieldsLoggingEnabled
+//                         |              recordQueueLength
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
@@ -371,14 +372,20 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // indicates if the queue
                                                      // drops records when full
 
-    bces_AtomicInt                d_dropCount;       // counter that keeps
-                                                     // tracking dropped
-                                                     // records
+    bces_AtomicInt                d_dropCount;       // number of dropped
+                                                     // records, reset when
+                                                     // published
 
     bdef_Function<void (*)()>     d_publishThreadEntryPoint;
                                                      // functor that contains
                                                      // publication thread
                                                      // function
+
+    bael_Record                   d_droppedRecordWarning;
+                                                     // cached record object
+                                                     // used to publish the
+                                                     // count of dropped log
+                                                     // records
 
     mutable bcemt_Mutex           d_mutex;           // serialize operations
 
@@ -391,10 +398,24 @@ class bael_AsyncFileObserver : public bael_Observer {
     bael_AsyncFileObserver& operator=(const bael_AsyncFileObserver&);
 
     // PRIVATE MANIPULATORS
+    void construct();
+        // Initialize members of this object that do not vary between
+        // constructor overloads.  Note that this method should be
+        // removed when C++11 constructor chaining is available.
+
+    void logDroppedMessageWarning(int numDropped);
+        // Synchronously write an entry into the underlying file observer
+        // indicating that the specified 'numDropped' number of records
+        // have been dropped.  The behavior is undefined if this method
+        // is invoked concurrently from multiple threads (i.e., it is *not*
+        // *threadsafe*).
+
     void publishThreadEntryPoint();
         // Thread function of the publication thread.  The publication thread
         // pops record shared pointers and contexts from queue and writes the
         // records referred by these shared pointers to files or 'stdout'.
+        // The behavior is undefined if this method is invoked concurrently
+        // from multiple threads (i.e., it is *not* *threadsafe*).
 
     int startThread();
         // Create publication thread using the thread function
@@ -461,7 +482,7 @@ class bael_AsyncFileObserver : public bael_Observer {
                          bael_Severity::Level  dropRecordsOnFullQueueThreshold,
                          bslma::Allocator     *basicAllocator = 0);
         // Create a file observer that asynchronously publishes log records by
-        // enqueing them onto a record queue having the specified
+        // enqueuing them onto a record queue having the specified
         // 'maxRecordQueue' length, where an independent publication thread
         // will later write them both to a log file and possibly also to
         // 'stdout', if the records's severities are at least as severe as the
@@ -626,6 +647,10 @@ class bael_AsyncFileObserver : public bael_Observer {
         // thread and return to the caller.
 
     // ACCESSORS
+    int recordQueueLength() const;
+        // Return the number of log records currently in this observer's log
+        // record queue.
+
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
         // Return 'true' if file logging is enabled for this async file
@@ -804,6 +829,13 @@ bdet_DatetimeInterval bael_AsyncFileObserver::rotationLifetime() const
 {
     return d_fileObserver.rotationLifetime();
 }
+
+inline
+int bael_AsyncFileObserver::recordQueueLength() const
+{
+    return d_recordQueue.length();
+}
+
 
 inline
 int bael_AsyncFileObserver::rotationSize() const

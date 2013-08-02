@@ -4238,7 +4238,9 @@ int main(int argc, char *argv[])
         //: 1 "true" is decoded into 'true' and "false" is decoded into
         //:   'false'.
         //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        //: 2 A string that is a subset of 'true' and 'false' returns an error.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
         //: 1 Use a brute force approach to test both cases.  Confirm that the
@@ -4257,33 +4259,62 @@ int main(int argc, char *argv[])
         {
             typedef bool Type;
 
-            const Type   XA1 = true;    Type XA2; const string EA = "true";
-            const Type   XB1 = false;   Type XB2; const string EB = "false";
-                  Type   XC1 = true;    Type XC2 = false;
-            const string  EC = "error";
+            const Type EV = false;
 
-            {
-                StringRef isb(EA.data(), EA.length());
-                ASSERT(SUCCESS == Util::getValue(&XA2, isb));
-                ASSERT(XA1     == XA2);
-            }
+            static const struct {
+                int         d_line;    // line number
+                const char *d_input_p; // input on the stream
+                Type        d_exp;     // exp char value
+                bool        d_isValid; // isValid flag
+            } DATA[] = {
+                // line    input       exp      isValid
+                // ----    -----       ---      -------
 
-            {
-                StringRef isb(EB.data(), EB.length());
-                ASSERT(SUCCESS == Util::getValue(&XB2, isb));
-                ASSERT(XB1     == XB2);
-            }
+                {   L_,    "",          EV,      false    },
 
-            {
-                StringRef isb(EC.data(), EC.length());
-                ASSERT(SUCCESS != Util::getValue(&XC1, isb));
-                ASSERT(true    == XC1);
-            }
+                {   L_,    "T",         EV,      false    },
+                {   L_,    "F",         EV,      false    },
 
-            {
-                StringRef isb(EC.data(), EC.length());
-                ASSERT(SUCCESS != Util::getValue(&XC2, isb));
-                ASSERT(false   == XC2);
+                {   L_,    "tru",       EV,      false    },
+                {   L_,    "fals",      EV,      false    },
+
+                {   L_,    "true",      true,    true     },
+                {   L_,    "false",     false,   true     },
+
+                {   L_,    "True",      EV,      false    },
+                {   L_,    "False",     EV,      false    },
+
+                {   L_,    "TRUE",      EV,      false    },
+                {   L_,    "FALSE",     EV,      false    },
+
+                {   L_,    "truee",     EV,      false    },
+                {   L_,    "falsee",    EV,      false    },
+
+                {   L_,    "truefalse", EV,      false    },
+                {   L_,    "falsetrue", EV,      false    },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int            LINE     = DATA[i].d_line;
+                const string         INPUT    = DATA[i].d_input_p;
+                const bool           EXP      = DATA[i].d_exp;
+                const bool           IS_VALID = DATA[i].d_isValid;
+                      bool           value    = EV;
+
+                if (veryVerbose) { P(LINE) P(INPUT) P(EXP) }
+
+                {
+                    StringRef isb(INPUT.data(), INPUT.length());
+                    const int rc = Util::getValue(&value, isb);
+                    if (IS_VALID) {
+                        LOOP2_ASSERT(LINE, rc, 0 == rc);
+                    }
+                    else {
+                        LOOP2_ASSERT(LINE, rc, rc);
+                    }
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                }
             }
         }
       } break;

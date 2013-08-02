@@ -12,81 +12,140 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bde' currently has 29 packages forming 9 levels of physical dependency.
- Note that the required source control package 'bdescm' depends on 'bdes'; this
- behavior is unique to 'bde', since logically *every* other package should
- depend on 'bdescm'.  See {BP BDE_SCM <GO>} for a detailed specification for
- 'bdescm'.  The table below shows the physical dependency hierarchy among the
- packages of 'bde'.  The specific rendering is more of a guide to the eye than
- an accurate reflection of specific dependencies; only the absolute levels are
- significant.
+ The 'bde' package group currently has 29 packages having 10 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
 ..
-   Level  10: bdempu
+  10. bdempu
 
-   Level  9: bdem
+   9. bdem
 
-   Level  8: bdecs      bdepu     bdesu
+   8. bdecs
+      bdepu
+      bdesu
 
-   Level  7: bdeat      bdec      bdec2     bdetu
+   7. bdeat
+      bdec
+      bdec2
+      bdetu
 
-   Level  6: bdea       bdeci     bdet      bdeut
+   6. bdea
+      bdeci
+      bdede
+      bdet
+      bdeut
 
-   Level  5: bdede      bdeu      bdefu(*)
+   5. bdefu
+      bdeu
 
-   Level  4: bdef       bdex      bdealg(*) bdefi(*)
+   4. bdealg
+      bdef
+      bdefi
+      bdex
 
-   Level  3: bdeimp     bdema     bdepcre   bdesb    bdefr(*)   bdemf(*)
+   3. bdefr
+      bdeimp
+      bdema
+      bdemf
+      bdepcre
+      bdesb
 
-   Level  2: bdescm
+   2. bdescm
 
-   Level  1: bde+pcre   bdes
+   1. bde+pcre
+      bdes
 ..
- The 'bde' package group is the foundation of the firm-wide BDE library and has
- no dependencies beyond the allowed OS and runtime environment dependencies.
-
- (*) - Note that packages 'bdealg' and 'bdemf' are deprecated.  Their
- corresponding replacements are 'bslalg' and 'bslmf', respectively.  Packages
- 'bdefi', 'bdefr', and 'bdefu' are deprecated, as well.  Clients should use
- 'bdef_function' and 'bdef_bind' instead.
 
 /Package Synopsis
 /----------------
- The following is a brief synopsis of the content of each package in 'bde'.
- A more detailed description can be found in the Package Overview section
- immediately following this synopsis.  Capitalized letters indicate the
- mnemonic for the package name suffix to the 'bde' package group name.
-..
-   'bdea'    - array-related classes
-   'bdealg'  - *DEPRECATED* comparisons and other ALGorithms for containers
-   'bdeat'   - generic functions for type manipulation based on attributes
-   'bdec'    - generic Containers; sets, queues, etc.
-   'bdec2'   - templatized associative Containers of 2 types
-   'bdeci'   - Container Implementation details
-   'bdecs'   - Special Containers
-   'bdede'   - common utilities for Encoding and Decoding
-   'bdef'    - signature-specific function objects (Functors)
-   'bdefi'   - *DEPRECATED* concrete representation imps for 'bdef' Functors
-   'bdefr'   - *DEPRECATED* Reference-counted base class reps for Functors
-   'bdefu'   - *DEPRECATED* factory Utilities for populating 'bdef' Functors
-   'bdeimp'  - IMPlementation details and mechanisms
-   'bdem'    - firm-wide Messaging: self-describing arbitrary data/meta-data
-   'bdema'   - Memory Allocation
-   'bdemf'   - *DEPRECATED* MetaFunctions and traits
-   'bdempu'  - 'bdem' Message text/object Parser/generator Utilities
-   'bdepcre' - PCRE augmentations for BDE compatibility
-   'bdepu'   - basic types text/object Parser/generator Utilities
-   'bdes'    - platform-neutral System definitions (platform-specific imps)
-   'bdesb'   - input and output StreamBuf implementations
-   'bdescm'  - introspective versioning (Source Control Management)
-   'bdesu'   - portable access to low-level system functionality
-   'bdet'    - basic scalar vocabulary Types
-   'bdetu'   - Utility functions for basic scalar vocabulary Types
-   'bdeu'    - factored Utility services for higher-level packages
-   'bdeut'   - Utility Types
-   'bdex'    - eXternalization mechanisms (streams) for object values
+: 'bde+pcre':
+:      Provide third-party Perl-compatible regular expressions (PCRE).
+:
+: 'bdea':
+:      Provide space-efficient array-related classes.
+:
+: 'bdealg':
+:      [DEPRECATED] Provide algorithms used by the BDE STL implementation.
+:
+: 'bdeat':
+:      Provide generic functions to manipulate attribute types
+:
+: 'bdec':
+:      Provide container classes.
+:
+: 'bdec2':
+:      [DEPRECATED] Provide containers with 2 templatized parameters.
+:
+: 'bdeci':
+:      [DEPRECATED] Provide implementations for container classes.
+:
+: 'bdecs':
+:      Provide special-purpose container classes.
+:
+: 'bdede':
+:      Mechanisms for standard encodings and hashings, e.g., base64, md5.
+:
+: 'bdef':
+:      Provide signature-specific function objects (functors).
+:
+: 'bdefi':
+:      [DEPRECATED] concrete representations for void function objects.
+:
+: 'bdefr':
+:      [DEPRECATED] reference-counted base class functor representation.
+:
+: 'bdefu':
+:      [DEPRECATED] factory methods for populating void function objects.
+:
+: 'bdeimp':
+:      Provide implementations needed by the BDE library.
+:
+: 'bdem':
+:      Provide compact, efficient, binary-format messaging capability.
+:
+: 'bdema':
+:      Provide allocators, pools, and other memory-management tools.
+:
+: 'bdemf':
+:      Provide meta-function versions of useful coding constructs.
+:
+: 'bdempu':
+:      Provide parsing routines for 'bdem' types.
+:
+: 'bdepcre':
+:      Provide a mechanism to process Perl-compatible regular expressions.
+:
+: 'bdepu':
+:      Provide parsing routines for fundamental and other low-level types.
+:
+: 'bdes':
+:      Provide system-level utilities FOR BDE LIBRARY USE.
+:
+: 'bdesb':
+:      Provide concrete 'streambuf' implementations.
+:
+: 'bdescm':
+:      Provide versioning information for BDE library components.
+:
+: 'bdesu':
+:      Provide portable access to low-level system functionality.
+:
+: 'bdet':
+:      Provide value-semantic vocabulary types (including time types).
+:
+: 'bdetu':
+:      Provide utilities for working with 'bdet' types.
+:
+: 'bdeu':
+:      Provide utilities classes and functions.
+:
+: 'bdeut':
+:      Provide utility types.
+:
+: 'bdex':
+:      Define externalization protocols and provide implementations.
 
-   'bde+pcre'    - Perl Compatible Regular Expressions
-..
 /Package Overview
 /----------------
  The following provides a brief overview of the packages within the 'bde'
@@ -96,90 +155,90 @@
  is possible).  The descriptions here are still very brief; see the respective
  Package Level documents for more details and usage examples.
 
-/bdea
-/ - -
- 'bdea' provides the single component 'bdea_bitarray'.
+/'bdea'
+/ - - -
+ {'bdea'} provides the single component 'bdea_bitarray'.
 
-/bdeat
-/- - -
- 'bdeat' provides a set of generic functions for type manipulation based on
+/'bdeat'
+/- - - -
+ {'bdeat'} provides a set of generic functions for type manipulation based on
  attributes.  A type can expose various behaviors ("array", "choice",
  "enumeration", "nullable", "sequence", or "value type") and define the
  corresponding manipulators and accessors.  This type will then be supported
  accordingly by 'bdeat' functions and other generic code such as the XML and
  BER encoders and decoders.
 
-/bdealg
+/'bdealg'
+/ - - - -
+ This package is *DEPRECATED* and replaced by {'bslalg'}.  {'bdealg'} provides
+ a variety of lower-level algorithms, comparisons, and traits.
+
+/'bdec'
 / - - -
- This package is *DEPRECATED* and replaced by 'bslalg'.  'bdealg' provides a
- variety of lower-level algorithms, comparisons, and traits.
+ {'bdec'} provides value-semantic, dynamically-reallocating non-array
+ containers of fundamental and basic 'bde' vocabulary types, intended for
+ ubiquitous use.  Among the kinds of containers provided are queues, stacks,
+ sets, indexable sets, and ordered sets.
 
-/bdec
-/ - -
- 'bdec' provides value-semantic, dynamically-reallocating non-array containers
- of fundamental and basic 'bde' vocabulary types, intended for ubiquitous use.
- Among the kinds of containers provided are queues, stacks, sets, indexable
- sets, and ordered sets.
-
-/bdec2
-/- - -
- 'bdec2' provides value-semantic, dynamically-reallocating associative
+/'bdec2'
+/- - - -
+ {'bdec2'} provides value-semantic, dynamically-reallocating associative
  containers of multiple (typically exactly two) fundamental and basic 'bdet'
  vocabulary types intended for ubiquitous use.  Among the kinds of containers
  provided are maps, ordered maps, and multi-maps.
 
-/bdeci
-/- - -
- 'bdeci' provides data structure implementations for various 'bde' containers.
- Among the data structures provided are trees, linked lists, hash tables
- These implementations are typically not value-semantic, and are primarily
- intended as implementation details of higher-level containers.  Clients of
- 'bde' may use these components as need arises, but note that the components
- are not designed with the application developer in mind.  See the 'bdec' and
- 'bdec2' packages for more user-friendly value-semantic containers employing
- these data structures.
+/'bdeci'
+/- - - -
+ {'bdeci'} provides data structure implementations for various 'bde'
+ containers.  Among the data structures provided are trees, linked lists, hash
+ tables These implementations are typically not value-semantic, and are
+ primarily intended as implementation details of higher-level containers.
+ Clients of 'bde' may use these components as need arises, but note that the
+ components are not designed with the application developer in mind.  See the
+ {'bdec'} and {'bdec2'} packages for more user-friendly value-semantic
+ containers employing these data structures.
 
-/bdecs
-/- - -
- 'bdecs' provides special-purpose containers such as an "index clerk" (for
+/'bdecs'
+/- - - -
+ {'bdecs'} provides special-purpose containers such as an "index clerk" (for
  reusable integral indices), a business calendar, finite automata, and
  double-hashed tables with utilities.
 
-/bdede
-/- - -
- 'bdede' provides classes for encoding and decoding data-sets in
+/'bdede'
+/- - - -
+ {'bdede'} provides classes for encoding and decoding data-sets in
  MIME-compatible formats (such as Base64 and Quoted-Printable), as well as
  checksum mechanisms (such as CRC-32 and MD5).
 
-/bdef
-/ - -
- 'bdef' provides the "envelope" components for reference-counted function
+/'bdef'
+/ - - -
+ {'bdef'} provides the "envelope" components for reference-counted function
  objects (functors).  The 'bdef' functors are the basic types commonly used as
- callbacks in other components.  See also 'bdefr', 'bdefi', and 'bdefu'.
+ callbacks in other components.  See also {'bdefr'}, {'bdefi'}, and {'bdefu'}.
 
-/bdefi
-/- - -
- This package is *DEPRECATED*.  'bdefi' provides the concrete implementations
- ("letters") of reference-counted function object (functor).  See also 'bdef',
- 'bdefr', and 'bdefu'.
+/'bdefi'
+/- - - -
+ This package is *DEPRECATED*.  {'bdefi'} provides the concrete implementations
+ ("letters") of reference-counted function object (functor).  See also
+ {'bdef'}, 'bdefr', and 'bdefu'.
 
-/bdefr
-/- - -
- This package is *DEPRECATED*.  'bdefr' provides the abstract
- (reference-counted) base classes for function object (functor) "letters".
- See also 'bdef', 'bdefi', and 'bdefu'.
+/'bdefr'
+/- - - -
+ This package is *DEPRECATED*.  {'bdefr'} provides the abstract
+ (reference-counted) base classes for function object (functor) "letters".  See
+ also {'bdef'}, {'bdefi'}, and {'bdefu'}.
 
-/bdefu
-/- - -
- This package is *DEPRECATED*.  'bdefu' provides utility components for
+/'bdefu'
+/- - - -
+ This package is *DEPRECATED*.  {'bdefu'} provides utility components for
  populating 'bdef' function objects (functors).  The 'bdefu' populator
  mechanism is the primary interface that clients will typically use to generate
  specific functors as needed, e.g., for callbacks in the signatures of other
  components.
 
-/bdeimp
-/ - - -
- 'bdeimp' provides implementation components useful in implementing
+/'bdeimp'
+/ - - - -
+ {'bdeimp'} provides implementation components useful in implementing
  higher-level components.  Most components in this package provide mechanisms
  that are intended for use primarily by library developers (e.g., Duff's
  device, bitwise copy, date util).  A small but notable exception is
@@ -187,46 +246,46 @@
  values wherein "equality" may be defined within absolute and/or relative
  tolerances.
 
-/bdem
-/ - -
- 'bdem' provides components for (in-core) messaging (i.e., data marshaling).
- Included are primary data structures (e.g., 'bdem_List' and 'bdem_Table'),
- a meta-data container ('bdem_Schema'), and sets of utility functions for
+/'bdem'
+/ - - -
+ {'bdem'} provides components for (in-core) messaging (i.e., data marshaling).
+ Included are primary data structures (e.g., 'bdem_List' and 'bdem_Table'), a
+ meta-data container ('bdem_Schema'), and sets of utility functions for
  providing "schema negotiation" (i.e., meta-data validation) and data/meta-data
  conformance (validation).  Also provided are the 'bdem_ElemRef' and 'bdem_Row'
  types, which are useful for providing uniform access to an arbitrary single
  element or row of elements from a 'bdem' data structure.
 
-/bdema
-/- - -
- 'bdema' provides memory allocation and related proctor and handle objects.
+/'bdema'
+/- - - -
+ {'bdema'} provides memory allocation and related proctor and handle objects.
 
-/bdemf
-/- - -
- This package is *DEPRECATED* and replaced by 'bslmf'.  'bdemf' provides
+/'bdemf'
+/- - - -
+ This package is *DEPRECATED* and replaced by 'bslmf'.  {'bdemf'} provides
  low-level "meta-functions" implementing "traits" and other useful properties
  of types, determined at compile-time.
 
-/bdempu
-/ - - -
- 'bdempu' provides parsing utilities for text representations of bdem types.
+/'bdempu'
+/ - - - -
+ {'bdempu'} provides parsing utilities for text representations of bdem types.
  These utilities are useful for converting objects to text representations and
  text representations to objects.
 
-/bdepcre
-/- - - -
+/'bdepcre'
+/- - - - -
  Perl Compatible Regular Expressions.
 
-/bdepu
-/- - -
- 'bdepu' provides parsing utilities for text representations of fundamental,
+/'bdepu'
+/- - - -
+ {'bdepu'} provides parsing utilities for text representations of fundamental,
  'bdet', and 'bslstl' (i.e., common STL) types.  These utilities are useful for
  converting objects to text representations and text representations to
  objects.
 
-/bdes
-/ - -
- 'bdes' provides the needed platform-independent definitions and utilities
+/'bdes'
+/ - - -
+ {'bdes'} provides the needed platform-independent definitions and utilities
  (with platform-specific implementations) so that the rest of the bde library,
  and all conforming applications within the Development Framework, can be
  written in a truly portable, platform-neutral dialect of C++ -- one having
@@ -236,14 +295,14 @@
  memory, bit-manipulation utilities, and a uniform interface to system services
  (e.g., timers).
 
-/bdesb
-/- - -
- 'bdesb' provides various implementations of the 'std::streambuf' interface,
+/'bdesb'
+/- - - -
+ {'bdesb'} provides various implementations of the 'std::streambuf' interface,
  specialized for either input or output functionality.  Components in this
  package variously work with user-supplied buffers or self-managed buffers.
 
-/bdescm
-/ - - -
+/'bdescm'
+/ - - - -
  'bdescm' is a special source control management package containing only two
  components, 'bdescm_version' and 'bdescm_versiontag'.  The first of these
  components is included by every other component in 'bde', and provides
@@ -251,54 +310,53 @@
  'bdescm_version' facilities to query a particular 'bde' library for its
  version information.  The second component defines macros that can be used for
  conditional-compilation based on 'bde' version information.
- See '{BP BDE_SCM <GO>}' for a detailed specification for this package.
 
-/bdesu
-/- - -
- 'bdesu' provides utilities for platform-independent access to low-level system
- functionality.
- 
-/bdet
-/ - -
- 'bdet' provides the basic set of scalar (i.e., non-container) "vocabulary
+/'bdesu'
+/- - - -
+ {'bdesu' provides utilities for platform-independent access to low-level
+ system} functionality.
+
+/'bdet'
+/ - - -
+ {'bdet'} provides the basic set of scalar (i.e., non-container) "vocabulary
  types" intended for ubiquitous use across the bde library and Application
  Development Framework.  Among the types available in this package are a date,
  a time, and a datetime.  Note that arrays and other containers of these types
  are available in higher-lying packages in bde, and, in particular, the
  messaging package ('bdem') fully supports these 'bdet' types.
 
-/bdetu
-/- - -
- 'bdetu' provides non-primitive utility functions on the bdet types.
+/'bdetu'
+/- - - -
+ {'bdetu'} provides non-primitive utility functions on the bdet types.
 
-/bdeut
-/- - -
- 'bdeut' provides many utilities such as big-endian types, utilities for
+/'bdeut'
+/- - - -
+ {'bdeut'} provides many utilities such as big-endian types, utilities for
  nullable types, or variant types.
 
-/bdeu
-/ - -
- 'bdeu' provides utility services that enhance lower-level standard
+/'bdeu'
+/ - - -
+ {'bdeu'} provides utility services that enhance lower-level standard
  system-provided services (e.g., 'iostream').  In general, clients need never
  use these services explicitly.
 
-/bdex
-/ - -
- 'bdex' provides the interface contracts for "externalizing" the values of all
- of the fundamental types.  The contracts specify how to read and write type
- values from and to character buffers in a proprietary but platform-independent
- format.  Concrete streams obey these contracts without explicit inheritance.
- A 'bdex' "output" buffer generated in a process on one machine may, for
- example, be transported across processes and platforms (via any standard
- Inter-Process Communications mechanism, including persisting to a database or
- archiving to disk) and subsequently used as a bdex "input" buffer in another
- process, on another machine, where the local 'bdex' implementation can readily
- "reconstitute" the buffer into a set of values of the corresponding types on
- the new machine.  In particular all value semantic types in the 'bde' library
- necessarily know how to externalize their values using mechanisms obeying the
- contracts in the 'bdex' package (via a template mechanism rather than
- inheritance).  This feature -- guaranteed in the contract of each complying
- component -- in turn guarantees that any application that depends on 'bde'
- value-semantic types can safely assume that its application-specific "values"
- can be transported across platforms with little or no application-development
- overhead, and with very high performance.
+/'bdex'
+/ - - -
+ {'bdex'} provides the interface contracts for "externalizing" the values of
+ all of the fundamental types.  The contracts specify how to read and write
+ type values from and to character buffers in a proprietary but
+ platform-independent format.  Concrete streams obey these contracts without
+ explicit inheritance.  A 'bdex' "output" buffer generated in a process on one
+ machine may, for example, be transported across processes and platforms (via
+ any standard Inter-Process Communications mechanism, including persisting to a
+ database or archiving to disk) and subsequently used as a bdex "input" buffer
+ in another process, on another machine, where the local 'bdex' implementation
+ can readily "reconstitute" the buffer into a set of values of the
+ corresponding types on the new machine.  In particular all value semantic
+ types in the 'bde' library necessarily know how to externalize their values
+ using mechanisms obeying the contracts in the 'bdex' package (via a template
+ mechanism rather than inheritance).  This feature -- guaranteed in the
+ contract of each complying component -- in turn guarantees that any
+ application that depends on 'bde' value-semantic types can safely assume that
+ its application-specific "values" can be transported across platforms with
+ little or no application-development overhead, and with very high performance.

@@ -17,7 +17,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   btemt_ChannelPool: channel manager
 //
-//@DESCRIPTION:  This component provides a thread-enabled manager of the
+//@DESCRIPTION: This component provides a thread-enabled manager of
 // IPv4-based byte-stream communication channels.  The channels are created
 // automatically when the appropriate events occur and destroyed based on user
 // requests.  A new channel is allocated automatically when an incoming
@@ -31,7 +31,7 @@ BDES_IDENT("$Id: $")
 // classification of errors.  The notification is done via asynchronous
 // callback that may be invoked from *any* (managed) thread.
 //
-///Message management and delivery
+///Message Management and Delivery
 ///-------------------------------
 // The channel pool provides an efficient mechanism for the full-duplex
 // delivery of messages trying to achieve fully parallel communication on a
@@ -47,28 +47,28 @@ BDES_IDENT("$Id: $")
 // Note that page-like allocation is used for the data buffers created by a
 // channel pool (see 'bcema_pooledbufferchain').
 //
-///Channel identification
+///Channel Identification
 ///----------------------
 // Each channel is identified by an integer ID that is (a) assigned by the
 // channel pool and (b) is guaranteed to be unique for the lifetime of the
 // channel pool.  The user can rely on this uniqueness to identify channels.
 //
-///Asynchronous connect
+///Asynchronous Connect
 ///--------------------
-// The channel pool supports extended asynchronous connect mechanism, by which
-// the pool will try to establish a connection with the server making up to
-// (user-provided) number of attempts with a (user-provided) interval between
-// attempts.  If a connection attempt cannot succeed within an interval, it is
-// aborted and a new connection request is issued.  If a connection is
-// successfully established, the channel state callback (see configuration) is
-// invoked.  In that case, if this connection is dropped at a later time,
-// channel pool *will* *not* *try* to reconnect automatically.  If *all*
-// attempts to establish a connection fail, then a pool state callback
+// The channel pool supports an extended asynchronous connect mechanism, by
+// which the pool will try to establish a connection with the server making up
+// to a (user-provided) number of attempts with a (user-provided) interval
+// between attempts.  If a connection attempt cannot succeed within an
+// interval, it is aborted and a new connection request is issued.  If a
+// connection is successfully established, the channel state callback (see
+// configuration) is invoked.  In that case, if this connection is dropped at
+// a later time, channel pool *will* *not* *try* to reconnect automatically.
+// If *all* attempts to establish a connection fail, then a pool state callback
 // (see configuration) is invoked.  Once initiated, a connect request can
 // lead to only two outcomes -- success or failure.  In particular, it can't
 // be canceled.
 //
-///Half-open connections
+///Half-Open Connections
 ///---------------------
 // It is already possible to import a half-duplex connection into a channel
 // pool, but should any half of any channel be closed, the channel pool would
@@ -95,7 +95,7 @@ BDES_IDENT("$Id: $")
 //                          down the channel.  This is the default behavior.
 //..
 //
-///Resource limits
+///Resource Limits
 ///---------------
 // The channel pool limits the resource usage based on the configuration.  The
 // user must specify the maximum number of connections that an instance can
@@ -130,7 +130,7 @@ BDES_IDENT("$Id: $")
 // processes, which may potentially outlive the lifetime of the channel pool,
 // preventing the channel's socket files from being closed properly.
 //
-///Metrics and capacity
+///Metrics and Capacity
 ///--------------------
 // By default, the channel pool monitors the workload of managed event
 // managers and reports, upon request, an average value of this workload.  The
@@ -177,12 +177,12 @@ BDES_IDENT("$Id: $")
 // space.  A user-defined callback can be invoked from *any* (managed) thread
 // and the user must account for that.
 //
-///Invocation of high and low watermark callbacks
-///----------------------------------------------
+///Invocation of High- and Low-Water Mark Callbacks
+///------------------------------------------------
 // When constructing a channel pool object, users can specify, via the
 // 'setWriteCacheWatermarks' function of 'btemt_ChannelPoolConfiguration', the
-// maximum data size (high-watermark) that can be enqueued for writing on a
-// channel.  If the write cache size exceeds this high-watermark value then
+// maximum data size (high-water mark) that can be enqueued for writing on a
+// channel.  If the write cache size exceeds this high-water mark value, then
 // 'write' calls on that channel will fail.  This information is also
 // communicated by providing a 'BTEMT_WRITE_CACHE_HIWAT' alert to the client
 // via the channel state callback.  Note that 'write' calls can also fail if
@@ -190,18 +190,23 @@ BDES_IDENT("$Id: $")
 // argument provided to 'write', but a 'BTEMT_WRITE_CACHE_HIWAT' alert is not
 // provided in this scenario.
 //
-// In addition to the high-watermark, users can also specify a low-watermark,
+// In addition to the high-water mark, users can also specify a low-water mark,
 // again via the 'setWriteCacheWatermarks' function of
 // 'btemt_ChannelPoolConfiguration'.  After a write fails because the write
 // cache size would be exceeded, the channel pool will later provide a
 // 'BTEMT_WRITE_CACHE_LOWWAT' alert to the client via the channel state
-// callback when the write cache size falls below the low-watermark.
+// callback when the write cache size falls to, or below, the low-water mark.
 // Typically, clients will suspend writing to a channel if the write cache
-// exceeds the high-watermark or the optionally provided 'enqueueWaterk', and
-// then resume writing after they receive the low-watermark event.  Note that
-// a 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache size
-// exceeds the optionally specified 'enqueueWatermark' argument provided to
-// 'write'.
+// exceeds the high-water mark or the optionally provided 'enqueueWatermark',
+// and then resume writing after they receive a low-water mark event.  Note
+// that a 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache
+// size exceeds the optionally specified 'enqueueWatermark' argument provided
+// to 'write'.
+//
+// Note that the high- and low-water marks for a specified channel can be
+// modified from the values established at construction by the
+// 'setWriteCacheHiWatermark', 'setWriteCacheLowWatermark', and
+// 'setWriteCacheWatermarks' methods on 'btemt_ChannelPool'.
 //
 ///Usage
 ///-----
@@ -499,9 +504,9 @@ BDES_IDENT("$Id: $")
 // its busy metrics.  For simplicity, we will use the following function
 // for monitoring:
 //..
-//  static inline void  monitorPool(bcemt_Mutex              *coutLock,
-//                                  const btemt_ChannelPool&  pool,
-//                                  int                       numTimes)
+//  static void monitorPool(bcemt_Mutex              *coutLock,
+//                          const btemt_ChannelPool&  pool,
+//                          int                       numTimes)
 //      // Every 10 seconds, output the percent busy of the specified channel
 //      // 'pool' to the standard output, using the specified 'coutLock' to
 //      // synchronizing access to the standard output stream; return to the
@@ -787,8 +792,8 @@ class btemt_ChannelPool {
         // sufficiently large amount of data read from a channel.  The second
         // argument to this callback is passed the data read from the channel
         // in the form of a modifiable 'bcema_Blob'.  The channel pool expects
-        // that clients take ownership of some of the data in the the passed
-        // 'bcema_Blob' and readjust the the 'bcema_Blob' accordingly.  The
+        // that clients take ownership of some of the data in the passed
+        // 'bcema_Blob' and readjust the 'bcema_Blob' accordingly.  The
         // third argument specifies the channel ID.  The fourth and last
         // parameter is passed the user-specified channel context (set using
         // 'setChannelContext()') or '(void *)0' if no context was specified.
@@ -833,9 +838,9 @@ class btemt_ChannelPool {
         BTEMT_MESSAGE_DISCARDED    = 4,
         BTEMT_AUTO_READ_ENABLED    = 5,
         BTEMT_AUTO_READ_DISABLED   = 6,
-        BTEMT_WRITE_CACHE_LOWWAT   = 7,            // write cache low watermark
+        BTEMT_WRITE_CACHE_LOWWAT   = 7,          // write cache low-water mark
         BTEMT_WRITE_CACHE_HIWAT    = BTEMT_WRITE_BUFFER_FULL,
-                                                   // write cache hi watermark
+                                                 // write cache high-water mark
         BTEMT_CHANNEL_DOWN_READ    = 8,
         BTEMT_CHANNEL_DOWN_WRITE   = 9
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -945,9 +950,14 @@ class btemt_ChannelPool {
     // INSTANCE DATA
                                         // *** Transport-related state ***
     bcec_ObjectCatalog<ChannelHandle>   d_channels;
+
     bsl::vector<btemt_TcpTimerEventManager *>
                                         d_managers;
-    mutable bcemt_Mutex                 d_managersLock;
+
+    mutable bcemt_Mutex                 d_managersStateChangeLock;
+                                                    // mutex to synchronize
+                                                    // changing the state of
+                                                    // the event managers
 
     bsl::map<int, btemt_Connector>      d_connectors;
     mutable bcemt_Mutex                 d_connectorsLock;
@@ -1530,47 +1540,72 @@ class btemt_ChannelPool {
         // calls to write (if 'type' is 'SHUTDOWN_SEND'), or to 'enableRead'
         // (if 'type' is 'SHUTDOWN_RECEIVE'), will fail.
 
+    int stopAndRemoveAllChannels();
+        // Terminate all threads managed by this channel pool, close all
+        // listening sockets, close both the read and write parts of all
+        // communication channels under management, and remove all those
+        // communication channels from this channel pool.  Return 0 on success,
+        // and a non-zero value otherwise.  The behavior is undefined if
+        // 'start' is called concurrently or subsequent to the completion of
+        // this call.  Note that shutting down a channel will deallocate all
+        // system resources associated with that channel.  Also note that this
+        // function is intended to be called to release resources held by this
+        // channel pool just prior to its destruction.
+
     int setWriteCacheHiWatermark(int channelId, int numBytes);
-        // Set the write-cache high-watermark for the specified 'channelId' to
-        // the specified 'numBytes'; return 0 on success, or a non-zero value
+        // Set the write cache high-water mark for the specified 'channelId' to
+        // the specified 'numBytes'; return 0 on success, and a non-zero value
         // if either 'channelId' does not exist or 'numBytes' is less than the
-        // low watermark for the write cache.  This channel pool maintains an
-        // internal cache of outgoing data for each channel, and data written
-        // to a channel is added to this cache until the associated socket can
-        // be written-to without blocking.  Once the write-cache
-        // high-watermark is reached, this channel pool will no longer accept
-        // messages for the channel until additional space becomes available
-        // (by writing the cached data to the underlying socket) and a
-        // 'BTEMT_WRITE_CACHE_HIWAT' alert is provided to the client via the
-        // channel state callback.  The behavior is undefined unless
-        // '0 <= numBytes'.  Note that this method overrides the default value
-        // configured (for all channels) by the
+        // low-water mark for the write cache.  A 'BTEMT_WRITE_CACHE_HIWAT'
+        // alert is provided (via the channel state callback) if 'numBytes' is
+        // less than or equal to the current size of the write cache.  (See the
+        // "Invocation of High- and Low-Water Mark Callbacks" section under
+        // @DESCRIPTION in the component-level documentation for details on
+        // 'BTEMT_WRITE_CACHE_HIWAT' and 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)
+        // The behavior is undefined unless '0 <= numBytes'.  Note that this
+        // method overrides the value configured (for all channels) by the
         // 'btemt_ChannelPoolConfiguration' supplied at construction.
 
     int setWriteCacheLowWatermark(int channelId, int numBytes);
-        // Set the write-cache low-watermark for the specified 'channelId' to
-        // the specified 'numBytes'; return 0 on success, or a non-zero value
-        // if either 'channelId' does not exist or 'numBytes' is less than the
-        // low watermark for the write cache.  The behavior is undefined unless
-        // '0 <= numBytes'.  Note that this method overrides the default value
+        // Set the write cache low-water mark for the specified 'channelId' to
+        // the specified 'numBytes'; return 0 on success, and a non-zero value
+        // if either 'channelId' does not exist or 'numBytes' is greater than
+        // the high-water mark for the write cache.  A
+        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided (via the channel state
+        // callback) if 'numBytes' is greater than or equal to the current size
+        // of the write cache.  (See the "Invocation of High- and Low-Water
+        // Mark Callbacks" section under @DESCRIPTION in the component-level
+        // documentation for details on 'BTEMT_WRITE_CACHE_HIWAT' and
+        // 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)  The behavior is undefined
+        // unless '0 <= numBytes'.  Note that this method overrides the value
         // configured (for all channels) by the
-        // 'btemt_ChannelPoolConfiguration' supplied at construction.  This
-        // channel pool maintains an internal cache of outgoing data for each
-        // channel, and data written to a channel is added to this cache until
-        // the associated socket can be written-to without blocking.  Once the
-        // write-cache high-watermark is reached, this channel pool will no
-        // longer accept messages for the channel until additional space
-        // becomes available.  After the data is written to the socket and the
-        // cache size falls below the low-watermark then a
-        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided to the client via the
-        // channel state callback to suggest that further writing can resume.
+        // 'btemt_ChannelPoolConfiguration' supplied at construction.
+
+    int setWriteCacheWatermarks(int channelId,
+                                int lowWatermark,
+                                int hiWatermark);
+        // Set the write cache low- and high-water marks for the specified
+        // 'channelId' to the specified 'lowWatermark' and 'hiWatermark'
+        // values, respectively; return 0 on success, and a non-zero value
+        // if 'channelId' does not exist.  A 'BTEMT_WRITE_CACHE_LOWWAT' alert
+        // is provided (via the channel state callback) if 'lowWatermark' is
+        // greater than or equal to the current size of the write cache, and a
+        // 'BTEMT_WRITE_CACHE_HIWAT' alert is provided if 'hiWatermark' is less
+        // than or equal to the current size of the write cache.  (See the
+        // "Invocation of High- and Low-Water Mark Callbacks" section under
+        // @DESCRIPTION in the component-level documentation for details on
+        // 'BTEMT_WRITE_CACHE_HIWAT' and 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)
+        // The behavior is undefined unless '0 <= lowWatermark' and
+        // 'lowWatermark <= hiWatermark'.  Note that this method overrides the
+        // values configured (for all channels) by the
+        // 'btemt_ChannelPoolConfiguration' supplied at construction.
 
     int resetRecordedMaxWriteCacheSize(int channelId);
         // Reset the recorded max write cache size for the specified
         // 'channelId' to the current write cache size.  Return 0 on success,
         // or a non-zero value if 'channelId' does not exist.  Note that this
         // function resets the recorded max write cache size and does not
-        // change the write cache high watermark for 'channelId'.
+        // change the write cache high-water mark for 'channelId'.
 
                                   // *** Thread management ***
 
@@ -1922,7 +1957,7 @@ class btemt_ChannelPool {
         // Therefore, it is important that clients carefully manage the
         // lifetime of the returned shared pointer.  The behavior of this
         // channel pool is undefined if the underlying socket is manipulated
-        // while still under mangement by this channel pool.
+        // while still under management by this channel pool.
 
     void totalBytesRead(bsls::Types::Int64 *result) const;
         // Load, into the specified 'result', the total number of bytes read by
@@ -1949,7 +1984,7 @@ class btemt_ChannelPool_IovecArray {
     // type 'IOVEC'.  The parameterized 'IOVEC' type must be either
     // 'bteso_Iovec' or 'btes_Ovec'.  Note that the each 'IOVEC' object in
     // the 'iovecs()' array  refers to an array of data, so an 'IovecArray' is
-    // an array of arrays, and the the total data length of an 'IovecArray' is
+    // an array of arrays, and the total data length of an 'IovecArray' is
     // the sum of the lengths of the 'IOVEC' objects in 'iovecs()'.
 
     // DATA
@@ -2026,7 +2061,7 @@ struct btemt_ChannelPool_MessageUtil {
     enum {
         // This enumeration defines the constant 'BTEMT_MAX_IOVEC_SIZE', which
         // is used to indicate the maximum length of an array of iovecs
-        // that can be directly read-from or written-to a socket.  Note that
+        // that can be directly read from or written to a socket.  Note that
         // 'IOV_MAX' is defined (on POSIX unix platforms) in "limits.h", and
         // indicates the  maximum number of iovecs that can be supplied to
         // 'writev'.

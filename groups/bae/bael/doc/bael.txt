@@ -51,76 +51,184 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bael' currently has 24 components having eight levels of dependency.  The
- table below shows the hierarchical ordering of the components.  The package
- prefix and underscore ('bael_') are omitted from the full component names for
- layout efficiency.  The three-column layout is structured to guide the eye,
- but has no particular significance.
+ The 'bael' package currently has 39 components having 15 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-Level
------
-  8   log
+  15. bael_asyncfileobserver
 
-  7   administration
+  14. bael_fileobserver
 
-  6   loggercategoryutil    loggerfunctorpayloads
+  13. bael_fileobserver2
 
-  5   loggermanager
+  12. bael_log
 
-  4   multiplexobserver     fixedsizerecordbuffer
+  11. bael_administration
 
-  3   defaultobserver       fileobserver                 fileobserver2
-      recordbuffer          testobserver
+  10. bael_loggercategoryutil
+      bael_loggerfunctorpayloads
 
-  2   context               loggermanagerconfiguration
-      observer              record
+   9. bael_loggermanager
+      bael_scopedattribute
+      bael_scopedattributes
 
-  1   categorymanager       countingallocator            loggermanagerdefaults
-      recordattributes      recordstringformatter        severity
-      thresholdaggregate    transmission
+   8. bael_attributecontext
+
+   7. bael_categorymanager
+
+   6. bael_ruleset
+
+   5. bael_multiplexobserver
+      bael_rule
+
+   4. bael_defaultobserver
+      bael_observeradapter
+      bael_predicateset
+      bael_testobserver
+
+   3. bael_attributecontainerlist
+      bael_defaultattributecontainer
+      bael_fixedsizerecordbuffer
+      bael_observer
+      bael_recordstringformatter
+
+   2. bael_attributecontainer
+      bael_context
+      bael_loggermanagerconfiguration
+      bael_predicate
+      bael_record
+      bael_recordbuffer
+      bael_severityutil
+
+   1. bael_attribute
+      bael_countingallocator
+      bael_loggermanagerdefaults
+      bael_patternutil
+      bael_recordattributes
+      bael_severity
+      bael_thresholdaggregate
+      bael_transmission
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bael'.
-..
-bael_administration             - start-up and while-running administration
-bael_categorymanager            - manager of categories and their threshold
-                                  levels
-bael_context                    - container for the context of a log record
-bael_countingallocator          - concrete allocator that sums allocated bytes
-bael_defaultobserver            - default observer that emits log records to a
-                                  'std::ostream' supplied at construction
-bael_fileobserver               - thread-safe observer that logs to a file and
-                                  to 'stdout'
-bael_fileobserver2              - 2nd generation file observer (no publishing
-                                  to 'stdout')
-bael_fixedsizerecordbuffer      - queue of log records imposing maximum total
-                                  size of all held records (hence "fixed size")
-bael_log                        - provides macros and utility functions to
-                                  facilitate logging
-bael_loggercategoryutil         - suite of utility functions for category
-                                  management
-bael_loggerfunctorpayloads      - suite of utility functions useful for
-                                  "payloads" for the logger manager functors
-bael_loggermanager              - manager of core logging functionality
-bael_loggermanagerconfiguration - configurable default-value and functor
-                                  attributes for logger manager
-bael_loggermanagerdefaults      - value-semantic default-value attributes
-bael_multiplexobserver          - multiplexing observer that forwards to other
-                                  observers
-bael_observer                   - protocol for receiving and processing log
-                                  records
-bael_record                     - container for all fields of a log record
-bael_recordattributes           - container for a fixed set of logging fields
-bael_recordbuffer               - protocol for a LIFO buffer of log records
-bael_recordstringformatter      - 'printf'-style record formatter
-bael_severity                   - enumerates a set of logging severity levels
-bael_testobserver               - instrumented observer for testing
-bael_thresholdaggregate         - aggregate of four logging threshold levels
-bael_transmission               - enumerates the set of states for log record
-                                  transmission
-..
+: 'bael_administration':
+:      Provide a suite of utility functions for logging administration.
+:
+: 'bael_asyncfileobserver':
+:      Provide an asynchronous observer that logs to a file and 'stdout'.
+:
+: 'bael_attribute':
+:      Provide a representation of (literal) name/value pairs.
+:
+: 'bael_attributecontainer':
+:      Provide a protocol for containers holding logging attributes.
+:
+: 'bael_attributecontainerlist':
+:      Provide a list of attribute container addresses.
+:
+: 'bael_attributecontext':
+:      Provide a container for storing attributes and caching results.
+:
+: 'bael_categorymanager':
+:      Provide a manager of named categories each having "thresholds".
+:
+: 'bael_context':
+:      Provide a container for the context of a transmitted log record.
+:
+: 'bael_countingallocator':
+:      Provide a concrete allocator keep a count of allocated bytes.
+:
+: 'bael_defaultattributecontainer':
+:      Provide a default container for storing attribute name/value pairs.
+:
+: 'bael_defaultobserver':
+:      Provide a default observer that emits log records to 'stdout'.
+:
+: 'bael_fileobserver':
+:      Provide a thread-safe observer that logs to a file and to 'stdout'.
+:
+: 'bael_fileobserver2':
+:      Provide a thread-safe observer that emits log records to a file.
+:
+: 'bael_fixedsizerecordbuffer':
+:      Provide a thread-safe fixed-size buffer of record handles.
+:
+: 'bael_log':
+:      Provide macros and utility functions to facilitate logging.
+:
+: 'bael_loggercategoryutil':
+:      Provide a suite of utility functions for category management.
+:
+: 'bael_loggerfunctorpayloads':
+:      Provide a suite of useful logger manager functor payloads.
+:
+: 'bael_loggermanager':
+:      Provide a manager of core logging functionality.
+:
+: 'bael_loggermanagerconfiguration':
+:      Provide a constrained-attribute class for the logger manager.
+:
+: 'bael_loggermanagerdefaults':
+:      Provide constrained default attributes for the logger manager.
+:
+: 'bael_multiplexobserver':
+:      Provide a multiplexing observer that forwards to other observers.
+:
+: 'bael_observer':
+:      Define a protocol for receiving and processing log records.
+:
+: 'bael_observeradapter':
+:      Provide a helper for implementing the 'bael_Observer' protocol.
+:
+: 'bael_patternutil':
+:      Provide a utility class for string pattern matching.
+:
+: 'bael_predicate':
+:      Provide a predicate object that consists of a name/value pair.
+:
+: 'bael_predicateset':
+:      Provide a container for predicates.
+:
+: 'bael_record':
+:      Provide a container for all fields of a log record.
+:
+: 'bael_recordattributes':
+:      Provide a container for a fixed set of fields suitable for logging.
+:
+: 'bael_recordbuffer':
+:      Provide a protocol for managing log record handles.
+:
+: 'bael_recordstringformatter':
+:      Provide a record formatter that uses a 'printf'-style format spec.
+:
+: 'bael_rule':
+:      Provide an object having a pattern, thresholds, and predicates.
+:
+: 'bael_ruleset':
+:      Provide a set of unique rules.
+:
+: 'bael_scopedattribute':
+:      Provide a scoped guard for a single BAEL attribute attributes
+:
+: 'bael_scopedattributes':
+:      Provide a class to add and remove attributes automatically.
+:
+: 'bael_severity':
+:      Enumerate a set of logging severity levels.
+:
+: 'bael_severityutil':
+:      Provide a suite of utility functions on 'bael_Severity' levels.
+:
+: 'bael_testobserver':
+:      Provide an instrumented observer for testing.
+:
+: 'bael_thresholdaggregate':
+:      Provide an aggregate of the four logging threshold levels.
+:
+: 'bael_transmission':
+:      Enumerate the set of states for log record transmission.
 
 /Multi-Threaded Logging
 /----------------------
