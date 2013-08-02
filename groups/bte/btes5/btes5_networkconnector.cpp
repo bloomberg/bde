@@ -172,7 +172,8 @@ struct btes5_NetworkConnector::Attempt {
 
     bteso_StreamSocket<bteso_IPv4Address> *d_socket_p;
         // socket for the connection to the first-level proxy, owned
-        // TODO: protect wrt deallocation in 'terminate'.
+
+    bcemt_Mutex d_socketLock;  // serialize 'd_socket_p' access
 
     bslma::Allocator                      *d_allocator_p;
         // memory allocator, not owned
@@ -236,16 +237,18 @@ static void terminate(
                             attempt->d_connector->d_socketFactory_p,
                             error);
     } else {
+        bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
         if (attempt->d_socket_p) {
-           attempt->d_connector->d_socketFactory_p
+            // TODO: cancel any negotiation in progress
+            attempt->d_connector->d_socketFactory_p
                                            ->deallocate(attempt->d_socket_p);
+            attempt->d_socket_p = 0;
         }
         attempt->d_callback(status,
-                            attempt->d_socket_p,
+                            0,
                             attempt->d_connector->d_socketFactory_p,
                             error);
     }
-    // TODO: cancel any negotiation in progress
 }
 
 static void socksConnectCb(
@@ -295,9 +298,15 @@ static void socksConnectCb(
              ++l) {
                 attempt->d_indices[l] = 0;
         }
-        // TODO: protect d_socket_p against termination?
-        attempt->d_connector->d_socketFactory_p->deallocate(
+
+        {
+            bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+            if (attempt->d_socket_p) {
+                attempt->d_connector->d_socketFactory_p->deallocate(
                                                       attempt->d_socket_p);
+                attempt->d_socket_p = 0;
+            }
+        }
         attempt->d_level = level;
         tcpConnect(attempt);
     }
@@ -375,9 +384,23 @@ static void connectTcpCb(
     }
 
     const bsl::size_t index = attempt->d_indices[0]; // current proxy index
-    attempt->d_connector->d_eventManager_p->deregisterSocket(
+
+    int rc;
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+        if (attempt->d_socket_p) {
+            attempt->d_connector->d_eventManager_p->deregisterSocket(
                                                 attempt->d_socket_p->handle());
-    int rc = attempt->d_socket_p->connectionStatus();
+            rc = attempt->d_socket_p->connectionStatus();
+            if (rc) {
+                attempt->d_connector->d_socketFactory_p->deallocate(
+                                                      attempt->d_socket_p);
+                attempt->d_socket_p = 0;
+            }
+        } else {
+            rc = -1;  // the socket was already closed
+        }
+    }
     if (rc) {
         if (index < attempt->d_connector->d_socks5Servers.numProxies(0)) {
             attempt->d_indices[0]++; // try the next proximate proxy
@@ -517,26 +540,35 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
                 continue;  // not fatal because there may be more servers
             }
         }
+        int rc;
         server.setPortNumber(destination.port());
-        attempt->d_socket_p = makeSocket(
-            attempt->d_connector->d_socketFactory_p,
-            &error,
-            attempt->d_connector->d_minSourcePort,
-            attempt->d_connector->d_maxSourcePort);
-        if (!attempt->d_socket_p) {
-            continue; // try again if more servers
+        {
+            bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+            attempt->d_socket_p = makeSocket(
+                attempt->d_connector->d_socketFactory_p,
+                &error,
+                attempt->d_connector->d_minSourcePort,
+                attempt->d_connector->d_maxSourcePort);
+            if (!attempt->d_socket_p) {
+                continue; // try again if more servers
+            }
+            rc = attempt->d_socket_p->connect(server);
         }
-        int rc = attempt->d_socket_p->connect(server);
         if (!rc) {
             connectTcpCb(attempt, false); // immediate success
             break;
         } else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
             bteso_EventManager::Callback
                 cb = bdef_BindUtil::bind(connectTcpCb, attempt, false);
-            rc = attempt->d_connector->d_eventManager_p->registerSocketEvent(
-                                                 attempt->d_socket_p->handle(),
-                                                 bteso_EventType::CONNECT,
-                                                 cb);
+            {
+                bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+                if (attempt->d_socket_p) {
+                    rc = attempt->d_connector->d_eventManager_p
+                        ->registerSocketEvent(attempt->d_socket_p->handle(),
+                                              bteso_EventType::CONNECT,
+                                              cb);
+                }
+            }
 
             if (bdet_TimeInterval() != attempt->d_proxyTimeout) {
                 bdet_TimeInterval expiration = bdetu_SystemTime::now()

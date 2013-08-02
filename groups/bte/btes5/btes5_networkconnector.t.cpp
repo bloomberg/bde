@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
                                      &stateLock,
                                      &stateChanged,
                                      &state);
-        
+
         // Install a 'TestAllocator' as default to check for incorrect usage`,
         // and specify another 'TestAllocator' explicitly to check proper
         // propagation of the allocator
@@ -437,6 +437,7 @@ int main(int argc, char *argv[])
         // verify that the default allocator was not used
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        sleep(1);  // allow callbacks to free memory
 
       } break;
       case 1: {

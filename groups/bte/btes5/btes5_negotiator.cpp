@@ -196,8 +196,7 @@ struct Negotiation {
     void terminate(btes5_Negotiator::NegotiationStatus status,
                    const btes5_DetailedError&          error);
         // Terminate current negotiation session, and invoke the user-supplied
-        // callback with the specified 'status' and 'error'. If the specified
-        // 'status' is not 0, 'd_socket_p' will be closed.
+        // callback with the specified 'status' and 'error'.
 
     void setCredentials(int                      status,
                         const bslstl::StringRef& username,
@@ -259,9 +258,6 @@ void Negotiation::terminate(btes5_Negotiator::NegotiationStatus status,
         }
     }
 
-    if (status) {
-        d_socket_p->shutdown(bteso_Flag::SHUTDOWN_BOTH);
-    }
     d_callback(status, error);
 }
 
