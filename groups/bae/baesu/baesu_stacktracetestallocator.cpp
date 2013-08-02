@@ -253,8 +253,7 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(&failAbort,
-                   basicAllocator ? basicAllocator
+, d_failureHandler(basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(DEFAULT_NUM_RECORDED_FRAMES + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(DEFAULT_NUM_RECORDED_FRAMES))
@@ -265,6 +264,12 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 {
     BSLS_ASSERT_SAFE(d_maxRecordedFrames >= DEFAULT_NUM_RECORDED_FRAMES);
     BSLS_ASSERT_SAFE(d_traceBufferLength >= d_maxRecordedFrames);
+
+    // This must be assigned in a statement in the body of the c'tor rather
+    // than in the initializer list to work around a microsoft bug with
+    // function pointers.
+
+    d_failureHandler = &failAbort;
 }
 
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
@@ -275,8 +280,7 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(&failAbort,
-                   basicAllocator ? basicAllocator
+, d_failureHandler(basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
@@ -288,6 +292,12 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
     BSLS_ASSERT_OPT(numRecordedFrames >= 2);
     BSLS_ASSERT(d_maxRecordedFrames >= numRecordedFrames);
     BSLS_ASSERT(d_traceBufferLength >= d_maxRecordedFrames);
+
+    // This must be assigned in a statement in the body of the c'tor rather
+    // than in the initializer list to work around a microsoft bug with
+    // function pointers.
+
+    d_failureHandler = &failAbort;
 }
 
 baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
