@@ -286,16 +286,16 @@ class Function_Rep {
       , ERASED_EMPTY_ALLOC
     };
 
-    typedef void *(*Manager)(ManagerOpCode  opCode,
-                             Function_Rep  *rep,
-                             const void    *source);
+    typedef void *(*Manager)(ManagerOpCode        opCode,
+                             const Function_Rep  *rep,
+                             void                *target);
         // 'Manager' is an alias for a pointer to a function that manages a
         // specific object type (i.e., it copies, moves, or destroyes it).  It
         // implements a kind of hand-coded virtual-function dispatch.  The
         // specified 'opCode' is used to choose the "virtual function" to
-        // invoke, where the specified 'rep' and 'source' are arguments to
+        // invoke, where the specified 'rep' and 'target' are arguments to
         // that function.  Internally, a 'Manager' function uses a 'switch'
-        // statement rather than preforming a virtual-table lookup.  This
+        // statement rather than performing a virtual-table lookup.  This
         // mechanism is chosen because it saves a significant amount of space
         // over the C++ virtual-function mechanism, especially when the number
         // of different instantiations of 'bsl::function' is large.
@@ -363,29 +363,29 @@ class Function_Rep {
                  integral_constant<AllocType, ERASED_EMPTY_ALLOC>);
 
     template <class FUNC>
-    static Manager getFuncManager(true_type /* inplace */, FUNC*);
+    static Manager getFuncManager(true_type /* inplace */, const FUNC&);
     template <class FUNC>
-    static Manager getFuncManager(false_type /* inplace */, FUNC*);
+    static Manager getFuncManager(false_type /* inplace */, const FUNC&);
 
     template <class FUNC>
-    void *inplaceFuncManager(ManagerOpCode  opCode,
-                             Function_Rep  *rep,
-                             const void    *source);
+    static void *inplaceFuncManager(ManagerOpCode       opCode,
+                                    const Function_Rep *rep,
+                                    void               *target);
 
     template <class FUNC>
-    void *outofplaceFuncManager(ManagerOpCode  opCode,
-                                Function_Rep  *rep,
-                                const void    *source);
+    static void *outofplaceFuncManager(ManagerOpCode       opCode,
+                                       const Function_Rep *rep,
+                                       void               *target);
 
     template <class FUNC>
-    void *pairedAllocManager(ManagerOpCode  opCode,
-                             Function_Rep  *rep,
-                             const void    *source);
+    static void *pairedAllocManager(ManagerOpCode       opCode,
+                                    const Function_Rep *rep,
+                                    void               *target);
 
     template <class FUNC>
-    void *separateAllocManager(ManagerOpCode  opCode,
-                               Function_Rep  *rep,
-                               const void    *source);
+    static void *separateAllocManager(ManagerOpCode       opCode,
+                                      const Function_Rep *rep,
+                                      void               *target);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     __declspec(noreturn)
@@ -393,20 +393,20 @@ class Function_Rep {
 
   private:
     // DATA
-    InplaceBuffer     d_objbuf;      // in-place representation (if fits, as
+    mutable InplaceBuffer d_objbuf;  // in-place representation (if fits, as
                                      // indicated by the manager), or
                                      // pointer to external representation
 
-    Manager           d_funcManager_p;
+    Manager               d_funcManager_p;
                                      // pointer to manager function used to
                                      // operate on function object instance
                                      // (which knows about the erased type
                                      // 'FUNC' of the function object), or null
                                      // for raw function pointers.
 
-    bslma::Allocator *d_allocator_p; // allocator (held, not owned)
+    bslma::Allocator     *d_allocator_p; // allocator (held, not owned)
 
-    Manager           d_allocManager_p;
+    Manager               d_allocManager_p;
                                      // pointer to manager function used to
                                      // operate on allocator instance (which
                                      // knows about the erased type 'ALLOC' of
@@ -482,7 +482,7 @@ class function<RET(ARGS...)> :
     //     Clone lhs allocator (into new block)
     //
 
-    typedef RET (*Invoker)(Function_Rep* rep, ARGS...);
+    typedef RET (*Invoker)(const Function_Rep* rep, ARGS...);
     typedef Function_Rep::FuncType FuncType;
 
     Invoker d_invoker_p;
@@ -674,6 +674,83 @@ inline std::size_t bsl::Function_ObjPairBufferDesc::secondSize() const
                         // -----------------------
 
 template <class FUNC>
+inline
+bsl::Function_Rep::Manager
+bsl::Function_Rep::getFuncManager(true_type /* inplace */, const FUNC&)
+{
+    return &inplaceFuncManager<FUNC>;
+}
+
+template <class FUNC>
+inline
+bsl::Function_Rep::Manager
+bsl::Function_Rep::getFuncManager(false_type /* inplace */, const FUNC&)
+{
+    return &outofplaceFuncManager<FUNC>;
+}
+
+template <class FUNC>
+void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode       opCode,
+                                            const Function_Rep *rep,
+                                            void               *target)
+{
+    switch (opcode) {
+      case MOVE_CONSTRUCT: {
+      } break;
+
+      case COPY_CONSTRUCT: {
+      } break;
+
+      case CONSTRUCT: {
+      } break;
+
+      case DESTROY: {
+      } break;
+
+      case INPLACE_DETECTION: {
+      } break;
+
+      case GET_TARGET: {
+      } break;
+
+      case GET_TYPE_ID: {
+      } break;
+
+    } // end switch
+}
+
+template <class FUNC>
+void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode       opCode,
+                                               const Function_Rep *rep,
+                                               void               *target)
+{
+    switch (opcode) {
+      case MOVE_CONSTRUCT: {
+      } break;
+
+      case COPY_CONSTRUCT: {
+      } break;
+
+      case CONSTRUCT: {
+      } break;
+
+      case DESTROY: {
+      } break;
+
+      case INPLACE_DETECTION: {
+      } break;
+
+      case GET_TARGET: {
+      } break;
+
+      case GET_TYPE_ID: {
+      } break;
+
+    } // end switch
+}
+
+
+template <class FUNC>
 void bsl::Function_Rep::initRep(FUNC& func, bslma::Allocator* alloc,
                                 integral_constant<AllocType, BSLMA_ALLOC_PTR>)
 {
@@ -694,7 +771,7 @@ void bsl::Function_Rep::initRep(FUNC& func, bslma::Allocator* alloc,
     ::new(function_p) FUNC(func);
 #endif
 
-    d_funcManager_p = getFuncManager(IsInplaceFunc(), &func);
+    d_funcManager_p = getFuncManager(IsInplaceFunc(), func);
 
     d_allocator_p = alloc;
     d_allocManager_p = nullptr;
@@ -773,7 +850,7 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
     ::new(function_p) FUNC(func);
 #endif
 
-    d_funcManager_p = getFuncManager(IsInplaceFunc(), &func);
+    d_funcManager_p = getFuncManager(IsInplaceFunc(), func);
 
     // Construct allocator adaptor in its correct location
     d_allocator_p = ::new(allocator_p) Adaptor(alloc);
@@ -834,7 +911,7 @@ bsl::function<R(ARGS...)>::function(FUNC func)
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
                                        bslmf::IsMemberFunctionPointer,
-                                       FitsInplace>::type TraitSelection;
+                                       FitsInplace>::Type TraitSelection;
 
     d_invoker_p = getInvoker(&func, TraitSelection());
 }
@@ -998,10 +1075,13 @@ template <class R, class... ARGS>
 R bsl::function<R(ARGS...)>::operator()(ARGS... args) const
 {
     if (d_invoker_p) {
-        return d_invoker(this, args...);
+        return d_invoker_p(this, args...);
     }
     else if (d_objbuf.d_func_p) {
-        return d_objbuf.d_func_p(args...);
+        typedef R prototype(ARGS...);
+        prototype *f =
+            reinterpret_cast<prototype*>(d_objbuf.d_func_p);
+        return f(args...);
     }
     else {
         BSLS_THROW(bad_function_call());

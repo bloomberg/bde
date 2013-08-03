@@ -110,13 +110,26 @@ inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                  GLOBAL DEFINITIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
+#define INT_ARGN(n) int arg ## n
+#define ARGN(n) arg ## n
+
+#define SUMMING_FUNC(n)                                       \
+    int sum ## n (BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) {      \
+        return BSLS_MACROREPEAT_SEP(n, ARGN, +) + 0x4000;     \
+    }
+
+// Create 11 functions with 0 to 10 integer arguments, returning
+// the sum of the arguments + 0x4000.
+SUMMING_FUNC(0)
+BSLS_MACROREPEAT(10, SUMMING_FUNC)
+
 //=============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
+//                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
 
@@ -165,6 +178,18 @@ int main(int argc, char *argv[])
             ASSERT(  (bsl::is_same<int,    Obj::result_type>::value));
             ASSERT(  (bsl::is_same<double, Obj::first_argument_type>::value));
             ASSERT(  (bsl::is_same<char&,  Obj::second_argument_type>::value));
+        }
+
+        {
+            typedef bsl::function<int()> Obj;
+            Obj f(sum0);
+            ASSERT(0x2000 == f());
+        }
+
+        {
+            typedef bsl::function<int(int, int)> Obj;
+            Obj f(sum2);
+            ASSERT(0x2003 == f(1, 2));
         }
 
       } break;
