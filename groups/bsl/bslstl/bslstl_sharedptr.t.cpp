@@ -67,13 +67,13 @@ using namespace BloombergLP;
 // [ 3] bsl::shared_ptr(OTHER *ptr, DELETER *const& deleter);
 // [ 3] bsl::shared_ptr(OTHER *ptr, const DELETER&, bslma::Allocator * = 0);
 // [ 3] bsl::shared_ptr(nullptr_t, const DELETER&, bslma::Allocator * = 0);
-// [  ] bsl::shared_ptr(bslma::ManagedPtr<OTHER>, bslma::Allocator * = 0);
+//*[  ] bsl::shared_ptr(bslma::ManagedPtr<OTHER>, bslma::Allocator * = 0);
 // [ 3] bsl::shared_ptr(std::auto_ptr<OTHER>, bslma::Allocator * = 0);
-// [  ] bsl::shared_ptr(std::auto_ptr_ref<TYPE>, bslma::Allocator * = 0);
-// [  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& alias, ELEMENT_TYPE *ptr)
-// [  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& other);
+//*[  ] bsl::shared_ptr(std::auto_ptr_ref<TYPE>, bslma::Allocator * = 0);
+//*[  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& alias, ELEMENT_TYPE *ptr)
+//*[  ] bsl::shared_ptr(const bsl::shared_ptr<OTHER>& other);
 //*[ 3] bsl::shared_ptr(const bsl::shared_ptr& original);
-// [  ] bsl::shared_ptr(const bsl::weak_ptr<OTHER>& alias);
+//*[  ] bsl::shared_ptr(const bsl::weak_ptr<OTHER>& alias);
 // [ 3] bsl::shared_ptr(bslma::SharedPtrRep *rep);
 // [ 2] ~bsl::shared_ptr();
 //
@@ -142,7 +142,7 @@ using namespace BloombergLP;
 // [23] bool operator> (const bsl::shared_ptr<A>&, const bsl::shared_ptr<B>&);
 // [23] bool operator> (const bsl::shared_ptr<A>&, bsl::nullptr_t);
 // [23] bool operator> (bsl::nullptr_t,            const bsl::shared_ptr<B>&);
-// [  ] bsl::ostream& operator<<(bsl::ostream&, const bsl::shared_ptr<TYPE>&);
+//*[  ] bsl::ostream& operator<<(bsl::ostream&, const bsl::shared_ptr<TYPE>&);
 // [15] void swap(bsl::shared_ptr<TYPE>& a, bsl::shared_ptr<TYPE>& b);
 // [15] DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>&);
 // [ 9] shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>&);
@@ -1992,6 +1992,22 @@ int TestSharedPtrRep<TYPE>::disposeObjectCount() const
                          // struct PerformanceTester
                          // ------------------------
 
+static
+inline
+void printPerformanceStats(bsls::Types::Int64 numAllocations,
+                           bsls::Types::Int64 numBytes,
+                           bsls::Types::Int64 numCopies,
+                           bsls::Types::Int64 numDeletes)
+{
+    printf("\t%lld allocations, %lld bytes\n"
+           "\t%lld copies of test objects\n"
+           "\t%lld deletions of test objects\n",
+           numAllocations,
+           numBytes,
+           numCopies,
+           numDeletes);
+}
+
 template <class POINTER>
 void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
 {
@@ -2019,18 +2035,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Creating " << BIG_VECTOR_SIZE << " owned objects in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Creating %d owned objects in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // 0 TBD fix printing
 
     for (int i = 1; i < BIG_VECTOR_SIZE; ++i) {
         mZ[i]->~TObj();
@@ -2044,19 +2058,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         new(mZ[i]) TObj(*Z[0]);
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Copy-constructing " << BIG_VECTOR_SIZE - 1
-         << " owned objects in " << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / (BIG_VECTOR_SIZE - 1) << "s each)"
-         << endl;
+    printf("Copy-constructing %d owned objects in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE - 1,
+           timer.elapsedTime(),
+           timer.elapsedTime() / (BIG_VECTOR_SIZE-1));
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // 0 TBD fix printing
 
     deleteCounter = copyCounter = 0;
     numAlloc = ta.numAllocations();
@@ -2066,18 +2077,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         ((bslma::Allocator *)&ta)->deleteObject(mZ[i]);
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Destroying " << BIG_VECTOR_SIZE << " owned objects in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Destroying %d owned objects in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // 0 TBD fix printing
 
     deleteCounter = copyCounter = 0;
     numAlloc = ta.numAllocations();
@@ -2085,17 +2094,13 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
     }
-#if 0 // TBD fix printing
-    printf("Rehydrated " << BIG_VECTOR_SIZE
-         << " owned objects\n");;
+    printf("Rehydrated %d owned objects\n", (int)BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // 0 TBD fix printing
 
     bsl::vector<POINTER> mX(&ta);
     const bsl::vector<POINTER>& X = mX;
@@ -2126,19 +2131,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         new(&mX[i]) POINTER(Z[i], &ta);
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Creating " << BIG_VECTOR_SIZE
-         << " distinct shared pointers in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Creating %d distinct shared pointers in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // 0 TBD fix printing
 
     timer.reset();
     deleteCounter = copyCounter = 0;
@@ -2149,19 +2151,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         (&mX[i])->~POINTER();
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Destroying " << BIG_VECTOR_SIZE
-         << " distinct shared pointers in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Destroying %d distinct shared pointers in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // 0 TBD fix printing
 
     // Note:  Z now contains dangling pointers.  Rehydrate!
     deleteCounter = copyCounter = 0;
@@ -2170,17 +2169,13 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
     }
-#if 0 // TBD fix printing
-    printf("Rehydrated " << BIG_VECTOR_SIZE
-         << " owned objects\n");;
+    printf("Rehydrated %d owned objects\n", (int)BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // 0 TBD fix printing
 
     {
         POINTER Y(Z[0], &ta);
@@ -2193,20 +2188,17 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
             new(&mX[i]) POINTER(Y);
         }
         timer.stop();
-#if 0 // TBD fix printing
-        printf("Creating " << BIG_VECTOR_SIZE
-             << " copies of the same shared pointer in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+        printf(
+           "Creating %d copies of the same shared pointer in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
         if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc
-                 << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
+            printPerformanceStats(ta.numAllocations() - numAlloc,
+                                  ta.numBytesInUse() - numBytes,
+                                  copyCounter,
+                                  deleteCounter);
         }
-#endif // 0 TBD fix printing
     }
 
     timer.reset();
@@ -2218,19 +2210,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         (&mX[i])->~POINTER();
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Destroying " << BIG_VECTOR_SIZE
-         << " times the same shared pointer in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Destroying %d times the same shared pointer in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // TBD fix printing
 
     // Note:  Z[0] is now dangling, and X contains only empty shared
     // pointers.  Rehydrate, but with empty shared pointers!
@@ -2241,17 +2230,14 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         new(&mX[i]) POINTER();
     }
-#if 0 // TBD fix printing
-    printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
-         << " empty shared pointers\n");;
+    printf("Rehydrated 1 owned object and %d empty shared pointers\n",
+            (int)BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // TBD fix printing
 
     printf("\nCreating in-place representations."
            "\n----------------------------------\n");
@@ -2265,19 +2251,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         mX[i].createInplace(&ta, *Z[i]);
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Creating " << BIG_VECTOR_SIZE
-         << " distinct in-place shared pointers in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Creating %d distinct in-place shared pointers in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // TBD fix printing
 
     timer.reset();
     deleteCounter = copyCounter = 0;
@@ -2288,19 +2271,17 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         (&mX[i])->~POINTER();
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Destroying " << BIG_VECTOR_SIZE
-         << " distinct in-place shared pointers in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf(
+         "Destroying %d distinct in-place shared pointers in %gs (%gs each)\n",
+         (int)BIG_VECTOR_SIZE,
+         timer.elapsedTime(),
+         timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // TBD fix printing
 
     printf("\nCreating aliased shared pointers."
            "\n---------------------------------\n");
@@ -2316,20 +2297,17 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
             new(&mX[i]) POINTER(Y, Z[i]);
         }
         timer.stop();
-#if 0 // TBD fix printing
-        printf("Creating " << BIG_VECTOR_SIZE
-             << " aliases of the same shared pointer in "
-             << timer.elapsedTime() << "s ("
-             << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+        printf("Creating %d aliases of the same shared pointer in %gs"
+               " (%gs each)\n",
+               (int)BIG_VECTOR_SIZE,
+               timer.elapsedTime(),
+               timer.elapsedTime() / BIG_VECTOR_SIZE);
         if (verbose) {
-            printf("\t" << ta.numAllocations() - numAlloc
-                 << " allocations, "
-                 << ta.numBytesInUse() - numBytes << " bytes\n"
-                 << "\t" << copyCounter << " copies of test objects\n"
-                 << "\t" << deleteCounter << " deletions of test objects"
-                 << endl;
+            printPerformanceStats(ta.numAllocations() - numAlloc,
+                                  ta.numBytesInUse() - numBytes,
+                                  copyCounter,
+                                  deleteCounter);
         }
-#endif // TBD fix printing
     }
 
     timer.reset();
@@ -2341,19 +2319,17 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         (&mX[i])->~POINTER();
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Destroying " << BIG_VECTOR_SIZE
-         << " aliases of the same shared pointer in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Destroying %d aliases of the same shared pointer in %gs"
+           " (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif  // TBD fix printing
 
     // Note:  Z[0] is now dangling, and X contains only empty shared
     // pointers.  Rehydrate!
@@ -2364,17 +2340,14 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         new(&mX[i]) POINTER(Z[i], &ta);
     }
-#if 0 // TBD fix printing
-    printf("Rehydrated 1 owned object and " << BIG_VECTOR_SIZE
-         << " shared pointers\n");;
+    printf("Rehydrated 1 owned object and %d shared pointers\n",
+           (int)BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // TBD fix printing
 
     // -------------------------------------------------------------------
     printf("\nAssignment."
@@ -2393,20 +2366,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         mX.back() = Y;
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Assigning " << BIG_VECTOR_SIZE + 1
-         << " distinct shared pointers in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / (BIG_VECTOR_SIZE + 1) << "s each)"
-         << endl;
+    printf("Assigning %d distinct shared pointers in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE + 1,
+           timer.elapsedTime(),
+           timer.elapsedTime() / (BIG_VECTOR_SIZE+1));
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // TBD fix printing
 
     timer.reset();
     deleteCounter = copyCounter = 0;
@@ -2420,19 +2389,16 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         }
     }
     timer.stop();
-#if 0 // TBD fix printing
-    printf("Assigning " << BIG_VECTOR_SIZE
-         << " times the same shared pointer in "
-         << timer.elapsedTime() << "s ("
-         << timer.elapsedTime() / BIG_VECTOR_SIZE << "s each)\n");;
+    printf("Assigning %d times the same shared pointer in %gs (%gs each)\n",
+           (int)BIG_VECTOR_SIZE,
+           timer.elapsedTime(),
+           timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
+        printPerformanceStats(ta.numAllocations() - numAlloc,
+                              ta.numBytesInUse() - numBytes,
+                              copyCounter,
+                              deleteCounter);
     }
-#endif // TBD fix printing
 
     // Note:  Z now contains dangling pointers, except Z[0].  Rehydrate!
     // Note:  Z now contains dangling pointers.  Rehydrate!
@@ -2442,17 +2408,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
     }
-#if 0 // TBD fix printing
-    printf("Rehydrated " << BIG_VECTOR_SIZE
-         << " owned objects\n");;
-    if (verbose) {
-        printf("\t" << ta.numAllocations() - numAlloc << " allocations, "
-             << ta.numBytesInUse() - numBytes << " bytes\n"
-             << "\t" << copyCounter << " copies of test objects\n"
-             << "\t" << deleteCounter << " deletions of test objects"
-             << endl;
-    }
-#endif // TBD fix printing
+    printf("Rehydrated %d owned objects\n", (int)BIG_VECTOR_SIZE);
 
     // -------------------------------------------------------------------
     printf("\nPooling out-of-place representations."
