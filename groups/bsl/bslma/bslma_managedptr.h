@@ -1445,7 +1445,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *)
 {
 }
 
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline

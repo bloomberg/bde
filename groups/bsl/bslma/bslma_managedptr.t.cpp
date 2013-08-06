@@ -176,6 +176,30 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 //=============================================================================
+//            MACROS TO TRANSPARENTLY TEST DIFFERENT (BETA) SEMANTICS
+//-----------------------------------------------------------------------------
+// Note that the macros defined in this section are entirely transitional, to
+// support testing code that may or may not be adjusted to handle the new BDE
+// smart pointer semantics.
+//
+// If the macro BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521
+// is defined, then the original smenatics for constucting a mmanaged pointer
+// with a single pointer argument are in force, which assume that the passed
+// pointer was constructed dynamically using the default allocator.  By default
+// we now assume the C++11 shared_ptr semantic, which is that a naked 'new'
+// call was used.
+
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
+#   define BSLMA_IMPLICIT_ALLOCATOR (da)
+#else
+#   define BSLMA_IMPLICIT_ALLOCATOR
+#endif
+    // The 'BSLMA_IMPLICIT_ALLOCATOR' macro can be used in a 'new' expression
+    // to get default semantic for dynamically allocating an object whose
+    // address will be passed to a managed pointer constructor or 'load' method
+    // without explicitly passing an allocator.  This assumes that the
+    // default allocator is aliased as 'da'
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 namespace {
@@ -1445,9 +1469,9 @@ void doConstructObject(int callLine, int testLine, int index,
         validateManagedState(L_, testObject, 0, del);
     }
     else {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
         bslma::Allocator& da = *bslma::Default::defaultAllocator();
-        pO = new(da)ObjectType(&deleteCount);
+        pO = new(da) ObjectType(&deleteCount);
         args->d_useDefault = true;
 
         bslma::ManagedPtr<POINTER_TYPE> testObject(pO);
@@ -6054,7 +6078,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
             a_mp1 = b_mp1;      // conversion assignment of nil ptr to nil
             ASSERT(!a_mp1 && !b_mp1);
 
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
             B *b_p2 = new (localDefaultTa) B(&numdels);
 #else
             B *b_p2 = new B(&numdels);
@@ -6466,11 +6490,7 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p = new MyTestObject(&numDeletes);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             Obj o(p);
 
             ASSERT(0 == numDeletes);
@@ -6484,9 +6504,8 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             TObj *p;
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
             {
-                p = new (da) MyTestObject(&numDeletes);
+                p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
                 Obj o(p);
 
                 ASSERT(p == o.release().first);
@@ -6496,19 +6515,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == numDeletes);
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
             da.deleteObject(p);
 #else
-            {
-                p = new MyTestObject(&numDeletes);
-                Obj o(p);
-
-                ASSERT(p == o.release().first);
-                ASSERT(0 == numDeletes);
-
-                ASSERT(!o && !o.ptr());
-            }
-
-            ASSERT(0 == numDeletes);
             delete p;
 #endif
         }
@@ -6518,9 +6527,8 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             TObj *p;
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
             {
-                p =  new (da) MyTestObject(&numDeletes);
+                p =  new BSLMA_IMPLICIT_ALLOCATOR  MyTestObject(&numDeletes);
                 Obj o(p);
 
                 bslma::ManagedPtrDeleter d(o.deleter());
@@ -6533,22 +6541,9 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == numDeletes);
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
             da.deleteObject(p);
 #else
-            {
-                p =  new MyTestObject(&numDeletes);
-                Obj o(p);
-
-                bslma::ManagedPtrDeleter d(o.deleter());
-                bslma::ManagedPtrDeleter d2(o.release().second);
-                ASSERT(0 == numDeletes);
-
-                ASSERT(d.object()  == d2.object());
-                ASSERT(d.factory() == d2.factory());
-                ASSERT(d.deleter() == d2.deleter());
-            }
-
-            ASSERT(0 == numDeletes);
             delete p;
 #endif
         }
@@ -6684,11 +6679,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p =  new MyTestObject(&numDeletes);
-#endif
+            TObj *p =  new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
 
             Obj o(p);
             Obj o2;
@@ -6703,11 +6694,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p =  new MyTestObject(&numDeletes);
-#endif
+            TObj *p =  new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
 
             Obj o(p);
 
@@ -6720,11 +6707,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p =  new MyTestObject(&numDeletes);
-#endif
+            TObj *p =  new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
 
             Obj o;
             Obj o2(p);
@@ -6740,13 +6723,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p =  new MyTestObject(&numDeletes);
-            TObj *p2 = new MyTestObject(&numDeletes);
-#endif
+            TObj *p =  new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
+            TObj *p2 = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
 
             Obj o(p);
             Obj o2(p2);
@@ -6762,13 +6740,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p =   new (da) MyTestObject(&numDeletes);
-            TDObj *p2 = new (da) MyDerivedObject(&numDeletes);
-#else
-            TObj *p =   new MyTestObject(&numDeletes);
-            TDObj *p2 = new MyDerivedObject(&numDeletes);
-#endif
+            TObj *p =   new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
+            TDObj *p2 = new BSLMA_IMPLICIT_ALLOCATOR MyDerivedObject(&numDeletes);
 
             Obj o(p);
             DObj o2(p2);
@@ -6789,11 +6762,7 @@ int main(int argc, char *argv[])
 
             Obj o2;
             {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-                TObj *p = new (da) MyTestObject(&numDeletes);
-#else
-                TObj *p = new MyTestObject(&numDeletes);
-#endif
+                TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
                 Obj o(p);
 
                 bslma::ManagedPtr_Ref<TObj> r = o;
@@ -6807,11 +6776,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p = new MyTestObject(&numDeletes);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             Obj o(p);
             Obj o2;
 
@@ -6832,11 +6797,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TDObj *p = new (da) MyDerivedObject(&numDeletes);
-#else
-            TDObj *p = new MyDerivedObject(&numDeletes);
-#endif
+            TDObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyDerivedObject(&numDeletes);
             DObj o(p);
             Obj o2;
 
@@ -6924,13 +6885,8 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p =  new MyTestObject(&numDeletes);
-            TObj *p2 = new MyTestObject(&numDeletes);
-#endif
+            TObj *p =  new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
+            TObj *p2 = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
 
             Obj o(p);
             Obj o2(p2);
@@ -6946,11 +6902,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-#else
-            TObj *p =  new MyTestObject(&numDeletes);
-#endif
+            TObj *p =  new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             Obj o(p);
             Obj o2;
 
@@ -7181,7 +7133,7 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
         int numDeletes = 0;
         {
             SS *p = new (da) SS(&numDeletes);
@@ -7472,13 +7424,12 @@ int main(int argc, char *argv[])
         if (verbose) printf(
         "\tTest bslma::ManagedPtr(bslma::ManagedPtr_Ref<ELEMENT_TYPE> ref)\n");
 
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
         int numDeletes = 0;
         {
             // this cast tests both a cast while creating the ref,
             // and the constructor from a ref.
 
-            TDObj *p = new (da) MyDerivedObject(&numDeletes);
+            TDObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyDerivedObject(&numDeletes);
             DObj o(p);
 
             ASSERT(o);
@@ -7497,7 +7448,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            TDObj *p = new (da) MyDerivedObject(&numDeletes);
+            TDObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyDerivedObject(&numDeletes);
             DObj d(p);
             ASSERT(d.ptr() == p);
 
@@ -7506,41 +7457,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == d.ptr());
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
-#else
-        int numDeletes = 0;
-        {
-            // this cast tests both a cast while creating the ref,
-            // and the constructor from a ref.
-
-            TDObj *p = new MyDerivedObject(&numDeletes);
-            DObj o(p);
-
-            ASSERT(o);
-            ASSERT(o.ptr() == p);
-
-            bslma::ManagedPtr_Ref<TObj> r = o;
-            ASSERT(o);
-            Obj o2(r);
-
-            ASSERT(!o && !o.ptr());
-            ASSERT(0 == numDeletes);
-
-            ASSERT(o2.ptr() == p);
-        }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            TDObj *p = new MyDerivedObject(&numDeletes);
-            DObj d(p);
-            ASSERT(d.ptr() == p);
-
-            Obj o(d);
-            ASSERT(o.ptr() == p);
-            ASSERT(0 == d.ptr());
-        }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
-#endif
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -7748,7 +7664,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\tconst-qualified int\n");
 
             bslma::TestAllocatorMonitor dam(&da);
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
             {
                 const int *p = new (da) const int(0);
 
@@ -7781,7 +7697,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\tint -> const int conversion\n");
 
             bslma::TestAllocatorMonitor dam(&da);
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
+#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
             {
                 int *p = new (da) int;
 
@@ -9214,11 +9130,7 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new(da) MyTestObject(&numDeletes);
-#else
-            TObj *p = new MyTestObject(&numDeletes);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o(p);
@@ -9234,11 +9146,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new(da) MyTestObject(&numDeletes);
-#else
-            TObj *p = new MyTestObject(&numDeletes);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o(p);
@@ -9284,11 +9192,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TDObj *p = new(da) MyDerivedObject(&numDeletes);
-#else
-            TDObj *p = new MyDerivedObject(&numDeletes);
-#endif
+            TDObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyDerivedObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             DObj o(p);
@@ -9314,11 +9218,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TDObj *p = new(da) MyDerivedObject(&numDeletes);
-#else
-            TDObj *p = new MyDerivedObject(&numDeletes);
-#endif
+            TDObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyDerivedObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             DObj o(p);
@@ -9372,11 +9272,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new(da) MyTestObject(&numDeletes);
-#else
-            TObj *p = new MyTestObject(&numDeletes);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             ASSERT(0 != p);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
@@ -9393,11 +9289,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TDObj *p = new(da) MyDerivedObject(&numDeletes);
-#else
-            TDObj *p = new MyDerivedObject(&numDeletes);
-#endif
+            TDObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyDerivedObject(&numDeletes);
             ASSERT(0 != p);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
@@ -9415,11 +9307,7 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             int numDeletes2 = 0;
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new(da) MyTestObject(&numDeletes2);
-#else
-            TObj *p = new MyTestObject(&numDeletes2);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes2);
             ASSERT(0 != p);
             ASSERT(0 == numDeletes2);
 
@@ -9440,11 +9328,7 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             int numDeletes2 = 0;
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new(da) MyTestObject(&numDeletes2);
-#else
-            TObj *p = new MyTestObject(&numDeletes2);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes2);
             ASSERT(0 == numDeletes2);
 
             Obj o(p);
@@ -9463,11 +9347,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new(da) MyTestObject(&numDeletes);
-#else
-            TObj *p = new MyTestObject(&numDeletes);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o(p);
@@ -9493,11 +9373,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-#if defined(BDEMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS)
-            TObj *p = new(da) MyTestObject(&numDeletes);
-#else
-            TObj *p = new MyTestObject(&numDeletes);
-#endif
+            TObj *p = new BSLMA_IMPLICIT_ALLOCATOR MyTestObject(&numDeletes);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o(p);
