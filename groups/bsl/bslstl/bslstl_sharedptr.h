@@ -1700,13 +1700,15 @@ class shared_ptr {
 
     // PRIVATE TYPES
     typedef shared_ptr<ELEMENT_TYPE> SelfType;
-        // 'SelfType' is an alias to this 'class'.
+        // 'SelfType' is an alias to this 'class', for compilers that do not
+        // recognize plain 'shared_ptr'.
 
     typedef typename BloombergLP::bsls::UnspecifiedBool<shared_ptr>::BoolType
                                                                       BoolType;
 
     // FRIENDS
-    template <class COMPATIBLE_TYPE> friend class shared_ptr;
+    template <class COMPATIBLE_TYPE>
+    friend class shared_ptr;
 
   private:
     // PRIVATE CLASS METHODS
@@ -1737,6 +1739,7 @@ class shared_ptr {
         // installed default allocator to provide storage.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if 0
     explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
         // Create a shared pointer taking ownership of the specified 'rep' and
         // pointing to the object stored in the specified 'rep'.  The behavior
@@ -1751,6 +1754,7 @@ class shared_ptr {
         //..
         //  shared_ptr(TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
         //..
+#endif
 #endif
 
   public:
@@ -1772,6 +1776,7 @@ class shared_ptr {
 
     // CREATORS
     shared_ptr();
+    shared_ptr(bsl::nullptr_t);                                     // IMPLICIT
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation, that does not refer to any object and has no
         // deleter.
@@ -2623,7 +2628,8 @@ class weak_ptr {
                                                // owned)
 
     // FRIENDS
-    template <class COMPATIBLE_TYPE> friend class weak_ptr;
+    template <class COMPATIBLE_TYPE>
+    friend class weak_ptr;
         // This 'friend' declaration provides access to the internal data
         // members while constructing a weak pointer from a weak pointer of a
         // different type.
@@ -2985,7 +2991,7 @@ struct SharedPtr_DefaultDeleter {
     // This 'struct' provides a function-like shared pointer deleter that
     // invokes 'delete' with the passed pointer.
 
-    // MANIPULATORS
+    // ACCESSORS
     void operator()(ANY_TYPE *ptr) const;
         // Calls 'delete(ptr)'.
 };
@@ -3058,6 +3064,14 @@ shared_ptr<ELEMENT_TYPE>::makeInternalRep(
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr()
+: d_ptr_p(0)
+, d_rep_p(0)
+{
+}
+
+template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t)
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -3282,16 +3296,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
 
     swap(value);
 }
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class ELEMENT_TYPE>
-inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
-: d_ptr_p(rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0)
-, d_rep_p(rep)
-{
-}
-#endif
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::~shared_ptr()
@@ -4214,33 +4218,31 @@ size_t hash<shared_ptr<ELEMENT_TYPE> >::operator()(
 // STANDARD CAST FUNCTIONS
 template<class TO_TYPE, class FROM_TYPE>
 bsl::shared_ptr<TO_TYPE>
-bsl::const_pointer_cast(const shared_ptr<FROM_TYPE>& source) {
+bsl::const_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+{
     return shared_ptr<TO_TYPE>(source, const_cast<TO_TYPE *>(source.ptr()));
 }
 
 template<class TO_TYPE, class FROM_TYPE>
 bsl::shared_ptr<TO_TYPE>
-bsl::dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source) {
+bsl::dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+{
     return shared_ptr<TO_TYPE>(source, dynamic_cast<TO_TYPE *>(source.ptr()));
 }
 
 template<class TO_TYPE, class FROM_TYPE>
 bsl::shared_ptr<TO_TYPE>
-bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source) {
+bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+{
     return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.ptr()));
 }
 
 // STANDARD FREE FUNCTIONS
 template<class DELETER, class ELEMENT_TYPE>
-DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p) {
-    // TBD Check if the deleter owned by p.rep() hsa the same typeid as DELETER
-    // and if so, return a pointer to that deleter.
-    if (BloombergLP::bslma::SharedPtrRep *rep = p.rep()) {
-        if (void *del = rep->getDeleter(typeid(DELETER))) {
-            return static_cast<DELETER *>(del);
-        }
-    }
-    return 0;
+DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
+{
+    BloombergLP::bslma::SharedPtrRep *rep = p.rep();
+    return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
 }
 
 namespace BloombergLP {

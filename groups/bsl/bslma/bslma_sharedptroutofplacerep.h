@@ -1,4 +1,4 @@
-// bslma_sharedptroutofplacerep.h                                    -*-C++-*-
+// bslma_sharedptroutofplacerep.h                                     -*-C++-*-
 #ifndef INCLUDED_BSLMA_SHAREDPTROUTOFPLACEREP
 #define INCLUDED_BSLMA_SHAREDPTROUTOFPLACEREP
 

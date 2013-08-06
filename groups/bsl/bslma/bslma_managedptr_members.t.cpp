@@ -1,9 +1,9 @@
 // bslma_managedptr_members.t.cpp                                     -*-C++-*-
 #include <bslma_managedptr_members.h>
 
-#include <bslma_managedptr_factorydeleter.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_managedptr_factorydeleter.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bsls_assert.h>
@@ -54,8 +54,6 @@ void aSsErT(bool b, const char *s, int i)
     }
 
 }
-
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -601,7 +599,7 @@ int main(int argc, char *argv[])
                 int d_x;
                 static void deleter(void *a, void *b)
                 {
-                    Local * pThis = reinterpret_cast<Local *>(a);
+                    Local * pThis = static_cast<Local *>(a);
                     ASSERT(&pThis->d_x == b);
                     ASSERT(13 == pThis->d_x);
                     pThis->d_x = 42;

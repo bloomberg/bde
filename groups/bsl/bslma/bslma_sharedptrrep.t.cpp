@@ -1,9 +1,9 @@
 // bslma_sharedptrrep.t.cpp                                           -*-C++-*-
 #include <bslma_sharedptrrep.h>
 
-#include <bslma_testallocator.h>                // for testing only
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_testallocator.h>
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -142,6 +142,7 @@ class MyTestImplementation : public bslma::SharedPtrRep{
     // MANIPULATORS
     virtual void disposeRep();
     virtual void disposeObject();
+    virtual void *getDeleter(const std::type_info& type);
 };
 
                          // --------------------------
@@ -186,6 +187,11 @@ void MyTestImplementation::disposeObject()
     // 'disposeObject' is called or not.
 
     ++d_numObjectDisposed;
+}
+
+void *MyTestImplementation::getDeleter(const std::type_info& type)
+{
+    return 0;
 }
 
 #if 0  // TBD Need an appropriately levelized usage example

@@ -2,7 +2,7 @@
 #ifndef INCLUDED_BSLMA_MANAGEDPTR_FACTORYDELETER
 #define INCLUDED_BSLMA_MANAGEDPTR_FACTORYDELETER
 
-#ifndef INCLUDED_BDES_IDENT
+#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id$ $CSID$")
@@ -36,7 +36,7 @@ namespace bslma {
                    // struct ManagedPtr_FactoryDeleter
                    // ================================
 
-template <class ELEMENT_TYPE, typename FACTORY>
+template <class ELEMENT_TYPE, class FACTORY>
 struct ManagedPtr_FactoryDeleter {
     // This utility provides a general deleter for objects that provide a
     // 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdema_Pool').
@@ -61,7 +61,7 @@ struct ManagedPtr_FactoryDeleter {
                     // struct ManagedPtr_FactoryDeleter
                     // --------------------------------
 
-template <class ELEMENT_TYPE, typename FACTORY>
+template <class ELEMENT_TYPE, class FACTORY>
 inline
 void ManagedPtr_FactoryDeleter<ELEMENT_TYPE, FACTORY>::deleter(void *object,
                                                                void *factory)
@@ -69,8 +69,8 @@ void ManagedPtr_FactoryDeleter<ELEMENT_TYPE, FACTORY>::deleter(void *object,
     BSLS_ASSERT_SAFE(0 != object);
     BSLS_ASSERT_SAFE(0 != factory);
 
-    reinterpret_cast<FACTORY *>(factory)->deleteObject(
-                                     reinterpret_cast<ELEMENT_TYPE *>(object));
+    static_cast<FACTORY *>(factory)->deleteObject(
+                                          static_cast<ELEMENT_TYPE *>(object));
 }
 
 }  // close package namespace

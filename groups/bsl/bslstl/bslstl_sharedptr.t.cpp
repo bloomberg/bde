@@ -1,8 +1,8 @@
 // bslstl_sharedptr.t.cpp                                             -*-C++-*-
 #include <bslstl_sharedptr.h>
 
-#include <bslma_managedptr.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_managedptr.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -999,7 +999,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
       public:
         // MANIPULATORS
-        void addAlert(const bsl::shared_ptr<Alert>& alertPtr) {
+        void addAlert(const bsl::shared_ptr<Alert>& alertPtr)
+        {
             // Add the specified 'alertPtr' to the list of alerts being
             // monitored by this user.
 
@@ -1021,7 +1022,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
       public:
         // MANIPULATORS
-        void addUser(const bsl::shared_ptr<User>& userPtr) {
+        void addUser(const bsl::shared_ptr<User>& userPtr)
+        {
             // Add the specified 'userPtr' to the list of users monitoring this
             // alert.
 
@@ -1055,7 +1057,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
       public:
         // MANIPULATORS
-        void addAlert(const bsl::shared_ptr<ModifiedAlert>& alertPtr) {
+        void addAlert(const bsl::shared_ptr<ModifiedAlert>& alertPtr)
+        {
             // Add the specified 'alertPtr' to the list of alerts being
             // monitored by this user.
 
@@ -1071,7 +1074,7 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
     class ModifiedAlert {
         // This class stores the alert information required for sending
         // alerts.
-//
+
 //..
 // Note that the user is stored by a weak pointer instead of by a shared
 // pointer:
@@ -1081,7 +1084,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
       public:
         // MANIPULATORS
-        void addUser(const bsl::weak_ptr<ModifiedUser>& userPtr) {
+        void addUser(const bsl::weak_ptr<ModifiedUser>& userPtr)
+        {
             // Add the specified 'userPtr' to the list of users monitoring this
             // alert.
 
@@ -1274,7 +1278,6 @@ int    x = 1;
 int    y = 2;
 double z = 3.0;
 
-//bslma::NewDeleteAllocator *nda = &bslma::NewDeleteAllocator::singleton();
 bslma::TestAllocator g_alloc16("test case 16");
 const bsl::shared_ptr<int> ptrNil((int *)0, &g_alloc16);
 const bsl::shared_ptr<int> ptr1(&x, bslstl::SharedPtrNilDeleter(), &g_alloc16);
@@ -1382,7 +1385,7 @@ class MyPDTestObject {
 
 template <int N>
 class MyTestArg {
-    // This class template declares a separate type for each template paramater
+    // This class template declares a separate type for each template parameter
     // value 'N', that wraps an integer value and provides implicit conversion
     // to and from 'int'.  Its main purpose is that having separate types
     // allows to distinguish them in function interface, thereby avoiding
@@ -1582,7 +1585,7 @@ class MyTestObjectFactory {
   public:
     // CREATORS
     MyTestObjectFactory();
-    MyTestObjectFactory(bslma::Allocator *basicAllocator);
+    explicit MyTestObjectFactory(bslma::Allocator *basicAllocator);
 
     // ACCESSORS
     void deleteObject(MyTestObject *obj) const;
@@ -3919,8 +3922,11 @@ int main(int argc, char *argv[])
 
         bsls::Types::Int64 obj1, obj2;
 
-        struct local {
-            static bslma::ManagedPtr<bsls::Types::Int64> makeManagedInt(bsls::Types::Int64 x) {
+        struct Local {
+            static
+            bslma::ManagedPtr<bsls::Types::Int64> makeManagedInt(
+                                                          bsls::Types::Int64 x)
+            {
                 bslma::Allocator *pda = bslma::Default::defaultAllocator();
                 bsls::Types::Int64 *pX = new(*pda) bsls::Types::Int64(x);
                 return bslma::ManagedPtr<bsls::Types::Int64>(pX, pda);
@@ -3949,10 +3955,10 @@ int main(int argc, char *argv[])
         ASSERT(&obj2 == deleter.providedObj());
 
         {
-            bsl::shared_ptr<bsls::Types::Int64> sp1 ( local::makeManagedInt(13));
-//            bsl::shared_ptr<bsls::Types::Int64> sp2 = local::makeManagedInt(42);
+            bsl::shared_ptr<bsls::Types::Int64> sp1(Local::makeManagedInt(13));
+//          bsl::shared_ptr<bsls::Types::Int64> sp2 = Local::makeManagedInt(2);
         }
-//        outerSp = local::makeManagedInt(42);
+//        outerSp = Local::makeManagedInt(42);
 
 #if 1
         bslma::ManagedPtr<MyTestObject>   mpd1(new MyTestObject(&obj1));
@@ -4528,7 +4534,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING nothing, this slot is available to be repurposed 
+        // TESTING nothing, this slot is available to be repurposed
         //
         // Plan: TBD
         //
@@ -4772,7 +4778,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING nothing, this slot is available to be repurposed 
+        // TESTING nothing, this slot is available to be repurposed
         //
         // Plan: TBD
         //
@@ -4877,7 +4883,7 @@ int main(int argc, char *argv[])
                                                                     size, &ta);
                 strncpy(X.ptr(), EXP, size);
 
-                static const int ALLOC_SIZE =
+                static const size_t ALLOC_SIZE =
                     sizeof(bslma::SharedPtrInplaceRep<char>) + size - 1;
                 LOOP_ASSERT(size, ++numAllocations == ta.numAllocations());
                 LOOP_ASSERT(size, ALLOC_SIZE <= ta.lastAllocatedNumBytes());
@@ -5512,7 +5518,11 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-#if 0
+#if 0 // !defined(BSLSTL_REFERENCE_COUNTING_NULLS)
+        if (verbose)
+            printf("\nTesting load of null ptr(on empty object)"
+                   "\n-----------------------------------------\n");
+
         numDeallocations = ta.numDeallocations();
         {
             Obj x; const Obj& X=x;
@@ -5535,49 +5545,10 @@ int main(int argc, char *argv[])
             ASSERT(numAllocations == ta.numAllocations());
         }
         ASSERT(numDeallocations == ta.numDeallocations());
-#else
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        numDefaultDeallocations = defaultAllocator.numDeallocations();
-        numDefaultAllocations   = defaultAllocator.numAllocations();
-        {
-            Obj x; const Obj& X=x;
-            x.load((TObj*)0);
-            ASSERT(0 == X.ptr());
-            ASSERT(1 == X.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-            ASSERT(numDefaultDeallocations == defaultAllocator.numDeallocations());
-            ASSERT(++numDefaultAllocations == defaultAllocator.numAllocations());
-
-            Obj y; const Obj& Y=y;
-            y.load((TObj*)0, &ta);
-            ASSERT(0 == Y.ptr());
-            ASSERT(1 == Y.numReferences());
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-            ASSERT(numDefaultDeallocations == defaultAllocator.numDeallocations());
-            ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
-
-            Obj z; const Obj& Z=z;
-            z.load((TObj*)0, &ta, &ta);
-            ASSERT(0 == Z.ptr());
-            ASSERT(1 == Z.numReferences());
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-            ASSERT(numDefaultDeallocations == defaultAllocator.numDeallocations());
-            ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
-        }
-        ASSERT(numAllocations == ta.numAllocations());
-        ASSERT(2+numDeallocations == ta.numDeallocations());
-        ASSERT(++numDefaultDeallocations == defaultAllocator.numDeallocations());
-        ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
-#endif
 
         if (verbose)
             printf("\nTesting load of null ptr(on non-empty object)"
                    "\n---------------------------------------------\n");
-#if 0
         {
             numDeletes = 0;
             Obj x(new (ta) TObj(&numDeletes), &ta, 0); const Obj& X=x;
@@ -5593,36 +5564,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(numDeallocations == ta.numDeallocations());
-#else   // C++11 reference counts explicitly supplied null pointers
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        numDefaultDeallocations = defaultAllocator.numDeallocations();
-        numDefaultAllocations   = defaultAllocator.numAllocations();
-        {
-            numDeletes = 0;
-            Obj x(new (ta) TObj(&numDeletes), &ta, 0); const Obj& X=x;
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-            ASSERT(numDefaultDeallocations == defaultAllocator.numDeallocations());
-            ASSERT(++numDefaultAllocations == defaultAllocator.numAllocations());
-            ASSERT(0 == numDeletes);
 
-            x.load((TObj*)0);
-            ASSERT(1 == numDeletes);
-            ASSERT(numAllocations == ta.numAllocations());
-            ASSERT(++numDeallocations == ta.numDeallocations());
-            ASSERT(++numDefaultDeallocations == defaultAllocator.numDeallocations());
-            ASSERT(++numDefaultAllocations   == defaultAllocator.numAllocations());
-            ASSERT(0 == X.ptr());
-            ASSERT(1 == X.numReferences());
-        }
-        ASSERT(numAllocations == ta.numAllocations());
-        ASSERT(numDeallocations == ta.numDeallocations());
-        ASSERT(++numDefaultDeallocations == defaultAllocator.numDeallocations());
-        ASSERT(numDefaultAllocations   == defaultAllocator.numAllocations());
-#endif
-
-#if 0
         {
             numDeletes = 0;
             Obj y(new (ta) TObj(&numDeletes), &ta, 0); const Obj& Y=y;
@@ -5638,25 +5580,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(numDeallocations == ta.numDeallocations());
-#else   // C++11 reference counts explicitly supplied null pointers
-        {
-            numDeletes = 0;
-            Obj y(new (ta) TObj(&numDeletes), &ta, 0); const Obj& Y=y;
-            numAllocations = ta.numAllocations();
-            numDeallocations = ta.numDeallocations();
-            ASSERT(0 == numDeletes);
-            y.load((TObj*)0, &ta);
-            ASSERT(1 == numDeletes);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(++numDeallocations == ta.numDeallocations());
-            ASSERT(0 == Y.ptr());
-            ASSERT(1 == Y.numReferences());
-        }
-        ASSERT(numAllocations == ta.numAllocations());
-        ASSERT(++numDeallocations == ta.numDeallocations());
-#endif
 
-#if 0
         {
             numDeletes = 0;
             Obj z(new (ta) TObj(&numDeletes), &ta, 0); const Obj& Z=z;
@@ -5673,7 +5597,107 @@ int main(int argc, char *argv[])
         }
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(numDeallocations == ta.numDeallocations());
+
 #else   // C++11 reference counts explicitly supplied null pointers
+
+        if (verbose)
+            printf("\nTesting load of null ptr(on empty object)"
+                   "\n-----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        numDefaultDeallocations = defaultAllocator.numDeallocations();
+        numDefaultAllocations   = defaultAllocator.numAllocations();
+        {
+            Obj x; const Obj& X=x;
+            x.load((TObj*)0);
+            ASSERT(0 == X.ptr());
+            ASSERT(1 == X.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(++numDefaultAllocations ==
+                                            defaultAllocator.numAllocations());
+            ASSERT(numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
+
+            Obj y; const Obj& Y=y;
+            y.load((TObj*)0, &ta);
+            ASSERT(0 == Y.ptr());
+            ASSERT(1 == Y.numReferences());
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
+            ASSERT(numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
+
+            Obj z; const Obj& Z=z;
+            z.load((TObj*)0, &ta, &ta);
+            ASSERT(0 == Z.ptr());
+            ASSERT(1 == Z.numReferences());
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
+            ASSERT(numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
+        }
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT(2+numDeallocations == ta.numDeallocations());
+        ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
+        ASSERT(++numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
+
+        if (verbose)
+            printf("\nTesting load of null ptr(on non-empty object)"
+                   "\n---------------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        numDefaultDeallocations = defaultAllocator.numDeallocations();
+        numDefaultAllocations   = defaultAllocator.numAllocations();
+        {
+            numDeletes = 0;
+            Obj x(new (ta) TObj(&numDeletes), &ta, 0); const Obj& X=x;
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(++numDefaultAllocations ==
+                                            defaultAllocator.numAllocations());
+            ASSERT(numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
+            ASSERT(0 == numDeletes);
+
+            x.load((TObj*)0);
+            ASSERT(1 == numDeletes);
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(++numDefaultAllocations ==
+                                            defaultAllocator.numAllocations());
+            ASSERT(++numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
+            ASSERT(0 == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT(numDeallocations == ta.numDeallocations());
+        ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
+        ASSERT(++numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
+
+        {
+            numDeletes = 0;
+            Obj y(new (ta) TObj(&numDeletes), &ta, 0); const Obj& Y=y;
+            numAllocations = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+            ASSERT(0 == numDeletes);
+            y.load((TObj*)0, &ta);
+            ASSERT(1 == numDeletes);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(++numDeallocations == ta.numDeallocations());
+            ASSERT(0 == Y.ptr());
+            ASSERT(1 == Y.numReferences());
+        }
+        ASSERT(numAllocations == ta.numAllocations());
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
         {
             numDeletes = 0;
             Obj z(new (ta) TObj(&numDeletes), &ta, 0); const Obj& Z=z;
@@ -5689,7 +5713,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(++numDeallocations == ta.numDeallocations());
-#endif
+
+#endif  // reference counting doubles
 
         if (verbose)
             printf("\nTesting load of non-null ptr (on non-empty object)"
@@ -6356,12 +6381,12 @@ int main(int argc, char *argv[])
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-#if defined(AJM_HAS_RECONCILED_CONFLICTING_BRANCHES)
+//#if defined(AJM_HAS_RECONCILED_CONFLICTING_BRANCHES)
             Obj w(0); const Obj& W = w;
             ASSERT(0 == W.ptr());
             ASSERT(0 == W.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
-#endif // AJM_HAS_RECONCILED_CONFLICTING_BRANCHES
+//#endif // AJM_HAS_RECONCILED_CONFLICTING_BRANCHES
 
             Obj x(0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
@@ -6412,14 +6437,15 @@ int main(int argc, char *argv[])
 #else // C++11 semantic reference counts explicit nulls
         numDefaultDeallocations = defaultAllocator.numDeallocations();
         numDefaultAllocations   = defaultAllocator.numAllocations();
-        numAllocations == ta.numAllocations();
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
             Obj w((TObj*)0); const Obj& W = w;  // Rep with default allocator
             ASSERT(0 == W.ptr());
             ASSERT(1 == W.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
-            ASSERT(++numDefaultAllocations == defaultAllocator.numAllocations());
+            ASSERT(++numDefaultAllocations ==
+                                            defaultAllocator.numAllocations());
 
             Obj x((TObj*)0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
@@ -6432,7 +6458,8 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
         }
         ASSERT(2 + numDeallocations == ta.numDeallocations());
-        ASSERT(++numDefaultDeallocations == defaultAllocator.numDeallocations());
+        ASSERT(++numDefaultDeallocations ==
+                                          defaultAllocator.numDeallocations());
 #endif
 
         if (verbose)

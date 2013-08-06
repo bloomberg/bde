@@ -96,8 +96,6 @@ void aSsErT(bool b, const char *s, int i)
 
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 }  // close unnamed namespace
 
 //=============================================================================
@@ -148,20 +146,20 @@ typedef bslma::ManagedPtrDeleter Obj;
 // ============================================================================
 //                      GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
-template<typename T>
+template <class T>
 struct StatelessFactory
 {
     void destroy(T *object) const;
 };
 
-template<typename T>
+template <class T>
 void StatelessFactory<T>::destroy(T *object) const
 {
     ASSERT(object);
     ++*object;
 }
 
-template<typename T>
+template <class T>
 class StatefulFactory
 {
     T d_data;
@@ -175,7 +173,7 @@ class StatefulFactory
     void destroy(T *object) const;
 };
 
-template<typename T>
+template <class T>
 T *StatefulFactory<T>::create()
 {
     if (!d_empty) { return 0; }
@@ -184,7 +182,7 @@ T *StatefulFactory<T>::create()
     return &d_data;
 }
 
-template<typename T>
+template <class T>
 void StatefulFactory<T>::destroy(T *object) const
 {
     ASSERT(object == &d_data);

@@ -658,10 +658,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDPTRDELETER
-#include <bslma_managedptrdeleter.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_MANAGEDPTR_FACTORYDELETER
 #include <bslma_managedptr_factorydeleter.h>
 #endif
@@ -672,6 +668,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTR_PAIRPROXY
 #include <bslma_managedptr_pairproxy.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_MANAGEDPTRDELETER
+#include <bslma_managedptrdeleter.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ADDREFERENCE
@@ -833,7 +833,7 @@ class ManagedPtr {
         // value, e.g., in the case of multiple inheritance where 'TARGET_TYPE'
         // is not a left-most base of the complete object type.
 
-    template <typename MANAGED_TYPE>
+    template <class MANAGED_TYPE>
     static void *stripCompletePointerType(MANAGED_TYPE *ptr);
         // Return the value of the specified 'ptr' as a 'void *', after
         // stripping all 'const' and 'volatile' qualifiers from 'TARGET_TYPE'.
@@ -1180,7 +1180,7 @@ class ManagedPtr {
         // an ambiguity for this specific this case.  It should be removed when
         // the deprecated overloads are removed.
 
-    template <class MANAGED_TYPE, typename COOKIE_TYPE>
+    template <class MANAGED_TYPE, class COOKIE_TYPE>
     void load(MANAGED_TYPE *ptr, COOKIE_TYPE *cookie, DeleterFunc deleter);
 
     template <class MANAGED_TYPE, class MANAGED_BASE>
@@ -1348,7 +1348,7 @@ struct ManagedPtr_DefaultDeleter {
     // This 'struct' provides a function-like shared pointer deleter that
     // invokes 'delete' with the passed pointer.
 
-    // MANIPULATORS
+    // CLASS METHODS
     static void deleter(void *ptr, void *);
         // Calls 'delete(ptr)' after casting 'ptr' to a 'MANAGED_TYPE *'.
 };
@@ -1644,7 +1644,7 @@ void ManagedPtr<TARGET_TYPE>::loadImp(MANAGED_TYPE *ptr,
 }
 
 template <class TARGET_TYPE>
-template <class MANAGED_TYPE, typename COOKIE_TYPE>
+template <class MANAGED_TYPE, class COOKIE_TYPE>
 inline
 void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                    COOKIE_TYPE  *cookie,
@@ -1763,7 +1763,7 @@ ManagedPtr<TARGET_TYPE>::release()
     if (!p) {
         // undefined behavior to call d_members.deleter() if 'p' is null.
 
-        return ResultType();                                         // RETURN
+        return ResultType();                                          // RETURN
     }
     ResultType result = {p, d_members.deleter()};
     d_members.clear();
@@ -1772,7 +1772,8 @@ ManagedPtr<TARGET_TYPE>::release()
 #endif
 
 template <typename TARGET_TYPE>
-TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter) {
+TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
+{
     BSLS_ASSERT_SAFE(deleter);
 
     TARGET_TYPE *result = ptr();

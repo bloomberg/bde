@@ -526,7 +526,8 @@ class AllocatorDeleter
     // from 'bslma::Allocator'.
 
   public:
-    static void deleter(ELEMENT_TYPE *ptr, bslma::Allocator *alloc) {
+    static void deleter(ELEMENT_TYPE *ptr, bslma::Allocator *alloc)
+    {
         BSLS_ASSERT_SAFE(0 != ptr);
         BSLS_ASSERT_SAFE(0 != alloc);
 
@@ -618,7 +619,7 @@ static void doNothingDeleter(void *object, void *)
     ASSERT(object);
 }
 
-template<typename T>
+template <class T>
 void validateManagedState(unsigned int                   LINE,
                           const bslma::ManagedPtr<T>&     obj,
                           const void                    *ptr,
@@ -1035,7 +1036,7 @@ void debugprint(const ManagedPtrDeleter& obj)
 
 namespace {
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 struct TestLoadArgs {
     // This struct holds the set of arguments that will be passed into a
     // policy based test function.  It collects all information for the range
@@ -1057,7 +1058,7 @@ struct TestLoadArgs {
                                          // pointer on which to execute tests
 };
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void validateTestLoadArgs(int callLine,
                           int testLine,
                           const TestLoadArgs<POINTER_TYPE> *args)
@@ -1140,7 +1141,8 @@ struct Fdflt;
 struct Fbsl {
     typedef bslma::Allocator FactoryType;
 
-    static FactoryType *factory(bslma::TestAllocator *f) {
+    static FactoryType *factory(bslma::TestAllocator *f)
+    {
         return f;
     }
 
@@ -1151,7 +1153,8 @@ struct Fbsl {
 struct Ftst {
     typedef bslma::TestAllocator FactoryType;
 
-    static FactoryType *factory(bslma::TestAllocator *f) {
+    static FactoryType *factory(bslma::TestAllocator *f)
+    {
         return f;
     }
 
@@ -1162,7 +1165,8 @@ struct Ftst {
 struct Fdflt {
     typedef bslma::Allocator FactoryType;
 
-    static FactoryType *factory(bslma::TestAllocator *) {
+    static FactoryType *factory(bslma::TestAllocator *)
+    {
         return bslma::Default::defaultAllocator();
     }
 
@@ -1188,7 +1192,8 @@ struct DObjFac {
 
     enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
 
-    static void doDelete(ObjectType * object, FactoryType * factory) {
+    static void doDelete(ObjectType * object, FactoryType * factory)
+    {
         if (DELETER_USES_FACTORY) {
             factory->deleteObject(object);
         }
@@ -1200,7 +1205,8 @@ struct DObjFac {
         }
     }
 
-    static DeleterType *deleter() {
+    static DeleterType *deleter()
+    {
         return &doDelete;
     }
 };
@@ -1214,7 +1220,8 @@ struct DObjVoid {
 
     enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
 
-    static void doDelete(ObjectType * object, void * factory) {
+    static void doDelete(ObjectType * object, void * factory)
+    {
         if (DELETER_USES_FACTORY) {
             FactoryType *fac = reinterpret_cast<FactoryType *>(factory);
             fac->deleteObject(object);
@@ -1227,7 +1234,8 @@ struct DObjVoid {
         }
     }
 
-    static DeleterType *deleter() {
+    static DeleterType *deleter()
+    {
         return &doDelete;
     }
 };
@@ -1266,7 +1274,8 @@ struct DVoidFac {
 
     enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
 
-    static void doDelete(VoidType * object, FactoryType * factory) {
+    static void doDelete(VoidType * object, FactoryType * factory)
+    {
         ObjectType *obj = reinterpret_cast<ObjectType *>(object);
         if (DELETER_USES_FACTORY) {
             factory->deleteObject(obj);
@@ -1279,7 +1288,8 @@ struct DVoidFac {
         }
     }
 
-    static DeleterType *deleter() {
+    static DeleterType *deleter()
+    {
         return &doDelete;
     }
 };
@@ -1293,7 +1303,8 @@ struct DVoidVoid {
 
     enum {DELETER_USES_FACTORY = FactoryPolicy::DELETER_USES_FACTORY};
 
-    static void doDelete(void * object, void * factory) {
+    static void doDelete(void * object, void * factory)
+    {
         ObjectType *obj = reinterpret_cast<ObjectType *>(object);
         if (DELETER_USES_FACTORY) {
             FactoryType *fac = reinterpret_cast<FactoryType *>(factory);
@@ -1307,7 +1318,8 @@ struct DVoidVoid {
         }
     }
 
-    static DeleterType *deleter() {
+    static DeleterType *deleter()
+    {
         return &doDelete;
     }
 };
@@ -1351,7 +1363,7 @@ struct TestCtorArgs {
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // No policies needed for 'load' of empty managed pointers
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doConstruct(int callLine, int testLine, int index,
             TestCtorArgs *args)
 {
@@ -1363,7 +1375,7 @@ void doConstruct(int callLine, int testLine, int index,
     LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 }
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doConstructOnull(int callLine, int testLine, int index,
                  TestCtorArgs *args)
 {
@@ -1375,7 +1387,7 @@ void doConstructOnull(int callLine, int testLine, int index,
     LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 }
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doConstructOnullFnull(int callLine, int testLine, int index,
                       TestCtorArgs *args)
 {
@@ -1387,7 +1399,7 @@ void doConstructOnullFnull(int callLine, int testLine, int index,
     LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 }
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doConstructOnullFnullDnull(int callLine, int testLine, int index,
                            TestCtorArgs *args)
 {
@@ -1852,7 +1864,7 @@ void doConstructObjectFnullDeleter(int callLine, int testLine, int index,
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // No policies needed for 'load' of empty managed pointers
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doLoad(int callLine, int testLine, int index,
             TestLoadArgs<POINTER_TYPE> *args)
 {
@@ -1872,7 +1884,7 @@ void doLoad(int callLine, int testLine, int index,
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doLoadOnull(int callLine, int testLine, int index,
                  TestLoadArgs<POINTER_TYPE> *args)
 {
@@ -1892,7 +1904,7 @@ void doLoadOnull(int callLine, int testLine, int index,
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doLoadOnullFnull(int callLine, int testLine, int index,
                       TestLoadArgs<POINTER_TYPE> *args)
 {
@@ -1912,7 +1924,7 @@ void doLoadOnullFnull(int callLine, int testLine, int index,
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
 
-template<typename POINTER_TYPE>
+template <class POINTER_TYPE>
 void doLoadOnullFnullDnull(int callLine, int testLine, int index,
                            TestLoadArgs<POINTER_TYPE> *args)
 {
@@ -5628,7 +5640,8 @@ namespace USAGE_EXAMPLES {
     {
     }
 
-    double Circle::area() const {
+    double Circle::area() const
+    {
         return 3.141592653589793238462 * d_radius * d_radius;
     }
 
@@ -5637,7 +5650,8 @@ namespace USAGE_EXAMPLES {
     {
     }
 
-    double Square::area() const {
+    double Square::area() const
+    {
         return d_sideLength * d_sideLength;
     }
 //..
@@ -6109,8 +6123,8 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 // expression.  For example, to static-cast a managed pointer of type A to a
 // shared pointer of type B, one can simply do the following:
 //..
-    void explicitCastingExample() {
-
+    void explicitCastingExample()
+    {
         bslma::ManagedPtr<A> a_mp;
         bslma::ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.ptr()));
 //..

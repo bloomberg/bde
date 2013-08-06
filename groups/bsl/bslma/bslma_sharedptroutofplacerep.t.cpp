@@ -1,9 +1,9 @@
-// bslma_sharedptroutofplacerep.t.cpp                                -*-C++-*-
+// bslma_sharedptroutofplacerep.t.cpp                                 -*-C++-*-
 #include <bslma_sharedptroutofplacerep.h>
 
-#include <bslma_testallocator.h>                // for testing only
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -173,7 +173,8 @@ struct MyDeleteFunctor {
     // 'MyTestObject' object.
 
   public:
-    void operator()(MyTestObject *object) {
+    void operator()(MyTestObject *object)
+    {
         // Destroy the specified 'object'.
         delete object;
     }
@@ -277,14 +278,16 @@ void MyAllocTestDeleter::operator()(TYPE *ptr) const
 class MyTestFactory {
   public:
     // MANIPULATORS
-    MyTestObject *createObject(bslma::Allocator *basicAllocator = 0) {
+    MyTestObject *createObject(bslma::Allocator *basicAllocator = 0)
+    {
         // Create a 'MyTestObject' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
         return new MyTestObject();
     }
 
-    void deleteObject(MyTestObject *object) {
+    void deleteObject(MyTestObject *object)
+    {
         // Delete the specified 'object'.
         delete object;
     }

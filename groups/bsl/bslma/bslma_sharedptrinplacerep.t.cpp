@@ -1,4 +1,4 @@
-// bslma_sharedptrinplacerep.t.cpp                                   -*-C++-*-
+// bslma_sharedptrinplacerep.t.cpp                                    -*-C++-*-
 #include <bslma_sharedptrinplacerep.h>
 
 #include <bslma_testallocator.h>
@@ -69,8 +69,6 @@ void aSsErT(bool b, const char *s, int i)
 }
 
 }  // close unnamed namespace
-
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -147,8 +145,8 @@ class MyTestObject {
 
   public:
     // CREATORS
-    MyTestObject(MyTestObject const& orig);
-    MyTestObject(int *deleteCounter, int *copyCounter = 0);
+    MyTestObject(const MyTestObject& orig);
+    explicit MyTestObject(int *deleteCounter, int *copyCounter = 0);
     virtual ~MyTestObject();
 
     // ACCESSORS
@@ -161,7 +159,7 @@ class MyTestObject {
                              // ------------------
 
 // CREATORS
-MyTestObject::MyTestObject(MyTestObject const& orig)
+MyTestObject::MyTestObject(const MyTestObject& orig)
 : d_deleteCounter_p(orig.d_deleteCounter_p)
 , d_copyCounter_p(orig.d_copyCounter_p)
 {
@@ -196,7 +194,7 @@ volatile int* MyTestObject::copyCounter() const
 
 template <int N>
 class MyTestArg {
-    // This class template declares a separate type for each parmaterizing 'N'
+    // This class template declares a separate type for each paramaterizing 'N'
     // that wraps an integer value and provides implicit conversion to and from
     // 'int'.  Its main purpose is that having separate types allows to
     // distinguish them in function interface, thereby avoiding ambiguities or
@@ -260,7 +258,7 @@ class MyInplaceTestObject {
     // CREATORS
     MyInplaceTestObject() {}
 
-    MyInplaceTestObject(MyTestArg1 a1) : d_a1(a1) {}
+    explicit MyInplaceTestObject(MyTestArg1 a1) : d_a1(a1) {}
 
     MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2)
         : d_a1(a1), d_a2(a2) {}
