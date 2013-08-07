@@ -49,6 +49,7 @@ bslmf_memberfunctionpointertraits
 bslmf_metaint
 bslmf_nestedtraitdeclaration
 bslmf_nil
+bslmf_nthparameter
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq
