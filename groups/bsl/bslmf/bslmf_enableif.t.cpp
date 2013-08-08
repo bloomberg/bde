@@ -361,6 +361,8 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         B *pB2 = smart_cast<B>(pC);
         C *pC2 = smart_cast<C>(pB);
 
+        (void) pA;
+
         ASSERT(&object == pA2);
         ASSERT(&object == pB2);
         ASSERT(&object == pC2);
@@ -421,7 +423,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
            }
 
            d_storage = new T[d_length];
-           for (int i = 0; i != d_length; ++i) {
+           for (size_t i = 0; i != d_length; ++i) {
               d_storage[i] = *first++;
            }
         }
@@ -503,6 +505,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    (void) veryVeryVerbose;
 
     setbuf(stdout, 0);    // Use unbuffered output
 

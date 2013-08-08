@@ -179,7 +179,7 @@ static void aSsErT(bool b, const char *s, int i) {
 
     static bslma::Allocator *s_default_p = 0; // load-time initialized
 
-    bslma::Allocator *my_Default::allocator(bslma::Allocator *basicAllocator)
+    bslma::Allocator *my_Default::allocator(bslma::Allocator* /*basicAllocator*/)
     {
         return bslma::NewDeleteAllocator::allocator(s_default_p);
     }

@@ -407,6 +407,10 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
+    (void) veryVeryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
@@ -491,6 +495,7 @@ int main(int argc, char *argv[])
 
             Obj *xPtr = AllocTraits::allocate(allocator, 1);
             Obj& mX = *xPtr; const Obj& X = mX;
+            (void) X;
 
             AllocTraits::construct(allocator,
                                    bsls::Util::addressOf(mX.value()));

@@ -218,14 +218,14 @@ class my_ClassFussy {
         return ::operator new(size);
     }
 
-    static void* operator new(std::size_t size, void *ptr)
+    static void* operator new(std::size_t /* size */, void *ptr)
         // Should never be invoked
     {
         BSLS_ASSERT_OPT(0);
         return ptr;
     }
 
-    static void operator delete(void *ptr)
+    static void operator delete(void * /* ptr */)
         // Should never be invoked
     {
         BSLS_ASSERT_OPT(0);
@@ -242,7 +242,7 @@ class my_ClassFussy {
         d_def.d_value = v;
         d_def.d_allocator_p = 0;
     }
-    my_ClassFussy(const my_ClassFussy& rhs) {
+    my_ClassFussy(const my_ClassFussy& /* rhs */) {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++copyConstructorInvocations;
     }
@@ -252,7 +252,7 @@ class my_ClassFussy {
     }
 
     // MANIPULATORS
-    my_ClassFussy& operator=(const my_ClassFussy& rhs) {
+    my_ClassFussy& operator=(const my_ClassFussy& /* rhs */) {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++assignmentInvocations;
         return *this;

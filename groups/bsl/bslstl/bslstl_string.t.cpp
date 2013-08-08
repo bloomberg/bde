@@ -18,6 +18,7 @@
 #include <bsls_stopwatch.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 
 #include <algorithm>
 #include <cctype>
@@ -339,6 +340,12 @@ void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                        // current Line number
 #define T_ putchar('\t');                  // Print a tab (w/o newline)
 
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -420,19 +427,26 @@ inline void dbg_print(wchar_t c) { printf("%lc", wint_t(c)); fflush(stdout); }
 inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
 inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
 inline void dbg_print(bsls::Types::Int64 val) {
-    printf("%lld", val); fflush(stdout);
+    printf("%lld", val);
+    fflush(stdout);
 }
-inline void dbg_print(size_t val) { printf("%u", val); fflush(stdout); }
+inline void dbg_print(size_t val) { printf(ZU, val); fflush(stdout); }
 inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(const void* val) { printf("\"%x\"", val); fflush(stdout); }
+inline void dbg_print(const void* val)
+{
+    printf("\"%p\"", val);
+    fflush(stdout);
+}
 
 // String-specific print function.
 template <typename TYPE, typename TRAITS, typename ALLOC>
@@ -454,7 +468,7 @@ template <typename T>
 void dbg_print(const char* s, const T& val, const char* nl)
 {
     printf("%s", s); dbg_print(val);
-    printf(nl);
+    printf("%s", nl);
     fflush(stdout);
 }
 
@@ -509,10 +523,7 @@ static bslma::TestAllocator *globalAllocator_p,
                             *defaultAllocator_p,
                             *objectAllocator_p;
 
-static int numDefaultCtorCalls = 0;
-static int numCharCtorCalls    = 0;
 static int numCopyCtorCalls    = 0;
-static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
                             // ====================
@@ -1155,10 +1166,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
 {
     // As per C++ standard, chapter 21, clause 21.3.7.9.
 
-    int rlen = X.length();
-    if (rlen > Y.length()) {
-        rlen = Y.length();
-    }
+    int rlen = std::min(X.length(), Y.length());
     int ret = TRAITS::compare(X.data(), Y.data(), rlen);
     if (ret) {
         ASSERT(ret == result);
@@ -1498,7 +1506,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         a.setMaxSize(limit);
 
         if (veryVerbose)
-            printf("\tWith max_size() equal to limit = %d\n", limit);
+            printf("\tWith max_size() equal to limit = " ZU "\n", limit);
 
         try {
             LimitObj mX(Y, 0, LENGTH, a);  // test here
@@ -1532,7 +1540,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         a.setMaxSize(limit);
 
         if (veryVerbose)
-            printf("\tWith max_size() equal to limit = %d\n", limit);
+            printf("\tWith max_size() equal to limit = " ZU "\n", limit);
 
         try {
             LimitObj mX(Y.c_str(), LENGTH, a);  // test here
@@ -1568,7 +1576,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         a.setMaxSize(limit);
 
         if (veryVerbose)
-            printf("\tWith max_size() equal to limit = %d\n", limit);
+            printf("\tWith max_size() equal to limit = " ZU "\n", limit);
 
         try {
             LimitObj mX(Y.c_str(), a);  // test here
@@ -1604,7 +1612,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         a.setMaxSize(limit);
 
         if (veryVerbose)
-            printf("\tWith max_size() equal to limit = %d\n", limit);
+            printf("\tWith max_size() equal to limit = " ZU "\n", limit);
 
         try {
             LimitObj mX(LENGTH, DEFAULT_VALUE, a);  // test here
@@ -1640,7 +1648,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         a.setMaxSize(limit);
 
         if (veryVerbose)
-            printf("\tWith max_size() equal to limit = %d\n", limit);
+            printf("\tWith max_size() equal to limit = " ZU "\n", limit);
 
         try {
             LimitObj mX(Y.begin(), Y.end(), a);  // test here
@@ -1676,7 +1684,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             a.setMaxSize(limit);
 
             if (veryVerbose)
-                printf("\tWith max_size() equal to limit = %d\n", limit);
+                printf("\tWith max_size() equal to limit = " ZU "\n", limit);
 
             try {
                 LimitObj mX(a);
@@ -1730,7 +1738,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             a.setMaxSize(limit);
 
             if (veryVerbose)
-                printf("\t\tWith max_size() equal to limit = %u\n", limit);
+                printf("\t\tWith max_size() equal to limit = " ZU "\n", limit);
 
             try {
                 LimitObj mX(a);
@@ -1800,7 +1808,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             a.setMaxSize(limit);
 
             if (veryVerbose)
-                printf("\t\tWith max_size() equal to limit = %d\n", limit);
+                printf("\t\tWith max_size() equal to limit = " ZU "\n", limit);
 
             try {
                 LimitObj mX(a);
@@ -1867,7 +1875,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             a.setMaxSize(limit);
 
             if (veryVerbose)
-                printf("\t\tWith max_size() equal to limit = %d\n", limit);
+                printf("\t\tWith max_size() equal to limit = " ZU "\n", limit);
 
             try {
                 LimitObj mX(a);
@@ -1944,7 +1952,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             a.setMaxSize(limit);
 
             if (veryVerbose)
-                printf("\t\tWith max_size() equal to limit = %d\n", limit);
+                printf("\t\tWith max_size() equal to limit = " ZU "\n", limit);
 
             try {
                 LimitObj mX(a);
@@ -2041,7 +2049,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             a.setMaxSize(limit);
 
             if (veryVerbose)
-                printf("\t\tWith max_size() equal to limit = %d\n", limit);
+                printf("\t\tWith max_size() equal to limit = " ZU "\n", limit);
 
             try {
                 LimitObj mX(a);
@@ -2127,13 +2135,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     };
 
     if (verbose) printf("\nConstructor 'string(n, c, a = A())'"
-                        " and 'max_size()' equal to %lu.\n", EXP_MAX_SIZE);
+                        " and 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int i = 0; DATA[i]; ++i)
     {
         bool exceptionCaught = false;
 
-        if (veryVerbose) printf("\tWith 'n' = %lu\n", DATA[i]);
+        if (veryVerbose) printf("\tWith 'n' = " ZU "\n", DATA[i]);
 
         try {
             Obj mX(DATA[i], DEFAULT_VALUE);  // test here
@@ -2162,7 +2170,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numBytesInUse());
 
     if (verbose) printf("\nWith 'reserve/resize' and"
-                        " 'max_size()' equal to %lu.\n", EXP_MAX_SIZE);
+                        " 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int capacityMethod = 0; capacityMethod < 3; ++capacityMethod)
     {
@@ -2179,7 +2187,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         {
             bool exceptionCaught = false;
 
-            if (veryVerbose) printf("\t\tWith 'n' = %lu\n", DATA[i]);
+            if (veryVerbose) printf("\t\tWith 'n' = " ZU "\n", DATA[i]);
 
             try {
                 Obj mX;
@@ -2216,7 +2224,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'append' and 'max_size()' equal to %lu.\n",
+    if (verbose) printf("\nWith 'append' and 'max_size()' equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int appendMethod = 4; appendMethod <= 4; ++appendMethod) {
@@ -2232,7 +2240,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             bool exceptionCaught = false;
 
             if (veryVerbose)
-                printf("\t\tCreating string of length %lu.\n", DATA[i]);
+                printf("\t\tCreating string of length " ZU ".\n", DATA[i]);
 
             try {
                 Obj mX(PADDING, DEFAULT_VALUE, a);
@@ -2264,7 +2272,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to %lu.\n",
+    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int insertMethod = 5; insertMethod <= 7; insertMethod += 2) {
@@ -2281,7 +2289,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             bool exceptionCaught = false;
 
             if (veryVerbose)
-                printf("\t\tCreating string of length %lu.\n", DATA[i]);
+                printf("\t\tCreating string of length " ZU ".\n", DATA[i]);
 
             try {
                 Obj mX(PADDING, DEFAULT_VALUE, a);
@@ -2322,7 +2330,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'replace' and 'max_size()' equal to %lu.\n",
+    if (verbose) printf("\nWith 'replace' and 'max_size()' equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int replaceMethod = 5; replaceMethod <= 8; replaceMethod += 3) {
@@ -2341,7 +2349,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             bool exceptionCaught = false;
 
             if (veryVerbose)
-                printf("\t\tCreating string of length %lu.\n", DATA[i]);
+                printf("\t\tCreating string of length " ZU ".\n", DATA[i]);
 
             try {
                 Obj mX(3 * PADDING, DEFAULT_VALUE);
@@ -2629,6 +2637,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     const Obj& X = mX;
 
     const TYPE *nullStr = NULL;
+    // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+    (void) nullStr;
+#endif
 
     if (veryVerbose) printf("\tcompare(s)\n");
 
@@ -2765,7 +2777,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
             const Obj X(g(SPEC));
 
             if (veryVerbose) {
-                printf("\tOn a string of length %d:\t", LENGTH); P(SPEC);
+                printf("\tOn a string of length " ZU ":\t", LENGTH); P(SPEC);
             }
 
             for (size_t i = 0; i <= LENGTH; ++i) {
@@ -2824,7 +2836,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
             ASSERT(LENGTH < MAX_LEN - 2);
 
             if (veryVerbose) {
-                printf("\tOn a string of length %d:\t", LENGTH); P(SPEC);
+                printf("\tOn a string of length " ZU ":\t", LENGTH); P(SPEC);
             }
 
             for (size_t i = 0; i <= LENGTH; ++i) {
@@ -2861,7 +2873,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
 
             bool outOfRangeCaught = false;
             try {
-                (void)X.copy(buffer + 1, MAX_LEN - 2, LENGTH + 1);
+                (void) X.copy(buffer + 1, MAX_LEN - 2, LENGTH + 1);
                 ASSERT(0);
             }
             catch (std::out_of_range) {
@@ -2900,6 +2912,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23Negative()
         const Obj& X = mX;
 
         TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
+#endif
 
         TYPE dest[10];
         ASSERT(sizeof dest / sizeof *dest > X.size());
@@ -2983,22 +2999,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             size_t      d_exp;
             size_t      d_rexp;
         } DATA[] = {
-            //line spec                        pattern           exp   rexp
-            //---- ----                        -------           ---   ----
-            { L_,  "",                         "A",              -1,   -1,  },
-            { L_,  "A",                        "A",               0,    0,  },
-            { L_,  "A",                        "B",              -1,   -1,  },
-            { L_,  "AABAA",                    "B",               2,    2,  },
-            { L_,  "ABABA",                    "B",               1,    3,  },
-            { L_,  "BAAAB",                    "B",               0,    4,  },
-            { L_,  "ABCDE",                    "BCD",             1,    1,  },
-            { L_,  "ABABA",                    "ABA",             0,    2,  },
-            { L_,  "ABACABA",                  "ABA",             0,    4,  },
-            { L_,  "ABABABAB",                 "BABAB",           1,    3,  },
-            { L_,  "ABABABAB",                 "C",              -1,   -1,  },
-            { L_,  "ABABABAB",                 "ABABABAC",       -1,   -1,  },
-            { L_,  "A",                        "ABABA",          -1,   -1,  },
-            { L_,  "AABAA",                    "CDCDC",          -1,   -1,  },
+            //line spec         pattern                   exp           rexp
+            //---- ----         -------                   ---           ----
+            { L_,  "",          "A",              (size_t)-1,   (size_t)-1,  },
+            { L_,  "A",         "A",              (size_t) 0,   (size_t) 0,  },
+            { L_,  "A",         "B",              (size_t)-1,   (size_t)-1,  },
+            { L_,  "AABAA",     "B",              (size_t) 2,   (size_t) 2,  },
+            { L_,  "ABABA",     "B",              (size_t) 1,   (size_t) 3,  },
+            { L_,  "BAAAB",     "B",              (size_t) 0,   (size_t) 4,  },
+            { L_,  "ABCDE",     "BCD",            (size_t) 1,   (size_t) 1,  },
+            { L_,  "ABABA",     "ABA",            (size_t) 0,   (size_t) 2,  },
+            { L_,  "ABACABA",   "ABA",            (size_t) 0,   (size_t) 4,  },
+            { L_,  "ABABABAB",  "BABAB",          (size_t) 1,   (size_t) 3,  },
+            { L_,  "ABABABAB",  "C",              (size_t)-1,   (size_t)-1,  },
+            { L_,  "ABABABAB",  "ABABABAC",       (size_t)-1,   (size_t)-1,  },
+            { L_,  "A",         "ABABA",          (size_t)-1,   (size_t)-1,  },
+            { L_,  "AABAA",     "CDCDC",          (size_t)-1,   (size_t)-1,  },
 
             // Add further tests below, but note that test will fail if the
             // spec has the pattern in more than two occurrences.
@@ -3017,8 +3033,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             const Obj X(g(SPEC));
 
             if (veryVerbose) {
-                printf("\tWith SPEC: \"%s\" of length %d and empty pattern.\n",
-                       SPEC, LENGTH);
+                printf("\tWith SPEC: \"%s\" of length " ZU
+                       " and empty pattern.\n",
+                       SPEC,
+                       LENGTH);
                 printf("\t\tExpecting 'find' and 'rfind' at each position.\n");
             }
 
@@ -3056,8 +3074,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str(), npos, 0));
 
             if (veryVerbose) {
-                printf("\tWith SPEC: \"%s\" of length %d and every 'char'.\n",
-                       SPEC, LENGTH);
+                printf("\tWith SPEC: \"%s\" of length " ZU
+                       " and every 'char'.\n",
+                       SPEC,
+                       LENGTH);
                 printf("\t\tComparing with values computed ad hoc.\n");
             }
 
@@ -3109,11 +3129,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             }
 
             if (veryVerbose) {
-                printf("\tWith SPEC: \"%s\" of length %d and pattern \"%s\"."
-                       "\n",
-                       SPEC, LENGTH, PATTERN);
-                printf("\t\tExpecting 'find' at %d and 'rfind' at %d.\n",
-                       EXP, REXP);
+                printf("\tWith SPEC: \"%s\" of length " ZU
+                       " and pattern \"%s\".\n",
+                       SPEC,
+                       LENGTH,
+                       PATTERN);
+                printf("\t\tExpecting 'find' at " ZU
+                       " and 'rfind' at " ZU ".\n",
+                       EXP,
+                       REXP);
             }
 
             const Obj Y(g(PATTERN));
@@ -3251,7 +3275,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             const size_t      LENGTH  = strlen(SPEC);
 
             if (veryVerbose) {
-                printf("\tWith SPEC: \"%s\" of length %d.\n", SPEC, LENGTH);
+                printf("\tWith SPEC: \"%s\" of length " ZU ".\n",
+                       SPEC,
+                       LENGTH);
             }
 
             const Obj X(g(SPEC));
@@ -3611,6 +3637,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     const Obj& X = mX;
 
     const TYPE *nullStr = NULL;
+    // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+    (void) nullStr;
+#endif
 
     if (veryVerbose) printf("\tfind(s, pos, n)\n");
 
@@ -5026,6 +5056,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         const Obj& X = mX;
 
         const TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
+#endif
 
         // characterString == NULL
         ASSERT_SAFE_FAIL(mX.replace(0, X.size(), nullStr, 10));
@@ -5041,6 +5075,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         const Obj& X = mX;
 
         const TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+       (void) nullStr;
+#endif
 
         // first < begin()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(), X.c_str()));
@@ -5071,6 +5109,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         const Obj& X = mX;
 
         const TYPE *nullStr = NULL;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
+#endif
 
         // first < begin()
         ASSERT_SAFE_FAIL(
@@ -5401,6 +5443,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                         Obj *result = &mX.erase(BEGIN_POS, NUM_ELEMENTS);
                                                              // test erase here
+                        (void) result;
 
                         for (m = 0; m < BEGIN_POS; ++m) {
                             LOOP5_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP,
@@ -6514,7 +6557,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
 
@@ -6523,7 +6566,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                         const size_t POS  = j;
                         const size_t POS2 = k;
 
-                        const int    NUM_ELEMENTS_INS = NUM_ELEMENTS - POS2;
+                        const size_t NUM_ELEMENTS_INS = NUM_ELEMENTS - POS2;
                         const size_t LENGTH = INIT_LENGTH + NUM_ELEMENTS_INS;
 
                         Obj mX(INIT_LENGTH,
@@ -6634,7 +6677,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
@@ -6929,6 +6972,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     {
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
+#endif
 
         ASSERT_SAFE_FAIL(mX.insert(1, nullStr));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr));
@@ -6941,6 +6988,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     {
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
+        // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+        (void) nullStr;
+#endif
 
         ASSERT_SAFE_PASS(mX.insert(1, nullStr, 0));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr, 10));
@@ -7030,7 +7081,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
-    bslma::Allocator     *Z = &testAllocator;
 
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
@@ -7135,7 +7185,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
                     LOOP2_ASSERT(INIT_LINE, LINE, LENGTH == X.size());
                     LOOP2_ASSERT(INIT_LINE, LINE, CAP == X.capacity());
 
-                    size_t m = 0;
                     for (k = 0; k < INIT_LENGTH; ++k) {
                         LOOP4_ASSERT(INIT_LINE, LINE, i, k,
                                      VALUES[k % NUM_VALUES] == X[k]);
@@ -7258,7 +7307,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
-    bslma::Allocator     *Z = &testAllocator;
 
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
@@ -7494,14 +7542,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
 
                     for (size_t k = 0; k <= NUM_ELEMENTS; ++k) {
                         const size_t POS2 = k;
 
-                        const int    NUM_ELEMENTS_INS = NUM_ELEMENTS - POS2;
+                        const size_t NUM_ELEMENTS_INS = NUM_ELEMENTS - POS2;
                         const size_t LENGTH = INIT_LENGTH + NUM_ELEMENTS_INS;
 
                         Obj mX(INIT_LENGTH,
@@ -7603,7 +7651,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS =
+                    const size_t  NUM_ELEMENTS =
                       (APPEND_CSTRING_NULL_0 == appendMode) ? 0 : strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
@@ -7912,6 +7960,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
         Obj mX;
         Obj mY(g("ABCDE"));
         const Obj& Y = mY;
+        (void) Y; // to disable "unused variable" warning
 
         ASSERT_SAFE_FAIL(mX.append(mY.end(), mY.begin()));
         ASSERT_SAFE_FAIL(mX.append(Y.end(), Y.begin()));
@@ -8268,11 +8317,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
             const char   *SPEC   = DATA[ti].d_spec;
             const size_t  LENGTH = strlen(SPEC);
 
+            (void) LINE;
+            (void) LENGTH;
+
             Obj mX(g(SPEC));
             const Obj& X = mX;
 
-            for (int i = -int(X.size()) - 1; i < int(X.size() * 2) + 2; ++i) {
-                if (i >= 0 && i <= X.size()) {
+            const int numChars = X.size();
+            for (int i = -numChars - 1; i < numChars * 2 + 2; ++i) {
+                if (i >= 0 && i <= numChars) {
                     ASSERT_SAFE_PASS(X[i]);
                     ASSERT_SAFE_PASS(mX[i]);
                 }
@@ -9079,8 +9132,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
-    const TYPE            DEFAULT_VALUE = TYPE();
-
     const TYPE           *values     = 0;
     const TYPE *const&    VALUES     = values;
     const int             NUM_VALUES = getValues(&values);
@@ -9374,7 +9425,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
 
                     if (veryVerbose) {
                         printf("\t\t\t\tFrom "); P_(Y); P_(POS);
-                        printf("with %d chars.\n", LENGTH - POS);
+                        printf("with " ZU " chars.\n", LENGTH - POS);
                     }
 
                     {
@@ -9429,7 +9480,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             LOOP2_ASSERT(LINE, ti, Y[POS] == X[0]);
                         } else {
                             LOOP2_ASSERT(LINE, ti, 0 == X.size());
-                            LOOP2_ASSERT(LINE, ti, 0 <= X.capacity());
                             LOOP2_ASSERT(LINE, ti, TYPE() == X[0]);
                         }
                     }
@@ -9576,7 +9626,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
             const char  *SPEC   = DATA[ti].d_spec;
             const size_t LENGTH = strlen(SPEC);
             const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
-            (void)LINE;
+
+            (void) LINE;
 
             if (veryVerbose) {
                 printf("\t\tCreating object of "); P(LENGTH);
@@ -9912,7 +9963,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+
+    (void) NUM_VALUES;
+    (void) VALUES;
 
     if (verbose)
         printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
@@ -9990,7 +10043,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+
+    (void) NUM_VALUES;
 
     // --------------------------------------------------------------------
 
@@ -10032,7 +10086,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                 const size_t      uLen   = strlen(U_SPEC);
 
                 if (veryVerbose) {
-                    printf("\tFor lhs objects of length %d:\t", uLen);
+                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
                     P(U_SPEC);
                 }
 
@@ -10047,7 +10101,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                     const size_t      vLen   = strlen(V_SPEC);
 
                     if (veryVerbose) {
-                        printf("\t\tFor rhs objects of length %d:\t", vLen);
+                        printf("\t\tFor rhs objects of length " ZU ":\t",
+                               vLen);
                         P(V_SPEC);
                     }
 
@@ -10145,10 +10200,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             int uOldLen = -1;
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
-                const size_t    uLen   = (int) strlen(U_SPEC);
+                const size_t      uLen   = strlen(U_SPEC);
 
                 if (veryVerbose) {
-                    printf("\tFor lhs objects of length %d:\t", uLen);
+                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
                     P(U_SPEC);
                 }
 
@@ -10161,10 +10216,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                 // int vOldLen = -1;
                 for (int vi = 0; SPECS[vi]; ++vi) {
                     const char *const V_SPEC = SPECS[vi];
-                    const size_t    vLen   = (int) strlen(V_SPEC);
+                    const size_t      vLen   = strlen(V_SPEC);
 
                     if (veryVerbose) {
-                        printf("\t\tFor rhs objects of length %d:\t",
+                        printf("\t\tFor rhs objects of length " ZU ":\t",
                                vLen);
                         P(V_SPEC);
                     }
@@ -10307,6 +10362,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Negative()
 
     {
         const TYPE *s = 0;
+        (void) s; // to disable "unused variable" warning
         ASSERT_SAFE_FAIL(X = s);
     }
 
@@ -10508,10 +10564,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t    LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
-                printf("\tFor an object of length %d:\t", LENGTH);
+                printf("\tFor an object of length " ZU ":\t", LENGTH);
                 P(SPEC);
             }
 
@@ -10639,10 +10695,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                     }
 
                     for (int i = 1; i < N+1; ++i) {
-                        const size_t oldSize  = Y11.size();
                         const size_t oldCap   = Y11.capacity();
-                        const size_t remSlots = Y11.capacity() - Y11.size();
-
                         const size_t initCap = DEFAULT_CAPACITY;
 
                         const int CC = testAllocator.numBlocksTotal();
@@ -10846,7 +10899,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
 
                 if ((int)LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length %d.\n", LENGTH);
+                        printf( "\tUsing lhs objects of length " ZU ".\n",
+                                LENGTH);
                     LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);//non-decreasing
                     oldLen = LENGTH;
                 }
@@ -10907,7 +10961,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
 
                 if ((int)LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length %d.\n", LENGTH);
+                        printf( "\tUsing lhs objects of length " ZU ".\n",
+                                LENGTH);
                     LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);
                     oldLen = LENGTH;
                 }
@@ -10982,6 +11037,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6Negative()
     const Obj& X = mX;
 
     TYPE *nullStr = NULL;
+    // disable "unused variable" warning in non-safe mode:
+#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
+    (void) nullStr;
+#endif
 
     if (veryVerbose) printf("\toperator==(s, str)\n");
 
@@ -11166,7 +11225,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
                 LOOP2_ASSERT(ti, ai, LENGTH == X.size()); // same lengths
 
                 if (veryVerbose) {
-                    printf( "\ton objects of length %d:\n", LENGTH);
+                    printf( "\ton objects of length " ZU ":\n", LENGTH);
                 }
 
                 if ((int)LENGTH != oldLen) {
@@ -11254,7 +11313,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
                 LOOP2_ASSERT(ti, ai, LENGTH == X.size()); // same lengths
 
                 if (veryVerbose) {
-                    printf("\tOn objects of length %d:\n", LENGTH);
+                    printf("\tOn objects of length " ZU ":\n", LENGTH);
                 }
 
                 if ((int)LENGTH != oldLen) {
@@ -11529,15 +11588,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase3()
 
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
-            const int          LINE   = DATA[ti].d_lineNum;
-            const char *const SPEC    = DATA[ti].d_spec_p;
-            const int         INDEX   = DATA[ti].d_index;
-            const size_t      LENGTH  = (int)strlen(SPEC);
+            const int         LINE   = DATA[ti].d_lineNum;
+            const char *const SPEC   = DATA[ti].d_spec_p;
+            const int         INDEX  = DATA[ti].d_index;
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(Z);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                 // LOOP_ASSERT(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -11698,7 +11757,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
             if (verbose)
-                printf("\t\tOn an object of initial length %d.\n", li);
+                printf("\t\tOn an object of initial length " ZU ".\n", li);
 
             Obj mX;  const Obj& X = mX;
 
@@ -11736,7 +11795,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
-            if (verbose) printf("\t\tOn an object of initial length %d.\n",
+            if (verbose) printf("\t\tOn an object of initial length " ZU ".\n",
                                 li);
 
             Obj mX(Z);  const Obj& X = mX;
@@ -11784,7 +11843,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
-            if (verbose) printf("\t\tOn an object of initial length %d.\n",
+            if (verbose) printf("\t\tOn an object of initial length " ZU ".\n",
                                 li);
 
             Obj mX;  const Obj& X = mX;
@@ -11829,7 +11888,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
 
         for (size_t li = 0; li < NUM_TRIALS; ++li) {
-            if (verbose) printf("\t\tOn an object of initial length %d.\n",
+            if (verbose) printf("\t\tOn an object of initial length " ZU ".\n",
                                 li);
 
             Obj mX(Z);  const Obj& X = mX;
@@ -11898,7 +11957,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
         for (size_t li = 0; li < NUM_TRIALS; ++li) { // i is the length
-            if (verbose) printf("\t\t\tOn an object of length %d.\n", li);
+            if (verbose) printf("\t\t\tOn an object of length " ZU ".\n", li);
 
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
@@ -11935,11 +11994,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
         const size_t NUM_TRIALS = LARGE_SIZE_VALUE;
         for (size_t i = 0; i < NUM_TRIALS; ++i) { // i is first length
             if (verbose)
-                printf("\t\t\tOn an object of initial length %d.\n", i);
+                printf("\t\t\tOn an object of initial length " ZU ".\n", i);
 
             for (size_t j = 0; j < NUM_TRIALS; ++j) { // j is second length
                 if (veryVerbose)
-                    printf("\t\t\t\tAnd with final length %d.\n", j);
+                    printf("\t\t\t\tAnd with final length " ZU ".\n", j);
 
               BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 size_t k; // loop index
@@ -12026,7 +12085,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase1()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+
+    (void) NUM_VALUES;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (verbose) printf("\n 1) Create an object x1 (default ctor)."
@@ -12226,8 +12286,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase1()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
-                                               const int RANDOM_SEED)
+void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
+                                               const int /* RANDOM_SEED */)
 {
     // --------------------------------------------------------------------
     // PERFORMANCE TEST
@@ -12466,7 +12526,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
 
     bsls::Stopwatch t;
 
-    printf("\n\tString size:\t\t%d bytes.\n", sizeof(Obj));
+    printf("\n\tString size:\t\t" ZU " bytes.\n", sizeof(Obj));
 
     const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
 
@@ -12504,7 +12564,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
     }
 
     printf("\tUsing %d short words and %d long words.\n"
-           "\tTotal length about same: %d (short) and %d (long).\n\n",
+           "\tTotal length about same: " ZU " (short) and " ZU " (long).\n\n",
            NSHORT, NLONG, totalShortLength, totalLongLength);
 
     printf("\tTotal amount of work should be about same in both\n"
@@ -13578,7 +13638,7 @@ namespace UsageExample {
 // Next, we use the 'find' function to search the contents of 'line' for
 // characters matching the contents of 'oldString':
 //..
-            int pos = line.find(oldString);
+            bsl::string::size_type pos = line.find(oldString);
             while (bsl::string::npos != pos) {
 //..
 // Now, we use the 'replace' method to modify the contents of 'line' matching
@@ -13813,6 +13873,7 @@ int main(int argc, char *argv[])
 
             // Copy constructor
             Employee e3(e1);  const Employee& E3 = e3;
+            (void) E3;
 
             ASSERT(   e1 == e3);
             ASSERT(! (e1 != e3));
@@ -13910,7 +13971,7 @@ int main(int argc, char *argv[])
 
             const wchar_t *pw =
                            std::char_traits<wchar_t>::find(L"bcabcd", 2, L'a');
-            P((const void *)pw);
+            P((const void *) pw);
             ASSERT(0 == pw);
 
             bsl::basic_string<wchar_t, std::char_traits<wchar_t> > s =

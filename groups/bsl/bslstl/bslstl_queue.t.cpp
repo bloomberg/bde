@@ -18,6 +18,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>                // for testing only
@@ -193,6 +194,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
 
@@ -314,24 +321,29 @@ inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
 inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
 inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
 inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
 inline void dbg_print(unsigned long val) {
-    printf("%lu", val); fflush(stdout);
+    printf("%lu", val);
+    fflush(stdout);
 }
 inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
 inline void dbg_print(unsigned long long val) {
-    printf("%llu", val); fflush(stdout);
+    printf("%llu", val);
+    fflush(stdout);
 }
 inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(long double val) {
-    printf("'%Lf'", val); fflush(stdout);
+    printf("'%Lf'", val);
+    fflush(stdout);
 }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
@@ -1656,8 +1668,8 @@ void TestDriver<VALUE, CONTAINER>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -1867,10 +1879,10 @@ void TestDriver<VALUE, CONTAINER>::testCase7()
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const char *const SPEC   = DATA[ti].d_spec;
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %u:\n", (int) LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -2072,8 +2084,8 @@ void TestDriver<VALUE, CONTAINER>::testCase6()
         operatorPtr operatorEq = operator==;
         operatorPtr operatorNe = operator!=;
 
-        (void)operatorEq;  // quash potential compiler warnings
-        (void)operatorNe;
+        (void) operatorEq;  // quash potential compiler warnings
+        (void) operatorNe;
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -2407,12 +2419,12 @@ void TestDriver<VALUE, CONTAINER>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         EXPR   = DATA[ti].d_return;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", (int) LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -2572,8 +2584,7 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'push' (bootstrap).\n"); }
 
             if (veryVeryVerbose) {
-                printf("\t\tOn an object of initial length %d.\n",
-                       (int) LENGTH);
+                printf("\t\tOn an object of initial length " ZU ".\n", LENGTH);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
@@ -2600,8 +2611,8 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
             if (veryVerbose) printf("\n\tTesting 'pop'.\n");
 
             if (verbose) {
-                printf("\t\tOn an object of initial length %d.\n",
-                       (int) LENGTH + 1);
+                printf("\t\tOn an object of initial length " ZU ".\n",
+                       LENGTH + 1);
             }
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {

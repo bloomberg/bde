@@ -402,7 +402,7 @@ class SomeArbitraryClass {
     {
     }
 
-    SomeArbitraryClass(const SomeArbitraryClass&  original,
+    SomeArbitraryClass(const SomeArbitraryClass&  /*original*/,
                        bslma::Allocator          *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
     {

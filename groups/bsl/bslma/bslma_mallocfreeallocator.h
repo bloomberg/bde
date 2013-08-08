@@ -213,8 +213,6 @@ MallocFreeAllocator::~MallocFreeAllocator()
 inline
 void *MallocFreeAllocator::allocate(size_type size)
 {
-    BSLS_ASSERT_SAFE(0 <= size);
-
     return size == 0 ? 0 : std::malloc(size);
 }
 

@@ -1160,7 +1160,7 @@ int main(int argc, char *argv[])
                                   << "============================" << endl;
 
         void *data = reinterpret_cast<void *>(0xdeadbeef);
-        (void)data;  // used
+        (void) data;  // used
         ostringstream out;
 
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);

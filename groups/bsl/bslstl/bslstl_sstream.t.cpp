@@ -125,17 +125,17 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        bsl::stringbuf      stringBuf;      (void)stringBuf;
-        bsl::wstringbuf     wstringBuf;     (void)wstringBuf;
+        bsl::stringbuf      stringBuf;      (void) stringBuf;
+        bsl::wstringbuf     wstringBuf;     (void) wstringBuf;
 
-        bsl::istringstream  inputStream;    (void)inputStream;
-        bsl::wistringstream winputStream;   (void)winputStream;
+        bsl::istringstream  inputStream;    (void) inputStream;
+        bsl::wistringstream winputStream;   (void) winputStream;
 
-        bsl::ostringstream  outputStream;   (void)outputStream;
-        bsl::wostringstream woutputStream;  (void)woutputStream;
+        bsl::ostringstream  outputStream;   (void) outputStream;
+        bsl::wostringstream woutputStream;  (void) woutputStream;
 
-        bsl::stringstream   inoutStream;    (void)inoutStream;
-        bsl::wstringstream  winoutStream;   (void)winoutStream;
+        bsl::stringstream   inoutStream;    (void) inoutStream;
+        bsl::wstringstream  winoutStream;   (void) winoutStream;
 
       } break;
       default: {

@@ -342,6 +342,7 @@ int main(int argc, char *argv[])
             {
                 bslalg::AutoScalarDestructor<T> mG(0);
                 const bslalg::AutoScalarDestructor<T>& G = mG;
+                (void) G;
 
                 new (buf) T('a', Z);
                 if (veryVerbose) { buf->print(); }

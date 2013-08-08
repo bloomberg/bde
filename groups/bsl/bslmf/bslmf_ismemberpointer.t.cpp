@@ -158,6 +158,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
+    (void) veryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
@@ -328,7 +330,7 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }

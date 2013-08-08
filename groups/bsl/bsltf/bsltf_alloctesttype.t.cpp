@@ -451,7 +451,7 @@ int main(int argc, char *argv[]) {
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -690,8 +690,8 @@ int main(int argc, char *argv[]) {
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Obj                 *objPtr;
-                bslma::TestAllocator *objAllocatorPtr;
+                Obj                  *objPtr = 0;
+                bslma::TestAllocator *objAllocatorPtr = 0;
 
                 switch (CONFIG) {
                   case 'a': {
@@ -879,8 +879,8 @@ int main(int argc, char *argv[]) {
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
-            (void)operatorEq;  // quash potential compiler warnings
-            (void)operatorNe;
+            (void) operatorEq;  // quash potential compiler warnings
+            (void) operatorNe;
         }
 
 
@@ -1090,8 +1090,8 @@ int main(int argc, char *argv[]) {
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Obj                 *objPtr;
-                bslma::TestAllocator *objAllocatorPtr;
+                Obj                  *objPtr = 0;
+                bslma::TestAllocator *objAllocatorPtr = 0;
 
                 switch (CONFIG) {
                   case 'a': {
@@ -1281,8 +1281,8 @@ int main(int argc, char *argv[]) {
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                 *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {

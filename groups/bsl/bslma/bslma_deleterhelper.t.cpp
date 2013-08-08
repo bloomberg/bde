@@ -420,7 +420,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == virtualBaseObjectCount);
 
             const my_RightBase *pRBC = pMostCONST;
-            ASSERT((const void *) pRBC != (const void *) pMost);
+            ASSERT(static_cast<const void *>(pRBC) !=
+                   static_cast<const void *>(pMost));
 
             Obj::deleteObject(pRBC, &a);
             ASSERT(0 == mostDerivedObjectCount);
@@ -436,6 +437,7 @@ int main(int argc, char *argv[])
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
+            (void) null;            
 
             my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
             new(pC1) my_Class1;
@@ -571,6 +573,7 @@ int main(int argc, char *argv[])
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
+            (void) null;
 
             my_Class1 *pC1 = (my_Class1 *) a.allocate(sizeof(my_Class1));
             new(pC1) my_Class1;

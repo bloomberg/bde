@@ -170,6 +170,11 @@ void testCase1(int argc, bool assert)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    (void) assert;
+    (void) verbose;
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
+
     BloombergLP::bsls::Stopwatch timer;
 
     timer.reset();
@@ -265,6 +270,10 @@ void init(volatile int *arrayA, volatile int *arrayB)
         __dcbf((const void *)(arrayA++));
         __dcbf((const void *)(arrayB++));
     }
+#else
+    // suppress 'unused parameter' compiler warnings:
+    (void) arrayA;
+    (void) arrayB;
 #endif
 }
 
@@ -273,15 +282,23 @@ void addWithoutPrefetch(volatile int *arrayA, volatile int *arrayB)
     // without using prefetch.
 {
     for (int i = 0; i < SIZE/8; ++i){
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
 
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
     }
 }
 
@@ -290,20 +307,31 @@ void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
     // using prefetch.
 {
     for (int i = 0; i < SIZE/8; ++i){
+
+        // cast away the volatile qualifiers when calling 'prefetch*':
+
         BloombergLP::bsls::PerformanceHint::prefetchForWriting(
-                                               const_cast<int *>(arrayA) + 16);
+                                               const_cast<int *>(arrayA + 16));  
         BloombergLP::bsls::PerformanceHint::prefetchForReading(
-                                               const_cast<int *>(arrayB) + 16);
+                                               const_cast<int *>(arrayB + 16));
 
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
 
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
+        *arrayA += *(arrayB++);
+        ++arrayA;
     }
 }
 
@@ -312,6 +340,11 @@ void testCase3(int argc, bool assert)
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    // suppress 'unused parameter' compiler warnings:
+    (void) assert;
+    (void) verbose;
+    (void) veryVeryVerbose;
 
     if (veryVerbose) {
         cout << "Adding with prefetch" << endl;
@@ -392,6 +425,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    (void) veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -481,6 +516,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example 1"
                           << "\n=======================" << endl;
 
+        ASSERT(true);
         TestCase1::testCase1(argc, false);
 
       } break;

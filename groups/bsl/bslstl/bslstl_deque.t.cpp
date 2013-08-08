@@ -296,37 +296,44 @@ const int NUM_INTERNAL_STATE_TEST = 10;
 inline
 void dbg_print(char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 inline
 void dbg_print(unsigned char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 inline
 void dbg_print(signed char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 inline
 void dbg_print(short val)
 {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline
 void dbg_print(unsigned short val)
 {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline
 void dbg_print(int val)
 {
-    printf("%d", val); fflush(stdout);
+    printf("%d", val);
+    fflush(stdout);
 }
 inline
 void dbg_print(bsls::Types::Int64 val)
 {
-    printf("%lld", val); fflush(stdout);
+    printf("%lld", val);
+    fflush(stdout);
 }
 #if defined(BSLS_PLATFORM_OS_AIX)
 inline
@@ -345,18 +352,21 @@ void dbg_print(size_t val)
 inline
 void dbg_print(float val)
 {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 inline
 void dbg_print(double val)
 {
-    printf("'%f'", val); fflush(stdout);
+    printf("'%f'", val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(const char* s)
 {
-    printf("\"%s\"", s); fflush(stdout);
+    printf("\"%s\"", s);
+    fflush(stdout);
 }
 
 // Deque-specific print function.
@@ -5546,7 +5556,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
-                (void)LINE;
+                (void) LINE;
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P(LENGTH);
@@ -5582,7 +5592,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 const int    LINE   = DATA[ti].d_lineNum;
                 const size_t LENGTH = DATA[ti].d_length;
                 const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
-                (void)LINE;
+                (void) LINE;
 
                 if (verbose) {
                     printf("\t\tCreating object of "); P_(LENGTH);
@@ -5819,7 +5829,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     if (verbose)
         printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
@@ -5907,7 +5917,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
 
     const TYPE         *values     = 0;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // --------------------------------------------------------------------
 
@@ -7669,7 +7679,7 @@ void TestDriver<TYPE,ALLOC>::testCase1()
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (verbose) printf("\n 1) Create an object x1 (default ctor)."
