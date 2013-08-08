@@ -375,7 +375,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "Testing ctor and accessor." << endl;
         {
-            const int NUM_BYTES[] = { 0, 1, 5, 100, -1, -100 };
+            const my_Allocator::size_type NUM_BYTES[] = { 0, 1, 5, 100 };
             const int NUM_TEST = sizeof NUM_BYTES / sizeof *NUM_BYTES;
             for (int i = 0; i < NUM_TEST; ++i) {
                 const bslma::TestAllocatorException X(NUM_BYTES[i]);

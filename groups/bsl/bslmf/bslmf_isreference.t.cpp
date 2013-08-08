@@ -159,6 +159,8 @@ int main(int argc, char *argv[])
     bool verbose = argc > 2;
     bool veryVerbose = argc > 3;
 
+    (void) veryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:

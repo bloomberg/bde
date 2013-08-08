@@ -3048,6 +3048,8 @@ template <class TYPE>
 inline
 void HashTable_Util::assertNotNullPointer(TYPE * const& ptr)
 {
+    // silence "unused parameter" warning in release builds:
+    (void) ptr;
     BSLS_ASSERT(ptr);
 }
 

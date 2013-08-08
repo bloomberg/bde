@@ -114,43 +114,50 @@ void aSsErT(int c, const char *s, int i)
 inline
 void dbg_print(char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(unsigned char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(signed char c)
 {
-    printf("%c", c); fflush(stdout);
+    printf("%c", c);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(short val)
 {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(unsigned short val)
 {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(int val)
 {
-    printf("%d", val); fflush(stdout);
+    printf("%d", val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(unsigned val)
 {
-    printf("%u", val); fflush(stdout);
+    printf("%u", val);
+    fflush(stdout);
 }
 
 #ifdef _MSC_VER
@@ -158,13 +165,15 @@ void dbg_print(unsigned val)
 inline
 void dbg_print(bsls::Types::Int64 val)
 {
-    printf("%I64d", val); fflush(stdout);
+    printf("%I64d", val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(bsls::Types::Uint64 val)
 {
-    printf("%I64u", val); fflush(stdout);
+    printf("%I64u", val);
+    fflush(stdout);
 }
 
 #else
@@ -172,13 +181,15 @@ void dbg_print(bsls::Types::Uint64 val)
 inline
 void dbg_print(bsls::Types::Int64 val)
 {
-    printf("%lld", val); fflush(stdout);
+    printf("%lld", val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(bsls::Types::Uint64 val)
 {
-    printf("%llu", val); fflush(stdout);
+    printf("%llu", val);
+    fflush(stdout);
 }
 
 #endif
@@ -186,25 +197,29 @@ void dbg_print(bsls::Types::Uint64 val)
 inline
 void dbg_print(float val)
 {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(double val)
 {
-    printf("'%f'", val); fflush(stdout);
+    printf("'%f'", val);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(const char *s)
 {
-    printf("\"%s\"", s); fflush(stdout);
+    printf("\"%s\"", s);
+    fflush(stdout);
 }
 
 inline
 void dbg_print(const void  *p)
 {
-    printf("\"%p\"", p); fflush(stdout);
+    printf("\"%p\"", p);
+    fflush(stdout);
 }
 
 //=============================================================================
@@ -1899,8 +1914,8 @@ bool operator!=(const TestPairType& lhs, const TestPairType& rhs)
 
 bool operator<(const TestPairType& lhs, const TestPairType& rhs)
 {
-    return lhs.first < rhs.first ||
-           lhs.first == rhs.first && lhs.second < rhs.second;
+    return (lhs.first < rhs.first) ||
+           (lhs.first == rhs.first && lhs.second < rhs.second);
 }
 
 bool operator>(const TestPairType& lhs, const TestPairType& rhs)

@@ -180,7 +180,7 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
 template <size_t N>
 bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
 {
-    for (int bitIndex = 0; bitIndex < N; ++bitIndex) {
+    for (size_t bitIndex = 0; bitIndex < N; ++bitIndex) {
         int expectedBit = 0;
 
         if (bitIndex < sizeof(unsigned long) * CHAR_BIT) {
@@ -208,7 +208,7 @@ bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
 namespace {
 
 template <int TESTSIZE>
-void testCase2(int verbose, int veryVerbose, int veryVeryVerbose)
+void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
 {
     if (verbose) cout << "\tCheck bitset<" << TESTSIZE << ">" << endl;
 
@@ -240,7 +240,7 @@ void testCase2(int verbose, int veryVerbose, int veryVeryVerbose)
 }
 
 template <int TESTSIZE>
-void testCase3(int verbose, int veryVerbose, int veryVeryVerbose)
+void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
 {
     static const struct {
         unsigned int  d_lineNum;  // source line number
@@ -318,7 +318,8 @@ bool isPrime(int candidate)
     // '2 <= candidate <= MAX_VALUE'
 {
     BSLMF_ASSERT(2 <= MAX_VALUE);
-    BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
+    BSLS_ASSERT(2 <= candidate);
+    BSLS_ASSERT((unsigned int) candidate <= MAX_VALUE);
 //..
 // Then, we declare a 'bsl::bitset', 'compositeFlags', that will contain flags
 // indicating whether a value corresponding to a given index is known to be
@@ -356,14 +357,14 @@ bool isPrime(int candidate)
     // Note that we treat 'false' values as potential primes,
     // since that is how 'bsl::bitset' is default-initialized.
 
-    for (std::size_t i = 2; i <= sqrtOfCandidate; ++i) {
+    for (int i = 2; i <= sqrtOfCandidate; ++i) {
         if (compositeFlags[i]) {
             continue;  // Skip this value: it's flagged as composite, so all
                        // of its multiples are already flagged as composite as
                        // well.
         }
 
-        for (std::size_t flagValue = i;
+        for (int flagValue = i;
              flagValue <= candidate;
              flagValue += i) {
             compositeFlags[flagValue] = true;
@@ -904,12 +905,12 @@ int main(int argc, char *argv[])
           int         d_value;    // bitset value
           const char* d_string;   // bitset string
       } DATA[] = {
-          //LINE  VALUE         STRING
-          //----  ----------    -----------------------------------
-          { L_,   0,            "00000000000000000000000000000000" },
-          { L_,   0x10101010,   "00010000000100000001000000010000" },
-          { L_,   0xabcdef01,   "10101011110011011110111100000001" },
-          { L_,   0x12345678,   "00010010001101000101011001111000" },
+          //LINE        VALUE         STRING
+          //----        ----------    -----------------------------------
+          { L_,         0,            "00000000000000000000000000000000" },
+          { L_,         0x10101010,   "00010000000100000001000000010000" },
+          { L_,   (int) 0xabcdef01,   "10101011110011011110111100000001" },
+          { L_,         0x12345678,   "00010010001101000101011001111000" },
       };
 
       const int    SA = DATA[1].d_value,

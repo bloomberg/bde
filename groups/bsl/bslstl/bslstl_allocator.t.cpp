@@ -7,6 +7,7 @@
 #include <bslma_defaultallocatorguard.h>  // testing only
 #include <bslma_testallocator.h>          // testing only
 #include <bslmf_issame.h>                 // testing only
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>                // testing only
 
 #include <cstdio>
@@ -92,6 +93,11 @@ static void aSsErT(int c, const char *s, int i) {
 //#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_ printf("\t");             // Print a tab (w/o newline)
+
+// ============================================================================
+//                           PRINTF FORMAT MACROS
+// ----------------------------------------------------------------------------
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -582,8 +588,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cas, cas == std::numeric_limits<bsize>::max());
 
             if (verbose) {
-                printf("As long: cas = %ld\n", cas);
-                printf("As unsigned long: cas = 0x%lx\n", cas);
+                printf("cas = " ZU "\n", cas);
             }
 
             bsl::allocator<MyObject> objAlloc;
@@ -601,10 +606,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(oassplus, oassplus < oas); // overflow
 
             if (verbose) {
-                printf("\tAs long: oas = %ld, oass = %ld, oassplus = %ld.\n",
-                       oas, oass, oassplus);
-                printf("\tAs unsigned long: oas = %lu, oass = %lu, "
-                       "oassplus = %lu.\n", oas, oass, oassplus);
+                printf("\tAs unsigned long: oas = " ZU ", oass = " ZU ", "
+                       "oassplus = " ZU ".\n", oas, oass, oassplus);
             }
         }
 

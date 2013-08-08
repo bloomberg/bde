@@ -92,7 +92,7 @@ void testFuncPtrType(TYPE)
 #endif
 }
 
-void funcWithDefaultArg(int arg)
+void funcWithDefaultArg(int /* arg */)
 {
 }
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void)veryVerbose;
+    (void) veryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

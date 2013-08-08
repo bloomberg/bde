@@ -1168,7 +1168,7 @@ struct TestTypeValue<PrimitiveTestTypes::ObjectPtr>
     PrimitiveTestTypes::ObjectPtr create(int value) const {
         BSLS_ASSERT(0 <= value);
 
-        return (PrimitiveTestTypes::ObjectPtr)(value);
+        return reinterpret_cast<PrimitiveTestTypes::ObjectPtr>(value);
     }
 
     int getValue(const PrimitiveTestTypes::ObjectPtr& value) const {
@@ -1184,7 +1184,7 @@ struct TestTypeValue<PrimitiveTestTypes::FunctionPtr>
     PrimitiveTestTypes::FunctionPtr create(int value) const {
         BSLS_ASSERT(0 <= value);
 
-        return (PrimitiveTestTypes::FunctionPtr)(value);
+        return reinterpret_cast<PrimitiveTestTypes::FunctionPtr>(value);
     }
 
     int getValue(const PrimitiveTestTypes::FunctionPtr& value) const {
@@ -5957,7 +5957,7 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             RbTreeNode node; const RbTreeNode& NODE = node;
-            (void) node;  // Suppress 'unused variable' warnings
+            (void) NODE;  // Suppress 'unused variable' warnings
                           // in non-SAFE modes
             ASSERT_FAIL(Obj::printTreeStructure(0,
                                                 &NODE,

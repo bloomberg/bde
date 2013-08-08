@@ -325,6 +325,8 @@ static int verifyPrint(const bslma::TestAllocator& ta,
     int veryVerbose = verboseFlag > 3;
     int veryVeryVerbose = verboseFlag > 4;
 
+    (void) veryVeryVerbose;
+
     if (verbose) cout << "\tCompare with expected result." <<endl;
 
     const int SIZE = 2000;         // Must be big enough to hold output string.
@@ -762,6 +764,11 @@ int main(int argc, char *argv[])
                   void       *addresses[MAX_ENTRIES];
                   int         numRemAllocs   = 0;
                   int         remAllocs[MAX_ENTRIES] = { 0 };
+
+            (void) LINE;
+            (void) ALLOCS;
+            (void) DEALLOCS;
+
 
             bslma::TestAllocator ta;
             bslma::TestAllocator *mXPtr = NAME
@@ -1662,7 +1669,7 @@ int main(int argc, char *argv[])
             struct B {
                 int d_m;
                 int d_s;
-            } b[2] = { { 0xdeadbeef, -1 }, { 0x11, 0x22 } };
+            } b[2] = { { (int) 0xdeadbeef, -1 }, { 0x11, 0x22 } };
 
             if (verbose) cout <<"\t[deallocate memory with bad length]" <<endl;
             if (veryVerbose) cout << LINE << endl;

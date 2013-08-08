@@ -84,13 +84,13 @@ const int CM5 = BSLMF_TAG_TO_INT(tag<-5>());  // -5
 // (e.g., copy constructor).
 //..
     template <class T>
-    void doSomethingImp(T *t, bslmf::Tag<0> *)
+    void doSomethingImp(T * /* t */, bslmf::Tag<0> *)
     {
         // slow but generic implementation
     }
 
     template <class T>
-    void doSomethingImp(T *t, bslmf::Tag<1> *)
+    void doSomethingImp(T * /* t */, bslmf::Tag<1> *)
     {
         // fast implementation (appropriate for bitwise-movable types)
     }

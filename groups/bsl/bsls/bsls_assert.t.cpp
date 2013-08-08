@@ -373,6 +373,8 @@ void TestConfigurationMacros();
 
     void HashTable::resize(double loadFactor)
     {
+        // silence "unused parameter" warning in release builds:
+        (void) loadFactor;
         BSLS_ASSERT(0 < loadFactor);
 
         // ...
@@ -558,7 +560,7 @@ void TestConfigurationMacros();
 //..
 // Now we can install it just as we would any any other handler:
 //..
-        bsls::Assert::setFailureHandler(&::ourFailureHandler);
+        bsls::Assert::setFailureHandler(f);
 //..
 // We can now invoke the default handler directly:
 //..
@@ -627,6 +629,7 @@ void TestConfigurationMacros();
             // ...
 
             double d = fact(-1);        // Out-of-contract call to 'fact'.
+            (void) d;
 
             // ...
         }
@@ -727,11 +730,11 @@ void TestConfigurationMacros();
       public:
         // CREATORS
         List() : d_head_p(0) { }
-        List(const List& original) { /* ... */ }
+        List(const List& /* original */) { /* ... */ }
         ~List() { /* ... */ }
 
         // MANIPULATORS
-        List& operator=(const List& rhs) { /* ... */ return *this; }
+        List& operator=(const List& /* rhs */) { /* ... */ return *this; }
 
         //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
         //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
@@ -1159,6 +1162,8 @@ int main(int argc, char *argv[])
                              "const char *f, int line);'" << endl;
         {
             bsls::Assert::Handler f = bsls::Assert::failAbort;
+            (void) f;
+
             if (veryVerbose) {
                 cout << "\t(Aborting behavior must be tested by hand.)" <<
                                                                           endl;

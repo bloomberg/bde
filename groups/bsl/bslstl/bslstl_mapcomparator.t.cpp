@@ -279,7 +279,7 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
 }
 
 template <class TYPE>
-bool lessThanFunction2(const TYPE& lhs, const TYPE& rhs)
+bool lessThanFunction2(const TYPE& /* lhs */, const TYPE& /* rhs */)
 {
     return true;
 }

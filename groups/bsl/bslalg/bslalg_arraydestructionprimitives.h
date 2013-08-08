@@ -184,8 +184,8 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
     bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
     std::memset(begin, 0xa5, numBytes);
 #else
-    (void)begin;
-    (void)end;
+    (void) begin;
+    (void) end;
 #endif
 }
 

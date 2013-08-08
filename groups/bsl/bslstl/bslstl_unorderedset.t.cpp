@@ -2472,8 +2472,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_results;
-        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const ptrdiff_t   LENGTH = strlen(DATA[ti].d_results);
         const TestValues  EXP(DATA[ti].d_results, &scratch);
+        ASSERT(0 <= LENGTH);
 
         TestValues CONT(SPEC, &scratch);
 
@@ -4570,8 +4571,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -4920,8 +4921,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
         const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
-            const char *const SPEC        = SPECS[ti];
-            const size_t      LENGTH      = (int) strlen(SPEC);
+            const char *const SPEC   = SPECS[ti];
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -4981,7 +4982,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
                            "with test allocator:\n");
                 }
 
-                const native_std::size_t A = oa.numBlocksTotal();
+                const bsls::Types::Int64 A = oa.numBlocksTotal();
 
                 Obj Y11(X, &oa);
 
@@ -5126,8 +5127,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
         operatorPtr operatorEq = bsl::operator==;
         operatorPtr operatorNe = bsl::operator!=;
 
-        (void)operatorEq;  // quash potential compiler warnings
-        (void)operatorNe;
+        (void) operatorEq;  // quash potential compiler warnings
+        (void) operatorNe;
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -5548,7 +5549,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);
 
@@ -6414,7 +6415,7 @@ int main(int argc, char *argv[])
 // profiles in this data set.
 //..
 if (verbose) {
-    printf(ZU " %d\n", numCustomerProfiles, profileCategories.size());
+    printf(ZU " " ZU "\n", numCustomerProfiles, profileCategories.size());
 }
 //..
 // Standard output shows:

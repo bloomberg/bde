@@ -6,6 +6,8 @@
 
 #include <bslmf_issame.h>
 
+#include <bsls_bsltestutil.h>
+
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
@@ -67,6 +69,12 @@ void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_ printf("\t");             // Print a tab (w/o newline)
 
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 //=============================================================================
 //                      GLOBAL PRINT FUNCTIONS
 //-----------------------------------------------------------------------------
@@ -77,12 +85,14 @@ inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
 inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
 inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
+    printf("%d", (int)val);
+    fflush(stdout);
 }
 inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(size_t val) { printf("%u", val); fflush(stdout); }
+inline void dbg_print(size_t val) { printf(ZU, val); fflush(stdout); }
 inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
+    printf("'%f'", (double)val);
+    fflush(stdout);
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
@@ -94,10 +104,10 @@ dbg_print(const bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
 {
     if (iter.blockPtr() && iter.valuePtr()) {
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        printf("[0x%016p,0x%016p]", iter.blockPtr(), iter.valuePtr());
+        printf("[0x%16p,0x%16p]", iter.blockPtr(), iter.valuePtr());
         fflush(stdout);
 #else
-        printf("[0x%08p,0x%08p]", iter.blockPtr(), iter.valuePtr());
+        printf("[0x%8p,0x%8p]", iter.blockPtr(), iter.valuePtr());
         fflush(stdout);
 #endif
     }
@@ -287,7 +297,7 @@ void TestDriver<VALUE_TYPE, BLOCK_LENGTH>::testCase1()
     const Obj         *values     = 0;
     const Obj *const&  VALUES     = values;
     const int          NUM_VALUES = getValues(&values);
-    (void)NUM_VALUES;
+    (void) NUM_VALUES;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (verbose) printf("\n1) Create an object x1 (ctor from A)."

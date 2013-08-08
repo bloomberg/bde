@@ -150,7 +150,8 @@ inline void debugprint(const RbTreeAnchor& val) {
     fflush(stdout);
 }
 inline void debugprint(const RbTreeNode *val) {
-    printf("%p", val); fflush(stdout);
+    printf("%p", val);
+    fflush(stdout);
 }
 
 }  // close namespace bslalg
@@ -336,8 +337,8 @@ int main(int argc, char *argv[])
 //..
 //
 //          A (value: 2, BLACK)
-//              /       \
-//             /         \
+//              /       \.
+//             /         \.
 //  B (value: 1, RED)   C ( value: 5, RED )
 //..
 // Next, we set the properties for the nodes 'A', 'B', and 'C' to form a valid

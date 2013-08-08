@@ -562,7 +562,7 @@ void TestDriver<VALUE>::testCase11()
 
         operatorPtr operatorPredecrement = &Obj::operator++;
 
-        (void)operatorPredecrement;  // quash potential compiler warning
+        (void) operatorPredecrement;  // quash potential compiler warning
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -672,7 +672,7 @@ void TestDriver<VALUE>::testCase9()
 
         operatorPtr operatorAssignment = &Obj::operator=;
 
-        (void)operatorAssignment;  // quash potential compiler warning
+        (void) operatorAssignment;  // quash potential compiler warning
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -900,23 +900,23 @@ void TestDriver<VALUE>::testCase6()
 
         operatorPtrNN operatorEqNN = bslstl::operator==;
         operatorPtrNN operatorNeNN = bslstl::operator!=;
-        (void)operatorEqNN;  // quash potential compiler warnings
-        (void)operatorNeNN;
+        (void) operatorEqNN;  // quash potential compiler warnings
+        (void) operatorNeNN;
 
         operatorPtrNC operatorEqNC = bslstl::operator==;
         operatorPtrNC operatorNeNC = bslstl::operator!=;
-        (void)operatorEqNC;  // quash potential compiler warnings
-        (void)operatorNeNC;
+        (void) operatorEqNC;  // quash potential compiler warnings
+        (void) operatorNeNC;
 
         operatorPtrCN operatorEqCN = bslstl::operator==;
         operatorPtrCN operatorNeCN = bslstl::operator!=;
-        (void)operatorEqCN;  // quash potential compiler warnings
-        (void)operatorNeCN;
+        (void) operatorEqCN;  // quash potential compiler warnings
+        (void) operatorNeCN;
 
         operatorPtrCC operatorEqCC = bslstl::operator==;
         operatorPtrCC operatorNeCC = bslstl::operator!=;
-        (void)operatorEqCC;  // quash potential compiler warnings
-        (void)operatorNeCC;
+        (void) operatorEqCC;  // quash potential compiler warnings
+        (void) operatorNeCC;
     }
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -1075,14 +1075,14 @@ void TestDriver<VALUE>::testCase4()
 
         // Verify that the signature and return type are standard.
         operatorPtr operatorDereference = &Obj::operator*;
-        (void)operatorDereference;  // quash potential compiler warning
+        (void) operatorDereference;  // quash potential compiler warning
     }
     {
         typedef VALUE* (Obj::*operatorPtr)() const;
 
         // Verify that the signature and return type are standard.
         operatorPtr operatorArrow = &Obj::operator->;
-        (void)operatorArrow;  // quash potential compiler warning
+        (void) operatorArrow;  // quash potential compiler warning
     }
 
 
