@@ -402,7 +402,7 @@ DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::DequeIterator(BlockPtr   *blockPtrPtr,
 , d_value_p(valuePtr)
 {
     BSLS_ASSERT_SAFE(blockPtrPtr[0]->d_data <= valuePtr);
-    BSLS_ASSERT_SAFE(valuePtr < blockPtrPtr[0]->d_data + BLOCK_LENGTH);
+    BSLS_ASSERT_SAFE(valuePtr - blockPtrPtr[0]->d_data < BLOCK_LENGTH);
 }
 
 // MANIPULATORS

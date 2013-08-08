@@ -1983,9 +1983,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position)
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    BSLS_ASSERT_SAFE(static_cast<Uint>(size()) > static_cast<Uint>(position));
+    BSLS_ASSERT_SAFE(size() > position);
 
     return d_dataBegin[position];
 }
@@ -1994,10 +1992,7 @@ template <class VALUE_TYPE>
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::at(size_type position)
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                   static_cast<Uint>(position) >= static_cast<Uint>(size()))) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                 "vector<...>::at(position): invalid position");
@@ -2130,9 +2125,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position) const
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    BSLS_ASSERT_SAFE(static_cast<Uint>(size()) > static_cast<Uint>(position));
+    BSLS_ASSERT_SAFE(size() > position);
 
     return d_dataBegin[position];
 }
@@ -2141,10 +2134,7 @@ template <class VALUE_TYPE>
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::at(size_type position) const
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(static_cast<Uint>(position) >=
-                                                  static_cast<Uint>(size()))) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                           "const vector<...>::at(position): invalid position");
