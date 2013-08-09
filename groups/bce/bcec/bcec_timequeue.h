@@ -44,21 +44,8 @@ BDES_IDENT("$Id: $")
 // the time value for a specific 'bcec_TimeQueueItem' without removing it from
 // the queue.
 //
-///'poolTimerMemory' flag
-///----------------------
-// Clients can provide a memory hint to 'bcec_TimeQueue' asking it to pool the
-// memory that it uses for the timers in it's internal data structures.  Note
-// that it is inefficient to provide a generic pool allocator as
-// 'bcec_TimeQueue' contains multiple data structures having differing memory
-// requirements.  The performance benefit from pooling the timer memory varies
-// across platforms but in the normal use case where many timers are registered
-// and fired multiple times the processing time of adding and removing timers
-// improves by 2 - 10 %.  The total number of memory allocations also drop
-// significantly if 'poolTimerMemory' is 'true', however, it may result in
-// higher peak memory depending on the usage pattern of the queue.
-//
 ///Thread Safety
-///-------------
+///- - - - - - -
 // It is safe to access or modify two distinct 'bcec_TimeQueue' objects
 // simultaneously, each from a separate thread.  It is safe to access or modify
 // a single 'bcec_TimeQueue' object simultaneously from two or more separate
@@ -70,6 +57,27 @@ BDES_IDENT("$Id: $")
 // constructors or assignment operators may modify or even merely access the
 // same 'bcec_TimeQueue' object (except 'length').  Such attempts generally
 // lead to a deadlock.
+//
+///'bcec_TimeQueue::Handle' Uniqueness and Reuse' and 'numIndexBits'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'Handle' is an alias for a 32 bit 'int'.  A handle consists of two parts,
+// the 'index section' and the 'iteration section'.  The index section, which
+// is the low-order 'numIndexBits', uniquely identifies the node.  Once a node
+// is added, it never ceases to exist - it may be freed, but it will be kept on
+// a free list to be eventually recycled, and the same index section will
+// always identify that node.  The iteration section, the high-order
+// '32 - numIndexBits', is changed every time a node is freed, so that an
+// out-of-date handle can be identified as out-of-date.  But since the
+// iteration section has only a finite number of bits, if a node is freed and
+// re-added enough times, old handle values will eventually be re-used.
+//
+// Up to '2 ** numIndexBits - 1' nodes can exist in a given time queue.  A
+// given handle won't be re-used for a node until that node has been freed and
+// re-used '2 ** (32 - numIndexBits) - 1' times.
+//
+// 'numIndexBits' is an optional parameter to the time queue constructors.  If
+// unspecfied, it has a value of 17.  The behavior is undefined unless the
+// specified 'numIndexBits' is in the range '8 <= numIndexBits <= 24'.
 //
 ///Usage
 ///-----
@@ -85,15 +93,6 @@ BDES_IDENT("$Id: $")
 // Connection times out.  A more sophisticated implementation of 'my_Session'
 // would attempt recovery, perhaps by closing and reopening the physical
 // Connection.
-//
-///'numIndexBits'
-///-------------
-// The 'bcec_TimeQueue' component is constructed using a user-supplied
-// 'numIndexBits'.  The number of bits used to store the index controls the
-// range of available indices.  The maximum number of valid nodes at any time
-// is 'numIndexBits - 1'.  A larger value of 'numIndexBits' results in
-// 'Handle' values being re-used more frequently, but never will two current
-// nodes share the same 'Handle' value.
 //
 ///Forward declarations:
 ///- - - - - - - - - - -
@@ -634,13 +633,12 @@ class bcec_TimeQueue {
   public:
     // TYPES
     typedef int Handle;
-        // Provide an opaque "handle" for a specific item in the
-        // 'bcec_TimeQueue', as a return value when the item is inserted into
-        // the queue.  Clients use this value to gain direct access to the
-        // corresponding element; see member functions 'add', 'update', and
-        // 'remove'.  Note that 'Handle' values are eventually re-used, but
-        // only some time after the node using the index has been freed.  Never
-        // will two current nodes use the same 'Handle'.
+        // Defines a type alias for uniquely identifying a valid node in the
+        // time queue.  Handles are returned when nodes are added to the time
+        // queue, and must be supplied to the 'update' and 'remove' methods to
+        // identify existing nodes.  When a node is removed, the handle value
+        // becomes invalid, though old handle values are eventually re-used.
+        // See the component doc for more details.
 
     class Key {
         // This type is a wrapper around a void pointer that will be supplied
@@ -653,12 +651,12 @@ class bcec_TimeQueue {
         // CREATORS
         explicit Key(const void *key)
         : d_key(key)
-            // Create a 'Key' object with the specified value 'key'.
+            // Create a 'Key' object having the specified value 'key'.
         {}
 
         explicit Key(int key)
         : d_key(reinterpret_cast<const void*>(key))
-            // Create a 'Key' object with the specified value 'key' cast to a
+            // Create a 'Key' object having the specified 'key value' cast to a
             // 'void *'.
         {}
 
@@ -668,15 +666,15 @@ class bcec_TimeQueue {
 
         // ACCESSORS
         bool operator==(const Key& rhs) const
-            // Return 'true' if this object is equal to the specified 'rhs'
-            // and 'false' otherwise.
+            // Return 'true' if this object has the same value as the specified
+            // 'rhs' object, and 'false' otherwise.
         {
             return d_key == rhs.d_key;
         }
 
         bool operator!=(const Key& rhs) const
-            // Return 'false' if this object is equal to the specified 'rhs'
-            // and 'true' otherwise.
+            // Return 'false' if this object does not have the same value as
+            // the specified 'rhs' and 'true' otherwise.
         {
             return d_key != rhs.d_key;
         }
@@ -699,6 +697,15 @@ class bcec_TimeQueue {
         bsls::ObjectBuffer<DATA>  d_data;
 
         // CREATORS
+        Node()
+        : d_index(0)
+        , d_key(0)
+        , d_prev_p(0)
+        , d_next_p(0)
+            // Create a 'Node' having a time value of 0.
+        {
+        }
+
         explicit
         Node(const bdet_TimeInterval& time)
         : d_index(0)
@@ -706,16 +713,7 @@ class bcec_TimeQueue {
         , d_key(0)
         , d_prev_p(0)
         , d_next_p(0)
-            // Create a 'Node' with the speccified value 'time'.
-        {
-        }
-
-        Node()
-        : d_index(0)
-        , d_key(0)
-        , d_prev_p(0)
-        , d_next_p(0)
-            // Create a 'Node' at time 0.
+            // Create a 'Node' having the specified value 'time'.
         {
         }
     };
@@ -727,7 +725,6 @@ class bcec_TimeQueue {
         // Internal typedefs for the iterator used to navigate the time index.
 
     // PRIVATE DATA MEMBERS
-    const int                d_numIndexBits;
     const int                d_indexMask;
     const int                d_indexIterationMask;
     const int                d_indexIterationInc;
@@ -780,16 +777,14 @@ class bcec_TimeQueue {
     explicit bcec_TimeQueue(bslma::Allocator *basicAllocator = 0);
     explicit bcec_TimeQueue(int               numIndexBits,
                             bslma::Allocator *basicAllocator = 0);
-        // Construct an empty time queue.  Optionally specify 'numIndexBits' to
+        // Create an empty time queue.  Optionally specify 'numIndexBits' to
         // configure the number of index bits used by this object.  If
         // 'numIndexBits' is not specified a default value of 17 is used.
-        // Optionally specify 'poolTimerMemory' to indicate whether to pool the
-        // memory used for timers.  The behavior is undefined unless
-        // 'numIndexBits' is in the valid range, i.e., between 8 and 24.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  See component-level documentation for more information
-        // regarding 'numIndexBits'.
+        // used.  The behavior is undefined unless '8 <= numIndexBits <= 24'.
+        // See component-level documentation for more information regarding
+        // 'numIndexBits'.
 
     explicit bcec_TimeQueue(bool              poolTimerMemory,
                             bslma::Allocator *basicAllocator = 0);
@@ -800,7 +795,7 @@ class bcec_TimeQueue {
         // that the 'poolTimerMemory' (optional) argument controlled whether
         // additional memory used by an internal 'bsl::map' was pooled.  When
         // 'bsl::map' was modified to pool its own nodes, this option became
-        // irrelevant.
+        // irrelevant and is now ignored.
 
     ~bcec_TimeQueue();
         // Destroy this time queue.
@@ -1045,7 +1040,8 @@ inline
 void bcec_TimeQueue<DATA>::freeNode(Node *node)
 {
     node->d_index = ((node->d_index + d_indexIterationInc) &
-                    d_indexIterationMask) | (node->d_index & d_indexMask);
+                         d_indexIterationMask) | (node->d_index & d_indexMask);
+
     if (!(node->d_index & d_indexIterationMask)) {
         node->d_index += d_indexIterationInc;
     }
@@ -1092,8 +1088,7 @@ void bcec_TimeQueue<DATA>::putFreeNodeList(Node *begin)
 // CREATORS
 template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma::Allocator *basicAllocator)
-: d_numIndexBits(BCEC_NUM_INDEX_BITS_DEFAULT)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1<<BCEC_NUM_INDEX_BITS_DEFAULT) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1107,8 +1102,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma::Allocator *basicAllocator)
 template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(bool              poolTimerMemory,
                                      bslma::Allocator *basicAllocator)
-: d_numIndexBits(BCEC_NUM_INDEX_BITS_DEFAULT)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1<<BCEC_NUM_INDEX_BITS_DEFAULT) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1126,8 +1120,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bool              poolTimerMemory,
 template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
                                      bslma::Allocator *basicAllocator)
-: d_numIndexBits(numIndexBits)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1<<numIndexBits) - 1)
 , d_indexIterationMask(~d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1144,8 +1137,7 @@ template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
                                      bool              poolTimerMemory,
                                      bslma::Allocator *basicAllocator)
-: d_numIndexBits(numIndexBits)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1<<numIndexBits) - 1)
 , d_indexIterationMask(~d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1202,6 +1194,11 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
 
     Node *node;
     if (d_nextFreeNode_p) {
+        // All allocation of nodes goes through this routine which is guarded
+        // by the mutex.  So no other thread will remove anything from the free
+        // list while this code is executing.  However, other threads may add
+        // to the free list.
+
         node = d_nextFreeNode_p;
         Node *next = node->d_next_p;
         while (node != d_nextFreeNode_p.testAndSwap(node, next)) {
