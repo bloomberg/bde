@@ -564,16 +564,16 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // Concerns:
+        // Concerns: Usage example compiles and runs succesfully
         //
-        // Plan:
+        // Plan: Copy usage example from component header literally into test
+        //       driver.
 	//
-        // Testing:
-        //
+        // Testing: Usage example
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
@@ -581,7 +581,32 @@ int main(int argc, char *argv[])
 
         usageExample1();
 
-        bslmf::NthParameter<3, int, int, char>::Type x;
+      } break;
+
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //
+        // Concerns: Exercise basic functionality of component
+        //
+        // Plan: Invoke 'NthParameter' metafunction with a few different
+        //   combinations of parameters and confirm that it yields the
+        //   expected 'Type' data member.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
+#define TEST_NTH_PARAMETER(N, T, ...) \
+        ASSERT((bsl::is_same<T,       \
+                            bslmf::NthParameter<N, __VA_ARGS__>::Type>::value))
+
+        TEST_NTH_PARAMETER(0, int         , int, char*, void, const short&);
+        TEST_NTH_PARAMETER(1, char*       , int, char*, void, const short&);
+        TEST_NTH_PARAMETER(2, void        , int, char*, void, const short&);
+        TEST_NTH_PARAMETER(3, const short&, int, char*, void, const short&);
+
+        TEST_NTH_PARAMETER(0, double      , double);
 
       } break;
 
