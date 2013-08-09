@@ -155,11 +155,13 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
       ASSERT((bsl::is_same<char *, my_tuple_element<2, ttype>::Type>::value));
   
       ASSERT(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
+
+      return 0;
    }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslmf_nthparameter.t.cpp
+// Generator command line: sim_cpp11_features.pl bslmf_nthparameter.h bslmf_nthparameter.t.cpp
 template <class ELEMS_0 = BSLS_COMPILERFEATURES_NILT,
           class ELEMS_1 = BSLS_COMPILERFEATURES_NILT,
           class ELEMS_2 = BSLS_COMPILERFEATURES_NILT,
@@ -173,43 +175,43 @@ template <class ELEMS_0 = BSLS_COMPILERFEATURES_NILT,
           class = BSLS_COMPILERFEATURES_NILT>
 class my_tuple;
 
-   template <>
+template <>
    class my_tuple<> {
    };
 
-   template <class ELEMS_01>
+template <class ELEMS_01>
    class my_tuple<ELEMS_01> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02>
+template <class ELEMS_01,
+          class ELEMS_02>
    class my_tuple<ELEMS_01,
                   ELEMS_02> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03,
-             class ELEMS_04>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03,
+          class ELEMS_04>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03,
                   ELEMS_04> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03,
-             class ELEMS_04,
-             class ELEMS_05>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03,
+          class ELEMS_04,
+          class ELEMS_05>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03,
@@ -217,12 +219,12 @@ class my_tuple;
                   ELEMS_05> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03,
-             class ELEMS_04,
-             class ELEMS_05,
-             class ELEMS_06>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03,
+          class ELEMS_04,
+          class ELEMS_05,
+          class ELEMS_06>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03,
@@ -231,13 +233,13 @@ class my_tuple;
                   ELEMS_06> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03,
-             class ELEMS_04,
-             class ELEMS_05,
-             class ELEMS_06,
-             class ELEMS_07>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03,
+          class ELEMS_04,
+          class ELEMS_05,
+          class ELEMS_06,
+          class ELEMS_07>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03,
@@ -247,14 +249,14 @@ class my_tuple;
                   ELEMS_07> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03,
-             class ELEMS_04,
-             class ELEMS_05,
-             class ELEMS_06,
-             class ELEMS_07,
-             class ELEMS_08>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03,
+          class ELEMS_04,
+          class ELEMS_05,
+          class ELEMS_06,
+          class ELEMS_07,
+          class ELEMS_08>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03,
@@ -265,15 +267,15 @@ class my_tuple;
                   ELEMS_08> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03,
-             class ELEMS_04,
-             class ELEMS_05,
-             class ELEMS_06,
-             class ELEMS_07,
-             class ELEMS_08,
-             class ELEMS_09>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03,
+          class ELEMS_04,
+          class ELEMS_05,
+          class ELEMS_06,
+          class ELEMS_07,
+          class ELEMS_08,
+          class ELEMS_09>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03,
@@ -285,16 +287,16 @@ class my_tuple;
                   ELEMS_09> {
    };
 
-   template <class ELEMS_01,
-             class ELEMS_02,
-             class ELEMS_03,
-             class ELEMS_04,
-             class ELEMS_05,
-             class ELEMS_06,
-             class ELEMS_07,
-             class ELEMS_08,
-             class ELEMS_09,
-             class ELEMS_10>
+template <class ELEMS_01,
+          class ELEMS_02,
+          class ELEMS_03,
+          class ELEMS_04,
+          class ELEMS_05,
+          class ELEMS_06,
+          class ELEMS_07,
+          class ELEMS_08,
+          class ELEMS_09,
+          class ELEMS_10>
    class my_tuple<ELEMS_01,
                   ELEMS_02,
                   ELEMS_03,
@@ -513,6 +515,8 @@ class my_tuple;
       ASSERT((bsl::is_same<char *, my_tuple_element<2, ttype>::Type>::value));
   
       ASSERT(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
+
+      return 0;
    }
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -540,6 +544,8 @@ class my_tuple;
       ASSERT((bsl::is_same<char *, my_tuple_element<2, ttype>::Type>::value));
   
       ASSERT(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
+
+      return 0;
    }
 // }}} END GENERATED CODE
 #endif
@@ -574,6 +580,8 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         usageExample1();
+
+        bslmf::NthParameter<3, int, int, char>::Type x;
 
       } break;
 

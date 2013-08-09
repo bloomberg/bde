@@ -66,6 +66,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>
 #define INCLUDED_CSTDLIB
@@ -77,11 +81,14 @@ namespace bslmf {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
+struct NthParameter_Sentinel;  // Declared but not defined
+
                         // ===========================
                         // class template NthParameter
                         // ===========================
 
-template <std::size_t N, class PARAM_0 = void, class... PARAMS>
+template <std::size_t N, class PARAM_0 = NthParameter_Sentinel,
+          class... PARAMS>
 struct NthParameter {
     // Metafunction to compute the specified 'N'th element of the spcified
     // 'PARAMS' template parameter pack.  The 'Type' nested typedef will match
@@ -105,26 +112,24 @@ struct NthParameter<0, PARAM_0, PARAMS...> {
         // The type of the 0th parameter.
 };
 
+template <>
+struct NthParameter<0, NthParameter_Sentinel> {
+    // Specialization of 'NthParameter' for when 'N' excedes the actual
+    // number of parameters.
+
+    // No 'Type' member is defined.
+};
+
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslmf_nthparameter.h
+// Generator command line: sim_cpp11_features.pl bslmf_nthparameter.h bslmf_nthparameter.t.cpp
+
+struct NthParameter_Sentinel;
 
 
 template <std::size_t N,
-          class PARAM_0,
-          class PARAMS_0 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_1 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_2 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_3 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_4 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_5 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_6 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_7 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_8 = BSLS_COMPILERFEATURES_NILT,
-          class PARAMS_9 = BSLS_COMPILERFEATURES_NILT,
-          class = BSLS_COMPILERFEATURES_NILT,
-          class PARAM_0,
+          class PARAM_0 = NthParameter_Sentinel,
           class PARAMS_0 = BSLS_COMPILERFEATURES_NILT,
           class PARAMS_1 = BSLS_COMPILERFEATURES_NILT,
           class PARAMS_2 = BSLS_COMPILERFEATURES_NILT,
@@ -138,53 +143,47 @@ template <std::size_t N,
           class = BSLS_COMPILERFEATURES_NILT>
 struct NthParameter;
 
-template <std::size_t N, class PARAM_0 = void>
-struct NthParameter<N, PARAM_0, PARAM_0> {
+template <std::size_t N, class PARAM_0>
+struct NthParameter<N, PARAM_0> {
 
     typedef typename NthParameter<N - 1>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01>
-struct NthParameter<N, PARAM_0, PARAMS_01, PARAM_0, PARAMS_01> {
+template <std::size_t N, class PARAM_0, class PARAMS_01>
+struct NthParameter<N, PARAM_0, PARAMS_01> {
 
     typedef typename NthParameter<N - 1, PARAMS_01>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02>
 struct NthParameter<N, PARAM_0, PARAMS_01,
-                                PARAMS_02, PARAM_0, PARAMS_01,
-                                                    PARAMS_02> {
+                                PARAMS_02> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
-                                PARAMS_03, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03> {
+                                PARAMS_03> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
                                          PARAMS_03>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03,
-                                               class PARAMS_04>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03,
+                                        class PARAMS_04>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
                                 PARAMS_03,
-                                PARAMS_04, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03,
-                                                    PARAMS_04> {
+                                PARAMS_04> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
@@ -192,20 +191,16 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                          PARAMS_04>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03,
-                                               class PARAMS_04,
-                                               class PARAMS_05>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03,
+                                        class PARAMS_04,
+                                        class PARAMS_05>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
                                 PARAMS_03,
                                 PARAMS_04,
-                                PARAMS_05, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03,
-                                                    PARAMS_04,
-                                                    PARAMS_05> {
+                                PARAMS_05> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
@@ -214,23 +209,18 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                          PARAMS_05>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03,
-                                               class PARAMS_04,
-                                               class PARAMS_05,
-                                               class PARAMS_06>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03,
+                                        class PARAMS_04,
+                                        class PARAMS_05,
+                                        class PARAMS_06>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
                                 PARAMS_03,
                                 PARAMS_04,
                                 PARAMS_05,
-                                PARAMS_06, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03,
-                                                    PARAMS_04,
-                                                    PARAMS_05,
-                                                    PARAMS_06> {
+                                PARAMS_06> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
@@ -240,26 +230,20 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                          PARAMS_06>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03,
-                                               class PARAMS_04,
-                                               class PARAMS_05,
-                                               class PARAMS_06,
-                                               class PARAMS_07>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03,
+                                        class PARAMS_04,
+                                        class PARAMS_05,
+                                        class PARAMS_06,
+                                        class PARAMS_07>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
                                 PARAMS_03,
                                 PARAMS_04,
                                 PARAMS_05,
                                 PARAMS_06,
-                                PARAMS_07, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03,
-                                                    PARAMS_04,
-                                                    PARAMS_05,
-                                                    PARAMS_06,
-                                                    PARAMS_07> {
+                                PARAMS_07> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
@@ -270,14 +254,14 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                          PARAMS_07>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03,
-                                               class PARAMS_04,
-                                               class PARAMS_05,
-                                               class PARAMS_06,
-                                               class PARAMS_07,
-                                               class PARAMS_08>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03,
+                                        class PARAMS_04,
+                                        class PARAMS_05,
+                                        class PARAMS_06,
+                                        class PARAMS_07,
+                                        class PARAMS_08>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
                                 PARAMS_03,
@@ -285,14 +269,7 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_05,
                                 PARAMS_06,
                                 PARAMS_07,
-                                PARAMS_08, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03,
-                                                    PARAMS_04,
-                                                    PARAMS_05,
-                                                    PARAMS_06,
-                                                    PARAMS_07,
-                                                    PARAMS_08> {
+                                PARAMS_08> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
@@ -304,15 +281,15 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                          PARAMS_08>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03,
-                                               class PARAMS_04,
-                                               class PARAMS_05,
-                                               class PARAMS_06,
-                                               class PARAMS_07,
-                                               class PARAMS_08,
-                                               class PARAMS_09>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03,
+                                        class PARAMS_04,
+                                        class PARAMS_05,
+                                        class PARAMS_06,
+                                        class PARAMS_07,
+                                        class PARAMS_08,
+                                        class PARAMS_09>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
                                 PARAMS_03,
@@ -321,15 +298,7 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_06,
                                 PARAMS_07,
                                 PARAMS_08,
-                                PARAMS_09, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03,
-                                                    PARAMS_04,
-                                                    PARAMS_05,
-                                                    PARAMS_06,
-                                                    PARAMS_07,
-                                                    PARAMS_08,
-                                                    PARAMS_09> {
+                                PARAMS_09> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
@@ -342,16 +311,16 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                          PARAMS_09>::Type Type;
 };
 
-template <std::size_t N, class PARAM_0 = void, class PARAMS_01,
-                                               class PARAMS_02,
-                                               class PARAMS_03,
-                                               class PARAMS_04,
-                                               class PARAMS_05,
-                                               class PARAMS_06,
-                                               class PARAMS_07,
-                                               class PARAMS_08,
-                                               class PARAMS_09,
-                                               class PARAMS_10>
+template <std::size_t N, class PARAM_0, class PARAMS_01,
+                                        class PARAMS_02,
+                                        class PARAMS_03,
+                                        class PARAMS_04,
+                                        class PARAMS_05,
+                                        class PARAMS_06,
+                                        class PARAMS_07,
+                                        class PARAMS_08,
+                                        class PARAMS_09,
+                                        class PARAMS_10>
 struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_02,
                                 PARAMS_03,
@@ -361,16 +330,7 @@ struct NthParameter<N, PARAM_0, PARAMS_01,
                                 PARAMS_07,
                                 PARAMS_08,
                                 PARAMS_09,
-                                PARAMS_10, PARAM_0, PARAMS_01,
-                                                    PARAMS_02,
-                                                    PARAMS_03,
-                                                    PARAMS_04,
-                                                    PARAMS_05,
-                                                    PARAMS_06,
-                                                    PARAMS_07,
-                                                    PARAMS_08,
-                                                    PARAMS_09,
-                                                    PARAMS_10> {
+                                PARAMS_10> {
 
     typedef typename NthParameter<N - 1, PARAMS_01,
                                          PARAMS_02,
@@ -542,12 +502,20 @@ struct NthParameter<0, PARAM_0, PARAMS_01,
     typedef PARAM_0 Type;
 };
 
+
+template <>
+struct NthParameter<0, NthParameter_Sentinel> {
+
+};
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
+struct NthParameter_Sentinel;
 
-template <std::size_t N, class PARAM_0 = void, class... PARAMS>
+
+template <std::size_t N, class PARAM_0 = NthParameter_Sentinel,
+          class... PARAMS>
 struct NthParameter {
 
     typedef typename NthParameter<N - 1, PARAMS...>::Type Type;
@@ -558,6 +526,11 @@ template <class PARAM_0, class... PARAMS>
 struct NthParameter<0, PARAM_0, PARAMS...> {
     
     typedef PARAM_0 Type;
+};
+
+template <>
+struct NthParameter<0, NthParameter_Sentinel> {
+
 };
 
 // }}} END GENERATED CODE
