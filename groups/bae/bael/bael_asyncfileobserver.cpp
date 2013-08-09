@@ -23,6 +23,16 @@ BDES_IDENT_RCSID(bael_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bsl_iostream.h>
 
+// IMPLEMENTATION NOTE: 'shutdownThread' clears the queue in order to simplify
+// the implementation.  To guarantee that a thread sees the
+// 'd_shuttingDownFlag' a ('bael_Transmission::BAEL_END') record is
+// appended to the queue, otherwise the publication thread may be blocked
+// indefinitely on 'popFront'.  Unfortunately that potentially leaves a bogus
+// record in the queue after the publication thread is shutdown -- to avoid
+// dealing with that record (when the thread is restarted) the queue is
+// cleared.  Alternative designs are possible, but are not perceived to be
+// worth the added complexity.
+
 namespace BloombergLP {
 
                        // ----------------------------
@@ -80,7 +90,7 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
 
         if (bael_Transmission::BAEL_END
                 == asyncRecord.d_context.transmissionCause()
-            || d_clearing) {
+            || d_shuttingDownFlag) {
             done = true;
         }
         else {
@@ -95,10 +105,10 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
         // dropped.  Finally, we publish the dropped record count if the
         // observer is shutting down, so the information is not lost.
 
-        if (0 < d_dropCount.relaxedLoad()) {
+        if (0 < d_dropCount.loadRelaxed()) {
             if (d_recordQueue.length() <= d_recordQueue.size() / 2
-            ||  d_dropCount.relaxedLoad() >= FORCE_WARN_THRESHOLD
-            ||  d_clearing) {
+            ||  d_dropCount.loadRelaxed() >= FORCE_WARN_THRESHOLD
+            ||  d_shuttingDownFlag) {
                 int numDropped = d_dropCount.swap(0);
                 BSLS_ASSERT(0 < numDropped); // No other thread should have
                                              // cleared the count.
@@ -122,7 +132,7 @@ int bael_AsyncFileObserver::startThread()
 int bael_AsyncFileObserver::stopThread()
 {
     if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) {
-        // Push an empty record with BAEL_END set in context
+        // Push an empty record with BAEL_END set in context.
 
         AsyncRecord asyncRecord;
         bcema_SharedPtr<const bael_Record> record(
@@ -140,13 +150,30 @@ int bael_AsyncFileObserver::stopThread()
     return 0;
 }
 
-// CREATORS
-void
-bael_AsyncFileObserver::construct()
+int bael_AsyncFileObserver::shutdownThread()
 {
-    d_threadHandle = bcemt_ThreadUtil::invalidHandle();
-    d_clearing = false;
-    d_dropCount = 0;
+    d_shuttingDownFlag = 1;
+
+    // We call 'stopThread' to enqueue a bogus log record to ensure the
+    // publication thread is woken up to see that 'd_shuttingDownFlag' is
+    // 'true' (see implementation note).
+
+    int ret =  stopThread();
+
+    // We clear the queue to remove the bogus log record appended by
+    // 'stopThread'. 
+
+    d_recordQueue.removeAll();
+    d_shuttingDownFlag = 0;
+    return ret;
+}
+
+void bael_AsyncFileObserver::construct()
+{
+    d_threadHandle     = bcemt_ThreadUtil::invalidHandle();
+    d_shuttingDownFlag = 0;
+    d_dropCount        = 0;
+
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
               bdef_MemFnUtil::memFn(
@@ -160,11 +187,14 @@ bael_AsyncFileObserver::construct()
     d_droppedRecordWarning.fixedFields().setProcessID(
                                           bdesu_ProcessUtil::getProcessId());
 }
+
+// CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                                          bael_Severity::Level  stdoutThreshold,
                                          bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
+, d_shuttingDownFlag(0)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -178,6 +208,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
+, d_shuttingDownFlag(0)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -193,6 +224,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
+, d_shuttingDownFlag(0)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -208,6 +240,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                          bslma::Allocator     *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
+, d_shuttingDownFlag(0)
 , d_dropRecordsOnFullQueueThreshold(dropRecordsOnFullQueueThreshold)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -225,10 +258,7 @@ void bael_AsyncFileObserver::releaseRecords()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     if (isPublicationThreadRunning()) {
-        d_clearing = true;
-        stopThread();
-        d_recordQueue.removeAll();
-        d_clearing = false;
+        shutdownThread();
         startThread();
     }
     else {
@@ -245,7 +275,7 @@ void bael_AsyncFileObserver::publish(
     asyncRecord.d_context = context;
     if (record->fixedFields().severity() > d_dropRecordsOnFullQueueThreshold) {
         if (0 != d_recordQueue.tryPushBack(asyncRecord)) {
-            d_dropCount.relaxedAdd(1);
+            d_dropCount.addRelaxed(1);
         }
     }
     else {
@@ -268,11 +298,7 @@ int bael_AsyncFileObserver::stopPublicationThread()
 int bael_AsyncFileObserver::shutdownPublicationThread()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    d_clearing = true;
-    int ret =  stopThread();
-    d_recordQueue.removeAll();
-    d_clearing = false;
-    return ret;
+    return shutdownThread();
 }
 
 }  // close namespace BloombergLP
