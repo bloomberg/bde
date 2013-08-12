@@ -836,7 +836,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    switch (test) { case 0:  // zero is always the leadt ing case
+    switch (test) { case 0:  // zero is always the leading case
       case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #6:
@@ -6873,4 +6873,3 @@ void TestConfigurationMacros()
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
-
