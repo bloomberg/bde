@@ -2134,7 +2134,7 @@ template <class VALUE_TYPE>
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::at(size_type position) const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > size())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                           "const vector<...>::at(position): invalid position");
