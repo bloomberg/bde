@@ -9,4 +9,3 @@ logs/
 coverage/
 *.xcodeproj/
 .DS_store
-*.t.exp
