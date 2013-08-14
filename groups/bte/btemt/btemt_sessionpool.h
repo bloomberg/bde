@@ -872,8 +872,7 @@ class btemt_SessionPool {
                                                            *socket,
             void                                           *userData = 0,
             ConnectResolutionMode                           resolutionMode
-                                                               = RESOLVE_ONCE,
-            const bteso_IPv4Address                        *localAddress = 0);
+                                                               = RESOLVE_ONCE);
     int connect(
             int                                            *handleBuffer,
             const btemt_SessionPool::SessionStateCallback&  callback,
@@ -902,13 +901,13 @@ class btemt_SessionPool {
         // pointer to newly created 'btemt_Session' and the optionally
         // specified 'userData'.  Optionally specify either 'socketOptions' 
         // that will be used to specify what options should be set on the
-        // connecting socket, or 'socket' to use as the connecting socket
-        // (with any desired options already set; ownership will be 
-        // transferred from 'socket').  Optionally specify the 'localAddress'
-        // that should be used as the source address.  Return 0 on successful
-        // initiation, and a non-zero value otherwise.  The behavior is
-        // undefined unless '0 < numAttempts', and '0 < interval' or 
-        // '1 == numAttempts'.
+        // connecting socket and/or 'localAddress' to be used as the source 
+        // address, or 'socket' to use as the connecting socket
+        // (with any desired options and/or source address already set). 
+        // If 'socket' is specified, ownership will be transferred from it.
+        // Return 0 on successful initiation, and a non-zero value otherwise.
+        // The behavior is undefined unless '0 < numAttempts', and
+        // '0 < interval' or '1 == numAttempts'.
 
     int connect(
             int                                            *handleBuffer,
@@ -919,8 +918,7 @@ class btemt_SessionPool {
             btemt_SessionFactory                           *factory,
             bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
                                                            *socket,
-            void                                           *userData = 0,
-            const bteso_IPv4Address                        *localAddress = 0);
+            void                                           *userData = 0);
     int connect(
             int                                            *handleBuffer,
             const btemt_SessionPool::SessionStateCallback&  callback,
@@ -938,15 +936,15 @@ class btemt_SessionPool {
         // a handle for the initiated connection into 'handleBuffer'.  Whenever
         // this session state changes (i.e., is established), the specified
         // 'callback' will be invoked along with a pointer to newly created
-        // 'btemt_Session' and the optionally specified 'userData'.  Optionally
-        // specify either 'socketOptions' that will be used to specify what 
-        // options should be set on the connecting socket, or 'socket' to use
-        // as the conecting socket (with any desired options already set; 
-        // ownership will be transferred from 'socket').  Optionally specify
-        // the 'localAddress' that should be used as the source address.  
-        // Return 0 on successful initiation, and a non-zero value otherwise.
-        // The behavior is undefined unless '0 < numAttempts', and
-        // '0 < interval' or '1 == numAttempts'.
+        // 'btemt_Session' and the optionally specified 'userData'.  
+        // Optionally specify either 'socketOptions' that will be used to 
+        // specify what options should be set on the connecting socket and/or
+        // 'localAddress' to be used as the source address, or 'socket' to 
+        // use as the connecting socket (with any desired options and/or
+        // source address already set). If 'socket' is specified, ownership
+        // will be transferred from it. Return 0 on successful initiation, 
+        // and a non-zero value otherwise. The behavior is undefined unless
+        // '0 < numAttempts', and '0 < interval' or '1 == numAttempts'.
 
     int import(int                                            *handleBuffer,
                const btemt_SessionPool::SessionStateCallback&  callback,

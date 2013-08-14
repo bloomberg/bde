@@ -856,8 +856,7 @@ int btemt_SessionPool::connect(
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
                                                                *socket,
                 void                                           *userData,
-                ConnectResolutionMode                           resolutionMode,
-                const bteso_IPv4Address                        *localAddress)
+                ConnectResolutionMode                           resolutionMode)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -878,8 +877,7 @@ int btemt_SessionPool::connect(
                                        socket,
                                        mapResolutionMode(resolutionMode),
                                        false,
-                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH,
-                                       localAddress);
+                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH);
     if (ret) {
         HandlePtr handle;
         int rc = d_handles.remove(handleId, &handle);
@@ -899,8 +897,7 @@ int btemt_SessionPool::connect(
                  btemt_SessionFactory                           *factory,
                  bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
                                                                 *socket,
-                 void                                           *userData,
-                 const bteso_IPv4Address                        *localAddress)
+                 void                                           *userData)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -919,8 +916,7 @@ int btemt_SessionPool::connect(
                                        handleId,
                                        socket,
                                        false,
-                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH,
-                                       localAddress);
+                                       btemt_ChannelPool::BTEMT_CLOSE_BOTH);
     if (ret) {
         HandlePtr handle;
         d_handles.remove(handleId, &handle);
