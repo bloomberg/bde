@@ -3958,15 +3958,20 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<bsls::Types::Int64> sp1(Local::makeManagedInt(13));
 //          bsl::shared_ptr<bsls::Types::Int64> sp2 = Local::makeManagedInt(2);
         }
-//        outerSp = Local::makeManagedInt(42);
 
-#if 1
+        // It is not clear if assignment from a ManagedPtr is intended to be
+        // supported by anything other than through implicit conversion to a
+        // temporary shared_ptr, and then binding to that assignment operator.
+        // As such, we would support only assigning from ManagedPtr lvalues,
+        // but not from rvalues.
+
+//        outerSp = Local::makeManagedInt(42);   
+
         bslma::ManagedPtr<MyTestObject>   mpd1(new MyTestObject(&obj1));
         bsl::shared_ptr<MyTestBaseObject> spd1(mpd1);
 
         bslma::ManagedPtr<MyTestObject>   mpd2(new MyTestObject(&obj2));
         bsl::shared_ptr<MyTestBaseObject> spd2 = mpd2;
-#endif
       } break;
 
       case 19: {
