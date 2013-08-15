@@ -116,12 +116,12 @@ void btemt_SessionPoolSessionIterator::operator++()
 typedef bcema_SharedPtr<btemt_SessionPool_Handle> HandlePtr;
 
 static btemt_ChannelPool::ConnectResolutionMode mapResolutionMode(
-                               btemt_SessionPool::ConnectResolutionMode mode) 
+                               btemt_SessionPool::ConnectResolutionMode mode)
 {
     if (mode == btemt_SessionPool::RESOLVE_AT_EACH_ATTEMPT) {
         return btemt_ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT;
-    } 
-    
+    }
+
     BSLS_ASSERT(mode == btemt_SessionPool::RESOLVE_ONCE);
     return btemt_ChannelPool::BTEMT_RESOLVE_ONCE;
 }
@@ -443,8 +443,8 @@ void btemt_SessionPool::poolStateCb(int state, int source, int)
     }
 }
 
-int btemt_SessionPool::makeConnectHandle(                     
-               const btemt_SessionPool::SessionStateCallback&  cb, 
+int btemt_SessionPool::makeConnectHandle(
+               const btemt_SessionPool::SessionStateCallback&  cb,
                int                                             numAttempts,
                void                                           *userData,
                btemt_SessionFactory                           *factory) {
@@ -462,7 +462,7 @@ int btemt_SessionPool::makeConnectHandle(
     handle->d_sessionFactory_p = factory;
     return (handle->d_handleId = d_handles.add(handle));
 }
-        
+
 void btemt_SessionPool::sessionAllocationCb(int             result,
                                             btemt_Session  *session,
                                             int             handleId)

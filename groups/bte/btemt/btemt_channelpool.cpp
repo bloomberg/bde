@@ -856,7 +856,7 @@ class btemt_Connector {
     btemt_Connector(
                 const bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> >&
                                                 socket,
-                btemt_TcpTimerEventManager     *manager, 
+                btemt_TcpTimerEventManager     *manager,
                 int                             numAttempts,
                 const bdet_TimeInterval&        interval,
                 bool                            readEnabledFlag,
@@ -864,12 +864,12 @@ class btemt_Connector {
                 const bteso_SocketOptions      *socketOptions = 0,
                 const bteso_IPv4Address        *localAddress = 0,
                 bslma::Allocator               *basicAllocator = 0);
-        // Create an connector initialized with the specified 
+        // Create an connector initialized with the specified
         // 'manager', 'numAttempts', and 'interval' period parameters
-        // and the specified 'readEnabledFlag' and 'keepHalfOpenMode' flags. 
+        // and the specified 'readEnabledFlag' and 'keepHalfOpenMode' flags.
         // If the specified 'socketOptions' and 'localAddress' are not 0,
-        // use those parameters.  Optionally specify a 'basicAllocator' used 
-        // to supply memory.  If 'basicAllocator' is 0, use the currently 
+        // use those parameters.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, use the currently
         // installed default allocator.
 
     btemt_Connector(const btemt_Connector&  original,
@@ -885,7 +885,7 @@ inline
 btemt_Connector::btemt_Connector(
                 const bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> >&
                                                 socket,
-                btemt_TcpTimerEventManager     *manager, 
+                btemt_TcpTimerEventManager     *manager,
                 int                             numAttempts,
                 const bdet_TimeInterval&        interval,
                 bool                            readEnabledFlag,
@@ -908,7 +908,7 @@ btemt_Connector::btemt_Connector(
 {
     BSLS_ASSERT(0 < numAttempts);
     BSLS_ASSERT(0 < interval || 1 == numAttempts);
-    
+
     if (socketOptions) {
         d_socketOptions = *socketOptions;
     }
@@ -2644,7 +2644,7 @@ void btemt_ChannelPool::acceptCb(int                                serverId,
     BSLS_ASSERT(newId);
 
     btemt_Channel *channelPtr = new (d_pool) btemt_Channel(
-                                     &socket, 
+                                     &socket,
                                      newId, serverId,
                                      d_config,
                                      btemt_ChannelType::BTEMT_ACCEPTED_CHANNEL,
@@ -2981,7 +2981,7 @@ void btemt_ChannelPool::connectCb(ConnectorMap::iterator idx)
     btemt_TcpTimerEventManager *manager = allocateEventManager();
     BSLS_ASSERT(manager);
 
-    bsl::pair<StreamSocket*, bdema_ManagedPtrDeleter> mpMembers = 
+    bsl::pair<StreamSocket*, bdema_ManagedPtrDeleter> mpMembers =
         socket.release();
     importCb(mpMembers.first,
              mpMembers.second,
@@ -3097,9 +3097,9 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         if (connectionSocket) {
             if (0 == connectionSocket->setBlockingMode(
                                          bteso_Flag::BTESO_NONBLOCKING_MODE)) {
-                cs.d_socket.load(connectionSocket, 
-                                    &d_factory, 
-                                    &d_sharedPtrRepAllocator);
+                cs.d_socket.load(connectionSocket,
+                                 &d_factory,
+                                 &d_sharedPtrRepAllocator);
             }
             else {
                 d_factory.deallocate(connectionSocket);
@@ -3289,7 +3289,7 @@ void btemt_ChannelPool::importCb(
     } else {
         // the ManagedPtr that originally managed this socket was an alias.
         // recreate the original alias using the information in the deleter.
-        bdema_ManagedPtr<void> alias(deleter.object(), deleter.factory(), 
+        bdema_ManagedPtr<void> alias(deleter.object(), deleter.factory(),
                                      deleter.deleter());
         socket = bdema_ManagedPtr<StreamSocket>(alias, socket_p);
     }
@@ -3745,16 +3745,27 @@ int btemt_ChannelPool::connect(
                                             *socket,
                   ConnectResolutionMode      resolutionMode,
                   bool                       readEnabledFlag,
-                  KeepHalfOpenMode           halfCloseMode) {
-    if (0 != socket 
-    &&  0 != (*socket)->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE)) 
-    {
-        return SET_NONBLOCKING_FAILED;
+                  KeepHalfOpenMode           halfCloseMode)
+{
+    BSLS_ASSERT(0 < numAttempts);
+    BSLS_ASSERT(bdet_TimeInterval(0) < interval || 1 == numAttempts);
+
+    if (0 != socket
+     && 0 != (*socket)->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+        return SET_NONBLOCKING_FAILED;                                // RETURN
     }
 
-    return connectImp(hostname, portNumber, numAttempts, interval, 
-                      sourceId, socket, resolutionMode, readEnabledFlag,
-                      halfCloseMode, 0, 0);
+    return connectImp(hostname,
+                      portNumber,
+                      numAttempts,
+                      interval,
+                      sourceId,
+                      socket,
+                      resolutionMode,
+                      readEnabledFlag,
+                      halfCloseMode,
+                      0,
+                      0);
 }
 
 int btemt_ChannelPool::connect(
@@ -3767,16 +3778,26 @@ int btemt_ChannelPool::connect(
                bool                       readEnabledFlag,
                KeepHalfOpenMode           mode)
 {
-    if (0 != socket 
-    &&  0 != (*socket)->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE)) {
-        return SET_NONBLOCKING_FAILED;
+    BSLS_ASSERT(0 < numAttempts);
+    BSLS_ASSERT(bdet_TimeInterval(0) < interval || 1 == numAttempts);
+
+    if (0 != socket
+     && 0 != (*socket)->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+        return SET_NONBLOCKING_FAILED;                                // RETURN
     }
 
-    return connectImp(serverAddress, numAttempts, interval, sourceId, 
-                      socket, readEnabledFlag, mode, 0, 0);
+    return connectImp(serverAddress,
+                      numAttempts,
+                      interval,
+                      sourceId,
+                      socket,
+                      readEnabledFlag,
+                      mode,
+                      0,
+                      0);
 }
 
- int btemt_ChannelPool::connectImp(
+int btemt_ChannelPool::connectImp(
                     const char                *serverName,
                     int                        portNumber,
                     int                        numAttempts,
@@ -3791,25 +3812,43 @@ int btemt_ChannelPool::connect(
                     const bteso_IPv4Address   *localAddress)
 {
     BSLS_ASSERT(0 == socketOptions || (0 == socket && 0 == localAddress));
-    
+
     if (!d_startFlag) {
-        return NOT_RUNNING;
+        return NOT_RUNNING;                                           // RETURN
     }
 
     bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
-        return DUPLICATE_ID;
+        return DUPLICATE_ID;                                          // RETURN
     }
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
     BSLS_ASSERT(manager);
 
+    bteso_IPv4Address serverAddress;
+    bool              resolutionFlag;
+
+    if (BTEMT_RESOLVE_ONCE == resolutionMode) {
+        int errorCode = 0;
+        if (bteso_ResolveUtil::getAddress(&serverAddress,
+                                          serverName,
+                                          &errorCode)) {
+            return FAILED_RESOLUTION;                                 // RETURN
+        }
+        resolutionFlag = false;
+    }
+    else {
+        BSLS_ASSERT(BTEMT_RESOLVE_AT_EACH_ATTEMPT == resolutionMode);
+        resolutionFlag = true;
+    }
+
     bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> > socket_sp;
     if (socket) {
-        socket_sp = bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-            (*socket, &d_sharedPtrRepAllocator);
+        socket_sp = bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> >(
+                                                     *socket,
+                                                     &d_sharedPtrRepAllocator);
     }
 
     bsl::pair<ConnectorMap::iterator,bool> idx_status =
@@ -3819,8 +3858,8 @@ int btemt_ChannelPool::connect(
                                                        manager,
                                                        numAttempts,
                                                        interval,
-                                                       readEnabledFlag, 
-                                                       keepHalfOpenMode, 
+                                                       readEnabledFlag,
+                                                       keepHalfOpenMode,
                                                        socketOptions,
                                                        localAddress)));
     idx = idx_status.first;
@@ -3829,21 +3868,9 @@ int btemt_ChannelPool::connect(
     btemt_Connector& cs = idx->second;
 
     cs.d_serverName       = serverName;
+    cs.d_serverAddress    = serverAddress;
     cs.d_serverAddress.setPortNumber(portNumber);  // never overwritten
-
-    if (BTEMT_RESOLVE_ONCE == resolutionMode) {
-        int errorCode = 0;
-        if (bteso_ResolveUtil::getAddress(&cs.d_serverAddress,
-                                          serverName,
-                                          &errorCode)) {
-            d_connectors.erase(idx);
-            return FAILED_RESOLUTION;
-        }
-    }
-    else {
-        BSLS_ASSERT(BTEMT_RESOLVE_AT_EACH_ATTEMPT == resolutionMode);
-        cs.d_resolutionFlag = true;
-    }
+    cs.d_resolutionFlag   = resolutionFlag;
 
     cGuard.release()->unlock();
 
@@ -3873,14 +3900,14 @@ int btemt_ChannelPool::connectImp(
     BSLS_ASSERT(0 == socketOptions || 0 == socket);
 
     if (!d_startFlag) {
-        return NOT_RUNNING;
+        return NOT_RUNNING;                                           // RETURN
     }
 
     bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
-        return DUPLICATE_ID;
+        return DUPLICATE_ID;                                          // RETURN
     }
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
@@ -3888,8 +3915,9 @@ int btemt_ChannelPool::connectImp(
 
     bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> > socket_sp;
     if (socket) {
-        socket_sp = bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-            (*socket, &d_sharedPtrRepAllocator);
+        socket_sp = bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> >(
+                                                     *socket,
+                                                     &d_sharedPtrRepAllocator);
     }
 
     bsl::pair<ConnectorMap::iterator,bool> idx_status =
@@ -3898,8 +3926,8 @@ int btemt_ChannelPool::connectImp(
                                                               manager,
                                                               numAttempts,
                                                               interval,
-                                                              readEnabledFlag, 
-                                                              mode, 
+                                                              readEnabledFlag,
+                                                              mode,
                                                               socketOptions,
                                                               localAddress)));
     idx = idx_status.first;
@@ -3980,8 +4008,9 @@ int btemt_ChannelPool::import(
         bool                                          readEnabledFlag,
         KeepHalfOpenMode                              mode)
 {
-    bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > 
-        managedSocket(streamSocket, factory);
+    bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > managedSocket(
+                                                                  streamSocket,
+                                                                  factory);
     int rc = import(&managedSocket, sourceId, readEnabledFlag, mode);
     if (0 != rc) {
         // if this function fails, the owner is expected to deallocate the
@@ -4005,14 +4034,14 @@ int btemt_ChannelPool::import(
     };
 
     if (d_config.maxConnections() == d_channels.length()) {
-        return CHANNEL_LIMIT;
+        return CHANNEL_LIMIT;                                         // RETURN
     }
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
     BSLS_ASSERT(manager);
 
-    bsl::pair<StreamSocket*, bdema_ManagedPtrDeleter> mpMembers = 
-        streamSocket->release();
+    bsl::pair<StreamSocket*, bdema_ManagedPtrDeleter> mpMembers =
+                                                       streamSocket->release();
     bdef_Function<void (*)()> importFunctor(bdef_BindUtil::bindA(
                 d_allocator_p
               , &btemt_ChannelPool::importCb
