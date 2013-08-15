@@ -73,11 +73,13 @@ void releaseSpinLock(bsls::AtomicOperations::AtomicTypes::Int *spinLock)
                         // -------------------------------
 
 // CLASS METHODS
-void bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
-                                           bslma::Allocator    *allocator)
+int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
+                                          bslma::Allocator    *allocator)
 {
     BSLS_ASSERT(loader);
     BSLS_ASSERT(allocator);
+
+    int rc = 1;  // FAILURE
 
     acquireSpinLock(&g_spinLock);
 
@@ -89,9 +91,13 @@ void bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
         new (g_buffer.buffer()) bdet_CalendarCache(loader, allocator);
 
         bsls::AtomicOperations::setPtrRelease(&g_cachePtr, g_buffer.buffer());
+
+        rc = 0;  // SUCCESS
     }
 
     releaseSpinLock(&g_spinLock);
+
+    return rc;
 }
 
 void bdet_DefaultCalendarCache::destroy()
@@ -111,7 +117,7 @@ void bdet_DefaultCalendarCache::destroy()
 bdet_CalendarCache *bdet_DefaultCalendarCache::instance()
 {
     return static_cast<bdet_CalendarCache *>(
-       const_cast<void *>(bsls::AtomicOperations::getPtrRelaxed(&g_cachePtr)));
+       const_cast<void *>(bsls::AtomicOperations::getPtrAcquire(&g_cachePtr)));
 }
 
 }  // close namespace BloombergLP

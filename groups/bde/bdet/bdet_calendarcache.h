@@ -17,49 +17,40 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdet_calendar, bdet_calendarloader
 //
-//@DESCRIPTION: This component provides the 'bdet_CalendarCache' class, a cache
+//@DESCRIPTION: This component defines the 'bdet_CalendarCache' class, a cache
 // for 'bdet_Calendar' objects, and the 'bdet_CalendarCacheEntryPtr' class that
 // provides access to individual calendars retrieved from the cache.  The
 // 'bdet_CalendarCache' class defines two methods for fetching calendars from
-// the cache, a manipulator called 'calendar' and an accessor also called
-// 'calendar'.  Calendars are identified by name using C-style strings, and
-// both retrieval methods return a 'bdet_CalendarCacheEntryPtr'.  Actual access
-// to the (non-modifiable) 'bdet_Calendar' objects stored in the cache is
-// through the 'operator->' method provided by 'bdet_CalendarCacheEntryPtr'.
+// the cache, a manipulator called 'getCalendar' and an accessor called
+// 'lookupCalendar'.  Calendars are identified by name using C-style strings,
+// and both retrieval methods return a 'bdet_CalendarCacheEntryPtr'.  Actual
+// access to the (non-modifiable) 'bdet_Calendar' objects stored in the cache
+// is through the 'operator->' method provided by 'bdet_CalendarCacheEntryPtr'.
 //
-// The first time a calendar is requested from the cache using the 'calendar'
-// *manipulator*, the identified calendar is loaded into the cache using the
-// loader that was supplied upon construction of the cache (see
+// The first time a calendar is requested from the cache using the
+// 'lookupCalendar' manipulator, the identified calendar is loaded into the
+// cache using the loader that was supplied upon construction of the cache (see
 // 'bdet_calendarloader'); a reference to that newly-loaded calendar is then
-// returned.  Subsequent requests for the same calendar, using either
-// 'calendar' method, are efficiently satisfied by returning references to the
-// cached instance.  The 'calendar' accessor differs from its like-named
-// manipulator in that when a request is made through the accessor for a
-// calendar that is *not* present in the cache, the calendar is not loaded as
-// a side-effect.  In this case, an empty 'bdet_CalendarCacheEntryPtr' is
-// returned instead, which is effectively a null pointer.  Note that the
-// calendar-naming convention in effect for a given cache is determined by the
-// concrete loader supplied at construction of the cache.
+// returned.  Subsequent requests for the same calendar, using either the
+// 'getCalendar' or 'lookupCalendar' method, are efficiently satisfied by
+// returning references to the cached instance.  The 'lookupCalendar' accessor
+// differs from the 'getCalendar' manipulator in that when a request is made
+// through the accessor for a calendar that is *not* present in the cache, the
+// calendar is not loaded as a side-effect.  In this case, an empty
+// 'bdet_CalendarCacheEntryPtr' is returned instead, which is effectively a
+// null pointer.  Note that the calendar-naming convention in effect for a
+// given cache is determined by the concrete loader supplied at construction of
+// the cache.
 //
 // Calendars stored in a cache can be explicitly invalidated--the 'invalidate'
 // method is used to invalidate a single calendar and 'invalidateAll'
 // invalidates all calendars in the cache.  Invalidated calendars are removed
 // from the cache.  However, a calendar that has been invalidated in the cache
 // remains valid to all outstanding references to it, obtained via earlier
-// calls to the 'calendar' methods, until all of those references have been
-// destroyed.  Note that a subsequent request, using the 'calendar'
-// manipulator, for a calendar that has been invalidated simply incurs the
-// overhead of once again loading that calendar into the cache.
-//
-// Calendars can also be invalidated on the basis of a timeout.  To use this
-// feature of 'bdet_CalendarCache', a 'bdet_TimeInterval' timeout must be
-// supplied at construction.  When a timeout is in effect for a cache, requests
-// for a calendar from the cache using the 'calendar' manipulator may incur the
-// reloading of the calendar if the one in the cache has expired (i.e., the
-// time interval defined by the timeout value has elapsed since the calendar
-// was last loaded).  In the case of the 'calendar' *accessor*, an empty
-// 'bdet_CalendarCacheEntryPtr' is returned if the requested calendar is found
-// to have expired.
+// calls to the 'getCalendar' and 'lookupCalendar' methods, until all of those
+// references have been destroyed.  Note that a subsequent request, using the
+// 'getCalendar' manipulator, for a calendar that has been invalidated simply
+// incurs the overhead of once again loading that calendar into the cache.
 //
 ///Thread-Safety
 ///-------------
@@ -68,14 +59,13 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following examples illustrate how to use a 'bdet_CalendarCache'.
+// The following example illustrates how to use a 'bdet_CalendarCache'.
 //
 ///Example 1: Using a 'bdet_CalendarCache'
 ///- - - - - - - - - - - - - - - - - - - -
-// This first example shows basic use of a 'bdet_CalendarCache' object with no
-// timeout value specified at construction.
+// This example shows basic use of a 'bdet_CalendarCache' object.
 //
-// In this example and the next, we assume a hypothetical calendar loader,
+// In this example, we assume a hypothetical calendar loader,
 // 'my_CalendarLoader', the details of which are not important other than that
 // it supports calendars identified by "DE", "FR", and "US", which nominally
 // identify the major holidays in Germany, France, and the United States,
@@ -96,7 +86,7 @@ BDES_IDENT("$Id: $")
 // and verify that 2011/07/04 is recognized as a holiday in the "US" calendar,
 // whereas 2011/07/14 is not:
 //..
-//  bdet_CalendarCacheEntryPtr usA = cache.calendar("US");
+//  bdet_CalendarCacheEntryPtr usA = cache.getCalendar("US");
 //
 //                             assert( usA.ptr());
 //                             assert( usA->isHoliday(bdet_Date(2011, 7,  4)));
@@ -106,19 +96,19 @@ BDES_IDENT("$Id: $")
 // 2011/07/14 is recognized as a holiday in the "FR" calendar, but 2011/07/04
 // is not:
 //..
-//  bdet_CalendarCacheEntryPtr frA = cache.calendar("FR");
+//  bdet_CalendarCacheEntryPtr frA = cache.getCalendar("FR");
 //
 //                             assert( frA.ptr());
 //                             assert(!frA->isHoliday(bdet_Date(2011, 7,  4)));
 //                             assert( frA->isHoliday(bdet_Date(2011, 7, 14)));
 //..
-// Next, we retrieve the "FR" calendar again, this time via the 'calendar'
-// accessor, and note that the request is satisfied by the calendar that is
-// already in the cache:
+// Next, we retrieve the "FR" calendar again, this time via the
+// 'lookupCalendar' accessor, and note that the request is satisfied by the
+// calendar that is already in the cache:
 //..
 //  const bdet_CalendarCache& readonlyCache = cache;
 //
-//  bdet_CalendarCacheEntryPtr frB = readonlyCache.calendar("FR");
+//  bdet_CalendarCacheEntryPtr frB = readonlyCache.lookupCalendar("FR");
 //
 //                             assert( frA.ptr() == frB.ptr());
 //..
@@ -126,9 +116,10 @@ BDES_IDENT("$Id: $")
 // again.  The call to 'invalidate' removed the "US" calendar from the cache,
 // so it had to be reloaded into the cache to satisfy the request:
 //..
-//  cache.invalidate("US");
+//  int numInvalidated = cache.invalidate("US");
+//                             assert(1 == numInvalidated);
 //
-//  bdet_CalendarCacheEntryPtr usB = cache.calendar("US");
+//  bdet_CalendarCacheEntryPtr usB = cache.getCalendar("US");
 //
 //                             assert( usB.ptr() != usA.ptr());
 //                             assert( usB.ptr());
@@ -137,9 +128,10 @@ BDES_IDENT("$Id: $")
 //..
 // Next, all calendars in the cache are invalidated, then reloaded:
 //..
-//  cache.invalidateAll();
+//  numInvalidated = cache.invalidateAll();
+//                             assert(2 == numInvalidated);
 //
-//  bdet_CalendarCacheEntryPtr usC = cache.calendar("US");
+//  bdet_CalendarCacheEntryPtr usC = cache.getCalendar("US");
 //
 //                             assert( usC.ptr() != usA.ptr());
 //                             assert( usC.ptr() != usB.ptr());
@@ -147,7 +139,7 @@ BDES_IDENT("$Id: $")
 //                             assert( usC->isHoliday(bdet_Date(2011, 7,  4)));
 //                             assert(!usC->isHoliday(bdet_Date(2011, 7, 14)));
 //
-//  bdet_CalendarCacheEntryPtr frC = cache.calendar("FR");
+//  bdet_CalendarCacheEntryPtr frC = cache.getCalendar("FR");
 //
 //                             assert( frC.ptr() != frA.ptr());
 //                             assert( frC.ptr() != frB.ptr());
@@ -174,72 +166,14 @@ BDES_IDENT("$Id: $")
 // When 'usA', 'usB', 'frA', and 'frB' go out of scope, the resources used by
 // the calendars to which they refer are automatically reclaimed.
 //
-// Finally, using the 'calendar' accessor, we attempt to retrieve a calendar
-// that has not yet been loaded into the cache, but which we *know* to be
-// supported by the calendar loader.  Since the 'calendar' accessor does not
-// load calendars into the cache as a side-effect, the request fails:
+// Finally, using the 'lookupCalendar' accessor, we attempt to retrieve a
+// calendar that has not yet been loaded into the cache, but which we *know* to
+// be supported by the calendar loader.  Since the 'lookupCalendar' accessor
+// does not load calendars into the cache as a side-effect, the request fails:
 //..
-//  bdet_CalendarCacheEntryPtr de = readonlyCache.calendar("DE");
+//  bdet_CalendarCacheEntryPtr de = readonlyCache.lookupCalendar("DE");
 //
 //                             assert(!de.ptr());
-//..
-///Example 2: A Calendar Cache with a Timeout
-///- - - - - - - - - - - - - - - - - - - - -
-// This second example shows the affects on a 'bdet_CalendarCache' object that
-// is constructed to have a timeout value.  Note that the following snippets of
-// code assume a platform-independent 'sleepSeconds' method that sleeps for the
-// specified number of seconds.
-//
-// First, we create a calendar loader and a calendar cache.  The cache is
-// constructed to have a timeout of 3 seconds.  Of course, such a short timeout
-// is inappropriate for production use, but it is necessary for illustrating
-// the affects of a timeout in this example.  As in example 1 (above), we again
-// let the cache use the default allocator:
-//..
-//  my_CalendarLoader  loader;
-//  bdet_CalendarCache cache(&loader, bdet_TimeInterval(3));
-//  const bdet_CalendarCache& readonlyCache = cache;
-//..
-// Next, we retrieve the calendar identified by "DE" from the cache:
-//..
-//  bdet_CalendarCacheEntryPtr deA = cache.calendar("DE");
-//
-//                             assert( deA.ptr());
-//..
-// Next, we sleep for 2 seconds before retrieving the "FR" calendar:
-//..
-//  sleepSeconds(2);
-//
-//  bdet_CalendarCacheEntryPtr frA = cache.calendar("FR");
-//
-//                             assert( frA.ptr());
-//..
-// Next, we sleep for 2 more seconds before attempting to retrieve the "DE"
-// calendar again, this time using the 'calendar' *accessor*.  Since the
-// cumulative sleep time exceeds the timeout value established for the cache
-// when it was constructed, the "DE" calendar has expired; hence, it has been
-// removed from the cache:
-//..
-//  sleepSeconds(2);
-//
-//  bdet_CalendarCacheEntryPtr deB = readonlyCache.calendar("DE");
-//
-//                             assert(!deB.ptr());
-//..
-// Next, we verify that the "FR" calendar is still available in the cache:
-//..
-//  bdet_CalendarCacheEntryPtr frB = readonlyCache.calendar("FR");
-//
-//                             assert( frA.ptr() == frB.ptr());
-//..
-// Finally, we sleep for an additional 2 seconds and verify that the "FR"
-// calendar has also expired:
-//..
-//  sleepSeconds(2);
-//
-//  bdet_CalendarCacheEntryPtr frC = readonlyCache.calendar("FR");
-//
-//                             assert(!frC.ptr());
 //..
 
 #ifndef INCLUDED_BDESCM_VERSION
@@ -250,10 +184,6 @@ BDES_IDENT("$Id: $")
 #include <bdet_calendar.h>
 #endif
 
-#ifndef INCLUDED_BDET_TIMEINTERVAL
-#include <bdet_timeinterval.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -262,8 +192,8 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_MUTEXIMP
-#include <bsls_muteximp.h>
+#ifndef INCLUDED_BSLS_BSLLOCK
+#include <bsls_bsllock.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -350,15 +280,13 @@ class bdet_CalendarCacheEntryPtr {
 class bdet_CalendarCache {
     // This class implements an efficient cache of *read*-*only*
     // 'bdet_Calendar' objects that are loaded into the cache, using a calendar
-    // loader supplied at construction, as a side-effect of the 'calendar'
+    // loader supplied at construction, as a side-effect of the 'getCalendar'
     // manipulator.  Calendars in the cache can be invalidated, and removed
     // from the cache as a consequence, with the 'invalidate' and
-    // 'invalidateAll' methods.  Similarly, calendars in the cache can be made
-    // to expire based on an optional timeout constructor argument, with
-    // expired calendars also being removed from the cache.  The
-    // 'bdet_CalendarCacheEntryPtr' objects returned from the 'calendar'
-    // methods allow for the safe removal of calendars from the cache that may
-    // still have outstanding references to them.
+    // 'invalidateAll' methods.  The 'bdet_CalendarCacheEntryPtr' objects
+    // returned from the 'getCalendar' and 'lookupCalendar' methods allow for
+    // the safe removal of calendars from the cache that may still have
+    // outstanding references to them.
     //
     // This container is *exception* *neutral* with no guarantee of rollback:
     // if an exception is thrown during the invocation of a method on a
@@ -374,14 +302,7 @@ class bdet_CalendarCache {
     bdet_CalendarLoader    *d_loader_p;        // calendar loader (held, not
                                                // owned)
 
-    bdet_TimeInterval       d_timeOut;         // timeout value; ignored unless
-                                               // 'd_hasTimeOutFlag' is 'true'
-
-    bool                    d_hasTimeOutFlag;  // 'true' if this cache has a
-                                               // timeout value and 'false'
-                                               // otherwise
-
-    mutable bsls::MutexImp  d_lock;            // guard access to cache
+    mutable bsls::BslLock   d_lock;            // guard access to cache
 
     bslma::Allocator       *d_allocator_p;     // memory allocator (held, not
                                                // owned)
@@ -405,64 +326,51 @@ class bdet_CalendarCache {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bdet_CalendarCache(bdet_CalendarLoader      *loader,
-                       bslma::Allocator         *basicAllocator = 0);
-    bdet_CalendarCache(bdet_CalendarLoader      *loader,
-                       const bdet_TimeInterval&  timeout,
-                       bslma::Allocator         *basicAllocator = 0);
+    bdet_CalendarCache(bdet_CalendarLoader *loader,
+                       bslma::Allocator    *basicAllocator = 0);
         // Create an empty calendar cache that uses the specified 'loader' to
-        // load calendars on demand.  Optionally specify a 'timeout' interval
-        // indicating the length of time that calendars remain valid for
-        // subsequent retrieval from the cache after they have been loaded.  If
-        // 'timeout' is not specified, calendars loaded into this cache remain
-        // valid for retrieval until they have been explicitly invalidated (via
-        // either the 'invalidate' or 'invalidateAll' methods), or until this
-        // object is destroyed.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless
-        // 'loader' remains valid throughout the lifetime of this cache, and
-        // 'timeout' (if specified) fits in a 64-bit integer when converted to
-        // milliseconds.  Note that a non-positive 'timeout' (if specified)
-        // indicates that a calendar will be loaded into the cache by *each*
-        // (successful) call to the 'calendar' manipulator.
+        // load calendars on demand.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The behavior is undefined
+        // unless 'loader' remains valid throughout the lifetime of this cache.
 
     ~bdet_CalendarCache();
         // Destroy this object.
 
     // MANIPULATORS
-    bdet_CalendarCacheEntryPtr calendar(const char *calendarName);
+    bdet_CalendarCacheEntryPtr getCalendar(const char *calendarName);
         // Return a cache entry pointer providing non-modifiable access to the
         // calendar having the specified 'calendarName' in this calendar cache,
         // loading the calendar into the cache using the loader that was
         // supplied at construction if the calendar is not already present in
-        // the cache or if the calendar has expired (i.e., per a timeout
-        // optionally supplied at construction).  If the loader fails, whether
-        // in loading a calendar for the first time or in reloading a calendar
-        // that has expired, return an empty cache entry pointer.
+        // the cache.  If the loader fails, return an empty cache entry
+        // pointer.
 
-    void invalidate(const char *calendarName);
+    int invalidate(const char *calendarName);
         // Invalidate the calendar having the specified 'calendarName' in this
         // calendar cache, and remove it from the cache.  If a calendar having
         // 'calendarName' is not present in this cache, this method has no
-        // effect.  Note that a calendar that has been invalidated in the cache
-        // remains valid to all outstanding references to it, obtained via
-        // earlier calls to the 'calendar' methods, until all of those
+        // effect.  Return the number of calendars that were invalidated.  Note
+        // that a calendar that has been invalidated in the cache remains valid
+        // to all outstanding references to it, obtained via earlier calls to
+        // the 'getCalendar' and 'lookupCalendar' methods, until all of those
         // references have been destroyed.
 
-    void invalidateAll();
+    int invalidateAll();
         // Invalidate all calendars in this calendar cache, and remove them
-        // from the cache.  Note that a calendar that has been invalidated in
-        // the cache remains valid to all outstanding references to it,
-        // obtained via earlier calls to the 'calendar' methods, until all of
-        // those references have been destroyed.
+        // from the cache.  Return the number of calendars that were
+        // invalidated.  Note that a calendar that has been invalidated in the
+        // cache remains valid to all outstanding references to it, obtained
+        // via earlier calls to the 'getCalendar' and 'lookupCalendar' methods,
+        // until all of those references have been destroyed.
 
     // ACCESSORS
-    bdet_CalendarCacheEntryPtr calendar(const char *calendarName) const;
+    bdet_CalendarCacheEntryPtr
+    lookupCalendar(const char *calendarName) const;
         // Return a cache entry pointer providing non-modifiable access to the
         // calendar having the specified 'calendarName' in this calendar cache.
-        // If the calendar having 'calendarName' is not found in the cache or
-        // if the calendar has expired (i.e., per a timeout optionally supplied
-        // at construction), return an empty cache entry pointer.
+        // If the calendar having 'calendarName' is not found in the cache,
+        // return an empty cache entry pointer.
 };
 
 // ============================================================================

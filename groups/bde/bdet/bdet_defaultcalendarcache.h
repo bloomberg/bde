@@ -84,7 +84,7 @@ BDES_IDENT("$Id: $")
 // and verify that 2011/07/04 is recognized as a holiday in the "US" calendar,
 // whereas 2011/07/14 is not:
 //..
-//  bdet_CalendarCacheEntryPtr us = cachePtr->calendar("US");
+//  bdet_CalendarCacheEntryPtr us = cachePtr->getCalendar("US");
 //  assert( us->isHoliday(bdet_Date(2011, 7,  4)));
 //  assert(!us->isHoliday(bdet_Date(2011, 7, 14)));
 //..
@@ -92,7 +92,7 @@ BDES_IDENT("$Id: $")
 // 2011/07/14 is recognized as a holiday in the "FR" calendar, but 2011/07/04
 // is not:
 //..
-//  bdet_CalendarCacheEntryPtr fr = cachePtr->calendar("FR");
+//  bdet_CalendarCacheEntryPtr fr = cachePtr->getCalendar("FR");
 //  assert(!fr->isHoliday(bdet_Date(2011, 7,  4)));
 //  assert( fr->isHoliday(bdet_Date(2011, 7, 14)));
 //..
@@ -132,14 +132,15 @@ struct bdet_DefaultCalendarCache {
     // All methods of this 'struct' are fully thread-safe.
 
     // CLASS METHODS
-    static void initialize(bdet_CalendarLoader *loader,
+    static int initialize(bdet_CalendarLoader *loader,
                            bslma::Allocator    *allocator);
         // Initialize the default 'bdet_CalendarCache' object managed by this
         // class that uses the specified 'loader' to obtain calendars, and uses
         // the specified 'allocator' to supply memory.  If the default cache is
-        // already in the initialized state, this method has no effect.  The
-        // behavior is undefined unless 'loader' and 'allocator' remain valid
-        // until a subsequent call to 'destroy'.
+        // already in the initialized state, this method has no effect.  Return
+        // 0 on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless 'loader' and 'allocator' remain valid until a
+        // subsequent call to 'destroy'.
 
     static void destroy();
         // Destroy the default 'bdet_CalendarCache' object managed by this

@@ -40,7 +40,7 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] static void initialize(Loader *loader, Allocator *allocator);
+// [ 2] static int initialize(Loader *loader, Allocator *allocator);
 // [ 2] static void destroy();
 // [ 2] static bdet_CalendarCache *instance();
 // ----------------------------------------------------------------------------
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
 // and verify that 2011/07/04 is recognized as a holiday in the "US" calendar,
 // whereas 2011/07/14 is not:
 //..
-    bdet_CalendarCacheEntryPtr us = cachePtr->calendar("US");
+    bdet_CalendarCacheEntryPtr us = cachePtr->getCalendar("US");
     ASSERT( us->isHoliday(bdet_Date(2011, 7,  4)));
     ASSERT(!us->isHoliday(bdet_Date(2011, 7, 14)));
 //..
@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
 // 2011/07/14 is recognized as a holiday in the "FR" calendar, but 2011/07/04
 // is not:
 //..
-    bdet_CalendarCacheEntryPtr fr = cachePtr->calendar("FR");
+    bdet_CalendarCacheEntryPtr fr = cachePtr->getCalendar("FR");
     ASSERT(!fr->isHoliday(bdet_Date(2011, 7,  4)));
     ASSERT( fr->isHoliday(bdet_Date(2011, 7, 14)));
 //..
@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
                   cout << "Cache  initialized after join." << endl;
                 }
 
-                Entry usA = cachePtr->calendar("US");
+                Entry usA = cachePtr->getCalendar("US");
 
                 ASSERT( usA.ptr());
                 ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
@@ -490,7 +490,7 @@ int main(int argc, char *argv[])
         //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
         //
         // Testing:
-        //   static void initialize(Loader *loader, Allocator *allocator);
+        //   static int initialize(Loader *loader, Allocator *allocator);
         //   static void destroy();
         //   static bdet_CalendarCache *instance();
         // --------------------------------------------------------------------
@@ -521,7 +521,7 @@ int main(int argc, char *argv[])
             {
                 Cache *cachePtr = Util::instance();
 
-                Entry usA = cachePtr->calendar("US");
+                Entry usA = cachePtr->getCalendar("US");
 
                 ASSERT( usA.ptr());
                 ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
             {
                 Cache *cachePtr = Util::instance();
 
-                Entry usA = cachePtr->calendar("US");
+                Entry usA = cachePtr->getCalendar("US");
 
                 ASSERT( usA.ptr());
                 ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
@@ -633,7 +633,7 @@ int main(int argc, char *argv[])
         {
             Cache *cachePtr = Util::instance();
 
-            Entry usA = cachePtr->calendar("US");
+            Entry usA = cachePtr->getCalendar("US");
 
             ASSERT( usA.ptr());
             ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
