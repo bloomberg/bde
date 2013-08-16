@@ -530,7 +530,7 @@ class btemt_Channel {
           bslma::Allocator                       *basicAllocator = 0);
         // Create a channel belonging to the specified 'channelPool' and
         // managed by the specified 'eventManager' with the specified
-        // 'sourceId', 'channelId', and 'configuration'.  Transfer ownership
+        // 'sourceId', 'channelId', and 'configuration'.  Assume ownership
         // of the specified 'socket' to use as the underlying socket.  Load
         // this channel's channel callback with the specified 'channelCb' and
         // data callbacks with the specified 'pooledBufferChainBasedReadCb',
@@ -797,60 +797,63 @@ class btemt_Connector {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // DATA MEMBERS
-    bcema_SharedPtr<StreamSocket> d_socket;     // connecting socket
+    bcema_SharedPtr<StreamSocket>  d_socket;           // connecting socket
 
-    btemt_TcpTimerEventManager *d_manager_p;        // event manager in which
-                                                    // the timeout is
-                                                    // registered (not
-                                                    // necessarily the one
-                                                    // used for creating the
-                                                    // connection channel)
+    btemt_TcpTimerEventManager    *d_manager_p;        // event manager in
+                                                       // which the timeout is
+                                                       // registered (not
+                                                       // necessarily the one
+                                                       // used for creating the
+                                                       // connection channel)
 
-    bsl::string                 d_serverName;       // server name to resolve,
-                                                    // unused unless the
-                                                    // resolution flag
-                                                    // is set
+    bsl::string                    d_serverName;       // server name to
+                                                       // resolve, unused
+                                                       // unless the resolution
+                                                       // flag is set
 
-    bteso_IPv4Address           d_serverAddress;    // server to connect to
+    bteso_IPv4Address              d_serverAddress;    // server to connect to
 
-    bdet_TimeInterval           d_creationTime;     // time at which connection
-                                                    // was initiated
+    bdet_TimeInterval              d_creationTime;     // time at which
+                                                       // connection was
+                                                       // initiated
 
-    bdet_TimeInterval           d_period;           // timeout period between
-                                                    // connection attempts
+    bdet_TimeInterval              d_period;           // timeout period
+                                                       // between connection
+                                                       //  attempts
 
-    bdet_TimeInterval           d_start;            // last absolute timeout
+    bdet_TimeInterval              d_start;            // last absolute timeout
 
-    void                       *d_timeoutTimerId;   // timer registered by
-                                                    // event manager
+    void                          *d_timeoutTimerId;   // timer registered by
+                                                       // event manager
 
-    int                         d_numAttempts;      // remaining number of
-                                                    // attempts
+    int                            d_numAttempts;      // remaining number of
+                                                       // attempts
 
-    bool                        d_inProgress;       // last call to connect()
-                                                    // returned WOULD_BLOCK,
-                                                    // socket event is still
-                                                    // registered
+    bool                           d_inProgress;       // last call to connect
+                                                       // returned WOULD_BLOCK,
+                                                       // socket event is still
+                                                       // registered
 
-    bool                        d_resolutionFlag;   // whether to perform name
-                                                    // resolution, inside
-                                                    // connectInitiateCb
+    bool                           d_resolutionFlag;   // whether to perform
+                                                       // name resolution,
+                                                       // inside
+                                                       // connectInitiateCb
 
-    bool                        d_readEnabledFlag;  // flag set to initiate
-                                                    // read command upon
-                                                    // BTEMT_CHANNEL_UP
+    bool                           d_readEnabledFlag;  // flag set to initiate
+                                                       // read command upon
+                                                       // BTEMT_CHANNEL_UP
 
-    bool                        d_keepHalfOpenMode; // mode with which
-                                                    // connections must
-                                                    // create channels
+    bool                           d_keepHalfOpenMode; // mode with which
+                                                       // connections must
+                                                       // create channels
 
-    bdeut_NullableValue<bteso_SocketOptions> d_socketOptions;
-                                                    // socket options provided
-                                                    // for connect
+    bdeut_NullableValue<bteso_SocketOptions>
+                                   d_socketOptions;    // socket options
+                                                       // provided for connect
 
-    bdeut_NullableValue<bteso_IPv4Address>   d_localAddress;
-                                                    // client address to bind
-                                                    // while connecting
+    bdeut_NullableValue<bteso_IPv4Address>
+                                   d_localAddress;     // client address to
+                                                       // bind while connecting
 
     // CREATORS
     btemt_Connector(

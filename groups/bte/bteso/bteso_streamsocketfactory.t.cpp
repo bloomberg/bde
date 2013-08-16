@@ -4,6 +4,12 @@
 
 #include <bteso_streamsocket.h>
 
+#include <bdema_managedptr.h>
+#include <bcema_sharedptr.h>
+#include <bdef_bind.h>
+#include <bdef_function.h>
+#include <bdef_placeholder.h>
+
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
 #include <bsl_iostream.h>
@@ -312,6 +318,57 @@ int main(int argc, char *argv[]) {
          TestStreamSocketFactory testFactory;
          f(&testFactory);
 
+// Example 2: Binding a stream socket to a smart pointer
+// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         TestStreamSocketFactory tf;
+         {
+             bteso_StreamSocketFactory<TestIPAddress> *factory = &tf;
+
+// It is occasionally necessary to create smart pointers to manage a
+// 'bteso_StreamSocket' object.  A simple example of this use-case is when a
+// user allocates a stream socket and wants to pass it to a higher level pool
+// for management.  This component provides,
+// 'bteso_StreamSocketFactoryDeleter', that contains a 'deleter' method,
+// 'deleteObject', that can safely deallocate the stream socket on its 
+// destruction.
+//
+// The example below shows the syntax for constructing managed and shared
+// ptr objects to a stream socket using 'bteso_StreamSocketFactoryDeleter'.
+// This example assumes that a concrete 'bteso_StreamSocketFactory' named
+// 'factory' is available and can be used to allocate stream socket objects.
+//
+// First, we allocate a stream socket:
+//..
+    bteso_StreamSocket<TestIPAddress> *sa  = factory->allocate();
+//..
+// Then, we construct a managed stream socket, 'saManagedPtr', using
+// 'bdema_ManagedPtr' below:
+//..
+    typedef bteso_StreamSocketFactoryDeleter Deleter;
+//
+    bdema_ManagedPtr<bteso_StreamSocket<TestIPAddress> >
+                       saManagedPtr(sa,
+                                    factory,
+                                    &Deleter::deleteObject<TestIPAddress>);
+    ASSERT(1 == tf.getCount());
+//..
+// Next, we allocate another stream socket and construct a shared stream
+// socket, 'sbSharedPtr', using 'bcema_SharedPtr' below:
+//..
+    bteso_StreamSocket<TestIPAddress> *sb  = factory->allocate();
+//
+    bcema_SharedPtr<bteso_StreamSocket<TestIPAddress> >
+                       sbSharedPtr(sb,
+                                   bdef_BindUtil::bind(
+                                    &Deleter::deleteObject<TestIPAddress>,
+                                    bdef_PlaceHolders::_1,
+                                    factory)
+                                   );
+    ASSERT(2 == tf.getCount());
+//..
+         }
+
+         ASSERT(0 == tf.getCount());
       } break;
       case 1: {
         // ----------------------------------------------------------------

@@ -1602,20 +1602,11 @@ class btemt_ChannelPool {
          int                                           sourceId,
          bool                                          readEnabledFlag = true,
          KeepHalfOpenMode                              mode =BTEMT_CLOSE_BOTH);
-    int import(
-         bteso_StreamSocket<bteso_IPv4Address>        *streamSocket,
-         bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
-         int                                           sourceId,
-         bool                                          readEnabledFlag = true,
-         KeepHalfOpenMode                              mode =BTEMT_CLOSE_BOTH);
         // Add the specified 'streamSocket' to this channel pool.  Assign a
         // channel ID and invoke a channel state callback, passing
         // 'BTEMT_CHANNEL_UP' and the specified 'sourceId', in an internal
-        // thread.  When 'streamSocket' is a "raw" pointer, use the specified
-        // 'factory' to destroy 'streamSocket' upon destruction of the
-        // corresponding channel; when 'streamSocket' is a 'bdema_ManagedPtr',
-        // transfer ownership from 'streamSocket', leaving it null, if this
-        // function returns successfully, and will be left unchanged if an
+        // thread.  Assume ownership from 'streamSocket', leaving it null, if
+        // this function returns successfully, and leave it unchanged if an
         // error is returned.  Optionally specify via 'readEnabledFlag' whether
         // automatic reading should be enabled on this channel immediately
         // after creation; if 'readEnabledFlag' is not specified, then 'true'
@@ -1629,6 +1620,34 @@ class btemt_ChannelPool {
         // long as two calls to connect with the same 'sourceId' do not
         // overlap.  Also note that a half-closed 'streamSocket' can be
         // imported into this channel pool, irrespective of 'mode'.
+
+    int import(
+         bteso_StreamSocket<bteso_IPv4Address>        *streamSocket,
+         bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
+         int                                           sourceId,
+         bool                                          readEnabledFlag = true,
+         KeepHalfOpenMode                              mode =BTEMT_CLOSE_BOTH);
+        // Add the specified 'streamSocket' to this channel pool.  Assign a
+        // channel ID and invoke a channel state callback, passing
+        // 'BTEMT_CHANNEL_UP' and the specified 'sourceId', in an internal
+        // thread.  Use the specified 'factory' to destroy 'streamSocket' upon
+        // destruction of the corresponding channel.  Optionally specify via
+        // 'readEnabledFlag' whether automatic reading should be enabled on
+        // this channel immediately after creation; if 'readEnabledFlag' is not
+        // specified, then 'true' is used (i.e., reading on new channels is
+        // automatically enabled).  Optionally specify a half-close 'mode' in
+        // case the channel created for this connection is half-closed; if
+        // 'mode' is not specified, then 'BTEMT_CLOSE_BOTH' is used (i.e.,
+        // half-open connections lead to close the channel).  Return 0 on
+        // success and a non-zero value, with no effect on the channel pool,
+        // otherwise.  Note that the same 'sourceId' can be used in several
+        // calls to 'connect' or 'import' as long as two calls to connect with
+        // the same 'sourceId' do not overlap.  Also note that a half-closed
+        // 'streamSocket' can be imported into this channel pool, irrespective
+        // of 'mode'.
+        //
+        // DEPRECATED: Use the 'import' method supplying a
+        // 'bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >' instead.
 
     void setChannelContext(int channelId, void *context);
         // Associate the specified (opaque) 'context' with the channel having
