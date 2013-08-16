@@ -17,85 +17,110 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 1. Features those are intrinsic to the output iterator should be tested,
-//    i.e. type traits, pre- and post-increment operators,
-//    assignment to the dereferenced iterator
-// 2. Use of bdeut_FunctionOutputIterator with function pointer,
-//    bdef_MemFnInstance, bdef_Function should be tested
+// This test-driver tests two mostly orthogonal sets of concerns:
+//: 1 That features intrinsic to an STL output iterator are implemented
+//:   correctly.  I.e., type traits, pre- and post-increment operators,
+//:   assignment to the dereferenced iterator.
+//:
+//:  2 That bdeut_FunctionOutputIterator can be correctly created with either
+//:    a function pointer, bdef_MemFnInstance, bdef_Function.
 //=============================================================================
+//
+//                       // ----------------------------
+//                       // bdeut_FunctionOutputIterator
+//                       // ----------------------------
+//
+// CREATORS
+// [ 3] bdeut_FunctionOutputIterator();
+// [ 4] explicit bdeut_FunctionOutputIterator(const FUNCTION& function);
+//
+// MANIPULATORS
+// [ 6] AssignmentProxy operator*();
+// [ 7] bdeut_FunctionOutputIterator& operator++();
+// [ 7] bdeut_FunctionOutputIterator& operator++(int);
+// ---------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 8] USAGE EXAMPLE
+// [ 2] CONCERN: All 'output_iterator' traits are correctly defined.
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
+// Note assert and debug macros all output to cerr instead of cout, unlike
+// most other test drivers.  This is necessary because test case 2 plays
+// tricks with cout and examines what is written there.
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
+static void aSsErT(int c, const char *s, int i)
+{
+    if (c) {
+        cerr << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+    }
+}
 
-void aSsErT(int c, const char *s, int i)
+static void aSsErT2(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
     }
 }
 
-}
-
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+#define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
+#define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+   if (!(X)) { cerr << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
 #define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
+               aSsErT(1, #X, __LINE__); }}
 
 #define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
+                    << #K << ": " << K << "\n";                           \
+               aSsErT(1, #X, __LINE__); }}
 
 #define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
+                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
+               aSsErT(1, #X, __LINE__); }}
 
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
+#define LOOP5_ASSERT(I,J,K,L,M,X) { \
+   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
+                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
+                    << #M << ": " << M << "\n";                           \
+               aSsErT(1, #X, __LINE__); }}
 
 //=============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
+//                       SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
+#define P(X) cerr << #X " = " << (X) << endl; // Print identifier and value.
+#define Q(X) cerr << "<| " #X " |>" << endl;  // Quote identifier literally.
+#define P_(X) cerr << #X " = " << (X) << ", " << flush; // P(X) without '\n'
+#define L_ __LINE__                           // current Line number.
+#define T_()  cerr << '\t' << flush;          // Print tab w/o newline.
 
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
 
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
+
+static bool verbose = 0;
+static bool veryVerbose = 0;
+static bool veryVeryVerbose = 0;
+static bool veryVeryVeryVerbose = 0;
 
 template<typename TYPE>
 class Value {
@@ -178,171 +203,208 @@ void simpleFunction(int value)
 }
 
 //=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Example 1: Supplying a Free-Function
+/// - - - - - - - - - - - - - - - - - -
+// This example demonstrates using a 'bdeut_FunctionOutputIterator' with a
+// free-function.  Consider we have a function 'foo' that prints integers in
+// some predefined format, and we would like to print out all unique elements
+// of sorted 'array' collection.
+//
+// First, we define that function foo:
+//..
+typedef void (*Function)(const int&);
+void foo(const int& value)
+{
+    if (veryVerbose)
+    bsl::cout << value << " ";
+}
+//..
+// Next, we define a function, 'outputArray', in which we'll use the algorithm
+// 'bsl::unique_copy' to call 'foo' on the unique elements in a sequence:
+//..
+void outputArray()
+{
+    enum { NUM_VALUES = 7 };
+    const int array[NUM_VALUES] = { 2, 3, 3, 5, 7, 11, 11 };
+//..
+// Here, the algorithm 'unique_copy' iterates over all elements in supplied
+// range, except consecutive duplicates, and copies them to the supplied
+// output iterator.  We wrap the function 'foo' into a
+// 'bdeut_FunctionOutputIterator' that we pass as an output iterator to the
+// 'bsl::unique_copy' algorithm:
+//..
+    bsl::unique_copy(
+        array,
+        array + NUM_VALUES,
+        bdeut_FunctionOutputIterator<Function>(&foo));
+}
+//..
+// Notice that each time 'bsl::unique_copy' copies an element from the
+// supplied range and assigns it to the output iterator the function 'foo' is
+// called for the element.
+//
+// Finally, the resulting console output looks like:
+//..
+//  2 3 5 7 11
+//..
+//
+///Example 2: Supplying a User Defined Functor
+///- - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates using a 'bdeut_FunctionOutputIterator'
+// with a user defined functor object.  Consider we have an 'Accumulator'
+// class, for accumulating integer values into a total, and we want to adapt
+// it to use with the algorithm 'bsl::unique_copy'.
+//
+// First, we define an 'Accumulator' class that will total the values supplied
+// to the 'increment' method:
+//..
+class Accumulator {
+    // This class provides a value accumulating functionality.
+//
+    // DATA
+    int d_sum;
+  public:
+    // CREATORS
+    Accumulator() : d_sum(0) {};
+//
+    // MANIPULATORS
+    void increment(int value) { d_sum += value; };
+//
+    // ACCESSORS
+    int total() const { return d_sum; }
+};
+//..
+// Next, we define a functor, 'AccumulatorFunctor', that adapts 'Accumulator'
+// to a function object:
+//..
+//
+class AccumulatorFunctor {
+    // This class implements function object that invokes
+    // Accumulator::inc() in response of calling operator()(int).
+//
+    // DATA
+    Accumulator& d_accumulator;
+  public:
+    // CREATORS
+    explicit AccumulatorFunctor(Accumulator& acc) : d_accumulator(acc) {};
+
+    // MANIPULATORS
+    void operator()(int value) { d_accumulator.increment(value); };
+};
+//..
+// Now, we define a function 'accumulateArray' that will create a
+// 'bdeut_FunctionOutputIterator' for 'AccumulatorFunctor' and supply it to
+// the 'bsl::unique_copy' algorithm to accumulate a sequence of values:
+//..
+void accumulateArray()
+{
+    enum { NUM_VALUES = 7 };
+    const int array[NUM_VALUES] = { 2, 3, 3, 5, 7, 11, 11 };
+    Accumulator accumulator;
+    bsl::unique_copy(
+        array,
+        array + NUM_VALUES,
+        bdeut_FunctionOutputIterator<AccumulatorFunctor>(
+            AccumulatorFunctor(accumulator)));
+//..
+// Finally, we observe that 'accumulator' holds the accumulated total of
+// unique values in 'array':
+//..
+    ASSERT(28 == accumulator.total());
+}
+//..
+//
+///Example 3: use of bdef_Function and bdef_BindUtil::bind
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates using a 'bdeut_FunctionOutputIterator'
+// with a functor created using 'bdef_BindUtil'.  Consider the 'Accumulator'
+// class defined in Example 2, which we want to adapt to accumulate a set of
+// integer values.
+//
+// First, define an alias to a 'bdef_Function', defining an accumulation
+// functor, and and then define a function 'accumulateArray2' to accumulate the
+// integer values in an array:
+//..
+typedef bdef_Function<void (*)(int)> AccumulatorFunction;
+    // Define function object
+//
+void accumulateArray2()
+{
+    enum { NUM_VALUES = 7 };
+    const int array[NUM_VALUES] = { 2, 3, 3, 5, 7, 11, 11 };
+    Accumulator accumulator;
+//..
+// Here, we create a 'bdeut_FunctionOutputIterator' for a functor created using
+// 'bdef_BindUtil' (matching the 'AccumulatorFunction' alias), and supply
+// it to the 'bsl::unique_copy' algorithm to accumulate a sequence of values:
+//..
+//
+    bsl::unique_copy(
+        array,
+        array + NUM_VALUES,
+        bdeut_FunctionOutputIterator<AccumulatorFunction>(
+            bdef_BindUtil::bind(
+            &Accumulator::increment,
+            &accumulator,
+            bdef_PlaceHolders::_1)));
+//..
+// Finally, we observe that 'accumulator' holds the accumulated total of
+// unique values in 'array':
+//..
+    ASSERT(28 == accumulator.total());
+}
+//..
+
+//=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+
+    verbose         = argc > 2;
+    veryVerbose     = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     switch (test) { case 0:
-      case 10: {
-          // ----------------------------------------------------------------
-          // Use of template bdef_Function<> as a functional object:
-          //   Ensure that the object of the class bdef_Function<>
-          //   specified as an functional object will be invoked on
-          //   assignment to dereferenced iterator.
-          //
-          // Concerns:
-          //   1 Template class bdeut_FunctionOutputIterator<> can be
-          //     instantiated with bdef_Function<>
-          //
-          // Plan:
-          //   1 Create iterator object and initialize it with object of
-          //     class bdef_Function<>
-          //
-          //   2 Check that member function associated with
-          //     bdef_Function<> object is invoked on assignment of
-          //     dereferenced iterator
-          //
-          // Testing:
-          //   bdeut_FunctionOutputIterator< bdef_Function<> >
-          // ----------------------------------------------------------------
-
-          if (verbose) {
-              bsl::cout
-                  << bsl::endl
-                  << "USE OF bdef_Function<>" << bsl::endl
-                  << "======================" << bsl::endl;
-          }
-
-          const int initialValue =  1;
-          const int theValue     = 17;
-
-          typedef Value<int> IntValue;
-          typedef bdef_Function<void (*)(const int&)> Function;
-          typedef bdeut_FunctionOutputIterator<Function> Iterator;
-
-          IntValue value(initialValue);
-          Iterator it(bdef_BindUtil::bind(&IntValue::set,
-                                          &value,
-                                          bdef_PlaceHolders::_1));
-          *it = theValue;
-
-          // check that functional object was invoked and 'theValue'
-          // was set to 'value'
-          ASSERT(theValue == value.get());
-
-      } break;
-
-      case 9: {
-          // ----------------------------------------------------------------
-          // Use of template bdef_MemFnInstance<> as a functional object:
-          //   Ensure that the object of the class bdef_MemFnInstance<>
-          //   specified as an functional object will be invoked on
-          //   assignment to dereferenced iterator.
-          //
-          // Concerns:
-          //   1 Template class bdeut_FunctionOutputIterator<> can be
-          //     instantiated with bdef_MemFnInstance<>
-          //
-          // Plan:
-          //   1 Create iterator object and initialize it with object of
-          //     class bdef_MemFnInstance<>
-          //
-          //   2 Check that member function associated with
-          //     bdef_MemFnInstance<> object is invoked on assignment of
-          //     dereferenced iterator
-          //
-          // Testing:
-          //   bdeut_FunctionOutputIterator< bdef_MemFnInstance<> >
-          // ----------------------------------------------------------------
-
-          if (verbose) {
-              bsl::cout
-                  << bsl::endl
-                  << "USE OF bdef_MemFnInstance<>" << bsl::endl
-                  << "===========================" << bsl::endl;
-          }
-
-          const int initialValue =  1;
-          const int theValue     = 17;
-
-          typedef Value<int> IntValue;
-          typedef bdef_MemFnInstance<
-              void (IntValue::*)(const int&), IntValue*>
-              Function;
-          typedef bdeut_FunctionOutputIterator<Function> Iterator;
-
-          IntValue value(initialValue);
-          Iterator it(Function(&IntValue::set, &value));
-
-          *it = theValue;
-
-          // check that functional object was invoked and 'theValue'
-          // was set to 'value'
-          ASSERT(theValue == value.get());
-
-      } break;
-
       case 8: {
-          // ----------------------------------------------------------------
-          // Use of function pointer as a functional object:
-          //   Ensure that the function pointer specified as an functional
-          //   object will be invoked on assignment to dereferenced iterator.
-          //
-          // Concerns:
-          //   1 Template class bdeut_FunctionOutputIterator<> can be
-          //     instantiated with function pointer
-          //
-          // Plan:
-          //   1 Create iterator object and initialize it with function
-          //     pointer
-          //
-          //   2 Check that function is invoked on assignment of dereferenced
-          //     iterator
-          //
-          // Testing:
-          //   bdeut_FunctionOutputIterator<void (*Fn)()>
-          // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+          if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
+                                 << "\n=============\n";
 
-          if (verbose) {
-              bsl::cout
-                  << bsl::endl
-                  << "USE OF FUNCTION POINTER" << bsl::endl
-                  << "=======================" << bsl::endl;
-          }
-
-          const int initialValue =  1;
-          const int theValue     = 17;
-
-          typedef void (*Function)(int);
-          typedef bdeut_FunctionOutputIterator<Function> Iterator;
-
-          Iterator it(&simpleFunction);
-          simpleFunctionValue = initialValue;
-          *it = theValue;
-
-          // check that functional object was invoked and 'theValue'
-          // was set to 'simpleFunctionValue'
-          ASSERT(theValue == simpleFunctionValue);
-
+          outputArray();
+          accumulateArray();
+          accumulateArray2();
       } break;
-
       case 7: {
           // ----------------------------------------------------------------
           // Pre-increment and post-increment operators
           //   Ensure that pre-increment and post-increment operators
-          //   are defined and doesn't affect iterator behaviour.
+          //   are defined and doesn't affect iterator behavior.
           //
           // Concerns:
           //   1 Pre-increment and post-increment operators should be
           //     declared and defined so they could be called by client code
           //
-          //   2 Iterator should preserve its behaviour after increment
+          //   2 Iterator should preserve its behavior after increment
           //     operator was invoked
           //
           // Plan:
@@ -408,7 +470,7 @@ int main(int argc, char *argv[])
           // ----------------------------------------------------------------
           // Assignment operator:
           //   Ensure that the functional object of the original iterator
-          //   (i.e. r-value iterator) will be invoked on assignment to
+          //   (i.e., r-value iterator) will be invoked on assignment to
           //   dereferenced iterator.
           //
           // Concerns:
@@ -483,7 +545,7 @@ int main(int argc, char *argv[])
           // ----------------------------------------------------------------
           // Copy CTOR:
           //   Ensure that the functional object of the original iterator
-          //   (i.e. argument of the copy ctor) will be invoked
+          //   (i.e., argument of the copy ctor) will be invoked
           //   on assignment to dereferenced iterator.
           //
           // Concerns:
@@ -612,9 +674,7 @@ int main(int argc, char *argv[])
           ASSERT(theValue == value.get());
 
       } break;
-
       case 3: {
-
           // ----------------------------------------------------------------
           // DEFAULT CTOR
           //
@@ -664,55 +724,11 @@ int main(int argc, char *argv[])
 
 
       } break;
-
       case 2: {
           // ----------------------------------------------------------------
-          // BREATHING TEST:
-          //   Developers' Sandbox.
+          // CONCERN: All 'output_iterator' traits are correctly defined.
           //
-          // Concerns:
-          //  1 The class is functional enough to enable comprehensive
-          //    testing in subsequent cases
-          //
-          // Plan:
-          //  1 Create an object, using the ctor with functional object.
-          //
-          //  2 Assign value to dereferenced iterator.
-          //
-          //  3 Check that functional object was invoked with correct value.
-          //
-          // Testing:
-          //   BREATHING TEST
-          // ----------------------------------------------------------------
-
-          if (verbose) {
-              bsl::cout
-                  << bsl::endl
-                  << "BREATHING TEST" << bsl::endl
-                  << "==============" << bsl::endl;
-          }
-
-          const int initialValue =  1;
-          const int theValue     = 17;
-
-          typedef Value<int> IntValue;
-          IntValue value(initialValue);
-          bdeut_FunctionOutputIterator<IntValue::Setter>
-              it(value.createSetter());
-
-          *it = theValue;
-
-          // check that functional object was invoked and 'theValue' was set
-          // to 'value'
-          ASSERT(theValue == value.get());
-
-      } break;
-
-      case 1: {
-
-          // ----------------------------------------------------------------
-          // TRAITS TEST:
-          // Ensure that bdeut_FunctionOutputIterator defines required traits
+          //   Ensure that bdeut_FunctionOutputIterator defines required traits
           //
           // Concerns:
           //  1 There must be following types (traits) define in
@@ -772,7 +788,48 @@ int main(int argc, char *argv[])
               void>::VALUE;
           ASSERT(0 != res);
       } break;
+      case 1: {
+          // ----------------------------------------------------------------
+          // BREATHING TEST:
+          //   Developers' Sandbox.
+          //
+          // Concerns:
+          //  1 The class is functional enough to enable comprehensive
+          //    testing in subsequent cases
+          //
+          // Plan:
+          //  1 Create an object, using the ctor with functional object.
+          //
+          //  2 Assign value to dereferenced iterator.
+          //
+          //  3 Check that functional object was invoked with correct value.
+          //
+          // Testing:
+          //   BREATHING TEST
+          // ----------------------------------------------------------------
 
+          if (verbose) {
+              bsl::cout
+                  << bsl::endl
+                  << "BREATHING TEST" << bsl::endl
+                  << "==============" << bsl::endl;
+          }
+
+          const int initialValue =  1;
+          const int theValue     = 17;
+
+          typedef Value<int> IntValue;
+          IntValue value(initialValue);
+          bdeut_FunctionOutputIterator<IntValue::Setter>
+              it(value.createSetter());
+
+          *it = theValue;
+
+          // check that functional object was invoked and 'theValue' was set
+          // to 'value'
+          ASSERT(theValue == value.get());
+
+      } break;
       default: {
           bsl::cerr << "WARNING: CASE '" << test << "' NOT FOUND."
                     << bsl::endl;

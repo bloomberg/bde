@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provides a function output iterator.
+//@PURPOSE: Provides a output iterator for a client supplied functor.
 //
 //@CLASSES:
 //  bdeut_FunctionOutputIterator: function output iterator template
@@ -16,171 +16,193 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Sergey Moiseev (smoiseev)
 //
-//@DESCRIPTION: This component provides a templated iterator type,
-// 'bdeut_FunctionOutputIterator', with the following attributes:
-//  - Meets exactly the requirements for an output iterator according to the
-//    C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
-//  - Dereferencing an iterator and assigning to the result leads to a call
-//    of functional object owned by iterator. Value assigned to the
-//    dereferenced iterator is passed to the call of functional object
-//    as a constant reference. Basically the assignmet '*it = value' causes
-//    the call 'function(value)'.
-//  - Incrementing an iterator is a no-op.
-// The motivation for this iterator is to make it easier to create custom
-// output iterator.
+//@DESCRIPTION: This component provides a iterator template mechanism,
+// 'bdeut_FunctionOutputIterator', that adapts a client supplied functor to
+// a C++ compliant output iterator.  The allows clients to more easily create
+// custom output iterators.
 //
-///Attributes
-///----------
+// A 'bdeut_FunctionOutputIterator' instance's template parameter type
+// 'FUNCTION' must be a functor (or function) that can be called as if it has
+// the following signature: 
 //..
-//  Name      Type      Default  Simple Constrants
-//  --------  --------  -------  -----------------------------------------
-//  function  FUNCTION           this functional object should define
-//                               operator() compatible with a call
-//                               'function(value)'.
+//  void operator()(const TYPE&)'
 //..
-//: o 'function': functional object of template type (FUNCTION) which
-//:   is invoked when value is assigned to dereferenced iterator.
-//:   So this functional object should define operator() which is compatible
-//:   with the call 'function(value)'. For instance,
-//:   operator()(TYPE)
-//:   operator()(const TYPE)
-//:   operator()(const TYPE&)
-//:   The value assigned to the dereferenced iterator will be casted to the
-//:   type of the only parameter of operator().
-//:   Attribute 'function' is actually a copy of functional object specified
-//:   in iterator constructor.
+// where 'TYPE' is the type that will be assigned (by clients) to the
+// dereferenced iterator.  For example:
 //..
+//  void myFunction(const int& value) {};
+//  typedef void (*MyFunctionPtr)(const int&);
+//  typedef bdeut_FunctionOutputIterator<MyFunctionPtr> MyFunctionIterator;
 //
-// For example, if iterator 'it' is defined the following way:
+//  MyFunctionIterator it(&foo);
+//  *it = 5;                       // Calls 'myFunction(5)'!
 //..
-//  typedef void (*FooFn)(const int&);
-//  typedef bdeut_FunctionOutputIterator<FooFn> FooFnIterator;
-//  void foo(const int& value) {};
-//  FooFnIterator it(&foo);
-//..
-// then the assignment '*it = 5' causes a call 'foo(5)'.
+// Notice that dereferencing the output iterator and assigning 5 to it, invokes
+// the functor with the value 5.
+//
+// The provided output iterator has the following attributes:
+//
+//: o Meets the requirements for an output iterator according to the
+//:    C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
+//:
+//: o Dereferencing an iterator and assigning to the result leads to a call
+//:   of functional object owned by iterator.  The value assigned to the
+//:   dereferenced iterator is passed to the call of functional object
+//:   as a constant reference.  Basically the assignment '*it = value' causes
+//:   the call 'function(value)'.
+//:
+//: o Incrementing an iterator is a no-op.
+//
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: use of free-standing function with bdeut_FunctionOutputIterator
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows how free-standing function can be used with
-// 'bdeut_FunctionOutputIterator'.
-// Consider we have 'foo' function that prints integers in some predefined
-// format and we would like to print out all unique elements of sorted 'array'
-// collection. The function 'bsl::unique_copy' iterates over
-// all elements in the specified range and copies them to the output
-// iterator, except consecutive duplicates. If we wrap 'foo' function into
-// 'bdeut_FunctionOutputIterator' we can pass it as output iterator to
-// 'bsl::unique_copy()' algorithm. Coping an element form the range to
-// the output iterator invokes function 'foo' for each copied element:
+///Example 1: Supplying a Free-Function
+/// - - - - - - - - - - - - - - - - - -
+// This example demonstrates using a 'bdeut_FunctionOutputIterator' with a
+// free-function.  Consider we have a function 'foo' that prints integers in
+// some predefined format, and we would like to print out all unique elements
+// of a sorted 'array'.
+//
+// First, we define that function foo:
 //..
 //  typedef void (*Function)(const int&);
 //  void foo(const int& value)
 //  {
-//      bsl::cout << "Value=" << value << bsl::endl;
+//      bsl::cout << value << " ";
 //  }
-//
-//  void main()
+//..
+// Next, we define a function, 'outputArray':
+//..
+//  void outputArray()
 //  {
 //      enum { NUM_VALUES = 7 };
 //      const int array[NUM_VALUES] = { 2, 3, 3, 5, 7, 11, 11 };
+//..
+// Here, we call the algorithm 'unique_copy' to iterate over all elements in
+// supplied range (except consecutive duplicates) and "copy" them to the
+// supplied output iterator;  we wrap the function 'foo' into a
+// 'bdeut_FunctionOutputIterator' that we pass as an output iterator to the 
+// 'bsl::unique_copy' algorithm, so 'foo' will be called for each unique value
+// in 'array':
+//..
 //      bsl::unique_copy(
 //          array,
 //          array + NUM_VALUES,
 //          bdeut_FunctionOutputIterator<Function>(&foo));
 //  }
 //..
-///Example 2: use of user defined functor
-///- - - - - - - - - - - - - - - - - - -
-// This example shows how a component with overloaded 'operator()' can be used
-// with 'bdeut_FunctionOutputIterator'.
-// Consider we have an 'Accumulator' class and we would like to accumulate all
-// unique values in 'array' collection. If we wrap user defined function object
-// into 'bdeut_FunctionOutputIterator' we can pass it as output iterator to
-// 'bsl::unique_copy' algorithm. Coping the result to output iterator invokes
-// function 'Accumulator::inc' for each copied element. Thus by the end of
-// 'main' 'acc' will contain the sum of all unique elements of 'array':
+// Finally, the resulting console output looks like:
+//..
+//  2 3 5 7 11
+//..
+//
+///Example 2: Supplying a User Defined Functor
+///- - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates using a 'bdeut_FunctionOutputIterator'
+// with a user defined functor object.  Consider we have an 'Accumulator'
+// class, for accumulating integer values into a total, and we want to adapt
+// it to use with the algorithm 'bsl::unique_copy'.
+//
+// First, we define an 'Accumulator' class that will total the values supplied
+// to the 'increment' method:
 //..
 //  class Accumulator {
 //      // This class provides a value accumulating functionality.
 //
 //      // DATA
-//      long int d_sum;
+//      int d_sum;
 //    public:
 //      // CREATORS
 //      Accumulator() : d_sum(0) {};
-//      // MANIPULATORS
-//      void inc(int value) { d_sum += value; };
-//  };
 //
-//  class AccumulatorFn {
-//      // This class implements function object that invokes
-//      // Accumulator::inc() in response of calling operator()(int).
+//      // MANIPULATORS
+//      void increment(int value) { d_sum += value; };
+//
+//      // ACCESSORS
+//      int total() const { return d_sum; }
+//  };
+//..
+// Next, we define a functor, 'AccumulatorFunctor', that adapts 'Accumulator'
+// to a function object:
+//..
+//
+//  class AccumulatorFunctor {
+//      // This class implements function object that invokes 'increment' in
+//      // response of calling operator()(int). 
 //
 //      // DATA
 //      Accumulator& d_accumulator;
+//
 //    public:
 //      // CREATORS
-//      explicit AccumulatorFn(Accumulator& acc) : d_accumulator(acc) {};
+//      explicit AccumulatorFunctor(Accumulator& acc) : d_accumulator(acc) {};
+//
 //      // MANIPULATORS
-//      void operator()(int value) { d_accumulator.inc(value); };
+//      void operator()(int value) { d_accumulator.increment(value); };
 //  };
-//
-//  void main()
+//..
+// Now, we define a function 'accumulateArray' that will create a
+// 'bdeut_FunctionOutputIterator' for 'AccumulatorFunctor' and supply it to
+// the 'bsl::unique_copy' algorithm to accumulate a sequence of values:
+//..
+//  void accumulateArray()
 //  {
 //      enum { NUM_VALUES = 7 };
 //      const int array[NUM_VALUES] = { 2, 3, 3, 5, 7, 11, 11 };
+//      Accumulator accumulator;
 //      bsl::unique_copy(
 //          array,
 //          array + NUM_VALUES,
-//          bdeut_FunctionOutputIterator<AccumulatorFn>(
-//              AccumulatorFn(acc)));
+//          bdeut_FunctionOutputIterator<AccumulatorFunctor>(
+//              AccumulatorFunctor(accumulator)));
+//..
+// Finally, we observe that 'accumulator' holds the accumulated total of
+// unique values in 'array':
+//..
+//      assert(28 == accumulator.total());
 //  }
 //..
-///Example 3: use of bdef_MemFnInstance function object
-///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows how 'bdef_MemFnInstance' can be used with
-// 'bdeut_FunctionOutputIterator':
+//
+///Example 3: use of bdef_Function and bdef_BindUtil::bind
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates using a 'bdeut_FunctionOutputIterator'
+// with a functor created using 'bdef_BindUtil'.  Consider the 'Accumulator'
+// class defined in Example 2, which we want to adapt to accumulate a set of
+// integer values.
+//
+// First, define an alias to a 'bdef_Function', defining an accumulation
+// functor, and and then define a function 'accumulateArray2' that will
+// accumulate the integer values in an array:
 //..
-//  typedef bdef_MemFnInstance<void (Accumulator::*)(int), Accumulator*>
-//      AccumulatorFn;
+//  typedef bdef_Function<void (*)(int)> AccumulatorFunction;
 //      // Define function object
 //
-//  void main()
+//  void accumulateArray2()
 //  {
 //      enum { NUM_VALUES = 7 };
 //      const int array[NUM_VALUES] = { 2, 3, 3, 5, 7, 11, 11 };
-//      bsl::unique_copy(
-//          array,
-//          array + NUM_VALUES,
-//          bdeut_FunctionOutputIterator<AccumulatorFn>(
-//              AccumulatorFn(&Accumulator::inc, &acc)));
-//  }
+//      Accumulator accumulator;
 //..
-///Example 4: use of bdef_Function and bdef_BindUtil::bind()
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows how the functor defined with bdef_Function and
-// constructed with 'bdef_BindUtil::bind()' can be used with
-// 'bdeut_FunctionOutputIterator':
+// Here, we create a 'bdeut_FunctionOutputIterator' for a functor created using
+// 'bdef_BindUtil' (matching the 'AccumulatorFunction' alias), and supply
+// it to the 'bsl::unique_copy' algorithm to accumulate a sequence of values:
 //..
-//  typedef bdef_Function<void (*)(int)> AccumulatorFn;
-//      // Define function object
 //
-//  void main()
-//  {
-//      enum { NUM_VALUES = 7 };
-//      const int array[NUM_VALUES] = { 2, 3, 3, 5, 7, 11, 11 };
 //      bsl::unique_copy(
 //          array,
 //          array + NUM_VALUES,
-//          bdeut_FunctionOutputIterator<AccumulatorFn>(
+//          bdeut_FunctionOutputIterator<AccumulatorFunction>(
 //              bdef_BindUtil::bind(
-//              &Accumulator::inc,
-//              &acc,
+//              &Accumulator::increment,
+//              &accumulator,
 //              bdef_PlaceHolders::_1)));
+//..
+// Finally, we observe that 'accumulator' holds the accumulated total of
+// unique values in 'array':
+//..
+//      assert(28 == accumulator.total());
 //  }
 //..
 
@@ -206,9 +228,9 @@ class bdeut_FunctionOutputIterator
                            void,
                            void> {
     // Provide an output iterator that passes elements to a call of
-    // functional object. Dereferencing this iterator and assigning to the
+    // functional object.  Dereferencing this iterator and assigning to the
     // result (of dereferencing) causes to a call of operator() of
-    // the functor with an assigned value as a parameter. See the Attributes
+    // the functor with an assigned value as a parameter.  See the Attributes
     // section under @DESCRIPTION in the component-level documentation for
     // information on the class attributes.
     //
@@ -223,7 +245,7 @@ class bdeut_FunctionOutputIterator
         // Provide an object that can appear on the left side of an assignment
         // from 'TYPE'.  The assignment to the instance of AssignmentProxy is
         // valid and results in call of operator(TYPE) of the functor passed as
-        // a parameter of constructor. Instance of this class is created every
+        // a parameter of constructor.  Instance of this class is created every
         // time when host class is dereferenced.
 
         // DATA
@@ -238,8 +260,8 @@ class bdeut_FunctionOutputIterator
 
         // MANIPULATORS
         template <class TYPE>
-        AssignmentProxy& operator=(const TYPE& value);
-            // Invoke d_function(value).
+        AssignmentProxy& operator=(const TYPE& rhs);
+            // Invoke d_function(rhs).
     };
 
     // DATA
@@ -259,18 +281,16 @@ class bdeut_FunctionOutputIterator
     AssignmentProxy operator*();
         // Return an object which can appear on the left-hand side of
         // an assignment from 'TYPE'.  The assignment itself invokes
-        // functional object. This function is non-const in accordance
+        // functional object.  This function is non-const in accordance
         // with the input iterator requirements, even though '*this'
         // is not modified.
 
     bdeut_FunctionOutputIterator& operator++();
-        // Pre-increment operator
         // Do nothing and return '*this'.  This function is non-const in
         // accordance with the input iterator requirements, even though
         // '*this' is not modified.
 
     bdeut_FunctionOutputIterator& operator++(int);
-        // Post-increment operator
         // Do nothing and return '*this'.  This function is non-const in
         // accordance with the input iterator requirements, even though
         // '*this' is not modified.
@@ -299,9 +319,9 @@ template <class TYPE>
 inline
 typename bdeut_FunctionOutputIterator<FUNCTION>::AssignmentProxy&
 bdeut_FunctionOutputIterator<FUNCTION>::AssignmentProxy::operator=(
-    const TYPE& value)
+                                                               const TYPE& rhs)
 {
-    d_function(value);
+    d_function(rhs);
     return *this;
 }
 
