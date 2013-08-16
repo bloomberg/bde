@@ -1484,8 +1484,12 @@ public:
     {
         int rc;
         if (setManually && opt) {
+            typedef bteso_StreamSocketFactoryDeleter Deleter;
+
             bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                socket(d_factory.allocate(), &d_factory);
+                socket(d_factory.allocate(),
+                       &d_factory,
+                       &Deleter::deleteObject<bteso_IPv4Address>);
             
             if (0 != bteso_SocketOptUtil::setSocketOptions(socket->handle(),
                                                            *opt)) {
@@ -1512,8 +1516,12 @@ public:
     {
         int rc;
         if (setManually && opt) {
+            typedef bteso_StreamSocketFactoryDeleter Deleter;
+
             bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                socket(d_factory.allocate(), &d_factory);
+                socket(d_factory.allocate(),
+                       &d_factory,
+                       &Deleter::deleteObject<bteso_IPv4Address>);
             
             if (0 != bteso_SocketOptUtil::setSocketOptions(socket->handle(),
                                                            *opt)) {
@@ -5606,8 +5614,13 @@ void runTestCase11(bteso_StreamSocketFactory<bteso_IPv4Address> *factory,
         } else {
             // for some of the sockets, provide a ManagedPtr to exercise
             // the ManagedPtr-based import() function
-            bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > socket
-                (factory->allocate(), factory);
+            typedef bteso_StreamSocketFactoryDeleter Deleter;
+
+            bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+                socket(factory->allocate(),
+                       factory,
+                       &Deleter::deleteObject<bteso_IPv4Address>);
+
             ASSERT(0 == socket->connect(PEER));
             mX.import(&socket, i);
         }
