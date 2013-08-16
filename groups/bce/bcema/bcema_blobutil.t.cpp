@@ -5,7 +5,9 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+#include <bdesb_memoutstreambuf.h>
 #include <bdex_byteoutstreamformatter.h>
+#include <bdex_genericbyteoutstream.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
@@ -169,7 +171,7 @@ int ggg(bsl::string *result, int length)
         result->append(DATA, nbytes);
         capacity -= nbytes;
     } while (capacity > 0);
-    ASSERT(result->length() == length);
+    ASSERT(result->length() == size_t(length));
     return 0;
 }
 
@@ -896,8 +898,45 @@ int main(int argc, char *argv[]) {
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'append' Function"
-                          << "\n=========================" << endl;
+        if (verbose) cout << "\nTesting 'write' special cases"
+                          << "\n=============================" << endl;
+
+        // writing zero bytes from an empty blob
+        {
+            bcema_Blob emptyBlob;
+            bdesb_MemOutStreamBuf osb;
+            bdex_GenericByteOutStream<bdesb_MemOutStreamBuf> blobStream(&osb);
+            ASSERT(bcema_BlobUtil::write(blobStream, emptyBlob, 0, 0) == 0);
+            ASSERT(osb.length() == 0);
+        }
+
+        // writing non-zero bytes from an empty blob
+        {
+            bcema_Blob emptyBlob;
+            bdesb_MemOutStreamBuf osb;
+            bdex_GenericByteOutStream<bdesb_MemOutStreamBuf> blobStream(&osb);
+            ASSERT(bcema_BlobUtil::write(blobStream, emptyBlob, 0, 1) != 0);
+            ASSERT(osb.length() == 0);
+        }
+
+        // writing zero bytes from a non-empty blob
+        {
+            // create a 'simple' non-empty blob
+            size_t size = 10;
+            bcema_SharedPtr<char> arr(new char[size]);
+            bcema_BlobBuffer buf(arr, size);
+            bcema_Blob nonemptyBlob;
+            nonemptyBlob.appendDataBuffer(buf);
+
+            // write blob
+            bdesb_MemOutStreamBuf osb;
+            bdex_GenericByteOutStream<bdesb_MemOutStreamBuf> blobStream(&osb);
+            ASSERT(bcema_BlobUtil::write(blobStream, nonemptyBlob, 0, 0) == 0);
+            ASSERT(osb.length() == 0);
+        }
+
+        if (verbose) cout << "\nTesting 'append and write' functions"
+                          << "\n====================================" << endl;
 
         static const struct {
             int         d_lineNum;
