@@ -1077,12 +1077,15 @@ int btemt_SessionPool::import(
                btemt_SessionFactory                           *sessionFactory,
                void                                           *userData)
 {
-    bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > socket_sp(
-                                                                streamSocket,
-                                                                socketFactory);
+    typedef bteso_StreamSocketFactoryDeleter Deleter;
+
+    bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > socket(
+                                    streamSocket,
+                                    socketFactory,
+                                    &Deleter::deleteObject<bteso_IPv4Address>);
     return import(handleBuffer,
                   callback,
-                  &socket_sp,
+                  &socket,
                   sessionFactory,
                   userData);
 }

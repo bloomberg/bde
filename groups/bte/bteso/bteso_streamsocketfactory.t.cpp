@@ -351,21 +351,6 @@ int main(int argc, char *argv[]) {
                                     factory,
                                     &Deleter::deleteObject<TestIPAddress>);
     ASSERT(1 == tf.getCount());
-//..
-// Next, we allocate another stream socket and construct a shared stream
-// socket, 'sbSharedPtr', using 'bcema_SharedPtr' below:
-//..
-    bteso_StreamSocket<TestIPAddress> *sb  = factory->allocate();
-//
-    bcema_SharedPtr<bteso_StreamSocket<TestIPAddress> >
-                       sbSharedPtr(sb,
-                                   bdef_BindUtil::bind(
-                                    &Deleter::deleteObject<TestIPAddress>,
-                                    bdef_PlaceHolders::_1,
-                                    factory)
-                                   );
-    ASSERT(2 == tf.getCount());
-//..
          }
 
          ASSERT(0 == tf.getCount());

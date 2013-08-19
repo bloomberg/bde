@@ -27,8 +27,8 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Allocating stream sockets using stream socket factory
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Example 1: Allocating Stream Sockets using a Stream Socket Factory
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code demonstrate how to use a socket factory for
 // allocating sockets of IPv4 address type.  We assume that there is a
 // function 'f' that needs to use IPv4 sockets.  This function will get an
@@ -56,27 +56,20 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-// Example 2: Binding a stream socket to a smart pointer
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Example 2: Binding a Stream Socket to a 'bdema_ManagedPtr'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // It is occasionally necessary to create smart pointers to manage a
-// 'bteso_StreamSocket' object.  A simple example of this use-case is when a
-// user allocates a stream socket and wants to pass it to a higher level pool
-// for management.  This component provides,
-// 'bteso_StreamSocketFactoryDeleter', that contains a 'deleter' method,
-// 'deleteObject', that can safely deallocate the stream socket on its 
-// destruction.
-//
-// The example below shows the syntax for constructing managed and shared
-// pointer objects to a stream socket using 'bteso_StreamSocketFactoryDeleter'.
-// This example assumes that a concrete 'bteso_StreamSocketFactory' named
-// 'factory' is available and can be used to allocate stream socket objects.
+// 'bteso_StreamSocket' object.  The example below shows the syntax for
+// constructing managed pointer object for a stream socket using
+// 'bteso_StreamSocketFactoryDeleter'.  This example assumes that a concrete
+// 'bteso_StreamSocketFactory' named 'factory' is available and can be used to
+// allocate stream socket objects. 
 //
 // First, we allocate a stream socket:
 //..
 //  bteso_StreamSocket<bteso_IPv4Address> *sa  = factory->allocate();
 //..
-// Then, we construct a managed stream socket, 'saManagedPtr', using
-// 'bdema_ManagedPtr':
+// Then, we construct a managed pointer to a stream socket:
 //..
 //  typedef bteso_StreamSocketFactoryDeleter Deleter;
 //
@@ -84,19 +77,6 @@ BDES_IDENT("$Id: $")
 //                     saManagedPtr(sa,
 //                                  factory,
 //                                  &Deleter::deleteObject<bteso_IPv4Address>);
-//..
-// Next, we allocate another stream socket and construct a shared stream
-// socket, 'sbSharedPtr', using 'bcema_SharedPtr':
-//..
-//  bteso_StreamSocket<bteso_IPv4Address> *sb  = factory->allocate();
-//
-//  bcema_SharedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-//                     sbSharedPtr(sb,
-//                                 bdef_BindUtil::bind(
-//                                  &Deleter::deleteObject<bteso_IPv4Address>,
-//                                  bdef_PlaceHolders::_1,
-//                                  factory)
-//                                 );
 //..
 // See 'bteso_streamsocket' for more in-depth usage examples.
 
@@ -189,16 +169,19 @@ class bteso_StreamSocketFactoryAutoDeallocateGuard {
 
 struct bteso_StreamSocketFactoryDeleter {
     // This 'struct' implements a 'deleter' function, 'deleteObject', for
-    // destroying stream socket objects using a specified 'factory'.  This
-    // 'deleter' enables the construction of smart pointers ('bdema_ManagerPtr'
-    // and 'bcema_SharedPtr') to stream socket objects.
+    // destroying stream socket objects using a specified 'factory'.  The
+    // method 'deleteObject' matches the signature of a factory function that
+    // can be supplied to 'bdema_ManagedPtr'.
 
     // CLASS METHODS
     template <typename ADDRESS>
     static void deleteObject(void *socket, void *factory);
         // Deallocate the specified 'socket' using the specified 'factory'.
         // The behavior is undefined unless 'socket' was allocated using
-        // 'factory'.
+        // 'factory'.  Note that this function matches the signature of a
+        // factory function that can be supplied to 'bdema_ManagedPtr', and is
+        // intended to simplify the creation of managed-pointers to
+        // 'bteso_StreamSocket' objects.
 };
 
 // ===========================================================================

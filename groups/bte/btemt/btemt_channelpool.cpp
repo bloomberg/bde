@@ -2623,7 +2623,10 @@ void btemt_ChannelPool::acceptCb(int                                serverId,
 
     server->d_exponentialBackoff = 0;
 
-    bdema_ManagedPtr<StreamSocket> socket(connection, &d_factory);
+    typedef bteso_StreamSocketFactoryDeleter Deleter;
+
+    bdema_ManagedPtr<StreamSocket> socket(
+        connection, &d_factory, &Deleter::deleteObject<bteso_IPv4Address>);
 
     int numChannels = d_channels.length();
     if (d_config.maxConnections() <= numChannels) {
@@ -3100,9 +3103,12 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         if (connectionSocket) {
             if (0 == connectionSocket->setBlockingMode(
                                          bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+
+                typedef bteso_StreamSocketFactory<bteso_IPv4Address> Factory;
                 cs.d_socket.load(connectionSocket,
-                                 &d_factory,
-                                 &d_sharedPtrRepAllocator);
+                                 bdef_MemFnUtil::memFn(
+                                     &Factory::deallocate, &d_factory),
+                                 d_allocator_p);
             }
             else {
                 d_factory.deallocate(connectionSocket);
@@ -4011,9 +4017,13 @@ int btemt_ChannelPool::import(
         bool                                          readEnabledFlag,
         KeepHalfOpenMode                              mode)
 {
-    bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > managedSocket(
-                                                                  streamSocket,
-                                                                  factory);
+    typedef bteso_StreamSocketFactoryDeleter Deleter;
+
+    bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> > 
+                      managedSocket(streamSocket,
+                                    factory,
+                                    &Deleter::deleteObject<bteso_IPv4Address>);
+
     int rc = import(&managedSocket, sourceId, readEnabledFlag, mode);
     if (0 != rc) {
         // if this function fails, the owner is expected to deallocate the
