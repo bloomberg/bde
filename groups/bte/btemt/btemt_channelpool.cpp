@@ -27,6 +27,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdef_function.h>
 #include <bdef_bind.h>
+#include <bdef_memfn.h>
 
 #include <bdeut_nullablevalue.h>
 

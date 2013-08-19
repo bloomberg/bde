@@ -786,16 +786,17 @@ void *connectFunction(void *args)
 
     ASSERT(0 == clientSockets[INDEX]->connect(ADDRESS));
 
-    char buffer[NUM_BYTES];
+    
+    bsl::vector<char> buffer(NUM_BYTES);
 
     int numRemaining = NUM_BYTES;
     do {
-        int rc = clientSockets[INDEX]->read(buffer, numRemaining);
+        int rc = clientSockets[INDEX]->read(buffer.data(), numRemaining);
         if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
 
-        rc = clientSockets[INDEX]->write(buffer, numRemaining);
+        rc = clientSockets[INDEX]->write(buffer.data(), numRemaining);
 
         bcemt_ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
@@ -824,16 +825,16 @@ void *listenFunction(void *args)
     ASSERT(!serverSockets[INDEX]->accept(&client));
     ASSERT(0 == client->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE));
 
-    char buffer[NUM_BYTES];
+    bsl::vector<char> buffer(NUM_BYTES);
 
     int numRemaining = NUM_BYTES;
     do {
-        int rc = client->read(buffer, numRemaining);
+        int rc = client->read(buffer.data(), numRemaining);
         if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
 
-        rc = client->write(buffer, numRemaining);
+        rc = client->write(buffer.data(), numRemaining);
 
         bcemt_ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
