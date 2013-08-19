@@ -28,9 +28,11 @@ using namespace bsl;  // automatically added by script
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -134,15 +136,24 @@ class BlobBufferFactory : public bcema_BlobBufferFactory {
     }
 };
 
+template <typename TYPE>
+struct ArrayDeleter
+{
+    void operator()(TYPE * arr) const
+    {
+        delete [] arr;
+    }
+};
+
 //=============================================================================
 //                               GLOBAL TYPEDEF
 //-----------------------------------------------------------------------------
 
 typedef bcema_BlobUtil Util;
 
-static int verbose;
-static int veryVerbose;
-static int veryVeryVerbose;
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
 
 //=============================================================================
 //              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
@@ -300,6 +311,8 @@ bsl::string expectedOutCase3[] = {
     "   240:   61626364 65203331 61626364 65203332     |abcde 31abcde 32|\n"
     "   256:   61626364 65203333                       |abcde 33        |"
 };
+
+}  // close anonymous namespace
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -923,7 +936,7 @@ int main(int argc, char *argv[]) {
         {
             // create a 'simple' non-empty blob
             size_t size = 10;
-            bcema_SharedPtr<char> arr(new char[size]);
+            bcema_SharedPtr<char> arr(new char[size], ArrayDeleter<char>());
             bcema_BlobBuffer buf(arr, size);
             bcema_Blob nonemptyBlob;
             nonemptyBlob.appendDataBuffer(buf);
