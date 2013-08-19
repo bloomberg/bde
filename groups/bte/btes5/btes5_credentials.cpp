@@ -15,17 +15,17 @@ namespace BloombergLP {
 
 // CREATORS
 btes5_Credentials::btes5_Credentials(bslma::Allocator *allocator)
-: d_username(bslma::Default::allocator(allocator))
-, d_password(bslma::Default::allocator(allocator))
+: d_username(allocator)
+, d_password(allocator)
 {
     // 'd_username.length() > 0' is the internal indicator for 'this->isSet()'.
 }
 
 btes5_Credentials::btes5_Credentials(
     const btes5_Credentials&  original,
-    bslma::Allocator             *allocator)
-: d_username(original.d_username, bslma::Default::allocator(allocator))
-, d_password(original.d_password, bslma::Default::allocator(allocator))
+    bslma::Allocator         *allocator)
+: d_username(original.d_username, allocator)
+, d_password(original.d_password, allocator)
 {
 }
 
@@ -33,14 +33,10 @@ btes5_Credentials::btes5_Credentials(
     const bslstl::StringRef&  username,
     const bslstl::StringRef&  password,
     bslma::Allocator         *allocator)
-: d_username(bslma::Default::allocator(allocator))
-, d_password(bslma::Default::allocator(allocator))
+: d_username(allocator)
+, d_password(allocator)
 {
     set(username, password);
-}
-
-btes5_Credentials::~btes5_Credentials()
-{
 }
 
 // MANIPULATORS

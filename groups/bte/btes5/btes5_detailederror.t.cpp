@@ -20,11 +20,40 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// The value-semantic struct 'btes5_DetailedError' provides information about
+// an error during a SOCKS5 negotiation.  There are two attributes in the, the
+// human-readable 'description', and possibly empty 'address'.  The attribute
+// values can be set at construction or subsequently using the two setter
+// methods.
+//
+// The setters and getters are used to verify the functionality of this type.
+//
+// BDEX streaming is not provided for this type.
 //
 //-----------------------------------------------------------------------------
-// [ ]
+// CREATORS
+// [ ] btes5_DetailedError(StringRef& desc, Allocator *a = 0);
+// [ ] btes5_DetailedError(StringRef& desc, bteso_Endpoint& addr, *a = 0);
+// [ ] btes5_DetailedError(btes5_DetailedError& original, Allocator *a = 0);
+// [ ] // ~btes5_DetailedError() = default;
+//
+// MANIPULATORS
+// [ ] btes5_DetailedError& operator=(btes5_DetailedError& rhs);
+// [ ] void setDescription(StringRef& value);
+// [ ] void setAddress(bteso_Endpoint& value);
+//
+// ACCESSORS
+// [ ] string& description() const;
+// [ ] bteso_Endpoint& address() const;
+//
+// FREE OPERATORS
+// [ ] bool operator==(btes5_DetailedError& lhs, btes5_DetailedError& rhs);
+// [ ] bool operator!=(btes5_DetailedError& lhs, btes5_DetailedError& rhs);
+// [ ] ostream& operator<<(ostream& o, btes5_DetailedError& error);
+
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
+// [ ] USAGE EXAMPLE
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -128,6 +157,97 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+///Example 1: Assign Error Information
+///- - - - - - - - - - - - - - - - - -
+// Suppose we encounter an authentication failure during a SOCKS5 negotiation.
+// We would like to encode the information about this error before signaling
+// the client code of the error.
+//
+// First, we construct an empty 'btes5_DetailedError object with the failure
+// description:
+//..
+    btes5_DetailedError error("authentication failure");
+//..
+//  Now, we set the address of the proxy host that reported the error:
+//..
+    bteso_Endpoint proxy("proxy1.corp.com", 1080);
+    error.setAddress(proxy);
+//..
+// Finally, we have an encoded 'error' which provides detailed information
+// about the failure.
+//..
+    ASSERT("authentication failure" == error.description());
+    ASSERT(proxy == error.address());
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PUBLIC INTERFACE
+        //   Test constructors, public modifiers and accessors.
+        //
+        // Concerns:
+        //: 1 Objects can be constructed, manipulated and accessed.
+        //: 2 If supplied, the memory allocator is propagated.
+        //
+        // Plan:
+        //: 1 Use several ad-hoc values, compare output to expected results.
+        //: 2 Compare member allocators to construction-supplied allocator.
+        //
+        // Testing:
+        //   explicit btes5_Credentials(bslma::Allocator *allocator = 0);
+        //   btes5_Credentials(const StringRef& u, const StringRef& p, *a = 0);
+        //   btes5_Credentials(const btes5_Credentials& original, *a = 0);
+        //   ~btes5_Credentials() = default;
+        //
+        // MANIPULATORS
+        //   set(const bslstl::StringRef& u, const bslstl::StringRef& p);
+        //   reset();
+        //   isSet() const;
+        //   bsl::string& username() const;
+        //   bsl::string& password() const;
+        //   operator==(btes5_Credentials& lhs, btes5_Credentials& rhs);
+        //   operator!=(btes5_Credentials& lhs, btes5_Credentials& rhs);
+        //   operator<<(bsl::ostream& output, const btes5_Credentials& object);
+        //   CONCERN: All memory allocation is from the object's allocator.
+        //   CONCERN: Precondition violations are detected when enabled.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PUBLIC INTERFACE" << endl
+                          << "================" << endl;
+
+        btes5_DetailedError error1("Error 1");
+        ASSERT(error1.description() == "Error 1");
+        ASSERT(!error1.address().isSet());
+        verbose && cout << "error1=" << error1 << endl;
+
+        bteso_Endpoint address2("example.com", 80);
+        btes5_DetailedError error2("Error 2", address2);
+        ASSERT(error2.description() == "Error 2");
+        ASSERT(error2.address() == address2);
+        ASSERT(error1 != error2);
+        verbose && cout << "error2=" << error2 << endl;
+
+        btes5_DetailedError error3(error2);
+        ASSERT(error3.description() == error2.description());
+        ASSERT(error3.address().isSet());
+        ASSERT(error3 == error2);
+        verbose && cout << "error3=" << error3 << endl;
+
+        error1 = error2;
+        ASSERT(error1.description() == "Error 2");
+        ASSERT(error1.address().isSet());
+        verbose && cout << "error1=" << error3 << endl;
+
+        error2.setDescription("Error 1");
+        ASSERT(error2.description() == "Error 1");
+        verbose && cout << "error2=" << error2 << endl;
+
+        bteso_Endpoint address3("localhost", 8194);
+        error1.setAddress(address3);
+        ASSERT(error1.address() == address3);
+        verbose && cout << "error1=" << error1 << endl;
       } break;
       case 1: {
         // --------------------------------------------------------------------

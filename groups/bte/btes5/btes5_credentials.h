@@ -25,10 +25,26 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
+///Example 1: Assign User Name and Password
 ///- - - - - -
-// Suppose that ...
+// Suppose that we want to specify user name and password for authenticating
+// with a SOCKS5 host (see RFC 1929).  We can use a 'btes5_Credentials' object
+// to represent the credentials.
 //
+// First, we construct an empty object:
+//..
+//      btes5_Credentials credentials1;
+//      assert(!credentials1.isSet());
+//..
+// Now, we set the user name and password passing in literals:
+//      credentials1.set("john.smith", "pass1");
+//..
+// Finally, we verify that 'credentials1' is no longer empty, and its username
+// and password values are as expected:
+//..
+//      assert(credentials1.isSet());
+//      assert(credentials1.username() == "john.smith");
+//      assert(credentials1.password() == "pass1");
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
@@ -44,6 +60,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 namespace BloombergLP {
@@ -83,7 +103,7 @@ class btes5_Credentials {
         // 'allocator' is not 0 use it to supply memory, otherwise use the
         // default allocator.
 
-    ~btes5_Credentials();
+    // ~btes5_Credentials() = default;
         // Destroy this object.
 
     // MANIPULATORS

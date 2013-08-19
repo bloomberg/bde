@@ -21,10 +21,28 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
-///- - - - - -
-// Suppose that ...
+///Example 1: Assign Error Information
+///- - - - - - - - - - - - - - - - - -
+// Suppose we encounter an authentication failure during a SOCKS5 negotiation.
+// We would like to encode the information about this error before signaling
+// the client code of the error.
 //
+// First, we construct an empty 'btes5_DetailedError object with the failure
+// description:
+//..
+//  btes5_DetailedError error("authentication failure");
+//..
+//  Now, we set the address of the proxy host that reported the error:
+//..
+//  bteso_Endpoint proxy("proxy1.corp.com", 1080);
+//  error.setAddress(proxy);
+//..
+// Finally, we have an encoded 'error' which provides detailed information
+// about the failure.
+//..
+//  assert("authentication failure" == error.description());
+//  assert(proxy == error.address());
+//..
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>

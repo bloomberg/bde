@@ -21,11 +21,12 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//
+// This class defines a protocol for a mechanism that supplies SOCKS5
+// credentials for a proxy host. The class protocol definition is tested, as
+// well as the usage example.
 //-----------------------------------------------------------------------------
-// [ ]
-//-----------------------------------------------------------------------------
-// [1] BREATHING TEST
+// [1] PROTOCOL TEST
+// [2] USAGE EXAMPLE
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -92,12 +93,89 @@ static void aSsErT(int c, const char *s, int i)
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
 struct ProviderImp : bsls::ProtocolTestImp<btes5_CredentialsProvider> {
     virtual void acquireCredentials(const bteso_Endpoint&, Callback) {
         markDone();
     };
     virtual void cancelAcquiringCredentials() { markDone(); }
-  }; // ----------------------------------------------------------------------------
+};
+
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+namespace {
+
+///Example 1: Acquire Username and Passowrd
+/// - - - - - - - - - - - - - - - - - - - -
+// During the process of SOCKS5 negotiation, a proxy host may require the
+// username and password to authenticate the SOCKS5 client.  In this example we
+// acquire the credentials from secure storage and pass them to the client code
+// through a client-supplied callback.
+//
+// First, we define a class that implements the 'btes5_CredentialsProvider'
+// protocol.
+//..
+    class MyCredentialsProvider : public btes5_CredentialsProvider {
+      public:
+        // Construction and destruction elided.
+
+    virtual void acquireCredentials(const bteso_Endpoint& proxy,
+                                    Callback              callback);
+        // Acquire credentials and invoke the specified 'callback' with
+        // username and password to authenticate the SOCKS5 client with the
+        // specified 'proxy'.
+
+    virtual void cancelAcquiringCredentials();
+        // Cancel acquiring credentials.
+    };
+//..
+// Then, we define the 'acquireCredentials' method.  Since here we look up the
+// credentials in secure storage which is a non-blocking operation, we can
+// invoke the callback directly.
+//..
+    void MyCredentialsProvider::acquireCredentials(
+        const bteso_Endpoint& proxy,
+        Callback              callback)
+    {
+        bsl::string username("Defaultuser");
+        bsl::string password("Defaultpassword");
+        // Look up the credentials for the specified 'proxy' ...
+        callback(0, username, password);
+    }
+//..
+// Now, we define the callback function which would make use of the acquired
+// credentials by sending them to the SOCKS5 server.
+//..
+    void credentialsCb(int                      status,
+                       const bslstl::StringRef& username,
+                       const bslstl::StringRef& password)
+    {
+        if (0 == status) {
+            ASSERT("Defaultuser" == username);
+            ASSERT("Defaultpassword" == password);
+            // send username and password to the SOCKS5 host ...
+        } else {
+            // credentials not available, report error and stop negotiation ...
+        }
+    }
+//..
+// Finally, we define the function which will be able to authenticate the
+// connection using credentials supplied by a 'MyCredentialsProvider'.
+//..
+    void socks5Authenticate()
+    {
+        MyCredentialsProvider provider;
+        bteso_Endpoint proxy("proxy1.corp.com", 1080);
+        provider.acquireCredentials(proxy, &credentialsCb);
+        // next stage of negotiation will be done by 'credentialsCb'
+    }
+//..
+
+void MyCredentialsProvider::cancelAcquiringCredentials() {
+}
+
+}  // close unnamed namespace
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -134,9 +212,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+        socks5Authenticate();
       } break;
       case 1: {
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PROTOCOL TEST:
         //   Ensure this class is a properly defined protocol.
         //

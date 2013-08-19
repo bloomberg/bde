@@ -14,6 +14,10 @@ namespace BloombergLP {
                         // -------------------------
 
 // CREATORS
+btes5_CredentialsProvider::btes5_CredentialsProvider()
+{
+}
+
 btes5_CredentialsProvider::~btes5_CredentialsProvider()
 {
 }
