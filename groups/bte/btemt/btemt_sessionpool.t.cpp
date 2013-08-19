@@ -354,8 +354,13 @@ int createConnection(
                                     ipAddress);
     } else {
         BSLS_ASSERT_OPT(socketFactory); // test invariant
+
+        typedef bteso_StreamSocketFactoryDeleter Deleter;
+
         bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-            clientSocket(socketFactory->allocate(), socketFactory);
+            clientSocket(socketFactory->allocate(), 
+                         socketFactory,
+                         &Deleter::deleteObject<bteso_IPv4Address>);
         
         return sessionPool->connect(&handleBuffer,
                                     *sessionStateCb,
@@ -621,16 +626,16 @@ void *connectFunction(void *args)
 
     ASSERT(0 == clientSockets[INDEX]->connect(ADDRESS));
 
-    char buffer[NUM_BYTES];
+    bsl::vector<char> buffer(NUM_BYTES);
 
     int numRemaining = NUM_BYTES;
     do {
-        int rc = clientSockets[INDEX]->read(buffer, numRemaining);
+        int rc = clientSockets[INDEX]->read(buffer.data(), numRemaining);
         if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
 
-        rc = clientSockets[INDEX]->write(buffer, numRemaining);
+        rc = clientSockets[INDEX]->write(buffer.data(), numRemaining);
 
         bcemt_ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
@@ -659,16 +664,16 @@ void *listenFunction(void *args)
     ASSERT(!serverSockets[INDEX]->accept(&client));
     ASSERT(0 == client->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE));
 
-    char buffer[NUM_BYTES];
+    bsl::vector<char> buffer(NUM_BYTES);
 
     int numRemaining = NUM_BYTES;
     do {
-        int rc = client->read(buffer, numRemaining);
+        int rc = client->read(buffer.data(), numRemaining);
         if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
 
-        rc = client->write(buffer, numRemaining);
+        rc = client->write(buffer.data(), numRemaining);
 
         bcemt_ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
@@ -3554,8 +3559,13 @@ int main(int argc, char *argv[])
             bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
 
             {
+
+                typedef bteso_StreamSocketFactoryDeleter Deleter;
+
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), &socketFactory);
+                    socket(socketFactory.allocate(), 
+                           &socketFactory,
+                           &Deleter::deleteObject<bteso_IPv4Address>);
 
                 SocketOptions opt;  opt.setKeepAlive(true); // always succeeds 
                 const int rc = createConnection(&pool,
@@ -3569,8 +3579,13 @@ int main(int argc, char *argv[])
             }
 
             {
+
+                typedef bteso_StreamSocketFactoryDeleter Deleter;
+
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), &socketFactory);
+                    socket(socketFactory.allocate(), 
+                           &socketFactory,
+                           &Deleter::deleteObject<bteso_IPv4Address>);
                 ASSERT(socket);
 
                 SocketOptions opt;  opt.setSendTimeout(1); // fails on all
@@ -3654,8 +3669,13 @@ int main(int argc, char *argv[])
             bteso_InetStreamSocketFactory<bteso_IPv4Address> socketFactory;
 
             {
+
+                typedef bteso_StreamSocketFactoryDeleter Deleter;
+
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), &socketFactory);
+                    socket(socketFactory.allocate(), 
+                           &socketFactory,
+                           &Deleter::deleteObject<bteso_IPv4Address>);
 
                 bteso_IPv4Address address("127.0.0.1", 45000); // good address
                 const int rc = createConnection(&pool,
@@ -3673,8 +3693,13 @@ int main(int argc, char *argv[])
             }
 
             {
+
+                typedef bteso_StreamSocketFactoryDeleter Deleter;
+
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), &socketFactory);
+                    socket(socketFactory.allocate(), 
+                           &socketFactory,
+                           &Deleter::deleteObject<bteso_IPv4Address>);
 
                 bteso_IPv4Address address("1.1.1.1", 45000);  // bad address
                 const int rc = createConnection(&pool,
