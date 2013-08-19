@@ -852,9 +852,9 @@ int btemt_SessionPool::connect(
                 int                                             port,
                 int                                             numAttempts,
                 const bdet_TimeInterval&                        interval,
-                btemt_SessionFactory                           *factory,
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
                                                                *socket,
+                btemt_SessionFactory                           *factory,
                 void                                           *userData,
                 ConnectResolutionMode                           resolutionMode)
 {
@@ -894,9 +894,9 @@ int btemt_SessionPool::connect(
                  bteso_IPv4Address const&                        endpoint,
                  int                                             numAttempts,
                  const bdet_TimeInterval&                        interval,
-                 btemt_SessionFactory                           *factory,
                  bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
                                                                 *socket,
+                 btemt_SessionFactory                           *factory,
                  void                                           *userData)
 {
     BSLS_ASSERT(d_channelPool_p);

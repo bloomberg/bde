@@ -867,9 +867,9 @@ class btemt_SessionPool {
             int                                             port,
             int                                             numAttempts,
             const bdet_TimeInterval&                        interval,
-            btemt_SessionFactory                           *factory,
             bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
                                                            *socket,
+            btemt_SessionFactory                           *factory,
             void                                           *userData = 0,
             ConnectResolutionMode                           resolutionMode
                                                                = RESOLVE_ONCE);
@@ -916,9 +916,9 @@ class btemt_SessionPool {
             bteso_IPv4Address const&                        endpoint,
             int                                             numAttempts,
             const bdet_TimeInterval&                        interval,
-            btemt_SessionFactory                           *factory,
             bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
                                                            *socket,
+            btemt_SessionFactory                           *factory,
             void                                           *userData = 0);
     int connect(
             int                                            *handleBuffer,

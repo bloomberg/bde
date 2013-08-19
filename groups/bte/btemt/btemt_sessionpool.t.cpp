@@ -358,19 +358,23 @@ int createConnection(
         typedef bteso_StreamSocketFactoryDeleter Deleter;
 
         bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-            clientSocket(socketFactory->allocate(), 
+            clientSocket(socketFactory->allocate(),
                          socketFactory,
                          &Deleter::deleteObject<bteso_IPv4Address>);
-        
+
+        const int rc = clientSocket->bind(*ipAddress);
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+
         return sessionPool->connect(&handleBuffer,
                                     *sessionStateCb,
                                     serverAddr,
                                     1,
                                     bdet_TimeInterval(1),
-                                    sessionFactory,
                                     &clientSocket,
-                                    0,
-                                    ipAddress);
+                                    sessionFactory,
+                                    0);
     }
 }
 
@@ -3708,13 +3712,13 @@ int main(int argc, char *argv[])
                                                 socket.ptr(),
                                                 0, &socketFactory,
                                                 &address);
-                ASSERT(!rc);
-
-                if (veryVerbose) {
-                    MTCOUT << "Waiting on pool barrier..." << MTENDL;
+                if (!rc) {
+                    if (veryVerbose) {
+                        MTCOUT << "Waiting on pool barrier..." << MTENDL;
+                    }
+                    poolCbBarrier.wait();
+                    ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
                 }
-                poolCbBarrier.wait();
-                ASSERT(btemt_SessionPool::CONNECT_FAILED == poolState);
             }
 
             ASSERT(0 == pool.stopAndRemoveAllSessions());
