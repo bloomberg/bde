@@ -38,20 +38,24 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//
-// ...
+// This mechanism implements negotiation with a SOCKS5 proxy to establish a
+// connection to the destination host. In order to test this component, a test
+// class, 'btes5_TestServer' is used as a proxy to negotiate with.  The test
+// scenarios create a SOCKS5 test server, connect to it (using TCP) and pass
+// the connection socket to the 'btes5_Negotirator' object.
 //
 //-----------------------------------------------------------------------------
-// [1] constructors
-// [2] assign and reset
-// [3] operators for equality and inequality
-// [4] operators less/greater than
-// [5] comparators
-// [6] output (printing)
-// [7] conversion
-// [8] ....
+// CREATORS
+// [2] btes5_Negotiator(bteso_TimerEventManager *eventManager, *bA = 0);
+// [2] ~btes5_Negotiator();
+// MANIPULATORS
+// [2] int negotiate(*socket, destination, cB, timeout);
+// [ ] int negotiate(*socket, destination, cB, timeout, credentials);
+// [ ] int negotiate(*socket, destination, cB, timeout, provider);
 //-----------------------------------------------------------------------------
-// [0] BREATHING TEST
+// [ ] BREATHING TEST
+// [2] USAGE EXAMPLE
+// [ ] CONCERN: All memory allocation is from the object's allocator.
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -154,7 +158,7 @@ namespace {
         if (result == btes5_Negotiator::e_SUCCESS) {
             *state = 1;
         } else {
-            cout << "Negotiation error " << result << ": " << error << endl;
+            // report negotiation failure ...
             *state = -1;
         }
         stateChanged->signal();
@@ -303,6 +307,8 @@ int main(int argc, char *argv[]) {
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
         //:   links, and runs as shown.
+        //:
+        //: 2 The SOCKS5 negotiation protocol is correctly implemented.
         //
         // Plan:
         //: 1 Incorporate usage example from header into test driver, remove
@@ -315,6 +321,9 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   USAGE EXAMPLE
+        //   btes5_Negotiator(bteso_TimerEventManager *eventManager, *bA = 0);
+        //   ~btes5_Negotiator();
+        //   int negotiate(*socket, destination, cB, timeout);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -369,11 +378,16 @@ int main(int argc, char *argv[]) {
       case 2: {
         // --------------------------------------------------------------------
         // BASIC NEGOTIATION
+        //   Negotiate a connection without authentication.
         //
-        // Concerns: basic negotiation works per RFC 1928 protocol
+        // Concerns
+        //: 1 Basic negotiation works per RFC 1928 protocol.
         //   
         //
-        // Plan: create a server thread, and try to connect
+        // Plan
+        //: 1 Create a server thread using 'btes5_TestServer', and try to
+        //:   connect.  The test server will check messages for validity and
+        //:   simulate success (without actually connecting).
         //
         //   
         //
@@ -444,6 +458,8 @@ int main(int argc, char *argv[]) {
         //   This test exercises basic functionality but tests nothing.
         //
         // Plan:
+        //: 1 Create a 'btes5_Negotiatior' object, but do not actually
+        //:   negotiate a connection.
         //
         // Testing:
         //   BREATHING TEST
@@ -451,59 +467,10 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
-   
-/*
-        enum { BUFFER_SIZE = 1024 };
-        char buffer[BUFFER_SIZE];
 
-        TestChannelUtil::TestChannelPtr clientChannel = 0;
-        TestChannelUtil::TestChannelPtr serverChannel = 0;
-        TestChannelUtil::allocateChannelPair(&clientChannel,
-                                             &serverChannel);
-        bteso_Endpoint dst("192.168.1.1", 10075);
-
-        btes5_Credentials credentials;
-        btes5_Negotiator s5n(clientChannel.ptr(), credentials, &cbSuccess, &bbf,
-                             btes5_Negotiator::TCP_CONNECTION);
-        s5n.negotiate(dst);
-
-        // verify greeting request
-        MethodRequestPkt mreqPkt;
-        mreqPkt.d_ver = 0x05;
-        mreqPkt.d_nmethods = 0x02;
-        mreqPkt.d_methods[0] = 0x00;
-        mreqPkt.d_methods[1] = 0x02;
-
-        int count = serverChannel->read(buffer, BUFFER_SIZE);
-        ASSERT(count == sizeof(mreqPkt));
-        ASSERT(!bsl::memcmp(buffer, &mreqPkt, bsl::min<int>(sizeof(mreqPkt), count)));
-
-        // send greeting response
-        MethodResponsePkt mrspPkt;
-        mrspPkt.d_ver    = 0x05;
-        mrspPkt.d_method = 0x00;
-        count =  serverChannel->write((char*)&mrspPkt, sizeof(mrspPkt));
-        BSLS_ASSERT(count == sizeof(mrspPkt));
-
-        // verify connection request
-        char connectPkt[300];
-        ConnectBase *hdr = connectPkt;
-        hdr->d_ver   = 0x05;
-        hdr->d_cmd   = 0x01;
-        hdr->d_rsv   = 0x00;
-        hdr->d_atype = 0x03; // address type = domainname
-        unsigned char *p = connectPkt + sizeof(hdr);
-        *p++ = dst.d_hostname.size();
-        memcpy(p, dst.d_hostname.c_str(), dst.d_hostname.size());
-        p += dst.d_hostname.size();
-        bdex_ByteStreamImpUtil::putInt16(p, dst.d_port);
-
-        count = serverChannel->read(buffer, BUFFER_SIZE);
-        ASSERT(count == sizeof(cipv4reqPkt));
-        ASSERT(!bsl::memcmp(buffer, &cipv4reqPkt, bsl::min<int>(sizeof(cipv4reqPkt), count)));
-        cipv4reqPkt.d_connectBase.d_cmd = 0x00;
-        count = serverChannel->write((char*)&cipv4reqPkt, count);
-*/
+        btemt_TcpTimerEventManager eventManager;
+        ASSERT(0 == eventManager.enable());
+        btes5_Negotiator negotiator(&eventManager);
 
       } break;
       default: {

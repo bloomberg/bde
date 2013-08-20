@@ -20,11 +20,34 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//
+// This component provides a value-semantic class that represents a TCP or UDP
+// endpoint as a hostname and port.  It's tested using the class setters and
+// getters.  'bslma::TestAllocator' is used to test proper allocator usage.
 //-----------------------------------------------------------------------------
-// [ ]
+// CREATORS
+// [2] bteso_Endpoint(*allocator = 0);
+// [2] bteso_Endpoint(bteso_Endpoint& original, *allocator = 0);
+// [ ] bteso_Endpoint(hostname, port, *allocator = 0);
+// [2] ~bteso_Endpoint();
+//
+// MANIPULATORS
+// [ ] bteso_Endpoint& operator=(const bteso_Endpoint& rhs) = default;
+// [2] void set(hostname, int port);
+// [ ] void reset();
+//
+// ACCESSORS
+// [2] bool isSet() const;
+// [2] const bsl::string& hostname() const;
+// [2] int port() const;
+//
+// FREE OPERATORS
+// [ ] bool operator==(lhs, rhs);
+// [2] bool operator!=(lhs, rhs);
+// [ ] bsl::ostream& operator<<(stream, object);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
+// [3] USAGE EXAMPLE
+// [2] CONCERN: All memory allocation is from the object's allocator.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -108,7 +131,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -128,6 +151,94 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+///Example 1: Set Hostname and Port
+/// - - - - - - - - - - - - - - - -
+// Let us encode a TCP address as a hostname and port.
+//
+// First, we declare an empty (unset) 'bteso_Endpoint':
+//..
+    bteso_Endpoint address;
+//..
+// Now, we set hostname and port:
+//..
+    address.set("www.bloomberg.com", 80);
+//..
+// Finally, we have an object that describes the HTTP server at Bloomberg LP:
+//..
+    ASSERT(address.hostname() == "www.bloomberg.com");
+    ASSERT(address.port() == 80);
+//..
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PUBLIC INTERFACE
+        //   Verify the public interface works as documented.
+        //
+        // Concerns:
+        //: 1 Public interfaces function per contract.
+        //: 2 If supplied, the allocator is used for all allocations.
+        //
+        // Plan:
+        //: 1 Perform a test of the constructors, modifiers, accessors and free
+        //:   functions.
+        //:
+        //: 2 Use 'bslma::TestAllocator' to check for improper default use.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PUBLIC INTERFACE" << endl
+                          << "================" << endl;
+
+        bteso_Endpoint address1;
+        ASSERT(!address1.isSet());
+
+        address1.set("localhost", 8194);
+        ASSERT(address1.isSet());
+        ASSERT(address1.hostname() == "localhost");
+        ASSERT(address1.port() == 8194);
+        if (verbose) {
+            cout << "address1=" << address1 << endl;
+        }
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
+        bslma::TestAllocator ea("explicitAllocator", veryVeryVerbose);
+        {
+            bteso_Endpoint address2(address1, &ea);
+            ASSERT(address2.isSet());
+            ASSERT(address2.hostname() == "localhost");
+            ASSERT(address2.port() == 8194);
+            ASSERT(address1 == address2);
+            if (verbose) {
+                cout << "address2=" << address2 << endl;
+            }
+
+            address2.set("bloomberg.com", 80);
+            ASSERT(address1 != address2);
+            if (verbose) {
+                cout << "address1=" << address1
+                     << " address2=" << address2
+                     << endl;
+            }
+            address1 = address2;
+            ASSERT(address1.isSet());
+            ASSERT(address1.hostname() == "bloomberg.com");
+            ASSERT(address1.port() == 80);
+
+            ASSERT(address1.isSet());
+            address1.reset();
+            ASSERT(!address1.isSet());
+        }
+
+        // verify that the default allocator was not used
+
+        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -158,31 +269,6 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << "address1=" << address1 << endl;
         }
-
-        bteso_Endpoint address2(address1);
-        ASSERT(address2.isSet());
-        ASSERT(address2.hostname() == "localhost");
-        ASSERT(address2.port() == 8194);
-        ASSERT(address1 == address2);
-        if (verbose) {
-            cout << "address2=" << address2 << endl;
-        }
-
-        address2.set("bloomberg.com", 80);
-        ASSERT(address1 != address2);
-        if (verbose) {
-            cout << "address1=" << address1
-                 << " address2=" << address2
-                 << endl;
-        }
-        address1 = address2;
-        ASSERT(address1.isSet());
-        ASSERT(address1.hostname() == "bloomberg.com");
-        ASSERT(address1.port() == 80);
-
-        ASSERT(address1.isSet());
-        address1.reset();
-        ASSERT(!address1.isSet());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

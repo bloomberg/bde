@@ -23,10 +23,25 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
-///- - - - - -
-// Suppose that ...
+///Example 1: Desrcibe a Proxy with User Credentials
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// We would like to describe a proxy host that requires a username and password
+// authentication.
 //
+// First, we define a descirption with just the address (hostname and port):
+//..
+//  btes5_ProxyDescription proxy(bteso_Endpoint("proxy.corp.com", 1080));
+//  assert(proxy.address().hostname() == "proxy.corp.com");
+//  assert(proxy.address().port() == 1080);
+//..
+// Now, we associate a set of credentials to authenticate connections with this
+// proxy:
+//..
+//  proxy.setCredentials(btes5_Credentials("joe.user", "password123"));
+//  assert(proxy.credentials().isSet());
+//..
+// Finally, we have a fully defined proxy description.
+//..
 
 #ifndef INCLUDED_USERCREDENTIALS
 #include <btes5_credentials.h>
@@ -76,7 +91,7 @@ class btes5_ProxyDescription {
         // default allocator.
 
     btes5_ProxyDescription(const bteso_Endpoint&         address,
-                           const btes5_Credentials&  credentials,
+                           const btes5_Credentials&      credentials,
                            bslma::Allocator             *allocator = 0);
         // Create a 'btes5_ProxyDescription' object with the specified
         // 'address' and 'credentials'. If the optionally specified

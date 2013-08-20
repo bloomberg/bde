@@ -158,52 +158,6 @@ struct Negotiation {
     ~Negotiation();
         // Destroy this object.
 
-    // MANIPULATORS
-    int sendMethodRequest(Context negotiation);
-        // Send SOCKS5 greeting including list of authentication methods
-        // supported using the specified 'negotiation' for managing object
-        // lifetime. Return 0 for success and a non-zero value for error.
-
-    void methodCallback(Context negotiation);
-        // Process SOCKS5 Method Selection response.
-
-    void authenticationCallback(Context negotiation);
-
-    void timeoutCallback(Context negotiation);
-        // Expire the specified 'negotiation'.
-
-    void connectCallback(Context negotiation);
-        // Process response from the SOCKS5 connect request for the specified
-        // 'negotiation'.
-
-    void sendAuthenticationRequest(Context negotiation);
-        // Send the username and password credentials to authenticate with the
-        // SOCKS5 server.
-
-    void connectToEndpoint(Context negotiation);
-        // Send the appropriate request to connect to the endpoint past the
-        // SOCKS server.
-
-    int sendConnectionRequest(Context negotiation);
-        // Send connection request to establish external connection to 'd_host'
-        // on port 'd_port'.
-
-    int registerReadCb(void (Negotiation::*cb) (Context), Context negotiation);
-        // Register the specified 'cb' to be invoked with the argument of the
-        // specified 'negotiation' on read events on 'd_handle'. Return 0 on
-        // success and a negative value otherwise.
-
-    void terminate(btes5_Negotiator::NegotiationStatus status,
-                   const btes5_DetailedError&          error);
-        // Terminate current negotiation session, and invoke the user-supplied
-        // callback with the specified 'status' and 'error'.
-
-    void setCredentials(int                      status,
-                        const bslstl::StringRef& username,
-                        const bslstl::StringRef& password,
-                        Context                  negotiation);
-        // Set user name and password to authenticate the client to the SOCKS5
-        // server.
 };
 
                              // ------------------
@@ -223,8 +177,8 @@ Negotiation::Negotiation(
 , d_socket_p(socket)
 , d_handle(socket->handle())
 , d_callback(callback, allocator)
-, d_timeout(timeout)
 , d_eventManager_p(eventManager)
+, d_timeout(timeout)
 , d_timer(0)
 , d_allocator_p(allocator)
 {
@@ -241,242 +195,71 @@ Negotiation::~Negotiation()
     }
 }
 
-// MANIPULATORS
-void Negotiation::terminate(btes5_Negotiator::NegotiationStatus status,
-                            const btes5_DetailedError&          error)
+static void terminate(Negotiation::Context                negotiation,
+                      btes5_Negotiator::NegotiationStatus status,
+                      const btes5_DetailedError&          error)
+    // Terminate the specified 'negotiation', and invoke the user-supplied
+    // callback with the specified 'status' and 'error'.
 {
-    if (d_terminating.testAndSwap(1, 1)) {
+    if (negotiation->d_terminating.testAndSwap(1, 1)) {
         return;  // this negotiation is already being terminated
     }
 
-    d_eventManager_p->deregisterSocket(d_handle);
+    negotiation->d_eventManager_p->deregisterSocket(negotiation->d_handle);
 
     {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_timerLock);
-        if (d_timer) {
-            d_eventManager_p->deregisterTimer(d_timer);
+        bcemt_LockGuard<bcemt_Mutex> lock(&negotiation->d_timerLock);
+        if (negotiation->d_timer) {
+            negotiation->d_eventManager_p->deregisterTimer(
+                                                         negotiation->d_timer);
         }
     }
 
-    d_callback(status, error);
+    negotiation->d_callback(status, error);
 }
 
-int Negotiation::registerReadCb(void (Negotiation::*cb) (Context),
-                                Context             negotiation)
+static int registerReadCb(void (*cb) (Negotiation::Context),
+                          Negotiation::Context     negotiation)
+    // Register the specified 'cb' to be invoked with the argument of the
+    // specified 'negotiation' on read events on 'negotiation->d_handle'.
+    // Return 0 on success and a negative value otherwise.
 {
     bteso_EventManager::Callback
-        readCb = bdef_BindUtil::bind(cb, negotiation, negotiation);
-    int rc = d_eventManager_p->registerSocketEvent(d_handle,
+        readCb = bdef_BindUtil::bind(cb, negotiation);
+    int rc = negotiation->d_eventManager_p->registerSocketEvent(
+                                                   negotiation->d_handle,
                                                    bteso_EventType::READ,
                                                    readCb);
     if (rc < 0) {
-        terminate(btes5_Negotiator::e_ERROR,
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error registering read handler"));
         return -1;
     }
     return 0;
 }
 
-int Negotiation::sendMethodRequest(Context negotiation)
+static void connectCallback(Negotiation::Context negotiation)
+    // Process response from the SOCKS5 connect request for the specified
+    // 'negotiation'.
 {
-    MethodRequestPkt pkt;
-    pkt.d_ver        = VERSION;
-    pkt.d_nmethods   = 2;
-    pkt.d_methods[0] = NONE;
-    pkt.d_methods[1] = PASSWORD;
-
-    int length = sizeof(pkt);
-    if (!d_credentials.isSet() && !d_provider_p) {
-        // Don't offer PASSWORD authentication unless the we have predefined or
-        // dynamic way to get it.
-        --pkt.d_nmethods;
-        length -= sizeof(pkt.d_methods[1]);
-    }
-
-    if (registerReadCb(&Negotiation::methodCallback, negotiation)) {
-        return -1;
-    }
-
-    if (bdet_TimeInterval() != d_timeout) {
-        bdet_TimeInterval expiration
-            = bdetu_SystemTime::now() + d_timeout;
-        bteso_EventManager::Callback
-           cb = bdef_BindUtil::bind(&Negotiation::timeoutCallback,
-                                    negotiation,
-                                    negotiation);
-        {
-            bcemt_LockGuard<bcemt_Mutex> lock(&d_timerLock);
-            d_timer = d_eventManager_p->registerTimer(expiration, cb);
-        }
-    }
-
-    int rc = d_socket_p->write(reinterpret_cast<const char *>(&pkt), length);
-    if (length != rc) {
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error writing method request"));
-        return -2;
-    }
-
-    return 0;
-}
-
-void Negotiation::methodCallback(Context negotiation)
-{
-    MethodResponsePkt pkt;
-    int rc = d_socket_p->read(reinterpret_cast<char *>(&pkt), sizeof(pkt));
-    if (sizeof(pkt) != rc) {
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error reading method response"));
-        return;
-    }
-
-    switch (pkt.d_method) {
-      case NONE: {
-        connectToEndpoint(negotiation);
-      } break;
-      case PASSWORD: {
-        if (!d_credentials.isSet() && !d_provider_p) {
-            terminate(btes5_Negotiator::e_ERROR,
-                      btes5_DetailedError(
-                               "Got authentication request when we did not"
-                               " offer authentication as an option, closing"));
-            return;
-        }
-        sendAuthenticationRequest(negotiation);
-      } break;
-      case UNACCEPTABLE: {
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError(
-                    "proxy server rejected all authentication methods"));
-      } break;
-      default: {
-        bsl::ostringstream description;
-        description << "unknown response from proxy server " << pkt.d_method;
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError(description.str()));
-      } break;
-    }
-}
-
-void Negotiation::sendAuthenticationRequest(Context negotiation)
-{
-    if (!d_credentials.isSet() && d_provider_p) {
-        d_acquiringCredentials = true;
-
-        // asynchronously acquire the username/password to use
-        using namespace bdef_PlaceHolders;
-        d_provider_p->acquireCredentials(
-            d_destination,
-            bdef_BindUtil::bind(&Negotiation::setCredentials,
-                                negotiation,
-                                _1,
-                                _2,
-                                _3,
-                                negotiation));
-        return;
-    }
-    bsl::ostringstream request;
-
-    unsigned char buffer = VERSION_USERNAME_PASSWORD_AUTH;
-    request << buffer;
-
-    buffer = d_credentials.password().size();
-    request << buffer;
-
-    if (registerReadCb(&Negotiation::authenticationCallback, negotiation)) {
-        return;
-    }
-    int rc = d_socket_p->write(request.str().c_str(), request.str().size());
-    if (rc != request.str().size()) {
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error writing username/password"));
-        return;
-    }
-}
-
-void Negotiation::connectToEndpoint(Context negotiation)
-{
-    bsl::ostringstream request;
-    unsigned char buffer;
-
-    buffer = VERSION;
-    request << buffer;
-
-    buffer = TCP_STREAM_CONNECTION;
-    request << buffer;
-
-    buffer = 0x00; // reserved
-    request << buffer;
-
-    buffer = DOMAINNAME; // adress type
-    request << buffer;
-
-    int length = d_destination.hostname().size();
-    buffer = length;
-    request << buffer;
-    request << d_destination.hostname();
-
-    // encode 2-byte port in network (bigendian) order
-    buffer = (d_destination.port() >> 8) & 0xff; // MSB
-    request << buffer;
-    buffer = d_destination.port() & 0xff; // LSB
-    request << buffer;
-
-    if (registerReadCb(&Negotiation::connectCallback, negotiation)) {
-        return;
-    }
-    int rc = d_socket_p->write(request.str().c_str(), request.str().size());
-    if (rc != request.str().size()) {
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error writing connection request"));
-        return;
-    }
-}
-
-void Negotiation::authenticationCallback(Context negotiation)
-{
-    AuthenticationResponsePkt pkt;
-    int rc = d_socket_p->read(reinterpret_cast<char *>(&pkt), sizeof(pkt));
-    if (sizeof(pkt) != rc) {
-        if (d_acquiringCredentials) {
-            d_provider_p->cancelAcquiringCredentials();
-        }
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error reading auth. response"));
-        return;
-    }
-
-    if (pkt.d_status) {
-        terminate(btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("authentication rejected"));
-        return;
-    }
-
-    connectToEndpoint(negotiation);
-}
-
-void Negotiation::timeoutCallback(Context negotiation)
-{
-    d_timer = 0;
-    terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError("timeout"));
-}
-
-void Negotiation::connectCallback(Context negotiation)
-{
-    bsl::ostringstream e("connect response: ", d_allocator_p);
+    bsl::ostringstream e("connect response: ", negotiation->d_allocator_p);
 
     ConnectRspBase hdr;
-    int rc = d_socket_p->read(reinterpret_cast<char *>(&hdr), sizeof(hdr));
+    int rc = negotiation->d_socket_p->read(reinterpret_cast<char *>(&hdr),
+                                           sizeof(hdr));
     if (sizeof(hdr) != rc) {
         e << "error reading: " << rc;
-        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
         return;
     }
 
     if (hdr.d_ver != VERSION) {
         e << "invalid SOCK version, expected " << VERSION
           << " got " << hdr.d_ver;
-        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
         return;
     }
 
@@ -487,27 +270,33 @@ void Negotiation::connectCallback(Context negotiation)
         addressLength = 16;
     } else if (hdr.d_atype == DOMAINNAME) {
         unsigned char length = 0;
-        rc = d_socket_p->read(reinterpret_cast<char *>(&length), 1);
+        rc = negotiation->d_socket_p->read(reinterpret_cast<char *>(&length),
+                                           1);
         if (1 != rc) {
             e << "error reading domainname length: " << rc;
-            terminate(btes5_Negotiator::e_ERROR,
+            terminate(negotiation,
+                      btes5_Negotiator::e_ERROR,
                       btes5_DetailedError(e.str()));
             return;
         }
         addressLength = length;
     } else {
         e << "received invalid address type: " << hdr.d_atype;
-        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
         return;
     }
 
     // consume address and port (not presently used)
     char buf[260]; // maximum length of address + 2 is 257
-    rc = d_socket_p->read(buf, addressLength + 2);
+    BSLS_ASSERT(addressLength + 2 <= sizeof(buf));
+    rc = negotiation->d_socket_p->read(buf, addressLength + 2);
     if (addressLength + 2 != rc) {
         e << "error reading bound address, expected " << addressLength + 2
           << " got " << rc;
-        terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError(e.str()));
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError(e.str()));
         return;
     }
 
@@ -543,27 +332,242 @@ void Negotiation::connectCallback(Context negotiation)
         e << "status: unknown = " << hdr.d_rep;
       } break;
     }
-    terminate(REQUEST_GRANTED == hdr.d_rep ? btes5_Negotiator::e_SUCCESS
+    terminate(negotiation,
+              REQUEST_GRANTED == hdr.d_rep ? btes5_Negotiator::e_SUCCESS
                                            : btes5_Negotiator::e_ERROR,
               btes5_DetailedError(e.str()));
 }
 
-void Negotiation::setCredentials(int                      status,
-                                 const bslstl::StringRef& username,
-                                 const bslstl::StringRef& password,
-                                 Context                  negotiation)
+static void connectToEndpoint(Negotiation::Context negotiation)
+    // Send the appropriate request to connect to the endpoint past the SOCKS
+    // server.
 {
-    d_acquiringCredentials = false;
+    bsl::ostringstream request;
+    unsigned char buffer;
+
+    buffer = VERSION;
+    request << buffer;
+
+    buffer = TCP_STREAM_CONNECTION;
+    request << buffer;
+
+    buffer = 0x00; // reserved
+    request << buffer;
+
+    buffer = DOMAINNAME; // adress type
+    request << buffer;
+
+    int length = negotiation->d_destination.hostname().size();
+    buffer = length;
+    request << buffer;
+    request << negotiation->d_destination.hostname();
+
+    // encode 2-byte port in network (bigendian) order
+    buffer = (negotiation->d_destination.port() >> 8) & 0xff; // MSB
+    request << buffer;
+    buffer = negotiation->d_destination.port() & 0xff; // LSB
+    request << buffer;
+
+    if (registerReadCb(connectCallback, negotiation)) {
+        return;
+    }
+    const bsl::string& buf = request.str();
+    int rc = negotiation->d_socket_p->write(buf.c_str(), buf.size());
+    if (rc != buf.size()) {
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError("error writing connection request"));
+        return;
+    }
+}
+
+static void sendAuthenticationRequest(Negotiation::Context negotiation);
+    // Send the username and password credentials to authenticate with the
+    // SOCKS5 server.
+
+static void setCredentials(int                      status,
+                           const bslstl::StringRef& username,
+                           const bslstl::StringRef& password,
+                           Negotiation::Context     negotiation)
+    // Set user name and password to authenticate the client to the SOCKS5
+    // server.
+{
+    negotiation->d_acquiringCredentials = false;
     if (status) {
-        terminate(btes5_Negotiator::e_ERROR,
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error acquiring credentials"));
     } else {
-        d_credentials.set(username, password);
+        negotiation->d_credentials.set(username, password);
         sendAuthenticationRequest(negotiation);
     }
 }
 
-}  // close anonymous namespace
+static void authenticationCallback(Negotiation::Context negotiation)
+{
+    AuthenticationResponsePkt pkt;
+    int rc = negotiation->d_socket_p->read(reinterpret_cast<char *>(&pkt),
+                                           sizeof(pkt));
+    if (sizeof(pkt) != rc) {
+        if (negotiation->d_acquiringCredentials) {
+            negotiation->d_provider_p->cancelAcquiringCredentials();
+        }
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError("error reading auth. response"));
+        return;
+    }
+
+    if (pkt.d_status) {
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError("authentication rejected"));
+        return;
+    }
+
+    connectToEndpoint(negotiation);
+}
+
+static void sendAuthenticationRequest(Negotiation::Context negotiation)
+{
+    if (!negotiation->d_credentials.isSet() && negotiation->d_provider_p) {
+        negotiation->d_acquiringCredentials = true;
+
+        // asynchronously acquire the username/password to use
+        using namespace bdef_PlaceHolders;
+        negotiation->d_provider_p->acquireCredentials(
+            negotiation->d_destination,
+            bdef_BindUtil::bind(setCredentials,
+                                _1,
+                                _2,
+                                _3,
+                                negotiation));
+        return;
+    }
+    bsl::ostringstream request;
+
+    unsigned char buffer = VERSION_USERNAME_PASSWORD_AUTH;
+    request << buffer;
+
+    buffer = negotiation->d_credentials.password().size();
+    request << buffer;
+
+    if (registerReadCb(authenticationCallback, negotiation)) {
+        return;
+    }
+    const bsl::string& buf = request.str();
+    int rc = negotiation->d_socket_p->write(buf.c_str(), buf.size());
+    if (rc != buf.size()) {
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError("error writing username/password"));
+        return;
+    }
+}
+
+static void methodCallback(Negotiation::Context negotiation)
+    // Process SOCKS5 Method Selection response.
+{
+    MethodResponsePkt pkt;
+    int rc = negotiation->d_socket_p->read(
+                                  reinterpret_cast<char *>(&pkt),
+                                  sizeof(pkt));
+    if (sizeof(pkt) != rc) {
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError("error reading method response"));
+        return;
+    }
+
+    switch (pkt.d_method) {
+      case NONE: {
+        connectToEndpoint(negotiation);
+      } break;
+      case PASSWORD: {
+        if (!negotiation->d_credentials.isSet() && !negotiation->d_provider_p)
+        {
+            terminate(negotiation,
+                      btes5_Negotiator::e_ERROR,
+                      btes5_DetailedError(
+                               "Got authentication request when we did not"
+                               " offer authentication as an option, closing"));
+            return;
+        }
+        sendAuthenticationRequest(negotiation);
+      } break;
+      case UNACCEPTABLE: {
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError(
+                    "proxy server rejected all authentication methods"));
+      } break;
+      default: {
+        bsl::ostringstream description;
+        description << "unknown response from proxy server " << pkt.d_method;
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError(description.str()));
+      } break;
+    }
+}
+
+static void timeoutCallback(Negotiation::Context negotiation)
+    // Expire the specified 'negotiation'.
+{
+    negotiation->d_timer = 0;
+    terminate(negotiation,
+              btes5_Negotiator::e_ERROR, btes5_DetailedError("timeout"));
+}
+
+static int sendMethodRequest(Negotiation::Context negotiation)
+    // Send SOCKS5 greeting including list of authentication methods supported
+    // using the specified 'negotiation' for managing object lifetime. Return 0
+    // for success and a non-zero value for error.
+{
+    MethodRequestPkt pkt;
+    pkt.d_ver        = VERSION;
+    pkt.d_nmethods   = 2;
+    pkt.d_methods[0] = NONE;
+    pkt.d_methods[1] = PASSWORD;
+
+    int length = sizeof(pkt);
+    if (!negotiation->d_credentials.isSet() && !negotiation->d_provider_p) {
+        // Don't offer PASSWORD authentication unless the we have predefined or
+        // dynamic way to get it.
+        --pkt.d_nmethods;
+        length -= sizeof(pkt.d_methods[1]);
+    }
+
+    if (registerReadCb(methodCallback, negotiation)) {
+        return -1;
+    }
+
+    if (bdet_TimeInterval() != negotiation->d_timeout) {
+        bdet_TimeInterval expiration
+            = bdetu_SystemTime::now() + negotiation->d_timeout;
+        bteso_EventManager::Callback
+           cb = bdef_BindUtil::bind(timeoutCallback, negotiation);
+        {
+            bcemt_LockGuard<bcemt_Mutex> lock(&negotiation->d_timerLock);
+            negotiation->d_timer
+                = negotiation->d_eventManager_p->registerTimer(expiration, cb);
+        }
+    }
+
+    int rc = negotiation->d_socket_p->write(
+                                 reinterpret_cast<const char *>(&pkt),
+                                 length);
+    if (length != rc) {
+        terminate(negotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError("error writing method request"));
+        return -2;
+    }
+
+    return 0;
+}
+
+}  // close unnamed namespace
 
                            // ----------------------
                            // class btes5_Negotiator
@@ -595,7 +599,7 @@ int btes5_Negotiator::negotiate(
                                                      d_eventManager_p,
                                                      d_allocator_p),
                         d_allocator_p);
-    return negotiation->sendMethodRequest(negotiation);
+    return sendMethodRequest(negotiation);
 }
 
 int btes5_Negotiator::negotiate(
@@ -614,7 +618,7 @@ int btes5_Negotiator::negotiate(
                                                      d_allocator_p),
                         d_allocator_p);
     negotiation->d_credentials = credentials;
-    return negotiation->sendMethodRequest(negotiation);
+    return sendMethodRequest(negotiation);
 }
 
 int btes5_Negotiator::negotiate(
@@ -633,7 +637,7 @@ int btes5_Negotiator::negotiate(
                                                      d_allocator_p),
                         d_allocator_p);
     negotiation->d_provider_p = provider;
-    return negotiation->sendMethodRequest(negotiation);
+    return sendMethodRequest(negotiation);
 }
 
 }  // close enterprise namespace

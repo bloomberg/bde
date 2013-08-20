@@ -30,6 +30,95 @@ BDES_IDENT("$Id: $")
 // We want to connect to a server reachable through two levels of proxies:
 // first through one of corporate SOCKS5 servers, and then through one of
 // regional SOCKS5 servers.
+//
+// First we define a callback function to process connection status, and if
+// successful perform useful work and finally deallocate the socket. After the
+// work is done (or error is reported) we signal the main thread with the
+// status; this also signifies that we no longer need the stream factory passed
+// to us.
+//..
+//  void connectCb(int                                           status,
+//                 bteso_StreamSocket< bteso_IPv4Address>       *socket,
+//                 bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+//                 const btes5_DetailedError&                    error,
+//                 bcemt_Mutex                                  *stateLock,
+//                 bcemt_Condition                              *stateChanged,
+//                 volatile int                                 *state)
+//  {
+//      if (0 == status) {
+//          cout << "connection succeeded" << endl;
+//          // Success: conduct I/O operations with 'socket' ... and deallocate
+//          socketFactory->deallocate(socket);
+//      } else {
+//          cout << "Connect failed " << status << ": " << error << endl;
+//      }
+//      bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
+//      *state = status ? -1 : 1; // 1 for success, -1 for failure
+//      stateChanged->signal();
+//  }
+//..
+// Then we define the level of proxies that should be reachable directory.
+//..
+//  static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
+//                                   const bteso_Endpoint& corpProxy2)
+//  {
+//      btes5_NetworkDescription proxies;
+//      proxies.addProxy(0, corpProxy1);
+//      proxies.addProxy(0, corpProxy2);
+//..
+// Next we add a level for regional proxies reachable from the corporate
+// proxies. Note that .tk stands for Tokelau in the Pacific Ocean.
+//..
+//      proxies.addProxy(1, bteso_Endpoint("proxy1.example.tk", 1080));
+//      proxies.addProxy(1, bteso_Endpoint("proxy2.example.tk", 1080));
+//..
+// Then we set the user name and password which will be used in case one of the
+// proxies in the connection path requires that type of authentication.
+//..
+//      btes5_Credentials credentials("John.smith", "pass1");
+//      btes5_NetworkDescriptionUtil::setAllCredentials(&proxies, credentials);
+//..
+// Now we construct a 'btes5_NetworkConnector' which will be used to connect
+// to one or more destinations.
+//..
+//      bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+//      btemt_TcpTimerEventManager eventManager;
+//      eventManager.enable();
+//      btes5_NetworkConnector connector(proxies, &factory, &eventManager);
+//..
+// Finally we attempt to connect to the destination. Input, output and eventual
+// closing of the connection will be handled from 'connectCb', which will
+// signal the using 'state', with the access protected by a mutex and condition
+// variable.
+//..
+//      const bdet_TimeInterval proxyTimeout(5.0);
+//      const bdet_TimeInterval totalTimeout(30.0);
+//      bcemt_Mutex     stateLock;
+//      bcemt_Condition stateChanged;
+//      volatile int    state = 0; // value > 0 indicates success, < 0 is error
+//      using namespace bdef_PlaceHolders;
+//      btes5_NetworkConnector::AttemptHandle attempt
+//          = connector.makeAttemptHandle(bdef_BindUtil::bind(connectCb,
+//                                                            _1, _2, _3, _4,
+//                                                            &stateLock,
+//                                                            &stateChanged,
+//                                                            &state),
+//                        proxyTimeout,
+//                        totalTimeout,
+//                        bteso_Endpoint("destination.example.com", 8194));
+//      connector.startAttempt(attempt);
+//      bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
+//      while (!state) {
+//          stateChanged.wait(&stateLock);
+//      }
+//      return state;
+//  }
+//..
+///Example 1: Connect to a server through two proxy levels
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We want to connect to a server reachable through two levels of proxies:
+// first through one of corporate SOCKS5 servers, and then through one of
+// regional SOCKS5 servers.
 //..
 //  void connectCb(btes5_NetworkConnector::ConnectionStatus      status,
 //                 bteso_StreamSocket<bteso_IPv4Address>        *socket,

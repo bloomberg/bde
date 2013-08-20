@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an 
+//@PURPOSE: Provide a description of a network of SOCKS5 proxies.
 //
 //@CLASSES:
 //  btes5_NetworkDescription - description of a network of SOCKS5 proxies
@@ -17,10 +17,47 @@ BDES_IDENT("$Id: $")
 //  btes5_ProxyDescription, btes5_NetworkConnector
 //
 //@DESCRIPTION: This component provides a value-semantic class,
-// 'btes5_ProxyDescription', describing a network of SOCKS5 proxies necessary
+// 'btes5_NetworkDescription', describing a network of SOCKS5 proxies necessary
 // to reach one or more destimation hosts. An object of this type is used with
-// btes5_NetworkConnector, see the btes5_networkconnector component for usage
-// examples.
+// btes5_NetworkConnector, see the btes5_networkconnector component for more
+// complete usage examples.
+//
+///Usage
+///-----
+///Example 1: Describe a Two-level Proxy Network
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Let's define a network of proxies necessary to reach the Internet from a
+// corporate Intranet.  The Internet can be reached through 2 levels: a
+// corporate proxy, which then has a connection to a regional proxy, which
+// finally has direct access to the Internet addresses of interest.  Each proxy
+// level has two proxies for redundancy.
+//
+// First, we declare an empty network:
+//..
+//  btes5_NetworkDescription network;
+//  assert(0 == network.levelCount());
+//..
+// Then, we add the addresses of corporate proxies as level 0 (directly
+// reachable from our host):
+//..
+//  bteso_Endpoint corp1("proxy1.corp.com", 1081);
+//  bteso_Endpoint corp2("proxy2.corp.com", 1082);
+//  network.addProxy(0, corp1);
+//  network.addProxy(0, corp2);
+//  assert(1 == network.levelCount());
+//..
+// Now, we add the regional proxies, we can only connect to through the
+// corporate proxies.  There are two regional proxies, for redundancy.
+//..
+//  bteso_Endpoint region1("proxy2.region.com", 1091);
+//  bteso_Endpoint region2("proxy2.region.com", 1092);
+//  network.addProxy(1, region1);
+//  network.addProxy(1, region2);
+//  assert(2 == network.levelCount());
+//..
+// Finally, we have a fully defined network which we can use for connection
+// using 'btes_networkDescriptor'.
+//..
 
 #ifndef INCLUDED_BTES5_PROXYDESCRIPTION
 #include <btes5_proxydescription.h>

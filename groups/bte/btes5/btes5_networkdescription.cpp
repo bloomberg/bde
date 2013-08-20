@@ -101,30 +101,30 @@ btes5_NetworkDescription::ProxyIterator btes5_NetworkDescription::endLevel(
 bool operator==(const btes5_NetworkDescription& lhs,
                 const btes5_NetworkDescription& rhs)
 {
-    return !(lhs != rhs);
-}
-
-bool operator!=(const btes5_NetworkDescription& lhs,
-                const btes5_NetworkDescription& rhs)
-{
     if (lhs.levelCount() != rhs.levelCount()) {
-        return true;
+        return false;                                                 // RETURN
     }
-    for (bsl::size_t l = 0, endLevel = lhs.levelCount(); l < endLevel; l++) {
+    for (bsl::size_t l = 0, endLevel = lhs.levelCount(); l < endLevel; ++l) {
         for (btes5_NetworkDescription::ProxyIterator
                 lhsProxy = lhs.beginLevel(l),
                 lhsEnd = lhs.endLevel(l),
                 rhsProxy = rhs.beginLevel(l),
                 rhsEnd = rhs.endLevel(l);
              lhsProxy != lhsEnd || rhsProxy != rhsEnd;
-             lhsProxy++, rhsProxy++) {
+             ++lhsProxy, ++rhsProxy) {
             if (lhsProxy == lhsEnd || rhsProxy == rhsEnd
                     || *lhsProxy != *rhsProxy) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
-    return false;
+    return true;
+}
+
+bool operator!=(const btes5_NetworkDescription& lhs,
+                const btes5_NetworkDescription& rhs)
+{
+    return !(lhs == rhs);
 }
 
 bsl::ostream& operator<<(bsl::ostream&                 output,

@@ -20,11 +20,33 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//
+// This component provides a value-semantic class 'btes5_ProxyDescription' that
+// encodes information about a SOCKS5 proxy.  Basic setters and getters are
+// used to verify that proxy description accurately reflects data as set.
 //-----------------------------------------------------------------------------
-// [ ]
+// CREATORS
+// [2] btes5_ProxyDescription(address, *a = 0);
+// [ ] btes5_ProxyDescription(address, credentials, *a = 0);
+// [ ] btes5_ProxyDescription(original, *a = 0);
+// [ ] ~btes5_ProxyDescription();
+//
+// MANIPULATORS
+// [2] operator=(rhs) = default;
+// [2] void setAddress(const bteso_Endpoint& value);
+// [2] void setCredentials(const btes5_Credentials& value);
+//
+// ACCESSORS
+// [2] const bteso_Endpoint& address() const;
+// [2] const btes5_Credentials& credentials() const;
+//
+// FREE OPERATORS
+// [2] bool operator==(lhs, rhs);
+// [2] bool operator!=(lhs, rhs);
+// [ ] bsl::ostream& operator<<(stream, object);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
+// [3] USAGE EXAMPLE
+// [2] CONCERN: All memory allocation is from the object's allocator.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -108,7 +130,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -128,27 +150,57 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+///Example 1: Desrcibe a Proxy with User Credentials
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// We would like to describe a proxy host that requires a username and password
+// authentication.
+//
+// First, we define a descirption with just the address (hostname and port):
+//..
+    btes5_ProxyDescription proxy(bteso_Endpoint("proxy.corp.com", 1080));
+    ASSERT(proxy.address().hostname() == "proxy.corp.com");
+    ASSERT(proxy.address().port() == 1080);
+//..
+// Now, we associate a set of credentials to authenticate connections with this
+// proxy:
+//..
+    proxy.setCredentials(btes5_Credentials("joe.user", "password123"));
+    ASSERT(proxy.credentials().isSet());
+//..
+// Finally, we have a fully defined proxy description.
+//..
+
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
-        //   This case exercises (but does not fully test) basic functionality.
+        // PUBLIC INTERFACE
+        //   Test public constructors, modifiers and accessors.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 Public interfaces function per contract.
         //
         // Plan:
         //: 1 Perform a test of the constructors, modifiers, accessors and free
-        //:   free operators..
+        //:   functions.
+        //:
+        //: 2 Use 'bslma::TestAllocator' to check for improper default use.
         //
         // Testing:
-        //   BREATHING TEST
+        //   btes5_ProxyDescription(address, *a = 0);
+        //   operator=(rhs) = default;
+        //   void setAddress(const bteso_Endpoint& value);
+        //   void setCredentials(const btes5_Credentials& value);
+        //   const bteso_Endpoint& address() const;
+        //   const btes5_Credentials& credentials() const;
+        //   bool operator==(lhs, rhs);
+        //   bool operator!=(lhs, rhs);
+        //   CONCERN: All memory allocation is from the object's allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+                          << "PUBLIC INTERFACE" << endl
+                          << "================" << endl;
 
         bteso_Endpoint address1("localhost", 8194);
         btes5_ProxyDescription proxy1(address1);
@@ -179,9 +231,51 @@ int main(int argc, char *argv[])
         ASSERT(proxy2.address() == address1);
         verbose && cout << "proxy2=" << proxy2 << endl;
 
-        btes5_Credentials credentials3("jane.dow", "pass3");
-        proxy1.setCredentials(credentials3);
-        ASSERT(proxy1.credentials() == credentials3);
+        // Install a 'TestAllocator' as default to check for incorrect usage`,
+        // and specify another 'TestAllocator' explicitly to check proper
+        // propagation of the allocator
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
+        bslma::TestAllocator ea("explicitAllocator", veryVeryVerbose);
+        {
+            btes5_Credentials credentials3("jane.dow", "pass3", &ea);
+            proxy1.setCredentials(credentials3);
+            ASSERT(proxy1.credentials() == credentials3);
+            verbose && cout << "proxy1=" << proxy1 << endl;
+        }
+
+        // verify that the default allocator was not used
+
+        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Ad-hoc test of the constructors, modifiers, accessors and free
+        //:   operators.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
+        bteso_Endpoint address1("localhost", 8194);
+        btes5_ProxyDescription proxy1(address1);
+        ASSERT(proxy1.address() == address1);
+        ASSERT(!proxy1.credentials().isSet());
         verbose && cout << "proxy1=" << proxy1 << endl;
 
       } break;

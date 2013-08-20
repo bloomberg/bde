@@ -1,4 +1,4 @@
-// btes5_networkconnector.t.cpp                                        -*-C++-*-
+// btes5_networkconnector.t.cpp                                       -*-C++-*-
 
 #include <btes5_networkconnector.h>
 #include <btes5_testserver.h> // for testing only
@@ -24,11 +24,26 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//
+// This component implements connection establishment through a network of
+// SOCKS5 proxies. In order to test it, 'btes5_TestServer' is used to implement
+// a SOCKS5 prixy. In some tests, more than one test servers are connected
+// (cascaded) to test connection through more than one level of proxy. A test
+// server is also used to test failure scenarios such as timeout and failover.
 //-----------------------------------------------------------------------------
-// [ ]
+// CREATORS
+// [2] btes5_NetworkConnector(net, fact, eventMgr, *a = 0);
+// [ ] btes5_NetworkConnector(net, fact, eventMgr, min, max, *a = 0);
+// [ ] btes5_NetworkConnector(net, fact, eventMgr, prov, *a = 0);
+// [ ] btes5_NetworkConnector(net, fact, eventMgr, min, max, prov, *a = 0);
+// [2] ~btes5_NetworkConnector();
+// MANIPULATORS
+// [2] AttemptHandle makeAttemptHandle(cB, proxyTO, totalTO, server);
+// [2] void startAttempt(AttemptHandle& connectionAttempt);
+// [ ] void cancelAttempt(AttemptHandle& connectionAttempt);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
+// [3] USAGE EXAMPLE
+// [2] CONCERN: All memory allocation is from the object's allocator.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -176,82 +191,83 @@ void socks5Cb(btes5_NetworkConnector::ConnectionStatus      status,
 // status; this also signifies that we no longer need the stream factory passed
 // to us.
 //..
-void connectCb(int                                           status,
-               bteso_StreamSocket< bteso_IPv4Address>       *socket,
-               bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
-               const btes5_DetailedError&                    error,
-               bcemt_Mutex                                  *stateLock,
-               bcemt_Condition                              *stateChanged,
-               volatile int                                 *state)
-{
-    if (0 == status) {
-        cout << "connection succeeded" << endl;
-        // Success: conduct I/O operations with 'socket' ... and deallocate it.
-        socketFactory->deallocate(socket);
-    } else {
-        cout << "Connect failed " << status << ": " << error << endl;
+    void connectCb(int                                           status,
+                   bteso_StreamSocket< bteso_IPv4Address>       *socket,
+                   bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory,
+                   const btes5_DetailedError&                    error,
+                   bcemt_Mutex                                  *stateLock,
+                   bcemt_Condition                              *stateChanged,
+                   volatile int                                 *state)
+    {
+        if (0 == status) {
+            cout << "connection succeeded" << endl;
+            // Success: conduct I/O operations with 'socket' ... and deallocate
+            socketFactory->deallocate(socket);
+        } else {
+            cout << "Connect failed " << status << ": " << error << endl;
+        }
+        bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
+        *state = status ? -1 : 1; // 1 for success, -1 for failure
+        stateChanged->signal();
     }
-    bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
-    *state = status ? -1 : 1; // 1 for success, -1 for failure
-    stateChanged->signal();
-}
 //..
 // Then we define the level of proxies that should be reachable directory.
 //..
-static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
-                                 const bteso_Endpoint& corpProxy2)
-{
-    btes5_NetworkDescription proxies;
-    proxies.addProxy(0, corpProxy1);
-    proxies.addProxy(0, corpProxy2);
+    static int connectThroughProxies(const bteso_Endpoint& corpProxy1,
+                                     const bteso_Endpoint& corpProxy2)
+    {
+        btes5_NetworkDescription proxies;
+        proxies.addProxy(0, corpProxy1);
+        proxies.addProxy(0, corpProxy2);
 //..
 // Next we add a level for regional proxies reachable from the corporate
 // proxies. Note that .tk stands for Tokelau in the Pacific Ocean.
 //..
-    proxies.addProxy(1, bteso_Endpoint("proxy1.example.tk", 1080));
-    proxies.addProxy(1, bteso_Endpoint("proxy2.example.tk", 1080));
+        proxies.addProxy(1, bteso_Endpoint("proxy1.example.tk", 1080));
+        proxies.addProxy(1, bteso_Endpoint("proxy2.example.tk", 1080));
 //..
 // Then we set the user name and password which will be used in case one of the
 // proxies in the connection path requires that type of authentication.
 //..
-    btes5_Credentials credentials("John.smith", "pass1");
-    btes5_NetworkDescriptionUtil::setAllCredentials(&proxies, credentials);
+        btes5_Credentials credentials("John.smith", "pass1");
+        btes5_NetworkDescriptionUtil::setAllCredentials(&proxies, credentials);
 //..
-// Next we construct a 'btes5_NetworkConnector' which will be used to connect
+// Now we construct a 'btes5_NetworkConnector' which will be used to connect
 // to one or more destinations.
 //..
-    bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-    btemt_TcpTimerEventManager eventManager;
-    eventManager.enable();
-    btes5_NetworkConnector connector(proxies, &factory, &eventManager);
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        btemt_TcpTimerEventManager eventManager;
+        eventManager.enable();
+        btes5_NetworkConnector connector(proxies, &factory, &eventManager);
 //..
 // Finally we attempt to connect to the destination. Input, output and eventual
 // closing of the connection will be handled from 'connectCb', which will
 // signal the using 'state', with the access protected by a mutex and condition
 // variable.
 //..
-    const bdet_TimeInterval proxyTimeout(5.0);
-    const bdet_TimeInterval totalTimeout(30.0);
-    bcemt_Mutex     stateLock;
-    bcemt_Condition stateChanged;
-    volatile int    state = 0; // value > 0 indicates success, < 0 is error
-    using namespace bdef_PlaceHolders;
-    btes5_NetworkConnector::AttemptHandle attempt
-        = connector.makeAttemptHandle(bdef_BindUtil::bind(connectCb,
-                                                          _1, _2, _3, _4,
-                                                          &stateLock,
-                                                          &stateChanged,
-                                                          &state),
-                      proxyTimeout,
-                      totalTimeout,
-                      bteso_Endpoint("destination.example.com", 8194));
-    connector.startAttempt(attempt);
-    bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
-    while (!state) {
-        stateChanged.wait(&stateLock);
+        const bdet_TimeInterval proxyTimeout(5.0);
+        const bdet_TimeInterval totalTimeout(30.0);
+        bcemt_Mutex     stateLock;
+        bcemt_Condition stateChanged;
+        volatile int    state = 0; // value > 0 indicates success, < 0 is error
+        using namespace bdef_PlaceHolders;
+        btes5_NetworkConnector::AttemptHandle attempt
+            = connector.makeAttemptHandle(bdef_BindUtil::bind(connectCb,
+                                                              _1, _2, _3, _4,
+                                                              &stateLock,
+                                                              &stateChanged,
+                                                              &state),
+                          proxyTimeout,
+                          totalTimeout,
+                          bteso_Endpoint("destination.example.com", 8194));
+        connector.startAttempt(attempt);
+        bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
+        while (!state) {
+            stateChanged.wait(&stateLock);
+        }
+        return state;
     }
-    return state;
-}
+//..
 
 }  // close unnamed namespace
 
@@ -353,6 +369,11 @@ int main(int argc, char *argv[])
         //: 6 Verify that the default allocator has not been used.
         //
         // Testing:
+        //   btes5_NetworkConnector(net, fact, eventMgr, *a = 0);
+        //   ~btes5_NetworkConnector();
+        //   AttemptHandle makeAttemptHandle(cB, proxyTO, totalTO, server);
+        //   void startAttempt(AttemptHandle& connectionAttempt);
+        //   CONCERN: All memory allocation is from the object's allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

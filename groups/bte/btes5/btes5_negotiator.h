@@ -33,7 +33,7 @@
 //      if (result == btes5_Negotiator::e_SUCCESS) {
 //          *state = 1;
 //      } else {
-//          cout << "Negotiation error " << result << ": " << error << endl;
+//          // report negotiation failure ...
 //          *state = -1;
 //      }
 //      stateChanged->signal();
@@ -271,8 +271,6 @@ class btes5_Negotiator {
         // negotiation is finished. Return 0 on successful start, and a
         // non-zero value on immediate failure. Note that 'socket' will not be
         // closed on error.
-
-    // TODO: do we need a cancel interface?
 
 };
 

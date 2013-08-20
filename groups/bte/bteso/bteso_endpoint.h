@@ -7,24 +7,41 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an  ...
+//@PURPOSE: Provide a hostname-based address of a TCP or UDP endpoint.
 //
 //@CLASSES:
-//   bteso::Endpoint: <<description>>
+//   bteso::Endpoint: TCP or UDP address as a hostname and port
 //
-//@SEE ALSO:
+//@SEE ALSO: bteso_IPv4Address
 //
-//@DESCRIPTION: This component provides a value-semantic attribute class, <#=
-// "'"+CLASS_NAME+"'" #>, that is ...
+//@DESCRIPTION: This component provides a value-semantic attribute class,
+//  'bteso_Endpoint', that represents a TCP or UDP endpoint as a hostname and
+//  port combination.  The address represented by this class is unresolved,
+//  and can be used for delayed resolution.  For instance, SOCKS5 protocol
+//  supports passing the hostname from the client to the proxy host which may
+//  have better access for resolving a DNS name to IP address.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
-///- - - - - -
-// Suppose that ...
+///Example 1: Set Hostname and Port
+/// - - - - - - - - - - - - - - - -
+// Let us encode a TCP address as a hostname and port.
 //
+// First, we declare an empty (unset) 'bteso_Endpoint':
+//..
+//  bteso_Endpoint address;
+//..
+// Now, we set hostname and port:
+//..
+//  address.set("www.bloomberg.com", 80);
+//..
+// Finally, we have an object that describes the HTTP server at Bloomberg LP:
+//..
+//  assert(address.hostname() == "www.bloomberg.com");
+//  assert(address.port() == 80);
+//..
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>

@@ -20,11 +20,39 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//
+// This component implements a value-semantic description of a network of
+// SOCKS5 proxies.  The component is tested by exercising its setters and using
+// the getters to compare to expected values.
 //-----------------------------------------------------------------------------
-// [ ]
+// CREATORS
+// [2] btes5_NetworkDescription(bslma::Allocator *allocator = 0);
+// [ ] btes5_NetworkDescription(original, bslma::Allocator *allocator = 0);
+// [ ] ~btes5_NetworkDescription();
+//
+// MANIPULATORS
+// [2] btes5_NetworkDescription& operator=(rhs);
+// [ ] bsl::size_t addProxy(level, addr, credentials);
+// [2] bsl::size_t addProxy(level, addr);
+// [ ] void setCredentials(level, order, credentials);
+//
+// ACCESSORS
+// [2] bsl::size_t levelCount() const;
+// [ ] bsl::size_t numProxies(bsl::size_t level) const;
+// [ ] ProxyIterator beginLevel(bsl::size_t level) const;
+// [ ] ProxyIterator endLevel(bsl::size_t level) const;
+//
+// UTILITIES (struct btes5_NetworkDescriptionUtil)
+// [ ] static void setLevelCredentials(proxyNetwork, level, credentials);
+// [ ] static void setAllCredentials(proxyNetwork, credentials);
+//
+// FREE OPERATORS
+// [2] bool operator==(lhs, rhs);
+// [2] bool operator!=(lhs, rhs);
+// [2] bsl::ostream& operator<<(stream, object);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
+// [2] USAGE EXAMPLE
+// [2] CONCERN: All memory allocation is from the object's allocator.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -108,7 +136,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 12: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -128,30 +156,69 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+///Example 1: Describe a Two-level Proxy Network
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Let's define a network of proxies necessary to reach the Internet from a
+// corporate Intranet.  The Internet can be reached through 2 levels: a
+// corporate proxy, which then has a connection to a regional proxy, which
+// finally has direct access to the Internet addresses of interest.  Each proxy
+// level has two proxies for redundancy.
+//
+// First, we declare an empty network:
+//..
+    btes5_NetworkDescription network;
+    ASSERT(0 == network.levelCount());
+//..
+// Then, we add the addresses of corporate proxies as level 0 (directly
+// reachable from our host):
+//..
+    bteso_Endpoint corp1("proxy1.corp.com", 1081);
+    bteso_Endpoint corp2("proxy2.corp.com", 1082);
+    network.addProxy(0, corp1);
+    network.addProxy(0, corp2);
+    ASSERT(1 == network.levelCount());
+//..
+// Now, we add the regional proxies, we can only connect to through the
+// corporate proxies.  There are two regional proxies, for redundancy.
+//..
+    bteso_Endpoint region1("proxy2.region.com", 1091);
+    bteso_Endpoint region2("proxy2.region.com", 1092);
+    network.addProxy(1, region1);
+    network.addProxy(1, region2);
+    ASSERT(2 == network.levelCount());
+//..
+// Finally, we have a fully defined network which we can use for connection
+// using 'btes_networkDescriptor'.
+//..
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
-        //   This case exercises (but does not fully test) basic functionality.
+        // SETTERS AND GETTERS
+        //   Test the basic setters and getters.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 The values set are accurately retrieved through the getters.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        //: 1 Perform ad-hoc test of the primary modifiers and accessors.
+        //: 2 Use 'bslma::TestAllocator' to check for improper default use.
         //
         // Testing:
-        //   BREATHING TEST: exercise 
-        //: 1 constructor
-        //: 2 manipulators
-        //: 3 accessors (through assertions)
-        //: 4 utility functions
+        //   btes5_NetworkDescription(bslma::Allocator *allocator = 0);
+        //   btes5_NetworkDescription& operator=(rhs);
+        //   bsl::size_t addProxy(level, addr);
+        //   bsl::size_t levelCount() const;
+        //   bool operator==(lhs, rhs);
+        //   bool operator!=(lhs, rhs);
+        //   bsl::ostream& operator<<(stream, object);
+        //   USAGE EXAMPLE
+        //   CONCERN: All memory allocation is from the object's allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+                          << "SETTERS AND GETTERS" << endl
+                          << "===================" << endl;
 
         veryVerbose && cout << "C-tor and levelCount()" << endl;
         btes5_NetworkDescription network;
@@ -169,18 +236,71 @@ int main(int argc, char *argv[])
         network.addProxy(1, region2);
         ASSERT(2 == network.levelCount());
 
+        // Install a 'TestAllocator' as default to check for incorrect usage`,
+        // and specify another 'TestAllocator' explicitly to check proper
+        // propagation of the allocator
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
+        bslma::TestAllocator ea("explicitAllocator", veryVeryVerbose);
+
         veryVerbose &&
             cout << "operator=(), operator!=() and operator==()" << endl;
-        btes5_NetworkDescription network2;
-        ASSERT(network != network2);
-        network2 = network;
-        ASSERT(network == network2);
-
-        if (veryVerbose) {
-            cout << "operator<<():\n" << network << endl;
+        {
+            btes5_NetworkDescription network2(&ea);
+            ASSERT(network != network2);
+            network2 = network;
+            ASSERT(network == network2);
         }
 
+        // verify that the default allocator was not used
+
+        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        ostringstream s;
+        s << network;
+        string expected =
+            "Proxy level 0: proxy1.corp.com:1081 proxy2.corp.com:1082\n"
+            "Proxy level 1: proxy2.region.com:1091 proxy2.region.com:1092\n";
+        LOOP2_ASSERT(s.str(), expected, expected == s.str());
+
         // TODO Credentials tests, incl. utility functions
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
+        veryVerbose && cout << "C-tor and levelCount()" << endl;
+        btes5_NetworkDescription network;
+        ASSERT(0 == network.levelCount());
+
+        bteso_Endpoint corp1("proxy1.corp.com", 1081);
+        bteso_Endpoint corp2("proxy2.corp.com", 1082);
+        bteso_Endpoint region1("proxy2.region.com", 1091);
+        bteso_Endpoint region2("proxy2.region.com", 1092);
+        network.addProxy(0, corp1);
+        network.addProxy(0, corp2);
+        ASSERT(1 == network.levelCount());
+        network.addProxy(1, region1);
+        network.addProxy(1, region2);
+        ASSERT(2 == network.levelCount());
 
       } break;
       default: {
