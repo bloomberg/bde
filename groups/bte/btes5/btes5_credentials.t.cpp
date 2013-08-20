@@ -198,8 +198,6 @@ int main(int argc, char *argv[])
         //   btes5_Credentials(const StringRef& u, const StringRef& p, *a = 0);
         //   btes5_Credentials(const btes5_Credentials& original, *a = 0);
         //   ~btes5_Credentials() = default;
-        //
-        // MANIPULATORS
         //   set(const bslstl::StringRef& u, const bslstl::StringRef& p);
         //   reset();
         //   isSet() const;

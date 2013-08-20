@@ -26,34 +26,35 @@ using namespace bsl;
 // values can be set at construction or subsequently using the two setter
 // methods.
 //
-// The setters and getters are used to verify the functionality of this type.
+// The setters and getters are used to verify the functionality of this type,
+// and 'bslma::TestAllocator' is used to check proper allocator use.
 //
 // BDEX streaming is not provided for this type.
 //
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ ] btes5_DetailedError(StringRef& desc, Allocator *a = 0);
-// [ ] btes5_DetailedError(StringRef& desc, bteso_Endpoint& addr, *a = 0);
-// [ ] btes5_DetailedError(btes5_DetailedError& original, Allocator *a = 0);
-// [ ] // ~btes5_DetailedError() = default;
+// [2] btes5_DetailedError(StringRef& des, Allocator *a = 0);
+// [2] btes5_DetailedError(StringRef& des, bteso_Endpoint& addr, *a = 0);
+// [2] btes5_DetailedError(btes5_DetailedError& original, *a = 0);
+// [2] // ~btes5_DetailedError() = default;
 //
 // MANIPULATORS
-// [ ] btes5_DetailedError& operator=(btes5_DetailedError& rhs);
-// [ ] void setDescription(StringRef& value);
-// [ ] void setAddress(bteso_Endpoint& value);
+// [2] btes5_DetailedError& operator=(btes5_DetailedError& rhs);
+// [2] void setDescription(StringRef& value);
+// [2] void setAddress(bteso_Endpoint& value);
 //
 // ACCESSORS
-// [ ] string& description() const;
-// [ ] bteso_Endpoint& address() const;
+// [2] string& description() const;
+// [2] bteso_Endpoint& address() const;
 //
 // FREE OPERATORS
-// [ ] bool operator==(btes5_DetailedError& lhs, btes5_DetailedError& rhs);
-// [ ] bool operator!=(btes5_DetailedError& lhs, btes5_DetailedError& rhs);
-// [ ] ostream& operator<<(ostream& o, btes5_DetailedError& error);
-
+// [2] bool operator==(lhs, rhs);
+// [2] bool operator!=(lhs, rhs);
+// [2] ostream& operator<<(ostream& o, btes5_DetailedError& error);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [ ] USAGE EXAMPLE
+// [3] USAGE EXAMPLE
+// [2] CONCERN: All memory allocation is from the object's allocator.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -179,6 +180,7 @@ int main(int argc, char *argv[])
 //..
     ASSERT("authentication failure" == error.description());
     ASSERT(proxy == error.address());
+//..
 
       } break;
       case 2: {
@@ -193,29 +195,29 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Use several ad-hoc values, compare output to expected results.
         //: 2 Compare member allocators to construction-supplied allocator.
+        //: 3 Use 'TestAllocator' to verify destruction frees allocated memory.
         //
         // Testing:
-        //   explicit btes5_Credentials(bslma::Allocator *allocator = 0);
-        //   btes5_Credentials(const StringRef& u, const StringRef& p, *a = 0);
-        //   btes5_Credentials(const btes5_Credentials& original, *a = 0);
-        //   ~btes5_Credentials() = default;
-        //
-        // MANIPULATORS
-        //   set(const bslstl::StringRef& u, const bslstl::StringRef& p);
-        //   reset();
-        //   isSet() const;
-        //   bsl::string& username() const;
-        //   bsl::string& password() const;
-        //   operator==(btes5_Credentials& lhs, btes5_Credentials& rhs);
-        //   operator!=(btes5_Credentials& lhs, btes5_Credentials& rhs);
-        //   operator<<(bsl::ostream& output, const btes5_Credentials& object);
+        //   btes5_DetailedError(StringRef& des, Allocator *a = 0);
+        //   btes5_DetailedError(StringRef& des, bteso_Endpoint& addr, *a = 0);
+        //   btes5_DetailedError(btes5_DetailedError& original, *a = 0);
+        //   // ~btes5_DetailedError() = default;
+        //   btes5_DetailedError& operator=(btes5_DetailedError& rhs);
+        //   void setDescription(StringRef& value);
+        //   void setAddress(bteso_Endpoint& value);
+        //   string& description() const;
+        //   bteso_Endpoint& address() const;
+        //   bool operator==(lhs, rhs);
+        //   bool operator!=(lhs, rhs);
+        //   ostream& operator<<(ostream& o, btes5_DetailedError& error);
         //   CONCERN: All memory allocation is from the object's allocator.
-        //   CONCERN: Precondition violations are detected when enabled.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUBLIC INTERFACE" << endl
                           << "================" << endl;
+
+        if (verbose) cout << "  c-tors, setters, getters" << endl;
 
         btes5_DetailedError error1("Error 1");
         ASSERT(error1.description() == "Error 1");
@@ -248,6 +250,32 @@ int main(int argc, char *argv[])
         error1.setAddress(address3);
         ASSERT(error1.address() == address3);
         verbose && cout << "error1=" << error1 << endl;
+
+        if (verbose) cout << "  allocator test" << endl;
+
+        bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+        bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
+
+        bslma::TestAllocator ta1("description", veryVeryVerbose);
+        btes5_DetailedError e1("Error", &ta1);
+        ASSERT(e1.description().allocator() == &ta1);
+        ASSERT(e1.address().hostname().allocator() == &ta1);
+
+        bslma::TestAllocator ta2("description + address", veryVeryVerbose);
+        btes5_DetailedError e2("Error w/address", address2, &ta2);
+        ASSERT(e2.description().allocator() == &ta2);
+
+        bslma::TestAllocator ta3("copy constructor", veryVeryVerbose);
+        btes5_DetailedError e3(e1, &ta3);
+        ASSERT(e3.description().allocator() == &ta3);
+
+        // CONCERN: All memory allocation is from the object's allocator.
+
+        LOOP_ASSERT(defaultAllocator.numBlocksTotal(),
+                    0 == defaultAllocator.numBlocksTotal());
+
+        // Test allocators 'ta1', 'ta2' and 'ta3' will verify deallocation
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -300,6 +328,7 @@ int main(int argc, char *argv[])
         error1.setAddress(address3);
         ASSERT(error1.address() == address3);
         verbose && cout << "error1=" << error1 << endl;
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -246,7 +246,7 @@ void Negotiation::terminate(btes5_Negotiator::NegotiationStatus status,
                             const btes5_DetailedError&          error)
 {
     if (d_terminating.testAndSwap(1, 1)) {
-        return; // this negotiation is already being terminated
+        return;  // this negotiation is already being terminated
     }
 
     d_eventManager_p->deregisterSocket(d_handle);
@@ -410,7 +410,6 @@ void Negotiation::connectToEndpoint(Context negotiation)
 
     buffer = DOMAINNAME; // adress type
     request << buffer;
-    // TODO: is dotted-decimal address ever invalid as SOCKS5 argument?
 
     int length = d_destination.hostname().size();
     buffer = length;
@@ -458,7 +457,6 @@ void Negotiation::authenticationCallback(Context negotiation)
 
 void Negotiation::timeoutCallback(Context negotiation)
 {
-    // TODO: if 'terminate' is called now, it may deregister an invalid timer
     d_timer = 0;
     terminate(btes5_Negotiator::e_ERROR, btes5_DetailedError("timeout"));
 }

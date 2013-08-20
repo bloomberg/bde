@@ -107,7 +107,7 @@ static void ServerThread(
     // condition.
 {
 #define LOG_STREAM(severity, args) {                       \
-    if (severity >= (args)->d_verbosity) {                 \
+    if (severity <= (args)->d_verbosity) {                 \
         *(args)->d_logStream_p << (args)->d_label << ": "; \
         *(args)->d_logStream_p
 

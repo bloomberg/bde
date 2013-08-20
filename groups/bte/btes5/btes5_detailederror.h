@@ -106,10 +106,6 @@ struct btes5_DetailedError {
         // Destroy this object.
 
     // MANIPULATORS
-    btes5_DetailedError& operator=(const btes5_DetailedError& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-
     void setDescription(const bslstl::StringRef& value);
         // Set the description attribute of this object to the specified
         // 'value'.

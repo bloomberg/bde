@@ -9,10 +9,6 @@ BDES_IDENT_RCSID(btes5_detailederror_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace {
-
-}  // close anonymous namespace
-
                         // -------------------------
                         // class btes5_DetailedError
                         // -------------------------
@@ -42,14 +38,6 @@ btes5_DetailedError::btes5_DetailedError(
 }
 
 // MANIPULATORS
-btes5_DetailedError& btes5_DetailedError::operator=(
-    const btes5_DetailedError& rhs)
-{
-    d_description = rhs.d_description;
-    d_address = rhs.d_address;
-    return *this;
-}
-
 void btes5_DetailedError::setDescription(const bslstl::StringRef& value)
 {
     d_description = value;

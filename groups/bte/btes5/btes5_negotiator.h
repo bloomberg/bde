@@ -12,76 +12,145 @@
 //@DESCRIPTION: This component defines a mechanism for negotiating a
 // SOCKS5 client-side handshake.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Connection With Predefined Credentials
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following code snippets demonstrate how to use a 'btes5_Negotiator' to
 // negotiate a SOCKS5 client-side handshake.  First we will declare and define
-// the callback function.
+// the callback function. It will signal the main thread by setting 'state',
+// which in turn is protected by a mutex and a condition variable.
 //..
-//  void negotiateCb(btes5_Negotiator::NegotiationStatus  result,
-//                   btes5_DetailedError                 *error)
+//  void socks5Callback(btes5_Negotiator::NegotiationStatus result,
+//                      btes5_DetailedError                 error,
+//                      bcemt_Mutex                         *stateLock,
+//                      bcemt_Condition                     *stateChanged,
+//                      volatile int                        *state)
 //  {
-//      assert(result == btes5_Negotiator::SUCCESS);
+//      bcemt_LockGuard<bcemt_Mutex> lock(stateLock);
+//      if (result == btes5_Negotiator::e_SUCCESS) {
+//          *state = 1;
+//      } else {
+//          cout << "Negotiation error " << result << ": " << error << endl;
+//          *state = -1;
+//      }
+//      stateChanged->signal();
 //  }
 //..
 // Next we define the function that will invoke the negotiator on the
 // previously connected socket, using predefined name and password for
 // authentication.
 //..
-//  void negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
-//                 const bteso_Endpoint&                  destination)
+//  int negotiate(bteso_StreamSocket<bteso_IPv4Address> *socket,
+//                const bteso_Endpoint&                  destination)
 //  {
 //      btes5_Credentials credentials("john.smith", "PassWord123");
 //..
-// Finally we will create a 'btes5_Negotiator' and start negotiation.
+// Next, we declare the variable for communicating the response, with a mutex
+// and a condition variable to protect access to it from different threads.
 //..
-//      btes5_Negotiator negotiator;
-//      negotiator.negotiate(socket, destination, credentials, &negotiateCb);
+//      bcemt_Mutex     stateLock;
+//      bcemt_Condition stateChanged;
+//      volatile int    state = 0; // value > 0 indicates success, < 0 is error
+//..
+// Then we will create an event manager and a 'btes5_Negotiator' and start
+// negotiation.
+//..
+//      btemt_TcpTimerEventManager eventManager;
+//      assert(0 == eventManager.enable());
+//      btes5_Negotiator negotiator(&eventManager);
+//      using namespace bdef_PlaceHolders;
+//      negotiator.negotiate(socket,
+//                           destination,
+//                           bdef_BindUtil::bind(socks5Callback,
+//                                               _1,
+//                                               _2,
+//                                               &stateLock,
+//                                               &stateChanged,
+//                                               &state),
+//                           bdet_TimeInterval(),
+//                           credentials);
+//..
+// Next, we block until the negotiation ends and 'socks5Callback' updates
+// the 'state' variable.
+//..
+//      bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
+//      while (!state) {
+//          stateChanged.wait(&stateLock);
+//      }
+//..
+// Finally, we return the status of SOCKS5 negotiation.  If '0 < state',
+// 'socket' can be used to communicate with 'destination' through the proxy.
+//..
+//      return state;
+//  }
 //..
 //
 ///Example 2: Connection With Dynamically Acquired Credentials
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The username and password are not available ahead of time; instead, the
 // negotiator will use the provided object to acquire them, possibly by
-// prompting the user. We'll assume 'negotiateCb' is already defined.
+// prompting the user. We'll assume 'socks5Callback' is already defined.
 //
 // First, we define a class derived from 'btes5_CredentialsProvider' which will
 // provide username and password.
 //..
 //  class MyCredentialsProvider : public btes5_CredentialsProvider {
 //    public:
-//      virtual void acquireCredentials(CredentialsCallback callback);
+//      virtual void acquireCredentials(
+//          const bteso_Endpoint&               proxy,
+//          btes5_CredentialsProvider::Callback callback);
 //      virtual void cancelAcquiringCredentials();
+//  //
 //  };
-//
 //  void MyCredentialsProvider::acquireCredentials(
-//                                         CredentialsCallback callback)
+//          const bteso_Endpoint&               proxy,
+//          btes5_CredentialsProvider::Callback callback)
 //  {
 //      // normally we might prompt the user for username and password, but
 //      // here we use hard-coded values.
-//      callback("jane.doe", "PassWord456");
+//      callback(0, "jane.doe", "PassWord456");
 //  }
-//  void cancelAcquiringCredentials()
+//  void MyCredentialsProvider::cancelAcquiringCredentials()
 //  {
 //      // we would normally cancel the user prompting process, if one is in
 //      // progress; but here it's a no-op.
 //  }
-//..
-// Next we define the function that will invoke the negotiator on the
-// previously connected socket, using a 'MyCredentialsProvider' object to
-// acquire credentials.
-//..
-//  void negotiate2(bteso_StreamSocket<bteso_IPv4Address> *socket,
-//                  const bteso_Endpoint&                  destination)
+//  int negotiateWithAcquiredCredentials(
+//      bteso_StreamSocket<bteso_IPv4Address> *socket,
+//      const bteso_Endpoint&                  destination)
 //  {
-//      MyCredentialsProvider provider;
 //..
-// Finally we will create a 'btes5_Negotiator' and start negotiation.
+// Finally we will create a 'btes5_Negotiator' and start negotiation, passing
+// the address of a credentials provider object.
 //..
-//      btes5_Negotiator negotiator2;
-//      negotiator2.negotiate(socket, destination, &negotiateCb, &provider);
+//      MyCredentialsProvider credentialsProvider;
+//      bcemt_Mutex     stateLock;
+//      bcemt_Condition stateChanged;
+//      volatile int    state = 0; // value > 0 indicates success, < 0 is error
+//      btemt_TcpTimerEventManager eventManager;
+//      assert(0 == eventManager.enable());
+//      btes5_Negotiator negotiator(
+//          reinterpret_cast<bteso_TimerEventManager*>(&eventManager));
+//      using namespace bdef_PlaceHolders;
+//      negotiator.negotiate(socket,
+//                           destination,
+//                           bdef_BindUtil::bind(socks5Callback,
+//                                               _1,
+//                                               _2,
+//                                               &stateLock,
+//                                               &stateChanged,
+//                                               &state),
+//                           bdet_TimeInterval(),
+//                           &credentialsProvider);
+//      bcemt_LockGuard<bcemt_Mutex> lock(&stateLock);
+//      while (!state) {
+//          stateChanged.wait(&stateLock);
+//      }
+//      return state;
+//  }
 //..
 
 #ifndef INCLUDED_BTES5_CREDENTIALSPROVIDER
@@ -138,7 +207,7 @@ class btes5_Negotiator {
     enum NegotiationStatus {
         e_SUCCESS = 0,
         e_AUTHENTICATION, // no acceptable authentication methods
-        e_ERROR           // any other error
+        e_ERROR = -1      // any other error
     };
     typedef bdef_Function<void(*)(btes5_Negotiator::NegotiationStatus status,
                                   const btes5_DetailedError&          error)>
