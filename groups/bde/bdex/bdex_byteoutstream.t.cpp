@@ -106,7 +106,9 @@ static void aSsErT(int c, const char *s, int i)
 // [ 4] ostream& operator<<(ostream& stream, const bdex_ByteOutStream&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [26] USAGE
+// [26] CONCERN: calling 'operator<<' adds ref to 'maxVersionIsInUse'
+// [27] CONCERN: calling 'put' adds ref to 'maxVersionIsInUse'
+// [28] USAGE
 //=============================================================================
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -129,6 +131,11 @@ const int SIZEOF_INT16   = 2;
 const int SIZEOF_INT8    = 1;
 const int SIZEOF_FLOAT64 = 8;
 const int SIZEOF_FLOAT32 = 4;
+
+//=============================================================================
+//                        BDEX USAGE DETECTION MACRO
+//-----------------------------------------------------------------------------
+#define BDEX_USAGE_DETECT_OPERATOR
 
 //=============================================================================
 //                      SUPPLEMENTARY TEST FUNCTIONALITY
@@ -177,7 +184,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta(veryVeryVerbose);
 
     switch (test) { case 0:
-      case 26: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -217,6 +224,56 @@ int main(int argc, char *argv[])
 //     return 0;
    }
 
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // PUT
+        // calling 'put' adds ref to 'maxVersionIsInUse'
+        //
+        // Testing:
+        //   put<T>(const T& variable);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PUT" << endl
+                          << "===" << endl;
+
+#ifndef BDEX_USAGE_DETECT_OPERATOR
+        if (verbose) cout << "\nTesting put." << endl;
+        {
+            Obj mX;
+
+            mX.put(47);
+        }
+#else
+        if (verbose) cout <<
+                  "\nSkipping Test of 'put' in favor of 'operator<<'." << endl;
+#endif
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // STREAM OPERATOR
+        // calling 'operator<<' adds ref to 'maxVersionIsInUse'
+        //
+        // Testing:
+        //   operator<< <S, T>(S& stream, const T& object);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "STREAM OPERATOR" << endl
+                          << "===============" << endl;
+
+#ifdef BDEX_USAGE_DETECT_OPERATOR
+        if (verbose) cout << "\nTesting stream operator." << endl;
+        {
+            Obj mX;
+
+            mX << 47;
+        }
+#else
+        if (verbose) cout <<
+                  "\nSkipping Test of 'operator<<' in favor of 'put'." << endl;
+#endif
       } break;
       case 25: {
         // --------------------------------------------------------------------

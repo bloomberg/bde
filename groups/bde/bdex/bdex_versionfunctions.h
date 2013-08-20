@@ -160,6 +160,11 @@ namespace bdex_VersionFunctions {
     // This 'namespace' provides functions for returning the version number for
     // various types.
 
+    void maxSupportedVersionIsInUse();
+        // Do nothing.  This method exists only to provide an unresolved
+        // reference that allows object files to be inspected to see if they
+        // use 'bdex_VersionFunctions::maxSupportedVersion'.
+
     enum {
         BDEX_NO_VERSION_NUMBER = -1           // Version number to use for
                                               // fundamental types, enums and
@@ -188,6 +193,9 @@ namespace bdex_VersionFunctions {
         // class of 'TYPE' does not support the 'maxSupportedBdexVersion'
         // method.
 
+        // Introduce a reference to this component.
+        maxSupportedVersionIsInUse();
+
         return object.maxSupportedBdexVersion();
     }
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -203,6 +211,9 @@ namespace bdex_VersionFunctions {
         // specified 'object' of parameterized 'TYPE' is a fundamental or enum
         // type.  Objects of these two types do not have a version number.
     {
+        // Introduce a reference to this component.
+        maxSupportedVersionIsInUse();
+
         return BDEX_NO_VERSION_NUMBER;
     }
 
@@ -226,6 +237,9 @@ namespace bdex_VersionFunctions {
                                   bdex_VersionFunctions_HasVersion>::Type
                                                                      dummyType;
 
+        // Introduce a reference to this component.
+        maxSupportedVersionIsInUse();
+
         return maxSupportedVersion_Imp(object, dummyType());
     }
 
@@ -245,6 +259,8 @@ namespace bdex_VersionFunctions {
     int maxSupportedVersion(const bsl::vector<TYPE, ALLOC>& object)
         // Return the max supported version of the contained element.
     {
+        // Introduce a reference to this component.
+        maxSupportedVersionIsInUse();
 
         // Vectors always put out a version number.  If 'object' is empty or
         // type does not have a version number, then put out a dummy value (1),
