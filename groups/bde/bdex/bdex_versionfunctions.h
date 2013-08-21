@@ -160,10 +160,12 @@ namespace bdex_VersionFunctions {
     // This 'namespace' provides functions for returning the version number for
     // various types.
 
-    void maxSupportedVersionIsInUse();
-        // Do nothing.  This method exists only to provide an unresolved
+    bool maxSupportedVersionIsInUse();
+        // Return true.  This method exists only to provide an unresolved
         // reference that allows object files to be inspected to see if they
-        // use 'bdex_VersionFunctions::maxSupportedVersion'.
+        // use 'bdex_VersionFunctions::maxSupportedVersion'.  Note that this
+        // function should be called only by specializations of
+        // 'bdex_VersionFunctions::maxSupportedVersion'.
 
     enum {
         BDEX_NO_VERSION_NUMBER = -1           // Version number to use for
