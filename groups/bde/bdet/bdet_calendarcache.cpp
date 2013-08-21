@@ -15,9 +15,22 @@ BDES_IDENT_RCSID(bdet_calendarcache_cpp,"$Id$ $CSID$")
 #include <bsls_atomic.h>
 #include <bsls_types.h>
 
+#include <bsl_ctime.h>
 #include <bsl_functional.h>
 
 namespace BloombergLP {
+
+// STATIC HELPER FUNCTIONS
+static
+bool hasExpired(const bsl::time_t& interval,
+                const bsl::time_t& loadTime)
+    // Return 'true' if at least the specified time 'interval' has elapsed
+    // since the specified 'loadTime', and 'false' otherwise.
+{
+    bsl::time_t elapsedTime = bsl::time(0) - loadTime;
+
+    return elapsedTime >= interval ? true : false;
+}
 
                      // ====================================
                      // class bdet_CalendarCache_EntryPtrRep
@@ -36,6 +49,8 @@ class bdet_CalendarCache_EntryPtrRep {
     // DATA
     bsls::AtomicInt   d_sharedCount;  // number of references to this rep
 
+    bsl::time_t       d_loadTime;     // time when calendar was loaded
+
     bdet_Calendar    *d_ptr_p;        // pointer to out-of-place instance
                                       // (held, not owned)
 
@@ -50,11 +65,13 @@ class bdet_CalendarCache_EntryPtrRep {
   public:
     // CREATORS
     bdet_CalendarCache_EntryPtrRep(bdet_Calendar    *calendar,
+                                   bsl::time_t       loadTime,
                                    bslma::Allocator *allocator);
         // Create a representation object for managing the specified shared
-        // 'calendar' that was loaded using the specified 'allocator'.  The
-        // behavior is undefined unless the memory for 'calendar' and the
-        // footprint of this object were both obtained from 'allocator'.
+        // 'calendar' that was loaded at the specified 'loadTime' using the
+        // specified 'allocator'.  The behavior is undefined unless the memory
+        // for 'calendar' and the footprint of this object were both obtained
+        // from 'allocator'.
 
     ~bdet_CalendarCache_EntryPtrRep();
         // Destroy this representation object.
@@ -81,6 +98,11 @@ class bdet_CalendarCache_EntryPtrRep {
         // Return the number of references to the shared calendar referred to
         // by this representation object.
 
+
+    bsl::time_t loadTime() const;
+        // Return the time at which the shared calendar referred to by this
+        // representation object was loaded.
+
     const bdet_Calendar *ptr() const;
         // Return an address providing non-modifiable access to the shared
         // calendar referred to by this representation object.
@@ -93,9 +115,11 @@ class bdet_CalendarCache_EntryPtrRep {
 // CREATORS
 bdet_CalendarCache_EntryPtrRep::bdet_CalendarCache_EntryPtrRep(
                                                    bdet_Calendar    *calendar,
+                                                   bsl::time_t       loadTime,
                                                    bslma::Allocator *allocator)
 : d_sharedCount(0)                              // minimum consistency: relaxed
 , d_ptr_p(calendar)
+, d_loadTime(loadTime)
 , d_allocator_p(allocator)
 {
 }
@@ -135,6 +159,11 @@ void bdet_CalendarCache_EntryPtrRep::releaseRef()
 int bdet_CalendarCache_EntryPtrRep::numReferences() const
 {
     return d_sharedCount.loadRelaxed();        // minimum consistency: relaxed;
+}
+
+bsl::time_t bdet_CalendarCache_EntryPtrRep::loadTime() const
+{
+    return d_loadTime;
 }
 
 const bdet_Calendar *bdet_CalendarCache_EntryPtrRep::ptr() const
@@ -227,6 +256,25 @@ bdet_CalendarCache::bdet_CalendarCache(bdet_CalendarLoader *loader,
 
 : d_cache(bsl::less<bsl::string>(), basicAllocator)
 , d_loader_p(loader)
+, d_timeOut(0)
+, d_hasTimeOutFlag(false)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    BSLS_ASSERT(loader);
+}
+
+bdet_CalendarCache::bdet_CalendarCache(
+                                      bdet_CalendarLoader      *loader,
+                                      const bdet_TimeInterval&  timeout,
+                                      bslma::Allocator         *basicAllocator)
+
+// We have to supply 'bsl::less<key>()' because 'bsl::map' does not have
+// a constructor that takes only an allocator.
+
+: d_cache(bsl::less<bsl::string>(), basicAllocator)
+, d_loader_p(loader)
+, d_timeOut(static_cast<bsl::time_t>(timeout.seconds()))
+, d_hasTimeOutFlag(true)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(loader);
@@ -248,7 +296,14 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
         ConstCacheIterator iter = d_cache.find(calendarName);
 
         if (iter != d_cache.end()) {
-            return iter->second;
+
+            if (!d_hasTimeOutFlag ||
+                !hasExpired(d_timeOut, iter->second.rep()->loadTime())) {
+                return iter->second;
+            }
+            else {
+                d_cache.erase(iter);
+            }
         }
     }
 
@@ -274,6 +329,7 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
 
     bdet_CalendarCache_EntryPtrRep *repPtr =
             new (*d_allocator_p) bdet_CalendarCache_EntryPtrRep(calendarPtr,
+                                                                bsl::time(0),
                                                                 d_allocator_p);
 
     // Take over management of 'repPtr' and (indirectly) 'calendarPtr', and
@@ -289,6 +345,10 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
     bsls::BslLockProctor lockProctor(&d_lock);
 
     ConstCacheIterator iter = d_cache.find(calendarName);
+
+    // Here, we assume that the time elapsed between the last check and
+    // creation of the calendar is insignificant compared to the timeout, so we
+    // will simply return the calendar entry if it has been inserted.
 
     if (iter != d_cache.end()) {
         return iter->second;
@@ -338,7 +398,14 @@ bdet_CalendarCache::lookupCalendar(const char *calendarName) const
     ConstCacheIterator iter = d_cache.find(calendarName);
 
     if (iter != d_cache.end()) {
-        return iter->second;
+
+       if (!d_hasTimeOutFlag || !hasExpired(d_timeOut,
+                                             iter->second.rep()->loadTime())) {
+           return iter->second;
+       }
+       else {
+           d_cache.erase(iter);
+       }
     }
 
     return bdet_CalendarCacheEntryPtr();
