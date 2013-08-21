@@ -41,12 +41,12 @@ btes5_Credentials::btes5_Credentials(
 
 // MANIPULATORS
 void btes5_Credentials::set(const bslstl::StringRef& username,
-                                const bslstl::StringRef& password)
+                            const bslstl::StringRef& password)
 {
     BSLS_ASSERT(0 < username.length() && username.length() <= 255);
     BSLS_ASSERT(0 < password.length() && password.length() <= 255);
-    d_username = username;
-    d_password = password;
+    d_username.assign(username.begin(), username.end());
+    d_password.assign(password.begin(), password.end());
 }
 
 void btes5_Credentials::reset()

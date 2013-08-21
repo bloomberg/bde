@@ -231,6 +231,16 @@ int main(int argc, char *argv[])
         ASSERT(proxy2.address() == address1);
         verbose && cout << "proxy2=" << proxy2 << endl;
 
+        if (verbose) cout << " setCredentials, allocator use" << endl;
+
+        string username("A fairly long name"
+                        " to avoid short-string optimization"
+                        " and cause a likely memory allocation");
+        string password("A fairly long password"
+                        " to avoid short-string optimization"
+                        " and cause a likely memory allocation");
+        btes5_Credentials credentials3(username, password);
+
         // Install a 'TestAllocator' as default to check for incorrect usage`,
         // and specify another 'TestAllocator' explicitly to check proper
         // propagation of the allocator
@@ -240,10 +250,12 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ea("explicitAllocator", veryVeryVerbose);
         {
-            btes5_Credentials credentials3("jane.dow", "pass3", &ea);
-            proxy1.setCredentials(credentials3);
-            ASSERT(proxy1.credentials() == credentials3);
-            verbose && cout << "proxy1=" << proxy1 << endl;
+            btes5_ProxyDescription proxy3(address1, &ea);
+            proxy3.setCredentials(credentials3);
+
+            if (veryVerbose) { T_ P(proxy3) }
+
+            ASSERT(proxy3.credentials() == credentials3);
         }
 
         // verify that the default allocator was not used

@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << " allocator propagation" << endl;
 
-        bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+        bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
         bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
         bslma::TestAllocator ta1("defaultConstructor", veryVeryVerbose);
@@ -258,7 +258,10 @@ int main(int argc, char *argv[])
         ASSERT(c1.password().allocator() == &ta1);
 
         bslma::TestAllocator ta2("initializer", veryVeryVerbose);
-        btes5_Credentials c2("User", "Password", &ta2);
+        btes5_Credentials c2(
+            "A fairly long name to avoid SSO and cause an allocation",
+            "A fairly long password to avoid SSO and cause an allocation",
+            &ta2);
         ASSERT(c2.username().allocator() == &ta2);
 
         bslma::TestAllocator ta3("copyConstructor", veryVeryVerbose);
