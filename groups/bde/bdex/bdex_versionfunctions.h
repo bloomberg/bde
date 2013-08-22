@@ -160,12 +160,14 @@ namespace bdex_VersionFunctions {
     // This 'namespace' provides functions for returning the version number for
     // various types.
 
-    bool maxSupportedVersionIsInUse();
-        // Return true.  This method exists only to provide an unresolved
-        // reference that allows object files to be inspected to see if they
-        // use 'bdex_VersionFunctions::maxSupportedVersion'.  Note that this
-        // function should be called only by specializations of
-        // 'bdex_VersionFunctions::maxSupportedVersion'.
+    bool versionFunctionsDeprecatedFunctionIsInUse();
+        // !DEPRECATED!: Temporary facility for debugging only.
+        //
+        // Return true.  This method exists only to provide a non-inline symbol
+        // that can be found in object files, allowing us to detect if they
+        // call the deprecated 'bdex_VersionFunctions::maxSupportedVersion'
+        // function.  The deprecated function is inline and cannot always be
+        // found in object files.
 
     enum {
         BDEX_NO_VERSION_NUMBER = -1           // Version number to use for
@@ -195,8 +197,8 @@ namespace bdex_VersionFunctions {
         // class of 'TYPE' does not support the 'maxSupportedBdexVersion'
         // method.
 
-        // Introduce a reference to this component.
-        maxSupportedVersionIsInUse();
+        // Refer to non-inline symbol to help detect uses of this function.
+        versionFunctionsDeprecatedFunctionIsInUse();
 
         return object.maxSupportedBdexVersion();
     }
@@ -213,8 +215,8 @@ namespace bdex_VersionFunctions {
         // specified 'object' of parameterized 'TYPE' is a fundamental or enum
         // type.  Objects of these two types do not have a version number.
     {
-        // Introduce a reference to this component.
-        maxSupportedVersionIsInUse();
+        // Refer to non-inline symbol to help detect uses of this function.
+        versionFunctionsDeprecatedFunctionIsInUse();
 
         return BDEX_NO_VERSION_NUMBER;
     }
@@ -222,6 +224,8 @@ namespace bdex_VersionFunctions {
     template <typename TYPE>
     inline
     int maxSupportedVersion(const TYPE& object)
+        // !DEPRECATED!: only detection of specific versions is supported.
+        //
         // Return the maximum 'bdex' version supported by 'TYPE'.  If 'TYPE' is
         // a fundamental or enum type return 'BDEX_NO_VERSION_NUMBER'.  For all
         // other types the behavior is undefined unless 'TYPE' supports a
@@ -239,8 +243,8 @@ namespace bdex_VersionFunctions {
                                   bdex_VersionFunctions_HasVersion>::Type
                                                                      dummyType;
 
-        // Introduce a reference to this component.
-        maxSupportedVersionIsInUse();
+        // Refer to non-inline symbol to help detect uses of this function.
+        versionFunctionsDeprecatedFunctionIsInUse();
 
         return maxSupportedVersion_Imp(object, dummyType());
     }
@@ -249,6 +253,8 @@ namespace bdex_VersionFunctions {
 
     inline
     int maxSupportedVersion(const bsl::string&)
+        // !DEPRECATED!: only detection of specific versions is supported.
+        //
         // Return the max supported version of the contained string.
     {
         return BDEX_NO_VERSION_NUMBER;
@@ -259,10 +265,12 @@ namespace bdex_VersionFunctions {
     template <typename TYPE, typename ALLOC>
     inline
     int maxSupportedVersion(const bsl::vector<TYPE, ALLOC>& object)
+        // !DEPRECATED!: only detection of specific versions is supported.
+        //
         // Return the max supported version of the contained element.
     {
-        // Introduce a reference to this component.
-        maxSupportedVersionIsInUse();
+        // Refer to non-inline symbol to help detect uses of this function.
+        versionFunctionsDeprecatedFunctionIsInUse();
 
         // Vectors always put out a version number.  If 'object' is empty or
         // type does not have a version number, then put out a dummy value (1),

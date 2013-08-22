@@ -721,6 +721,8 @@ class bdex_OutStreamMethods : public bdex_GenericOutStreamMethods {
 };
 
 struct bdex_OutStreamMethodsUtil {
+    // !DEPRECATED!: Streaming without explicit versions is not supported.
+    //
     // This 'struct' was introduced to solve backward compatibility problems
     // while streaming out objects.  Its function should not be called
     // directly by clients.
@@ -735,6 +737,9 @@ struct bdex_OutStreamMethodsUtil {
         // and 'bdexStreamOut' are specialized for 'TYPE' then those functions
         // are called.  If not,
         // 'bdex_OutStreamFunctions::streamOutVersionAndObject' is called.
+
+        // Refer to non-inline symbol to help detect the use of this function.
+        outStreamFunctionsDeprecatedFunctionIsInUse();
 
         typedef bdex_OutStreamMethods<TYPE> methodsClass;
 

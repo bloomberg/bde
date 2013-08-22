@@ -5,7 +5,18 @@
 BDES_IDENT_RCSID(bdex_instreamfunctions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
+namespace bdex_InStreamFunctions {
 
+bool inStreamFunctionsDeprecatedFunctionIsInUse() {
+    // This function intentionally does nothing.  It exists only to provide an
+    // out-of-line symbol indicating that an object file uses the deprecated
+    // 'streamInVersionAndObject' family of functions that underlie
+    // 'operator<<'.
+
+    return true;
+}
+
+}  // close namespace bdex_InStreamFunctions
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------

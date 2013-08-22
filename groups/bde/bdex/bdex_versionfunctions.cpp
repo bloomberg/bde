@@ -8,7 +8,7 @@ BDES_IDENT_RCSID(bdex_versionfunctions_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdex_VersionFunctions {
 
-bool maxSupportedVersionIsInUse() {
+bool versionFunctionsDeprecatedFunctionIsInUse() {
     // This function intentionally does nothing.  It exists only to provide an
     // out-of-line symbol indicating that an object file uses
     // 'bdex_VersionFunctions::maxSupportedVersion'.
