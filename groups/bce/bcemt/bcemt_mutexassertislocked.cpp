@@ -43,7 +43,6 @@ void bcemt_MutexAssertIsLocked::assertIsLockedImpl(bcemt_Mutex *mutex,
 #else
 # error unrecognized platform
 #endif
-
 }
 
 }  // close enterprise namespace
