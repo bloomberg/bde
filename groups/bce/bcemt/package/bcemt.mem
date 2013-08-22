@@ -6,6 +6,7 @@ bcemt_configuration
 bcemt_lockguard
 bcemt_meteredmutex
 bcemt_mutex
+bcemt_mutexassertislocked
 bcemt_muteximpl_pthread
 bcemt_muteximpl_win32
 bcemt_once
