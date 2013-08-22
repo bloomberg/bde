@@ -255,7 +255,7 @@ const bdem_Descriptor bdem_Properties::s_timeTzArrayAttr = {
 // The identifiers below are DEPRECATED and are only provided for backward
 // compatibility.  Each 'd_*' identifier is just a reference to the
 // corresponding non-deprecated 's_*' identifier.  These identifiers will be
-// eliminated at a future data.
+// eliminated at a future date.
 
 const bdem_Descriptor& bdem_Properties::d_intAttr = bdem_Properties::s_intAttr;
 const bdem_Descriptor& bdem_Properties::d_doubleAttr =

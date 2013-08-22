@@ -93,7 +93,7 @@ struct bdem_Properties {
 
     // The following names are provided for backward compatibility, they are
     // DEPRECATED as static variable names should begin with 's_' rather than
-    // 'd_'.  They will be eliminated in a future release
+    // 'd_'.  They will be eliminated in a future release.
 
     // *** attribute structures for scalar types ***
 

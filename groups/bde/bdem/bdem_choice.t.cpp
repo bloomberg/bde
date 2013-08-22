@@ -1,4 +1,3 @@
-
 // bdem_choice.t.cpp                                                  -*-C++-*-
 
 #include <bdem_choice.h>
