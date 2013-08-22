@@ -21,7 +21,26 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides macros for asserting that a mutex is
 // locked.  It does not distinguish between locks held by the current thread or
-// other threads.
+// other threads.  If the macro is active in the current build mode and, when
+// the macro is called, the mutex is unlocked, the assert handler installed for
+// 'BSLS_ASSERT' will be called.  The handler installed by default will print a
+// report and abort.
+//
+// The three macros defined by the component are analogous to the macros
+// defined by BSLS_ASSERT:
+//: o BCEMT_MUTEX_ASSERT_IS_LOCKED: active when 'BSLS_ASSERT' is active
+//: o BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED: active when 'BSLS_ASSERT_SAFE' is
+//:   active
+//: o BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED: active when 'BSLS_ASSERT_OPT' is active
+// In build modes where any one of these macros is not active, calling it will
+// have no effect.
+//
+// If any of these asserts are in effect and fail (because the mutex in
+// question was unlocked), the bhavior is almost identical to that if the
+// corresponding 'BSLS_ASSERT*' failed -- 'bsls::Assert::invokeHandler' is
+// called, with a source code expression, the name of the source file, and the
+// line number in the source file where the macro was called.  If the default
+// handler is installed, this will result in an error message and an abort.
 
 #ifndef INCLUDED_BCESCM_VERSION
 #include <bcescm_version.h>
@@ -29,17 +48,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(mutex_p) do {                   \
-        bcemt_MutexAssertIsLocked::assertIsLockedImpl(                        \
-                           (mutex_p),                                         \
-                           "BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(" #mutex_p ")", \
-                           __FILE__,                                          \
-                           __LINE__); } while (false)
-#else
-    #define BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(mutex_p) ((void) 0)
 #endif
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
@@ -51,6 +59,17 @@ BDES_IDENT("$Id: $")
                            __LINE__); } while (false)
 #else
     #define BCEMT_MUTEX_ASSERT_IS_LOCKED(mutex_p) ((void) 0)
+#endif
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    #define BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(mutex_p) do {                   \
+        bcemt_MutexAssertIsLocked::assertIsLockedImpl(                        \
+                           (mutex_p),                                         \
+                           "BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(" #mutex_p ")", \
+                           __FILE__,                                          \
+                           __LINE__); } while (false)
+#else
+    #define BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(mutex_p) ((void) 0)
 #endif
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
