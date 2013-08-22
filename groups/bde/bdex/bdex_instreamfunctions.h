@@ -1101,7 +1101,7 @@ namespace bdex_InStreamFunctions {
     {
         // Refer to non-inline symbol to help detect the use of this function.
         inStreamFunctionsDeprecatedFunctionIsInUse();
-        
+
         int hasVersion = bdex_VersionFunctions::maxSupportedVersion(object);
         int version = 0;
 

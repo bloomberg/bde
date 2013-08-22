@@ -820,7 +820,7 @@ struct bdex_InStreamMethodsUtil {
         // 'streamInVersionAndObject' function is called.
 
         // Refer to non-inline symbol to help detect the use of this function.
-        inStreamFunctionsDeprecatedFunctionIsInUse();
+        bdex_InStreamFunctions::inStreamFunctionsDeprecatedFunctionIsInUse();
 
         typedef bdex_InStreamMethods<TYPE> methodsClass;
 

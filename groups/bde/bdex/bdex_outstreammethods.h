@@ -739,7 +739,7 @@ struct bdex_OutStreamMethodsUtil {
         // 'bdex_OutStreamFunctions::streamOutVersionAndObject' is called.
 
         // Refer to non-inline symbol to help detect the use of this function.
-        outStreamFunctionsDeprecatedFunctionIsInUse();
+        bdex_OutStreamFunctions::outStreamFunctionsDeprecatedFunctionIsInUse();
 
         typedef bdex_OutStreamMethods<TYPE> methodsClass;
 
