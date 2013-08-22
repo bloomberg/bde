@@ -763,6 +763,10 @@ int main(int argc, char *argv[])
                           << "=================================" << endl;
 
         TestLoader loader;
+
+        Obj Z(&loader, 0);
+
+
         Obj mX(&loader, &testAllocator);
 
         bdet_Date date1, date2;
@@ -770,6 +774,9 @@ int main(int argc, char *argv[])
         Entry e, e1, e0;
 
         // Concern 1
+
+
+
 
         if (verbose) cout << endl
                           << "   Testing concern 1" << endl;
@@ -779,7 +786,6 @@ int main(int argc, char *argv[])
 
         e = mX.getCalendar("NOT_FOUND");
         ASSERT(0 == e.ptr());
-
 
         // Concern 2 for empty cache
 

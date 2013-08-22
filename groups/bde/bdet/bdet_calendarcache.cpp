@@ -278,6 +278,7 @@ bdet_CalendarCache::bdet_CalendarCache(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(loader);
+    BSLS_ASSERT(0 <= timeout.seconds());
 }
 
 bdet_CalendarCache::~bdet_CalendarCache()
@@ -291,9 +292,9 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
     BSLS_ASSERT(calendarName);
 
     {
-        bsls::BslLockProctor lockProctor(&d_lock);
+        bsls::BslLockGuard lockProctor(&d_lock);
 
-        ConstCacheIterator iter = d_cache.find(calendarName);
+        CacheIterator iter = d_cache.find(calendarName);
 
         if (iter != d_cache.end()) {
 
@@ -332,6 +333,8 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
                                                                 bsl::time(0),
                                                                 d_allocator_p);
 
+    BSLS_ASSERT(bsl::time_t(-1) != repPtr->loadTime());
+
     // Take over management of 'repPtr' and (indirectly) 'calendarPtr', and
     // release the calendar proctor.
 
@@ -342,7 +345,7 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
     // Insert newly-loaded calendar into cache if another thread hasn't done so
     // already.
 
-    bsls::BslLockProctor lockProctor(&d_lock);
+    bsls::BslLockGuard lockProctor(&d_lock);
 
     ConstCacheIterator iter = d_cache.find(calendarName);
 
@@ -363,7 +366,7 @@ int bdet_CalendarCache::invalidate(const char *calendarName)
 {
     BSLS_ASSERT(calendarName);
 
-    bsls::BslLockProctor lockProctor(&d_lock);
+    bsls::BslLockGuard lockProctor(&d_lock);
 
     CacheIterator iter = d_cache.find(calendarName);
 
@@ -378,7 +381,7 @@ int bdet_CalendarCache::invalidate(const char *calendarName)
 
 int bdet_CalendarCache::invalidateAll()
 {
-    bsls::BslLockProctor lockProctor(&d_lock);
+    bsls::BslLockGuard lockProctor(&d_lock);
 
     const int numInvalidated = d_cache.size();
 
@@ -393,14 +396,14 @@ bdet_CalendarCache::lookupCalendar(const char *calendarName) const
 {
     BSLS_ASSERT(calendarName);
 
-    bsls::BslLockProctor lockProctor(&d_lock);
+    bsls::BslLockGuard lockProctor(&d_lock);
 
-    ConstCacheIterator iter = d_cache.find(calendarName);
+    CacheIterator iter = d_cache.find(calendarName);
 
     if (iter != d_cache.end()) {
 
        if (!d_hasTimeOutFlag || !hasExpired(d_timeOut,
-                                             iter->second.rep()->loadTime())) {
+                                            iter->second.rep()->loadTime())) {
            return iter->second;
        }
        else {

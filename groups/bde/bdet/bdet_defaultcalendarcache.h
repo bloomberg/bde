@@ -108,6 +108,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+
+#ifndef INCLUDED_BDET_TIMEINTERVAL
+#include <bdet_timeinterval.h>
+#endif
+
+
 namespace BloombergLP {
 
 namespace bslma { class Allocator; }
@@ -133,7 +139,7 @@ struct bdet_DefaultCalendarCache {
 
     // CLASS METHODS
     static int initialize(bdet_CalendarLoader *loader,
-                           bslma::Allocator    *allocator);
+                          bslma::Allocator    *allocator);
         // Initialize the default 'bdet_CalendarCache' object managed by this
         // class that uses the specified 'loader' to obtain calendars, and uses
         // the specified 'allocator' to supply memory.  If the default cache is
@@ -141,6 +147,17 @@ struct bdet_DefaultCalendarCache {
         // 0 on success, and a non-zero value otherwise.  The behavior is
         // undefined unless 'loader' and 'allocator' remain valid until a
         // subsequent call to 'destroy'.
+
+    static int initialize(bdet_CalendarLoader      *loader,
+                          const bdet_TimeInterval&  timeout,
+                          bslma::Allocator         *allocator);
+        // Initialize the default 'bdet_CalendarCache' object managed by this
+        // class that uses the specified 'loader' to obtain calendars, have the
+        // specified 'timeout', and uses the specified 'allocator' to supply
+        // memory.  If the default cache is already in the initialized state,
+        // this method has no effect.  Return 0 on success, and a non-zero
+        // value otherwise.  The behavior is undefined unless 'loader' and
+        // 'allocator' remain valid until a subsequent call to 'destroy'.
 
     static void destroy();
         // Destroy the default 'bdet_CalendarCache' object managed by this

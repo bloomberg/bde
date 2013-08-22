@@ -55,10 +55,10 @@ BDES_IDENT("$Id: $")
 // Calendars can also be invalidated on the basis of a timeout.  To use this
 // feature of 'bdet_CalendarCache', a 'bdet_TimeInterval' timeout must be
 // supplied at construction.  When a timeout is in effect for a cache, requests
-// for a calendar from the cache using the 'calendar' manipulator may incur the
-// reloading of the calendar if the one in the cache has expired (i.e., the
+// for a calendar from the cache using the 'getCalendar' manipulator may incur
+// the reloading of the calendar if the one in the cache has expired (i.e., the
 // time interval defined by the timeout value has elapsed since the calendar
-// was last loaded).  In the case of the 'calendar' *accessor*, an empty
+// was last loaded).  In the case of the 'lookupCalendar' accessor, an empty
 // 'bdet_CalendarCacheEntryPtr' is returned if the requested calendar is found
 // to have expired.
 //
@@ -218,20 +218,20 @@ BDES_IDENT("$Id: $")
 //                             assert( frA.ptr());
 //..
 // Next, we sleep for 2 more seconds before attempting to retrieve the "DE"
-// calendar again, this time using the 'calendar' *accessor*.  Since the
+// calendar again, this time using the 'lookupCalendar' accessor.  Since the
 // cumulative sleep time exceeds the timeout value established for the cache
 // when it was constructed, the "DE" calendar has expired; hence, it has been
 // removed from the cache:
 //..
 //  sleepSeconds(2);
 //
-//  bdet_CalendarCacheEntryPtr deB = readonlyCache.getCalendar("DE");
+//  bdet_CalendarCacheEntryPtr deB = readonlyCache.lookupCalendar("DE");
 //
 //                             assert(!deB.ptr());
 //..
 // Next, we verify that the "FR" calendar is still available in the cache:
 //..
-//  bdet_CalendarCacheEntryPtr frB = readonlyCache.getCalendar("FR");
+//  bdet_CalendarCacheEntryPtr frB = readonlyCache.lookupCalendar("FR");
 //
 //                             assert( frA.ptr() == frB.ptr());
 //..
@@ -240,7 +240,7 @@ BDES_IDENT("$Id: $")
 //..
 //  sleepSeconds(2);
 //
-//  bdet_CalendarCacheEntryPtr frC = readonlyCache.getCalendar("FR");
+//  bdet_CalendarCacheEntryPtr frC = readonlyCache.lookupCalendar("FR");
 //
 //                             assert(!frC.ptr());
 //..
@@ -421,10 +421,10 @@ class bdet_CalendarCache {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless
         // 'loader' remains valid throughout the lifetime of this cache, and
-        // 'timeout' (if specified) fits in a 'time_t' type when converted to
-        // second.  Note that a non-positive 'timeout' (if specified) indicates
+        // 'timeout' (if specified) is 0 or a positive value less than 10
+        // years.  Note that a 'timeout' value of 0 (if specified) indicates
         // that a calendar will be loaded into the cache by *each* (successful)
-        // call to the 'calendar' manipulator.
+        // call to the 'getCalendar' manipulator.
 
     ~bdet_CalendarCache();
         // Destroy this object.

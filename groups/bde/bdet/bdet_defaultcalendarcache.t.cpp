@@ -18,6 +18,7 @@
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
+#include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
 #else
 #include <pthread.h>
 #include <unistd.h>
@@ -148,6 +149,16 @@ void joinThread(ThreadId id)
     CloseHandle(id);
 #else
     pthread_join(id, 0);
+#endif
+}
+
+static
+void sleepSeconds(int seconds)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    Sleep(seconds * 1000);
+#else
+    sleep(seconds);
 #endif
 }
 
@@ -646,6 +657,44 @@ int main(int argc, char *argv[])
 
         Util::destroy();             ASSERT(!Util::instance());
                                      ASSERT(0 == sa.numBlocksInUse());
+
+
+                                     ASSERT(!Util::instance());
+
+        // Make sure that timeout parameter is passed to 'bdet_CalendarCache'
+        // correctly.
+
+        Util::initialize(&mL, &sa);
+        {
+            Cache *cachePtr = Util::instance();
+            Entry usA = cachePtr->getCalendar("US");
+            ASSERT( usA.ptr());
+            usA = cachePtr->lookupCalendar("US");
+            ASSERT( usA.ptr());
+
+            // Verify that timeout doesn't occur.
+            sleepSeconds(2);
+            usA = cachePtr->lookupCalendar("US");
+            ASSERT( usA.ptr());
+        }
+        Util::destroy();
+
+        Util::initialize(&mL, bdet_TimeInterval(2), &sa);
+        {
+            Cache *cachePtr = Util::instance();
+            Entry usA = cachePtr->getCalendar("US");
+            ASSERT( usA.ptr());
+            usA = cachePtr->lookupCalendar("US");
+            ASSERT( usA.ptr());
+
+
+            // Verify that timeout does occur after 2 seconds.
+            sleepSeconds(2);
+            usA = cachePtr->lookupCalendar("US");
+            ASSERT(!usA.ptr());
+        }
+        Util::destroy();
+
 
       } break;
       default: {

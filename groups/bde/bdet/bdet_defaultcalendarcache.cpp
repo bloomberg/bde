@@ -68,13 +68,11 @@ void releaseSpinLock(bsls::AtomicOperations::AtomicTypes::Int *spinLock)
     bsls::AtomicOperations::setIntRelease(spinLock, SPIN_UNLOCKED);
 }
 
-                        // -------------------------------
-                        // class bdet_DefaultCalendarCache
-                        // -------------------------------
-
-// CLASS METHODS
-int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
-                                          bslma::Allocator    *allocator)
+static
+int initializePrivate(bdet_CalendarLoader      *loader,
+                      bool                      hasTimeOutFlag,
+                      const bdet_TimeInterval&  timeout,
+                      bslma::Allocator         *allocator)
 {
     BSLS_ASSERT(loader);
     BSLS_ASSERT(allocator);
@@ -88,7 +86,14 @@ int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
         // does not allocate memory, so there is no need to proctor the spin
         // lock.
 
-        new (g_buffer.buffer()) bdet_CalendarCache(loader, allocator);
+        if (hasTimeOutFlag) {
+            new (g_buffer.buffer()) bdet_CalendarCache(loader,
+                                                       timeout,
+                                                       allocator);
+        }
+        else {
+            new (g_buffer.buffer()) bdet_CalendarCache(loader, allocator);
+        }
 
         bsls::AtomicOperations::setPtrRelease(&g_cachePtr, g_buffer.buffer());
 
@@ -98,6 +103,26 @@ int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
     releaseSpinLock(&g_spinLock);
 
     return rc;
+}
+
+                        // -------------------------------
+                        // class bdet_DefaultCalendarCache
+                        // -------------------------------
+
+// CLASS METHODS
+int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
+                                          bslma::Allocator    *allocator)
+{
+    return initializePrivate(loader, false, bdet_TimeInterval(0), allocator);
+}
+
+
+
+int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader      *loader,
+                                          const bdet_TimeInterval&  timeout,
+                                          bslma::Allocator         *allocator)
+{
+    return initializePrivate(loader, true, timeout, allocator);
 }
 
 void bdet_DefaultCalendarCache::destroy()
