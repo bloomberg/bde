@@ -700,7 +700,7 @@ int main(int argc, char *argv[])
         const char *C_STRING_2 = STRING_2;
         ASSERT(C_STRING_1 != C_STRING_2);
 
-//#if defined(BDE_OMIT_TRANSITIONAL) || defined(BSL_HASH_CSTRINGS_AS_POINTERS)
+#if defined(BDE_OMIT_TRANSITIONAL) || defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         const ::bsl::hash<const char *> C_STRING_HASH =
                                                    ::bsl::hash<const char *>();
 
@@ -715,7 +715,7 @@ int main(int argc, char *argv[])
 #endif
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 
-//#endif
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
