@@ -798,6 +798,8 @@ class bdex_InStreamMethods : public bdex_GenericInStreamMethods {
 };
 
 struct bdex_InStreamMethodsUtil {
+    // !DEPRECATED!: Streaming without explicit versions is not supported.
+    //
     // This 'struct' was introduced to solve backward compatibility problems
     // while streaming in objects.  Its function should not be called
     // directly by clients.
@@ -816,6 +818,9 @@ struct bdex_InStreamMethodsUtil {
         // user has provided specialization for 'bdexStreamIn' then that
         // function is called.  If not, the 'bdex_InStreamFunctions'
         // 'streamInVersionAndObject' function is called.
+
+        // Refer to non-inline symbol to help detect the use of this function.
+        bdex_InStreamFunctions::inStreamFunctionsDeprecatedFunctionIsInUse();
 
         typedef bdex_InStreamMethods<TYPE> methodsClass;
 
