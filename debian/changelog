@@ -1,3 +1,11 @@
+bsl-internal (2.18.3.001) unstable; urgency=low
+
+  * Bump changelog
+  * aadfb80 [APPROVAL] patch-bsls-mutex-drqs-41890133 to releases/2.18.x
+  * 3e493c8 new components bsls_muteximp, bsls_muteximpl_pthread, bsls_muteximpl_win32 (heavily based on bcemt), and associated changes to bsls_platform
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 23 Aug 2013 18:57:06 -0400
+
 bsl-internal (2.18.1.003) unstable; urgency=low
 
   * Bump changelog
