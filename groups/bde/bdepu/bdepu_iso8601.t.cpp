@@ -1250,7 +1250,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1297,6 +1297,58 @@ int main(int argc, char *argv[])
 // the offset from UTC was converted to minutes.
 
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING: bdepu_Iso8601Default
+        //
+        // Concerns:
+        //: 1 The default value for 'useZAbbreviationForUtc' is 'false'.
+        //:
+        //: 2 Calling 'enableUseZAbbreviationForUtc' sets
+        //:   'useZAbbreviationForUtc to 'true'.
+        //:
+        //: 2 Calling 'disableUseZAbbreviationForUtc' sets
+        //:   'useZAbbreviationForUtc to 'false'.
+        //
+        // Plan:
+        //: 1 User a loop-based test over a range of valid date & time values
+        //:   selected to test various formatting properties: (C1-5)
+        //:   1 For each value, perform an orthogonal perturbation for timezone
+        //:     offsets
+        //:
+        //:   2 For each value, perform an orthogonal perturbation for the
+        //:     output buffer length, testing buffers to short for the
+        //:     resulting formatted value.
+        //:
+        //: 2 For a UTC value generate a formatted value of each of the 3 'Tz"
+        //:   types with the optional 'useZAbbreviationForUtc' as both 'true'
+        //:   and 'false' (C-6)
+        //:
+        //: 3 For a UTC value generate a formatted value of each of the 3 'Tz"
+        //:   types both with, and without, the default useZAbbreviationForUtc
+        //:   option enabled. (C-7)
+        //
+        // Testing:
+        //  void enableUseZAbbreviationForUtc();
+        //  void disableUseZAbbreviationForUtc();
+        //  bool useZAbbreviationForUtc();
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING: bdepu_Iso8601Default"
+                               << "\n=============================" 
+                               << bsl::endl;
+
+        ASSERT(false == bdepu_Iso8601Default::useZAbbreviationForUtc());
+
+        bdepu_Iso8601Default::disableUseZAbbreviationForUtc();
+        ASSERT(false == bdepu_Iso8601Default::useZAbbreviationForUtc());
+
+        bdepu_Iso8601Default::enableUseZAbbreviationForUtc();
+        ASSERT(true == bdepu_Iso8601Default::useZAbbreviationForUtc());
+
+        bdepu_Iso8601Default::disableUseZAbbreviationForUtc();
+        ASSERT(false == bdepu_Iso8601Default::useZAbbreviationForUtc());
+      }
       case 6: {
         // --------------------------------------------------------------------
         // TESTING LEAP SECONDS
@@ -1644,8 +1696,12 @@ int main(int argc, char *argv[])
         //:
         //: 5 Correct behavior in case of short output buffers
         //:
-        //: 6 If the property 'useZAbbreviationForUtc' is enabled the output
-        //:   for the TZ offset of a UTC value is 'Z', and '00:00' otherwise.
+        //: 6 If the optional argument 'useZAbbreviationForUtc' is 'true' the
+        //:   output for the TZ offset of a UTC value is 'Z', and '00:00'
+        //:   otherwise. 
+        //:
+        //: 7 If the optional argument 'useZAbbreviationForUtc' is not supplied
+        //:   the default configuration value is used.
         //
         // Plan:
         //: 1 User a loop-based test over a range of valid date & time values
@@ -1658,8 +1714,12 @@ int main(int argc, char *argv[])
         //:     resulting formatted value.
         //:
         //: 2 For a UTC value generate a formatted value of each of the 3 'Tz"
-        //:   types with, and without, the useZAbbreviationForUtc option
-        //:   enabled. (C-6)
+        //:   types with the optional 'useZAbbreviationForUtc' as both 'true'
+        //:   and 'false' (C-6)
+        //:
+        //: 3 For a UTC value generate a formatted value of each of the 3 'Tz"
+        //:   types both with, and without, the default useZAbbreviationForUtc
+        //:   option enabled. (C-7)
         //
         // Testing:
         //  int generate(char *, const bdet_Date&, int);
@@ -2288,7 +2348,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
       } break;
 
       case 1: {
