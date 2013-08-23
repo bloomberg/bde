@@ -48,10 +48,10 @@ class bdet_CalendarCache_EntryPtrRep {
     // DATA
     bsls::AtomicInt   d_sharedCount;  // number of references to this rep
 
-    bsl::time_t       d_loadTime;     // time when calendar was loaded
-
     bdet_Calendar    *d_ptr_p;        // pointer to out-of-place instance
                                       // (held, not owned)
+
+    bsl::time_t       d_loadTime;     // time when calendar was loaded
 
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
