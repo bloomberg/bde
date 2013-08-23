@@ -138,7 +138,7 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
 // the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
 #define EXPAND(X)                                            \
     X
@@ -1301,7 +1301,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING LEAP SECONDS
         //
-        // Concers:
+        // Concerns:
         //   That leap seconds are correctly parsed.
         //
         // Plan:
@@ -1650,12 +1650,12 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 User a loop-based test over a range of valid date & time values
         //:   selected to test various formatting properties: (C1-5)
-        //:   1 For each value, perform an orthognal pertebation for timezone
+        //:   1 For each value, perform an orthogonal perturbation for timezone
         //:     offsets
         //:
-        //:   2 For each value, perform an orthognal pertebation for the 
+        //:   2 For each value, perform an orthogonal perturbation for the
         //:     output buffer length, testing buffers to short for the
-        //:     resulting formated value.
+        //:     resulting formatted value.
         //:
         //: 2 For a UTC value generate a formatted value of each of the 3 'Tz"
         //:   types with, and without, the useZAbbreviationForUtc option
@@ -2048,7 +2048,7 @@ int main(int argc, char *argv[])
                                  output.str() == expected);
                     if (veryVerbose) { P_(expected); P(output.str()); }
                 }
-                
+
                 // Testing bdet_Time
                 {
                     output.str("");
@@ -2108,12 +2108,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) 
+        if (verbose)
             cout << "\tTest 'enableUseZAbbreviationForUtc' configuration.\n";
 
         for (int i = 0; i < NUM_UTC_OFFSETS; ++i ) {
             const int UTC_OFFSET = UTC_OFFSETS[i];
-            
+
             bdet_Date date(2013, 8, 23);
             bdet_Time time(11, 30, 5, 1);
             bdet_Datetime datetime(date, time);
@@ -2147,7 +2147,7 @@ int main(int argc, char *argv[])
             else {
                 expectedDateWithZ     += "Z";
                 expectedTimeWithZ     += "Z";
-                expectedDatetimeWithZ += "Z";               
+                expectedDatetimeWithZ += "Z";
             }
 
             // Test generated vs expected values with Z enabled.
@@ -2157,13 +2157,13 @@ int main(int argc, char *argv[])
                 bsl::vector<char> timeOutput(100, '*');
                 bsl::vector<char> datetimeOutput(100, '*');
 
-                unsigned int dateLen = 
+                unsigned int dateLen =
                     Util::generate(dateOutput.data(), dateTz, 100);
-                unsigned int timeLen = 
+                unsigned int timeLen =
                     Util::generate(timeOutput.data(), timeTz, 100);
-                unsigned int datetimeLen = 
+                unsigned int datetimeLen =
                       Util::generate(datetimeOutput.data(), datetimeTz, 100);
-                
+
                 ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
                         dateLen == bsl::strlen(dateOutput.data()));
                 ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
@@ -2176,11 +2176,11 @@ int main(int argc, char *argv[])
                     P_(timeOutput.data());
                     P(datetimeOutput.data());
                 }
-                ASSERTV(expectedDateWithZ, dateOutput.data(), 
-                        expectedDateWithZ == dateOutput.data());            
-                ASSERTV(expectedTimeWithZ, timeOutput.data(), 
+                ASSERTV(expectedDateWithZ, dateOutput.data(),
+                        expectedDateWithZ == dateOutput.data());
+                ASSERTV(expectedTimeWithZ, timeOutput.data(),
                         expectedTimeWithZ == timeOutput.data());
-                ASSERTV(expectedDatetimeWithZ, datetimeOutput.data(), 
+                ASSERTV(expectedDatetimeWithZ, datetimeOutput.data(),
                         expectedDatetimeWithZ == datetimeOutput.data());
             }
             // Test generated vs expected values with Z disabled.
@@ -2190,13 +2190,13 @@ int main(int argc, char *argv[])
                 bsl::vector<char> timeOutput(100, '*');
                 bsl::vector<char> datetimeOutput(100, '*');
 
-                unsigned int dateLen = 
+                unsigned int dateLen =
                     Util::generate(dateOutput.data(), dateTz, 100);
-                unsigned int timeLen = 
+                unsigned int timeLen =
                     Util::generate(timeOutput.data(), timeTz, 100);
-                unsigned int datetimeLen = 
+                unsigned int datetimeLen =
                       Util::generate(datetimeOutput.data(), datetimeTz, 100);
-                
+
                 ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
                         dateLen == bsl::strlen(dateOutput.data()));
                 ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
@@ -2210,18 +2210,84 @@ int main(int argc, char *argv[])
                     P(datetimeOutput.data());
                 }
 
-                ASSERTV(expectedDateNoZ, dateOutput.data(), 
-                        expectedDateNoZ == dateOutput.data());            
-                ASSERTV(expectedTimeNoZ, timeOutput.data(), 
+                ASSERTV(expectedDateNoZ, dateOutput.data(),
+                        expectedDateNoZ == dateOutput.data());
+                ASSERTV(expectedTimeNoZ, timeOutput.data(),
                         expectedTimeNoZ == timeOutput.data());
-                ASSERTV(expectedDatetimeNoZ, datetimeOutput.data(), 
+                ASSERTV(expectedDatetimeNoZ, datetimeOutput.data(),
                         expectedDatetimeNoZ == datetimeOutput.data());
-            
+
             }
-
-
         }
-        
+
+
+        if (verbose)
+            cout << "\tTest 'useZAbbreviationForUtc' optional argument.\n";
+
+        {
+            bdet_Datetime datetime(2013, 8, 23, 11, 30, 5, 1);
+            bsl::string dateStr("2013-08-23");
+            bsl::string timeStr("11:30:05.001");
+            bsl::string datetimeStr("2013-08-23T11:30:05.001");
+
+            for (int i = 0; i < NUM_UTC_OFFSETS; ++i ) {
+                const int UTC_OFFSET = UTC_OFFSETS[i];
+                bdet_DateTz dateTz(datetime.date(), UTC_OFFSET);
+                bdet_TimeTz timeTz(datetime.time(), UTC_OFFSET);
+                bdet_DatetimeTz datetimeTz(datetime, UTC_OFFSET);
+
+                char offsetBuffer[10];
+                bsl::sprintf(offsetBuffer, "%+03d:%02d",
+                                 UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
+                bsl::string offsetStr(offsetBuffer);
+                for (int useZ = 0; useZ <= 1; ++useZ) {
+                    bsl::string expectedDate(dateStr);
+                    bsl::string expectedTime(timeStr);
+                    bsl::string expectedDatetime(datetimeStr);
+
+                    if (useZ && 0 == UTC_OFFSET) {
+                        expectedDate     += "Z";
+                        expectedTime     += "Z";
+                        expectedDatetime += "Z";
+                    }
+                    else {
+                        expectedDate     += offsetStr;
+                        expectedTime     += offsetStr;
+                        expectedDatetime += offsetStr;
+                    }
+
+                    bsl::vector<char> dateOutput(100, '*');
+                    bsl::vector<char> timeOutput(100, '*');
+                    bsl::vector<char> datetimeOutput(100, '*');
+
+                    unsigned int dateLen =
+                        Util::generate(dateOutput.data(), dateTz, 100, useZ);
+                    unsigned int timeLen =
+                        Util::generate(timeOutput.data(), timeTz, 100, useZ);
+                    unsigned int datetimeLen =
+                        Util::generate(
+                                 datetimeOutput.data(), datetimeTz, 100, useZ);
+
+                    ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
+                            dateLen == bsl::strlen(dateOutput.data()));
+                    ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
+                            timeLen == bsl::strlen(timeOutput.data()));
+                    ASSERTV(datetimeLen, bsl::strlen(datetimeOutput.data()),
+                            datetimeLen == bsl::strlen(datetimeOutput.data()));
+                    if (veryVeryVerbose) {
+                        P_(dateOutput.data());
+                        P_(timeOutput.data());
+                        P(datetimeOutput.data());
+                    }
+                    ASSERTV(expectedDate, dateOutput.data(),
+                            expectedDate == dateOutput.data());
+                    ASSERTV(expectedTime, timeOutput.data(),
+                            expectedTime == timeOutput.data());
+                    ASSERTV(expectedDatetime, datetimeOutput.data(),
+                            expectedDatetime == datetimeOutput.data());
+                }
+            }
+        }
 
       } break;
 

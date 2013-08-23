@@ -11,6 +11,7 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdepu_Iso8601: namespace for ISO8601 date/time conversion functions
+/// bdepu_Iso8601Default: define process-wide default behaviors
 //
 //@SEE_ALSO: bdet_date, bdet_datetime, bdet_datetimetz, bdet_datetz, bdet_time,
 //           bdet_timetz, baexml_encoder, baexml_decoder
@@ -108,7 +109,7 @@ BDES_IDENT("$Id: $")
 //: o Recurring Time Intervals: 2.1.17
 //: o Leap Seconds: 2.2.2
 //: o Calendar Week Numbers: 2.2.10, 4.1.4.
-//: o Basic Formats, i.e.  Dates represented as 'YYYYMMDD', times represented
+//: o Basic Formats, i.e.,  Dates represented as 'YYYYMMDD', times represented
 //:   as 'hhmmss', etc: 2.3.3.  This component supports complete formats only,
 //:   that is, only formats with separators such as '-' in dates and ':' in
 //:   times, and only formats that where 'YYYY' is 4 digits and 'MM', 'DD',
@@ -219,21 +220,12 @@ struct bdepu_Iso8601 {
     static int generate(char             *buffer,
                         const bdet_Date&  object,
                         int               bufferLength);
-    static int generate(char                 *buffer,
-                        const bdet_Datetime&  object,
-                        int                   bufferLength);
-    static int generate(char                   *buffer,
-                        const bdet_DatetimeTz&  object,
-                        int                     bufferLength);
-    static int generate(char               *buffer,
-                        const bdet_DateTz&  object,
-                        int                 bufferLength);
     static int generate(char             *buffer,
                         const bdet_Time&  object,
                         int               bufferLength);
-    static int generate(char               *buffer,
-                        const bdet_TimeTz&  object,
-                        int                 bufferLength);
+    static int generate(char                 *buffer,
+                        const bdet_Datetime&  object,
+                        int                   bufferLength);
         // Write the ISO8601 representation of the specified 'object' to
         // specified 'buffer' truncating (if necessary) to the specified
         // 'bufferLength', and return the length of the formatted string
@@ -249,18 +241,54 @@ struct bdepu_Iso8601 {
         // by the corresponding 'parse' routine without loss of accuracy,
         // provided 'bufferLength' is sufficiently large.
 
+    static int generate(char               *buffer,
+                        const bdet_DateTz&  object,
+                        int                 bufferLength);
+    static int generate(char               *buffer,
+                        const bdet_DateTz&  object,
+                        int                 bufferLength,
+                        bool                useZAbbreviationForUtc);
+    static int generate(char               *buffer,
+                        const bdet_TimeTz&  object,
+                        int                 bufferLength);
+    static int generate(char               *buffer,
+                        const bdet_TimeTz&  object,
+                        int                 bufferLength,
+                        bool                useZAbbreviationForUtc);
+    static int generate(char                   *buffer,
+                        const bdet_DatetimeTz&  object,
+                        int                     bufferLength);
+    static int generate(char                   *buffer,
+                        const bdet_DatetimeTz&  object,
+                        int                     bufferLength,
+                        bool                    useZAbbreviationForUtc);
+        // Write the ISO8601 representation of the specified 'object' to
+        // specified 'buffer' truncating (if necessary) to the specified
+        // 'bufferLength', and return the length of the formatted string
+        // before truncation (not including a null terminator).  Optionally
+        // specify 'useZAbbreviationForUtc' to indicate whether to abbreviate a
+        // time-zone offset of 00:00 (UTC) using the character 'Z' (e.g., if
+        // 'useZAbbreviationForUtc' is 'true' 10am UTC will be formatted as
+        // "10:00:00.000Z", and will be formatted as "10:00:00.000+000"
+        // otherwise).  If 'useZAbbreviationForUtc' is not supplied, the
+        // process wide default value, 'defaultUseZAbbreviationForUtc' is used.
+        // If 'bufferLength' is larger than necessary to contain the string
+        // representation of 'object', then a null terminator is appended to
+        // the output.  The behavior is undefined unless '0 <= bufferLength'.
+        // Note that, for each type of 'object', the return value is always the
+        // same (as enumerated in the '_STRLEN' constants).  Also note that a
+        // buffer of size 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to
+        // hold any formatted string, including the null terminator.  Also note
+        // that the output from a 'generate' routine can always be parsed by
+        // the corresponding 'parse' routine without loss of accuracy, provided
+        // 'bufferLength' is sufficiently large.
+
     static int generateRaw(char             *buffer,
                            const bdet_Date&  object);
     static int generateRaw(char                 *buffer,
                            const bdet_Datetime&  object);
-    static int generateRaw(char                   *buffer,
-                           const bdet_DatetimeTz&  object);
-    static int generateRaw(char               *buffer,
-                           const bdet_DateTz&  object);
     static int generateRaw(char             *buffer,
                            const bdet_Time&  object);
-    static int generateRaw(char               *buffer,
-                           const bdet_TimeTz&  object);
         // Write the ISO8601 representation of the specified 'object' to
         // specified 'buffer' and return the length of the formatted string
         // (not including a null terminator).  The behavior is undefined unless
@@ -271,12 +299,73 @@ struct bdepu_Iso8601 {
         // formatted string, including any null terminator.  It is unspecified
         // whether the 'buffer' is null terminated on output or not.
 
-    template <typename DATE_TYPE>
-    static bsl::ostream& generate(bsl::ostream&    stream,
-                                  const DATE_TYPE& object);
+    static int generateRaw(char               *buffer,
+                           const bdet_DateTz&  object);
+    static int generateRaw(char               *buffer,
+                           const bdet_DateTz&  object,
+                           bool                useZAbbreviationForUtc);
+    static int generateRaw(char               *buffer,
+                           const bdet_TimeTz&  object);
+    static int generateRaw(char               *buffer,
+                           const bdet_TimeTz&  object,
+                           bool                useZAbbreviationForUtc);
+    static int generateRaw(char                   *buffer,
+                           const bdet_DatetimeTz&  object);
+    static int generateRaw(char                   *buffer,
+                           const bdet_DatetimeTz&  object,
+                           bool                    useZAbbreviationForUtc);
         // Write the ISO8601 representation of the specified 'object' to
-        // specified 'stream'.  Return a reference to the modifiable
-        // 'stream'.
+        // specified 'buffer' and return the length of the formatted string
+        // (not including a null terminator).  Optionally specify
+        // 'useZAbbreviationForUtc' to indicate whether to abbreviate a
+        // time-zone offset of 00:00 (UTC) using the character 'Z' (e.g., if
+        // 'useZAbbreviationForUtc' is 'true' 10am UTC will be formatted as
+        // "10:00:00.000Z", and will be formatted as "10:00:00.000+000"
+        // otherwise).  If 'useZAbbreviationForUtc' is not supplied, the
+        // process wide default value, 'defaultUseZAbbreviationForUtc' is used.
+        // The behavior is undefined unless 'buffer' holds enough characters.
+        // Note that, for each type of 'object', the return value is always the
+        // same (as enumerated in the '_STRLEN' constants).  Also note that a
+        // buffer of size 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to
+        // hold any formatted string, including any null terminator.  It is
+        // unspecified whether the 'buffer' is null terminated on output or
+        // not.
+
+    static bsl::ostream& generate(bsl::ostream&    stream,
+                                  const bdet_Date& object);
+    static bsl::ostream& generate(bsl::ostream&    stream,
+                                  const bdet_Time& object);
+    static bsl::ostream& generate(bsl::ostream&        stream,
+                                  const bdet_Datetime& object);
+        // Write the ISO8601 representation of the specified 'object' to
+        // specified 'stream'.  Return a reference to the modifiable 'stream'.
+
+    static bsl::ostream& generate(bsl::ostream&      stream,
+                                  const bdet_TimeTz& object);
+    static bsl::ostream& generate(bsl::ostream&      stream,
+                                  const bdet_TimeTz& object,
+                                  bool               useZAbbreviationForUtc);
+    static bsl::ostream& generate(bsl::ostream&      stream,
+                                  const bdet_DateTz& object);
+    static bsl::ostream& generate(bsl::ostream&      stream,
+                                  const bdet_DateTz& object,
+                                  bool               useZAbbreviationForUtc);
+    static bsl::ostream& generate(
+                             bsl::ostream&          stream,
+                             const bdet_DatetimeTz& object);
+    static bsl::ostream& generate(
+                               bsl::ostream&          stream,
+                               const bdet_DatetimeTz& object,
+                               bool                   useZAbbreviationForUtc);
+        // Write the ISO8601 representation of the specified 'object' to
+        // specified 'stream'.  Optionally specify 'useZAbbreviationForUtc' to
+        // indicate whether to abbreviate a time-zone offset of 00:00 (UTC)
+        // using the character 'Z' (e.g., if 'useZAbbreviationForUtc' is
+        // 'true' 10am UTC will be formatted as "10:00:00.000Z", and will be
+        // formatted as "10:00:00.000+000" otherwise).  If
+        // 'useZAbbreviationForUtc' is not supplied, the process wide default
+        // value, 'defaultUseZAbbreviationForUtc' is used.  Return a reference
+        // to the modifiable 'stream'.
 
     static int parse(bdet_Date  *result,
                      const char *input,
@@ -459,18 +548,22 @@ struct bdepu_Iso8601 {
 
 struct bdepu_Iso8601Default {
     // This 'struct' provides a namespace for utility functions that configure
-    // process wide defaults for 'bdepu_Iso8601'.  These options are
-    // *temporary* and will be removed in a future release.
+    // process wide defaults for 'bdepu_Iso8601'.
 
-   static void enableUseZAbbreviationForUtc();
-        // Enable using the character 'Z' as an abbrevation for a time zone
+    // CLASS METHODS
+    static void enableUseZAbbreviationForUtc();
+        // Enable using the character 'Z' as an abbreviation for a time zone
         // offset of 00:00 (UTC).  For example, enabling this option would
         // mean that 10:00am UTC would be formatted as "10:00:00.000Z".
 
-   static void disableUseZAbbreviationForUtc();
-        // Disable using the character 'Z' as an abbrevation for a time zone
+    static void disableUseZAbbreviationForUtc();
+        // Disable using the character 'Z' as an abbreviation for a time zone
         // offset of 00:00 (UTC).  For example, disabling this option would
         // mean that 10:00am UTC would be formatted as "10:00:00.000+00:00".
+
+    static bool useZAbbreviationForUtc();
+        // Return 'true' if, by default, 'Z' should be used as an abbreviation
+        // for a time zone offset of 00:00 (UTC), and 'false' otherwise.
 
 };
 
@@ -479,14 +572,166 @@ struct bdepu_Iso8601Default {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-template <typename DATE_TYPE>
+// CLASS METHODS
+inline
+int bdepu_Iso8601::generate(char               *buffer,
+                            const bdet_DateTz&  object,
+                            int                 bufLen)
+{
+    return generate(buffer,
+                    object,
+                    bufLen,
+                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+
+}
+
+inline
+int bdepu_Iso8601::generate(char               *buffer,
+                            const bdet_TimeTz&  object,
+                            int                 bufLen)
+{
+    return generate(buffer,
+                    object,
+                    bufLen,
+                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
+inline
+int bdepu_Iso8601::generate(char                   *buffer,
+                            const bdet_DatetimeTz&  object,
+                            int                     bufLen)
+{
+    return generate(buffer,
+                    object,
+                    bufLen,
+                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
+inline
+int bdepu_Iso8601::generateRaw(char               *buffer,
+                               const bdet_DateTz&  object)
+{
+    return generateRaw(buffer,
+                       object,
+                       bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
+inline
+int bdepu_Iso8601::generateRaw(char               *buffer,
+                               const bdet_TimeTz&  object)
+{
+    return generateRaw(buffer,
+                       object,
+                       bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
+inline
+int bdepu_Iso8601::generateRaw(char                   *buffer,
+                               const bdet_DatetimeTz&  object)
+{
+    return generateRaw(buffer,
+                       object,
+                       bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
 inline
 bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&    stream,
-                                      const DATE_TYPE& object)
+                                      const bdet_Date& object)
 {
-    char buffer[BDEPU_MAX_DATETIME_STRLEN + 1];
-    int len = generate(buffer, object, BDEPU_MAX_DATETIME_STRLEN);
-    BSLS_ASSERT_SAFE(BDEPU_MAX_DATETIME_STRLEN >= len);
+    char buffer[BDEPU_DATE_STRLEN + 1];
+    int len = generate(buffer, object, BDEPU_DATE_STRLEN);
+    BSLS_ASSERT_SAFE(BDEPU_DATE_STRLEN >= len);
+    stream.write(buffer, len);
+    return stream;
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&    stream,
+                                      const bdet_Time& object)
+{
+    char buffer[BDEPU_TIME_STRLEN + 1];
+    int len = generate(buffer, object, BDEPU_TIME_STRLEN)
+    BSLS_ASSERT_SAFE(BDEPU_TIME_STRLEN >= len);
+    stream.write(buffer, len);
+    return stream;
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&        stream,
+                                      const bdet_Datetime& object)
+{
+    char buffer[BDEPU_DATETIME_STRLEN + 1];
+    int len = generate(buffer, object, BDEPU_DATETIME_STRLEN);
+    BSLS_ASSERT_SAFE(BDEPU_DATETIME_STRLEN >= len);
+    stream.write(buffer, len);
+    return stream;
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&      stream,
+                                      const bdet_DateTz& object)
+{
+    return generate(stream,
+                    object,
+                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(
+                                     bsl::ostream&      stream,
+                                     const bdet_DateTz& object,
+                                     bool               useZAbbreviationForUtc)
+{
+    char buffer[BDEPU_DATETZ_STRLEN + 1];
+    int len = generate(
+             buffer, object, BDEPU_DATETZ_STRLEN, useZAbbreviationForUtc);
+    BSLS_ASSERT_SAFE(BDEPU_DATETZ_STRLEN >= len);
+    stream.write(buffer, len);
+    return stream;
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&      stream,
+                                      const bdet_TimeTz& object)
+{
+    return generate(stream,
+                    object,
+                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(
+                                     bsl::ostream&      stream,
+                                     const bdet_TimeTz& object,
+                                     bool               useZAbbreviationForUtc)
+{
+    char buffer[BDEPU_TIMETZ_STRLEN + 1];
+    int len = generate(
+                  buffer, object, BDEPU_TIMETZ_STRLEN, useZAbbreviationForUtc);
+    BSLS_ASSERT_SAFE(BDEPU_TIMETZ_STRLEN >= len);
+    stream.write(buffer, len);
+    return stream;
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&      stream,
+                                      const bdet_DatetimeTz& object)
+{
+    return generate(stream,
+                    object,
+                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+}
+
+inline
+bsl::ostream& bdepu_Iso8601::generate(
+                                 bsl::ostream&          stream,
+                                 const bdet_DatetimeTz& object,
+                                 bool                   useZAbbreviationForUtc)
+{
+    char buffer[BDEPU_DATETIMETZ_STRLEN + 1];
+    int len = generate(
+              buffer, object, BDEPU_DATETIMETZ_STRLEN, useZAbbreviationForUtc);
+    BSLS_ASSERT_SAFE(BDEPU_DATETIMETZ_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
 }
