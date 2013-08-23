@@ -15,7 +15,6 @@ BDES_IDENT_RCSID(bdet_calendarcache_cpp,"$Id$ $CSID$")
 #include <bsls_atomic.h>
 #include <bsls_types.h>
 
-#include <bsl_ctime.h>
 #include <bsl_functional.h>
 
 namespace BloombergLP {

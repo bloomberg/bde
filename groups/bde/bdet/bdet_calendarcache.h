@@ -269,6 +269,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_bsllock.h>
 #endif
 
+#ifndef INCLUDED_BSL_CTIME
+#include <bsl_ctime.h>
+#endif
+
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
