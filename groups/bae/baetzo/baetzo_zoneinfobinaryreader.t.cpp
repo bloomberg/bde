@@ -1772,7 +1772,10 @@ void ZoneinfoData::populateLocalTimeTypeBuf()
     for (int i = 0; i < getRawHeader()->numLocalTimeTypes(); ++i) {
         buffer[i].setOffset(i);
         buffer[i].setIsDst(i % 2);
-        buffer[i].setAbbreviationIndex(i % getRawHeader()->abbrevDataSize());
+        int abbrevDataSize = getRawHeader()->abbrevDataSize();
+        if (abbrevDataSize) {
+            buffer[i].setAbbreviationIndex(i % abbrevDataSize);
+        }
     }
 }
 
@@ -1782,7 +1785,10 @@ void ZoneinfoData::populateLocalTimeTypeBuf64()
     for (int i = 0; i < getRawHeader64()->numLocalTimeTypes(); ++i) {
         buffer[i].setOffset(i);
         buffer[i].setIsDst(i % 2);
-        buffer[i].setAbbreviationIndex(i % getRawHeader64()->abbrevDataSize());
+        int abbrevDataSize = getRawHeader64()->abbrevDataSize();
+        if (abbrevDataSize) {
+            buffer[i].setAbbreviationIndex(i % abbrevDataSize);
+        }
     }
 }
 
@@ -1835,13 +1841,14 @@ int ZoneinfoData::size() const
 char *ZoneinfoData::getVersion2Offset() const
 {
     return &d_buffer[sizeof(RawHeader)
-        + getRawHeader()->numTransitions() * 4
-        + getRawHeader()->numTransitions()
-        + getRawHeader()->numLocalTimeTypes() * sizeof(RawLocalTimeTypes)
-        + getRawHeader()->abbrevDataSize()
-        + getRawHeader()->numLeaps() * sizeof(RawLeapInfo)
-        + getRawHeader()->numIsStd()
-        + getRawHeader()->numIsGmt()];
+        + bsl::max(getRawHeader()->numTransitions(), 0) * 4
+        + bsl::max(getRawHeader()->numTransitions(), 0)
+        + bsl::max(getRawHeader()->numLocalTimeTypes(), 0) *
+                                                      sizeof(RawLocalTimeTypes)
+        + bsl::max(getRawHeader()->abbrevDataSize(), 0)
+        + bsl::max(getRawHeader()->numLeaps(), 0) * sizeof(RawLeapInfo)
+        + bsl::max(getRawHeader()->numIsStd(), 0)
+        + bsl::max(getRawHeader()->numIsGmt(), 0)];
 }
 
 RawHeader *ZoneinfoData::getRawHeader() const
@@ -1870,7 +1877,7 @@ unsigned char *ZoneinfoData::getTransitionIndex() const
 {
     return reinterpret_cast<unsigned char *>(
         &d_buffer[sizeof(RawHeader)
-        + getRawHeader()->numTransitions() * 4]);
+        + bsl::max(getRawHeader()->numTransitions(), 0) * 4]);
 }
 
 unsigned char *ZoneinfoData::getTransitionIndex64() const
@@ -1878,17 +1885,18 @@ unsigned char *ZoneinfoData::getTransitionIndex64() const
     return reinterpret_cast<unsigned char *>(
         getVersion2Offset()
         + sizeof(RawHeader)
-        + getRawHeader64()->numTransitions() * 8);
+        + bsl::max(getRawHeader64()->numTransitions(), 0) * 8);
 }
 
 RawLeapInfo *ZoneinfoData::getRawLeapInfo() const
 {
     return reinterpret_cast<RawLeapInfo*>(
         &d_buffer[sizeof(RawHeader)
-        + getRawHeader()->numTransitions() * 4
-        + getRawHeader()->numTransitions()
-        + getRawHeader()->numLocalTimeTypes() * sizeof(RawLocalTimeTypes)
-        + getRawHeader()->abbrevDataSize()]);
+        + bsl::max(getRawHeader()->numTransitions(), 0) * 4
+        + bsl::max(getRawHeader()->numTransitions(), 0)
+        + bsl::max(getRawHeader()->numLocalTimeTypes(), 0) *
+                                                      sizeof(RawLocalTimeTypes)
+        + bsl::max(getRawHeader()->abbrevDataSize(), 0)]);
 }
 
 RawLeapInfo64 *ZoneinfoData::getRawLeapInfo64() const
@@ -1896,18 +1904,19 @@ RawLeapInfo64 *ZoneinfoData::getRawLeapInfo64() const
     return reinterpret_cast<RawLeapInfo64*>(
         getVersion2Offset()
         + sizeof(RawHeader)
-        + getRawHeader64()->numTransitions() * 8
-        + getRawHeader64()->numTransitions()
-        + getRawHeader64()->numLocalTimeTypes() * sizeof(RawLocalTimeTypes)
-        + getRawHeader64()->abbrevDataSize());
+        + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
+        + bsl::max(getRawHeader64()->numTransitions(), 0)
+        + bsl::max(getRawHeader64()->numLocalTimeTypes(), 0) *
+                                                      sizeof(RawLocalTimeTypes)
+        + bsl::max(getRawHeader64()->abbrevDataSize(), 0));
 }
 
 RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes() const
 {
     return reinterpret_cast<RawLocalTimeTypes*>(
         &d_buffer[sizeof(RawHeader)
-        + getRawHeader()->numTransitions() * 4
-        + getRawHeader()->numTransitions()]);
+        + bsl::max(getRawHeader()->numTransitions(), 0) * 4
+        + bsl::max(getRawHeader()->numTransitions(), 0)]);
 }
 
 RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes64() const
@@ -1915,26 +1924,28 @@ RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes64() const
     return reinterpret_cast<RawLocalTimeTypes*>(
         getVersion2Offset()
         + sizeof(RawHeader)
-        + getRawHeader64()->numTransitions() * 8
-        + getRawHeader64()->numTransitions());
+        + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
+        + bsl::max(getRawHeader64()->numTransitions(), 0));
 }
 
 char *ZoneinfoData::getAbbrevData() const
 {
     return &d_buffer[
         sizeof(RawHeader)
-        + getRawHeader()->numTransitions() * 4
-        + getRawHeader()->numTransitions()
-        + getRawHeader()->numLocalTimeTypes() * sizeof(RawLocalTimeTypes)];
+        + bsl::max(getRawHeader()->numTransitions(), 0) * 4
+        + bsl::max(getRawHeader()->numTransitions(), 0)
+        + bsl::max(getRawHeader()->numLocalTimeTypes(), 0) *
+                                                    sizeof(RawLocalTimeTypes)];
 }
 
 char *ZoneinfoData::getAbbrevData64() const
 {
     return getVersion2Offset()
         + sizeof(RawHeader)
-        + getRawHeader64()->numTransitions() * 8
-        + getRawHeader64()->numTransitions()
-        + getRawHeader64()->numLocalTimeTypes() * sizeof(RawLocalTimeTypes);
+        + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
+        + bsl::max(getRawHeader64()->numTransitions(), 0)
+        + bsl::max(getRawHeader64()->numLocalTimeTypes(), 0) *
+                                                     sizeof(RawLocalTimeTypes);
 }
 
 // ----------------------------------------------------------------------------
@@ -2765,11 +2776,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nInvalid version '2' 'numIsGmt'." << endl;
         {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('2');
-            ZI.getRawHeader()->setNumIsGmt(-1);
-            ZI.getRawHeader64()->setVersion('2');
-            ZI.getRawHeader64()->setNumIsGmt(-1);
+            RawHeader RH;
+            RH.setVersion('2');
+            RH.setNumIsGmt(-1);
+            ZoneinfoData ZI(RH);
             bdesb_FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baetzo_Zoneinfo TZ;
@@ -2788,11 +2798,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nInvalid version '2' 'numIsStd'." << endl;
         {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('2');
-            ZI.getRawHeader()->setNumIsStd(-1);
-            ZI.getRawHeader64()->setVersion('2');
-            ZI.getRawHeader64()->setNumIsStd(-1);
+            RawHeader RH;
+            RH.setVersion('2');
+            RH.setNumIsStd(-1);
+            ZoneinfoData ZI(RH);
             bdesb_FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baetzo_Zoneinfo TZ;
@@ -2811,11 +2820,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nInvalid version '2' 'numTransitions'." << endl;
         {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('2');
-            ZI.getRawHeader()->setNumTransitions(-1);
-            ZI.getRawHeader64()->setVersion('2');
-            ZI.getRawHeader64()->setNumTransitions(-1);
+            RawHeader RH;
+            RH.setVersion('2');
+            RH.setNumTransitions(-1);
+            ZoneinfoData ZI(RH);
             bdesb_FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baetzo_Zoneinfo TZ;
@@ -2836,11 +2844,10 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                           "\nInvalid version '2' 'numLocalTimeTypes'." << endl;
         {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('2');
-            ZI.getRawHeader()->setNumLocalTimeTypes(0);
-            ZI.getRawHeader64()->setVersion('2');
-            ZI.getRawHeader64()->setNumLocalTimeTypes(0);
+            RawHeader RH;
+            RH.setVersion('2');
+            RH.setNumLocalTimeTypes(0);
+            ZoneinfoData ZI(RH);
             bdesb_FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baetzo_Zoneinfo TZ;
@@ -2859,11 +2866,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nInvalid version '2' 'abbrevDataSize'" << endl;
         {
-            ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('2');
-            ZI.getRawHeader()->setAbbrevDataSize(0);
-            ZI.getRawHeader64()->setVersion('2');
-            ZI.getRawHeader64()->setAbbrevDataSize(0);
+            RawHeader RH;
+            RH.setVersion('2');
+            RH.setAbbrevDataSize(0);
+            ZoneinfoData ZI(RH);
             bdesb_FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baetzo_Zoneinfo TZ;
