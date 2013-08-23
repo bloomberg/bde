@@ -77,13 +77,23 @@ BSLMF_ASSERT(6 == sizeof(RawLocalTimeType));
 
 struct RawLeapInfo {
     // The byte sequence of a leap correction in the Zoneinfo binary data
-    // format.
+    // format version '\0'.
 
     char d_transition[4];  // POSIX time at which the leap second occur
     char d_correction[4];  // accumulated leap correction
 };
 
 BSLMF_ASSERT(8 == sizeof(RawLeapInfo));
+
+struct RawLeapInfo64 {
+    // The byte sequence of a leap correction in the Zoneinfo binary data
+    // format version '2'.
+
+    char d_transition[8];  // POSIX time at which the leap second occur
+    char d_correction[4];  // accumulated leap correction
+};
+
+BSLMF_ASSERT(12 == sizeof(RawLeapInfo64));
 
 }  // close unnamed namespace
 
@@ -170,21 +180,6 @@ int decode32(const char *address)
     int temp;
     bsl::memcpy(&temp, address, sizeof(temp));
     return BSLS_BYTEORDER_BE_U32_TO_HOST(temp);
-}
-
-static inline
-bsls::Types::Int64 decode64(const char *address)
-    // Read the 64-bit big-endian integer in the array of bytes located at the
-    // specified 'address' and return that value.  The behavior is undefined
-    // unless 'address' points to an accessible memory location.  Note that
-    // this function is currently not used, but will be needed when version 2
-    // of the Zoneinfo binary file is supported.
-{
-    BSLS_ASSERT_SAFE(address);
-
-    bsls::Types::Int64 temp;
-    bsl::memcpy(&temp, address, sizeof(temp));
-    return BSLS_BYTEORDER_BE_U64_TO_HOST(temp);
 }
 
 static inline
@@ -296,6 +291,168 @@ int readHeader(baetzo_ZoneinfoBinaryHeader *result,
     return 0;
 }
 
+static inline
+int readData64(baetzo_Zoneinfo             *zoneinfoResult,
+               baetzo_ZoneinfoBinaryHeader *headerResult,
+               bsl::istream&                stream)
+{
+    BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
+
+    int rc = readHeader(headerResult, stream);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    bsl::vector<bdeut_BigEndianInt64> transitions;
+    if (0 != readRawArray(&transitions,
+                          stream,
+                          headerResult->numTransitions())) {
+        BAEL_LOG_ERROR << "Error reading transitions from Zoneinfo file."
+                       << BAEL_LOG_END
+        return -10;                                                   // RETURN
+    }
+
+    bsl::vector<unsigned char> localTimeIndices;
+    if (0 != readRawArray(&localTimeIndices,
+                          stream,
+                          headerResult->numTransitions())){
+        BAEL_LOG_ERROR << "Error reading local time indices from "
+                       << "Zoneinfo file."
+                       << BAEL_LOG_END;
+        return -11;                                                   // RETURN
+    }
+
+    bsl::vector<RawLocalTimeType> localTimeDescriptors;
+    if (0 != readRawArray(&localTimeDescriptors,
+                          stream,
+                          headerResult->numLocalTimeTypes())){
+        BAEL_LOG_ERROR << "Error reading local-time types from Zoneinfo file."
+                       << BAEL_LOG_END;
+        return -12;                                                   // RETURN
+    }
+
+    bsl::vector<char> abbreviationBuffer;
+    if (0 != readRawArray(&abbreviationBuffer,
+                          stream,
+                          headerResult->abbrevDataSize())) {
+        BAEL_LOG_ERROR << "Error reading abbreviation buffer from Zoneinfo "
+                       << "file."
+                       << BAEL_LOG_END;
+        return -13;                                                   // RETURN
+    }
+
+    bsl::vector<RawLeapInfo64> leapInfos;
+    if (0 != readRawArray(&leapInfos, stream, headerResult->numLeaps())) {
+        BAEL_LOG_ERROR << "Error reading leap information from Zoneinfo file."
+                       << BAEL_LOG_END;
+        return -14;                                                   // RETURN
+    }
+
+    bsl::vector<unsigned char> isGmt;
+    if (0 != readRawArray(&isGmt, stream, headerResult->numIsGmt())) {
+        BAEL_LOG_ERROR << "Error reading 'isGmt' information from Zoneinfo "
+                       << "file."
+                       << BAEL_LOG_END;
+        return -15;                                                   // RETURN
+    }
+
+    bsl::vector<unsigned char> isStd;
+    if (0 != readRawArray(&isStd, stream, headerResult->numIsStd())) {
+        BAEL_LOG_ERROR << "Error reading 'isStd' information from Zoneinfo "
+                       << "file."
+                       << BAEL_LOG_END;
+        return -16;                                                   // RETURN
+    }
+
+    // Convert raw type objects into their associated types exposed by
+    // 'baetzo_Zoneinfo'.  Verify any data offsets read from the file to ensure
+    // they are within valid boundaries.
+
+    // Convert the 'Raw' local-time types into
+    // 'zoneinfoResult->localTimeDescriptors()'.
+
+    bsl::vector<baetzo_LocalTimeDescriptor> descriptors;
+    for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
+        if (!validIndex(abbreviationBuffer,
+                        localTimeDescriptors[i].d_abbreviationIndex)) {
+            BAEL_LOG_ERROR << "Invalid abbreviation buffer index "
+                           << (int)localTimeDescriptors[i].d_abbreviationIndex
+                           << " found in Zoneinfo file.  Expecting [0 .. "
+                           << abbreviationBuffer.size() - 1
+                           << "]."
+                           << BAEL_LOG_END;
+            return -17;                                               // RETURN
+        }
+
+        const int utcOffset = decode32(localTimeDescriptors[i].d_offset);
+
+        if (!baetzo_LocalTimeDescriptor::isValidUtcOffsetInSeconds(utcOffset)){
+            BAEL_LOG_ERROR << "Invalid UTC offset "
+                           << utcOffset
+                           << " found in Zoneinfo file.  Expecting "
+                           << "[-86399 .. 86399]."
+                           << BAEL_LOG_END;
+
+            return -18;                                               // RETURN
+        }
+        const bool isDst = localTimeDescriptors[i].d_isDst;
+
+        // Passing the address of the first character pointed by the index (C
+        // string).
+
+        const char *description =
+              &abbreviationBuffer[localTimeDescriptors[i].d_abbreviationIndex];
+
+        // Check if 'description' is null-terminated.
+
+        const int maxLength = headerResult->abbrevDataSize()
+                              - localTimeDescriptors[i].d_abbreviationIndex
+                              - 1;
+        if (maxLength < bdeu_String::strnlen(description, maxLength + 1)) {
+            BAEL_LOG_ERROR << "Abbreviation string is not null-terminated."
+                           << BAEL_LOG_END;
+            return -19;
+        }
+
+        descriptors.push_back(baetzo_LocalTimeDescriptor(utcOffset,
+                                                         isDst,
+                                                          description));
+    }
+
+    // Add default transition.
+    const bsls::Types::Int64 firstTransitionTime =
+                        bdetu_Epoch::convertToTimeT64(bdet_Datetime(1, 1, 1));
+    zoneinfoResult->addTransition(firstTransitionTime, descriptors.front());
+
+    // Convert the 'Raw' transitions information into
+    // 'zoneinfoResult->transitions()'.
+
+    for (bsl::size_t i = 0; i < transitions.size(); ++i) {
+        if (!validIndex(descriptors, localTimeIndices[i])) {
+            BAEL_LOG_ERROR << "Invalid local-type type index "
+                           << (int)localTimeIndices[i]
+                           << " found in Zoneinfo file.  Expecting [0 .. "
+                           << descriptors.size() - 1
+                           << "]."
+                           << BAEL_LOG_END;
+            return -21;                                               // RETURN
+        }
+
+        if (i > 0 && transitions[i - 1] >= transitions[i]) {
+            BAEL_LOG_ERROR << "Transition time is not in ascending order."
+                           << BAEL_LOG_END;
+            return -22;                                               // RETURN
+        }
+
+        const int curDescriptorIndex = localTimeIndices[i];
+
+        zoneinfoResult->addTransition(transitions[i],
+                                      descriptors[curDescriptorIndex]);
+    }
+
+    return 0;
+}
+
                       // ---------------------------------
                       // class baetzo_ZoneinfoBinaryReader
                       // ---------------------------------
@@ -378,6 +535,16 @@ int baetzo_ZoneinfoBinaryReader::read(
                        << "file."
                        << BAEL_LOG_END;
         return -16;                                                   // RETURN
+    }
+
+    if ('2' == headerResult->version()) {
+        // If the file is version '2', then the data containing 32-bit epoch
+        // offsets is immediately followed by another header and set of data
+        // containing 64-bit epoch offsets.  The data containing 64-bit epoch
+        // offsets is always used because it contains additional transitions
+        // that can not be represented in 32-bit values.
+
+        return readData64(zoneinfoResult, headerResult, stream);      // RETURN
     }
 
     // Convert raw type objects into their associated types exposed by
