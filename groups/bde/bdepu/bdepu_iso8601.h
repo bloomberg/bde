@@ -453,6 +453,28 @@ struct bdepu_Iso8601 {
         // 'ss == 60' and there is rounding up due to the '{.d+}' field.
 };
 
+                        // ===========================
+                        // struct bdepu_Iso8601Default
+                        // ===========================
+
+struct bdepu_Iso8601Default {
+    // This 'struct' provides a namespace for utility functions that configure
+    // process wide defaults for 'bdepu_Iso8601'.  These options are
+    // *temporary* and will be removed in a future release.
+
+   static void enableUseZAbbreviationForUtc();
+        // Enable using the character 'Z' as an abbrevation for a time zone
+        // offset of 00:00 (UTC).  For example, enabling this option would
+        // mean that 10:00am UTC would be formatted as "10:00:00.000Z".
+
+   static void disableUseZAbbreviationForUtc();
+        // Disable using the character 'Z' as an abbrevation for a time zone
+        // offset of 00:00 (UTC).  For example, disabling this option would
+        // mean that 10:00am UTC would be formatted as "10:00:00.000+00:00".
+
+};
+
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================

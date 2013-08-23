@@ -11,6 +11,7 @@
 
 #include <bsls_stopwatch.h>
 
+#include <bsl_vector.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -22,6 +23,10 @@
 #include <stdlib.h>
 
 using namespace BloombergLP;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
@@ -94,65 +99,64 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) {                 \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\n"; \
-               aSsErT(1, #X, __LINE__); }}
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) {              \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT(I,X) {                                                    \
+    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP3_ASSERT(I,J,K,X) {            \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP1_ASSERT LOOP_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) {          \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\t"  \
-               << #L << ": " << L << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP2_ASSERT(I,J,X) {                                                 \
+    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
+              << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) {        \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\t"  \
-               << #L << ": " << L << "\t"  \
-               << #M << ": " << M << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP3_ASSERT(I,J,K,X) {                                               \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
+              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) {      \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\t"  \
-               << #L << ": " << L << "\t"  \
-               << #M << ": " << M << "\t"  \
-               << #N << ": " << N << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
+       aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
+       #M << ": " << M << "\n";                                               \
+       aSsErT(1, #X, __LINE__); } }
+
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-    // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-    // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", "<< bsl::flush;
-    // P(X) without '\n'
-#define T_    bsl::cout << "\t" << bsl::flush;  // print Tab without '\n'
-#define L_ __LINE__                             // current Line number
+// ----------------------------------------------------------------------------
+
+#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
+#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
+#define L_ __LINE__                           // current Line number
+
+// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
+// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
+#define EXPAND(X)                                            \
+    X
+
+#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
+    N
+
+#define NUM_ARGS(...)                                        \
+    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
+
+#define LOOPN_ASSERT_IMPL(N, ...)                            \
+    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
+
+#define LOOPN_ASSERT(N, ...)                                 \
+    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+
+#define ASSERTV(...)                                         \
+    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 //=============================================================================
 //                  GLOBALS, TYPEDEFS, CONSTANTS FOR TESTING
@@ -1624,54 +1628,51 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING GENERATE
+        // TESTING: generate
         //
         // Concerns:
-        //     - All six types generate correct strings for a variety of
-        //       values.
-        //     - The Tz types add an offset from UTC to the end of the
-        //       generated string; the other types do not.
-        //     - The Tz value can be positive, negative, or zero.
-        //     - All time and datetime classes generate a 3-digits for
-        //       fractions of a second.
-        //     - Correct behavior in case of short output buffers
+        //: 1 All six types generate correct strings for a variety of
+        //:   values.
+        //:
+        //: 2 The Tz types add an offset from UTC to the end of the
+        //:   generated string; the other types do not.
+        //:
+        //: 3 The Tz value can be positive, negative, or zero.
+        //:
+        //: 4 All time and datetime classes generate a 3-digits for
+        //:   fractions of a second.
+        //:
+        //: 5 Correct behavior in case of short output buffers
+        //:
+        //: 6 If the property 'useZAbbreviationForUtc' is enabled the output
+        //:   for the TZ offset of a UTC value is 'Z', and '00:00' otherwise.
         //
-        //   - Prepare a set of test vectors with the following values:
-        //     + Valid dates and times
-        //     + Fractional seconds from 0 to 999 requiring 0, 1, 2, or 3
-        //       digits to represent, with and without trailing zeros.
-        //   - Apply the following orthogonal perturbation:
-        //     + A set of timezone offsets, including zero, positive, and
-        //       negative offsets.
-        //   - Compose expected date, time, and datetime strings from each
-        //     test vector.
-        //   - Construct each of the six date, time, and datetime types from
-        //     the test vector and stream them to an output string.
-        //   - Compare the generated strings against expected strings.
+        // Plan:
+        //: 1 User a loop-based test over a range of valid date & time values
+        //:   selected to test various formatting properties: (C1-5)
+        //:   1 For each value, perform an orthognal pertebation for timezone
+        //:     offsets
+        //:
+        //:   2 For each value, perform an orthognal pertebation for the 
+        //:     output buffer length, testing buffers to short for the
+        //:     resulting formated value.
+        //:
+        //: 2 For a UTC value generate a formatted value of each of the 3 'Tz"
+        //:   types with, and without, the useZAbbreviationForUtc option
+        //:   enabled. (C-6)
         //
         // Testing:
-        //      static int generate(char             *buffer,
-        //                          const bdet_Date&  object,
-        //                          int               bufferLength);
-        //      static int generate(char                 *buffer,
-        //                          const bdet_Datetime&  object,
-        //                          int                   bufferLength);
-        //      static int generate(char                   *buffer,
-        //                          const bdet_DatetimeTz&  object,
-        //                          int                     bufferLength);
-        //      static int generate(char               *buffer,
-        //                          const bdet_DateTz&  object,
-        //                          int                 bufferLength);
-        //      static int generate(char             *buffer,
-        //                          const bdet_Time&  object,
-        //                          int               bufferLength);
-        //      static int generate(char               *buffer,
-        //                          const bdet_TimeTz&  object,
-        //                          int                 bufferLength);
+        //  int generate(char *, const bdet_Date&, int);
+        //  int generate(char *, const bdet_Datetime&, int);
+        //  int generate(char *, const bdet_DatetimeTz&, int);
+        //  int generate(char *, const bdet_DateTz&, int);
+        //  int generate(char *, const bdet_Time&, int);
+        //  int generate(char *, const bdet_TimeTz&, int);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING GENERATE"
                                << "\n================" << bsl::endl;
+
 
         const struct {
             int         d_line;
@@ -1715,6 +1716,8 @@ int main(int argc, char *argv[])
         static const int NUM_UTC_OFFSETS =
             sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS;
 
+        if (verbose) cout << "\tLoop based test of test-data.\n";
+
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE        = DATA[i].d_line;
             const int         YEAR        = DATA[i].d_year;
@@ -1751,6 +1754,7 @@ int main(int argc, char *argv[])
 
                 char expected[100];
 
+                // Testing bdet_DatetimeTz
                 {
                     output.str("");
 
@@ -1809,6 +1813,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(expected); P(output.str()); }
                 }
 
+                // Testing bdet_Datetime
                 {
                     output.str("");
 
@@ -1871,6 +1876,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(expected); P(output.str()); }
                 }
 
+                // Testing bdet_DateTz
                 {
                     output.str("");
 
@@ -1929,6 +1935,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(expected); P(output.str()); }
                 }
 
+                // Testing bdet_Date
                 {
                     output.str("");
 
@@ -1985,6 +1992,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { P_(expected); P(output.str()); }
                 }
 
+                // Testing bdet_TimeTz
                 {
                     output.str("");
 
@@ -2040,7 +2048,8 @@ int main(int argc, char *argv[])
                                  output.str() == expected);
                     if (veryVerbose) { P_(expected); P(output.str()); }
                 }
-
+                
+                // Testing bdet_Time
                 {
                     output.str("");
 
@@ -2098,6 +2107,121 @@ int main(int argc, char *argv[])
 
             }
         }
+
+        if (verbose) 
+            cout << "\tTest 'enableUseZAbbreviationForUtc' configuration.\n";
+
+        for (int i = 0; i < NUM_UTC_OFFSETS; ++i ) {
+            const int UTC_OFFSET = UTC_OFFSETS[i];
+            
+            bdet_Date date(2013, 8, 23);
+            bdet_Time time(11, 30, 5, 1);
+            bdet_Datetime datetime(date, time);
+
+            bdet_DateTz dateTz(date, UTC_OFFSET);
+            bdet_TimeTz timeTz(time, UTC_OFFSET);
+            bdet_DatetimeTz datetimeTz(datetime, UTC_OFFSET);
+
+            char offsetBuffer[10];
+            bsl::sprintf(offsetBuffer, "%+03d:%02d",
+                         UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
+
+            bsl::string dateStr("2013-08-23");
+            bsl::string timeStr("11:30:05.001");
+            bsl::string datetimeStr("2013-08-23T11:30:05.001");
+            bsl::string offsetStr(offsetBuffer);
+
+            bsl::string expectedDateNoZ(dateStr + offsetStr);
+            bsl::string expectedTimeNoZ(timeStr + offsetStr);
+            bsl::string expectedDatetimeNoZ(datetimeStr + offsetStr);
+
+            bsl::string expectedDateWithZ(dateStr);
+            bsl::string expectedTimeWithZ(timeStr);
+            bsl::string expectedDatetimeWithZ(datetimeStr);
+
+            if (0 != UTC_OFFSET) {
+                expectedDateWithZ     += offsetStr;
+                expectedTimeWithZ     += offsetStr;
+                expectedDatetimeWithZ += offsetStr;
+            }
+            else {
+                expectedDateWithZ     += "Z";
+                expectedTimeWithZ     += "Z";
+                expectedDatetimeWithZ += "Z";               
+            }
+
+            // Test generated vs expected values with Z enabled.
+            bdepu_Iso8601Default::enableUseZAbbreviationForUtc();
+            {
+                bsl::vector<char> dateOutput(100, '*');
+                bsl::vector<char> timeOutput(100, '*');
+                bsl::vector<char> datetimeOutput(100, '*');
+
+                unsigned int dateLen = 
+                    Util::generate(dateOutput.data(), dateTz, 100);
+                unsigned int timeLen = 
+                    Util::generate(timeOutput.data(), timeTz, 100);
+                unsigned int datetimeLen = 
+                      Util::generate(datetimeOutput.data(), datetimeTz, 100);
+                
+                ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
+                        dateLen == bsl::strlen(dateOutput.data()));
+                ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
+                        timeLen == bsl::strlen(timeOutput.data()));
+                ASSERTV(datetimeLen, bsl::strlen(datetimeOutput.data()),
+                        datetimeLen == bsl::strlen(datetimeOutput.data()));
+
+                if (veryVeryVerbose) {
+                    P_(dateOutput.data());
+                    P_(timeOutput.data());
+                    P(datetimeOutput.data());
+                }
+                ASSERTV(expectedDateWithZ, dateOutput.data(), 
+                        expectedDateWithZ == dateOutput.data());            
+                ASSERTV(expectedTimeWithZ, timeOutput.data(), 
+                        expectedTimeWithZ == timeOutput.data());
+                ASSERTV(expectedDatetimeWithZ, datetimeOutput.data(), 
+                        expectedDatetimeWithZ == datetimeOutput.data());
+            }
+            // Test generated vs expected values with Z disabled.
+            bdepu_Iso8601Default::disableUseZAbbreviationForUtc();
+            {
+                bsl::vector<char> dateOutput(100, '*');
+                bsl::vector<char> timeOutput(100, '*');
+                bsl::vector<char> datetimeOutput(100, '*');
+
+                unsigned int dateLen = 
+                    Util::generate(dateOutput.data(), dateTz, 100);
+                unsigned int timeLen = 
+                    Util::generate(timeOutput.data(), timeTz, 100);
+                unsigned int datetimeLen = 
+                      Util::generate(datetimeOutput.data(), datetimeTz, 100);
+                
+                ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
+                        dateLen == bsl::strlen(dateOutput.data()));
+                ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
+                        timeLen == bsl::strlen(timeOutput.data()));
+                ASSERTV(datetimeLen, bsl::strlen(datetimeOutput.data()),
+                        datetimeLen == bsl::strlen(datetimeOutput.data()));
+
+                if (veryVeryVerbose) {
+                    P_(dateOutput.data());
+                    P_(timeOutput.data());
+                    P(datetimeOutput.data());
+                }
+
+                ASSERTV(expectedDateNoZ, dateOutput.data(), 
+                        expectedDateNoZ == dateOutput.data());            
+                ASSERTV(expectedTimeNoZ, timeOutput.data(), 
+                        expectedTimeNoZ == timeOutput.data());
+                ASSERTV(expectedDatetimeNoZ, datetimeOutput.data(), 
+                        expectedDatetimeNoZ == datetimeOutput.data());
+            
+            }
+
+
+        }
+        
 
       } break;
 
