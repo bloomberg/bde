@@ -103,15 +103,13 @@ bcec_AtomicRingBuffer_Impl::releaseElement(unsigned int currGeneration,
     d_states[index] = INDEX_STATE_OLD | (generation << INDEX_STATE_SHIFT);
 }
 
-int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int &generation, 
-                                                 unsigned int &index)
+int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int *generation, 
+                                                 unsigned int *index)
 {
-    unsigned int pushIndex = 0;
-    unsigned int n = 0;  
+    unsigned int pushIndex = d_pushIndex.relaxedLoad();
     unsigned int savedPushIndex = -1;
-    
-    pushIndex = d_pushIndex.relaxedLoad();
-    
+    unsigned int n, currIndex, currGeneration;  
+
     for(;;) {
 
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pushIndex & 
@@ -120,25 +118,24 @@ int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int &generation,
         }
         
         n = (pushIndex & MAX_OP_INDEX);
-        generation = n /  d_capacity;
-        index = n - d_capacity * generation;   
+        currGeneration = *generation = n / d_capacity;
+        currIndex = *index = n - d_capacity * currGeneration;
         
         const int compare = INDEX_STATE_OLD     | 
-            (generation << INDEX_STATE_SHIFT);
+            (currGeneration << INDEX_STATE_SHIFT);
         const int swap    = INDEX_STATE_WRITING | 
-            (generation << INDEX_STATE_SHIFT);
-        const int was     = d_states[index].testAndSwap(compare, swap);
+            (currGeneration << INDEX_STATE_SHIFT);
+        const int was     = d_states[currIndex].testAndSwap(compare, swap);
    
         if (compare == was) {
             break; // acquired.
         }    
         
-        const int markedGeneration(was >> INDEX_STATE_SHIFT);
+        const int markedGeneration = was >> INDEX_STATE_SHIFT;
         
-        
-        if (markedGeneration < generation 
+        if (markedGeneration < currGeneration 
         && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                  0 != generation && 
+                                  0 != currGeneration && 
                                   d_maxGeneration != markedGeneration)) {
             const int state = was & INDEX_STATE_MASK;
             
@@ -160,7 +157,7 @@ int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int &generation,
             }
         }
     
-        unsigned int next = incrementIndex(n, index) & MAX_OP_INDEX;
+        unsigned int next = incrementIndex(n, currIndex) & MAX_OP_INDEX;
         
         pushIndex = d_pushIndex.testAndSwap(n, next);
         
@@ -171,10 +168,11 @@ int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int &generation,
         }
     }
     
-    unsigned int next = incrementIndex(n, index);
+    unsigned int next = incrementIndex(n, currIndex);
     
     pushIndex = 
-        d_pushIndex.testAndSwap(n, incrementIndex(n, index) & MAX_OP_INDEX);
+        d_pushIndex.testAndSwap(n, 
+                                incrementIndex(n, currIndex) & MAX_OP_INDEX);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                       pushIndex & DISABLED_STATE_MASK)) {
@@ -182,8 +180,8 @@ int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int &generation,
         unsigned int disabled = (pushIndex & MAX_OP_INDEX);
         if(n >= disabled) {
             
-            d_states[index] = 
-                INDEX_STATE_OLD | (generation << INDEX_STATE_SHIFT);
+            d_states[currIndex] = 
+                INDEX_STATE_OLD | (currGeneration << INDEX_STATE_SHIFT);
         
             return -2;
         }
@@ -192,31 +190,31 @@ int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int &generation,
     return 0;
 }
     
-int bcec_AtomicRingBuffer_Impl::acquirePopIndex(unsigned int &generation, 
-                                                unsigned int &index, 
-                                                unsigned int &n)
+int bcec_AtomicRingBuffer_Impl::acquirePopIndex(unsigned int *generation, 
+                                                unsigned int *index)
 {
     unsigned int savedPopIndex = -1;
     
-    n = d_popIndex.relaxedLoad(); 
+    unsigned int n = d_popIndex.relaxedLoad();
+    unsigned int currIndex; 
     
     for(;;) {
-        generation = n / d_capacity;
-        index = n - d_capacity * generation;
+        unsigned int currGeneration = *generation = n / d_capacity;
+        currIndex = *index = n - d_capacity * currGeneration;
         
         const int compare = INDEX_STATE_NEW     | 
-            (generation << INDEX_STATE_SHIFT);
+            (currGeneration << INDEX_STATE_SHIFT);
         const int swap    = INDEX_STATE_READING | 
-            (generation << INDEX_STATE_SHIFT);
-        const int was     = d_states[index].testAndSwap(compare, swap);
+            (currGeneration << INDEX_STATE_SHIFT);
+        const int was     = d_states[currIndex].testAndSwap(compare, swap);
         
         if (compare == was) {
             break;
         }
         
-        const int markedGeneration(int(was) >> INDEX_STATE_SHIFT);
+        const int markedGeneration = was >> INDEX_STATE_SHIFT;
         
-        if (generation != markedGeneration) {
+        if (currGeneration != markedGeneration) {
             return -1; 
         }
         
@@ -239,7 +237,7 @@ int bcec_AtomicRingBuffer_Impl::acquirePopIndex(unsigned int &generation,
             continue;
         }
         
-        unsigned int next = incrementIndex(n, index);
+        unsigned int next = incrementIndex(n, currIndex);
         unsigned int old  = d_popIndex.testAndSwap(n, next);
         if(n == old) {
             n = next;
@@ -249,7 +247,7 @@ int bcec_AtomicRingBuffer_Impl::acquirePopIndex(unsigned int &generation,
         }
     }
     
-    d_popIndex.testAndSwap(n, incrementIndex(n, index));
+    d_popIndex.testAndSwap(n, incrementIndex(n, currIndex));
     
     return 0;
 }

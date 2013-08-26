@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 class bcec_AtomicRingBuffer_Impl {
-    // This component-private class holds type-independent data and utilities
+    // This component-private class holds type-independent data and methods
     // used by bcec_AtomicRingBuffer. 
     enum {
         INDEX_STATE_OLD      = 0,
@@ -114,24 +114,40 @@ class bcec_AtomicRingBuffer_Impl {
 
     bcec_AtomicRingBuffer_Impl(bsl::size_t       capacity,
                                bslma::Allocator *basicAllocator);
-       // TBD DOC
+       // Create a new type-independent representation of a thread-safe queue
+       // with the specified maximum 'capacity' using the specified
+       // 'basicAllocator' to supply memory. 
 
     void releaseElement(unsigned int currGeneration, 
                         unsigned int index);
+       // Mark the specified 'index' as available in the generation following
+       // the specified 'currGeneration'.  
     
-    int  acquirePushIndex(unsigned int &generation, 
-                          unsigned int &index);
-    int  acquirePopIndex(unsigned int &generation, 
-                         unsigned int &index, 
-                         unsigned int &n);
+    int  acquirePushIndex(unsigned int *generation, 
+                          unsigned int *index);
+       // Mark the next available index as "writing" and load that index 
+       // into the specified 'index'.  Load the current generation count into
+       // the specified 'generation'.  Return 0 on success, and a nonzero
+       // value if the queue is disabled or full.  
+
+    int  acquirePopIndex(unsigned int *generation, 
+                         unsigned int *index);
+       // Mark the next occupied index as "reading" and load that index 
+       // into the specified 'index'.  Load the current generation count into
+       // the specified 'generation'.  Return 0 on success, and a nonzero
+       // value if the queue is empty.  
+
     void disable();
+       // Mark the queue as disabled.  Future attempts to push into the queue
+       // will fail.
     void enable();
-       // TBD DOC ALL OF THESE
+       // Mark the queue as enabled.
 
     // ACCESSORS
     bool isEnabled() const;        
+       // Return 'true' if the queue is enabled, and 'false' if it is disabled.
     int length() const;
-    
+       // Return the number of items in the queue.  
     
     template <typename TYPE>
     friend class bcec_AtomicRingBuffer;
@@ -167,10 +183,6 @@ private:
     // NOT IMPLEMENTED
     bcec_AtomicRingBuffer(const bcec_AtomicRingBuffer&);
     bcec_AtomicRingBuffer& operator=(const bcec_AtomicRingBuffer&);
-
-    // PRIVATE MANIPULATORS
-    int  tryPushBackImpl(const TYPE& data);
-    int  tryPopFrontImpl(TYPE* data);
 public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_AtomicRingBuffer,
@@ -248,10 +260,6 @@ public:
         // that the queue is created in the "enabled" state.
 };
 
-
-
-
-
                            // ======================
                            // class AtomicRingBuffer
                            // ======================
@@ -275,16 +283,16 @@ bcec_AtomicRingBuffer<TYPE>::bcec_AtomicRingBuffer(
 template <typename TYPE>
 bcec_AtomicRingBuffer<TYPE>::~bcec_AtomicRingBuffer()
 {
-  removeAll();
+    removeAll();
 }
 
 template <typename TYPE>
-int bcec_AtomicRingBuffer<TYPE>::tryPushBackImpl(const TYPE& data)
+int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
 {
     unsigned int generation;
     unsigned int index;
     
-    int retval = d_impl.acquirePushIndex(generation, index);
+    int retval = d_impl.acquirePushIndex(&generation, &index);
     
     if (0 != retval) {
         return retval;
@@ -306,12 +314,11 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBackImpl(const TYPE& data)
 }
 
 template <typename TYPE>
-int bcec_AtomicRingBuffer<TYPE>::tryPopFrontImpl(TYPE *data)
+int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE *data)
 {
   unsigned int generation;
   unsigned int index;
-  unsigned int n;
-  int retval = d_impl.acquirePopIndex(generation, index, n);
+  int retval = d_impl.acquirePopIndex(&generation, &index);
 
   if (0 != retval) {
     return retval;
@@ -336,28 +343,28 @@ template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::pushBack(const TYPE &data)
 {
   int retval;
-  while (0 != (retval = tryPushBackImpl(data)))
+  while (0 != (retval = tryPushBack(data)))
   {
-    if (-2 == retval) {
-      return -2;
-    }
-
-    d_numWaitingPushers.relaxedAdd(1);
-
-    if (isFull() && isEnabled()) {
-      d_pushControlSema.wait();
-    }
-    
-    d_numWaitingPushers.relaxedAdd(-1);
+      if (-2 == retval) {
+          return -2;
+      }
+      
+      d_numWaitingPushers.relaxedAdd(1);
+      
+      if (isFull() && isEnabled()) {
+          d_pushControlSema.wait();
+      }
+      
+      d_numWaitingPushers.relaxedAdd(-1);
   }
-
+  
   return 0;
 }
 
 template <typename TYPE>
 void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
 {
-  while(0 != tryPopFrontImpl(data)) {
+  while(0 != tryPopFront(data)) {
     d_numWaitingPoppers.relaxedAdd(1);
 
     if (isEmpty()) {
@@ -375,7 +382,7 @@ TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
   unsigned int generation;
   unsigned int index;
 
-  while(0 != d_impl.acquirePopIndex(generation, index, n)) {
+  while(0 != d_impl.acquirePopIndex(&generation, &index)) {
     d_numWaitingPoppers.relaxedAdd(1);
 
     if (isEmpty()) {
@@ -397,23 +404,7 @@ TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
 
   return result;
 }           
-
-template <typename TYPE>
-int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
-{
-  if (isFull()) {
-    return -1;
-  }
-
-  return tryPushBackImpl(data);
-}
      
-template <typename TYPE>
-int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE* data)
-{
-  return tryPopFrontImpl(data);
-}
-
 template <typename TYPE>
 void bcec_AtomicRingBuffer<TYPE>::removeAll()
 {
@@ -424,7 +415,7 @@ void bcec_AtomicRingBuffer<TYPE>::removeAll()
         unsigned int generation;
         unsigned int n;
 
-        if (0 != d_impl.acquirePopIndex(generation, index, n)) {
+        if (0 != d_impl.acquirePopIndex(&generation, &index)) {
             break;
         }
         d_elements[index].~TYPE();
@@ -493,7 +484,7 @@ bool bcec_AtomicRingBuffer<TYPE>::isEnabled() const {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
