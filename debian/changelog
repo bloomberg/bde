@@ -1,3 +1,10 @@
+bsl-internal (2.18.3.002) unstable; urgency=low
+
+  * Bump changelog
+  * 13f46b5 Merge branch 'meta-packages-in-binary-arch-drqs-43603654' into releases/2.18.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 26 Aug 2013 14:24:06 -0400
+
 bsl-internal (2.18.3.001) unstable; urgency=low
 
   * Bump changelog
