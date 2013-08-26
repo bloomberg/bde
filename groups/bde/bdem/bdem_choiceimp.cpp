@@ -201,7 +201,7 @@ bsl::ostream& bdem_ChoiceImp_AttrFuncs::print(const void    *obj,
                         // --------------------
 
 // CLASS DATA
-const bdem_Descriptor bdem_ChoiceImp::d_choiceAttr =
+const bdem_Descriptor bdem_ChoiceImp::s_choiceAttr =
 {
     bdem_ElemType::BDEM_CHOICE,
     sizeof(bdem_ChoiceImp),

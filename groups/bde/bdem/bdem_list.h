@@ -2841,7 +2841,7 @@ void bdem_List::insertNullBool(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_boolAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_boolAttr);
 }
 
 inline
@@ -2852,7 +2852,7 @@ void bdem_List::insertBool(int dstIndex, bool value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_boolAttr);
+                            &bdem_Properties::s_boolAttr);
 }
 
 inline
@@ -2861,7 +2861,7 @@ void bdem_List::insertNullChar(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_charAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_charAttr);
 }
 
 inline
@@ -2872,7 +2872,7 @@ void bdem_List::insertChar(int dstIndex, char value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_charAttr);
+                            &bdem_Properties::s_charAttr);
 }
 
 inline
@@ -2881,7 +2881,7 @@ void bdem_List::insertNullShort(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_shortAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_shortAttr);
 }
 
 inline
@@ -2892,7 +2892,7 @@ void bdem_List::insertShort(int dstIndex, short value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_shortAttr);
+                            &bdem_Properties::s_shortAttr);
 }
 
 inline
@@ -2901,7 +2901,7 @@ void bdem_List::insertNullInt(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_intAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_intAttr);
 }
 
 inline
@@ -2912,7 +2912,7 @@ void bdem_List::insertInt(int dstIndex, int value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_intAttr);
+                            &bdem_Properties::s_intAttr);
 }
 
 inline
@@ -2921,7 +2921,7 @@ void bdem_List::insertNullInt64(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_int64Attr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_int64Attr);
 }
 
 inline
@@ -2932,7 +2932,7 @@ void bdem_List::insertInt64(int dstIndex, bsls::Types::Int64 value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_int64Attr);
+                            &bdem_Properties::s_int64Attr);
 }
 
 inline
@@ -2941,7 +2941,7 @@ void bdem_List::insertNullFloat(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_floatAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_floatAttr);
 }
 
 inline
@@ -2952,7 +2952,7 @@ void bdem_List::insertFloat(int dstIndex, float value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_floatAttr);
+                            &bdem_Properties::s_floatAttr);
 }
 
 inline
@@ -2961,7 +2961,7 @@ void bdem_List::insertNullDouble(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_doubleAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_doubleAttr);
 }
 
 inline
@@ -2972,7 +2972,7 @@ void bdem_List::insertDouble(int dstIndex, double value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_doubleAttr);
+                            &bdem_Properties::s_doubleAttr);
 }
 
 inline
@@ -2981,7 +2981,7 @@ void bdem_List::insertNullString(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_stringAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_stringAttr);
 }
 
 inline
@@ -2999,7 +2999,7 @@ void bdem_List::insertString(int dstIndex, const bsl::string& value)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertElement(dstIndex, &value, &bdem_Properties::d_stringAttr);
+    d_listImp.insertElement(dstIndex, &value, &bdem_Properties::s_stringAttr);
 }
 
 inline
@@ -3008,7 +3008,7 @@ void bdem_List::insertNullDatetime(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_datetimeAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_datetimeAttr);
 }
 
 inline
@@ -3019,7 +3019,7 @@ void bdem_List::insertDatetime(int dstIndex, const bdet_Datetime& value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_datetimeAttr);
+                            &bdem_Properties::s_datetimeAttr);
 }
 
 inline
@@ -3028,7 +3028,7 @@ void bdem_List::insertNullDatetimeTz(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_datetimeTzAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_datetimeTzAttr);
 }
 
 inline
@@ -3039,7 +3039,7 @@ void bdem_List::insertDatetimeTz(int dstIndex, const bdet_DatetimeTz& value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_datetimeTzAttr);
+                            &bdem_Properties::s_datetimeTzAttr);
 }
 
 inline
@@ -3048,7 +3048,7 @@ void bdem_List::insertNullDate(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_dateAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_dateAttr);
 }
 
 inline
@@ -3059,7 +3059,7 @@ void bdem_List::insertDate(int dstIndex, const bdet_Date& value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_dateAttr);
+                            &bdem_Properties::s_dateAttr);
 }
 
 inline
@@ -3068,7 +3068,7 @@ void bdem_List::insertNullDateTz(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_dateTzAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_dateTzAttr);
 }
 
 inline
@@ -3079,7 +3079,7 @@ void bdem_List::insertDateTz(int dstIndex, const bdet_DateTz& value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_dateTzAttr);
+                            &bdem_Properties::s_dateTzAttr);
 }
 
 inline
@@ -3088,7 +3088,7 @@ void bdem_List::insertNullTime(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_timeAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_timeAttr);
 }
 
 inline
@@ -3099,7 +3099,7 @@ void bdem_List::insertTime(int dstIndex, const bdet_Time& value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_timeAttr);
+                            &bdem_Properties::s_timeAttr);
 }
 
 inline
@@ -3108,7 +3108,7 @@ void bdem_List::insertNullTimeTz(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_timeTzAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_timeTzAttr);
 }
 
 inline
@@ -3119,7 +3119,7 @@ void bdem_List::insertTimeTz(int dstIndex, const bdet_TimeTz& value)
 
     d_listImp.insertElement(dstIndex,
                             static_cast<const void *>(&value),
-                            &bdem_Properties::d_timeTzAttr);
+                            &bdem_Properties::s_timeTzAttr);
 }
 
 inline
@@ -3128,7 +3128,7 @@ void bdem_List::insertNullBoolArray(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_boolArrayAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_boolArrayAttr);
 }
 
 inline
@@ -3139,7 +3139,7 @@ void bdem_List::insertBoolArray(int dstIndex, const bsl::vector<bool>& value)
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_boolArrayAttr);
+                            &bdem_Properties::s_boolArrayAttr);
 }
 
 inline
@@ -3148,7 +3148,7 @@ void bdem_List::insertNullCharArray(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_charArrayAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_charArrayAttr);
 }
 
 inline
@@ -3159,7 +3159,7 @@ void bdem_List::insertCharArray(int dstIndex, const bsl::vector<char>& value)
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_charArrayAttr);
+                            &bdem_Properties::s_charArrayAttr);
 }
 
 inline
@@ -3168,7 +3168,7 @@ void bdem_List::insertNullShortArray(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_shortArrayAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_shortArrayAttr);
 }
 
 inline
@@ -3179,7 +3179,7 @@ void bdem_List::insertShortArray(int dstIndex, const bsl::vector<short>& value)
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_shortArrayAttr);
+                            &bdem_Properties::s_shortArrayAttr);
 }
 
 inline
@@ -3188,7 +3188,7 @@ void bdem_List::insertNullIntArray(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_intArrayAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_intArrayAttr);
 }
 
 inline
@@ -3199,7 +3199,7 @@ void bdem_List::insertIntArray(int dstIndex, const bsl::vector<int>& value)
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_intArrayAttr);
+                            &bdem_Properties::s_intArrayAttr);
 }
 
 inline
@@ -3209,7 +3209,7 @@ void bdem_List::insertNullInt64Array(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_Properties::d_int64ArrayAttr);
+                                &bdem_Properties::s_int64ArrayAttr);
 }
 
 inline
@@ -3222,7 +3222,7 @@ bdem_List::insertInt64Array(int                                    dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_int64ArrayAttr);
+                            &bdem_Properties::s_int64ArrayAttr);
 }
 
 inline
@@ -3232,7 +3232,7 @@ void bdem_List::insertNullFloatArray(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_Properties::d_floatArrayAttr);
+                                &bdem_Properties::s_floatArrayAttr);
 }
 
 inline
@@ -3244,7 +3244,7 @@ void bdem_List::insertFloatArray(int                       dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_floatArrayAttr);
+                            &bdem_Properties::s_floatArrayAttr);
 }
 
 inline
@@ -3254,7 +3254,7 @@ void bdem_List::insertNullDoubleArray(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_Properties::d_doubleArrayAttr);
+                                &bdem_Properties::s_doubleArrayAttr);
 }
 
 inline
@@ -3266,7 +3266,7 @@ void bdem_List::insertDoubleArray(int                        dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_doubleArrayAttr);
+                            &bdem_Properties::s_doubleArrayAttr);
 }
 
 inline
@@ -3276,7 +3276,7 @@ void bdem_List::insertNullStringArray(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_Properties::d_stringArrayAttr);
+                                &bdem_Properties::s_stringArrayAttr);
 }
 
 inline
@@ -3288,7 +3288,7 @@ void bdem_List::insertStringArray(int                             dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_stringArrayAttr);
+                            &bdem_Properties::s_stringArrayAttr);
 }
 
 inline
@@ -3298,7 +3298,7 @@ void bdem_List::insertNullDatetimeArray(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_Properties::d_datetimeArrayAttr);
+                                &bdem_Properties::s_datetimeArrayAttr);
 }
 
 inline
@@ -3310,7 +3310,7 @@ void bdem_List::insertDatetimeArray(int                               dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_datetimeArrayAttr);
+                            &bdem_Properties::s_datetimeArrayAttr);
 }
 
 inline
@@ -3320,7 +3320,7 @@ void bdem_List::insertNullDatetimeTzArray(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_Properties::d_datetimeTzArrayAttr);
+                                &bdem_Properties::s_datetimeTzArrayAttr);
 }
 
 inline
@@ -3333,7 +3333,7 @@ void bdem_List::insertDatetimeTzArray(
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_datetimeTzArrayAttr);
+                            &bdem_Properties::s_datetimeTzArrayAttr);
 }
 
 inline
@@ -3342,7 +3342,7 @@ void bdem_List::insertNullDateArray(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_dateArrayAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_dateArrayAttr);
 }
 
 inline
@@ -3354,7 +3354,7 @@ void bdem_List::insertDateArray(int                           dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_dateArrayAttr);
+                            &bdem_Properties::s_dateArrayAttr);
 }
 
 inline
@@ -3364,7 +3364,7 @@ void bdem_List::insertNullDateTzArray(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_Properties::d_dateTzArrayAttr);
+                                &bdem_Properties::s_dateTzArrayAttr);
 }
 
 inline
@@ -3376,7 +3376,7 @@ void bdem_List::insertDateTzArray(int                           dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_dateTzArrayAttr);
+                            &bdem_Properties::s_dateTzArrayAttr);
 }
 
 inline
@@ -3385,7 +3385,7 @@ void bdem_List::insertNullTimeArray(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_timeArrayAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_timeArrayAttr);
 }
 
 inline
@@ -3397,7 +3397,7 @@ void bdem_List::insertTimeArray(int                           dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_timeArrayAttr);
+                            &bdem_Properties::s_timeArrayAttr);
 }
 
 inline
@@ -3406,7 +3406,7 @@ void bdem_List::insertNullTimeTzArray(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_Properties::d_timeTzArrayAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_Properties::s_timeTzArrayAttr);
 }
 
 inline
@@ -3418,7 +3418,7 @@ void bdem_List::insertTimeTzArray(int                             dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_Properties::d_timeTzArrayAttr);
+                            &bdem_Properties::s_timeTzArrayAttr);
 }
 
 inline
@@ -3427,7 +3427,7 @@ void bdem_List::insertNullChoice(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_ChoiceImp::d_choiceAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_ChoiceImp::s_choiceAttr);
 }
 
 inline
@@ -3436,7 +3436,7 @@ void bdem_List::insertChoice(int dstIndex, const bdem_Choice& value)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertElement(dstIndex, &value, &bdem_ChoiceImp::d_choiceAttr);
+    d_listImp.insertElement(dstIndex, &value, &bdem_ChoiceImp::s_choiceAttr);
 }
 
 inline
@@ -3446,7 +3446,7 @@ void bdem_List::insertNullChoiceArray(int dstIndex)
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
     d_listImp.insertNullElement(dstIndex,
-                                &bdem_ChoiceArrayImp::d_choiceArrayAttr);
+                                &bdem_ChoiceArrayImp::s_choiceArrayAttr);
 }
 
 inline
@@ -3458,7 +3458,7 @@ void bdem_List::insertChoiceArray(int                     dstIndex,
 
     d_listImp.insertElement(dstIndex,
                             &value,
-                            &bdem_ChoiceArrayImp::d_choiceArrayAttr);
+                            &bdem_ChoiceArrayImp::s_choiceArrayAttr);
 }
 
 inline
@@ -3467,7 +3467,7 @@ void bdem_List::insertNullList(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_ListImp::d_listAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_ListImp::s_listAttr);
 }
 
 inline
@@ -3476,7 +3476,7 @@ void bdem_List::insertList(int dstIndex, const bdem_List& value)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertElement(dstIndex, &value, &bdem_ListImp::d_listAttr);
+    d_listImp.insertElement(dstIndex, &value, &bdem_ListImp::s_listAttr);
 }
 
 inline
@@ -3495,7 +3495,7 @@ void bdem_List::insertNullTable(int dstIndex)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertNullElement(dstIndex, &bdem_TableImp::d_tableAttr);
+    d_listImp.insertNullElement(dstIndex, &bdem_TableImp::s_tableAttr);
 }
 
 inline
@@ -3504,7 +3504,7 @@ void bdem_List::insertTable(int dstIndex, const bdem_Table& value)
     BSLS_ASSERT_SAFE(0 <= dstIndex);
     BSLS_ASSERT_SAFE(     dstIndex <= length());
 
-    d_listImp.insertElement(dstIndex, &value, &bdem_TableImp::d_tableAttr);
+    d_listImp.insertElement(dstIndex, &value, &bdem_TableImp::s_tableAttr);
 }
 
 inline

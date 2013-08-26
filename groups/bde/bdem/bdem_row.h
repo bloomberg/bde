@@ -214,12 +214,12 @@ BDES_IDENT("$Id: $")
 //..
 //  static const bdem_Descriptor *EDA[] = {
 //      0, 0,
-//      &bdem_Properties::d_intAttr,         /* BDEM_INT    == 2 */
+//      &bdem_Properties::s_intAttr,         /* BDEM_INT    == 2 */
 //      0, 0,
-//      &bdem_Properties::d_doubleAttr,      /* BDEM_DOUBLE == 5 */
-//      &bdem_Properties::d_stringAttr,
+//      &bdem_Properties::s_doubleAttr,      /* BDEM_DOUBLE == 5 */
+//      &bdem_Properties::s_stringAttr,
 //      0, 0, 0, /* arrays: */ 0, 0, 0, 0, 0, 0,
-//      &bdem_Properties::d_stringArrayAttr
+//      &bdem_Properties::s_stringArrayAttr
 //  };
 //..
 // Next we create a 'bdem_RowLayout' object, 'mRL', that defines the layout of

@@ -200,26 +200,26 @@ const   bdem_AggregateOption::AllocationStrategy WM =
 static
 const bdem_Descriptor *EDA[] =
 {
-    &bdem_Properties::d_charAttr,
-    &bdem_Properties::d_shortAttr,
-    &bdem_Properties::d_intAttr,
-    &bdem_Properties::d_int64Attr,
-    &bdem_Properties::d_floatAttr,
-    &bdem_Properties::d_doubleAttr,
-    &bdem_Properties::d_stringAttr,
-    &bdem_Properties::d_datetimeAttr,
-    &bdem_Properties::d_dateAttr,
-    &bdem_Properties::d_timeAttr,
-    &bdem_Properties::d_charArrayAttr,
-    &bdem_Properties::d_shortArrayAttr,
-    &bdem_Properties::d_intArrayAttr,
-    &bdem_Properties::d_int64ArrayAttr,
-    &bdem_Properties::d_floatArrayAttr,
-    &bdem_Properties::d_doubleArrayAttr,
-    &bdem_Properties::d_stringArrayAttr,
-    &bdem_Properties::d_datetimeArrayAttr,
-    &bdem_Properties::d_dateArrayAttr,
-    &bdem_Properties::d_timeArrayAttr
+    &bdem_Properties::s_charAttr,
+    &bdem_Properties::s_shortAttr,
+    &bdem_Properties::s_intAttr,
+    &bdem_Properties::s_int64Attr,
+    &bdem_Properties::s_floatAttr,
+    &bdem_Properties::s_doubleAttr,
+    &bdem_Properties::s_stringAttr,
+    &bdem_Properties::s_datetimeAttr,
+    &bdem_Properties::s_dateAttr,
+    &bdem_Properties::s_timeAttr,
+    &bdem_Properties::s_charArrayAttr,
+    &bdem_Properties::s_shortArrayAttr,
+    &bdem_Properties::s_intArrayAttr,
+    &bdem_Properties::s_int64ArrayAttr,
+    &bdem_Properties::s_floatArrayAttr,
+    &bdem_Properties::s_doubleArrayAttr,
+    &bdem_Properties::s_stringArrayAttr,
+    &bdem_Properties::s_datetimeArrayAttr,
+    &bdem_Properties::s_dateArrayAttr,
+    &bdem_Properties::s_timeArrayAttr
 };
 
 static

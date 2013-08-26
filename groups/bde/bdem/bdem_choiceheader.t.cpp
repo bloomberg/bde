@@ -56,7 +56,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 // STATIC DATA MEMBERS
-// [12] static const bdem_Descriptor d_choiceItemAttr;
+// [12] static const bdem_Descriptor s_choiceItemAttr;
 
 // PRIVATE ACCESSORS
 // [ 9] int bdexMinorVersion() const;
@@ -702,9 +702,9 @@ static void *getValueN(char spec)
       enum { RESULT_VAL, INPUT_ERROR, DIVISION_ERROR };
 
       bdem_ChoiceHeader::DescriptorCatalog catalog;
-      catalog.push_back(&bdem_Properties::d_doubleAttr);
-      catalog.push_back(&bdem_Properties::d_stringAttr);
-      catalog.push_back(&bdem_Properties::d_stringAttr);
+      catalog.push_back(&bdem_Properties::s_doubleAttr);
+      catalog.push_back(&bdem_Properties::s_stringAttr);
+      catalog.push_back(&bdem_Properties::s_stringAttr);
 
       bdem_ChoiceHeader outMessage(&catalog);
       ASSERT(-1 == outMessage.selector());
@@ -827,10 +827,10 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'd_choiceItemAttr' STRUCT
+        // TESTING 's_choiceItemAttr' STRUCT
         //
         // Concerns:
-        //   The 'd_choiceItemAttr' struct is initialized such that:
+        //   The 's_choiceItemAttr' struct is initialized such that:
         //   1. 'd_elemEnum == bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM'
         //   2. 'd_size == sizeof(bdem_ChoiceHeader)'
         //   3. 'd_alignment ==
@@ -848,13 +848,13 @@ int main(int argc, char *argv[])
         //   occurring.
         //
         // Testing:
-        //   static const bdem_Descriptor d_choiceItemAttr;
+        //   static const bdem_Descriptor s_choiceItemAttr;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting 'd_choiceItemAttr' descriptor"
+        if (verbose) bsl::cout << "\nTesting 's_choiceItemAttr' descriptor"
                                << "\n====================================="
                                << bsl::endl;
-        const bdem_Descriptor& Desc = Obj::d_choiceItemAttr;
+        const bdem_Descriptor& Desc = Obj::s_choiceItemAttr;
 
         ASSERT(bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM == Desc.d_elemEnum);
         ASSERT(sizeof(Obj)                           == Desc.d_size);
@@ -3353,17 +3353,17 @@ int main(int argc, char *argv[])
 
         bdem_ChoiceHeader::DescriptorCatalog catalog(&t1);
         const int INT_IDX = catalog.size();
-        catalog.push_back(&bdem_Properties::d_intAttr);
+        catalog.push_back(&bdem_Properties::s_intAttr);
         const int STR_IDX = catalog.size();
-        catalog.push_back(&bdem_Properties::d_stringAttr);
+        catalog.push_back(&bdem_Properties::s_stringAttr);
         const int DBL_IDX = catalog.size();
-        catalog.push_back(&bdem_Properties::d_doubleAttr);
+        catalog.push_back(&bdem_Properties::s_doubleAttr);
 
         const int baseBlocks = t1.numBlocksInUse();
 
         if (verbose) bsl::cout << "Construct" << bsl::endl;
         bdem_ChoiceHeader choice1(&catalog);
-        ASSERT(&bdem_Properties::d_voidAttr ==
+        ASSERT(&bdem_Properties::s_voidAttr ==
                choice1.selectionDescriptor(choice1.selector()));
         ASSERT(-1 == choice1.selector());
         ASSERT(0 == choice1.selectionPointer());
@@ -3377,7 +3377,7 @@ int main(int argc, char *argv[])
         ASSERT(choice1.selectionPointer() == ip);
         ASSERT(choice1.selector() == INT_IDX);
         ASSERT(!choice1.isSelectionNull());
-        ASSERT(&bdem_Properties::d_intAttr ==
+        ASSERT(&bdem_Properties::s_intAttr ==
                choice1.selectionDescriptor(choice1.selector()));
         // Verify in-place allocation:
         ASSERT((char*) ip > (char*) &choice1 &&
@@ -3389,7 +3389,7 @@ int main(int argc, char *argv[])
         choice2.makeSelection(STR_IDX);
         ASSERT(choice2.selector() == STR_IDX);
         ASSERT(choice2.isSelectionNull());
-        ASSERT(&bdem_Properties::d_stringAttr ==
+        ASSERT(&bdem_Properties::s_stringAttr ==
                choice2.selectionDescriptor(choice2.selector()));
         bsl::string *sp = (bsl::string*) choice2.selectionPointer();
         ASSERT("" == *sp);
@@ -3407,9 +3407,9 @@ int main(int argc, char *argv[])
         ASSERT(choice2.selector() == STR_IDX);
         ASSERT(choice3.selector() == STR_IDX);
         ASSERT(choice3.isSelectionNull());
-        ASSERT(&bdem_Properties::d_stringAttr ==
+        ASSERT(&bdem_Properties::s_stringAttr ==
                choice2.selectionDescriptor(choice2.selector()));
-        ASSERT(&bdem_Properties::d_stringAttr ==
+        ASSERT(&bdem_Properties::s_stringAttr ==
                choice3.selectionDescriptor(choice3.selector()));
         bsl::string* sp2 = (bsl::string*) choice2.selectionPointer();
         bsl::string* sp3 = (bsl::string*) choice3.selectionPointer();
@@ -3422,9 +3422,9 @@ int main(int argc, char *argv[])
         ASSERT(choice1.selector() == INT_IDX);
         ASSERT(choice2.selector() == INT_IDX);
         ASSERT(!choice2.isSelectionNull());
-        ASSERT(&bdem_Properties::d_intAttr ==
+        ASSERT(&bdem_Properties::s_intAttr ==
                choice1.selectionDescriptor(choice1.selector()));
-        ASSERT(&bdem_Properties::d_intAttr ==
+        ASSERT(&bdem_Properties::s_intAttr ==
                choice2.selectionDescriptor(choice2.selector()));
         int* ip1 = (int*) choice1.selectionPointer();
         int* ip2 = (int*) choice2.selectionPointer();

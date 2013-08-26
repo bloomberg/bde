@@ -152,7 +152,7 @@ bsl::ostream& bdem_TableImp_AttrFuncs::print(const void    *obj,
                         // -------------------
 
 // CLASS DATA
-const bdem_Descriptor bdem_TableImp::d_tableAttr =
+const bdem_Descriptor bdem_TableImp::s_tableAttr =
 {
     bdem_ElemType::BDEM_TABLE,
     sizeof(bdem_TableImp),
@@ -801,7 +801,7 @@ bdem_ElemRef bdem_TableImp::rowElemRef(int rowIndex)
     const int offset   = rowIndex % BDEM_BITS_PER_INT;
 
     return bdem_ElemRef(d_rows[rowIndex],
-                        &bdem_RowData::d_rowAttr,
+                        &bdem_RowData::s_rowAttr,
                         &d_nullBits[arrayIdx],
                         offset);
 }
@@ -903,7 +903,7 @@ bdem_ConstElemRef bdem_TableImp::rowElemRef(int rowIndex) const
     const int offset   = rowIndex % BDEM_BITS_PER_INT;
 
     return bdem_ConstElemRef(d_rows[rowIndex],
-                             &bdem_RowData::d_rowAttr,
+                             &bdem_RowData::s_rowAttr,
                              &d_nullBits[arrayIdx],
                              offset);
 }

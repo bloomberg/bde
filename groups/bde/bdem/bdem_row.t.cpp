@@ -339,12 +339,12 @@ int main(int argc, char *argv[])
 //..
     static const bdem_Descriptor *EDA[] = {
         0, 0,
-        &bdem_Properties::d_intAttr,
+        &bdem_Properties::s_intAttr,
         0, 0,
-        &bdem_Properties::d_doubleAttr,
-        &bdem_Properties::d_stringAttr,
+        &bdem_Properties::s_doubleAttr,
+        &bdem_Properties::s_stringAttr,
         0, 0, 0, /* arrays: */ 0, 0, 0, 0, 0, 0,
-        &bdem_Properties::d_stringArrayAttr
+        &bdem_Properties::s_stringArrayAttr
     };
 //..
 // Next we create a 'bdem_RowLayout' object, 'mRL', that defines the layout of
@@ -681,24 +681,24 @@ if (verbose)
         typedef bdem_TableImp   Timp;
 
         static const bdem_Descriptor *EDA[] = {
-            &Prop::d_charAttr,          &Prop::d_shortAttr,
-            &Prop::d_intAttr,           &Prop::d_int64Attr,
-            &Prop::d_floatAttr,         &Prop::d_doubleAttr,
-            &Prop::d_stringAttr,        &Prop::d_datetimeAttr,
-            &Prop::d_dateAttr,          &Prop::d_timeAttr,
-            &Prop::d_charArrayAttr,     &Prop::d_shortArrayAttr,
-            &Prop::d_intArrayAttr,      &Prop::d_int64ArrayAttr,
-            &Prop::d_floatArrayAttr,    &Prop::d_doubleArrayAttr,
-            &Prop::d_stringArrayAttr,   &Prop::d_datetimeArrayAttr,
-            &Prop::d_dateArrayAttr,     &Prop::d_timeArrayAttr,
-            &Limp::d_listAttr,          &Timp::d_tableAttr,
+            &Prop::s_charAttr,          &Prop::s_shortAttr,
+            &Prop::s_intAttr,           &Prop::s_int64Attr,
+            &Prop::s_floatAttr,         &Prop::s_doubleAttr,
+            &Prop::s_stringAttr,        &Prop::s_datetimeAttr,
+            &Prop::s_dateAttr,          &Prop::s_timeAttr,
+            &Prop::s_charArrayAttr,     &Prop::s_shortArrayAttr,
+            &Prop::s_intArrayAttr,      &Prop::s_int64ArrayAttr,
+            &Prop::s_floatArrayAttr,    &Prop::s_doubleArrayAttr,
+            &Prop::s_stringArrayAttr,   &Prop::s_datetimeArrayAttr,
+            &Prop::s_dateArrayAttr,     &Prop::s_timeArrayAttr,
+            &Limp::s_listAttr,          &Timp::s_tableAttr,
 
-            &Prop::d_boolAttr,          &Prop::d_datetimeTzAttr,
-            &Prop::d_dateTzAttr,        &Prop::d_timeTzAttr,
-            &Prop::d_boolArrayAttr,     &Prop::d_datetimeTzArrayAttr,
-            &Prop::d_dateTzArrayAttr,   &Prop::d_timeTzArrayAttr
+            &Prop::s_boolAttr,          &Prop::s_datetimeTzAttr,
+            &Prop::s_dateTzAttr,        &Prop::s_timeTzAttr,
+            &Prop::s_boolArrayAttr,     &Prop::s_datetimeTzArrayAttr,
+            &Prop::s_dateTzArrayAttr,   &Prop::s_timeTzArrayAttr
               // TBD
-//             &CImp::d_choiceDescriptor
+//             &CImp::s_choiceDescriptor
         };
         ASSERT(30 == sizeof EDA/sizeof *EDA);
 
@@ -826,7 +826,7 @@ if (verbose)
         // setup for aggregate values
         // TBD
 //         bdem_ChoiceImp tmpChoice(S, 0);
-//         tmpChoice.addSelection(&Prop::d_intAttr);
+//         tmpChoice.addSelection(&Prop::s_intAttr);
 //         int tmpChoiceValue = 100;
 //         tmpChoice[0].theModifiableInt() = tmpChoiceValue;
 

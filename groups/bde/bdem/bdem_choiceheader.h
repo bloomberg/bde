@@ -149,9 +149,9 @@ BDES_IDENT("$Id: $")
 //      enum { RESULT_VAL, INPUT_ERROR, DIVISION_ERROR };
 //
 //      bdem_ChoiceHeader::DescriptorCatalog catalog;
-//      catalog.push_back(&bdem_Properties::d_doubleAttr);
-//      catalog.push_back(&bdem_Properties::d_stringAttr);
-//      catalog.push_back(&bdem_Properties::d_stringAttr);
+//      catalog.push_back(&bdem_Properties::s_doubleAttr);
+//      catalog.push_back(&bdem_Properties::s_stringAttr);
+//      catalog.push_back(&bdem_Properties::s_stringAttr);
 //
 //      bdem_ChoiceHeader outMessage(&catalog);
 //      assert(-1 == outMessage.selector());
@@ -339,7 +339,7 @@ class bdem_ChoiceHeader {
 
   public:
     // PUBLIC CLASS CONSTANTS
-    static const bdem_Descriptor d_choiceItemAttr;
+    static const bdem_Descriptor  s_choiceItemAttr;
         // Attributes of the 'bdem_ChoiceHeader' class.  Contains null pointers
         // for construction, destruction, and assignment functions, but has
         // functionality for the equality test, printing, etc.

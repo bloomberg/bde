@@ -181,7 +181,7 @@ bsl::ostream& bdem_ListImp_AttrFuncs::print(const void    *obj,
                         // ------------------
 
 // CLASS DATA
-const bdem_Descriptor bdem_ListImp::d_listAttr =
+const bdem_Descriptor bdem_ListImp::s_listAttr =
 {
     bdem_ElemType::BDEM_LIST,
     sizeof(bdem_ListImp),
@@ -527,7 +527,7 @@ bsl::string& bdem_ListImp::insertString(int dstIndex, const char *value)
     bslma::AutoDestructor<bsl::string> autoElemDestr(&stringBuffer.object(),
                                                      1);
     void *elemData = insertElementRaw(dstIndex,
-                                      &bdem_Properties::d_stringAttr);
+                                      &bdem_Properties::s_stringAttr);
     autoElemDestr.release();
 
     bdeimp_BitwiseCopy<bsl::string>::copy(static_cast<bsl::string *>(elemData),
@@ -552,7 +552,7 @@ bdem_ListImp& bdem_ListImp::insertList(int                 dstIndex,
                                        d_allocatorManager.originalAllocator());
 
     bslma::AutoDestructor<bdem_ListImp> autoElemDestr(&listBuffer.object(), 1);
-    void *elemData = insertElementRaw(dstIndex, &bdem_ListImp::d_listAttr);
+    void *elemData = insertElementRaw(dstIndex, &bdem_ListImp::s_listAttr);
     autoElemDestr.release();
 
     bdeimp_BitwiseCopy<bdem_ListImp>::copy(
