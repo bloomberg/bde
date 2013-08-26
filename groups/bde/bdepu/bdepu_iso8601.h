@@ -650,7 +650,7 @@ bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&    stream,
                                       const bdet_Time& object)
 {
     char buffer[BDEPU_TIME_STRLEN + 1];
-    int len = generate(buffer, object, BDEPU_TIME_STRLEN)
+    int len = generate(buffer, object, BDEPU_TIME_STRLEN);
     BSLS_ASSERT_SAFE(BDEPU_TIME_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
