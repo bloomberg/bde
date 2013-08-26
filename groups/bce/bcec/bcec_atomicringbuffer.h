@@ -17,8 +17,9 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component implements an efficient, thread-enabled 
 // fixed-size queue of values.  This class is ideal for synchronization and
 // communication between threads in a producer-consumer model.  Its API is
-// identical to 'bcec_FixedQueue'.  In comparison with that type, it may occupy
-// performs faster in benchmarks.  
+// largely identical to 'bcec_FixedQueue'.  In comparison with that type, it
+// may occupy somewhat more space in memory, but performs faster in
+// benchmarks.  
 //
 ///TEMPLATE REQUIREMENTS
 ///---------------------
@@ -69,16 +70,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_SELECTTRAIT
-#include <bslmf_selecttrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
-#ifndef INCLUDE_BSLMA_DESTRUCTORPROCTOR
-#include <bslma_destructorproctor.h>
 #endif
 
 namespace BloombergLP {
@@ -123,8 +116,8 @@ class bcec_AtomicRingBuffer_Impl {
                                bslma::Allocator *basicAllocator);
        // TBD DOC
 
-    unsigned int incrementGeneration(unsigned int currGeneration, 
-                                     unsigned int index);
+    void releaseElement(unsigned int currGeneration, 
+                        unsigned int index);
     
     int  acquirePushIndex(unsigned int &generation, 
                           unsigned int &index);
@@ -178,19 +171,6 @@ private:
     // PRIVATE MANIPULATORS
     int  tryPushBackImpl(const TYPE& data);
     int  tryPopFrontImpl(TYPE* data);
-
-    // TBD TBD -- copyOut must die
-    void copyOut(TYPE &dst, TYPE &src);
-
-    static void copyOut(TYPE &dst,
-                        TYPE &src,
-                        bslma::Allocator *allocator_p,
-                        bslmf::SelectTraitCase<bsl::is_trivially_copyable>);
-
-    static void copyOut(TYPE &dst,
-                        TYPE &src,
-                        bslma::Allocator *allocator_p,
-                        bslmf::SelectTraitCase<>);
 public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcec_AtomicRingBuffer,
@@ -233,9 +213,10 @@ public:
        // Return 0 on success, and a non-zero value otherwise.
     
     void removeAll();
-       // Remove all items from this queue. Note that this operation is not atomic; if other threads
-       // are concurrently pushing items into the queue the result of length() after this function
-       //  returns is not guaranteed to be 0. 
+       // Remove all items from this queue. Note that this operation is not 
+       // atomic; if other threads are concurrently pushing items into the 
+       // queue the result of length() after this function returns is not 
+       // guaranteed to be 0. 
 
     void disable();
        // Disable this queue.  All subsequent invocations of 'pushBack' or
@@ -297,41 +278,6 @@ bcec_AtomicRingBuffer<TYPE>::~bcec_AtomicRingBuffer()
   removeAll();
 }
 
-// PRIVATE MANIPULATORS
-
-template <typename TYPE>
-inline
-void bcec_AtomicRingBuffer<TYPE>::copyOut(TYPE &dst,
-                                          TYPE &src,
-                                          bslma::Allocator *allocator_p,
-                                          bslmf::SelectTraitCase<bsl::is_trivially_copyable>)
-{
-  dst = src;
-}
-
-template <typename TYPE>
-inline
-void bcec_AtomicRingBuffer<TYPE>::copyOut(TYPE &dst,
-                                          TYPE &src,
-                                          bslma::Allocator *allocator_p,
-                                          bslmf::SelectTraitCase<>)
-{
-  bslma::DestructorProctor<TYPE> dp(&src);
-  bslalg::ScalarPrimitives::copyConstruct(&dst, src, allocator_p);
-}
-
-template <typename TYPE>
-inline
-void bcec_AtomicRingBuffer<TYPE>::copyOut(TYPE &dst,
-                                          TYPE &src)
-{
-  typedef typename bslmf::SelectTrait<TYPE,
-                                      bsl::is_trivially_copyable>::Type 
-      Selection;
-
-  copyOut(dst, src, d_allocator_p, Selection());
-}
-
 template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::tryPushBackImpl(const TYPE& data)
 {
@@ -372,11 +318,10 @@ int bcec_AtomicRingBuffer<TYPE>::tryPopFrontImpl(TYPE *data)
   }
 
   // copy data
-  copyOut(*data, d_elements[index]);
+  *data = d_elements[index];
+  d_elements[index].~TYPE();
   
-  // increment generation count and release element
-  d_impl.d_states[index] = INDEX_STATE_OLD | 
-      (d_impl.incrementGeneration(generation, index) << INDEX_STATE_SHIFT);
+  d_impl.releaseElement(generation, index);
 
   // notify pusher of available element
   if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
@@ -440,13 +385,10 @@ TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
     d_numWaitingPoppers.relaxedAdd(-1);
   }
 
-  // TBD SWAP?!
   TYPE result(d_elements[index]);
   d_elements[index].~TYPE();
   
-  // increment generation count and release element
-  d_impl.d_states[index] = INDEX_STATE_OLD | 
-      (d_impl.incrementGeneration(generation, index) << INDEX_STATE_SHIFT);
+  d_impl.releaseElement(generation, index);
 
   // notify pusher of available element
   if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
@@ -476,13 +418,17 @@ template <typename TYPE>
 void bcec_AtomicRingBuffer<TYPE>::removeAll()
 {
     const int numItems = length();
-    int poppedItems = 0;
-    unsigned char buffer[sizeof(TYPE)];
-    TYPE *t(reinterpret_cast<TYPE*>(buffer));
-    
+    int poppedItems = 0;    
     while (poppedItems++ < numItems) {
-        if(tryPopFront(t))
+        unsigned int index;
+        unsigned int generation;
+        unsigned int n;
+
+        if (0 != d_impl.acquirePopIndex(generation, index, n)) {
             break;
+        }
+        d_elements[index].~TYPE();
+        d_impl.releaseElement(generation, index);
     }
   
     int numWakeUps = bsl::min(poppedItems, (int) d_numWaitingPushers);

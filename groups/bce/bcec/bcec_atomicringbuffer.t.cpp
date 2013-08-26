@@ -237,16 +237,29 @@ void pushpopThread(bcec_AtomicRingBuffer<int> *queue,
 
 class TestType
 {
+    int *d_arg_p;
+
 public:
 
-    TestType(int arg1, int arg2)
-    {}
+    TestType(int *arg1) : d_arg_p(arg1)
+    {
+        ++(*d_arg_p);
+    }
 
-    TestType(const TestType& rhs)
-    {}
+    TestType(const TestType& rhs) : d_arg_p(rhs.d_arg_p)
+    {
+        ++(*d_arg_p);
+    }
 
     TestType& operator=(const TestType& rhs) {
+        --(*d_arg_p);
+        d_arg_p = rhs.d_arg_p;
+        ++(*d_arg_p);
         return *this;
+    }
+
+    ~TestType() {
+        --(*d_arg_p);
     }
 };
 
@@ -927,10 +940,22 @@ int main(int argc, char *argv[])
 
         bcec_AtomicRingBuffer<TestType> q(10);
 
-        TestType t(1, 2);
-        q.pushBack(t);
-
-         TestType t2 = q.popFront();
+        int count = 0; 
+        {
+            TestType t(&count);
+            q.pushBack(t);
+            
+            TestType t2 = q.popFront();
+        }
+        ASSERT(0 == count);
+        {
+            TestType t(&count);
+            q.pushBack(t);
+            
+            TestType t2(&count);
+            q.popFront(&t2);
+        }
+        ASSERT(0 == count);
       } break;
 
       case 15: {
@@ -1101,12 +1126,15 @@ int main(int argc, char *argv[])
             ASSERT(0 != mX.pushBack(cd));
             ASSERT(0 == da.numBytesInUse());
             V(CountedDelete::numDeletes());
-            ASSERT(4 == CountedDelete::numDeletes() ||
-                   3 == CountedDelete::numDeletes());
+            ASSERT(2 == CountedDelete::numDeletes());
             ASSERT(0 == da.numBytesInUse());
 
             ASSERT(numBytes == ta.numBytesInUse());
+            mX.enable();
+            ASSERT(0 == mX.pushBack(cd));
         }
+        V(CountedDelete::numDeletes());
+        ASSERT(4 == CountedDelete::numDeletes());
 
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 < ta.numAllocations());

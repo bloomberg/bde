@@ -84,22 +84,23 @@ void bcec_AtomicRingBuffer_Impl::disable() {
     }
 }
 
-unsigned int 
-bcec_AtomicRingBuffer_Impl::incrementGeneration(unsigned int currGeneration, 
-                                                unsigned int currIndex)
+void
+bcec_AtomicRingBuffer_Impl::releaseElement(unsigned int currGeneration, 
+                                           unsigned int index)
 {
+    unsigned int generation = currGeneration + 1;
+
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxGeneration == 
-                                              currGeneration + 1)) {
-        if (currIndex >= d_alignmentMod) {
-            return 0;
+                                              generation)) {
+        if (index >= d_alignmentMod) {
+            generation = 0;
         }
     }
     else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxGeneration == 
                                                    currGeneration)) {
-        return 1;
+        generation = 1;
     }
-    
-    return currGeneration + 1;
+    d_states[index] = INDEX_STATE_OLD | (generation << INDEX_STATE_SHIFT);
 }
 
 int bcec_AtomicRingBuffer_Impl::acquirePushIndex(unsigned int &generation, 
