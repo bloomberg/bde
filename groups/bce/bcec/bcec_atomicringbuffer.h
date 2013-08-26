@@ -169,7 +169,7 @@ private:
     };
 
     // DATA
-    bsl::vector<TYPE>                 d_elements;   
+    TYPE                             *d_elements;   
     const char                        d_elementsPad[BCEC_PAD]; 
     bcec_AtomicRingBuffer_Impl        d_impl;
     
@@ -268,7 +268,7 @@ template <typename TYPE>
 bcec_AtomicRingBuffer<TYPE>::bcec_AtomicRingBuffer(
                                              bsl::size_t       capacity,
                                              bslma::Allocator *basicAllocator)
-: d_elements(basicAllocator)  
+: d_elements()  
 , d_elementsPad()
 , d_impl(capacity, basicAllocator)
 , d_popControlSema(0)
@@ -277,13 +277,14 @@ bcec_AtomicRingBuffer<TYPE>::bcec_AtomicRingBuffer(
 , d_pushControlSema(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_elements.reserve(capacity);
+    d_elements = (TYPE*)d_allocator_p->allocate(capacity * sizeof(TYPE));
 }
 
 template <typename TYPE>
 bcec_AtomicRingBuffer<TYPE>::~bcec_AtomicRingBuffer()
 {
     removeAll();
+    d_allocator_p->deallocate(d_elements);
 }
 
 template <typename TYPE>

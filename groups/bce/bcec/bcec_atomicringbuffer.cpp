@@ -25,7 +25,6 @@ unsigned int incrementIndex(unsigned int opCount, unsigned int currIndex)
 
 }
 
-
 // CREATORS
 bcec_AtomicRingBuffer_Impl::bcec_AtomicRingBuffer_Impl(
                                           bsl::size_t       capacity,
