@@ -85,14 +85,13 @@ double bbedc_DayCount::yearsDiff(const bdet_Date&               beginDate,
         numYears = bbedc_Actual365Fixed::yearsDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ICMA_ACTUAL_ACTUAL: {
-        numYears = bbedc_IcmaActualActual::yearsDiff(beginDate, endDate);
         static bool firstTime = true;
         if (firstTime) {
             firstTime = false;
             bsl::cout << "ERROR: deprecated 'bbedc_DayCount::yearsDiff'"
-                         " called with ICMA Actual/Actual.  result: "
-                      << numYears << bsl::endl;
+                         " called with ICMA Actual/Actual.\n";
         }
+        numYears = bbedc_IcmaActualActual::yearsDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ISDA_ACTUAL_ACTUAL: {
         numYears = bbedc_IsdaActualActual::yearsDiff(beginDate, endDate);

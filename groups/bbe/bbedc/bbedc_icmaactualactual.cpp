@@ -1,15 +1,16 @@
 // bbedc_icmaactualactual.cpp               -*-C++-*-
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(bbedc_icmaactualactual_cpp,"$Id$ $CSID$")
-
 
 #include <bbedc_icmaactualactual.h>
+
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(bbedc_icmaactualactual_cpp,"$Id$ $CSID$")
 
 #include <bdeimp_dateutil.h>
 
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -31,6 +32,7 @@ double bbedc_IcmaActualActual::yearsDiff(const bdet_Date& beginDateIn,
     BSLS_ASSERT(beginDate <= endDate);
 
     // get Pivot End (pe) date
+
     int peYY = beginDate.year();
     int peMM = endDate.month();
     int peDD = endDate.day();
@@ -39,7 +41,9 @@ double bbedc_IcmaActualActual::yearsDiff(const bdet_Date& beginDateIn,
       && endDate.day() < beginDate.day())) {
         ++peYY;
     }
+
     // get Pivot Begin (pb) date
+
     int pbYY = peYY - 1;
     int pbMM = peMM;
     int pbDD = peDD;
@@ -59,6 +63,13 @@ double bbedc_IcmaActualActual::yearsDiff(const bdet_Date& beginDateIn,
 
     if (negationFlag) {
         result = -result;
+    }
+
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        bsl::cout << "ERROR: deprecated 'bbedc_IcmaActualActual::yearsDiff'"
+                     " called.  result: " << result << bsl::endl;
     }
 
     return result;
