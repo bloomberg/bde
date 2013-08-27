@@ -3408,20 +3408,25 @@ int main(int argc, char *argv[])
         //:
         //: 8 'read' fails when a version '2' index to local time type is out
         //:   of bound.
+        //:
         //
         // Plan:
         //: 1 Use a table driven approach to create a string stream with
-        //:   boundary values of transition times, and verify that
+        //:   boundary values of version '\0' transition times, and verify that
         //:   'read' successfully load data into a 'baetzo_Zoneinfo'.
         //:
-        //: 2 Create a string stream with transition times that are not in
+        //: 2 Use a table driven approach to create a string stream with
+        //:   boundary values of version '2' transition times, and verify that
+        //:   'read' successfully load data into a 'baetzo_Zoneinfo'.
+        //:
+        //: 3 Create a string stream with transition times that are not in
         //:   ascending out of order, and verify that 'read' returns a non-zero
         //:   value.
         //:
-        //: 3 Create a string stream with duplicated transition times, and
+        //: 4 Create a string stream with duplicated transition times, and
         //:   verify that 'read' returns a non-zero value.
         //:
-        //: 4 Create a string stream with transition that refers to a
+        //: 5 Create a string stream with transition that refers to a
         //:   local-time type that is out of bound, and verify that 'read'
         //:   returns a non-zero value.
         //
@@ -3436,20 +3441,21 @@ int main(int argc, char *argv[])
                       "\nCreate a table of distinct transition times." << endl;
 
         static const struct {
-            int   d_line;
-            int   d_transitionTime;
+            int                  d_line;
+            int                  d_transitionTime;
+            bsls::Types::Int64   d_transitionTime64;
         } DATA[] = {
 
         //LINE  TRANSITION
         //----  ----------
 
-        { L_,            0 },
-        { L_,            1 },
-        { L_,           -1 },
-        { L_,   0x01234567 },
-        { L_,   0x76543210 },
-        { L_,      INT_MIN },
-        { L_,      INT_MAX },
+        { L_,            0,                    0LL },
+        { L_,            1,                    1LL },
+        { L_,           -1,                   -1LL },
+        { L_,   0x01234567,           0x01234567LL },
+        { L_,   0x76543210,           0x76543210LL },
+        { L_,      INT_MIN,   0xFFFFFFFF7C558180LL },  // "01/01/0000 00:00:00"
+        { L_,      INT_MAX,         0x3AFFF4417FLL },  // "12/31/9999 23:59:59"
 
         };
 
@@ -3487,8 +3493,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting version '2' transition time." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE       = DATA[ti].d_line;
-                const int   TRANSITION = DATA[ti].d_transitionTime;
+                const int                  LINE       = DATA[ti].d_line;
+                const bsls::Types::Int64   TRANSITION =
+                                                  DATA[ti].d_transitionTime64;
 
                 RawHeader RH;
                 RH.setVersion('2');
