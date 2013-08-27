@@ -168,9 +168,12 @@ BDES_IDENT("$Id: $")
 // second header and data is followed by a formatted string used for handling
 // time after the last transition time.
 //
-// The version '2' format contains 8-byte time values that can not be
-// represented in 4 bytes.  The 8-byte information must be used to
-// accurately load all transitions contained in the original source files.
+// The version '2' format uses 8 bytes to store date-time values because the
+// 4-byte values used in the version '\0' format provide a limited date range.
+// The standard IANA data contains many transitions that are outside the range
+// of representable values of a 4-byte offset (these transitions are ignored by
+// the version '\0' format, which leads to inaccurate information for dates far
+// in the past or future).
 //
 // This component will always load version '2' data if it is present in the
 // supplied binary data.

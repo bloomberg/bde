@@ -997,7 +997,7 @@ const unsigned char TEST_DATA[] = {
     0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-const unsigned char TEST_DATA64[] = {
+const unsigned char TEST_DATA_VERSION2[] = {
     // Expected version '2' data for test case 2.
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1039,10 +1039,11 @@ static int verifyTimeZone(const ZoneinfoData&    data,
     // Zoneinfo version '\0' binary data in the buffer.  Return 0 if the
     // validation succeed, and a non-zero value otherwise.
 
-static int verifyTimeZone64(const ZoneinfoData&    data,
-                            const baetzo_Zoneinfo& timeZone,
-                            int                    line,
-                            bool                   expectToFail = false);
+static int verifyTimeZoneVersion2Format(
+                                  const ZoneinfoData&    data,
+                                  const baetzo_Zoneinfo& timeZone,
+                                  int                    line,
+                                  bool                   expectToFail = false);
     // Validate description of a time zone based on the specified 'timeZone' is
     // the same as the description based on the specified 'data', and output an
     // error message containing the line number indicated by the specified
@@ -1616,7 +1617,7 @@ class ZoneinfoData {
     int size() const;
         // Return the size of the buffer containing the Zoneinfo data.
 
-    char *getVersion2Offset() const;
+    char *getVersion2Address() const;
         // Return the address of the portion in the buffer that is the start
         // of the version '2' header.
 
@@ -1838,7 +1839,7 @@ int ZoneinfoData::size() const
     return d_size;
 }
 
-char *ZoneinfoData::getVersion2Offset() const
+char *ZoneinfoData::getVersion2Address() const
 {
     return &d_buffer[sizeof(RawHeader)
         + bsl::max(getRawHeader()->numTransitions(), 0) * 4
@@ -1858,7 +1859,7 @@ RawHeader *ZoneinfoData::getRawHeader() const
 
 RawHeader *ZoneinfoData::getRawHeader64() const
 {
-    return reinterpret_cast<RawHeader*>(getVersion2Offset());
+    return reinterpret_cast<RawHeader*>(getVersion2Address());
 }
 
 bdeut_BigEndianInt32 *ZoneinfoData::getTransitionTime() const
@@ -1870,7 +1871,7 @@ bdeut_BigEndianInt32 *ZoneinfoData::getTransitionTime() const
 bdeut_BigEndianInt64 *ZoneinfoData::getTransitionTime64() const
 {
     return reinterpret_cast<bdeut_BigEndianInt64*>(
-        getVersion2Offset() + sizeof(RawHeader));
+        getVersion2Address() + sizeof(RawHeader));
 }
 
 unsigned char *ZoneinfoData::getTransitionIndex() const
@@ -1883,7 +1884,7 @@ unsigned char *ZoneinfoData::getTransitionIndex() const
 unsigned char *ZoneinfoData::getTransitionIndex64() const
 {
     return reinterpret_cast<unsigned char *>(
-        getVersion2Offset()
+        getVersion2Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8);
 }
@@ -1902,7 +1903,7 @@ RawLeapInfo *ZoneinfoData::getRawLeapInfo() const
 RawLeapInfo64 *ZoneinfoData::getRawLeapInfo64() const
 {
     return reinterpret_cast<RawLeapInfo64*>(
-        getVersion2Offset()
+        getVersion2Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
         + bsl::max(getRawHeader64()->numTransitions(), 0)
@@ -1922,7 +1923,7 @@ RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes() const
 RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes64() const
 {
     return reinterpret_cast<RawLocalTimeTypes*>(
-        getVersion2Offset()
+        getVersion2Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
         + bsl::max(getRawHeader64()->numTransitions(), 0));
@@ -1940,7 +1941,7 @@ char *ZoneinfoData::getAbbrevData() const
 
 char *ZoneinfoData::getAbbrevData64() const
 {
-    return getVersion2Offset()
+    return getVersion2Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
         + bsl::max(getRawHeader64()->numTransitions(), 0)
@@ -2030,10 +2031,10 @@ static int verifyTimeZone(const ZoneinfoData&    data,
 
 // ----------------------------------------------------------------------------
 
-static int verifyTimeZone64(const ZoneinfoData&    data,
-                            const baetzo_Zoneinfo& timeZone,
-                            int                    line,
-                            bool                   expectToFail)
+static int verifyTimeZoneVersion2Format(const ZoneinfoData&    data,
+                                        const baetzo_Zoneinfo& timeZone,
+                                        int                    line,
+                                        bool                   expectToFail)
 {
 
     const int LINE = line;
@@ -2341,12 +2342,12 @@ static int testVerifyTimeZone(int verbose)
 
 // ----------------------------------------------------------------------------
 
-static int testVerifyTimeZone64(int verbose)
-    // Run ad-hoc tests on the 'verifyTimeZone64' function.  The tests will be
-    // based on a Zoneinfo with 5 transitions and 3 local time types.
-    // 'verifyTimeZone64' will be called on various 'baetzo_Zoneinfo' objects
-    // and the return code will be verified.  Return 0 if all the tests passed,
-    // and a non-zero value otherwise.
+static int testVerifyTimeZoneVersion2Format(int verbose)
+    // Run ad-hoc tests on the 'verifyTimeZoneVersion2Format' function.  The
+    // tests will be based on a Zoneinfo with 5 transitions and 3 local time
+    // types. 'verifyTimeZoneVersion2Format' will be called on various
+    // 'baetzo_Zoneinfo' objects and the return code will be verified.
+    // Return 0 if all the tests passed, and a non-zero value otherwise.
 {
     // Create a table of transition time.
 
@@ -2427,7 +2428,7 @@ static int testVerifyTimeZone64(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 == verifyTimeZone64(ZI, TZ, L_, false));
+        ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_, false));
     }
 
     if (verbose) cout << "\nMissing transition at 'Jan 1, 1'" << endl;
@@ -2439,7 +2440,7 @@ static int testVerifyTimeZone64(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nIncorrect first transition" << endl;
@@ -2452,7 +2453,7 @@ static int testVerifyTimeZone64(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nMissing one transition" << endl;
@@ -2463,7 +2464,7 @@ static int testVerifyTimeZone64(int verbose)
         TZ.addTransition(TRANSITION_TIMES[1], D[1]);
         TZ.addTransition(TRANSITION_TIMES[2], D[2]);
 
-        ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nOne extra transition" << endl;
@@ -2477,7 +2478,7 @@ static int testVerifyTimeZone64(int verbose)
         TZ.addTransition(TRANSITION_TIMES[4] - 1, D[1]);
         TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-        ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nIncorrect transition data" << endl;
@@ -2491,7 +2492,7 @@ static int testVerifyTimeZone64(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
         }
         {
             baetzo_Zoneinfo TZ;
@@ -2500,7 +2501,7 @@ static int testVerifyTimeZone64(int verbose)
             TZ.addTransition(TRANSITION_TIMES[1] - 1, D[1]);
             TZ.addTransition(TRANSITION_TIMES[2],     D[2]);
 
-            ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
         }
         {
             baetzo_Zoneinfo TZ;
@@ -2511,7 +2512,7 @@ static int testVerifyTimeZone64(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
         }
     }
 
@@ -2525,7 +2526,7 @@ static int testVerifyTimeZone64(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[0]);
 
-        ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nIncorrect local time descriptor data" << endl;
@@ -2540,7 +2541,7 @@ static int testVerifyTimeZone64(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
         }
         {
             baetzo_Zoneinfo TZ;
@@ -2552,7 +2553,7 @@ static int testVerifyTimeZone64(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
         }
         {
             baetzo_Zoneinfo TZ;
@@ -2564,7 +2565,7 @@ static int testVerifyTimeZone64(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], dError);
 
-            ASSERT(0 != verifyTimeZone64(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
         }
     }
     return 0;
@@ -2885,8 +2886,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Call the 'read' function on a number of real-life Zoneinfo data.
-        //:   Verify the retrieved data with 'verifyTimeZone64'.  The chosen
-        //:   time zones are:
+        //:   Verify the retrieved data with 'verifyTimeZoneVersion2Format'.
+        //:   The chosen time zones are:
         //:   o America/New_York -- due to common usage.
         //:   o Europe/London -- due to common usage.
         //:   o Asia/Tokyo -- due to common usage.
@@ -2959,7 +2960,7 @@ int main(int argc, char *argv[])
 
                 ZoneinfoData ZI(reinterpret_cast<const char *>(BUFFER),
                                 SIZE);
-                ASSERT(0 == verifyTimeZone64(ZI, TZ, L_));
+                ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
 
             }
         }
@@ -3086,7 +3087,8 @@ int main(int argc, char *argv[])
                 baetzo_Zoneinfo TZ;
 
                 LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, stream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone64(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 ==
+                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
             }
         }
       } break;
@@ -3240,7 +3242,8 @@ int main(int argc, char *argv[])
                 ASSERT(TRANS      == HD.numTransitions());
                 ASSERT(AB_DATA    == HD.abbrevDataSize());
 
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone64(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 ==
+                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
             }
         }
       } break;
@@ -3372,9 +3375,9 @@ int main(int argc, char *argv[])
 
                     baetzo_Zoneinfo TZ;
                     LOOP2_ASSERT(LINE, LLT_LINE,
-                                 0 == Obj::read(&TZ, inputStream));
+                                             0 == Obj::read(&TZ, inputStream));
                     LOOP2_ASSERT(LINE, LLT_LINE,
-                                 0 == verifyTimeZone64(ZI, TZ, LINE));
+                              0 == verifyTimeZoneVersion2Format(ZI, TZ, LINE));
                 }
             }
         }
@@ -3500,7 +3503,8 @@ int main(int argc, char *argv[])
 
                 baetzo_Zoneinfo TZ;
                 LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone64(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 ==
+                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
 
                 baetzo_Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
@@ -3549,7 +3553,7 @@ int main(int argc, char *argv[])
 
             baetzo_Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone64(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
         }
 
         if (verbose) cout <<
@@ -3662,7 +3666,7 @@ int main(int argc, char *argv[])
 
             baetzo_Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone64(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
         }
 
         if (verbose) cout <<
@@ -3831,7 +3835,8 @@ int main(int argc, char *argv[])
                 baetzo_Zoneinfo TZ;
 
                 LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 == verifyTimeZone64(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 ==
+                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
             }
         }
 
@@ -3885,7 +3890,7 @@ int main(int argc, char *argv[])
 
             baetzo_Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone64(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
         }
 
         if (verbose) cout << "\nTesting invalid UTC offset." << endl;
@@ -4054,7 +4059,7 @@ int main(int argc, char *argv[])
 
             baetzo_Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone64(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
 
             baetzo_Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
@@ -4143,7 +4148,7 @@ int main(int argc, char *argv[])
 
             baetzo_Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZone64(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
 
             baetzo_Zoneinfo::TransitionConstIterator iter =
                                                            TZ.endTransitions();
@@ -4217,8 +4222,8 @@ int main(int argc, char *argv[])
         //: 4 'verifyTimeZone' correctly reports whether a 'baetzo_Zoneinfo'
         //:   matches the version '\0' Zoneinfo binary data.
         //:
-        //: 4 'verifyTimeZone64' correctly reports whether a 'baetzo_Zoneinfo'
-        //:   matches the version '2' Zoneinfo binary data.
+        //: 4 'verifyTimeZoneVersion2Format' correctly reports whether a
+        //:   'baetzo_Zoneinfo' matches the version '2' Zoneinfo binary data.
         //
         // Plan:
         //: 1 Test that a default constructed 'ZoneinfoData' object have the
@@ -4412,11 +4417,12 @@ int main(int argc, char *argv[])
             RH.setAbbrevDataSize(2);
             ZoneinfoData ZI(RH);
 
-            const int TEST_DATA64_SIZE =
-                                      sizeof TEST_DATA64 / sizeof *TEST_DATA64;
+            const int TEST_DATA_VERSION2_SIZE =
+                        sizeof TEST_DATA_VERSION2 / sizeof *TEST_DATA_VERSION2;
 
-            ASSERT(TEST_DATA64_SIZE == ZI.size());
-            ASSERT(0 == memcmp(ZI.buffer(), TEST_DATA64, TEST_DATA64_SIZE));
+            ASSERT(TEST_DATA_VERSION2_SIZE == ZI.size());
+            ASSERT(0 == memcmp(ZI.buffer(), TEST_DATA_VERSION2,
+                                                     TEST_DATA_VERSION2_SIZE));
         }
 
         if (verbose) cout << "\nTesting 'verifyTimeZone'." << endl;
@@ -4424,9 +4430,10 @@ int main(int argc, char *argv[])
             testVerifyTimeZone(verbose);
         }
 
-        if (verbose) cout << "\nTesting 'verifyTimeZone64'." << endl;
+        if (verbose) cout << "\nTesting 'verifyTimeZoneVersion2Format'."
+                                                                       << endl;
         {
-            testVerifyTimeZone64(verbose);
+            testVerifyTimeZoneVersion2Format(verbose);
         }
       } break;
       case 1: {
@@ -4471,7 +4478,7 @@ int main(int argc, char *argv[])
 
         ZoneinfoData ZI(reinterpret_cast<const char *>(CHATHAM_DATA),
                         sizeof(CHATHAM_DATA));
-        verifyTimeZone64(ZI, TZ, L_);
+        verifyTimeZoneVersion2Format(ZI, TZ, L_);
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -4548,7 +4555,7 @@ int main(int argc, char *argv[])
 
         ZoneinfoData data(buffer, size);
         if ('2' == data.getRawHeader()->version() &&
-            0 != verifyTimeZone64(data, timeZone, L_)) {
+            0 != verifyTimeZoneVersion2Format(data, timeZone, L_)) {
             cout << "Failed to parse file" << endl;
             exit(-1);
         } else if (0 != verifyTimeZone(data, timeZone, L_)) {
