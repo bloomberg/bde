@@ -292,6 +292,64 @@ int readHeader(baetzo_ZoneinfoBinaryHeader *result,
 }
 
 static inline
+int readLocalTimeDescriptors(
+                 bsl::vector<baetzo_LocalTimeDescriptor> *descriptors,
+                 const bsl::vector<RawLocalTimeType>&     localTimeDescriptors,
+                 const bsl::vector<char>&                 abbreviationBuffer)
+{
+    BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
+
+    for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
+        if (!validIndex(abbreviationBuffer,
+                        localTimeDescriptors[i].d_abbreviationIndex)) {
+            BAEL_LOG_ERROR << "Invalid abbreviation buffer index "
+                           << (int)localTimeDescriptors[i].d_abbreviationIndex
+                           << " found in Zoneinfo file.  Expecting [0 .. "
+                           << abbreviationBuffer.size() - 1
+                           << "]."
+                           << BAEL_LOG_END;
+            return -20;                                               // RETURN
+        }
+
+        const int utcOffset = decode32(localTimeDescriptors[i].d_offset);
+
+        if (!baetzo_LocalTimeDescriptor::isValidUtcOffsetInSeconds(utcOffset)){
+            BAEL_LOG_ERROR << "Invalid UTC offset "
+                           << utcOffset
+                           << " found in Zoneinfo file.  Expecting "
+                           << "[-86399 .. 86399]."
+                           << BAEL_LOG_END;
+
+            return -21;                                               // RETURN
+        }
+        const bool isDst = localTimeDescriptors[i].d_isDst;
+
+        // Passing the address of the first character pointed by the index (C
+        // string).
+
+        const char *description =
+              &abbreviationBuffer[localTimeDescriptors[i].d_abbreviationIndex];
+
+        // Check if 'description' is null-terminated.
+
+        const int maxLength = abbreviationBuffer.size()
+                              - localTimeDescriptors[i].d_abbreviationIndex
+                              - 1;
+        if (maxLength < bdeu_String::strnlen(description, maxLength + 1)) {
+            BAEL_LOG_ERROR << "Abbreviation string is not null-terminated."
+                           << BAEL_LOG_END;
+            return -22;
+        }
+
+        descriptors->push_back(baetzo_LocalTimeDescriptor(utcOffset,
+                                                          isDst,
+                                                          description));
+    }
+
+    return 0;
+}
+
+static inline
 int readVersion2FormatData(baetzo_Zoneinfo             *zoneinfoResult,
                            baetzo_ZoneinfoBinaryHeader *headerResult,
                            bsl::istream&                stream)
@@ -381,51 +439,13 @@ int readVersion2FormatData(baetzo_Zoneinfo             *zoneinfoResult,
     // 'zoneinfoResult->localTimeDescriptors()'.
 
     bsl::vector<baetzo_LocalTimeDescriptor> descriptors;
-    for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
-        if (!validIndex(abbreviationBuffer,
-                        localTimeDescriptors[i].d_abbreviationIndex)) {
-            BAEL_LOG_ERROR << "Invalid abbreviation buffer index "
-                           << (int)localTimeDescriptors[i].d_abbreviationIndex
-                           << " found in Zoneinfo file.  Expecting [0 .. "
-                           << abbreviationBuffer.size() - 1
-                           << "]."
-                           << BAEL_LOG_END;
-            return -30;                                               // RETURN
-        }
-
-        const int utcOffset = decode32(localTimeDescriptors[i].d_offset);
-
-        if (!baetzo_LocalTimeDescriptor::isValidUtcOffsetInSeconds(utcOffset)){
-            BAEL_LOG_ERROR << "Invalid UTC offset "
-                           << utcOffset
-                           << " found in Zoneinfo file.  Expecting "
-                           << "[-86399 .. 86399]."
-                           << BAEL_LOG_END;
-
-            return -31;                                               // RETURN
-        }
-        const bool isDst = localTimeDescriptors[i].d_isDst;
-
-        // Passing the address of the first character pointed by the index (C
-        // string).
-
-        const char *description =
-              &abbreviationBuffer[localTimeDescriptors[i].d_abbreviationIndex];
-
-        // Check if 'description' is null-terminated.
-
-        const int maxLength = headerResult->abbrevDataSize()
-                              - localTimeDescriptors[i].d_abbreviationIndex
-                              - 1;
-        if (maxLength < bdeu_String::strnlen(description, maxLength + 1)) {
-            BAEL_LOG_ERROR << "Abbreviation string is not null-terminated."
-                           << BAEL_LOG_END;
-            return -32;
-        }
-
-        descriptors.push_back(baetzo_LocalTimeDescriptor(utcOffset,
-                                                         isDst,
-                                                          description));
+    if (0 != readLocalTimeDescriptors(&descriptors,
+                                      localTimeDescriptors,
+                                      abbreviationBuffer)) {
+        BAEL_LOG_ERROR << "Error reading local time descriptors from Zoneinfo "
+                       << "file."
+                       << BAEL_LOG_END;
+        return -30;                                                   // RETURN
     }
 
     // Add default transition.
@@ -444,13 +464,13 @@ int readVersion2FormatData(baetzo_Zoneinfo             *zoneinfoResult,
                            << descriptors.size() - 1
                            << "]."
                            << BAEL_LOG_END;
-            return -33;                                               // RETURN
+            return -31;                                               // RETURN
         }
 
         if (i > 0 && transitions[i - 1] >= transitions[i]) {
             BAEL_LOG_ERROR << "Transition time is not in ascending order."
                            << BAEL_LOG_END;
-            return -34;                                               // RETURN
+            return -32;                                               // RETURN
         }
 
         const int curDescriptorIndex = localTimeIndices[i];
@@ -565,51 +585,13 @@ int baetzo_ZoneinfoBinaryReader::read(
     // 'zoneinfoResult->localTimeDescriptors()'.
 
     bsl::vector<baetzo_LocalTimeDescriptor> descriptors;
-    for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
-        if (!validIndex(abbreviationBuffer,
-                        localTimeDescriptors[i].d_abbreviationIndex)) {
-            BAEL_LOG_ERROR << "Invalid abbreviation buffer index "
-                           << (int)localTimeDescriptors[i].d_abbreviationIndex
-                           << " found in Zoneinfo file.  Expecting [0 .. "
-                           << abbreviationBuffer.size() - 1
-                           << "]."
-                           << BAEL_LOG_END;
-            return -17;                                               // RETURN
-        }
-
-        const int utcOffset = decode32(localTimeDescriptors[i].d_offset);
-
-        if (!baetzo_LocalTimeDescriptor::isValidUtcOffsetInSeconds(utcOffset)){
-            BAEL_LOG_ERROR << "Invalid UTC offset "
-                           << utcOffset
-                           << " found in Zoneinfo file.  Expecting "
-                           << "[-86399 .. 86399]."
-                           << BAEL_LOG_END;
-
-            return -18;                                               // RETURN
-        }
-        const bool isDst = localTimeDescriptors[i].d_isDst;
-
-        // Passing the address of the first character pointed by the index (C
-        // string).
-
-        const char *description =
-              &abbreviationBuffer[localTimeDescriptors[i].d_abbreviationIndex];
-
-        // Check if 'description' is null-terminated.
-
-        const int maxLength = headerResult->abbrevDataSize()
-                              - localTimeDescriptors[i].d_abbreviationIndex
-                              - 1;
-        if (maxLength < bdeu_String::strnlen(description, maxLength + 1)) {
-            BAEL_LOG_ERROR << "Abbreviation string is not null-terminated."
-                           << BAEL_LOG_END;
-            return -19;
-        }
-
-        descriptors.push_back(baetzo_LocalTimeDescriptor(utcOffset,
-                                                         isDst,
-                                                          description));
+    if (0 != readLocalTimeDescriptors(&descriptors,
+                                      localTimeDescriptors,
+                                      abbreviationBuffer)) {
+        BAEL_LOG_ERROR << "Error reading local time descriptors from Zoneinfo "
+                       << "file."
+                       << BAEL_LOG_END;
+        return -17;                                                   // RETURN
     }
 
     // Add default transition.
@@ -628,13 +610,13 @@ int baetzo_ZoneinfoBinaryReader::read(
                            << descriptors.size() - 1
                            << "]."
                            << BAEL_LOG_END;
-            return -21;                                               // RETURN
+            return -18;                                               // RETURN
         }
 
         if (i > 0 && transitions[i - 1] >= transitions[i]) {
             BAEL_LOG_ERROR << "Transition time is not in ascending order."
                            << BAEL_LOG_END;
-            return -22;                                               // RETURN
+            return -19;                                               // RETURN
         }
 
         const int curDescriptorIndex = localTimeIndices[i];
