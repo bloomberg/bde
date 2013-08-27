@@ -1,6 +1,7 @@
 // bbedc_daycountadapter.t.cpp     -*-C++-*-
 
 #include <bbedc_daycountadapter.h>
+#include <bbedc_icmaactualactual.h>
 #include <bbedc_isdaactualactual.h>
 #include <bbedc_isma30360.h>
 #include <bdet_date.h>
@@ -197,6 +198,32 @@ int main(int argc, char *argv[]) {
                 double diff2 = 1.0028 - protocol.yearsDiff(DATE3, DATE4);
                 ASSERT(-0.00005 <= diff2 && diff2 <= 0.00005);
             }
+
+            {
+                bbedc_DayCountAdapter<bbedc_Isma30360> mX;
+                bbedc_DayCountInterface& protocol = mX;
+
+                double diff1 = 0.0417 - protocol.yearsDiff(DATE1, DATE2);
+                ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);
+
+                double diff2 = 1.0028 - protocol.yearsDiff(DATE3, DATE4);
+                ASSERT(-0.00005 <= diff2 && diff2 <= 0.00005);
+            }
+
+#if 0
+            // This deliberately will not compile
+
+            {
+                bbedc_DayCountAdapter<bbedc_IcmaActualActual> mX;
+                bbedc_DayCountInterface& protocol = mX;
+
+                double diff1 = 0.0417 - protocol.yearsDiff(DATE1, DATE2);
+                ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);
+
+                double diff2 = 1.0028 - protocol.yearsDiff(DATE3, DATE4);
+                ASSERT(-0.00005 <= diff2 && diff2 <= 0.00005);
+            }
+#endif
         }
       } break;
       default: {
