@@ -81,6 +81,9 @@ struct bbedc_IcmaActualActual {
         // behavior is undefined if either 'beginDate' or 'endDate' is in the
         // year 1752.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result.
+        //
+        // This function is completely wrong and is DEPRECATED.  An error
+        // message will be printed to 'cout' if it is called.
 };
 
 // ===========================================================================
