@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bsls_atomic.h                                                      -*-C++-*-
@@ -957,6 +957,13 @@ class AtomicPointer {
         // &#39;bslmf_Assert&#39; can&#39;t be used here because of package dependency
         // rules.
 
+    template &lt;typename TYPE1&gt;
+    struct RemoveConst              { typedef TYPE1 Type; };
+    template &lt;typename TYPE1&gt;
+    struct RemoveConst&lt;TYPE1 const&gt; { typedef TYPE1 Type; };
+
+    typedef typename RemoveConst&lt;TYPE&gt;::Type NcType;
+
   private:
     // NOT IMPLEMENTED
     AtomicPointer(const AtomicPointer&lt;TYPE&gt;&amp;);                  // = delete
@@ -1354,8 +1361,9 @@ template &lt;class TYPE&gt;
 inline
 AtomicPointer&lt;TYPE&gt;::AtomicPointer(TYPE *value)
 {
-    AtomicOperations_Imp::initPointer(&amp;d_value,
-                                      reinterpret_cast&lt;const void *&gt;(value));
+    AtomicOperations_Imp::initPointer(
+            &amp;d_value,
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(value)));
 }
 
 // MANIPULATORS
@@ -1364,8 +1372,9 @@ inline
 AtomicPointer&lt;TYPE&gt;&amp;
 AtomicPointer&lt;TYPE&gt;::operator=(TYPE *value)
 {
-    AtomicOperations_Imp::setPtr(&amp;d_value,
-                                 reinterpret_cast&lt;const void *&gt;(value));
+    AtomicOperations_Imp::setPtr(
+            &amp;d_value,
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(value)));
     return *this;
 }
 
@@ -1373,16 +1382,18 @@ template &lt;class TYPE&gt;
 inline
 void AtomicPointer&lt;TYPE&gt;::storeRelaxed(TYPE *value)
 {
-    AtomicOperations_Imp::setPtrRelaxed(&amp;d_value,
-                                        reinterpret_cast&lt;const void *&gt;(value));
+    AtomicOperations_Imp::setPtrRelaxed(
+            &amp;d_value,
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(value)));
 }
 
 template &lt;class TYPE&gt;
 inline
 void AtomicPointer&lt;TYPE&gt;::storeRelease(TYPE *value)
 {
-    AtomicOperations_Imp::setPtrRelease(&amp;d_value,
-                                        reinterpret_cast&lt;const void *&gt;(value));
+    AtomicOperations_Imp::setPtrRelease(
+            &amp;d_value,
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(value)));
 }
 
 template &lt;class TYPE&gt;
@@ -1392,7 +1403,7 @@ TYPE *AtomicPointer&lt;TYPE&gt;::swap(TYPE *swapValue)
     return reinterpret_cast&lt;TYPE *&gt;(
         AtomicOperations_Imp::swapPtr(
             &amp;d_value,
-            reinterpret_cast&lt;const void *&gt;(swapValue)));
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(swapValue))));
 }
 
 template &lt;class TYPE&gt;
@@ -1402,7 +1413,7 @@ TYPE *AtomicPointer&lt;TYPE&gt;::swapAcqRel(TYPE *swapValue)
     return reinterpret_cast&lt;TYPE *&gt;(
         AtomicOperations_Imp::swapPtrAcqRel(
             &amp;d_value,
-            reinterpret_cast&lt;const void *&gt;(swapValue)));
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(swapValue))));
 }
 
 template &lt;class TYPE&gt;
@@ -1413,8 +1424,8 @@ TYPE *AtomicPointer&lt;TYPE&gt;::testAndSwap(const TYPE *compareValue,
     return reinterpret_cast&lt;TYPE *&gt;(
         AtomicOperations_Imp::testAndSwapPtr(
             &amp;d_value,
-            reinterpret_cast&lt;const void *&gt;(compareValue),
-            reinterpret_cast&lt;const void *&gt;(swapValue)));
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(compareValue)),
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(swapValue))));
 }
 
 template &lt;class TYPE&gt;
@@ -1425,8 +1436,8 @@ TYPE *AtomicPointer&lt;TYPE&gt;::testAndSwapAcqRel(const TYPE *compareValue,
     return reinterpret_cast&lt;TYPE *&gt;(
         AtomicOperations_Imp::testAndSwapPtrAcqRel(
             &amp;d_value,
-            reinterpret_cast&lt;const void *&gt;(compareValue),
-            reinterpret_cast&lt;const void *&gt;(swapValue)));
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(compareValue)),
+            reinterpret_cast&lt;void *&gt;(const_cast&lt;NcType *&gt;(swapValue))));
 }
 
 // ACCESSORS

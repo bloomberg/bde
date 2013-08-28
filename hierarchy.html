@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -344,12 +344,9 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbsl_1_1is__rvalue__reference.html">bsl::is_rvalue_reference&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__same.html">bsl::is_same&lt; TYPE1, TYPE2 &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__same_3_01TYPE_00_01TYPE_01_4.html">bsl::is_same&lt; TYPE, TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01equal__to_3_01VALUE__TYPE_01_4_01_4.html">bsl::is_trivially_copyable&lt; equal_to&lt; VALUE_TYPE &gt; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01equal__to_3_01VALUE__TYPE_01_4_01_4.html">bsl::is_trivially_default_constructible&lt; equal_to&lt; VALUE_TYPE &gt; &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__volatile.html">bsl::is_volatile&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__volatile_3_01TYPE_01volatile_01_4.html">bsl::is_volatile&lt; TYPE volatile &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1HasStlIterators_3_01bsl_1_1basic__string_3_01CHAR__TYPE_00_01CHAR__TRAITS_00_01ALLOC_01_4_01_4.html">bslalg::HasStlIterators&lt; bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOC &gt; &gt;</a></li>
-<li><a class="el" href="structbslalg_1_1HasStlIterators_3_01bsl_1_1unordered__map_3_01KEY_00_01VALUE_00_01HASH_00_01EQUAL_00_01ALLOCATOR_01_4_01_4.html">bslalg::HasStlIterators&lt; bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt; &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitNil_1_1Metafunction.html">bslalg::TypeTraitNil::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitPair_1_1Metafunction.html">bslalg::TypeTraitPair::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator&lt; TYPE &gt;</a><ul>
@@ -447,7 +444,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1IsNil.html">bslmf::IsNil&lt; T &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsNil_3_01Nil_01_4.html">bslmf::IsNil&lt; Nil &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsPair.html">bslmf::IsPair&lt; TYPE &gt;</a></li>
-<li><a class="el" href="structbslmf_1_1IsPair_3_01bsl_1_1pair_3_01T1_00_01T2_01_4_01_4.html">bslmf::IsPair&lt; bsl::pair&lt; T1, T2 &gt; &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsPointer__Imp.html">bslmf::IsPointer_Imp&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsPointer__Imp_3_01TYPE_01_5_01_4.html">bslmf::IsPointer_Imp&lt; TYPE * &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsPointerToMember.html">bslmf::IsPointerToMember&lt; TYPE &gt;</a></li>
@@ -492,16 +488,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1HasPointerSemantics.html">bslmf::HasPointerSemantics&lt; TYPE &gt;</a></li>
 </ul>
 </li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, bslmf::IsBitwiseEqualityComparable&lt; T1 &gt;::value &amp;&amp;bslmf::IsBitwiseEqualityComparable&lt; T2 &gt;::value &amp;&amp;sizeof(T1)+sizeof(T2)==sizeof(bsl::Pair_Imp&lt; T1, T2, 0, 0 &gt;)&gt;</a><ul>
-<li><a class="el" href="structbslmf_1_1IsBitwiseEqualityComparable_3_01bsl_1_1pair_3_01T1_00_01T2_01_4_01_4.html">bslmf::IsBitwiseEqualityComparable&lt; bsl::pair&lt; T1, T2 &gt; &gt;</a></li>
-</ul>
-</li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, bslmf::IsBitwiseMoveable&lt; ALLOCATOR &gt;::value &gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01bslstl_1_1BidirectionalNodePool_3_01VALUE_00_01ALLOCATOR_01_4_01_4.html">bslmf::IsBitwiseMoveable&lt; bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt; &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, bslmf::IsBitwiseMoveable&lt; T1 &gt;::value &amp;&amp;bslmf::IsBitwiseMoveable&lt; T2 &gt;::value &gt;</a><ul>
-<li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01bsl_1_1pair_3_01T1_00_01T2_01_4_01_4.html">bslmf::IsBitwiseMoveable&lt; bsl::pair&lt; T1, T2 &gt; &gt;</a></li>
 </ul>
 </li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, is_arithmetic&lt; TYPE &gt;::value||is_void&lt; TYPE &gt;::value &gt;</a><ul>
@@ -520,20 +508,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbsl_1_1is__member__pointer.html">bsl::is_member_pointer&lt; TYPE &gt;</a></li>
 </ul>
 </li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, is_trivially_copyable&lt; T1 &gt;::value &amp;&amp;is_trivially_copyable&lt; T2 &gt;::value &gt;</a><ul>
-<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01pair_3_01T1_00_01T2_01_4_01_4.html">bsl::is_trivially_copyable&lt; pair&lt; T1, T2 &gt; &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, is_trivially_default_constructible&lt; T1 &gt;::value &amp;&amp;is_trivially_default_constructible&lt; T2 &gt;::value &gt;</a><ul>
-<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01bsl_1_1pair_3_01T1_00_01T2_01_4_01_4.html">bsl::is_trivially_default_constructible&lt; bsl::pair&lt; T1, T2 &gt; &gt;</a></li>
-</ul>
-</li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, MemberFunctionPointerTraits&lt; PROTOTYPE &gt;::IS_MEMBER_FUNCTION_PTR &gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsMemberFunctionPointer.html">bslmf::IsMemberFunctionPointer&lt; PROTOTYPE &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, UsesBslmaAllocator&lt; T1 &gt;::value||UsesBslmaAllocator&lt; T2 &gt;::value &gt;</a><ul>
-<li><a class="el" href="structbslma_1_1UsesBslmaAllocator_3_01bsl_1_1pair_3_01T1_00_01T2_01_4_01_4.html">bslma::UsesBslmaAllocator&lt; bsl::pair&lt; T1, T2 &gt; &gt;</a></li>
 </ul>
 </li>
 <li><a class="el" href="structbsl_1_1integral__constant_3_01bool_00_01VAL_01_4.html">bsl::integral_constant&lt; bool, VAL &gt;</a></li>
@@ -648,8 +624,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_00f685ffeb17f91808e9c84827cd4a2d5.html">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13) const &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0723782855c8e925b8de34926e0358593.html">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13, ARG14) const &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitHasTrivialDefaultConstructor_1_1Metafunction.html">bslalg::TypeTraitHasTrivialDefaultConstructor::Metafunction&lt; TYPE &gt;</a></li>
-<li><a class="el" href="structbslalg_1_1TypeTraitBitwiseEqualityComparable_1_1Metafunction.html">bslalg::TypeTraitBitwiseEqualityComparable::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitBitwiseCopyable_1_1Metafunction.html">bslalg::TypeTraitBitwiseCopyable::Metafunction&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbslalg_1_1TypeTraitBitwiseEqualityComparable_1_1Metafunction.html">bslalg::TypeTraitBitwiseEqualityComparable::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitBitwiseMoveable_1_1Metafunction.html">bslalg::TypeTraitBitwiseMoveable::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitHasPointerSemantics_1_1Metafunction.html">bslalg::TypeTraitHasPointerSemantics::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitHasStlIterators_1_1Metafunction.html">bslalg::TypeTraitHasStlIterators::Metafunction&lt; TYPE &gt;</a></li>
@@ -697,8 +673,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbsltf_1_1NonDefaultConstructibleTestType.html">bsltf::NonDefaultConstructibleTestType</a></li>
 <li><a class="el" href="classbsltf_1_1NonEqualComparableTestType.html">bsltf::NonEqualComparableTestType</a></li>
 <li><a class="el" href="classbsltf_1_1NonTypicalOverloadsTestType.html">bsltf::NonTypicalOverloadsTestType</a></li>
-<li><a class="el" href="structbslmf_1_1IsClass__Imp_1_1NoType.html">bslmf::IsClass_Imp&lt; TYPE &gt;::NoType</a></li>
 <li><a class="el" href="structbsls_1_1ProtocolTest__IsAbstract_1_1NoType.html">bsls::ProtocolTest_IsAbstract&lt; T &gt;::NoType</a></li>
+<li><a class="el" href="structbslmf_1_1IsClass__Imp_1_1NoType.html">bslmf::IsClass_Imp&lt; TYPE &gt;::NoType</a></li>
 <li><a class="el" href="structbsls_1_1Nullptr__Impl.html">bsls::Nullptr_Impl</a></li>
 <li><a class="el" href="unionbsls_1_1ObjectBuffer.html">bsls::ObjectBuffer&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1Pair__Imp.html">bsl::Pair_Imp&lt; T1, T2, T1_USES_BSLMA, T2_USES_BSLMA &gt;</a></li>
@@ -735,11 +711,11 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslalg_1_1RbTreeUtil.html">bslalg::RbTreeUtil</a></li>
 <li><a class="el" href="structbslalg_1_1RbTreeUtil__Validator.html">bslalg::RbTreeUtil_Validator</a></li>
 <li><a class="el" href="classbslalg_1_1RbTreeUtilTreeProctor.html">bslalg::RbTreeUtilTreeProctor&lt; DELETER &gt;</a></li>
-<li><a class="el" href="structbsl_1_1allocator_1_1rebind.html">bsl::allocator&lt; T &gt;::rebind&lt; U &gt;</a></li>
-<li><a class="el" href="structbsltf_1_1StdStatefulAllocator_1_1rebind.html">bsltf::StdStatefulAllocator&lt; TYPE, PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION, PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT, PROPAGATE_ON_CONTAINER_SWAP, PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
 <li><a class="el" href="structbsltf_1_1StdTestAllocator_3_01void_01_4_1_1rebind.html">bsltf::StdTestAllocator&lt; void &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
 <li><a class="el" href="structbsltf_1_1StdTestAllocator_1_1rebind.html">bsltf::StdTestAllocator&lt; TYPE &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
+<li><a class="el" href="structbsltf_1_1StdStatefulAllocator_1_1rebind.html">bsltf::StdStatefulAllocator&lt; TYPE, PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION, PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT, PROPAGATE_ON_CONTAINER_SWAP, PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1allocator_3_01void_01_4_1_1rebind.html">bsl::allocator&lt; void &gt;::rebind&lt; U &gt;</a></li>
+<li><a class="el" href="structbsl_1_1allocator_1_1rebind.html">bsl::allocator&lt; T &gt;::rebind&lt; U &gt;</a></li>
 <li><a class="el" href="structbsl_1_1allocator__traits_1_1rebind__alloc.html">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;::rebind_alloc&lt; ELEMENT_TYPE &gt;</a></li>
 <li><a class="el" href="classbsl_1_1bitset_1_1reference.html">bsl::bitset&lt; N &gt;::reference</a></li>
 <li><a class="el" href="structbsl_1_1remove__const.html">bsl::remove_const&lt; TYPE &gt;</a></li>
@@ -1028,7 +1004,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslstl_1_1UnorderedMapKeyConfiguration.html">bslstl::UnorderedMapKeyConfiguration&lt; VALUE_TYPE &gt;</a></li>
 <li><a class="el" href="structbslstl_1_1UnorderedSetKeyConfiguration.html">bslstl::UnorderedSetKeyConfiguration&lt; VALUE_TYPE &gt;</a></li>
 <li><a class="el" href="classbsls_1_1UnspecifiedBool.html">bsls::UnspecifiedBool&lt; BSLS_HOST_TYPE &gt;</a></li>
-<li><a class="el" href="structbslma_1_1UsesBslmaAllocator_3_01bsl_1_1unordered__map_3_01KEY_00_01VALUE_00_01HASH_00_01EQUAL_00_01ALLOCATOR_01_4_01_4.html">bslma::UsesBslmaAllocator&lt; bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt; &gt;</a></li>
 <li><a class="el" href="structbslma_1_1UsesBslmaAllocator_3_01const_01TYPE_01_4.html">bslma::UsesBslmaAllocator&lt; const TYPE &gt;</a></li>
 <li><a class="el" href="structbslma_1_1UsesBslmaAllocator_3_01const_01volatile_01TYPE_01_4.html">bslma::UsesBslmaAllocator&lt; const volatile TYPE &gt;</a></li>
 <li><a class="el" href="structbslma_1_1UsesBslmaAllocator_3_01volatile_01TYPE_01_4.html">bslma::UsesBslmaAllocator&lt; volatile TYPE &gt;</a></li>
@@ -1063,7 +1038,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1IsClass__Imp_1_1YesType.html">bslmf::IsClass_Imp&lt; TYPE &gt;::YesType</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:02 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

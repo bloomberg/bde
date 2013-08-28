@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslstl_unorderedmap Component</title>
+<title>BSL 2.18 OSS: bslstl_unorderedmap Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -200,12 +200,12 @@ Friends</h2></td></tr>
 <a href="#3.7">Usage</a> <ul>
 <li>
 <a href="#3.7.1">Example 1: Gathering Document Statistics</a> </li>
+<li>
+<a href="#3.7.2">Example 2: Examining and Setting Unordered Map Configuration</a> </li>
+<li>
+<a href="#3.7.3">Example 3: Inverse Concordance</a> </li>
 </ul>
 </li>
-<li>
-<a href="#3.8">Example 2: Examining and Setting Unordered Map Configuration</a> </li>
-<li>
-<a href="#3.9">Example 3: Inverse Concordance</a> </li>
 </ul>
 </li>
 </ul>
@@ -233,11 +233,14 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_on_key_and_value"></a> <a class="anchor" id="description.requirements_on_key_and_value"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Requirements on KEY and VALUE: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> instantiation is a fully <a href="group__bsldoc__glossary.html#value-semantic_type" class="glossary">Value-Semantic Type</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) only if the supplied <code>KEY</code> and <code>VALUE</code> template parameters are fully value-semantic. It is possible to instantiate an <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> with <code>KEY</code> and <code>VALUE</code> parameter arguments that do not provide a full set of value-semantic operations, but then some methods of the container may not be instantiable. The following terminology, adopted from the C++11 standard, is used in the function documentation of <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> to describe a function's requirements for the <code>KEY</code> and <code>VALUE</code> template parameters. These terms are also defined in section [utility.arg.requirements] of the C++11 standard. Note that, in the context of an <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> instantiation, the requirements apply specifically to the <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code>s element type, <code>value_type</code>, which is an alias for std::pair&lt;const KEY, VALUE&gt;'. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> instantiation is a fully <a href="group__bsldoc__glossary.html#value-semantic_type" class="glossary">Value-Semantic Type</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) only if the supplied <code>KEY</code> and <code>VALUE</code> template parameters are fully value-semantic. It is possible to instantiate an <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> with <code>KEY</code> and <code>VALUE</code> parameter arguments that do not provide a full set of value-semantic operations, but then some methods of the container may not be instantiable. The following terminology, adopted from the C++11 standard, is used in the function documentation of <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> to describe a function's requirements for the <code>KEY</code> and <code>VALUE</code> template parameters. These terms are also defined in section [utility.arg.requirements] of the C++11 standard. Note that, in the context of an <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> instantiation, the requirements apply specifically to the <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code>s element type, <code>value_type</code>, which is an alias for <code>std::pair&lt;const KEY, VALUE&gt;</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="default-constructible"></a> <a class="anchor" id="requirements_on_key_and_value.default-constructible"></a> <a class="anchor" id="description.requirements_on_key_and_value.default-constructible"></a> <em>default-constructible</em>: The type provides an accessible default constructor.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="copy-constructible"></a> <a class="anchor" id="requirements_on_key_and_value.copy-constructible"></a> <a class="anchor" id="description.requirements_on_key_and_value.copy-constructible"></a> <em>copy-constructible</em>: The type provides an accessible copy constructor.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="equality-comparable"></a> <a class="anchor" id="requirements_on_key_and_value.equality-comparable"></a> <a class="anchor" id="description.requirements_on_key_and_value.equality-comparable"></a> <em>equality-comparable</em>: The type provides an equality-comparison operator that defines an equivalence relationship and is both reflexive and transitive.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="default-constructible"></a> <a class="anchor" id="requirements_on_key_and_value.default-constructible"></a> <a class="anchor" id="description.requirements_on_key_and_value.default-constructible"></a> <em>default-constructible</em>: <br/>
+ The type provides an accessible default constructor.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="copy-constructible"></a> <a class="anchor" id="requirements_on_key_and_value.copy-constructible"></a> <a class="anchor" id="description.requirements_on_key_and_value.copy-constructible"></a> <em>copy-constructible</em>: <br/>
+ The type provides an accessible copy constructor.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="equality-comparable"></a> <a class="anchor" id="requirements_on_key_and_value.equality-comparable"></a> <a class="anchor" id="description.requirements_on_key_and_value.equality-comparable"></a> <em>equality-comparable</em>: <br/>
+ The type provides an equality-comparison operator that defines an equivalence relationship and is both reflexive and transitive.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_on_hash_and_equal"></a> <a class="anchor" id="description.requirements_on_hash_and_equal"></a> <a class="anchor" id="3.2"></a> </dd></dl>
@@ -583,7 +586,7 @@ Friends</h2></td></tr>
 <br/>
  Notice that "-" (used as an header underscore in our markup) appears in the word count. That could be elimiated by adding <code>-</code> to the set of delimiters; however, that would partition hyphenated words into separate words. In practice, one defines a "stop list" of common words (e.g., "the", "of", "and", "is") that one does not wish to tally. We could easily and "-" to the stop list. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="description.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="description.example_2"></a> <a class="anchor" id="3.8"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="description.usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.7.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Examining and Setting Unordered Map Configuration: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we wish to examine (and possibly influence) the performance of an unordered map. The unordered map provides several interfaces that allow us to do so. Several of these were used in <a href="group__bslstl__unorderedmap.html#example_1" class="el">Example 1</a> (code repeated below): <br/>
 <br/>
@@ -727,7 +730,7 @@ Friends</h2></td></tr>
  Notice that the loading factor has been (roughly) cut in half; we have achieved our goal. Also notice that the bucket count is unchanged since construction; thus, there were no rehashs during the loading this unordered map. Finally, notice that the number of empty (unused) buckets is significantly higher, and there's been a modest decrease in the largest bucket size, but more instances of them. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Thus, the unordered map provides facilities by which we can make trade-offs in performance characteristics of the containers we create. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_inverse_concordance"></a> <a class="anchor" id="description.example_3~3A_inverse_concordance"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="description.example_3"></a> <a class="anchor" id="3.9"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_inverse_concordance"></a> <a class="anchor" id="usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="description.usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.7.3"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3: Inverse Concordance: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>If one has a concordance for a set of documents (an index of the position of every unique word in those documents), then words of interest can be efficiently located. Suppose after locating a word of interest one also needs the surrounding words (for context). Searching in the original document requires re-tokenization (time consuming). Alternatively, one can use the concordance to create an inverse concordance to provide a fast lookup of the words at given locations in a document and then examine words near the word of interest. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define the types required (and convenient aliases) to create an unordered map from a word location to the corresponding word. The "key" value will be <code>WordLocation</code>, a pair of <code>int</code> values: the first being the document code number (arbitrarily assigned), and second the word offset in that document (the first word of the document is at offset 0). The "value" of each entry is a <code>bsl::string</code> containing the word at that location. <br/>
@@ -2398,7 +2401,7 @@ template&lt;class KEY2 , class VALUE2 , class HASH2 , class EQUAL2 , class ALLOC
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:01 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

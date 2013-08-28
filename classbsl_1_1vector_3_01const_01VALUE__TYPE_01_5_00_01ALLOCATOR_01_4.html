@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: Class bsl::vector_3_01const_01VALUE_TYPE_01_5_00_01ALLOCATOR_01_4</title>
+<title>BSL 2.18 OSS: Class bsl::vector_3_01const_01VALUE_TYPE_01_5_00_01ALLOCATOR_01_4</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -169,8 +169,11 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gac5203d4410a4c7c3d1d2014d5542e0d9">resize</a> (<a class="el" href="group__bslstl__vector.html#gae4813c4ee19eb083b1a358ea9238fe54">size_type</a> newSize)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#ga4fedf6842b169a88be67a5758b3aa229">resize</a> (<a class="el" href="group__bslstl__vector.html#gae4813c4ee19eb083b1a358ea9238fe54">size_type</a> newSize, const const void *&amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gac931be06971aedc190c1191a00ee251a">reserve</a> (<a class="el" href="group__bslstl__vector.html#gae4813c4ee19eb083b1a358ea9238fe54">size_type</a> newCapacity)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaf5dd77d0be1e77193b7289fc08e828ec">shrink_to_fit</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#ga332db0292e3c1107be19e02fd9f22299">emplace_back</a> (Args &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaa1d6a35af66d87307ee9a48be96644a5">push_back</a> (const const void *&amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#ga8fbe1d9aac697597bce2b527b8208003">pop_back</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const void **&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gadeebf7a713dc053843dee059e23e9375">emplace</a> (<a class="el" href="group__bslstl__vector.html#ga67e0e0b7f2336c267c4884e8c340c156">const_iterator</a> position, Args &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__vector.html#ga4291d2e6fef9b494c54cc6083d659ca0">iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaa856a23873fe4d5354e0d8b63f0b0659">insert</a> (<a class="el" href="group__bslstl__vector.html#ga67e0e0b7f2336c267c4884e8c340c156">const_iterator</a> position, const const void *&amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaf28f2fa76a6acfe212d1dee103c2dafe">insert</a> (<a class="el" href="group__bslstl__vector.html#ga67e0e0b7f2336c267c4884e8c340c156">const_iterator</a> position, <a class="el" href="group__bslstl__vector.html#gae4813c4ee19eb083b1a358ea9238fe54">size_type</a> numElements, const const void *&amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gadc116debf5b1eb8a37aa4d0bd85213b2">insert</a> (<a class="el" href="group__bslstl__vector.html#ga67e0e0b7f2336c267c4884e8c340c156">const_iterator</a> position, INPUT_ITER first, INPUT_ITER last)</td></tr>
@@ -427,6 +430,42 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="gaf5dd77d0be1e77193b7289fc08e828ec"></a><!-- doxytag: member="bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;::shrink_to_fit" ref="gaf5dd77d0be1e77193b7289fc08e828ec" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; const void * , ALLOCATOR &gt;::shrink_to_fit </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Reduce the capacity of this vector to its size. The method has no effect if the capacity is equivalent to the size. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga332db0292e3c1107be19e02fd9f22299"></a><!-- doxytag: member="bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;::emplace_back" ref="ga332db0292e3c1107be19e02fd9f22299" args="(Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; const void * , ALLOCATOR &gt;::emplace_back </td>
+          <td>(</td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="gaa1d6a35af66d87307ee9a48be96644a5"></a><!-- doxytag: member="bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;::push_back" ref="gaa1d6a35af66d87307ee9a48be96644a5" args="(const const void *&amp;value)" -->
 <div class="memitem">
 <div class="memproto">
@@ -461,6 +500,33 @@ Protected Attributes</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Erase the last element from this vector. The behavior is undefined if this vector is empty. </p>
+
+</div>
+</div>
+<a class="anchor" id="gadeebf7a713dc053843dee059e23e9375"></a><!-- doxytag: member="bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;::emplace" ref="gadeebf7a713dc053843dee059e23e9375" args="(const_iterator position, Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const void * * <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; const void * , ALLOCATOR &gt;::emplace </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramname"> <em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
 
 </div>
 </div>
@@ -1163,7 +1229,7 @@ Protected Attributes</h2></td></tr>
 <li><a class="el" href="bslstl__vector_8h_source.html">bslstl_vector.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:13 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:07 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslstl_unorderedmultiset Component</title>
+<title>BSL 2.18 OSS: bslstl_unorderedmultiset Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -222,9 +222,12 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b>Requirements on KEY: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> instantiation is a fully <a href="group__bsldoc__glossary.html#value-semantic_type" class="glossary">Value-Semantic Type</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) only if the supplied <code>KEY</code> template parameters is fully value-semantic. It is possible to instantiate an <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> with <code>KEY</code> parameter arguments that do not provide a full set of value-semantic operations, but then some methods of the container may not be instantiable. The following terminology, adopted from the C++11 standard, is used in the function documentation of <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> to describe a function's requirements for the <code>KEY</code> template parameter. These terms are also defined in section [utility.arg.requirements] of the C++11 standard. Note that, in the context of an <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> instantiation, the requirements apply specifically to the <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code>s element type, <code>value_type</code>, which is an alias for <code>KEY</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="default-constructible"></a> <a class="anchor" id="requirements_on_key.default-constructible"></a> <a class="anchor" id="description.requirements_on_key.default-constructible"></a> <em>default-constructible</em>: The type provides an accessible default constructor.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="copy-constructible"></a> <a class="anchor" id="requirements_on_key.copy-constructible"></a> <a class="anchor" id="description.requirements_on_key.copy-constructible"></a> <em>copy-constructible</em>: The type provides an accessible copy constructor.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="equality-comparable"></a> <a class="anchor" id="requirements_on_key.equality-comparable"></a> <a class="anchor" id="description.requirements_on_key.equality-comparable"></a> <em>equality-comparable</em>: The type provides an equality-comparison operator that defines an equivalence relationship and is both reflexive and transitive.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="default-constructible"></a> <a class="anchor" id="requirements_on_key.default-constructible"></a> <a class="anchor" id="description.requirements_on_key.default-constructible"></a> <em>default-constructible</em>: <br/>
+ The type provides an accessible default constructor.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="copy-constructible"></a> <a class="anchor" id="requirements_on_key.copy-constructible"></a> <a class="anchor" id="description.requirements_on_key.copy-constructible"></a> <em>copy-constructible</em>: <br/>
+ The type provides an accessible copy constructor.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="equality-comparable"></a> <a class="anchor" id="requirements_on_key.equality-comparable"></a> <a class="anchor" id="description.requirements_on_key.equality-comparable"></a> <em>equality-comparable</em>: <br/>
+ The type provides an equality-comparison operator that defines an equivalence relationship and is both reflexive and transitive.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_on_hash_and_equal"></a> <a class="anchor" id="description.requirements_on_hash_and_equal"></a> <a class="anchor" id="3.2"></a> </dd></dl>
@@ -2105,7 +2108,7 @@ template&lt;class KEY2 , class HASH2 , class EQUAL2 , class ALLOCATOR2 &gt; </di
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:01 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

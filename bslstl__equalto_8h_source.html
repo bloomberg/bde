@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bslstl_equalto.h                                                   -*-C++-*-
@@ -313,28 +313,6 @@ struct equal_to {
 
 }  // close namespace bsl
 
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for &#39;equal_to&#39;
-//: o &#39;equal_to&#39; is an stateless POD, trivially constructible, copyable, and
-//:   moveable.
-
-namespace bsl {
-
-template&lt;class VALUE_TYPE&gt;
-struct is_trivially_default_constructible&lt;equal_to&lt;VALUE_TYPE&gt; &gt;
-: bsl::true_type
-{};
-
-template&lt;class VALUE_TYPE&gt;
-struct is_trivially_copyable&lt;equal_to&lt;VALUE_TYPE&gt; &gt;
-: bsl::true_type
-{};
-
-}  // close namespace bsl
-
 namespace bsl {
 
 // ============================================================================
@@ -353,6 +331,28 @@ bool equal_to&lt;VALUE_TYPE&gt;::operator()(const VALUE_TYPE&amp; lhs,
 {
     return lhs == rhs;
 }
+
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for &#39;equal_to&#39;
+//: o &#39;equal_to&#39; is a stateless POD, trivially constructible, copyable, and
+//:   moveable.
+
+namespace bsl {
+
+template&lt;class VALUE_TYPE&gt;
+struct is_trivially_default_constructible&lt;equal_to&lt;VALUE_TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+template&lt;class VALUE_TYPE&gt;
+struct is_trivially_copyable&lt;equal_to&lt;VALUE_TYPE&gt; &gt;
+: bsl::true_type
+{};
 
 }  // close namespace bsl
 

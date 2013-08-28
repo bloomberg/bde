@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslstl_vector Component</title>
+<title>BSL 2.18 OSS: bslstl_vector Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -183,8 +183,13 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gac5203d4410a4c7c3d1d2014d5542e0d9">bsl::Vector_Imp::resize</a> (size_type newSize)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#ga4fedf6842b169a88be67a5758b3aa229">bsl::Vector_Imp::resize</a> (size_type newSize, const VALUE_TYPE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gac931be06971aedc190c1191a00ee251a">bsl::Vector_Imp::reserve</a> (size_type newCapacity)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaf5dd77d0be1e77193b7289fc08e828ec">bsl::Vector_Imp::shrink_to_fit</a> ()</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... Args&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#ga332db0292e3c1107be19e02fd9f22299">bsl::Vector_Imp::emplace_back</a> (Args &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaa1d6a35af66d87307ee9a48be96644a5">bsl::Vector_Imp::push_back</a> (const VALUE_TYPE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#ga8fbe1d9aac697597bce2b527b8208003">bsl::Vector_Imp::pop_back</a> ()</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... Args&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">VALUE_TYPE *&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gadeebf7a713dc053843dee059e23e9375">bsl::Vector_Imp::emplace</a> (const_iterator position, Args &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaa856a23873fe4d5354e0d8b63f0b0659">bsl::Vector_Imp::insert</a> (const_iterator position, const VALUE_TYPE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__vector.html#gaf28f2fa76a6acfe212d1dee103c2dafe">bsl::Vector_Imp::insert</a> (const_iterator position, size_type numElements, const VALUE_TYPE &amp;value)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class INPUT_ITER &gt; </td></tr>
@@ -2565,6 +2570,48 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
 
 </div>
 </div>
+<a class="anchor" id="gaf5dd77d0be1e77193b7289fc08e828ec"></a><!-- doxytag: member="bsl::Vector_Imp::shrink_to_fit" ref="gaf5dd77d0be1e77193b7289fc08e828ec" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::shrink_to_fit </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Reduce the capacity of this vector to its size. The method has no effect if the capacity is equivalent to the size. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga332db0292e3c1107be19e02fd9f22299"></a><!-- doxytag: member="bsl::Vector_Imp::emplace_back" ref="ga332db0292e3c1107be19e02fd9f22299" args="(Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;&gt; </div>
+<div class="memtemplate">
+template&lt;class... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::emplace_back </td>
+          <td>(</td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="gaa1d6a35af66d87307ee9a48be96644a5"></a><!-- doxytag: member="bsl::Vector_Imp::push_back" ref="gaa1d6a35af66d87307ee9a48be96644a5" args="(const VALUE_TYPE &amp;value)" -->
 <div class="memitem">
 <div class="memproto">
@@ -2603,6 +2650,37 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
 </div>
 <div class="memdoc">
 <p>Erase the last element from this vector. The behavior is undefined if this vector is empty. </p>
+
+</div>
+</div>
+<a class="anchor" id="gadeebf7a713dc053843dee059e23e9375"></a><!-- doxytag: member="bsl::Vector_Imp::emplace" ref="gadeebf7a713dc053843dee059e23e9375" args="(const_iterator position, Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;&gt; </div>
+<div class="memtemplate">
+template&lt;class... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">VALUE_TYPE* <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::emplace </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramname"> <em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
 
 </div>
 </div>
@@ -5789,7 +5867,7 @@ template&lt;class VALUE_TYPE&gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:01 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

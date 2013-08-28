@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: Struct bsls::AtomicOperations</title>
+<title>BSL 2.18 OSS: Struct bsls::AtomicOperations</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -133,17 +133,17 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a7bd7b0f5ecc2e2477dcd7542224c5c6f">decrementInt64AcqRel</a> (AtomicTypes::Int64 *atomicInt)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a47864d8f5641b1137ea74b9f946f5292">decrementInt64Nv</a> (AtomicTypes::Int64 *atomicInt)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a66b45e35d75744426fb90e2568c9306b">decrementInt64NvAcqRel</a> (AtomicTypes::Int64 *atomicInt)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a5f516afc24f0de04e928c68cb8e901db">initPointer</a> (AtomicTypes::Pointer *atomicPtr, const void *initialValue=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a787df526b06976e2037524e3886e6852">getPtr</a> (AtomicTypes::Pointer const *atomicPtr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#aaa69768e2e24b6668af4c946abab4113">getPtrRelaxed</a> (AtomicTypes::Pointer const *atomicPtr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#ae53ae56247fd086cd54ce5b4c5e00cc2">getPtrAcquire</a> (AtomicTypes::Pointer const *atomicPtr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#ace02ba5a37615d8f54477e6c075c6d03">setPtr</a> (AtomicTypes::Pointer *atomicPtr, const void *value)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a486d870058e6c7e0aaec7ffd4b578ac9">setPtrRelaxed</a> (AtomicTypes::Pointer *atomicPtr, const void *value)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a4976eaac1cbb21402e8a88a7f2255c33">setPtrRelease</a> (AtomicTypes::Pointer *atomicPtr, const void *value)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a8fa2a128baa0d0f586a5921767982da5">swapPtr</a> (AtomicTypes::Pointer *atomicPtr, const void *swapValue)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a00b88de6b131c8f40077a5d644f3daa2">swapPtrAcqRel</a> (AtomicTypes::Pointer *atomicPtr, const void *swapValue)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#aea3a5972ba601e155eefc03a19f35cba">testAndSwapPtr</a> (AtomicTypes::Pointer *atomicPtr, const void *compareValue, const void *swapValue)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#ae03303690b9f104d65df81aa247fbbb4">testAndSwapPtrAcqRel</a> (AtomicTypes::Pointer *atomicPtr, const void *compareValue, const void *swapValue)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a483c58917e84bd17b0bcf02d3ab50763">initPointer</a> (AtomicTypes::Pointer *atomicPtr, void *initialValue=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a689a668a4ce6a5f86ca8012c69837958">getPtr</a> (AtomicTypes::Pointer const *atomicPtr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a456c447deaff0092ae1a42b5d0a9ecb7">getPtrRelaxed</a> (AtomicTypes::Pointer const *atomicPtr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#ae836cf60ba460b5856edfe1b8f91f43c">getPtrAcquire</a> (AtomicTypes::Pointer const *atomicPtr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#ac64e94d08e810de30c71ba5c3d00b494">setPtr</a> (AtomicTypes::Pointer *atomicPtr, void *value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a242936ec3e58283739ceb97d15ca2ec2">setPtrRelaxed</a> (AtomicTypes::Pointer *atomicPtr, void *value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#ab07299a719fda364cb704a616721ebea">setPtrRelease</a> (AtomicTypes::Pointer *atomicPtr, void *value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a874a5295a3aaf085e6efa1394662b5e9">swapPtr</a> (AtomicTypes::Pointer *atomicPtr, void *swapValue)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#a879a152c3d68f1936afe807a91ee54f4">swapPtrAcqRel</a> (AtomicTypes::Pointer *atomicPtr, void *swapValue)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#ae00cfea48483aaba8e2cdc5eca0bb822">testAndSwapPtr</a> (AtomicTypes::Pointer *atomicPtr, void *compareValue, void *swapValue)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AtomicOperations.html#afdbb28bbd99ce6fd7bcec5eb63b8f87a">testAndSwapPtrAcqRel</a> (AtomicTypes::Pointer *atomicPtr, void *compareValue, void *swapValue)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p><code><a class="el" href="structbsls_1_1AtomicOperations.html">AtomicOperations</a></code> provides a namespace for a suite of atomic operations on the following types as defined by the <code>AtomicTypes</code> typedef: integer - <code>AtomicTypes::Int</code>, 64bit integer - <code>AtomicTypes::Int64</code>, pointer - <code>AtomicTypes::Pointer</code>. </p>
@@ -1401,7 +1401,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5f516afc24f0de04e928c68cb8e901db"></a><!-- doxytag: member="bsls::AtomicOperations::initPointer" ref="a5f516afc24f0de04e928c68cb8e901db" args="(AtomicTypes::Pointer *atomicPtr, const void *initialValue=0)" -->
+<a class="anchor" id="a483c58917e84bd17b0bcf02d3ab50763"></a><!-- doxytag: member="bsls::AtomicOperations::initPointer" ref="a483c58917e84bd17b0bcf02d3ab50763" args="(AtomicTypes::Pointer *atomicPtr, void *initialValue=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1414,7 +1414,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>initialValue</em> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1429,12 +1429,12 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a787df526b06976e2037524e3886e6852"></a><!-- doxytag: member="bsls::AtomicOperations::getPtr" ref="a787df526b06976e2037524e3886e6852" args="(AtomicTypes::Pointer const *atomicPtr)" -->
+<a class="anchor" id="a689a668a4ce6a5f86ca8012c69837958"></a><!-- doxytag: member="bsls::AtomicOperations::getPtr" ref="a689a668a4ce6a5f86ca8012c69837958" args="(AtomicTypes::Pointer const *atomicPtr)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">static const void* bsls::AtomicOperations::getPtr </td>
+          <td class="memname">static void* bsls::AtomicOperations::getPtr </td>
           <td>(</td>
           <td class="paramtype">AtomicTypes::Pointer const *&nbsp;</td>
           <td class="paramname"> <em>atomicPtr</em></td>
@@ -1448,12 +1448,12 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aaa69768e2e24b6668af4c946abab4113"></a><!-- doxytag: member="bsls::AtomicOperations::getPtrRelaxed" ref="aaa69768e2e24b6668af4c946abab4113" args="(AtomicTypes::Pointer const *atomicPtr)" -->
+<a class="anchor" id="a456c447deaff0092ae1a42b5d0a9ecb7"></a><!-- doxytag: member="bsls::AtomicOperations::getPtrRelaxed" ref="a456c447deaff0092ae1a42b5d0a9ecb7" args="(AtomicTypes::Pointer const *atomicPtr)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">static const void* bsls::AtomicOperations::getPtrRelaxed </td>
+          <td class="memname">static void* bsls::AtomicOperations::getPtrRelaxed </td>
           <td>(</td>
           <td class="paramtype">AtomicTypes::Pointer const *&nbsp;</td>
           <td class="paramname"> <em>atomicPtr</em></td>
@@ -1467,12 +1467,12 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae53ae56247fd086cd54ce5b4c5e00cc2"></a><!-- doxytag: member="bsls::AtomicOperations::getPtrAcquire" ref="ae53ae56247fd086cd54ce5b4c5e00cc2" args="(AtomicTypes::Pointer const *atomicPtr)" -->
+<a class="anchor" id="ae836cf60ba460b5856edfe1b8f91f43c"></a><!-- doxytag: member="bsls::AtomicOperations::getPtrAcquire" ref="ae836cf60ba460b5856edfe1b8f91f43c" args="(AtomicTypes::Pointer const *atomicPtr)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">static const void* bsls::AtomicOperations::getPtrAcquire </td>
+          <td class="memname">static void* bsls::AtomicOperations::getPtrAcquire </td>
           <td>(</td>
           <td class="paramtype">AtomicTypes::Pointer const *&nbsp;</td>
           <td class="paramname"> <em>atomicPtr</em></td>
@@ -1486,7 +1486,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ace02ba5a37615d8f54477e6c075c6d03"></a><!-- doxytag: member="bsls::AtomicOperations::setPtr" ref="ace02ba5a37615d8f54477e6c075c6d03" args="(AtomicTypes::Pointer *atomicPtr, const void *value)" -->
+<a class="anchor" id="ac64e94d08e810de30c71ba5c3d00b494"></a><!-- doxytag: member="bsls::AtomicOperations::setPtr" ref="ac64e94d08e810de30c71ba5c3d00b494" args="(AtomicTypes::Pointer *atomicPtr, void *value)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1499,7 +1499,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>value</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1514,7 +1514,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a486d870058e6c7e0aaec7ffd4b578ac9"></a><!-- doxytag: member="bsls::AtomicOperations::setPtrRelaxed" ref="a486d870058e6c7e0aaec7ffd4b578ac9" args="(AtomicTypes::Pointer *atomicPtr, const void *value)" -->
+<a class="anchor" id="a242936ec3e58283739ceb97d15ca2ec2"></a><!-- doxytag: member="bsls::AtomicOperations::setPtrRelaxed" ref="a242936ec3e58283739ceb97d15ca2ec2" args="(AtomicTypes::Pointer *atomicPtr, void *value)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1527,7 +1527,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>value</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1542,7 +1542,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4976eaac1cbb21402e8a88a7f2255c33"></a><!-- doxytag: member="bsls::AtomicOperations::setPtrRelease" ref="a4976eaac1cbb21402e8a88a7f2255c33" args="(AtomicTypes::Pointer *atomicPtr, const void *value)" -->
+<a class="anchor" id="ab07299a719fda364cb704a616721ebea"></a><!-- doxytag: member="bsls::AtomicOperations::setPtrRelease" ref="ab07299a719fda364cb704a616721ebea" args="(AtomicTypes::Pointer *atomicPtr, void *value)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1555,7 +1555,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>value</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1570,7 +1570,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a8fa2a128baa0d0f586a5921767982da5"></a><!-- doxytag: member="bsls::AtomicOperations::swapPtr" ref="a8fa2a128baa0d0f586a5921767982da5" args="(AtomicTypes::Pointer *atomicPtr, const void *swapValue)" -->
+<a class="anchor" id="a874a5295a3aaf085e6efa1394662b5e9"></a><!-- doxytag: member="bsls::AtomicOperations::swapPtr" ref="a874a5295a3aaf085e6efa1394662b5e9" args="(AtomicTypes::Pointer *atomicPtr, void *swapValue)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1583,7 +1583,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>swapValue</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1598,7 +1598,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a00b88de6b131c8f40077a5d644f3daa2"></a><!-- doxytag: member="bsls::AtomicOperations::swapPtrAcqRel" ref="a00b88de6b131c8f40077a5d644f3daa2" args="(AtomicTypes::Pointer *atomicPtr, const void *swapValue)" -->
+<a class="anchor" id="a879a152c3d68f1936afe807a91ee54f4"></a><!-- doxytag: member="bsls::AtomicOperations::swapPtrAcqRel" ref="a879a152c3d68f1936afe807a91ee54f4" args="(AtomicTypes::Pointer *atomicPtr, void *swapValue)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1611,7 +1611,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>swapValue</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1626,7 +1626,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aea3a5972ba601e155eefc03a19f35cba"></a><!-- doxytag: member="bsls::AtomicOperations::testAndSwapPtr" ref="aea3a5972ba601e155eefc03a19f35cba" args="(AtomicTypes::Pointer *atomicPtr, const void *compareValue, const void *swapValue)" -->
+<a class="anchor" id="ae00cfea48483aaba8e2cdc5eca0bb822"></a><!-- doxytag: member="bsls::AtomicOperations::testAndSwapPtr" ref="ae00cfea48483aaba8e2cdc5eca0bb822" args="(AtomicTypes::Pointer *atomicPtr, void *compareValue, void *swapValue)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1639,13 +1639,13 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>compareValue</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>swapValue</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1660,7 +1660,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae03303690b9f104d65df81aa247fbbb4"></a><!-- doxytag: member="bsls::AtomicOperations::testAndSwapPtrAcqRel" ref="ae03303690b9f104d65df81aa247fbbb4" args="(AtomicTypes::Pointer *atomicPtr, const void *compareValue, const void *swapValue)" -->
+<a class="anchor" id="afdbb28bbd99ce6fd7bcec5eb63b8f87a"></a><!-- doxytag: member="bsls::AtomicOperations::testAndSwapPtrAcqRel" ref="afdbb28bbd99ce6fd7bcec5eb63b8f87a" args="(AtomicTypes::Pointer *atomicPtr, void *compareValue, void *swapValue)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1673,13 +1673,13 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>compareValue</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const void *&nbsp;</td>
+          <td class="paramtype">void *&nbsp;</td>
           <td class="paramname"> <em>swapValue</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1698,7 +1698,7 @@ Static Public Member Functions</h2></td></tr>
 <li><a class="el" href="bsls__atomicoperations_8h_source.html">bsls_atomicoperations.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:22 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:16 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

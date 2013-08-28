@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: Struct bslalg::ScalarPrimitives</title>
+<title>BSL 2.18 OSS: Struct bslalg::ScalarPrimitives</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -88,6 +88,10 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a880560a59e288402a464b419903fc7e2">copyConstruct</a> (TARGET_TYPE *address, const TARGET_TYPE &amp;original, void *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename TARGET_TYPE , typename ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ScalarPrimitives.html#acb2a5f5befc293245874e5caa8e53f1e">destructiveMove</a> (TARGET_TYPE *address, TARGET_TYPE *original, ALLOCATOR *allocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename TARGET_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a2a589c408ae61aaf57853373a742c181">construct</a> (TARGET_TYPE *address, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename TARGET_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a1edf6ca5c2ab83564336faecb7c511d1">construct</a> (TARGET_TYPE *address, void *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename TARGET_TYPE , typename ARG1 &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a90b70bbc0ae308cce026f1b386aa59d8">construct</a> (TARGET_TYPE *address, const ARG1 &amp;a1, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename TARGET_TYPE , typename ARG1 &gt; </td></tr>
@@ -323,6 +327,68 @@ template&lt;typename TARGET_TYPE , typename ALLOCATOR &gt; </div>
 <p>Move the state of the object of the parameterized <code>TARGET_TYPE</code> from the object at the specified <code>original</code> address to the uninitialized memory at the specified <code>address</code>, as if by constructing a copy and then destroying the original. If the parameterized <code>ALLOCATOR</code> is based on <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> and <code>TARGET_TYPE</code> takes an allocator constructor argument, then the moved object uses the specified <code>allocator</code> to supply memory. If the move constructor throws, the <code>address</code> is left in an uninitialized state. The behavior is undefined unless the <code>original</code> object also uses the <code>allocator</code>. Note that bit-wise copy will be used if TARGET_TYPE' has the bit-wise moveable trait. </p>
 
 <p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a760a4c01aec19785742e178c4afd8512">bslalg::ScalarPrimitives_Imp::BITWISE_MOVEABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a114fa5626771c3b80fc560edbc92ebc0">bslalg::ScalarPrimitives_Imp::destructiveMove()</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a2a589c408ae61aaf57853373a742c181"></a><!-- doxytag: member="bslalg::ScalarPrimitives::construct" ref="a2a589c408ae61aaf57853373a742c181" args="(TARGET_TYPE *address, bslma::Allocator *allocator)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename TARGET_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void bslalg::ScalarPrimitives::construct </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1edf6ca5c2ab83564336faecb7c511d1"></a><!-- doxytag: member="bslalg::ScalarPrimitives::construct" ref="a1edf6ca5c2ab83564336faecb7c511d1" args="(TARGET_TYPE *address, void *allocator)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename TARGET_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void bslalg::ScalarPrimitives::construct </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [inline, static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>.</p>
 
 </div>
 </div>
@@ -2491,7 +2557,7 @@ template&lt;typename LHS_TYPE , typename RHS_TYPE &gt; </div>
 <li><a class="el" href="bslalg__scalarprimitives_8h_source.html">bslalg_scalarprimitives.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:13 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:07 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

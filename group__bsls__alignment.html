@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bsls_alignment Component</title>
+<title>BSL 2.18 OSS: bsls_alignment Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -103,14 +103,13 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a namespace, <code><a class="el" href="structbsls_1_1Alignment.html">bsls::Alignment</a></code>, for enumerating alignment strategies, and provides a function, <code>toAscii</code>, that converts each of the enumerators to its corresponding string representation. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><em>Note:</em> This component has been factored into multiple components (it is now simply an enumeration); types and values previously provided are now defined in other components. Specifically, clients using the previously named <code>bsls_AlignmentOf</code>, <code><a class="el" href="structbsls_1_1AlignmentToType.html">bsls::AlignmentToType</a></code>, and <code><a class="el" href="structbsls_1_1Alignment.html">bsls::Alignment</a></code> types should now use the components <code>bsls_alignmentfromtype</code>, <code>bsls_alignmenttotype</code>, and <code>bsls_alignmentutil</code>, respectively. Similarly, the enumerator value <code>bsls::Alignment::MAX_ALIGNMENT</code> and the <code>bsls::Alignment::MaxAlignedType</code> <code>typedef</code> are now provided by <code>bsls_alignmentutil</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="alignment_strategy"></a> <a class="anchor" id="description.alignment_strategy"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Alignment Strategy: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component supports two alignment strategies: 1) MAXIMUM ALIGNMENT and 2) NATURAL ALIGNMENT. <br/>
+<dl class="user"><dt><b></b></dt><dd>This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT, 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
-  <span class="stringliteral">&#39;BSLS_MAXIMUM&#39;</span>, specifies that a memory block be aligned as per the most
+  <span class="stringliteral">&#39;BSLS_MAXIMUM&#39;</span>, specifies that a memory block be aligned as per the *most*
   restrictive alignment requirement on the host platform.
 
   NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
@@ -121,12 +120,17 @@ Namespaces</h2></td></tr>
   alignment of the most-restrictively aligned sub-<span class="keywordtype">object</span> evenly divides
   the address of the aggregate.  Natural alignment is always at least as
   restrictive as the compiler&#39;s required alignment.
+
+  1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
+  &#39;BSLS_BYTEALIGNED&#39;, specifies that a memory block may be aligned
+  arbitrarily on any 1-byte boundary.  This is the *least* restrictive
+  alignment requirement.
 </pre></div><br/>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose that we want to create a static function, <code>allocateFromBuffer</code>, that takes a buffer, the size of the buffer, a cursor indicating a position within the buffer, an allocation request size, and a memory alignment strategy; <code>allocateFromBuffer</code> returns a pointer to a block of memory, wholly contained within the buffer, having the specified size and alignment. As a side-effect, the cursor is updated to refer to the next available free byte in the buffer. Such a function could be used by a memory manager to satisfy allocate requests from internally-managed buffers. Clients of this function indicate which alignment strategy to use based on their specific requirements. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose that we want to create a static function, <code>allocateFromBuffer</code>, that takes a buffer, the size of the buffer, a cursor indicating a position within the buffer, an allocation request size, and a memory alignment strategy; <code>allocateFromBuffer</code> returns a pointer to a block of memory, wholly contained within the buffer, having the specified size and alignment. As a side-effect, the cursor is updated to refer to the next available free byte in the buffer. Such a function could be used by a memory manager to satisfy allocation requests from internally-managed buffers. Clients of this function indicate which alignment strategy to use based on their specific requirements. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Our <code>allocateFromBuffer</code> function depends on an alignment utility, <code>my_AlignmentUtil</code>, whose minimal interface is limited to that required by this usage example. (See the <code>bsls_alignmentutil</code> component for a more realistic alignment utility.): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">struct </span>my_AlignmentUtil {
@@ -164,11 +168,11 @@ Namespaces</h2></td></tr>
 <br/>
  The definition of our <code>allocateFromBuffer</code> function is as follows: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keywordtype">void</span> *allocateFromBuffer(<span class="keywordtype">int</span>                      *cursor,
-                                  <span class="keywordtype">char</span>                     *buffer,
-                                  <span class="keywordtype">int</span>                       bufferSize,
-                                  <span class="keywordtype">int</span>                       size,
-                                  <a class="code" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1e">bsls::Alignment::Strategy</a> strategy)
+<div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keywordtype">void</span> *allocateFromBuffer(<span class="keywordtype">int</span>                       *cursor,
+                                  <span class="keywordtype">char</span>                      *buffer,
+                                  <span class="keywordtype">int</span>                        bufferSize,
+                                  <span class="keywordtype">int</span>                        size,
+                                  <a class="code" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1e">bsls::Alignment::Strategy</a>  strategy)
       <span class="comment">// Allocate a memory block of the specified &#39;size&#39; (in bytes) from the</span>
       <span class="comment">// specified &#39;buffer&#39; having the specified &#39;bufferSize&#39; at the</span>
       <span class="comment">// specified &#39;cursor&#39; position, using the specified alignment</span>
@@ -184,35 +188,37 @@ Namespaces</h2></td></tr>
 <br/>
  First we assert the function pre-conditions: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  assert(cursor);
-  assert(buffer);
-  assert(0 &lt;= bufferSize);
-  assert(0 &lt; size);
+<div class="fragment"><pre class="fragment">      assert(cursor);
+      assert(buffer);
+      assert(0 &lt;= bufferSize);
+      assert(0 &lt; size);
 </pre></div><br/>
 <br/>
- Then, based on the alignment <code>strategy</code>, we calculate the alignment value that can satisfy the allocation request. In the case of <code><a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea21a8cce492020ee6035db3660094e91c">bsls::Alignment::BSLS_NATURAL</a></code>, we calculate the alignment from <code>size</code>; for <code><a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea356665390d9ba041cf57b43a9e3b3dd6">bsls::Alignment::BSLS_MAXIMUM</a></code>, we use the platform-dependent <code>my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT</code> value: <br/>
+ Then, based on the alignment <code>strategy</code>, we calculate the alignment value that can satisfy the allocation request. In the case of <code><a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea21a8cce492020ee6035db3660094e91c">bsls::Alignment::BSLS_NATURAL</a></code>, we calculate the alignment from <code>size</code>; for <code><a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea356665390d9ba041cf57b43a9e3b3dd6">bsls::Alignment::BSLS_MAXIMUM</a></code>, we use the platform-dependent <code>my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT</code> value; and for <code><a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea604866d92919ce00cf4fe14de3e5e3d5">bsls::Alignment::BSLS_BYTEALIGNED</a></code>, we simply use 1: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">int</span> alignment =
-                     strategy == <a class="code" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea21a8cce492020ee6035db3660094e91c">bsls::Alignment::BSLS_NATURAL</a>
-                     ? my_AlignmentUtil::calculateAlignmentFromSize(size)
-                     : my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT;
+<div class="fragment"><pre class="fragment">      <span class="keyword">const</span> <span class="keywordtype">int</span> alignment =
+                         strategy == <a class="code" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea21a8cce492020ee6035db3660094e91c">bsls::Alignment::BSLS_NATURAL</a>
+                         ? my_AlignmentUtil::calculateAlignmentFromSize(size)
+                         : strategy == bsls::Alignment::BSLS_MAXIMUM
+                           ? my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT
+                           : 1;
 </pre></div><br/>
 <br/>
  Now we calculate the offset from the current <code>cursor</code> value that can satisfy the <code>alignment</code> requirements: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">int</span> offset = my_AlignmentUtil::calculateAlignmentOffset(
-                                                        buffer + *cursor,
-                                                        alignment);
+<div class="fragment"><pre class="fragment">      <span class="keyword">const</span> <span class="keywordtype">int</span> offset = my_AlignmentUtil::calculateAlignmentOffset(
+                                                            buffer + *cursor,
+                                                            alignment);
 </pre></div><br/>
 <br/>
  Next we check if the available free memory in <code>buffer</code> can satisfy the allocation request; 0 is returned if the request cannot be satisfied: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (*cursor + offset + size &gt; bufferSize) {
-      <span class="keywordflow">return</span> 0;                                                     <span class="comment">// RETURN</span>
-  }
+<div class="fragment"><pre class="fragment">      <span class="keywordflow">if</span> (*cursor + offset + size &gt; bufferSize) {
+          <span class="keywordflow">return</span> 0;                                                 <span class="comment">// RETURN</span>
+      }
 
-  <span class="keywordtype">void</span> *result = &amp;buffer[*cursor + offset];
-  *cursor += offset + size;
+      <span class="keywordtype">void</span> *result = &amp;buffer[*cursor + offset];
+      *cursor += offset + size;
 </pre></div><br/>
 <br/>
  Finally, return the address of the correctly aligned memory block: <br/>
@@ -223,7 +229,7 @@ Namespaces</h2></td></tr>
 <br/>
  The <code>allocateFromBuffer</code> function may be used by a memory manager that needs to appropriately align memory blocks that are allocated from internally-managed buffers. For an example, see the <code>bslma_bufferimputil</code> component. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:00 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

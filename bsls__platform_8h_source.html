@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bsls_platform.h                                                    -*-C++-*-
@@ -161,6 +161,19 @@ struct bsls_Platform_Assert;
     //  char die[sizeof(bsls_Platform_Assert)];  // if &#39;#error&#39; unsupported
     //..
 
+#ifdef __cplusplus
+}  // close enterprise namespace
+#endif
+
+// Use this macro to trigger a compile-time error if #error is not supported.
+#ifdef __cplusplus
+#   define BSLS_PLATFORM_COMPILER_ERROR                        \
+        char die[sizeof(::BloombergLP::bsls_Platform_Assert)]
+#else
+#   define BSLS_PLATFORM_COMPILER_ERROR                        \
+        char die[sizeof(bsls_Platform_Assert)]
+#endif
+
                         // Automatic Configuration
 
 // IMPLEMENTATION NOTE: The following attempts to configure the system
@@ -190,7 +203,7 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_VER_MAJOR _AIX
     #else
         #error &quot;AIX compiler appears to be in use on non-AIX OS.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     // which CPU -- should always be POWERPC
@@ -208,7 +221,7 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_601
     #else
         #error &quot;Unable to identify the AIX CPU.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     #define BSLS_PLATFORM_CPU_POWERPC 1
@@ -228,7 +241,7 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_HPUX 1
     #else
         #error &quot;Unable to determine on which OS the HP compiler is running.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     // which CPU -- should always be HPPA
@@ -244,7 +257,7 @@ struct bsls_Platform_Assert;
         #endif
     #else
         #error &quot;Unable to determine on which CPU the HP compiler is running.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 // ---------------------------------------------------------------------------
 #elif defined(_MSC_VER)
@@ -259,10 +272,10 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_WINDOWS 1
     #elif defined(_WIN16)
         #error &quot;16-bit Windows platform not supported.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #else
         #error &quot;Microsoft OS is running on an unknown platform.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     // which version of Windows
@@ -330,7 +343,7 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_CPU_VER_MAJOR _M_MRX000
     #else
         #error &quot;Unable to identify CPU on which the MSVC compiler is running.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     // Simplify Windows development by providing defaults for the following
@@ -537,7 +550,7 @@ struct bsls_Platform_Assert;
         #else
             #error &quot;Unable to determine on which OS EDG compiler is running.&quot;
         #endif
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     #if !defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -586,7 +599,7 @@ struct bsls_Platform_Assert;
         #else
             #error &quot;Unable to determine on which CPU EDG compiler is running.&quot;
         #endif
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     #if !defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -625,7 +638,7 @@ struct bsls_Platform_Assert;
             #endif
         #else
             #error &quot;Unable to determine SUN OS version.&quot;
-            char die[sizeof(bsls_Platform_Assert)];  // if &#39;#error&#39; unsupported
+            BSLS_PLATFORM_COMPILER_ERROR;
         #endif
     #elif defined(__SVR4) || defined(__svr4__)
         #define BSLS_PLATFORM_OS_SUNOS 1
@@ -643,7 +656,7 @@ struct bsls_Platform_Assert;
         #endif
     #else
         #error &quot;Unable to determine SUN OS version.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 
     // determine which CPU
@@ -663,22 +676,69 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_CPU_32_BIT 1
     #else
         #error &quot;Cannot determine CPU on which the SUN compiler is running.&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 // ---------------------------------------------------------------------------
 #else
     #error &quot;Could not identify the compiler.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 // ---------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
-    #define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+// Determine endianness.
+
+// Glibc or Linux
+#if defined(__GLIBC__) || defined(BSLS_PLATFORM_OS_LINUX)
+#include &lt;endian.h&gt;
+#if (__BYTE_ORDER == __LITTLE_ENDIAN)
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif (__BYTE_ORDER == __BIG_ENDIAN)
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
 #endif
 
-#if !defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
-   #define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+// AIX
+#elif defined(BSLS_PLATFORM_OS_AIX)
+#include &lt;sys/machine.h&gt;
+#if BYTE_ORDER == LITTLE_ENDIAN
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif BYTE_ORDER == BIG_ENDIAN
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
 #endif
+
+// Sun/Solaris
+#elif defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#include &lt;sys/isa_defs.h&gt;
+#if defined(_LITTLE_ENDIAN)
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif defined(_BIG_ENDIAN)
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+#endif
+
+// Darwin
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+#include &lt;machine/endian.h&gt;
+#if BYTE_ORDER == LITTLE_ENDIAN
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif BYTE_ORDER == BIG_ENDIAN
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+#endif
+
+// HPUX
+#elif defined(BSLS_PLATFORM_OS_HPUX)
+#include &lt;machine/param.h&gt;
+#if defined(_LITTLE_ENDIAN)
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#elif defined(_BIG_ENDIAN)
+#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
+#endif
+
+// MSVC and Windows
+#elif defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; defined(BSLS_PLATFORM_OS_WINDOWS)
+#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
+#endif
+
+// Endianness sanity check is done further in this header.
+
 // ----------------------------------------------------------------------------
 
 
@@ -740,7 +800,7 @@ struct bsls_Platform_Assert;
 #if defined(BSLS_PLATFORM_OS_UNIX) &amp;&amp; !defined(BSLS_PLATFORM_OS_AIX)
     #if !defined(unix) &amp;&amp; !defined(__unix__) &amp;&amp; !defined(__unix)
         #error &quot;Unix platform assumed, but unix flag not set by compiler&quot;
-        char die[sizeof(bsls_Platform_Assert)];      // if &#39;#error&#39; unsupported
+        BSLS_PLATFORM_COMPILER_ERROR;
     #endif
 #endif
 
@@ -752,14 +812,14 @@ struct bsls_Platform_Assert;
   + BSLS_PLATFORM_CMP_MSVC \
   + BSLS_PLATFORM_CMP_SUN != 1
     #error &quot;Exactly one compiler must be set.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 // Exactly one OS type.
 #if BSLS_PLATFORM_OS_UNIX \
   + BSLS_PLATFORM_OS_WINDOWS != 1
     #error &quot;Exactly one operating system must be set.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 // At most one OS subtype.
@@ -779,7 +839,7 @@ struct bsls_Platform_Assert;
   + BSLS_PLATFORM_OS_WINXP
 #if BSLS_PLATFORM_OS_SUBTYPE_COUNT &gt; 1
     #error &quot;At most one operating system subtype must be set.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 // Exactly one CPU type.
@@ -793,21 +853,21 @@ struct bsls_Platform_Assert;
   + BSLS_PLATFORM_CPU_POWERPC \
   + BSLS_PLATFORM_CPU_SPARC != 1
     #error &quot;Exactly one processor must be set.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 // Exactly one kind of &quot;endian-ness&quot;.
 #if BSLS_PLATFORM_IS_BIG_ENDIAN \
   + BSLS_PLATFORM_IS_LITTLE_ENDIAN != 1
     #error &quot;Exactly one kind of endian-ness must be set.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 #if defined(BSLS_PLATFORM_OS_VER_MAJOR) \
          &amp;&amp; BSLS_PLATFORM_OS_SUBTYPE_COUNT != 1
         // For OS, MAJOR VERSION implies SUBTYPE.
     #error &quot;Operating system major version by not subtype defined.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 #undef BSLS_PLATFORM_OS_SUBTYPE_COUNT
@@ -815,16 +875,18 @@ struct bsls_Platform_Assert;
 #if defined(BSLS_PLATFORM_OS_VER_MINOR) &amp;&amp; \
    !defined(BSLS_PLATFORM_OS_VER_MAJOR)
     #error &quot;Operating System minor but not major version defined.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_VER_MINOR) &amp;&amp; \
    !defined(BSLS_PLATFORM_CPU_VER_MAJOR)
     #error &quot;Processor minor but not major version defined.&quot;
-    char die[sizeof(bsls_Platform_Assert)];          // if &#39;#error&#39; unsupported
+    BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
 #ifdef __cplusplus
+namespace BloombergLP {
+
 namespace bsls {
 
 // ----------------------------------------------------------------------------
@@ -947,10 +1009,10 @@ struct Platform {
             typedef CpuPowerpc     Cpu;
         #endif
     #endif
-    #if defined BSLS_PLATFORM_CPU_SPARC_32
+    #if defined(BSLS_PLATFORM_CPU_SPARC_32)
         typedef CpuSparc_32   Cpu;
     #endif
-    #if defined BSLS_PLATFORM_CPU_SPARC_V9
+    #if defined(BSLS_PLATFORM_CPU_SPARC_V9)
         typedef CpuSparc_V9   Cpu;
     #endif
 
@@ -958,7 +1020,6 @@ struct Platform {
 
 }  // close package namespace
 #endif  // __cplusplus
-
 
 #ifdef __cplusplus
 }  // close enterprise namespace

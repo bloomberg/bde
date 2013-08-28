@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslma_mallocfreeallocator Component</title>
+<title>BSL 2.18 OSS: bslma_mallocfreeallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -153,10 +153,9 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">void</span> *allocate(size_type size);
           <span class="comment">// Return a newly allocated block of memory of (at least) the</span>
           <span class="comment">// specified positive &#39;size&#39; (bytes).  If &#39;size&#39; is 0, a null</span>
-          <span class="comment">// pointer is returned with no effect.  The behavior is undefined</span>
-          <span class="comment">// if size &lt; 0.  Note that the alignment of the address returned is</span>
-          <span class="comment">// the maximum alignment for any fundamental type defined for this</span>
-          <span class="comment">// platform.</span>
+          <span class="comment">// pointer is returned with no effect.  Note that the alignment of</span>
+          <span class="comment">// the address returned is the maximum alignment for any</span>
+          <span class="comment">// fundamental type defined for this platform.</span>
 
       <span class="keywordtype">void</span> deallocate(<span class="keywordtype">void</span> *address);
           <span class="comment">// Return the memory at the specified &#39;address&#39; back to this</span>
@@ -184,7 +183,7 @@ Namespaces</h2></td></tr>
 <br/>
  When the <code>basicAllocator</code> is not specified, the <code><a class="el" href="classbslma_1_1MallocFreeAllocator.html">bslma::MallocFreeAllocator</a></code> will be used. That allocator then then calls <code>std::malloc</code> and <code>std::free</code> for allocating and deallocating memory. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:41:59 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bsls_compilerfeatures.h                                            -*-C++-*-
@@ -202,6 +202,44 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300\
    &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif
+
+    //  *** Simulate various C++11 features ***
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#   define BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES 1
+
+#   ifndef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#       define BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES 1
+#   endif
+#endif
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#   define BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND 1
+
+#   ifndef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#       define BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES 1
+#   endif
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
+// Use a work-around for the absence of perfect-forwarding.
+
+#   define BSLS_COMPILERFEATURES_FORWARD_REF(T) const T&amp;
+    // On compilers that support C++11 perfect forwarding, replace with &#39;T&amp;&amp;&#39;,
+    // i.e., an argument that can be perfect-forwarded; otherwise, replace
+    // with &#39;const T&amp;&#39;, the classic way to accept arguments of unknown
+    // rvalue/lvalue-ness.
+
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V) (V)
+    // On compilers that support C++11 perfect forwarding, replace with
+    // &#39;bsl::forward&lt;T&gt;(V)&#39;, i.e., use perfect-forwarding; otherwise, replace
+    // with &#39;(V)&#39;, the classic way to forward arguments safely.
+
+#else
+// Use real perfect-forwarding; no workaround needed.
+#   define BSLS_COMPILERFEATURES_FORWARD_REF(T) T&amp;&amp;
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V)   native_std::forward&lt;T&gt;(V)
 #endif
 
 #endif

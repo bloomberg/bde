@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: Struct bslalg::ArrayPrimitives</title>
+<title>BSL 2.18 OSS: Struct bslalg::ArrayPrimitives</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -100,6 +100,8 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives.html#ab9582c15dd7302f7bed4f81c74677ab6">destructiveMoveAndMoveInsert</a> (TARGET_TYPE *toBegin, TARGET_TYPE **fromEndPtr, TARGET_TYPE **lastPtr, TARGET_TYPE *fromBegin, TARGET_TYPE *position, TARGET_TYPE *fromEnd, TARGET_TYPE *first, TARGET_TYPE *last, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#aee073b37feb7e3e840fa4c1a8bfa94be">size_type</a> numElements, ALLOCATOR *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a55381d543e412d18de7802b60ffe2b62">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#aee073b37feb7e3e840fa4c1a8bfa94be">size_type</a> numElements, ALLOCATOR *allocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives.html#aa1883e550203d63c78c0fb01b1509476">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#aee073b37feb7e3e840fa4c1a8bfa94be">size_type</a> numElements, ALLOCATOR *allocator, Args &amp;&amp;...args)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a0c3cde4db18167cf31b55428c0f6688f">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#aee073b37feb7e3e840fa4c1a8bfa94be">size_type</a> numElements, ALLOCATOR *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
@@ -578,6 +580,54 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="aa1883e550203d63c78c0fb01b1509476"></a><!-- doxytag: member="bslalg::ArrayPrimitives::emplace" ref="aa1883e550203d63c78c0fb01b1509476" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives::emplace </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives.html#aee073b37feb7e3e840fa4c1a8bfa94be">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Construct <code>numElements</code> elements in-place using the specified <code>args</code> as the parameter passed to the constructor of the (template parameter) <code>TARGET_TYPE</code> into the array, starting at the <code>toBegin</code> address and ending immediately before the specified <code>toEnd</code> address, shifting the elements in the array by <code>numElements</code> positions towards larger addresses. The behavior is undefined unless the destination array contains at least <code>numElements</code> uninitialized elements after <code>toEnd</code>. If a copy constructor or assignment operator for <code>TARGET_TYPE</code> throws an exception, then any elements created after <code>toEnd</code> are destroyed and the elements in the range '[ toBegin, toEnd )' will have unspecified, but valid, values. </p>
+
+</div>
+</div>
 <a class="anchor" id="a0c3cde4db18167cf31b55428c0f6688f"></a><!-- doxytag: member="bslalg::ArrayPrimitives::insert" ref="a0c3cde4db18167cf31b55428c0f6688f" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator)" -->
 <div class="memitem">
 <div class="memproto">
@@ -774,7 +824,7 @@ template&lt;class TARGET_TYPE &gt; </div>
 <li><a class="el" href="bslalg__arrayprimitives_8h_source.html">bslalg_arrayprimitives.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:13 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:07 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bslstl_unorderedmap.h                                              -*-C++-*-
@@ -61,16 +61,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // [utility.arg.requirements] of the C++11 standard.  Note that, in the context
 // of an &#39;unordered_map&#39; instantiation, the requirements apply specifically to
 // the &#39;unordered_map&#39;s element type, &#39;value_type&#39;, which is an alias for
-// std::pair&lt;const KEY, VALUE&gt;&#39;.
+// &#39;std::pair&lt;const KEY, VALUE&gt;&#39;.
 //
-//: &quot;default-constructible&quot;: The type provides an accessible default
-//:                          constructor.
+//: &quot;default-constructible&quot;:
+//:     The type provides an accessible default constructor.
 //:
-//: &quot;copy-constructible&quot;: The type provides an accessible copy constructor.
+//: &quot;copy-constructible&quot;:
+//:     The type provides an accessible copy constructor.
 //:
-//: &quot;equality-comparable&quot;: The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
+//: &quot;equality-comparable&quot;:
+//:     The type provides an equality-comparison operator that defines an
+//:     equivalence relationship and is both reflexive and transitive.
 //
 ///Requirements on &#39;HASH&#39; and &#39;EQUAL&#39;
 ///----------------------------------
@@ -500,7 +501,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the stop list.
 //
 ///Example 2: Examining and Setting Unordered Map Configuration
-///------------------------------------------------------------
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to examine (and possibly influence) the performance of an
 // unordered map.  The unordered map provides several interfaces that allow us
 // to do so.  Several of these were used in {Example 1} (code repeated below):
@@ -659,7 +660,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // in performance characteristics of the containers we create.
 //
 ///Example 3: Inverse Concordance
-///------------------------------
+/// - - - - - - - - - - - - - - -
 // If one has a concordance for a set of documents (an index of the position of
 // every unique word in those documents), then words of interest can be
 // efficiently located.  Suppose after locating a word of interest one also
@@ -1470,43 +1471,6 @@ void swap(unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
 
 }  // close namespace bsl
 
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *unordered* *associative* containers:
-//: o An unordered associative container defines STL iterators.
-//: o An unordered associative container is bit-wise moveable if both functors
-//:      and the allocator are bit-wise moveable.
-//: o An unordered associative container uses &#39;bslma&#39; allocators if the
-//:   (template parameter) type &#39;ALLOCATOR&#39; is convertible from
-//:   &#39;bslma::Allocator *&#39;.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
-struct HasStlIterators&lt;bsl::unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt; &gt;
-     : bsl::true_type
-{};
-
-}  // close namespace bslalg
-
-namespace bslma {
-
-template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
-struct UsesBslmaAllocator&lt;bsl::unordered_map&lt;KEY,
-                                             VALUE,
-                                             HASH,
-                                             EQUAL,
-                                             ALLOCATOR&gt; &gt;
-     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
-{};
-
-}  // close namespace bslma
-
-}  // close namespace BloombergLP
-
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -2092,6 +2056,42 @@ bsl::swap(bsl::unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
     a.swap(b);
 }
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bit-wise moveable if both functors
+//:      and the allocator are bit-wise moveable.
+//: o An unordered associative container uses &#39;bslma&#39; allocators if the
+//:   (template parameter) type &#39;ALLOCATOR&#39; is convertible from
+//:   &#39;bslma::Allocator *&#39;.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt; &gt;
+     : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+namespace bslma {
+
+template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::unordered_map&lt;KEY,
+                                             VALUE,
+                                             HASH,
+                                             EQUAL,
+                                             ALLOCATOR&gt; &gt;
+     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
+{};
+
+}  // close namespace bslma
+
+}  // close enterprise namespace
 
 #endif
 

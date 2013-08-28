@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bslstl_allocatortraits.h                                           -*-C++-*-
@@ -502,7 +502,7 @@ struct allocator_traits {
                  typename ALLOCATOR_TYPE::template rebind&lt;ELEMENT_TYPE&gt;::other;
 
     template &lt;class ELEMENT_TYPE&gt;
-    using rebind_traits = allocator_traits&lt;rebind_alloc&lt;ELEMENT_TYPE&gt; &gt;;
+    using rebind_traits = allocator_traits&lt;rebind_alloc&lt;ELEMENT_TYPE&gt;&gt;;
 #else // !BDE_CXX11_TEMPLATE_ALIASES
     template &lt;class ELEMENT_TYPE&gt;
     struct rebind_alloc : ALLOCATOR_TYPE::template rebind&lt;ELEMENT_TYPE&gt;::other
@@ -533,140 +533,104 @@ struct allocator_traits {
         // equal to the specified &#39;allocator&#39;, and has not yet been passed to
         // a &#39;deallocate&#39; call of such an allocator object.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     template &lt;class ELEMENT_TYPE&gt;
     static void construct(ALLOCATOR_TYPE&amp;  allocator,
                           ELEMENT_TYPE    *elementAddr);
         // Default construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at
         // the specified &#39;elementAddr&#39;.  If the parameterized &#39;ALLOCATOR_TYPE&#39;
         // is bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
-        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
-        // from the specified &#39;allocator&#39; as an additional constructor argument
-        // (at the end of the argument list).  The behavior is undefined unless
-        // &#39;elementAddr&#39; refers to valid, uninitialized storage.
+        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism from the
+        // specified &#39;allocator&#39; as an additional constructor argument (at the
+        // end of the argument list).  The behavior is undefined unless
+        // &#39;elementAddr&#39; refers to valid, uninitialized storage.  Note that
+        // this overload of &#39;construct&#39; is implemented using
+        // &#39;bslalg::ScalarPrimitives::defaultConstruct&#39; whereas those
+        // overloads that take at least one additional constructor argument
+        // are implemented in terms of &#39;bslalg::ScalarPrimitives::construct&#39;
 
-#  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    template &lt;class ELEMENT_TYPE, class... CTOR_ARGS&gt;
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class... CTOR_ARGS&gt;
     static void construct(ALLOCATOR_TYPE&amp;  allocator,
                           ELEMENT_TYPE    *elementAddr,
+                          CTOR_ARGS_0&amp;&amp;    ctorArgs_0,
                           CTOR_ARGS&amp;&amp;...   ctorArgs);
         // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
-        // specified &#39;elementAddr&#39; using the specified &#39;ctorArgs&#39;.  If the
+        // specified &#39;elementAddr&#39; using a constructor argument list
+        // comprising the specified &#39;ctorArgs_0&#39; and &#39;ctorArgs&#39;.  If the
         // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
-        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
-        // then pass the mechanism from the specified &#39;allocator&#39; as an
-        // additional constructor argument (at the end of the argument list).
-        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
-        // uninitialized storage.
-#  else
-    template &lt;class ELEMENT_TYPE, class...     CTOR_ARGS&gt;
-    static void construct(ALLOCATOR_TYPE&amp;      allocator,
-                          ELEMENT_TYPE        *elementAddr,
-                          const CTOR_ARGS&amp;...  ctorArgs);
-        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
-        // specified &#39;elementAddr&#39; using the specified &#39;ctorArgs&#39;.  If the
-        // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
-        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
-        // then pass the mechanism from the specified &#39;allocator&#39; as an
-        // additional constructor argument (at the end of the argument list).
-        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
-        // uninitialized storage.
-#  endif
+        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait, then pass
+        // the mechanism from the specified &#39;allocator&#39; as an additional
+        // constructor argument (at the end of the argument list).  The
+        // behavior is undefined unless &#39;elementAddr&#39; refers to valid,
+        // uninitialized storage.  Note that this overload of &#39;construct&#39;
+        // takes at least one constructor argument in addition to the
+        // allocator argument.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_allocatortraits.h
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0);
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1);
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                     class CTOR_ARGS_2&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2);
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                     class CTOR_ARGS_2,
+                                                     class CTOR_ARGS_3&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3);
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                     class CTOR_ARGS_2,
+                                                     class CTOR_ARGS_3,
+                                                     class CTOR_ARGS_4&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4);
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                     class CTOR_ARGS_2,
+                                                     class CTOR_ARGS_3,
+                                                     class CTOR_ARGS_4,
+                                                     class CTOR_ARGS_5&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_5) ctorArgs_5);
+
 #else
-    template &lt;class ELEMENT_TYPE&gt;
-    static void construct(ALLOCATOR_TYPE&amp;   allocator,
-                          ELEMENT_TYPE     *elementAddr);
-        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39;.  If the
-        // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
-        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
-        // then pass the mechanism from the specified &#39;allocator&#39; as the sole
-        // constructor argument; otherwise, invoke the default constructor for
-        // &#39;ELEMENT_TYPE&#39; (passing no arguments).  The behavior is undefined
-        // unless &#39;elementAddr&#39; refers to valid, uninitialized storage.
-
-    template &lt;class ELEMENT_TYPE, class CTOR_ARG1&gt;
-    static void construct(ALLOCATOR_TYPE&amp;   allocator,
-                          ELEMENT_TYPE     *elementAddr,
-                          const CTOR_ARG1&amp;  ctorArg1);
-        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
-        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39; constructor
-        // argument.  If the parameterized &#39;ALLOCATOR_TYPE&#39; is
-        // bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
-        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
-        // from the specified &#39;allocator&#39; as an additional constructor
-        // argument (at the end of the argument list).  The behavior is
-        // undefined unless &#39;elementAddr&#39; refers to valid, uninitialized
-        // storage.
-
-    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2&gt;
-    static void construct(ALLOCATOR_TYPE&amp;   allocator,
-                          ELEMENT_TYPE     *elementAddr,
-                          const CTOR_ARG1&amp;  ctorArg1,
-                          const CTOR_ARG2&amp;  ctorArg2);
-        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
-        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, and
-        // &#39;ctorArg2&#39; constructor arguments.  If the parameterized
-        // &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
-        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
-        // from the specified &#39;allocator&#39; as an additional constructor
-        // argument (at the end of the argument list).  The behavior is
-        // undefined unless &#39;elementAddr&#39; refers to valid, uninitialized
-        // storage.
-
-    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2,
-              class CTOR_ARG3&gt;
-    static void construct(ALLOCATOR_TYPE&amp;   allocator,
-                          ELEMENT_TYPE     *elementAddr,
-                          const CTOR_ARG1&amp;  ctorArg1,
-                          const CTOR_ARG2&amp;  ctorArg2,
-                          const CTOR_ARG3&amp;  ctorArg3);
-        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
-        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, &#39;ctorArg2&#39;,
-        // and &#39;ctorArg3&#39; constructor arguments.  If the parameterized
-        // &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
-        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
-        // from the specified &#39;allocator&#39; as an additional constructor
-        // argument (at the end of the argument list).  The behavior is
-        // undefined unless &#39;elementAddr&#39; refers to valid, uninitialized
-        // storage.
-
-    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2,
-              class CTOR_ARG3, class CTOR_ARG4&gt;
-    static void construct(ALLOCATOR_TYPE&amp;   allocator,
-                          ELEMENT_TYPE     *elementAddr,
-                          const CTOR_ARG1&amp;  ctorArg1,
-                          const CTOR_ARG2&amp;  ctorArg2,
-                          const CTOR_ARG3&amp;  ctorArg3,
-                          const CTOR_ARG4&amp;  ctorArg4);
-        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
-        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, &#39;ctorArg2&#39;,
-        // &#39;ctorArg3&#39; and &#39;ctorArg4&#39; constructor arguments.  If the
-        // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
-        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
-        // then pass the mechanism from the specified &#39;allocator&#39; as an
-        // additional constructor argument (at the end of the argument list).
-        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
-        // uninitialized storage.
-
-    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2,
-              class CTOR_ARG3, class CTOR_ARG4, class CTOR_ARG5&gt;
-    static void construct(ALLOCATOR_TYPE&amp;   allocator,
-                          ELEMENT_TYPE     *elementAddr,
-                          const CTOR_ARG1&amp;  ctorArg1,
-                          const CTOR_ARG2&amp;  ctorArg2,
-                          const CTOR_ARG3&amp;  ctorArg3,
-                          const CTOR_ARG4&amp;  ctorArg4,
-                          const CTOR_ARG5&amp;  ctorArg5);
-        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
-        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, &#39;ctorArg2&#39;,
-        // &#39;ctorArg3&#39;, &#39;ctorArg4&#39; and &#39;ctorArg5&#39; constructor arguments.  If
-        // the parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
-        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
-        // then pass the mechanism from the specified &#39;allocator&#39; as an
-        // additional constructor argument (at the end of the argument list).
-        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
-        // uninitialized storage.
-
+    template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class... CTOR_ARGS&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS)... ctorArgs);
+// }}} END GENERATED CODE
 #endif
 
     template &lt;class ELEMENT_TYPE&gt;
@@ -792,7 +756,6 @@ allocator_traits&lt;ALLOCATOR_TYPE&gt;::deallocate(ALLOCATOR_TYPE&amp; allocator
     allocator.deallocate(elementAddr, n);
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 template &lt;class ALLOCATOR_TYPE&gt;
 template &lt;class ELEMENT_TYPE&gt;
 inline
@@ -805,144 +768,191 @@ allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator
                                               mechanism(allocator, IsBslma()));
 }
 
-#  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE, class... CTOR_ARGS&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class... CTOR_ARGS&gt;
 inline
 void
 allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
                                             ELEMENT_TYPE    *elementAddr,
+                                            CTOR_ARGS_0&amp;&amp;    ctorArgs_0,
                                             CTOR_ARGS&amp;&amp;...   ctorArgs)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                   elementAddr,
-                                   native_std::forward&lt;CTOR_ARGS&gt;(ctorArgs)...,
-                                   mechanism(allocator, IsBslma()));
+                                  elementAddr,
+                                  native_std::forward&lt;CTOR_ARGS_0&gt;(ctorArgs_0),
+                                  native_std::forward&lt;CTOR_ARGS&gt;(ctorArgs)...,
+                                  mechanism(allocator, IsBslma()));
 }
-#  else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_allocatortraits.h
 template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE, class... CTOR_ARGS&gt;
-inline
-void
-allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;      allocator,
-                                            ELEMENT_TYPE        *elementAddr,
-                                            const CTOR_ARGS&amp;...  ctorArgs)
-{
-    BloombergLP::bslalg::ScalarPrimitives::construct(
-                                              elementAddr,
-                                              ctorArgs...,
-                                              mechanism(allocator, IsBslma()));
-}
-#  endif
-#else
-template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0&gt;
 inline
 void
 allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
-                                            ELEMENT_TYPE    *elementAddr)
-{
-    BloombergLP::bslalg::ScalarPrimitives::defaultConstruct(
-        elementAddr, mechanism(allocator, IsBslma()));
-}
-
-template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE, class CTOR_ARG1&gt;
-inline void
-allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
-                                            ELEMENT_TYPE     *elementAddr,
-                                            const CTOR_ARG1&amp;  ctorArg1)
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                       elementAddr, ctorArg1, mechanism(allocator, IsBslma()));
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  mechanism(allocator, IsBslma()));
 }
 
 template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1&gt;
 inline
 void
-allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
-                                            ELEMENT_TYPE     *elementAddr,
-                                            const CTOR_ARG1&amp;  ctorArg1,
-                                            const CTOR_ARG2&amp;  ctorArg2)
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-             elementAddr, ctorArg1, ctorArg2, mechanism(allocator, IsBslma()));
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
+                                  ctorArgs_1),
+                                  mechanism(allocator, IsBslma()));
 }
 
 template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE,
-          class CTOR_ARG1,
-          class CTOR_ARG2,
-          class CTOR_ARG3&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                 class CTOR_ARGS_2&gt;
 inline
 void
-allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
-                                            ELEMENT_TYPE     *elementAddr,
-                                            const CTOR_ARG1&amp;  ctorArg1,
-                                            const CTOR_ARG2&amp;  ctorArg2,
-                                            const CTOR_ARG3&amp;  ctorArg3)
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                              elementAddr,
-                                              ctorArg1,
-                                              ctorArg2,
-                                              ctorArg3,
-                                              mechanism(allocator, IsBslma()));
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
+                                  ctorArgs_1),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
+                                  ctorArgs_2),
+                                  mechanism(allocator, IsBslma()));
 }
 
 template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE,
-          class CTOR_ARG1,
-          class CTOR_ARG2,
-          class CTOR_ARG3,
-          class CTOR_ARG4&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                 class CTOR_ARGS_2,
+                                                 class CTOR_ARGS_3&gt;
 inline
 void
-allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
-                                            ELEMENT_TYPE     *elementAddr,
-                                            const CTOR_ARG1&amp;  ctorArg1,
-                                            const CTOR_ARG2&amp;  ctorArg2,
-                                            const CTOR_ARG3&amp;  ctorArg3,
-                                            const CTOR_ARG4&amp;  ctorArg4)
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                              elementAddr,
-                                              ctorArg1,
-                                              ctorArg2,
-                                              ctorArg3,
-                                              ctorArg4,
-                                              mechanism(allocator, IsBslma()));
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
+                                  ctorArgs_1),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
+                                  ctorArgs_2),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_3,
+                                  ctorArgs_3),
+                                  mechanism(allocator, IsBslma()));
 }
 
 template &lt;class ALLOCATOR_TYPE&gt;
-template &lt;class ELEMENT_TYPE,
-          class CTOR_ARG1,
-          class CTOR_ARG2,
-          class CTOR_ARG3,
-          class CTOR_ARG4,
-          class CTOR_ARG5&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                 class CTOR_ARGS_2,
+                                                 class CTOR_ARGS_3,
+                                                 class CTOR_ARGS_4&gt;
 inline
 void
-allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
-                                            ELEMENT_TYPE     *elementAddr,
-                                            const CTOR_ARG1&amp;  ctorArg1,
-                                            const CTOR_ARG2&amp;  ctorArg2,
-                                            const CTOR_ARG3&amp;  ctorArg3,
-                                            const CTOR_ARG4&amp;  ctorArg4,
-                                            const CTOR_ARG5&amp;  ctorArg5)
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                              elementAddr,
-                                              ctorArg1,
-                                              ctorArg2,
-                                              ctorArg3,
-                                              ctorArg4,
-                                              ctorArg5,
-                                              mechanism(allocator, IsBslma()));
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
+                                  ctorArgs_1),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
+                                  ctorArgs_2),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_3,
+                                  ctorArgs_3),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_4,
+                                  ctorArgs_4),
+                                  mechanism(allocator, IsBslma()));
 }
 
-#endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
+                                                 class CTOR_ARGS_2,
+                                                 class CTOR_ARGS_3,
+                                                 class CTOR_ARGS_4,
+                                                 class CTOR_ARGS_5&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_5) ctorArgs_5)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
+                                  ctorArgs_1),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
+                                  ctorArgs_2),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_3,
+                                  ctorArgs_3),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_4,
+                                  ctorArgs_4),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_5,
+                                  ctorArgs_5),
+                                  mechanism(allocator, IsBslma()));
+}
+
+#else
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARGS_0, class... CTOR_ARGS&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS)... ctorArgs)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS,
+                                  ctorArgs)...,
+                                  mechanism(allocator, IsBslma()));
+}
+// }}} END GENERATED CODE
+#endif
 
 template &lt;class ALLOCATOR_TYPE&gt;
 template &lt;class ELEMENT_TYPE&gt;

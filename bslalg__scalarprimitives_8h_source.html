@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bslalg_scalarprimitives.h                                          -*-C++-*-
@@ -216,6 +216,12 @@ struct ScalarPrimitives {
         // Note that bit-wise copy will be used if TARGET_TYPE&#39; has the
         // bit-wise moveable trait.
 
+    template &lt;typename TARGET_TYPE&gt;
+    static void construct(TARGET_TYPE      *address,
+                          bslma::Allocator *allocator);
+    template &lt;typename TARGET_TYPE&gt;
+    static void construct(TARGET_TYPE *address,
+                          void        *allocator);
     template &lt;typename TARGET_TYPE, typename ARG1&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
@@ -759,7 +765,11 @@ struct ScalarPrimitives_Imp {
         // traits argument is for overloading resolution only and is ignored.
         // Note that because pair types have at most two constructor arguments,
         // only two versions of this function are needed.
-
+    template &lt;typename TARGET_TYPE&gt;
+    static void construct(
+                        TARGET_TYPE                                 *address,
+                        bslma::Allocator                            *allocator,
+                        bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
     template &lt;typename TARGET_TYPE, typename ARG1&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
@@ -974,6 +984,10 @@ struct ScalarPrimitives_Imp {
         // specified &#39;allocator&#39; in the last position.  The last argument is
         // for overloading resolution only and its value is ignored.
 
+    template &lt;typename TARGET_TYPE&gt;
+    static void construct(TARGET_TYPE                *address,
+                          bslma::Allocator           *allocator,
+                          bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
     template &lt;typename TARGET_TYPE, typename ARG1&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
@@ -1302,6 +1316,33 @@ ScalarPrimitives::destructiveMove(TARGET_TYPE *address,
 }
 
                        // *** construct overloads: ****
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives::construct(TARGET_TYPE      *address,
+                            bslma::Allocator *allocator)
+{
+    BSLS_ASSERT_SAFE(address);
+
+    enum {
+        VALUE = bslma::UsesBslmaAllocator&lt;TARGET_TYPE&gt;::value
+              ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
+              : Imp::NIL_TRAITS
+    };
+    Imp::construct(address, allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives::construct(TARGET_TYPE *address,
+                            void        *)
+{
+    BSLS_ASSERT_SAFE(address);
+
+    new (address) TARGET_TYPE();
+}
 
 template &lt;typename TARGET_TYPE, typename ARG1&gt;
 inline
@@ -2294,6 +2335,27 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                 *address,
                                 a2,
                                 allocator);
     guard.release();
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::construct(
+                        TARGET_TYPE                                 *address,
+                        bslma::Allocator                            *allocator,
+                        bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *)
+{
+    new (address) TARGET_TYPE(allocator);
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
+                                bslma::Allocator           *,
+                                bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    new (address) TARGET_TYPE();
 }
 
 template &lt;typename TARGET_TYPE, typename ARG1&gt;

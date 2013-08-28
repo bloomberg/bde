@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bsltf_stdstatefulallocator.h                                       -*-C++-*-
@@ -159,8 +159,16 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslma_testallocator.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include &lt;bslmf_issame.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -505,10 +513,14 @@ max_size() const
     // Return the largest value, &#39;v&#39;, such that &#39;v * sizeof(T)&#39; fits in a
     // &#39;size_type&#39; (copied from bslstl_allocator).
 
-    static const bool BSLMA_SIZE_IS_SIGNED =
-                              ~BloombergLP::bslma::Allocator::size_type(0) &lt; 0;
-    static const std::size_t MAX_NUM_BYTES =
-                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
+    // We will calculate MAX_NUM_BYTES based on our knowledge that
+    // &#39;bslma::Allocator::size_type&#39; is just an alias for &#39;std::size_t&#39;.  First
+    // demonstrate that is true:
+
+    BSLMF_ASSERT((bsl::is_same&lt;BloombergLP::bslma::Allocator::size_type,
+                                                         std::size_t&gt;::value));
+
+    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
     static const std::size_t MAX_NUM_ELEMENTS =
                                      std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
     return MAX_NUM_ELEMENTS;

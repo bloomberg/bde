@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bsl Package Group</title>
+<title>BSL 2.18 OSS: bsl Package Group</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -180,13 +180,16 @@ Packages</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bsl</code> package group currently has 11 packages having 10 levels of physical dependency. The list below shows the hierarchical ordering of the packages. The order of packages within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bsl</code> package group is the foundation of the firm-wide BDE library and has no dependencies beyond the allowed OS and runtime environment dependencies. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bsl</code> package group currently has 12 packages having 11 levels of physical dependency. The list below shows the hierarchical ordering of the packages. The order of packages within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  10. bslim
+<div class="fragment"><pre class="fragment">  11. bslim
 
-   9. bsl+stdhdrs
+  10. bsl+stdhdrs(*)
 
-   8. bsl+bslhdrs
+   9. bsl+bslhdrs
+
+   8. bslstp
 
    7. bslstl
 
@@ -205,6 +208,7 @@ Packages</h2></td></tr>
 </pre></div><br/>
 <br/>
  (*) - Note that the <code>bsl+stdhdrs</code> package is only a compatibility layer for Bloomberg managed code. It is not an essential package for the rest of the BDE libraries (i.e., all other package groups above <code>bsl</code> will compile and function without <code>bsl+stdhdrs</code>). This package implements the logic required for <code>BDE-STL</code> mode. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Note that required source control package <code>bslscm</code> depends on <code>bsls</code>; this behavior is unique to <code>bsl</code>, although it is temporarily also in <code>bde</code> for historic reasons, since logically <em>every</em> other package should depend on <code>bslscm</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="package_synopsis"></a> <a class="anchor" id="description.package_synopsis"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Package Synopsis: </b></dt><dd></dd></dl>
@@ -229,6 +233,8 @@ Packages</h2></td></tr>
  Provide versioning information for BDE library components.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl</code>: <br/>
  Provide replacement classes for STL constructs.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstp</code>: <br/>
+ Provide replacement classes (adopted from STLport) for STL.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsltf</code>: <br/>
  Provide a set of utilities and types to help with testing.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
@@ -281,7 +287,7 @@ Packages</h2></td></tr>
 <dl class="user"><dt><b>bsltf: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a href="group__bsltf.html" class="el"><code>bsltf</code></a> provides a set test types and utilities that operates on those types, which can help simplify, particularly for template, the implementation of test drivers. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:41:59 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

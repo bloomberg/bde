@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: Struct bslalg::ArrayPrimitives_Imp</title>
+<title>BSL 2.18 OSS: Struct bslalg::ArrayPrimitives_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -145,6 +145,12 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a09d45245ee9085a305545053717e51cd">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a7670c8a76fd1a1f814dfbb4739e78b80">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8ac012f1211d8a9ae677c21af998fc32">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4629a45962ace06f81d79c718cdf9a4">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ac6c1f5d786cf8496523f9bf85d24d0a2">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aec645088cb3c4789bdb18fd5ab00f646">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_POINTER_TO_POINTER &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
@@ -1809,6 +1815,166 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a8ac012f1211d8a9ae677c21af998fc32"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="a8ac012f1211d8a9ae677c21af998fc32" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_COPYABLE_TRAITS &gt; *, Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::emplace </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa4629a45962ace06f81d79c718cdf9a4"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="aa4629a45962ace06f81d79c718cdf9a4" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *, Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::emplace </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac6c1f5d786cf8496523f9bf85d24d0a2"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="ac6c1f5d786cf8496523f9bf85d24d0a2" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *, Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::emplace </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Construct <code>numElements</code> elements in-place using the specified <code>args</code> as the parameter passed to the constructor of the (template parameter) <code>TARGET_TYPE</code> into the array, starting at the <code>toBegin</code> address and ending immediately before the specified <code>toEnd</code> address, shifting the elements in the array by <code>numElements</code> positions towards larger addresses. Optionally specifiy an integral type to distinguish among various traits that the <code>TARGET_TYPE</code> has. The behavior is undefined unless the destination array contains at least <code>numElements</code> uninitialized elements after <code>toEnd</code>. If a copy constructor or assignment operator for <code>TARGET_TYPE</code> throws an exception, then any elements created after <code>toEnd</code> are destroyed and the elements in the range <code>[ toBegin, toEnd )</code> will have unspecified, but valid, values. </p>
+
+</div>
+</div>
 <a class="anchor" id="aec645088cb3c4789bdb18fd5ab00f646"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="aec645088cb3c4789bdb18fd5ab00f646" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; IS_POINTER_TO_POINTER &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
@@ -2554,7 +2720,7 @@ template&lt;class TARGET_TYPE &gt; </div>
 <li><a class="el" href="bslalg__arrayprimitives_8h_source.html">bslalg_arrayprimitives.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:13 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:07 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

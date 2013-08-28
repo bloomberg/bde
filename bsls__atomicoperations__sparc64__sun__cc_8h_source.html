@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bsls_atomicoperations_sparc64_sun_cc.h                             -*-C++-*-
@@ -117,11 +117,10 @@ struct Atomic_TypeTraits&lt;AtomicOperations_SPARC64_SUN_CC&gt;
     struct Pointer
     {
 #ifdef BSLS_PLATFORM_CMP_GNU
-        void const * volatile d_value
-                                  __attribute__((__aligned__(sizeof(void *))));
+        void * volatile d_value __attribute__((__aligned__(sizeof(void *))));
 #else
 #       pragma align 8 (d_value)
-        void const * volatile d_value;
+        void * volatile d_value;
 #endif
     };
 };

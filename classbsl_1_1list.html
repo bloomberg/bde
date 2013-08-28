@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: Class bsl::list</title>
+<title>BSL 2.18 OSS: Class bsl::list</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -133,43 +133,16 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga1c16ce53bdb1263a8b938c596bd1b001">resize</a> (<a class="el" href="group__bslstl__list.html#ga00bb9bf4714747111e362ca39476707e">size_type</a> sz, const VALUE &amp;c)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__list.html#ga354a59e4d412aff0e67e638ca94af47d">reference</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gadae817babcef4d91eaa3f185f98f010b">front</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__list.html#ga354a59e4d412aff0e67e638ca94af47d">reference</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gadaa3ddc8ebbf689e5ed3183dd6f8434f">back</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga321129eb135218647d005a905fc466d3">emplace_front</a> ()</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga6f26381073b7fbe582a8b4dd42455013">emplace_front</a> (const ARG1 &amp;a1)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga803ceafaf1bee75c1afaa2e708d6a35a">emplace_front</a> (const ARG1 &amp;a1, const ARG2 &amp;a2)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga2c8a7421255ebed5ed776af7be5bbba7">emplace_front</a> (const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 , class ARG4 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gab3b5ea621d775cc8f9b1d62830d4530d">emplace_front</a> (const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3, const ARG4 &amp;a4)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 , class ARG4 , class ARG5 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga5b0dfa53992903a6992233436851e646">emplace_front</a> (const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3, const ARG4 &amp;a4, const ARG5 &amp;a5)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... ARGS&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga5f2acf4754c4d72925594bebe75827b7">emplace_front</a> (ARGS &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga8cf8146a292b5257e7c8d9134f5bf188">pop_front</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga9cf837cf97434953038e1be99c404cbc">emplace_back</a> ()</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga27ebd70d7b481f2f60adafa05088ef20">emplace_back</a> (const ARG1 &amp;a1)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gae062729d685db8b8c0127f3c0a5fdef4">emplace_back</a> (const ARG1 &amp;a1, const ARG2 &amp;a2)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga2d1da34e755bb8fd8e33ec80ffdec68e">emplace_back</a> (const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 , class ARG4 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga6eef840c2a382c86721575c7ac308b4d">emplace_back</a> (const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3, const ARG4 &amp;a4)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 , class ARG4 , class ARG5 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga5e644a9568562baf6fa7957f2b62f24f">emplace_back</a> (const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3, const ARG4 &amp;a4, const ARG5 &amp;a5)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... ARGS&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga6a839494fae21862de65edd52588d7ed">emplace_back</a> (ARGS &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gab2fb73df84ac2640d87e9a29eac289f3">pop_back</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga17708602439730f5c84e1638036a0292">push_front</a> (const VALUE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga59917442fec6f3bf2b3f2a8738a7f3e3">push_back</a> (const VALUE &amp;vaule)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gacbd72789a5b12f4bdf1ddd71bfcba481">emplace</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga7ec72aaf8158df3048909f611de4ffde">emplace</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, const ARG1 &amp;a1)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga48a06ec85409ecca9b11fd457fe4eda4">emplace</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, const ARG1 &amp;a1, const ARG2 &amp;a2)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga059a9809c1a7c770a9dc0fbdfa85c960">emplace</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 , class ARG4 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga2d5c701c682ef8a09afd21e87e78c7e5">emplace</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3, const ARG4 &amp;a4)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class ARG1 , class ARG2 , class ARG3 , class ARG4 , class ARG5 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gab0488405d9eef1a42fd77fedcdbfbcdd">emplace</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, const ARG1 &amp;a1, const ARG2 &amp;a2, const ARG3 &amp;a3, const ARG4 &amp;a4, const ARG5 &amp;a5)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... ARGS&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga98cc46a578156771ccf9f5b661ac9209">emplace</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, ARGS &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#gac8430d1383d5d6bc57602e490b0ecc0c">insert</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, const VALUE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1List__Iterator.html">iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__list.html#ga97efa9459209cb9d21d841014bf478a4">insert</a> (<a class="el" href="classbsl_1_1List__Iterator.html">const_iterator</a> position, <a class="el" href="group__bslstl__list.html#ga00bb9bf4714747111e362ca39476707e">size_type</a> n, const VALUE &amp;value)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class InputIter &gt; </td></tr>
@@ -220,7 +193,7 @@ Friends</h2></td></tr>
 <li><a class="el" href="bslstl__list_8h_source.html">bslstl_list.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:12 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:06 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

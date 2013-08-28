@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslstl_treenodepool Component</title>
+<title>BSL 2.18 OSS: bslstl_treenodepool Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -220,8 +220,9 @@ Namespaces</h2></td></tr>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> ALLOCATOR&gt;
   <span class="keywordtype">bool</span> IntSet&lt;ALLOCATOR&gt;::remove(<span class="keywordtype">int</span> value)
   {
+      IntNodeComparator comparator;
       <a class="code" href="classbslalg_1_1RbTreeNode.html">bslalg::RbTreeNode</a> *node =
-                <a class="code" href="structbslalg_1_1RbTreeUtil.html#a206cfdf81a5139230086f52d49bb76f1">bslalg::RbTreeUtil::find</a>(d_tree, IntNodeComparator(), value);
+                <a class="code" href="structbslalg_1_1RbTreeUtil.html#a206cfdf81a5139230086f52d49bb76f1">bslalg::RbTreeUtil::find</a>(d_tree, comparator, value);
 </pre></div><br/>
 <br/>
  Here we use the <code>TreeNodePool</code> object, <code>d_nodePool</code>, to delete a node that was removed from the set. <br/>
@@ -280,7 +281,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:01 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

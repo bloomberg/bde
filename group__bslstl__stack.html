@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslstl_stack Component</title>
+<title>BSL 2.18 OSS: bslstl_stack Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -98,6 +98,8 @@ Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#gac7220071188fe8934c5c729e1da861d0">bsl::stack::stack</a> (const stack &amp;original, const ALLOCATOR &amp;allocator, typename enable_if&lt; Stack_HasAllocatorType&lt; CONTAINER &gt;::VALUE, ALLOCATOR &gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> *=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">stack &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#gad1ecf1fac20e23acbbf585975cf5f36c">bsl::stack::operator=</a> (const stack &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... Args&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#ga6ea8dca86df1d438bda9c202688ce5ba">bsl::stack::emplace</a> (Args &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#ga9441bfa0f0291b1802e0eff45681ef0b">bsl::stack::pop</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#gaa097f254e38f0347f17cd2760d9b1e12">bsl::stack::push</a> (const value_type &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#ga706a56c3a308ede5033b91d457c47283">bsl::stack::swap</a> (stack &amp;other)</td></tr>
@@ -708,6 +710,28 @@ template&lt;class VALUE , class CONTAINER  = deque&lt;VALUE&gt;&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="ga6ea8dca86df1d438bda9c202688ce5ba"></a><!-- doxytag: member="bsl::stack::emplace" ref="ga6ea8dca86df1d438bda9c202688ce5ba" args="(Args &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VALUE , class CONTAINER  = deque&lt;VALUE&gt;&gt; </div>
+<div class="memtemplate">
+template&lt;class... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1stack.html">bsl::stack</a>&lt; VALUE, CONTAINER &gt;::emplace </td>
+          <td>(</td>
+          <td class="paramtype">Args &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ga9441bfa0f0291b1802e0eff45681ef0b"></a><!-- doxytag: member="bsl::stack::pop" ref="ga9441bfa0f0291b1802e0eff45681ef0b" args="()" -->
 <div class="memitem">
 <div class="memproto">
@@ -1265,7 +1289,7 @@ template&lt;class VAL , class CONT &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:07 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:01 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

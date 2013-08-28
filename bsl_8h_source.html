@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
  bsl.txt
@@ -29,16 +29,21 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsl&#39; package group currently has 11 packages having 10 levels of physical
+ The &#39;bsl&#39; package group is the foundation of the firm-wide BDE library and has
+ no dependencies beyond the allowed OS and runtime environment dependencies.
+
+ The &#39;bsl&#39; package group currently has 12 packages having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  10. bslim
+  11. bslim
 
-   9. bsl+stdhdrs
+  10. bsl+stdhdrs(*)
 
-   8. bsl+bslhdrs
+   9. bsl+bslhdrs
+
+   8. bslstp
 
    7. bslstl
 
@@ -60,6 +65,11 @@
  BDE libraries (i.e., all other package groups above &#39;bsl&#39; will compile and
  function without &#39;bsl+stdhdrs&#39;).  This package implements the logic required
  for &#39;BDE-STL&#39; mode.
+
+ Note that required source control package &#39;bslscm&#39; depends on &#39;bsls&#39;; this
+ behavior is unique to &#39;bsl&#39;, although it is temporarily also in &#39;bde&#39; for
+ historic reasons, since logically *every* other package should depend on
+ &#39;bslscm&#39;.
 
 /Package Synopsis
 /----------------
@@ -92,6 +102,9 @@
 :
 : &#39;bslstl&#39;:
 :      Provide replacement classes for STL constructs.
+:
+: &#39;bslstp&#39;:
+:      Provide replacement classes (adopted from STLport) for STL.
 :
 : &#39;bsltf&#39;:
 :      Provide a set of utilities and types to help with testing.

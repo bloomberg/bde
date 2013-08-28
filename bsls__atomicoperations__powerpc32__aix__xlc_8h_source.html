@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bsls_atomicoperations_powerpc32_aix_xlc.h                          -*-C++-*-
@@ -131,8 +131,7 @@ struct Atomic_TypeTraits&lt;AtomicOperations_POWERPC32_AIX_XLC&gt;
 
     struct Pointer
     {
-        void const * volatile d_value
-              __attribute__((__aligned__(sizeof(void *))));
+        void * volatile d_value __attribute__((__aligned__(sizeof(void *))));
     };
 };
 

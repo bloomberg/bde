@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bslstl_treenodepool.h                                              -*-C++-*-
@@ -152,8 +152,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  template &lt;class ALLOCATOR&gt;
 //  bool IntSet&lt;ALLOCATOR&gt;::remove(int value)
 //  {
+//      IntNodeComparator comparator;
 //      bslalg::RbTreeNode *node =
-//                bslalg::RbTreeUtil::find(d_tree, IntNodeComparator(), value);
+//                bslalg::RbTreeUtil::find(d_tree, comparator, value);
 //..
 // Here we use the &#39;TreeNodePool&#39; object, &#39;d_nodePool&#39;, to delete a node that
 // was removed from the set.

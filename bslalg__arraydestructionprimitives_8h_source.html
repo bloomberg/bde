@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bslalg_arraydestructionprimitives.h                                -*-C++-*-
@@ -187,8 +187,8 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
     bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
     std::memset(begin, 0xa5, numBytes);
 #else
-    (void)begin;
-    (void)end;
+    (void) begin;
+    (void) end;
 #endif
 }
 

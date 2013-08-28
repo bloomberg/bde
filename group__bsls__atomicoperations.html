@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bsls_atomicoperations Component</title>
+<title>BSL 2.18 OSS: bsls_atomicoperations Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -511,8 +511,8 @@ sequential consistency - the operation has both acquire and release guarantees, 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
   <span class="keyword">inline</span> my_PtrStack&lt;TYPE&gt;::my_PtrStack()
   {
-      <a class="code" href="structbsls_1_1AtomicOperations.html#a5f516afc24f0de04e928c68cb8e901db">bsls::AtomicOperations::initPointer</a>(&amp;d_freeList_p, 0);
-      <a class="code" href="structbsls_1_1AtomicOperations.html#a5f516afc24f0de04e928c68cb8e901db">bsls::AtomicOperations::initPointer</a>(&amp;d_list_p, 0);
+      <a class="code" href="structbsls_1_1AtomicOperations.html#a483c58917e84bd17b0bcf02d3ab50763">bsls::AtomicOperations::initPointer</a>(&amp;d_freeList_p, 0);
+      <a class="code" href="structbsls_1_1AtomicOperations.html#a483c58917e84bd17b0bcf02d3ab50763">bsls::AtomicOperations::initPointer</a>(&amp;d_list_p, 0);
   }
 </pre></div><br/>
 <br/>
@@ -532,9 +532,9 @@ sequential consistency - the operation has both acquire and release guarantees, 
   <span class="keyword">inline</span> my_PtrStack&lt;TYPE&gt;::~my_PtrStack()
   {
       deleteNodes(
-         (Node *) <a class="code" href="structbsls_1_1AtomicOperations.html#aaa69768e2e24b6668af4c946abab4113">bsls::AtomicOperations::getPtrRelaxed</a>(&amp;d_list_p));
+         (Node *) <a class="code" href="structbsls_1_1AtomicOperations.html#a456c447deaff0092ae1a42b5d0a9ecb7">bsls::AtomicOperations::getPtrRelaxed</a>(&amp;d_list_p));
       deleteNodes(
-         (Node *) <a class="code" href="structbsls_1_1AtomicOperations.html#aaa69768e2e24b6668af4c946abab4113">bsls::AtomicOperations::getPtrRelaxed</a>(&amp;d_freeList_p));
+         (Node *) <a class="code" href="structbsls_1_1AtomicOperations.html#a456c447deaff0092ae1a42b5d0a9ecb7">bsls::AtomicOperations::getPtrRelaxed</a>(&amp;d_freeList_p));
   }
 </pre></div><br/>
 <br/>
@@ -550,9 +550,9 @@ sequential consistency - the operation has both acquire and release guarantees, 
  To remove an item from this list, get the current list head using <code>getPtr</code>. Then, test and swap it with the next node. <code>testAndSwapPtr</code> compares <code>d_freeList_p</code> to <code>node</code>, replacing it with <code>node-&gt;d_next_p</code> only if it matches. If <code>d_freeList_p</code> did not match <code>node</code>, then the free list has been changed on another thread, between the calls to <code>getPtr</code> and <code>testAndSwapPtr</code>. If the list head has changed, then try again: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      <span class="keywordflow">do</span> {
-          node = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a787df526b06976e2037524e3886e6852">bsls::AtomicOperations::getPtr</a>(&amp;d_freeList_p);
+          node = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a689a668a4ce6a5f86ca8012c69837958">bsls::AtomicOperations::getPtr</a>(&amp;d_freeList_p);
           <span class="keywordflow">if</span> (!node) <span class="keywordflow">break</span>;
-      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#aea3a5972ba601e155eefc03a19f35cba">bsls::AtomicOperations::testAndSwapPtr</a>(
+      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#ae00cfea48483aaba8e2cdc5eca0bb822">bsls::AtomicOperations::testAndSwapPtr</a>(
                                                     &amp;d_freeList_p,
                                                     node,
                                                     node-&gt;d_next_p) != node);
@@ -573,9 +573,9 @@ sequential consistency - the operation has both acquire and release guarantees, 
   <span class="keyword">inline</span> <span class="keywordtype">void</span> my_PtrStack&lt;TYPE&gt;::freeNode(Node *node)
   {
       <span class="keywordflow">do</span> {
-        node-&gt;d_next_p = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a787df526b06976e2037524e3886e6852">bsls::AtomicOperations::getPtr</a>(
+        node-&gt;d_next_p = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a689a668a4ce6a5f86ca8012c69837958">bsls::AtomicOperations::getPtr</a>(
                                                               &amp;d_freeList_p);
-      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#aea3a5972ba601e155eefc03a19f35cba">bsls::AtomicOperations::testAndSwapPtr</a>(
+      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#ae00cfea48483aaba8e2cdc5eca0bb822">bsls::AtomicOperations::testAndSwapPtr</a>(
                                                     &amp;d_freeList_p,
                                                     node-&gt;d_next_p,
                                                     node) != node-&gt;d_next_p);
@@ -590,8 +590,8 @@ sequential consistency - the operation has both acquire and release guarantees, 
       Node *node = allocateNode();
       node-&gt;d_item_p = item;
       <span class="keywordflow">do</span> {
-          node-&gt;d_next_p = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a787df526b06976e2037524e3886e6852">bsls::AtomicOperations::getPtr</a>(&amp;d_list_p);
-      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#aea3a5972ba601e155eefc03a19f35cba">bsls::AtomicOperations::testAndSwapPtr</a>(
+          node-&gt;d_next_p = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a689a668a4ce6a5f86ca8012c69837958">bsls::AtomicOperations::getPtr</a>(&amp;d_list_p);
+      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#ae00cfea48483aaba8e2cdc5eca0bb822">bsls::AtomicOperations::testAndSwapPtr</a>(
                                                     &amp;d_list_p,
                                                     node-&gt;d_next_p,
                                                     node)!= node-&gt;d_next_p);
@@ -605,9 +605,9 @@ sequential consistency - the operation has both acquire and release guarantees, 
   {
       Node *node;
       <span class="keywordflow">do</span> {
-          node = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a787df526b06976e2037524e3886e6852">bsls::AtomicOperations::getPtr</a>(&amp;d_list_p);
+          node = (Node*) <a class="code" href="structbsls_1_1AtomicOperations.html#a689a668a4ce6a5f86ca8012c69837958">bsls::AtomicOperations::getPtr</a>(&amp;d_list_p);
           <span class="keywordflow">if</span> (!node) <span class="keywordflow">break</span>;
-      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#aea3a5972ba601e155eefc03a19f35cba">bsls::AtomicOperations::testAndSwapPtr</a>(
+      } <span class="keywordflow">while</span> (<a class="code" href="structbsls_1_1AtomicOperations.html#ae00cfea48483aaba8e2cdc5eca0bb822">bsls::AtomicOperations::testAndSwapPtr</a>(
                                                      &amp;d_freeList_p,
                                                      node,
                                                      node-&gt;d_next_p)!= node);
@@ -620,7 +620,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  Notice that if the stack was empty, a NULL pointer is returned. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:06 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:00 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

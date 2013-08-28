@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslalg_arrayprimitives Component</title>
+<title>BSL 2.18 OSS: bslalg_arrayprimitives Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -118,12 +118,12 @@ Namespaces</h2></td></tr>
   uninitializedFillN            <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from value <span class="keywordflow">for each</span>
                                 element in the target range, or <span class="stringliteral">&#39;std::memset&#39;</span>
                                 <span class="keywordflow">if</span> value is all 0s or 1s bits, and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is
-                                bit-wise <a class="code" href="bslstl__equalto_8h.html#a098bbfa1c439339b08af8398c3379b5d">copyable</a>
+                                bit-wise copyable
 
   copyConstruct                 <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from each element in the
                                 original range to the corresponding element
                                 in the target range, or <span class="stringliteral">&#39;std::memcpy&#39;</span> <span class="keywordflow">if</span>
-                                value is null and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise <a class="code" href="bslstl__equalto_8h.html#a098bbfa1c439339b08af8398c3379b5d">copyable</a>
+                                value is null and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise copyable
 
   destructiveMove               <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> from each element in
                                 the original range to the corresponding
@@ -142,10 +142,17 @@ Namespaces</h2></td></tr>
                                 middle, followed by <span class="stringliteral">&#39;destructiveMove&#39;</span>
                                 from second range to fill hole
 
-  insert                        <span class="stringliteral">&#39;destructiveMove&#39;</span> by some positive offset to
-                                create a hole, followed by
-                                <span class="stringliteral">&#39;uninitializedFillN&#39;</span> or <span class="stringliteral">&#39;copyConstruct&#39;</span> to
-                                fill hole with the appropriate values
+  insert                        <span class="stringliteral">&#39;std::memmove&#39;</span> or <span class="stringliteral">&#39;copyConstruct&#39;</span> by some
+                                positive offset to create a hole, followed by
+                                <span class="stringliteral">&#39;uninitializedFillN&#39;</span>, <span class="stringliteral">&#39;copyConstruct&#39;</span>, or
+                                copy assignment to fill hole with the
+                                appropriate values
+
+  emplace                       <span class="stringliteral">&#39;std::memmove&#39;</span> or <span class="stringliteral">&#39;copyConstruct&#39;</span> by some
+                                positive offset to create a hole, followed by
+                                in-place construction, <span class="stringliteral">&#39;copyConstruct&#39;</span>, or
+                                copy assignment to fill hole with the
+                                appropriate values
 
   moveInsert                    <span class="stringliteral">&#39;destructiveMove&#39;</span> by some positive offset to
                                 create a hole, followed by <span class="stringliteral">&#39;destructiveMove&#39;</span>
@@ -317,7 +324,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:04 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:41:59 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

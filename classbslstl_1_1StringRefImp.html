@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: Class bslstl::StringRefImp</title>
+<title>BSL 2.18 OSS: Class bslstl::StringRefImp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -119,6 +119,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a33dc0645904e4e3512800f3839cfc1e3">data</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a25d7089cf4040c8e0c52c37ed035de38">isEmpty</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html#afa6ba791fcd5cc60afc6c08cf2f1a140">size_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a66d787ba441b3f3eddaa25910d41bf2c">length</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a68046fb1027bd92ea9044553d3cc118f">compare</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;other) const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename OTHER_CHAR_TYPE &gt; </td></tr>
@@ -359,7 +360,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a string-reference object having a valid <code>std::string</code> value, whose external representation begins at the specified <code>data</code> address and extends for <code>std::strlen(data)</code> characters. The external representation must remain valid as long as it is bound to this string reference. The behavior is undefined unless <code>data</code> is null-terminated. </p>
+<p>Create a string-reference object having a valid <code>std::string</code> value, whose external representation begins at the specified <code>data</code> address and extends for <code>std::char_traits&lt;CHAR_TYPE&gt;length(data)</code> characters. The external representation must remain valid as long as it is bound to this string reference. The behavior is undefined unless <code>data</code> is null-terminated. </p>
 
 </div>
 </div>
@@ -524,7 +525,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Bind this string reference to the string at the specified <code>data</code> address and extending for <code>std::strlen(data)</code> characters. The string at the <code>data</code> address must remain valid as long as it is bound to this string reference. The behavior is undefined unless <code>data</code> is null-terminated. </p>
+<p>Bind this string reference to the string at the specified <code>data</code> address and extending for <code>std::char_traits&lt;CHAR_TYPE&gt;length(data)</code> characters. The string at the <code>data</code> address must remain valid as long as it is bound to this string reference. The behavior is undefined unless <code>data</code> is null-terminated. </p>
 
 </div>
 </div>
@@ -742,6 +743,27 @@ template&lt;typename CHAR_TYPE&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a68046fb1027bd92ea9044553d3cc118f"></a><!-- doxytag: member="bslstl::StringRefImp::compare" ref="a68046fb1027bd92ea9044553d3cc118f" args="(const StringRefImp &amp;other) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename CHAR_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::compare </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a>&lt; CHAR_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Compare this and <code>other</code> string objects using a lexicographical comparison and return a negative value if this string is less than <code>other</code> string, a positive value if this string is greater than <code>other</code> string, and 0 if this string is equal to <code>other</code> string. </p>
+
+</div>
+</div>
 <hr/><h2>Friends And Related Function Documentation</h2>
 <a class="anchor" id="abee9aa71717895aa4901c284e9c3ebbb"></a><!-- doxytag: member="bslstl::StringRefImp::operator&lt;&lt;" ref="abee9aa71717895aa4901c284e9c3ebbb" args="(std::basic_ostream&lt; OTHER_CHAR_TYPE &gt; &amp;stream, const bslstl::StringRefImp&lt; OTHER_CHAR_TYPE &gt; &amp;stringRef)" -->
 <div class="memitem">
@@ -778,7 +800,7 @@ template&lt;typename OTHER_CHAR_TYPE &gt; </div>
 <li><a class="el" href="bslstl__stringref_8h_source.html">bslstl_stringref.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:23 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:17 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

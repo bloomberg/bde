@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.17 OSS</title>
+<title>BSL 2.18 OSS</title>
 <html>
 <pre>
 // bsls_atomicoperations_default.h                                    -*-C++-*-
@@ -276,7 +276,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //      struct Pointer
 //      {
-//          void const * volatile d_value
+//          void * volatile d_value
 //                                __attribute__((__aligned__(sizeof(void *))));
 //      };
 //  };
@@ -528,38 +528,36 @@ struct AtomicOperations_DefaultPointer32
 
     // CLASS METHODS
     static void initPointer(typename AtomicTypes::Pointer *atomicPtr,
-                            const void *initialValue = 0);
+                            void *initialValue = 0);
 
-    static const void *getPtr(typename AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtr(typename AtomicTypes::Pointer const *atomicPtr);
 
-    static const void *getPtrRelaxed(
-                               typename AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr);
 
-    static const void *getPtrAcquire(
-                               typename AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr);
 
     static void setPtr(typename AtomicTypes::Pointer *atomicPtr,
-                       const void *value);
+                       void *value);
 
     static void setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
-                              const void *value);
+                              void *value);
 
     static void setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
-                              const void *value);
+                              void *value);
 
     static void *swapPtr(typename AtomicTypes::Pointer *atomicPtr,
-                         const void *swapValue);
+                         void *swapValue);
 
     static void *swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                               const void *swapValue);
+                               void *swapValue);
 
     static void *testAndSwapPtr(typename AtomicTypes::Pointer *atomicPtr,
-                                const void *compareValue,
-                                const void *swapValue);
+                                void *compareValue,
+                                void *swapValue);
 
     static void *testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                                      const void *compareValue,
-                                      const void *swapValue);
+                                      void *compareValue,
+                                      void *swapValue);
 };
 
                   // ========================================
@@ -612,38 +610,36 @@ struct AtomicOperations_DefaultPointer64
 
     // CLASS METHODS
     static void initPointer(typename AtomicTypes::Pointer *atomicPtr,
-                            const void *initialValue = 0);
+                            void *initialValue = 0);
 
-    static const void *getPtr(typename AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtr(typename AtomicTypes::Pointer const *atomicPtr);
 
-    static const void *getPtrRelaxed(
-                               typename AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr);
 
-    static const void *getPtrAcquire(
-                               typename AtomicTypes::Pointer const *atomicPtr);
+    static void *getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr);
 
     static void setPtr(typename AtomicTypes::Pointer *atomicPtr,
-                       const void *value);
+                       void *value);
 
     static void setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
-                              const void *value);
+                              void *value);
 
     static void setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
-                              const void *value);
+                              void *value);
 
     static void *swapPtr(typename AtomicTypes::Pointer *atomicPtr,
-                         const void *swapValue);
+                         void *swapValue);
 
     static void *swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                               const void *swapValue);
+                               void *swapValue);
 
     static void *testAndSwapPtr(typename AtomicTypes::Pointer   *atomicPtr,
-                                const void *compareValue,
-                                const void *swapValue);
+                                void *compareValue,
+                                void *swapValue);
 
     static void *testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                                      const void *compareValue,
-                                      const void *swapValue);
+                                      void *compareValue,
+                                      void *swapValue);
 };
 
                       // =================================
@@ -1032,17 +1028,17 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     initPointer(typename AtomicTypes::Pointer *atomicPtr,
-                const void *initialValue)
+                void *initialValue)
 {
     atomicPtr-&gt;d_value = initialValue;
 }
 
 template &lt;class IMP&gt;
 inline
-const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     getPtr(typename AtomicTypes::Pointer const *atomicPtr)
 {
-    return reinterpret_cast&lt;const void *&gt;(
+    return reinterpret_cast&lt;void *&gt;(
              IMP::getInt(
                 reinterpret_cast&lt;typename AtomicTypes::Int const *&gt;(
                     atomicPtr)));
@@ -1050,10 +1046,10 @@ const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
 
 template &lt;class IMP&gt;
 inline
-const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr)
 {
-    return reinterpret_cast&lt;const void *&gt;(
+    return reinterpret_cast&lt;void *&gt;(
              IMP::getIntRelaxed(
                 reinterpret_cast&lt;typename AtomicTypes::Int const *&gt;(
                     atomicPtr)));
@@ -1061,10 +1057,10 @@ const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
 
 template &lt;class IMP&gt;
 inline
-const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr)
 {
-    return reinterpret_cast&lt;const void *&gt;(
+    return reinterpret_cast&lt;void *&gt;(
              IMP::getIntAcquire(
                 reinterpret_cast&lt;typename AtomicTypes::Int const *&gt;(
                     atomicPtr)));
@@ -1074,7 +1070,7 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     setPtr(typename AtomicTypes::Pointer *atomicPtr,
-           const void *value)
+           void *value)
 {
     IMP::setInt(
         reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
@@ -1085,7 +1081,7 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
-                  const void *value)
+                  void *value)
 {
     IMP::setIntRelaxed(
         reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
@@ -1096,7 +1092,7 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
-                  const void              *value)
+                  void *value)
 {
     IMP::setIntRelease(
         reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
@@ -1107,7 +1103,7 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     swapPtr(typename AtomicTypes::Pointer *atomicPtr,
-            const void *swapValue)
+            void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::swapInt(
@@ -1119,7 +1115,7 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                  const void *swapValue)
+                  void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::swapIntAcqRel(
@@ -1131,8 +1127,8 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     testAndSwapPtr(typename AtomicTypes::Pointer *atomicPtr,
-                   const void *compareValue,
-                   const void *swapValue)
+                   void *compareValue,
+                   void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::testAndSwapInt(
@@ -1145,8 +1141,8 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
     testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                         const void *compareValue,
-                         const void *swapValue)
+                         void *compareValue,
+                         void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::testAndSwapIntAcqRel(
@@ -1164,17 +1160,17 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     initPointer(typename AtomicTypes::Pointer *atomicPtr,
-                const void *initialValue)
+                void *initialValue)
 {
     atomicPtr-&gt;d_value = initialValue;
 }
 
 template &lt;class IMP&gt;
 inline
-const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     getPtr(typename AtomicTypes::Pointer const *atomicPtr)
 {
-    return reinterpret_cast&lt;const void *&gt;(
+    return reinterpret_cast&lt;void *&gt;(
              IMP::getInt64(
                 reinterpret_cast&lt;typename AtomicTypes::Int64 const *&gt;(
                     atomicPtr)));
@@ -1182,10 +1178,10 @@ const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
 
 template &lt;class IMP&gt;
 inline
-const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr)
 {
-    return reinterpret_cast&lt;const void *&gt;(
+    return reinterpret_cast&lt;void *&gt;(
              IMP::getInt64Relaxed(
                 reinterpret_cast&lt;typename AtomicTypes::Int64 const *&gt;(
                     atomicPtr)));
@@ -1193,10 +1189,10 @@ const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
 
 template &lt;class IMP&gt;
 inline
-const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr)
 {
-    return reinterpret_cast&lt;const void *&gt;(
+    return reinterpret_cast&lt;void *&gt;(
              IMP::getInt64Acquire(
                 reinterpret_cast&lt;typename AtomicTypes::Int64 const *&gt;(
                     atomicPtr)));
@@ -1206,7 +1202,7 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     setPtr(typename AtomicTypes::Pointer *atomicPtr,
-           const void *value)
+           void *value)
 {
     IMP::setInt64(
         reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
@@ -1217,7 +1213,7 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
-                  const void              *value)
+                  void *value)
 {
     IMP::setInt64Relaxed(
         reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
@@ -1228,7 +1224,7 @@ template &lt;class IMP&gt;
 inline
 void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
-                  const void *value)
+                  void *value)
 {
     IMP::setInt64Release(
         reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
@@ -1239,7 +1235,7 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     swapPtr(typename AtomicTypes::Pointer *atomicPtr,
-            const void *swapValue)
+            void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::swapInt64(
@@ -1251,7 +1247,7 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                  const void *swapValue)
+                  void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::swapInt64AcqRel(
@@ -1263,8 +1259,8 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     testAndSwapPtr(typename AtomicTypes::Pointer   *atomicPtr,
-                   const void *compareValue,
-                   const void *swapValue)
+                   void *compareValue,
+                   void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::testAndSwapInt64(
@@ -1277,8 +1273,8 @@ template &lt;class IMP&gt;
 inline
 void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
     testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
-                         const void *compareValue,
-                         const void *swapValue)
+                         void *compareValue,
+                         void *swapValue)
 {
     return reinterpret_cast&lt;void *&gt;(
             IMP::testAndSwapInt64AcqRel(

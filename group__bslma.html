@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslma Package</title>
+<title>BSL 2.18 OSS: bslma Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -207,19 +207,17 @@ Components</h2></td></tr>
 <li>
 <a href="#3.3.12"><code>bslma_mallocfreeallocator</code></a> </li>
 <li>
-<a href="#3.3.13"><code>bslma_managedallocator</code></a> </li>
+<a href="#3.3.13"><code>bslma_newdeleteallocator</code></a> </li>
 <li>
-<a href="#3.3.14"><code>bslma_newdeleteallocator</code></a> </li>
+<a href="#3.3.14"><code>bslma_rawdeleterguard</code></a> </li>
 <li>
-<a href="#3.3.15"><code>bslma_rawdeleterguard</code></a> </li>
+<a href="#3.3.15"><code>bslma_rawdeleterproctor</code></a> </li>
 <li>
-<a href="#3.3.16"><code>bslma_rawdeleterproctor</code></a> </li>
+<a href="#3.3.16"><code>bslma_testallocator</code></a> </li>
 <li>
-<a href="#3.3.17"><code>bslma_testallocator</code></a> </li>
+<a href="#3.3.17"><code>bslma_testallocatorexception</code></a> </li>
 <li>
-<a href="#3.3.18"><code>bslma_testallocatorexception</code></a> </li>
-<li>
-<a href="#3.3.19"><code>bslma_testallocatormonitor</code></a> </li>
+<a href="#3.3.18"><code>bslma_testallocatormonitor</code></a> </li>
 </ul>
 </li>
 <li>
@@ -401,31 +399,27 @@ Components</h2></td></tr>
 <dl class="user"><dt><b>bslma_mallocfreeallocator: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bslma_mallocfreeallocator</code> provides a wrapper around <code>std::malloc</code> and <code>std::free</code> that adheres to the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol (i.e., provides <code>allocate</code> and <code>deallocate</code> functions). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_managedallocator"></a> <a class="anchor" id="component_overview.bslma_managedallocator"></a> <a class="anchor" id="description.component_overview.bslma_managedallocator"></a> <a class="anchor" id="3.3.13"></a> </dd></dl>
-<dl class="user"><dt><b>bslma_managedallocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_managedallocator</code> defines a protocol that extends the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol with a <code>release</code> function. <code>release</code> indicates that all memory allocated since the previous <code>release</code> call is to be deallocated. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_newdeleteallocator"></a> <a class="anchor" id="component_overview.bslma_newdeleteallocator"></a> <a class="anchor" id="description.component_overview.bslma_newdeleteallocator"></a> <a class="anchor" id="3.3.14"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_newdeleteallocator"></a> <a class="anchor" id="component_overview.bslma_newdeleteallocator"></a> <a class="anchor" id="description.component_overview.bslma_newdeleteallocator"></a> <a class="anchor" id="3.3.13"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_newdeleteallocator: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bslma_newdeleteallocator</code> provides a wrapper around <code>operator new</code> and <code>operator delete</code> that adheres to the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol (i.e., provides an <code>allocate</code> function and a <code>deallocate</code> function). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_rawdeleterguard"></a> <a class="anchor" id="component_overview.bslma_rawdeleterguard"></a> <a class="anchor" id="description.component_overview.bslma_rawdeleterguard"></a> <a class="anchor" id="3.3.15"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_rawdeleterguard"></a> <a class="anchor" id="component_overview.bslma_rawdeleterguard"></a> <a class="anchor" id="description.component_overview.bslma_rawdeleterguard"></a> <a class="anchor" id="3.3.14"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_rawdeleterguard: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bslma_rawdeleterguard</code> provides a guard class template to <em>unconditionally</em> manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. The managed object is deleted automatically when the guard object goes out of scope by first calling the (managed) object's destructor, and then freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) also supplied at construction. This guard mechanism is useful in ensuring that a dynamically allocated raw memory resource is safely deallocated in the presense of multiple return satements or exceptions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_rawdeleterproctor"></a> <a class="anchor" id="component_overview.bslma_rawdeleterproctor"></a> <a class="anchor" id="description.component_overview.bslma_rawdeleterproctor"></a> <a class="anchor" id="3.3.16"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_rawdeleterproctor"></a> <a class="anchor" id="component_overview.bslma_rawdeleterproctor"></a> <a class="anchor" id="description.component_overview.bslma_rawdeleterproctor"></a> <a class="anchor" id="3.3.15"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_rawdeleterproctor: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bslma_rawdeleterproctor</code> provides a proctor class template to conditionally manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the managed object is deleted automatically when the proctor object goes out of scope by first calling the (managed) object's destructor, and then freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) also supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocator"></a> <a class="anchor" id="component_overview.bslma_testallocator"></a> <a class="anchor" id="description.component_overview.bslma_testallocator"></a> <a class="anchor" id="3.3.17"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocator"></a> <a class="anchor" id="component_overview.bslma_testallocator"></a> <a class="anchor" id="description.component_overview.bslma_testallocator"></a> <a class="anchor" id="3.3.16"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_testallocator: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bslma_testallocator</code> provides an instrumented allocator that implements the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol and can be used to track various aspects of memory allocated from it. This allocator memory allocator uses global functions <code>std::malloc</code> and <code>std::free</code> for allocations and deallocations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocatorexception"></a> <a class="anchor" id="component_overview.bslma_testallocatorexception"></a> <a class="anchor" id="description.component_overview.bslma_testallocatorexception"></a> <a class="anchor" id="3.3.18"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocatorexception"></a> <a class="anchor" id="component_overview.bslma_testallocatorexception"></a> <a class="anchor" id="description.component_overview.bslma_testallocatorexception"></a> <a class="anchor" id="3.3.17"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_testallocatorexception: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bslma_testallocatorexception</code> defines an exception object for use in testing exceptions during memory allocations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocatormonitor"></a> <a class="anchor" id="component_overview.bslma_testallocatormonitor"></a> <a class="anchor" id="description.component_overview.bslma_testallocatormonitor"></a> <a class="anchor" id="3.3.19"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocatormonitor"></a> <a class="anchor" id="component_overview.bslma_testallocatormonitor"></a> <a class="anchor" id="description.component_overview.bslma_testallocatormonitor"></a> <a class="anchor" id="3.3.18"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_testallocatormonitor: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>bslma_testallocatormonitor</code> provides a "monitor", a mechanism class, that allows concise tests of state change (or lack of change) in the test allocator provided at the monitor's construction. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -984,7 +978,7 @@ BufferAllocator::~BufferAllocator()
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:41:59 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

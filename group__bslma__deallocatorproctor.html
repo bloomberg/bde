@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.17 OSS: bslma_deallocatorproctor Component</title>
+<title>BSL 2.18 OSS: bslma_deallocatorproctor Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -289,7 +289,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>Similarly, any resources acquired as a result of copy constructing the objects from the old array to the new array would be leaked if the constructor of <code>TYPE</code> throws. Using the <code>my_AutoDestructor</code> prevents the leak by invoking the destructor of the proctored (and newly created) objects in the new array should the <code>my_AutoDestructor</code> goes out of scope before the <code>release</code> method of the proctor is called. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that the <code>append</code> method assumes the copy constructor of <code>TYPE</code> takes an allocator as a second argument. In production code, a constructor proxy that checks the traits of <code>TYPE</code> (to see whether <code>TYPE</code> uses <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>) should be used (see <code><a class="el" href="classbslalg_1_1ConstructorProxy.html">bslalg::ConstructorProxy</a></code>). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed May 8 2013 11:24:05 for BSL Release 2.17 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:41:59 for BSL Release 2.18 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
