@@ -20,33 +20,26 @@ namespace BloombergLP {
 
 namespace {
 
-static int globalNumSuccessfulConnections = 0;
-static bool globalDone = false;
-
-const int CONN_PORT = 12345;
-
-struct Socks5MethodRequest {
-    char d_version;
-    char d_numMethods;
-    char d_methods[255]; // max. 255 methods, only first 2 used
-
-    //Socks5MethodRequest()
-    //: d_version(5), d_numMethods(1), d_method(0) { }
+struct Socks5MethodRequestHeader {
+    unsigned char d_version;
+    unsigned char d_numMethods;
 };
 
 struct Socks5MethodResponse {
-    char d_version;
-    char d_method;
+    unsigned char d_version;
+    unsigned char d_method;
 
-    Socks5MethodResponse()
-    : d_version(5), d_method(0) { }
+    Socks5MethodResponse(int method = 0)
+    : d_version(5)
+    , d_method(method) {
+    }
 };
 
 struct Socks5ConnectBase {
-    char    d_version;
-    char    d_command;
-    char    d_reserved;
-    char    d_addressType;
+    unsigned char    d_version;
+    unsigned char    d_command;
+    unsigned char    d_reserved;
+    unsigned char    d_addressType;
 
     //Socks5ConnectBase()
     //: d_version(5), d_command(1), d_reserved(0) { }
@@ -58,22 +51,22 @@ struct Socks5ConnectBody1 {
 };
 
 struct Socks5ConnectToIPv4Address {
-    char    d_version;
-    char    d_command;
-    char    d_reserved;
-    char    d_addressType;
-    char    d_address[4];
-    short   d_port;
+    unsigned char    d_version;
+    unsigned char    d_command;
+    unsigned char    d_reserved;
+    unsigned char    d_addressType;
+    unsigned char    d_address[4];
+    unsigned short   d_port;
 
     //Socks5ConnectToIPv4Address()
     //: d_version(5), d_command(1), d_reserved(0), d_addressType(1) { }
 };
 
 struct Socks5ConnectResponseBase {
-    char    d_version;
-    char    d_reply;
-    char    d_reserved;
-    char    d_addressType;
+    unsigned char    d_version;
+    unsigned char    d_reply;
+    unsigned char    d_reserved;
+    unsigned char    d_addressType;
 
     Socks5ConnectResponseBase()
     : d_version(5), d_reply(0), d_reserved(0), d_addressType(1) { }
@@ -81,17 +74,17 @@ struct Socks5ConnectResponseBase {
 
 struct Socks5ConnectResponse1 {
     Socks5ConnectResponseBase d_base;
-    int     d_ip;
-    short   d_port;
+    int                       d_ip;  // should change to unsigned char[4]
+    unsigned short            d_port;
 
-    Socks5ConnectResponse1(int ip, short port)
+    Socks5ConnectResponse1(int ip, int port)
     : d_ip(ip), d_port(port) { }
 };
 
 struct Socks5ConnectResponse3 {
     Socks5ConnectResponseBase d_base;
-    char d_hostLen;
-    char d_data[1];
+    unsigned char d_hostLen;
+    unsigned char d_data[1];
 };
 
 static void ServerThread(
@@ -145,7 +138,7 @@ static void ServerThread(
             continue;
         }
 
-        Socks5MethodRequest methodRequest;
+        Socks5MethodRequestHeader methodRequest;
         int rc;
         rc = clientSocket->read((char *)&methodRequest,
                                         sizeof(methodRequest));
@@ -153,23 +146,114 @@ static void ServerThread(
             LOG_DEBUG << "read returned " << rc << LOG_END;
             break;
         }
-        LOG_DEBUG << "Read MethodRequest"
+        LOG_DEBUG << "Read MethodRequest Header"
                   << " version=" << (int) methodRequest.d_version
                   << " numMethods=" << (int) methodRequest.d_numMethods
-                  << " methods[0]=" << (int) methodRequest.d_methods[0]
                   << LOG_END;
         BSLS_ASSERT(5 == methodRequest.d_version);
         BSLS_ASSERT(1 <= methodRequest.d_numMethods);
-        BSLS_ASSERT(0 == methodRequest.d_methods[0]);
 
-        Socks5MethodResponse methodResponse;
+        // read supported methods
+
+        unsigned char supportedMethods[256];
+        rc = clientSocket->read((char *)&supportedMethods,
+                                        methodRequest.d_numMethods);
+        if (rc != methodRequest.d_numMethods) {
+            LOG_DEBUG << "read supported methods failed, rc " << rc << LOG_END;
+            break;
+        }
+        for (int method = 0; method < methodRequest.d_numMethods; ++method) {
+            LOG_DEBUG << "  method " << (int) supportedMethods[method]
+                      << " supported" << LOG_END;
+        }
+
+        int method;  // authentication method required
+        if (args->d_expectedCredentials.isSet()) {
+            int i;
+            method = 2;  // need username/password
+            for (i = 0; i < methodRequest.d_numMethods; ++i) {
+                if (supportedMethods[i] == method) {
+                    break;  // client supports username/password method
+                }
+                BSLS_ASSERT(i < methodRequest.d_numMethods);
+            }
+        } else {
+            method = 0;  // method: no authentication
+            BSLS_ASSERT(method == supportedMethods[0]);
+        }
+
+        Socks5MethodResponse methodResponse(method);
         rc = clientSocket->write((char *)&methodResponse,
                                  sizeof(methodResponse));
         BSLS_ASSERT(rc > 0);
         if (rc <= 0) {
             break;
         }
-        LOG_DEBUG << "Wrote MethodResponse" << LOG_END;
+        LOG_DEBUG << "Wrote MethodResponse(method = " << method << ")"
+                  << LOG_END;
+
+        if (2 == method) {
+
+            // read username/password request header
+
+            unsigned char requestHeader[2];
+            rc = clientSocket->read((char *) &requestHeader,
+                                    sizeof(requestHeader));
+            if (rc != sizeof(requestHeader)) {
+                LOG_ERROR << "read username/password request header failed"
+                          << ", rc " << rc << LOG_END;
+                break;
+            }
+            LOG_DEBUG << "received username request"
+                      << " version " << (int) requestHeader[0]
+                      << " username length " << (int) requestHeader[1]
+                      << LOG_END;
+            BSLS_ASSERT(1 == requestHeader[0]);  // version must be 1
+
+            // read username and password length (one byte)
+
+            const int ulen = requestHeader[1];
+            unsigned char ubuf[256];
+            rc = clientSocket->read((char *) ubuf, ulen + 1);
+            if (rc != ulen + 1) {
+                LOG_ERROR << "read username failed"
+                          << ", rc " << rc << LOG_END;
+                break;
+            }
+
+            // read password
+
+            const int plen = ubuf[ulen];
+            unsigned char pbuf[256];
+            rc = clientSocket->read((char *) pbuf, plen);
+            if (rc != plen) {
+                LOG_ERROR << "read password failed"
+                          << ", rc " << rc << LOG_END;
+                break;
+            }
+
+            bsl::string username((char *) ubuf, ulen, alloc);
+            bsl::string password((char *) pbuf, plen, alloc);
+
+            btes5_Credentials requestCredentials(username, password, alloc);
+            char response[2];
+            response[0] = 1;  // version
+            if (requestCredentials == args->d_expectedCredentials) {
+                LOG_DEBUG << "username authenticated" << LOG_END;
+                response[1] = 0;
+                rc = clientSocket->write(response, sizeof(response));
+                BSLS_ASSERT(rc == sizeof(response));
+            } else {
+                LOG_ERROR << "authentication failure:"
+                          << " expected " << args->d_expectedCredentials
+                          << " recieved " << requestCredentials
+                          << LOG_END;
+                response[1] = 1;
+                rc = clientSocket->write(response, sizeof(response));
+                BSLS_ASSERT(rc == sizeof(response));
+                break;
+            }
+        }
 
         Socks5ConnectBase connectBase;
         rc = clientSocket->read((char *)&connectBase,

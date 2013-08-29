@@ -1,4 +1,4 @@
-// btes5_testserver.h                                           -*-C++-*-
+// btes5_testserver.h                                                 -*-C++-*-
 #ifndef INCLUDED_BTEMT_TESTSOCKS5SERVER
 #define INCLUDED_BTEMT_TESTSOCKS5SERVER
 
@@ -53,6 +53,10 @@ BDES_IDENT("$Id: $")
 // Finally, we can connect to our destination through the proxy.
 //..
 //  connect(connectCb, bteso_Endpoint("nyplat1", 8194);
+
+#ifndef INCLUDED_BTES5_CREDENTIALS
+#include <btes5_credentials.h>
+#endif
 
 #ifndef INCLUDED_BDEUT_BIGENDIAN
 #include <bdeut_bigendian.h>
@@ -124,6 +128,7 @@ struct btes5_TestServerArgs {
     bdeut_BigEndianInt32 d_expectedIp;
     bdeut_BigEndianInt16 d_expectedPort;
     bteso_Endpoint       d_expectedDestination;
+    btes5_Credentials    d_expectedCredentials;  // if set, prompt and test
 
     // CONSTRUCTORS
     btes5_TestServerArgs(bslma::Allocator *allocator = 0);

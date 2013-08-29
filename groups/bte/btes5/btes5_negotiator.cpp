@@ -187,11 +187,8 @@ Negotiation::Negotiation(
 Negotiation::~Negotiation()
 {
     // clean up in case 'terminate' was called prior to registering timer
-    {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_timerLock);
-        if (d_timer) {
-            d_eventManager_p->deregisterTimer(d_timer);
-        }
+    if (d_timer) {
+        d_eventManager_p->deregisterTimer(d_timer);
     }
 }
 
@@ -201,7 +198,7 @@ static void terminate(Negotiation::Context                negotiation,
     // Terminate the specified 'negotiation', and invoke the user-supplied
     // callback with the specified 'status' and 'error'.
 {
-    if (negotiation->d_terminating.testAndSwap(1, 1)) {
+    if (negotiation->d_terminating.testAndSwap(0, 1)) {
         return;  // this negotiation is already being terminated
     }
 
@@ -234,7 +231,7 @@ static int registerReadCb(void (*cb) (Negotiation::Context),
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error registering read handler"));
-        return -1;
+        return btes5_Negotiator::e_ERROR;
     }
     return 0;
 }
@@ -444,13 +441,24 @@ static void sendAuthenticationRequest(Negotiation::Context negotiation)
                                 negotiation));
         return;
     }
+
+    // The Username/Password request (RFC 1929) format is:
+    // +----+------+----------+------+----------+
+    // |VER | ULEN |  UNAME   | PLEN |  PASSWD  |
+    // +----+------+----------+------+----------+
+    // | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
+    // +----+------+----------+------+----------+
+
     bsl::ostringstream request;
 
     unsigned char buffer = VERSION_USERNAME_PASSWORD_AUTH;
     request << buffer;
 
+    buffer = negotiation->d_credentials.username().size();
+    request << buffer << negotiation->d_credentials.username();
+
     buffer = negotiation->d_credentials.password().size();
-    request << buffer;
+    request << buffer << negotiation->d_credentials.password();
 
     if (registerReadCb(authenticationCallback, negotiation)) {
         return;
@@ -539,7 +547,7 @@ static int sendMethodRequest(Negotiation::Context negotiation)
     }
 
     if (registerReadCb(methodCallback, negotiation)) {
-        return -1;
+        return btes5_Negotiator::e_ERROR;
     }
 
     if (bdet_TimeInterval() != negotiation->d_timeout) {
@@ -561,7 +569,7 @@ static int sendMethodRequest(Negotiation::Context negotiation)
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error writing method request"));
-        return -2;
+        return btes5_Negotiator::e_ERROR;
     }
 
     return 0;

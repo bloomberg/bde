@@ -21,6 +21,8 @@ BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 #include <bteso_socketimputil.h>
 #include <bteso_socketoptutil.h>
 
+// TODO: explain locking strategy
+// TODO: simplify locking even if not optimal
 // 'btes5_NetworkConnector' implements asynchronous connection establishments.
 // Because of that, callbacks related to IO and timeout events can be invoked
 // after an associated connection has been cancelled, or, indeed, after the
@@ -131,9 +133,9 @@ btes5_NetworkConnector::Connector::Connector(
     d_eventManager_p->enable();
 }
 
-                            // ====================
+                            // ==============
                             // struct Attempt
-                            // ====================
+                            // ==============
 struct btes5_NetworkConnector::Attempt {
     // Objects describing the state of a SOCKS connection attempt. The object
     // lifetime is managed by using an 'bcema_SharedPtr<Attempt>' in callback
@@ -222,7 +224,7 @@ static void terminate(
     // Terminate the specified 'attempt' with the specified 'status'
     // and 'error'.
 {
-    if (attempt->d_terminating.testAndSwap(1, 1)) {
+    if (attempt->d_terminating.testAndSwap(0, 1)) {
         return; // this attempt is already being terminated
     }
 
@@ -279,7 +281,8 @@ static void socksConnectCb(
             }
             socksConnect(attempt);
         }
-    } else {
+    }
+    else {
         // TODO: special handling for password failure?
         while (++attempt->d_indices[level]
                 == attempt->d_connector->d_socks5Servers.numProxies(level)) {
@@ -337,6 +340,7 @@ static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 
     int rc;
     if (proxy.credentials().isSet()) {
+    // TODO: check if 'd_socket' needs to be locked
         rc = attempt->d_connector
             ->d_negotiator.negotiate(attempt->d_socket_p,
                                      *destination,
@@ -444,8 +448,11 @@ static bteso_StreamSocket<bteso_IPv4Address> *makeSocket(
 
     int rc = 0; // return code for socket operations
 
-    // Note: to be compatible with bbcomm - only do this on unix
 #ifndef BSLS_PLATFORM_OS_WINDOWS
+    // REUSEADDR on Windows has a different meaning than on UNIX: it allows
+    // more than one process to bind to the same port simultaneously, which is
+    // not what we want
+
     rc = socket->setOption(bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                            bteso_SocketOptUtil::BTESO_REUSEADDRESS,
                            0);

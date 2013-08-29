@@ -44,6 +44,25 @@ using namespace bsl;
 // [1] BREATHING TEST
 // [3] USAGE EXAMPLE
 // [2] CONCERN: All memory allocation is from the object's allocator.
+Timeout when the proxy doesn't respond
+Failover to second proxy after the first proxy timeout
+Failover to second proxy after the first proxy failure
+Failover to second proxy after the first proxy doesn't exist
+Failure when the only proxy can't be resolved
+Failure when the only proxy fails (destination unreachable)
+Normal connection with proxy and destination as hostname
+Normal connection with proxy as IP and destination as hostname
+Normal connection with proxy and destination as IP
+
+Two overlapping connection attempts
+Total timeout before proxy timeout
+Normal connection with username/password
+Normal connection with 2 layers
+Normal connection with 2 layers, one proxy in each layer failing
+Normal connection with 3 layers
+Normal connection with 3 layers, with 2 proxies in each layer failing
+Cancelling a connection attempt
+
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -298,7 +317,7 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example compiles and can be executed usccessfully.
+        //: 1 The usage example compiles and can be executed successfully.
         //
         // Plan:
         //: 1 Create 2 levels of proxies configured to simulate connection.

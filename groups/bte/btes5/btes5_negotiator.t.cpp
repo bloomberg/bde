@@ -92,7 +92,7 @@ static void aSsErT(int c, const char *s, int i) {
           << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
         << "\n"; aSsErT(1, #X, __LINE__); } }
 
-        
+
 //=============================================================================
 //                    SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -116,25 +116,6 @@ void cbSuccess(int status, btes5_Negotiator *negotiator)
 {
     ASSERT(status == btes5_Negotiator::e_SUCCESS);
 }
-
-
-struct MethodRequestPkt {
-    char d_ver;
-    char d_nmethods;
-    char d_methods[2];
-};
-
-struct MethodResponsePkt {
-    char d_ver;
-    char d_method;
-};
-
-struct ConnectBase {
-    char d_ver;
-    char d_cmd;
-    char d_rsv;
-    char d_atype;
-};
 
 //=============================================================================
 //               USAGE EXAMPLES
@@ -236,7 +217,7 @@ namespace {
     {
         // normally we might prompt the user for username and password, but
         // here we use hard-coded values.
-        callback(0, "jane.doe", "PassWord456");
+        callback(0, "User", "Password");
     }
     void MyCredentialsProvider::cancelAcquiringCredentials()
     {
@@ -335,9 +316,10 @@ int main(int argc, char *argv[]) {
         args.d_expectedDestination = bteso_Endpoint("example.com", 80);
         bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
 
-        if (verbose) cout << "negotiate without authentication" << endl;
+        if (verbose) cout << "negotiate predefined credentials" << endl;
         {
             bteso_Endpoint proxy;
+            args.d_expectedCredentials.set("john.smith", "PassWord123");
             btes5_TestServer server(&proxy, &args);
             if (veryVerbose) { cout << " proxy started on " << proxy << endl; }
 
@@ -354,9 +336,10 @@ int main(int argc, char *argv[]) {
             LOOP_ASSERT(rc, rc > 0);
         }
 
-        if (verbose) cout << "negotiate with username & password" << endl;
+        if (verbose) cout << "negotiate with acquired credentials" << endl;
         {
             bteso_Endpoint proxy;
+            args.d_expectedCredentials.set("User", "Password");
             btes5_TestServer server(&proxy, &args);
             if (veryVerbose) { cout << " proxy started on " << proxy << endl; }
 
@@ -382,22 +365,22 @@ int main(int argc, char *argv[]) {
         //
         // Concerns
         //: 1 Basic negotiation works per RFC 1928 protocol.
-        //   
+        //
         //
         // Plan
         //: 1 Create a server thread using 'btes5_TestServer', and try to
         //:   connect.  The test server will check messages for validity and
         //:   simulate success (without actually connecting).
         //
-        //   
+        //
         //
         // Testing:
-        //   
+        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CONNECT THROUGH PROXY" << endl
                                   << "=====================" << endl;
-        
+
         btes5_TestServerArgs args;
         args.d_verbosity = verbosity;
         args.d_expectedPort = 8194;
