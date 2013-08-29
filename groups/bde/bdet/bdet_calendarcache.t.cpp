@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
         // matching 'calendarName' is found; and that it loads the
         // 'bdet_Calendar' object using the loader and properly inserts it
         // into the cache when a matching 'calendarName' is not found.  We also
-        // want to demonstrate that if the calendar cache objects has a timeout
+        // want to demonstrate that if the calendar cache object has a timeout
         // value, the expired entries will get reloaded using the loader when
         // they are accessed.
         //
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
         //      'calendarName' is found, but does not modify the cache nor call
         //      the loader.
         //  4.  A calendar cache without a timeout value does not expire any of
-        //      its caches entries.
+        //      its entries.
         //  5.  A calendar cache with a timeout value expires an entry only
         //      after its timeout value has been reached.
         //
@@ -747,15 +747,15 @@ int main(int argc, char *argv[])
         //  with a timeout.  Then we will load a calendar, wait for a while,
         //  then insert another one.  We will then test whether they are valid
         //  at different times.  During the test we will also try to "use"
-        //  these entries by loading them from the cache and make sure that has
-        //  no effect on the expiration of the cache entries.
+        //  these entries by fetching them from the cache and making sure that
+        //  has no effect on the expiration of the cache entries.
         //
         //  Tactics:
-        //      - Ad Hoc test data selection method
-        //      - Brute force test case implementation technique
+        //    - Ad Hoc test data selection method
+        //    - Brute force test case implementation technique
         //
         //  Testing:
-        //      const bdet_Calendar *getCalendar(const char *name);
+        //    const bdet_Calendar *getCalendar(const char *name);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -764,8 +764,7 @@ int main(int argc, char *argv[])
 
         TestLoader loader;
 
-        Obj Z(&loader, 0);
-
+        Obj mZ(&loader, 0);
 
         Obj mX(&loader, &testAllocator);
 
@@ -774,9 +773,6 @@ int main(int argc, char *argv[])
         Entry e, e1, e0;
 
         // Concern 1
-
-
-
 
         if (verbose) cout << endl
                           << "   Testing concern 1" << endl;
@@ -839,90 +835,90 @@ int main(int argc, char *argv[])
         // Concern 4 and 5
 
         TestLoader loaderY;
-        Obj Y(&loaderY, bdet_TimeInterval(4), &testAllocator);
+        Obj mY(&loaderY, bdet_TimeInterval(4), &testAllocator);
         Entry eV, eV1;
 
-        // load first entry into Y
+        // Load first entry into 'mY'.
 
-        e = Y.getCalendar("VALID");
+        e = mY.getCalendar("VALID");
         ASSERT(0 != e.ptr());
         eV = e;
 
         sleepSeconds(2);
 
-        // load second entry into Y
+        // Load second entry into 'mY'.
 
-        e = Y.getCalendar("VALID1");
+        e = mY.getCalendar("VALID1");
         ASSERT(0 != e.ptr());
         eV1 = e;
 
         sleepSeconds(1);
 
-        // now access both entries from cache to verify they still there
+        // Now access both entries from cache to verify they are still there.
 
         loaderY.getFirstDate(&date1);
-        e = Y.getCalendar("VALID");
+        e = mY.getCalendar("VALID");
         ASSERT(       0 != e.ptr());
         ASSERT(eV.ptr() == e.ptr());
 
         loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
+        ASSERT(date1 == date2);  // Verify 'load' method is not called.
 
         loaderY.getFirstDate(&date1);
 
-        e = Y.getCalendar("VALID1");
+        e = mY.getCalendar("VALID1");
         ASSERT(        0 != e.ptr());
         ASSERT(eV1.ptr() == e.ptr());
 
         loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
+        ASSERT(date1 == date2);  // Verify 'load' method is not called.
 
         sleepSeconds(2);
 
-        // now only the second entry should be in the cache
+        // Now only the second entry should be in the cache.
 
         loaderY.getFirstDate(&date1);
-        e = Y.getCalendar("VALID1");
+        e = mY.getCalendar("VALID1");
         ASSERT(        0 != e.ptr());
         ASSERT(eV1.ptr() == e.ptr());
 
         loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
+        ASSERT(date1 == date2);  // Verify 'load' method is not called.
 
         loaderY.getFirstDate(&date1);
 
-        e = Y.getCalendar("VALID");
+        e = mY.getCalendar("VALID");
         ASSERT(       0 != e.ptr());
         ASSERT(eV.ptr() != e.ptr());
 
         loaderY.getFirstDate(&date2);
-        ASSERT(date1 != date2); // Verify 'load' method is called.
+        ASSERT(date1 != date2);  // Verify 'load' method is called.
 
         sleepSeconds(2);
 
-        // now the second entry should expire
+        // Now the second entry should expire.
 
         loaderY.getFirstDate(&date1);
 
-        e = Y.getCalendar("VALID1");
+        e = mY.getCalendar("VALID1");
         ASSERT(        0 != e.ptr());
         ASSERT(eV1.ptr() != e.ptr());
 
         loaderY.getFirstDate(&date2);
-        ASSERT(date1 != date2); // Verify 'load' method is called.
+        ASSERT(date1 != date2);  // Verify 'load' method is called.
 
-        // verify that after reload, the reload flag is cleared
+        // Verify that after reloading, the reload flag is cleared.
 
         loaderY.getFirstDate(&date1);
 
-        e = Y.getCalendar("VALID1");
+        e = mY.getCalendar("VALID1");
         ASSERT(        0 != e.ptr());
         ASSERT(eV1.ptr() != e.ptr());
 
         loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
+        ASSERT(date1 == date2);  // Verify 'load' method is not called.
 
-        // the entries in mX should still be there
+        // The entries in 'mX' should still be there.
 
         loader.getFirstDate(&date1);
 
@@ -933,7 +929,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != e.ptr());
 
         loader.getFirstDate(&date2);
-        ASSERT(date1 == date2); // Verify 'load' method is not called.
+        ASSERT(date1 == date2);  // Verify 'load' method is not called.
 
       } break;
       case 1: {
@@ -949,28 +945,28 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         TestLoader loader;
-        Obj X(&loader);
+        Obj mX(&loader);
 
         Entry e;
 
-        e = X.getCalendar("ERROR");       ASSERT(0 == e.ptr());
+        e = mX.getCalendar("ERROR");       ASSERT(0 == e.ptr());
 
-        e = X.getCalendar("NOT_FOUND");   ASSERT(0 == e.ptr());
+        e = mX.getCalendar("NOT_FOUND");   ASSERT(0 == e.ptr());
 
-        e = X.getCalendar("VALID");       ASSERT(0 != e.ptr());
+        e = mX.getCalendar("VALID");       ASSERT(0 != e.ptr());
 
         TestLoader loaderY;
-        Obj Y(&loaderY, bdet_TimeInterval(4), &testAllocator);
+        Obj mY(&loaderY, bdet_TimeInterval(4), &testAllocator);
         Entry el, eV, eV1;
         bdet_Date date1, date2;
 
-        el = Y.lookupCalendar("VALID");
+        el = mY.lookupCalendar("VALID");
         ASSERT(0 == el.ptr());
 
-        e = Y.getCalendar("VALID");
+        e = mY.getCalendar("VALID");
         ASSERT(0 != e.ptr());
 
-        el = Y.lookupCalendar("VALID");
+        el = mY.lookupCalendar("VALID");
         ASSERT(e.ptr() == el.ptr());
 
         loaderY.getFirstDate(&date1);
@@ -979,11 +975,11 @@ int main(int argc, char *argv[])
 
         sleepSeconds(2);
 
-        // now access entry cache to verify its still there
+        // Now access the entry in the cache to verify it is still there.
 
         loaderY.getFirstDate(&date2);
-        el = Y.lookupCalendar("VALID");
-        e = Y.getCalendar("VALID");
+        el = mY.lookupCalendar("VALID");
+        e = mY.getCalendar("VALID");
 
         ASSERT(eV.ptr() == e.ptr());
         ASSERT(eV.ptr() == el.ptr());
@@ -991,12 +987,12 @@ int main(int argc, char *argv[])
 
         sleepSeconds(3);
 
-        // now access entry cache to verify its no longer there
+        // Now access the entry in the cache to verify it is no longer there.
 
-        el = Y.lookupCalendar("VALID");
+        el = mY.lookupCalendar("VALID");
         ASSERT(0 == el.ptr());
 
-        e = Y.getCalendar("VALID");
+        e = mY.getCalendar("VALID");
         ASSERT(0 != e.ptr());
         ASSERT(eV.ptr() != e.ptr());
         loaderY.getFirstDate(&date2);
@@ -1009,40 +1005,41 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 An object having a timeout value greater than 20 seconds
-        //    correctly expire any of its cache entries.
+        //+   correctly expires any of its cache entries.
         //
         // Plan:
         //: 1 Create an object that has a timeout of greater than 20 seconds,
-        //:   and use the 'calendar' method to load a calendar using the
+        //:   and use the 'getCalendar' method to load a calendar using the
         //:   object.
         //:
-        //: 2 Wait a period less than the timeout and use the 'calendar' method
-        //:   to retrieve the calendar loaded in P-1.  Verify that the calendar
-        //:   was not reloaded.  (C-1)
+        //: 2 Wait a period less than the timeout and use the 'lookupCalendar'
+        //:   method to retrieve the calendar loaded in P-1.  Verify that the
+        //:   calendar was successfully retrieved.  (C-1)
         //:
         //: 3 Wait a period so that the cumulative waiting period for P-2 to
-        //:   P-3 is greater than the timeout.  Use the 'calendar' method to
+        //:   P-3 is greater than the timeout.  Use the 'getCalendar' method to
         //:   retrieve the calendar loaded in P-1.  Verify that the calendar
         //:   was reloaded.  (C-1)
         //
         //  Testing:
-        //      const bdet_Calendar *getCalendar(const char *calendarName);
+        //    const bdet_Calendar *getCalendar(const char *calendarName);
         // --------------------------------------------------------------------
 
         TestLoader loaderY;
-        Obj Y(&loaderY, bdet_TimeInterval(30), &testAllocator);
+        Obj mY(&loaderY, bdet_TimeInterval(30), &testAllocator);
+        const Obj& Y = mY;
 
         Entry e, eV;
         bdet_Date date1, date2;
 
-        e = Y.getCalendar("VALID");
+        e = mY.getCalendar("VALID");
         ASSERT(0 != e.ptr());
         eV = e;
         loaderY.getFirstDate(&date1);
 
         sleepSeconds(2);
 
-        e = Y.getCalendar("VALID");
+        e = Y.lookupCalendar("VALID");
         ASSERT(eV.ptr() == e.ptr());
         loaderY.getFirstDate(&date2);
 
@@ -1050,7 +1047,8 @@ int main(int argc, char *argv[])
 
         sleepSeconds(30);
 
-        e = Y.getCalendar("VALID");
+        e = mY.getCalendar("VALID");
+        ASSERT(0        != e.ptr());
         ASSERT(eV.ptr() != e.ptr());
         loaderY.getFirstDate(&date2);
         ASSERT(date1 != date2);

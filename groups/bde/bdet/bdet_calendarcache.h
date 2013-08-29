@@ -289,6 +289,7 @@ class bdet_CalendarCache_EntryPtrRep;
                       // ================================
                       // class bdet_CalendarCacheEntryPtr
                       // ================================
+
 class bdet_CalendarCacheEntryPtr {
     // This class provides access, via its 'operator->', to a shared calendar
     // cache entry.  The lifetime of each shared calendar is managed by a
