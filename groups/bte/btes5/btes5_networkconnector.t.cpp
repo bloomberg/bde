@@ -44,24 +44,28 @@ using namespace bsl;
 // [1] BREATHING TEST
 // [3] USAGE EXAMPLE
 // [2] CONCERN: All memory allocation is from the object's allocator.
-Timeout when the proxy doesn't respond
-Failover to second proxy after the first proxy timeout
-Failover to second proxy after the first proxy failure
-Failover to second proxy after the first proxy doesn't exist
-Failure when the only proxy can't be resolved
-Failure when the only proxy fails (destination unreachable)
-Normal connection with proxy and destination as hostname
-Normal connection with proxy as IP and destination as hostname
-Normal connection with proxy and destination as IP
-
-Two overlapping connection attempts
-Total timeout before proxy timeout
-Normal connection with username/password
-Normal connection with 2 layers
-Normal connection with 2 layers, one proxy in each layer failing
-Normal connection with 3 layers
-Normal connection with 3 layers, with 2 proxies in each layer failing
-Cancelling a connection attempt
+// [ ] CONCERN: Timeout when the proxy doesn't respond.
+// [ ] CONCERN: Failover to second proxy after the first proxy timeout.
+// [ ] CONCERN: Failover to second proxy after the first proxy failure.
+// [ ] CONCERN: Failover to second proxy after the first proxy doesn't exist.
+// [ ] CONCERN: Failure when the only proxy can't be resolved.
+// [ ] CONCERN: Failure when the only proxy fails (destination unreachable).
+// [ ] CONCERN: Normal connection with proxy and destination as hostname.
+// [ ] CONCERN: Normal connection with proxy as IP and destination as hostname.
+// [ ] CONCERN: Normal connection with proxy and destination as IP.
+// [ ] CONCERN: Two overlapping connection attempts.
+// [ ] CONCERN: Total timeout before proxy timeout.
+// [ ] CONCERN: Connection with username/password.
+// [ ] CONCERN: Connection with 2 layers.
+// [ ] CONCERN: Connection with 2 layers, one proxy in each layer failing.
+// [ ] CONCERN: Connection with 3 layers.
+// [ ] CONCERN: Connection with 3 layers, with 2 proxies in each layer failing.
+// [ ] CONCERN: Cancelling a connection attempt.
+// [ ] CONCERN: Connect using a real SOCKS5 server.
+// [ ] CONCERN: Connect with construction-time username/password.
+// [ ] CONCERN: Connect with credentials provider.
+// [ ] CONCERN: Import connected socket into 'btemt_SessionPool'.
+// [ ] CONCERN: Negotiate using an off-the-shelf SOCKS5 proxy.
 
 
 // ============================================================================
@@ -392,18 +396,18 @@ int main(int argc, char *argv[])
         //   ~btes5_NetworkConnector();
         //   AttemptHandle makeAttemptHandle(cB, proxyTO, totalTO, server);
         //   void startAttempt(AttemptHandle& connectionAttempt);
-        //   CONCERN: All memory allocation is from the object's allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "SOCKS5 + btemt_SessionPool::import" << endl
-                          << "==================================" << endl;
+                          << "SOCKS5 SOCKET IMPORT INTO SESSION POOL" << endl
+                          << "======================================" << endl;
 
         btes5_TestServerArgs args;
         args.d_verbosity = verbosity;
 
         bteso_Endpoint destination;
         args.d_mode = btes5_TestServerArgs::e_IGNORE;
+        args.d_label = "destination";
         btes5_TestServer destinationServer(&destination, &args);
         if (verbose) {
             cout << "destination server started on " << destination << endl;
@@ -411,6 +415,7 @@ int main(int argc, char *argv[])
 
         args.d_expectedDestination = destination;
         args.d_mode = btes5_TestServerArgs::e_CONNECT;
+        args.d_label = "proxy";
         bteso_Endpoint proxy;
         btes5_TestServer proxyServer(&proxy, &args);
         if (verbose) {
@@ -425,8 +430,7 @@ int main(int argc, char *argv[])
 
         btemt_ChannelPoolConfiguration config;
         using namespace bdef_PlaceHolders;
-        btemt_SessionPool sessionPool(config,
-                                      &poolStateCb);
+        btemt_SessionPool sessionPool(config, &poolStateCb);
         ASSERT(0 == sessionPool.start());
         if (verbose) {
             cout << "starting btemt_SessionPool" << endl;
@@ -445,24 +449,15 @@ int main(int argc, char *argv[])
 
         btes5_NetworkConnector::ConnectionStateCallback
             cb = bdef_BindUtil::bind(socks5Cb,
-                                     _1, _2, _3, _4,
-                                     &sessionPool,
-                                     &stateLock,
-                                     &stateChanged,
-                                     &state);
+                                      _1, _2, _3, _4,
+                                      &sessionPool,
+                                      &stateLock,
+                                      &stateChanged,
+                                      &state);
 
-        // Install a 'TestAllocator' as default to check for incorrect usage`,
-        // and specify another 'TestAllocator' explicitly to check proper
-        // propagation of the allocator
-
-        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
-        bslma::DefaultAllocatorGuard guard(&da);
-
-        bslma::TestAllocator ea("explicitAllocator", veryVeryVerbose);
         btes5_NetworkConnector connector(socks5Servers,
                                          &socketFactory,
-                                         &eventManager,
-                                         &ea);
+                                         &eventManager);
 
         btes5_NetworkConnector::AttemptHandle attempt
             = connector.makeAttemptHandle(cb,
@@ -473,11 +468,6 @@ int main(int argc, char *argv[])
             stateChanged.wait(&stateLock);
         }
         ASSERT(state > 0);
-
-        // verify that the default allocator was not used
-
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-        sleep(1);  // allow callbacks to free memory
 
       } break;
       case 1: {
@@ -535,8 +525,10 @@ int main(int argc, char *argv[])
         eventManager.enable();
 
         btes5_NetworkConnector connector(proxies, &factory, &eventManager);
-        const bdet_TimeInterval proxyTimeout(2);
-        const bdet_TimeInterval totalTimeout(10);
+        const bdet_TimeInterval proxyTimeout;
+        const bdet_TimeInterval totalTimeout;
+//      const bdet_TimeInterval proxyTimeout(2);
+//      const bdet_TimeInterval totalTimeout(10);
         bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus> queue(1);
         using namespace bdef_PlaceHolders;
         btes5_NetworkConnector::AttemptHandle attempt
