@@ -379,7 +379,6 @@ void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
 template <typename TYPE>
 TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
 {
-  unsigned int n;
   unsigned int generation;
   unsigned int index;
 
