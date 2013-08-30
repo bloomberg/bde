@@ -4,11 +4,13 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -24,6 +26,9 @@ using namespace bsl;
 // endpoint as a hostname and port.  It's tested using the class setters and
 // getters.  'bslma::TestAllocator' is used to test proper allocator usage.
 //-----------------------------------------------------------------------------
+// CLASS METHODS
+// [3] bool isValid(const bslstl::StringRef& hostname, int port);
+//
 // CREATORS
 // [2] bteso_Endpoint(*allocator = 0);
 // [2] bteso_Endpoint(bteso_Endpoint& original, *allocator = 0);
@@ -46,7 +51,7 @@ using namespace bsl;
 // [ ] bsl::ostream& operator<<(stream, object);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [3] USAGE EXAMPLE
+// [4] USAGE EXAMPLE
 // [2] CONCERN: All memory allocation is from the object's allocator.
 
 // ============================================================================
@@ -130,8 +135,12 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    // Test Apparatus allocator
+
+    bslma::Allocator *ta = &bslma::NewDeleteAllocator::singleton();
+
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -170,6 +179,54 @@ int main(int argc, char *argv[])
     ASSERT(address.port() == 80);
 //..
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // ISVALID
+        //   Verify 'isValid' works correctly.
+        //
+        // Concerns:
+        //: 1 isValid accepts hostnames between 1 and 254 characters.
+        //: 2 isValid accepts port numbers from 1 to 65636.
+        //: 3 isValid rejects empty strings, and strings longer than 255 bytes.
+        //: 4 isValid rejects port numbers less than 1 or greater than 65535.
+        //
+        // Plan:
+        //: 1 Use brute-force assertions to check near the boundaries.
+        //
+        // Testing:
+        //   bool isValid(const bslstl::StringRef& hostname, int port);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ISVALID" << endl
+                          << "=======" << endl;
+
+        ostringstream s(ta);
+
+        s << setw(255) << '.';
+        const string longHostname(s.str(), ta);
+        ASSERT(255 == longHostname.length());
+
+        s << '.';
+        const string tooLongHostname(s.str(), ta);
+        ASSERT(256 == tooLongHostname.length());
+
+        ASSERT(bteso_Endpoint::isValid("",                  1) == false);
+        ASSERT(bteso_Endpoint::isValid("h",                 1) == true);
+        ASSERT(bteso_Endpoint::isValid(longHostname,        1) == true);
+        ASSERT(bteso_Endpoint::isValid(tooLongHostname,     1) == false);
+
+        ASSERT(bteso_Endpoint::isValid("h",                -1) == false);
+        ASSERT(bteso_Endpoint::isValid("h",                 0) == false);
+        ASSERT(bteso_Endpoint::isValid("h",                 1) == true);
+        ASSERT(bteso_Endpoint::isValid("h",             65535) == true);
+        ASSERT(bteso_Endpoint::isValid("h",             65536) == false);
+        ASSERT(bteso_Endpoint::isValid("h",             65537) == false);
+
+        ASSERT(bteso_Endpoint::isValid(longHostname,    65535) == true);
+        ASSERT(bteso_Endpoint::isValid(tooLongHostname, 65536) == false);
+
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // PUBLIC INTERFACE
@@ -186,7 +243,14 @@ int main(int argc, char *argv[])
         //: 2 Use 'bslma::TestAllocator' to check for improper default use.
         //
         // Testing:
-        //   BREATHING TEST
+        //   bteso_Endpoint(*allocator = 0);
+        //   bteso_Endpoint(bteso_Endpoint& original, *allocator = 0);
+        //   ~bteso_Endpoint();
+        //   void set(hostname, int port);
+        //   bool isSet() const;
+        //   const bsl::string& hostname() const;
+        //   int port() const;
+        //   bool operator!=(lhs, rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

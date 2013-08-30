@@ -62,14 +62,21 @@ namespace BloombergLP {
 
 class bteso_Endpoint {
     // This value-semantic class characterizes a TCP, UDP, SCTP, etc. address
-    // as a host and port. The host may be a domain name (requiring name
-    // resolution), or a dotted-decimal address.
+    // as a host and port.  The host may be a domain name (requiring name
+    // resolution), or a dotted-decimal address.  Note that port 0 is sometimes
+    // used to indicate the system should assign a free port number, however, 0
+    // is not a valid port number for 'bteso_Endpoint'.
 
     // DATA
     bsl::string d_hostname; // remote host name
     int         d_port;     // IP port
 
   public:
+    // CLASS METHODS
+    static bool isValid(const bslstl::StringRef& hostname, int port);
+        // Return 'true' if '1 <= hostname.size() && hostname.size <= 255' and
+        // '1 <= port && port <= 65535', and 'false' otherwise.
+
     // CREATORS
     explicit bteso_Endpoint(bslma::Allocator *allocator = 0);
         // Construct a 'bteso_Endpoint' object. If the optionally specified
@@ -105,7 +112,7 @@ class bteso_Endpoint {
         // Set the attributes of this object to the specified 'hostname' and
         // 'port'. The behavior is undefined unless
         // '1 <= hostname.size() && hostname.size <= 255' and
-        // '0 < port && port <= 65535'.
+        // '1 <= port && port <= 65535'.
 
     void reset();
         // Reset this object to an empty state.

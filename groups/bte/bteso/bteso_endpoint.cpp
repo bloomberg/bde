@@ -17,6 +17,13 @@ namespace {
                             // class bteso_Endpoint
                             // --------------------
 
+// CLASS METHODS
+bool bteso_Endpoint::isValid(const bslstl::StringRef& hostname, int port)
+{
+    return 1 <= hostname.length() && hostname.length() <= 255
+        && 1 <= port && port <= 65535;
+}
+
 // CREATORS
 bteso_Endpoint::bteso_Endpoint(bslma::Allocator *allocator)
 : d_hostname(bslma::Default::allocator(allocator))
@@ -48,8 +55,8 @@ bteso_Endpoint::~bteso_Endpoint()
 // MANIPULATORS
 void bteso_Endpoint::set(const bslstl::StringRef& hostname, int port)
 {
-    BSLS_ASSERT(0 < hostname.length() && hostname.length() <= 255);
-    BSLS_ASSERT(0 <= port && port <= 65535);
+    BSLS_ASSERT(1 <= hostname.length() && hostname.length() <= 255);
+    BSLS_ASSERT(1 <= port && port <= 65535);
     d_hostname = hostname;
     d_port = port;
 }
