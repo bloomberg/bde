@@ -463,8 +463,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -519,7 +523,8 @@ class HashTableAnchor {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(HashTableAnchor, TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(HashTableAnchor,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     HashTableAnchor(HashTableBucket    *bucketArrayAddress,
