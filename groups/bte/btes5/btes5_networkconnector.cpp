@@ -21,56 +21,16 @@ BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 #include <bteso_socketimputil.h>
 #include <bteso_socketoptutil.h>
 
-// TODO: explain locking strategy
-// TODO: simplify locking even if not optimal
 // 'btes5_NetworkConnector' implements asynchronous connection establishments.
 // Because of that, callbacks related to IO and timeout events can be invoked
 // after an associated connection has been cancelled, or, indeed, after the
-// 'btes5_NetworkConnector' object has been destroyed. To avoid crashihng, the
+// 'btes5_NetworkConnector' object has been destroyed. To avoid crashing, the
 // state referenced by the callbacks is allocated, with its lifetime controlled
 // by bcema_SharedPtr.
 //
 // Two structures are used to maintain state: a 'Connector' for object
 // variables such as the SOCKS5 network description, and an 'Attempt' for the
 // state specific to one connection attempt.
-
-/* TODO: Pseudo-code
-set timeout
-create a vector of indices [levelCount], starting with 0.
-connect(level=0, vector):
-
-Connect:
-
-call real-connector
- if index < level0.size
-    connect(level0[index], connect0-callback)
-connect0-callback(status)
- if fail index++ and call real-connector
- if succeed call negotiator(socket, level, order, socksConnectCb)
-
-connect(level, indices)
- // theoretically, we have at least one more proxy to try
- if (0 == level) tcp-connect(d_proxies[0].indices[0], socksConnectCb)
- else negotiate
-
-socksConnectCb(socket, level, order
- if success
-  if last level SUCCEED
-  else
-   set indices[level+1..levelCount] = 0
-   call negotiator(socket, level+1, 0, socksConnectCb)
- else
-  if failure is bad password FAIL
-  indices[level]++
-  set indices[level+1..levelCount] = 0
-  while (indices[level] == d_proxies[level].size()) {
-   if (level == 0) FAIL
-   set indices[level..levelCount] = 0
-   indices[--level]++
-  }
-  connect(level=0, indices)
-
-***/
 
 namespace BloombergLP {
 
@@ -112,6 +72,7 @@ struct btes5_NetworkConnector::Connector {
                               // ----------------
                               // struct Connector
                               // ----------------
+
 // CREATORS
 btes5_NetworkConnector::Connector::Connector(
                    const btes5_NetworkDescription&               socks5Servers,
@@ -166,6 +127,19 @@ struct btes5_NetworkConnector::Attempt {
     // our new path may be able to connect to proxies in level N+1 that were
     // previously not reachable.  The variables 'd_level' and 'd_indices' is
     // used to keep track of the connection path being tried.
+    //
+    // This type is 'thread-aware' and a single 'Attempt' object may be
+    // modified from a client thread as well as from the event scheduler
+    // thread.  Two locking mechanisms are used to maintain the object state
+    // consistent:
+    //: 1 Atomic member 'd_teminating' ensures that only one termination is
+    //:   processed on an object; once this variable is set (changed from the
+    //:   initial value of 0) no more 'terminate' call will proceed on this
+    //:   object.
+    //:
+    //: 2 The access to 'd_socket_p' is protected by 'd_socketLock' since it
+    //:   can otherwise be closed (deallocated) while another function tries to
+    //:   use it.  Since it's a pointer, 0 is used to indicate socket absence.
 
     // TYPES
     typedef bcema_SharedPtr<Attempt> Context;
@@ -254,6 +228,7 @@ static void terminate(
     }
     // TODO: deregister connect event if appropriate
     if (btes5_NetworkConnector::e_SUCCESS == status) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
         attempt->d_callback(status,
                             attempt->d_socket_p,
                             attempt->d_connector->d_socketFactory_p,
@@ -359,27 +334,29 @@ static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
         cb = bdef_BindUtil::bind(socksConnectCb, attempt, _1, _2);
 
     int rc;
-    if (proxy.credentials().isSet()) {
-    // TODO: check if 'd_socket' needs to be locked
-        rc = attempt->d_connector
-            ->d_negotiator.negotiate(attempt->d_socket_p,
-                                     *destination,
-                                     cb,
-                                     attempt->d_proxyTimeout,
-                                     proxy.credentials());
-    } else if (attempt->d_connector->d_provider_p) {
-        rc = attempt->d_connector->d_negotiator.negotiate(
+    {
+        bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+        if (proxy.credentials().isSet()) {
+            rc = attempt->d_connector
+                ->d_negotiator.negotiate(attempt->d_socket_p,
+                                         *destination,
+                                         cb,
+                                         attempt->d_proxyTimeout,
+                                         proxy.credentials());
+        } else if (attempt->d_connector->d_provider_p) {
+            rc = attempt->d_connector->d_negotiator.negotiate(
                                            attempt->d_socket_p,
                                            *destination,
                                            cb,
                                            attempt->d_proxyTimeout,
                                            attempt->d_connector->d_provider_p);
-    } else {
-        rc = attempt->d_connector
-            ->d_negotiator.negotiate(attempt->d_socket_p,
-                                     *destination,
-                                     cb,
-                                     attempt->d_proxyTimeout);
+        } else {
+            rc = attempt->d_connector
+                ->d_negotiator.negotiate(attempt->d_socket_p,
+                                         *destination,
+                                         cb,
+                                         attempt->d_proxyTimeout);
+        }
     }
     if (rc) {
         socksConnectCb(attempt,
@@ -390,15 +367,12 @@ static void socksConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 }
 
 static void connectTcpCb(
-    btes5_NetworkConnector::AttemptHandle connectionAttempt,
-    bool                                  timeout)
+                       btes5_NetworkConnector::AttemptHandle connectionAttempt,
+                       bool                                  timeout)
     // Process the result of a connection attempt to a first-level proxy in the
     // specified 'connectionAttempt'.  If the specified 'timeout' is 'true' the
     // TCP connection timed out.
 {
-    // TODO: check for terminating attempt
-    // TODO: can CONNECT and TIMEOUT callbacks be interleaved?
-
     btes5_NetworkConnector::AttemptHandle attempt(connectionAttempt);
         // copy shared ptr because deregisterSocket removes the reference
 
