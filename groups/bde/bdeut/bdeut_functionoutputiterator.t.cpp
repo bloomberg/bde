@@ -1,13 +1,16 @@
 // bdeut_functionoutputiterator.t.cpp                                 -*-C++-*-
-#include <bsl_iostream.h>
-#include <bsl_algorithm.h>
+#include <bdeut_functionoutputiterator.h>
+
 #include <bdef_memfn.h>
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bdef_placeholder.h>
+
 #include <bslmf_issame.h>
 
-#include <bdeut_functionoutputiterator.h>
+#include <bsl_iostream.h>
+#include <bsl_algorithm.h>
+
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -61,17 +64,7 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-static void aSsErT2(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
-    }
-}
-
 #define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
-#define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cerr << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -120,7 +113,6 @@ static void aSsErT2(int c, const char *s, int i)
 static bool verbose = 0;
 static bool veryVerbose = 0;
 static bool veryVeryVerbose = 0;
-static bool veryVeryVeryVerbose = 0;
 
 template<typename TYPE>
 class Value {
@@ -136,26 +128,26 @@ class Value {
         Value     *d_value_p;
       public:
         Setter()
-            : d_id(++instanceCount)
-            , d_value_p(&singleton)
+        : d_id(++instanceCount)
+        , d_value_p(&singleton)
         {
         };
 
-        Setter(const Setter& src)
-            : d_id(++instanceCount)
-            , d_value_p(src.d_value_p)
+        Setter(const Setter& original)
+        : d_id(++instanceCount)
+        , d_value_p(original.d_value_p)
         {
         }
 
         explicit Setter(Value *value)
-            : d_id(++instanceCount)
-            , d_value_p(value)
+        : d_id(++instanceCount)
+        , d_value_p(value)
         {
         };
 
-        Setter& operator=(const Setter& src)
+        Setter& operator=(const Setter& rhs)
         {
-            d_value_p = src.d_value_p;
+            d_value_p = rhs.d_value_p;
             return *this;
         }
 
@@ -200,7 +192,7 @@ void simpleFunction(int value)
     simpleFunctionValue = value;
 }
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -263,7 +255,7 @@ void outputArray()
 //..
 class Accumulator {
     // This class provides a value accumulating functionality.
-//
+
     // DATA
     int d_sum;
   public:
@@ -282,19 +274,22 @@ class Accumulator {
 //..
 //
 class AccumulatorFunctor {
-    // This class implements function object that invokes
-    // Accumulator::inc() in response of calling operator()(int).
-//
+    // This class implements function object that invokes 'increment' in
+    // response of calling operator()(int).
+
     // DATA
-    Accumulator& d_accumulator;
+    Accumulator *d_accumulator_p;  // accumulator (held, not owned)
+//
   public:
     // CREATORS
-    explicit AccumulatorFunctor(Accumulator& acc) : d_accumulator(acc) {};
-
+    explicit AccumulatorFunctor(Accumulator *accumulator)
+    : d_accumulator_p(accumulator)
+    {}
+//
     // MANIPULATORS
-    void operator()(int value) { d_accumulator.increment(value); };
+    void operator()(int value) { d_accumulator_p->increment(value); };
 };
-//..
+
 // Now, we define a function 'accumulateArray' that will create a
 // 'bdeut_FunctionOutputIterator' for 'AccumulatorFunctor' and supply it to
 // the 'bsl::unique_copy' algorithm to accumulate a sequence of values:
@@ -308,7 +303,7 @@ void accumulateArray()
         array,
         array + NUM_VALUES,
         bdeut_FunctionOutputIterator<AccumulatorFunctor>(
-            AccumulatorFunctor(accumulator)));
+            AccumulatorFunctor(&accumulator)));
 //..
 // Finally, we observe that 'accumulator' holds the accumulated total of
 // unique values in 'array':

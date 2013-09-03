@@ -16,14 +16,14 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Sergey Moiseev (smoiseev)
 //
-//@DESCRIPTION: This component provides a iterator template mechanism,
-// 'bdeut_FunctionOutputIterator', that adapts a client supplied functor to
-// a C++ compliant output iterator.  The allows clients to more easily create
-// custom output iterators.
+//@DESCRIPTION: This component provides an iterator template mechanism,
+// 'bdeut_FunctionOutputIterator', that adapts a client supplied functor (or
+// function) to a C++ compliant output iterator.  This component allows
+// clients to more easily create custom output iterators.
 //
 // A 'bdeut_FunctionOutputIterator' instance's template parameter type
 // 'FUNCTION' must be a functor (or function) that can be called as if it has
-// the following signature: 
+// the following signature:
 //..
 //  void operator()(const TYPE&)'
 //..
@@ -37,16 +37,16 @@ BDES_IDENT("$Id: $")
 //  MyFunctionIterator it(&foo);
 //  *it = 5;                       // Calls 'myFunction(5)'!
 //..
-// Notice that dereferencing the output iterator and assigning 5 to it, invokes
+// Notice that dereferencing the output iterator and assigning 5 to it invokes
 // the functor with the value 5.
 //
 // The provided output iterator has the following attributes:
 //
 //: o Meets the requirements for an output iterator according to the
-//:    C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
+//:   C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
 //:
 //: o Dereferencing an iterator and assigning to the result leads to a call
-//:   of functional object owned by iterator.  The value assigned to the
+//:   of the functional object owned by iterator.  The value assigned to the
 //:   dereferenced iterator is passed to the call of functional object
 //:   as a constant reference.  Basically the assignment '*it = value' causes
 //:   the call 'function(value)'.
@@ -82,10 +82,10 @@ BDES_IDENT("$Id: $")
 //..
 // Here, we call the algorithm 'unique_copy' to iterate over all elements in
 // supplied range (except consecutive duplicates) and "copy" them to the
-// supplied output iterator;  we wrap the function 'foo' into a
-// 'bdeut_FunctionOutputIterator' that we pass as an output iterator to the 
-// 'bsl::unique_copy' algorithm, so 'foo' will be called for each unique value
-// in 'array':
+// supplied output iterator.  We wrap the function 'foo' into a
+// 'bdeut_FunctionOutputIterator' so that when we pass as that output iterator
+// to the  'bsl::unique_copy' algorithm 'foo' will be called for each unique
+// value in 'array':
 //..
 //      bsl::unique_copy(
 //          array,
@@ -93,7 +93,7 @@ BDES_IDENT("$Id: $")
 //          bdeut_FunctionOutputIterator<Function>(&foo));
 //  }
 //..
-// Finally, the resulting console output looks like:
+// Finally, we observe the resulting console output looks like:
 //..
 //  2 3 5 7 11
 //..
@@ -130,17 +130,19 @@ BDES_IDENT("$Id: $")
 //
 //  class AccumulatorFunctor {
 //      // This class implements function object that invokes 'increment' in
-//      // response of calling operator()(int). 
+//      // response of calling operator()(int).
 //
 //      // DATA
-//      Accumulator& d_accumulator;
+//      Accumulator *d_accumulator_p;  // accumulator (held, not owned)
 //
 //    public:
 //      // CREATORS
-//      explicit AccumulatorFunctor(Accumulator& acc) : d_accumulator(acc) {};
+//      explicit AccumulatorFunctor(Accumulator *accumulator)
+//     : d_accumulator_p(accumulator)
+//      {}
 //
 //      // MANIPULATORS
-//      void operator()(int value) { d_accumulator.increment(value); };
+//      void operator()(int value) { d_accumulator_p->increment(value); };
 //  };
 //..
 // Now, we define a function 'accumulateArray' that will create a
@@ -156,7 +158,7 @@ BDES_IDENT("$Id: $")
 //          array,
 //          array + NUM_VALUES,
 //          bdeut_FunctionOutputIterator<AccumulatorFunctor>(
-//              AccumulatorFunctor(accumulator)));
+//              AccumulatorFunctor(&accumulator)));
 //..
 // Finally, we observe that 'accumulator' holds the accumulated total of
 // unique values in 'array':
@@ -172,13 +174,17 @@ BDES_IDENT("$Id: $")
 // class defined in Example 2, which we want to adapt to accumulate a set of
 // integer values.
 //
-// First, define an alias to a 'bdef_Function', defining an accumulation
-// functor, and and then define a function 'accumulateArray2' that will
-// accumulate the integer values in an array:
+// First, define an alias to a 'bdef_Function' having the signature of the
+// accumulation functor (note that this matches the signature of
+// 'Accumulator::increment' defined in example 2):
 //..
 //  typedef bdef_Function<void (*)(int)> AccumulatorFunction;
-//      // Define function object
+//      // Define an alias for the functor type.
 //
+//..
+// Then, we define a function 'accumulateArray2' that will accumulate the
+// integer values in an array:
+//..
 //  void accumulateArray2()
 //  {
 //      enum { NUM_VALUES = 7 };
