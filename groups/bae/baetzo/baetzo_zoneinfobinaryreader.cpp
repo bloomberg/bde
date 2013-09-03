@@ -292,10 +292,15 @@ int readHeader(baetzo_ZoneinfoBinaryHeader *result,
 }
 
 static inline
-int readLocalTimeDescriptors(
+int loadLocalTimeDescriptors(
                  bsl::vector<baetzo_LocalTimeDescriptor> *descriptors,
                  const bsl::vector<RawLocalTimeType>&     localTimeDescriptors,
                  const bsl::vector<char>&                 abbreviationBuffer)
+    // Load the specified 'descriptors' with the sequence of local time
+    // descriptors described by the specified 'localTimeDescriptors' holding
+    // raw information read from the file, and referring to null-terminated
+    // abbreviations in the specified 'abbreviationBuffer'.  Return 0 on
+    // success, and a non-zero value otherwise.
 {
     BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -439,7 +444,7 @@ int readVersion2FormatData(baetzo_Zoneinfo             *zoneinfoResult,
     // 'zoneinfoResult->localTimeDescriptors()'.
 
     bsl::vector<baetzo_LocalTimeDescriptor> descriptors;
-    if (0 != readLocalTimeDescriptors(&descriptors,
+    if (0 != loadLocalTimeDescriptors(&descriptors,
                                       localTimeDescriptors,
                                       abbreviationBuffer)) {
         BAEL_LOG_ERROR << "Error reading local time descriptors from Zoneinfo "
@@ -585,7 +590,7 @@ int baetzo_ZoneinfoBinaryReader::read(
     // 'zoneinfoResult->localTimeDescriptors()'.
 
     bsl::vector<baetzo_LocalTimeDescriptor> descriptors;
-    if (0 != readLocalTimeDescriptors(&descriptors,
+    if (0 != loadLocalTimeDescriptors(&descriptors,
                                       localTimeDescriptors,
                                       abbreviationBuffer)) {
         BAEL_LOG_ERROR << "Error reading local time descriptors from Zoneinfo "
