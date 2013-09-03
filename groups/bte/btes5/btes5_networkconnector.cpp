@@ -77,6 +77,7 @@ namespace BloombergLP {
                               // ================
                               // struct Connector
                               // ================
+
 struct btes5_NetworkConnector::Connector {
     // DATA
     int                                           d_minSourcePort;
@@ -87,15 +88,16 @@ struct btes5_NetworkConnector::Connector {
         // the network of proxy hosts
 
     bteso_StreamSocketFactory<bteso_IPv4Address> *d_socketFactory_p;
-        // factory used to allocate sockets (not owned)
+        // factory used to allocate sockets, not owned
 
-    btemt_TcpTimerEventManager *d_eventManager_p; // event manager, not owned
+    btemt_TcpTimerEventManager *d_eventManager_p;  // event manager, not owned
 
-    btes5_CredentialsProvider *d_provider_p; // credentials provider, not owned
+    btes5_CredentialsProvider *d_provider_p;
+        // credentials provider, not owned
 
     btes5_Negotiator d_negotiator; // SOCKS5 negotiator
 
-    bslma::Allocator *d_allocator_p; // memory allocator, not owned
+    bslma::Allocator *d_allocator_p;  // memory allocator, not owned
 
     // CREATORS
     Connector(const btes5_NetworkDescription&               socks5Servers,
@@ -136,6 +138,7 @@ btes5_NetworkConnector::Connector::Connector(
                             // ==============
                             // struct Attempt
                             // ==============
+
 struct btes5_NetworkConnector::Attempt {
     // Objects describing the state of a SOCKS connection attempt. The object
     // lifetime is managed by using an 'bcema_SharedPtr<Attempt>' in callback
@@ -145,7 +148,24 @@ struct btes5_NetworkConnector::Attempt {
     // one of two states: it's created in the normal state  indicated by
     // 'd_terminating == 0', and it enters a terminating state when
     // 'd_terminating != 0'.
-    // TODO: describe d_indices
+    //
+    // The creation of an 'Attempt' object initiates an asynchronous attempt to
+    // establish a connection to the destination through a network of
+    // SOCKS5-compliant proxies defined in 'd_connector'. The proxy network is
+    // composed of one or more levels, with level 0 proxies directly reachable,
+    // and all level N proxies reachable from any level N-1 proxy.  We try to
+    // connect to each proxy in level N (starting with 0); when one succeeds
+    // it's used to negotiate a connection to a proxy in level N+1 (or the
+    // destination, if N is the last level). On error, we try connecting to the
+    // next proxy in level N+1 through the previously successful proxy path.
+    // Note that on error, the socket must be closed and the path needs to be
+    // reestablished from the start.  When we have tried every proxy in level
+    // N+1, we advance to the next proxy in level N and start trying to connect
+    // to the proxies (starting from 0) in level N+1. We try from the beginning
+    // in level N+1 because it's possible that due to connectivity restrictions
+    // our new path may be able to connect to proxies in level N+1 that were
+    // previously not reachable.  The variables 'd_level' and 'd_indices' is
+    // used to keep track of the connection path being tried.
 
     // TYPES
     typedef bcema_SharedPtr<Attempt> Context;
@@ -188,7 +208,7 @@ struct btes5_NetworkConnector::Attempt {
             bcema_SharedPtr<Connector>&     connector,
             bslma::Allocator               *allocator);
         // Create an 'Attempt' object associated with the specified 'connector'
-        // to connect to the specified 'destination' and asynchrounously invoke
+        // to connect to the specified 'destination' and asynchronously invoke
         // the specified 'callback', using the specified 'allocator' to supply
         // memory.  If the specified 'proxyTimeout' is not empty, each proxy
         // connection attempt must succeed within that period. If the specified
@@ -617,6 +637,7 @@ static void timeoutAttempt(
                                // --------------
                                // struct Attempt
                                // --------------
+
 // CREATORS
 btes5_NetworkConnector::Attempt::Attempt(
     const ConnectionStateCallback&  callback,
@@ -644,6 +665,7 @@ btes5_NetworkConnector::Attempt::~Attempt()
                         // ----------------------------
                         // class btes5_NetworkConnector
                         // ----------------------------
+
 // CREATORS
 btes5_NetworkConnector::btes5_NetworkConnector(
                    const btes5_NetworkDescription&               socks5Servers,

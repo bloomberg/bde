@@ -154,7 +154,7 @@ class btes5_NetworkDescription {
 
     void setCredentials(bsl::size_t                  level,
                         bsl::size_t                  order,
-                        const btes5_Credentials& credentials);
+                        const btes5_Credentials&     credentials);
         // Set credentials for the proxy identified by the specified 'level'
         // and 'order' to the specified 'credentials'. The behavior is
         // undefined unless 'level' and 'order' identify a proxy previously

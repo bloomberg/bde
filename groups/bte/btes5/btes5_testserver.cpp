@@ -116,409 +116,6 @@ struct Socks5ConnectResponse3 {
     unsigned char d_data[1];
 };
 
-/*
-static void ServerThread(
-        bcema_SharedPtr<btes5_TestServerArgs>                          args,
-        bcema_SharedPtr<bteso_StreamSocketFactory<bteso_IPv4Address> > factory,
-        bteso_StreamSocket<bteso_IPv4Address>                         *socket,
-        bslma::Allocator                                              *alloc)
-    // Create a server thread to accept 1 connection on the specified 'socket
-    // and then simulate a socks5 server responding to a connect request. Use
-    // the specified 'args' as the test server configuration, the specified
-    // 'factory' to deallocate 'socket' and the specified 'alloc' to supply
-    // memory. This thread will terminate after either a successful or failure
-    // condition.
-{
-    LOG_DEBUG << "ServerThread starting, mode=" << args->d_mode << LOG_END;
-
-    bteso_StreamSocketFactoryAutoDeallocateGuard<bteso_IPv4Address>
-        socketGuard(socket, factory.ptr());
-
-    // TODO: do we need multi-use test server?
-    for (int i = 0; i < 1; ++i) {
-        bteso_StreamSocket<bteso_IPv4Address> *clientSocket;
-        int acceptStatus = socket->accept(&clientSocket);
-        if (0 != acceptStatus) {
-            LOG_ERROR << "accept failed: " << acceptStatus << LOG_END;
-            break;
-        }
-        bteso_StreamSocketFactoryAutoDeallocateGuard<bteso_IPv4Address>
-            clientGuard(clientSocket, factory.ptr());
-
-        LOG_DEBUG << "Accepted connection." << LOG_END;
-        clientSocket->setBlockingMode(bteso_Flag::BLOCKING_MODE);
-
-        if (btes5_TestServerArgs::e_IGNORE == args->d_mode) {
-            char buf[256];
-            while (clientSocket->read(buf, sizeof buf) > 0) {
-                LOG_DEBUG << "received a request, ignoring" << LOG_END;
-            }
-            continue;
-        }
-
-        Socks5MethodRequestHeader methodRequest;
-        int rc;
-        rc = clientSocket->read((char *)&methodRequest,
-                                        sizeof(methodRequest));
-        if (rc <= 0) {
-            LOG_DEBUG << "read returned " << rc << LOG_END;
-            break;
-        }
-        LOG_DEBUG << "Read MethodRequest Header"
-                  << " version=" << (int) methodRequest.d_version
-                  << " numMethods=" << (int) methodRequest.d_numMethods
-                  << LOG_END;
-        BSLS_ASSERT(5 == methodRequest.d_version);
-        BSLS_ASSERT(1 <= methodRequest.d_numMethods);
-
-        // read supported methods
-
-        unsigned char supportedMethods[256];
-        rc = clientSocket->read((char *)&supportedMethods,
-                                        methodRequest.d_numMethods);
-        if (rc != methodRequest.d_numMethods) {
-            LOG_DEBUG << "read supported methods failed, rc " << rc << LOG_END;
-            break;
-        }
-        for (int method = 0; method < methodRequest.d_numMethods; ++method) {
-            LOG_DEBUG << "  method " << (int) supportedMethods[method]
-                      << " supported" << LOG_END;
-        }
-
-        int method;  // authentication method required
-        if (args->d_expectedCredentials.isSet()) {
-            int i;
-            method = 2;  // need username/password
-            for (i = 0; i < methodRequest.d_numMethods; ++i) {
-                if (supportedMethods[i] == method) {
-                    break;  // client supports username/password method
-                }
-                BSLS_ASSERT(i < methodRequest.d_numMethods);
-            }
-        } else {
-            method = 0;  // method: no authentication
-            BSLS_ASSERT(method == supportedMethods[0]);
-        }
-
-        Socks5MethodResponse methodResponse(method);
-        rc = clientSocket->write((char *)&methodResponse,
-                                 sizeof(methodResponse));
-        BSLS_ASSERT(rc > 0);
-        if (rc <= 0) {
-            break;
-        }
-        LOG_DEBUG << "Wrote MethodResponse(method = " << method << ")"
-                  << LOG_END;
-
-        if (2 == method) {
-
-            // read username/password request header
-
-            unsigned char requestHeader[2];
-            rc = clientSocket->read((char *) &requestHeader,
-                                    sizeof(requestHeader));
-            if (rc != sizeof(requestHeader)) {
-                LOG_ERROR << "read username/password request header failed"
-                          << ", rc " << rc << LOG_END;
-                break;
-            }
-            LOG_DEBUG << "received username request"
-                      << " version " << (int) requestHeader[0]
-                      << " username length " << (int) requestHeader[1]
-                      << LOG_END;
-            BSLS_ASSERT(1 == requestHeader[0]);  // version must be 1
-
-            // read username and password length (one byte)
-
-            const int ulen = requestHeader[1];
-            unsigned char ubuf[256];
-            rc = clientSocket->read((char *) ubuf, ulen + 1);
-            if (rc != ulen + 1) {
-                LOG_ERROR << "read username failed"
-                          << ", rc " << rc << LOG_END;
-                break;
-            }
-
-            // read password
-
-            const int plen = ubuf[ulen];
-            unsigned char pbuf[256];
-            rc = clientSocket->read((char *) pbuf, plen);
-            if (rc != plen) {
-                LOG_ERROR << "read password failed"
-                          << ", rc " << rc << LOG_END;
-                break;
-            }
-
-            bsl::string username((char *) ubuf, ulen, alloc);
-            bsl::string password((char *) pbuf, plen, alloc);
-
-            btes5_Credentials requestCredentials(username, password, alloc);
-            char response[2];
-            response[0] = 1;  // version
-            if (requestCredentials == args->d_expectedCredentials) {
-                LOG_DEBUG << "username authenticated" << LOG_END;
-                response[1] = 0;
-                rc = clientSocket->write(response, sizeof(response));
-                BSLS_ASSERT(rc == sizeof(response));
-            } else {
-                LOG_ERROR << "authentication failure:"
-                          << " expected " << args->d_expectedCredentials
-                          << " recieved " << requestCredentials
-                          << LOG_END;
-                response[1] = 1;
-                rc = clientSocket->write(response, sizeof(response));
-                BSLS_ASSERT(rc == sizeof(response));
-                break;
-            }
-        }
-
-        Socks5ConnectBase connectBase;
-        rc = clientSocket->read((char *)&connectBase,
-                                sizeof(connectBase));
-        if (rc <= 0) {
-            LOG_ERROR << "read connect request failed, rc " << rc << LOG_END;
-            break;
-        }
-        LOG_DEBUG << "Read ConnectBase"
-                  << " address type=" << (int)connectBase.d_addressType
-                  << " command=" << (int)connectBase.d_command
-                  << LOG_END;
-        BSLS_ASSERT(5 == connectBase.d_version);
-        BSLS_ASSERT(1 == connectBase.d_command);
-        BSLS_ASSERT(0 == connectBase.d_reserved);
-        BSLS_ASSERT((1 == connectBase.d_addressType) ||
-               (3 == connectBase.d_addressType));
-
-        char respBuffer[512];
-        bsl::size_t respLen = 0;
-        Socks5ConnectResponseBase *respBase =
-                reinterpret_cast<Socks5ConnectResponseBase *>(respBuffer);
-
-        respBase->d_version = 5;
-        respBase->d_reply = args->d_reply;
-        respBase->d_reserved = 0;
-        respBase->d_addressType = connectBase.d_addressType;
-
-        bool sendResponse = true;
-        bteso_IPv4Address connectAddr;
-        bteso_Endpoint destination(alloc);
-        if (1 == connectBase.d_addressType) {
-            Socks5ConnectBody1 body1;
-            rc = clientSocket->read((char *)&body1, sizeof(body1));
-            BSLS_ASSERT(rc > 0);
-            if (rc <= 0) {
-                break;
-            }
-            BSLS_ASSERT(!args->d_expectedIp
-                    || body1.d_ip == args->d_expectedIp);
-            BSLS_ASSERT(!args->d_expectedPort
-                    || body1.d_port == args->d_expectedPort);
-            connectAddr.setIpAddress(body1.d_ip);
-            connectAddr.setPortNumber(body1.d_port);
-            LOG_DEBUG << "connect addr=" << connectAddr
-                      << LOG_END;
-
-            Socks5ConnectResponse1
-                *resp = (Socks5ConnectResponse1 *)respBuffer;
-            memcpy(&resp->d_ip, &body1.d_ip, sizeof(resp->d_ip));
-            memcpy(&resp->d_port, &body1.d_port, sizeof(resp->d_port));
-            respLen = sizeof(Socks5ConnectResponse1);
-        } else if (3 == connectBase.d_addressType) {
-            char hostLen;
-            rc = clientSocket->read(&hostLen, 1);
-            BSLS_ASSERT(rc > 0);
-            if (rc <= 0) {
-                break;
-            }
-            char hostBuffer[256];
-            rc = clientSocket->read(hostBuffer, hostLen);
-            BSLS_ASSERT(rc > 0);
-            if (rc <= 0) {
-                break;
-            }
-            bdeut_BigEndianInt16 port;
-            rc = clientSocket->read((char *)&port, sizeof(port));
-            BSLS_ASSERT(rc > 0);
-            if (rc <= 0) {
-                break;
-            }
-            unsigned short nativePort = (short) port;
-            destination.set(bsl::string(hostBuffer, hostLen), nativePort);
-            LOG_DEBUG << "connect addr=" << destination << LOG_END;
-            BSLS_ASSERT(!args->d_expectedDestination.isSet()
-                    || args->d_expectedDestination == destination);
-
-            Socks5ConnectResponse3 *resp = (Socks5ConnectResponse3 *)respBuffer;
-            resp->d_hostLen = hostLen;
-            memcpy(&resp->d_data[0], hostBuffer, hostLen);
-            memcpy(&resp->d_data[hostLen], &port, sizeof(port));
-            respLen = sizeof(Socks5ConnectResponse3) - 1
-                + hostLen + sizeof(port);
-        } else {
-            LOG_ERROR << "unsupported request address type "
-                      << connectBase.d_addressType << ", closing"
-                      << LOG_END;
-            BSLS_ASSERT(false);
-            continue;
-        }
-
-        if (btes5_TestServerArgs::e_FAIL == args->d_mode) {
-            unsigned char reply = 1; // general SOCKS server failure
-            if (args->d_reply) {
-                reply = args->d_reply;
-            }
-            LOG_DEBUG << "sending error code " << reply
-                      << " and closing" << LOG_END;
-            respBase->d_reply = reply;
-            rc = clientSocket->write((char *)respBuffer, respLen);
-            BSLS_ASSERT(rc > 0);
-            continue;
-        }
-
-        if (btes5_TestServerArgs::e_SUCCEED_AND_CLOSE == args->d_mode) {
-            LOG_DEBUG << "sending success and closing" << LOG_END;
-            rc = clientSocket->write((char *)respBuffer, respLen);
-            BSLS_ASSERT(rc > 0);
-            continue;
-        }
-
-        if (btes5_TestServerArgs::e_CONNECT == args->d_mode) {
-            bteso_StreamSocket<bteso_IPv4Address>
-                *connectSocket = factory->allocate();
-            BSLS_ASSERT(connectSocket);
-            bteso_StreamSocketFactoryAutoDeallocateGuard<bteso_IPv4Address>
-                socketGuard(connectSocket, factory.ptr());
-
-            if (args->d_destination.isSet()) {
-                destination = args->d_destination;
-            }
-            if (destination.isSet()) {
-                int ret = bteso_ResolveUtil::getAddress(
-                                               &connectAddr,
-                                               destination.hostname().c_str());
-                BSLS_ASSERT(0 == ret);
-                connectAddr.setPortNumber(destination.port());
-            }
-
-            int rc = connectSocket->connect(connectAddr);
-            if (0 == rc) {
-                rc = clientSocket->write((char *)respBuffer, respLen);
-                BSLS_ASSERT(rc > 0);
-                if (rc <= 0) {
-                    break;
-                }
-                LOG_DEBUG << "Connected to " << connectAddr
-                          << "; wrote ResponseBase (" << respLen << " bytes)"
-                          << LOG_END;
-
-                // Create a relay loop by using timed reads. The relay listens
-                // to each side in turn for 100 milliseconds, and writes the
-                // receieved data, if any, to the opposite side.
-
-                btesos_TcpTimedChannel clientChannel(clientSocket);
-                btesos_TcpTimedChannel connectChannel(connectSocket);
-                char buf[256];
-                bdet_TimeInterval timeout;
-                for (;;) {
-                    timeout = bdetu_SystemTime::now();
-                    timeout.addMilliseconds(100);
-                    int rc = clientChannel.timedRead(buf, sizeof buf, timeout);
-                    if (rc < 0) {
-                        break; // socket closed or failed
-                    }
-                    if (rc > 0) {
-                        connectChannel.write(buf, rc);
-                    }
-
-                    timeout = bdetu_SystemTime::now();
-                    timeout.addMilliseconds(100);
-                    rc = connectChannel.timedRead(buf, sizeof buf, timeout);
-                    if (rc < 0) {
-                        break; // socket closed or failed
-                    }
-                    if (rc > 0) {
-                        clientChannel.write(buf, rc);
-                    }
-                }
-            } else {
-                LOG_ERROR << "Connect to " << connectAddr
-                          << " failed: " << rc << LOG_END;
-            }
-        }
-    }
-    sleep(1);
-
-    LOG_DEBUG << "ServerThread ending." << LOG_END;
-}
-
-static int createServerThread(
-        bcemt_ThreadUtil::Handle              *threadHandle,
-        bcema_SharedPtr<btes5_TestServerArgs>  args,
-        bteso_Endpoint                        *proxy,
-        bslma::Allocator                      *allocator)
-    // Create a thread that implements a SOCKS5 server configured per the
-    // specified 'args', and load its identifier into the specified
-    // 'threadHandle' and the server's IP adddress into the specified 'proxy',
-    // using the specified 'allocator' to supply memory. Return 0 for success
-    // and a non-zero value on error. Note that the server thread will be
-    // "detached" as defined in 'bcemt_threadutil'.
-{
-    bteso_IPv4Address serverAddress("127.0.0.1", 0);
-
-    bcema_SharedPtr<bteso_StreamSocketFactory<bteso_IPv4Address> > factory(
-        new (*allocator)
-            bteso_InetStreamSocketFactory<bteso_IPv4Address>(allocator));
-    bteso_StreamSocket<bteso_IPv4Address> *socket = factory->allocate();
-    if (!socket) {
-        return -1;                                                    // RETURN
-    }
-    int rc;
-    bteso_StreamSocketFactoryAutoDeallocateGuard<bteso_IPv4Address>
-        socketGuard(socket, factory.ptr());
-
-    rc = socket->setOption(bteso_SocketOptUtil::SOCKETLEVEL,
-                           bteso_SocketOptUtil::REUSEADDRESS,
-                           1);
-    BSLS_ASSERT(0 == rc);
-
-    rc = socket->bind(serverAddress);
-    BSLS_ASSERT(0 == rc);
-
-    bteso_IPv4Address localAddress;
-    rc = socket->localAddress(&localAddress);
-    BSLS_ASSERT(0 == rc);
-    proxy->set("127.0.0.1", localAddress.portNumber());
-
-    if (args->d_label.empty()) {
-        bsl::ostringstream s(allocator);
-        s << *proxy;
-        args->d_label = s.str();  // default label is proxy address
-    }
-
-    rc = socket->setBlockingMode(bteso_Flag::BLOCKING_MODE);
-    BSLS_ASSERT(0 == rc);
-
-    rc = socket->listen(1);
-    BSLS_ASSERT(0 == rc);
-
-    bcemt_Attribute attributes;
-    attributes.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
-
-    socketGuard.release(); // the socket will be managed by the new thread
-    bcemt_ThreadUtil::Invokable
-        server = bdef_BindUtil::bindA(allocator,
-                                      &ServerThread,
-                                      args,
-                                      factory,
-                                      socket,
-                                      allocator);
-    bcemt_ThreadUtil::create(threadHandle, attributes, server);
-
-    return 0;
-}
-*/
-
                              // ===================
                              // class Socks5Session
                              // ===================
@@ -606,11 +203,11 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
 
     template<typename MSG>
     int readMessage(void (SessionFactory::*func)(const MSG *data,
-                                                int      length,
-                                                int     *numConsumed,
-                                                int     *numNeeded));
-        // Queue up reading a message of the specified type 'MSG', and arrange to
-        // invoke the specified 'func' when it's received.
+                                                 int      length,
+                                                 int     *numConsumed,
+                                                 int     *numNeeded));
+        // Queue up reading a message of the specified type 'MSG', and arrange
+        // to invoke the specified 'func' when it's received.
 
     template<typename MSG>
     void readMessageCb(int                   result,
@@ -618,9 +215,9 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
                        int                  *needed,
                        const btemt_DataMsg&  msg,
                        void (SessionFactory::*func)(const MSG *data,
-                                                   int      length,
-                                                   int     *numConsumed,
-                                                   int     *numNeeded));
+                                                    int      length,
+                                                    int     *numConsumed,
+                                                    int     *numNeeded));
         // If the specified 'result' is 'BTEMT_SUCCESS' invoke the specified
         // 'func' passing it the data from the specified 'msg' as the specified
         // template type 'MSG'.
@@ -731,7 +328,8 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
 
      int stop(bool client);
          // Stop operations on the client connection if the specified 'client'
-         // is true, or on the destination connection otherwise.
+         // is true, or on the destination connection otherwise.  In addition,
+         // stop the opposite side of the connection as well.
 
     // ACCESSORS
     btemt_AsyncChannel *channel(bool client) const;
@@ -846,6 +444,10 @@ int btes5_TestServer::SessionFactory::clientWrite(const char *buf, int length)
         if (d_client_p) {
             rc = d_client_p->write(blob);
         }
+    }
+    if (rc) {
+        LOG_DEBUG << "cannot send " << length << " bytes to the client, rc "
+                  << rc << LOG_END;
     }
     return rc;
 }
@@ -967,15 +569,13 @@ void btes5_TestServer::SessionFactory::readCredentials(
                   << " recieved " << requestCredentials
                   << LOG_END;
         response[1] = 1;
-        int rc = clientWrite(response, sizeof(response));
-        if (rc) {
-            stop(true);
-            BSLS_ASSERT(false);
-        }
+        clientWrite(response, sizeof(response));
+        stop(true);
     }
 }
 
-void btes5_TestServer::SessionFactory::readConnect(const Socks5ConnectBase *data,
+void btes5_TestServer::SessionFactory::readConnect(
+                                const Socks5ConnectBase *data,
                                 int                      length,
                                 int                     *consumed,
                                 int                     *needed)
@@ -1073,20 +673,12 @@ void btes5_TestServer::SessionFactory::readConnect(const Socks5ConnectBase *data
         LOG_DEBUG << "sending error code " << reply
                   << " and closing" << LOG_END;
         respBase->d_reply = reply;
-        int rc = clientWrite((char *)respBuffer, respLen);
-        if (rc) {
-            stop(true);
-            BSLS_ASSERT(false);
-        }
+        clientWrite((char *)respBuffer, respLen);
     }
 
     if (btes5_TestServerArgs::e_SUCCEED_AND_CLOSE == d_args.d_mode) {
         LOG_DEBUG << "sending success and closing" << LOG_END;
-        int rc = clientWrite((char *)respBuffer, respLen);
-        if (rc) {
-            stop(true);
-            BSLS_ASSERT(false);
-        }
+        clientWrite((char *)respBuffer, respLen);
     }
 
     if (btes5_TestServerArgs::e_CONNECT == d_args.d_mode) {
@@ -1106,27 +698,6 @@ void btes5_TestServer::SessionFactory::readConnect(const Socks5ConnectBase *data
                                        _3,
                                        _4,
                                        false);
-
-/*
-bteso_StreamSocketFactory<bteso_IPv4Address> *socketFactory(
-    new bteso_InetStreamSocketFactory<bteso_IPv4Address>);
-bteso_StreamSocket<bteso_IPv4Address>
-    *connectSocket = socketFactory->allocate();
-BSLS_ASSERT(connectSocket);
-
-if (destination.isSet()) {
-    int ret = bteso_ResolveUtil::getAddress(
-                                   &connectAddr,
-                                   destination.hostname().c_str());
-    BSLS_ASSERT(0 == ret);
-    connectAddr.setPortNumber(destination.port());
-}
-
-int rc = connectSocket->connect(connectAddr);
-BSLS_ASSERT(!rc);
-rc = d_sessionPool->import(&handle, cb, connectSocket, socketFactory, this);
-BSLS_ASSERT(!rc);
-*/
 
             const int numAttempts = 3;
             bdet_TimeInterval interval(0.1);
@@ -1405,13 +976,14 @@ int btes5_TestServer::SessionFactory::start(bool client)
 
 int btes5_TestServer::SessionFactory::stop(bool client)
 {
-    if (client) {
+    {
         bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
         if (d_client_p) {
             d_client_p->close();
             d_client_p = 0;
         }
-    } else {
+    }
+    {
         bcemt_LockGuard<bcemt_Mutex> lock(&d_dstLock);
         if (d_dst_p) {
             d_dst_p->close();

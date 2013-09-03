@@ -87,9 +87,9 @@ class btes5_Credentials {
         // specified 'allocator' is not 0 use it to supply memory,
         // otherwise use the default allocator.
 
-    btes5_Credentials(const bslstl::StringRef&  username,
-                          const bslstl::StringRef&  password,
-                          bslma::Allocator         *allocator = 0);
+    btes5_Credentials(const bslstl::StringRef& username,
+                      const bslstl::StringRef& password,
+                      bslma::Allocator         *allocator = 0);
         // Create a 'btes5_Credentials' object with the specified
         // 'username' and 'password'. If the optionally specified
         // 'allocator' is not 0 use it to supply memory, otherwise use the
@@ -97,7 +97,7 @@ class btes5_Credentials {
         // both 'username' and 'password' is between 1 and 255 inclusive.
 
     btes5_Credentials(const btes5_Credentials&  original,
-                          bslma::Allocator             *allocator = 0);
+                      bslma::Allocator         *allocator = 0);
         // Create a 'btes5_Credentials' object having the same value as the
         // specified 'original' object. If the optionally specified
         // 'allocator' is not 0 use it to supply memory, otherwise use the
