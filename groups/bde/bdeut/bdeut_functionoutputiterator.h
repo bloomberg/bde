@@ -306,9 +306,9 @@ class bdeut_FunctionOutputIterator
 //                 INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------------
-                        // class AssignmentProxy
-                        // ---------------------
+              // ---------------------------------------------------
+              // class bdeut_FunctionOutputIterator::AssignmentProxy
+              // ---------------------------------------------------
 
 // CREATORS
 template <class FUNCTION>
@@ -383,7 +383,7 @@ bdeut_FunctionOutputIterator<FUNCTION>::operator++(int)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

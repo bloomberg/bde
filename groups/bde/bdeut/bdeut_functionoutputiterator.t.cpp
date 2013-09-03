@@ -11,7 +11,6 @@
 #include <bsl_iostream.h>
 #include <bsl_algorithm.h>
 
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -839,10 +838,9 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

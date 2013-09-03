@@ -4,14 +4,13 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdeut_functionoutputiterator_cpp,"$Id$ $CSID$")
 
-
 namespace BloombergLP {
 
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
