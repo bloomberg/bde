@@ -22,6 +22,8 @@
 
 #include <limits.h>
 
+#include <stdlib.h> // atoi
+
 #include <algorithm>
 #include <functional>
 
