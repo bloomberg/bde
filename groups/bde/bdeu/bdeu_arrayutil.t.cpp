@@ -2,15 +2,14 @@
 
 #include <bdeu_arrayutil.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 #include <bsl_string.h>
-#include <bsl_cstdlib.h>   // atoi()
-#include <bsl_cstring.h>   // memset()
-#include <bsl_cctype.h>    // isprint(), toupper(), etc.
+#include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -18,19 +17,9 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 //-----------------------------------------------------------------------------
-// FREE OPERATORS
-// [ 4] operator<<(bsl::ostream& out, bdeu_CharType::Category category);
-// [*7] TBD ..  bdex streaming of ENUM ...TBD
+// [ 1] BREATHING TEST - covering the small functionality there is
+// [ 2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST -- (developer's sandbox)
-// [ 8] USAGE EXAMPLE
-// [ 2] Test helper functions match equivalent functions in <cctype>.
-// [ 2] The detailed tabular documentation in the header is accurate.
-//-----------------------------------------------------------------------------
-
-struct UserDefined
-{
-};
 
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -88,11 +77,53 @@ static void aSsErT(int c, const char *s, int i) {
 //                       GLOBAL TYPEDEFS/CONSTANTS
 //-----------------------------------------------------------------------------
 
+struct UserDefined
+{
+};
+
 
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE {
+    void usePrimes()
+    {
+// When creating a sequence of values it is often easy to write the sequence
+// as an initialized array and use this array to initialize a container. Since
+// the array's size may get adjusted in during when the program is maintained,
+// the code using the array should automatically determine the array's size or
+// automatically determine iterators to the beginning and the end of the
+// array. For example, to initialize a 'bsl::vector<int>' with the first few
+// prime numbers stored in an array the following code uses the 'begin()' and
+// 'end()' methods of 'bdeu_ArrayUtil':
+//..
+    const int        primes[] = { 2, 3, 5, 7, 11, 13, 17 };
+    bsl::vector<int> values(bdeu_ArrayUtil::begin(primes),
+                            bdeu_ArrayUtil::end(primes));
+  
+    ASSERT(values.size() == bdeu_ArrayUtil::size(primes));
+//..
+// After constructing 'values' with the content of the array 'primes' the
+// assertion verifies that the correct number of values is stored in 'values'.
+// When the size is needed as a constant expression, e.g., to use it for the
+// size of another array, the macro 'BDEU_ARRAYUTIL_SIZE(array)' can be used:
+//..
+    int reversePrimes[BDEU_ARRAYUTIL_SIZE(primes)];
+    bsl::copy(values.rbegin(), values.rend(),
+              bdeu_ArrayUtil::begin(reversePrimes));
+  
+    ASSERT(bsl::mismatch(bdeu_ArrayUtil::rbegin(primes),
+                         bdeu_ArrayUtil::rend(primes),
+                         bdeu_ArrayUtil::begin(reversePrimes)).second
+           == bdeu_ArrayUtil::end(reversePrimes));
+//..
+// After defining the array 'reversePrimes' with the same size as 'primes' the
+// elements of 'values' are copied in reverse order into this array. The
+// assertion verifies that 'reversePrimes' contains the values from 'primes'
+// but in reverse order: 'bsl::mismatch()' is used with a reverse sequence of
+// 'primes' by using the 'rbegin()' and 'rend()' methods for 'primes' and
+// normal sequence using the 'begin()' and 'end()' methods for 'reversePrimes'.
+    }
 
 // The functions 'begin()', 'end()', and 'size()' provided by this component
 // are similar to functions provided by container. The main difference is that
@@ -103,14 +134,14 @@ namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE {
 // of the keys in the sequence:
 //..
     void query(const bsl::string*  columns,
-               bsl::size_t         numberOfColumns,
+               int                 numberOfColumns,
                bsl::string        *result) {
-        for (bsl::size_t i(0); i != numberOfColumns; ++i) {
+        for (int i = 0; i != numberOfColumns; ++i) {
             result[i] = "queried " + columns[i];
         }
     }
 
-    void getData(bsl::vector<bsl::string> *data) {
+    void loadData(bsl::vector<bsl::string> *data) {
         const bsl::string columns[] = { "column1", "column2", "column3" };
         bsl::string       result[BDEU_ARRAYUTIL_SIZE(columns)];
 
@@ -119,7 +150,7 @@ namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE {
                      bdeu_ArrayUtil::end(result));
     }
 //..
-// The 'getData()' function shows how to use the different function templates.
+// The 'loadData()' function shows how to use the different function templates.
 // The array 'columns' doesn't have a size specified. It is determined from
 // the number of elements it is initialized with. In this case it is easy to
 // see that there are three elements but in real situations the number of
@@ -170,11 +201,14 @@ namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE {
         if (verbose) cout << "\nUsing Basic Functions"
                           << "\n--------------" << endl;
 
+        usePrimes();
         bsl::vector<bsl::string> data;
-        getData(&data);
+        loadData(&data);
         checkData(data);
     }
-} // close namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE
+}
+//..
+// close namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
