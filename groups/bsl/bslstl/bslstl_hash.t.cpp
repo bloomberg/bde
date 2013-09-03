@@ -1,4 +1,10 @@
 // bslstl_hash.t.cpp                                                  -*-C++-*-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
+// One release only, while transitioning through a compile-fail error on this
+// syntax without the configuration macro.
+
+#define BSL_HASH_CSTRINGS_AS_POINTERS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 #include <bslstl_hash.h>
 
 #include <bslma_default.h>
@@ -700,22 +706,21 @@ int main(int argc, char *argv[])
         const char *C_STRING_2 = STRING_2;
         ASSERT(C_STRING_1 != C_STRING_2);
 
-#if defined(BDE_OMIT_TRANSITIONAL) || defined(BSL_HASH_CSTRINGS_AS_POINTERS)
+        
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
+#if defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         const ::bsl::hash<const char *> C_STRING_HASH =
                                                    ::bsl::hash<const char *>();
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
-        ASSERT(C_STRING_HASH(C_STRING_1) == C_STRING_HASH(C_STRING_2));
-#else
-#if defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
+#endif
 #else
-        // silence "set but not used variable" warning:
-        (void) C_STRING_HASH;
-#endif
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
+        const ::bsl::hash<const char *> C_STRING_HASH =
+                                                   ::bsl::hash<const char *>();
 
-#endif
+        ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
+        
       } break;
       case 2: {
         // --------------------------------------------------------------------
