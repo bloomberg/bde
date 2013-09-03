@@ -740,6 +740,13 @@ int main(int argc, char *argv[])
                  "\nApply primary manipulators and verify expected values.\n");
 
 
+        if (veryVerbose) { T_ Q(color) }
+        {
+            mX.setColor(A1);
+
+            const T1& color = mX.color();
+            ASSERTV(A1, X.color(), A1 == color);
+        }
 
         if (veryVerbose) { T_ Q(parent) }
         {
