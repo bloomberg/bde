@@ -58,10 +58,6 @@ static void aSsErT(bool b, const char *s, int i)
 //                    GLOBAL CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bool globalVerbose         = false;
-bool globalVeryVerbose     = false;
-bool globalVeryVeryVerbose = false;
-
 //=============================================================================
 //                  GLOBAL HELPER MACROS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -189,9 +185,9 @@ bool globalVeryVeryVerbose = false;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int         test = argc > 1 ? atoi(argv[1]) : 0;
+    bool     verbose = argc > 2;
+    bool veryVerbose = argc > 3;
 
     (void) veryVerbose;
 
@@ -259,7 +255,7 @@ int main(int argc, char *argv[])
         //   bsl::nullptr_t
         // --------------------------------------------------------------------
 
-        struct local {
+        struct Local {
             // This local utility 'struct' provides a namespace for testing
             // overload resolution for the type under test, 'bsl::nullptr_t'.
 
@@ -276,29 +272,34 @@ int main(int argc, char *argv[])
         // not null pointer literals
         static void *const Cptr = 0;
         void *ptr = 0;
-        int local::*mem = 0;
+        int Local::*mem = 0;
         static const int& s_zeroRef = 0;
         int zero = 0;
 
         enum { MY_NULL = 0 };
 
-        ASSERT(local::isNullPointer(0));
-        ASSERT(local::isNullPointer(NULL));
-        ASSERT(local::isNullPointer(false));
-        ASSERT(local::isNullPointer(s_cZero));
-        ASSERT(local::isNullPointer(cZero));
-        ASSERT(local::isNullPointer(1-1));
-        ASSERT(local::isNullPointer(0*1));
+        ASSERT(Local::isNullPointer(0));
+        ASSERT(Local::isNullPointer(NULL));
+        ASSERT(Local::isNullPointer(false));
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+        ASSERT(Local::isNullPointer(s_cZero));
+        ASSERT(Local::isNullPointer(cZero));
+#else
+        ASSERT(!Local::isNullPointer(s_cZero));
+        ASSERT(!Local::isNullPointer(cZero));
+#endif
+        ASSERT(Local::isNullPointer(1-1));
+        ASSERT(Local::isNullPointer(0*1));
 
-        ASSERT(!local::isNullPointer(Cptr));
-        ASSERT(!local::isNullPointer(ptr));
-        ASSERT(!local::isNullPointer(mem));
-        ASSERT(!local::isNullPointer((void*)0));
-        ASSERT(!local::isNullPointer(zero));
-        ASSERT(!local::isNullPointer(s_zeroRef));
-        ASSERT(!local::isNullPointer(1));
-        ASSERT(!local::isNullPointer(s_zeroRef*1));
-        ASSERT(!local::isNullPointer(MY_NULL));
+        ASSERT(!Local::isNullPointer(Cptr));
+        ASSERT(!Local::isNullPointer(ptr));
+        ASSERT(!Local::isNullPointer(mem));
+        ASSERT(!Local::isNullPointer((void*)0));
+        ASSERT(!Local::isNullPointer(zero));
+        ASSERT(!Local::isNullPointer(s_zeroRef));
+        ASSERT(!Local::isNullPointer(1));
+        ASSERT(!Local::isNullPointer(s_zeroRef*1));
+        ASSERT(!Local::isNullPointer(MY_NULL));
 
       } break;
       case 2: {
@@ -338,7 +339,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #if !defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)
-        struct local {
+        struct Local {
             // This local utility 'struct' provides a namespace for testing
             // overload resolution for the type under test,
             // 'bsls::Nullptr_Impl::Type'.
@@ -356,29 +357,29 @@ int main(int argc, char *argv[])
         // not null pointer literals
         static void *const Cptr = 0;
         void *ptr = 0;
-        int local::*mem = 0;
+        int Local::*mem = 0;
         static const int& s_zeroRefGcc = 0;
         int zero = 0;
 
         enum { MY_NULL = 0 };
 
-        ASSERT(local::isNullPointer(0));
-        ASSERT(local::isNullPointer(NULL));
-        ASSERT(local::isNullPointer(false));
-        ASSERT(local::isNullPointer(s_cZero));
-        ASSERT(local::isNullPointer(cZero));
-        ASSERT(local::isNullPointer(1-1));
-        ASSERT(local::isNullPointer(0*1));
+        ASSERT(Local::isNullPointer(0));
+        ASSERT(Local::isNullPointer(NULL));
+        ASSERT(Local::isNullPointer(false));
+        ASSERT(Local::isNullPointer(s_cZero));
+        ASSERT(Local::isNullPointer(cZero));
+        ASSERT(Local::isNullPointer(1-1));
+        ASSERT(Local::isNullPointer(0*1));
 
-        ASSERT(!local::isNullPointer(Cptr));
-        ASSERT(!local::isNullPointer(ptr));
-        ASSERT(!local::isNullPointer(mem));
-        ASSERT(!local::isNullPointer((void*)0));
-        ASSERT(!local::isNullPointer(zero));
-        ASSERT(!local::isNullPointer(s_zeroRefGcc));
-        ASSERT(!local::isNullPointer(1));
-        ASSERT(!local::isNullPointer(s_zeroRefGcc*1));
-        ASSERT(!local::isNullPointer(MY_NULL));
+        ASSERT(!Local::isNullPointer(Cptr));
+        ASSERT(!Local::isNullPointer(ptr));
+        ASSERT(!Local::isNullPointer(mem));
+        ASSERT(!Local::isNullPointer((void*)0));
+        ASSERT(!Local::isNullPointer(zero));
+        ASSERT(!Local::isNullPointer(s_zeroRefGcc));
+        ASSERT(!Local::isNullPointer(1));
+        ASSERT(!Local::isNullPointer(s_zeroRefGcc*1));
+        ASSERT(!Local::isNullPointer(MY_NULL));
 
 #endif
       } break;
