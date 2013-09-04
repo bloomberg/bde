@@ -14,6 +14,8 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_haspointersemantics.h>
+
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
