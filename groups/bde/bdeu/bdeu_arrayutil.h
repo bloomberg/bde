@@ -13,32 +13,33 @@ BDES_IDENT("$Id: $")
 // bdeu_ArrayUtil: namespace for array access function templates.
 //
 //@MACROS:
-// BDEU_ARRAYUTIL_SIZE: get a constant expression with an array's size. 
+// BDEU_ARRAYUTIL_SIZE: get a constant expression with an array's length. 
+// BDEU_ARRAYUTIL_LENGTH: get a constant expression with an array's length. 
 //
 //@AUTHOR: Dietmar Kuhl (dkuhl)
 //
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdeu_ArrayUtil', that serves as a namespace for a collection of function
-// templates providing access to the size and iterators of statically sized
+// templates providing access to the length and iterators of statically sized
 // built-in arrays.
 // 
-// The basic idea is that the compiler knows the size of staticly sized arrays
-// and the corresponding information can be exposed using simple function
-// templates. The use of these function templates is easier and safer than
-// the alternatives like use of 'sizeof()' (turning the array into a pointer
-// doesn't cause the use of 'sizeof()' to fail at compile-time but it yields
-// a wrong result) or manually specifying the size of an array.
+// The basic idea is that the compiler knows the length of staticly sized
+// arrays and the corresponding information can be exposed using simple
+// function templates. The use of these function templates is easier and safer
+// than the alternatives like use of 'sizeof()' (turning the array into a
+// pointer doesn't cause the use of 'sizeof()' to fail at compile-time but it
+// yields a wrong result) or manually specifying the length of an array.
 //
 ///Usage Example 1
 ///---------------
 // When creating a sequence of values it is often easy to write the sequence
 // as an initialized array and use this array to initialize a container. Since
-// the array's size may get adjusted in during when the program is maintained,
-// the code using the array should automatically determine the array's size or
-// automatically determine iterators to the beginning and the end of the
-// array. For example, to initialize a 'bsl::vector<int>' with the first few
-// prime numbers stored in an array the following code uses the 'begin()' and
-// 'end()' methods of 'bdeu_ArrayUtil':
+// the array's length may get adjusted in during when the program is
+// maintained, the code using the array should automatically determine the
+// array's length or automatically determine iterators to the beginning and the
+// end of the array. For example, to initialize a 'bsl::vector<int>' with the
+// first few prime numbers stored in an array the following code uses the
+// 'begin()' and 'end()' methods of 'bdeu_ArrayUtil':
 //..
 //  const int        primes[] = { 2, 3, 5, 7, 11, 13, 17 };
 //  bsl::vector<int> values(bdeu_ArrayUtil::begin(primes),
@@ -48,8 +49,9 @@ BDES_IDENT("$Id: $")
 //..
 // After constructing 'values' with the content of the array 'primes' the
 // assertion verifies that the correct number of values is stored in 'values'.
-// When the size is needed as a constant expression, e.g., to use it for the
-// size of another array, the macro 'BDEU_ARRAYUTIL_SIZE(array)' can be used:
+// When the length is needed as a constant expression, e.g., to use it for the
+// length of another array, the macro 'BDEU_ARRAYUTIL_LENGTH(array)' can be
+// used:
 //..
 //  int reversePrimes[BDEU_ARRAYUTIL_SIZE(primes)];
 //  bsl::copy(values.rbegin(), values.rend(),
@@ -60,8 +62,8 @@ BDES_IDENT("$Id: $")
 //                       bdeu_ArrayUtil::begin(reversePrimes)).second
 //         == bdeu_ArrayUtil::end(reversePrimes));
 //..
-// After defining the array 'reversePrimes' with the same size as 'primes' the
-// elements of 'values' are copied in reverse order into this array. The
+// After defining the array 'reversePrimes' with the same length as 'primes'
+// the elements of 'values' are copied in reverse order into this array. The
 // assertion verifies that 'reversePrimes' contains the values from 'primes'
 // but in reverse order: 'bsl::mismatch()' is used with a reverse sequence of
 // 'primes' by using the 'rbegin()' and 'rend()' methods for 'primes' and
@@ -70,7 +72,7 @@ BDES_IDENT("$Id: $")
 ///Usage Example 2
 ///---------------
 // The functions 'begin()', 'end()', and 'size()' provided by this component
-// are similar to functions provided by container. The main difference is that
+// are similar to functions provided by containers. The main difference is that
 // they reside in a utility component rather than being member functions.
 //
 // A typical use case for the 'size()' function is a function expecting a
@@ -94,20 +96,20 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 // The 'loadData()' function shows how to use the different function templates.
-// The array 'columns' doesn't have a size specified. It is determined from
+// The array 'columns' doesn't have a length specified. It is determined from
 // the number of elements it is initialized with. In this case it is easy to
 // see that there are three elements but in real situations the number of
 // elements can be non-trivial to get right. Also, changing the number of
 // elements would make it necessary to apply the corresponding change in
-// multiple places. Thus, the size is determined using 'bdeu_ArrayUtil':
+// multiple places. Thus, the length is determined using 'bdeu_ArrayUtil':
 //
-// * The size of 'result' should match the size of 'columns'. When specifying
-//   the size of an array a constant expression is necessary. In C++ 2011 the
-//   function 'bdeu_ArrayUtil::size()' could return a constant expression but
-//   for compilers not, yet, implementing the standard a trick needs to be
-//   used (using 'sizeof' with a reference to suitably sized array of 'char').
-//   This trick is packaged into the macro 'BDEU_ARRAYUTIL_SIZE()'.
-// * When the size is needed in a context where a const expression isn't
+// * The length of 'result' should match the length of 'columns'. When
+//   specifying  the length of an array a constant expression is necessary.
+//   In C++ 2011 the function 'bdeu_ArrayUtil::size()' could return a constant
+//   expression butcompilers not, yet, implementing the standard a trick needs
+//   to be used (using 'sizeof' with a reference to suitably sized array of
+//   'char'). This trick is packaged into the macro 'BDEU_ARRAYUTIL_SIZE()'.
+// * When the length is needed in a context where a const expression isn't
 //   required, e.g., when calling 'query()', the `bdeu_ArrayUtil::size()'
 //   function can be used with the array.
 // * The 'bdeu_ArrayUtil::begin()' and 'bdeu_ArrayUtil::end()' functions are
@@ -134,8 +136,8 @@ BDES_IDENT("$Id: $")
 // In this code the actual result in 'data' is compared to the values in the
 // array 'expect':
 //
-// * First it is made sure that the sizes of 'data' and 'expect' are identical
-//   using 'bdeu_ArrayUtil::size()'.
+// * First it is made sure that the lengths of 'data' and 'expect' are
+//   identical using 'bdeu_ArrayUtil::size()'.
 // * Next, the sequences are compared using the 'mismatch()' algorithm: To get
 //   the begin and of the 'expect' array 'bdeu_ArrayUtil::begin()' and
 //   'bdeu_ArrayUtil::end()', respectively, are used.
@@ -160,7 +162,10 @@ BDES_IDENT("$Id: $")
 #endif
 
 #define BDEU_ARRAYUTIL_SIZE(a) sizeof(BloombergLP::bdeu_ArrayUtil::sizer(a))
-    // Return the number of elements in the passed array as a constant
+    // Return the number of elements in the passed array 'a' as a constant
+    // expression.
+#define BDEU_ARRAYUTIL_LENGTH(a) sizeof(BloombergLP::bdeu_ArrayUtil::sizer(a))
+    // Return the number of elements in the passed array 'a' as a constant
     // expression.
 
 namespace BloombergLP
@@ -171,83 +176,95 @@ namespace BloombergLP
 
 struct bdeu_ArrayUtil {
     // This 'struct' provides a namespace for a collection of function
-    // templates providing access to the size and iterator of statically
+    // templates providing access to the length and iterator of statically
     // sized built-in arrays
 
     // CLASS METHODS
 
-    template <class TYPE, bsl::size_t SIZE>
-    static TYPE* begin(TYPE (&array)[SIZE]);
+    template <class TYPE, bsl::size_t LENGTH>
+    static TYPE* begin(TYPE (&array)[LENGTH]);
         // Return an iterator pointing to the first element of the specified
-        // 'array' of template parameter 'SIZE' elements of template parameter
-        // 'TYPE'.
-
-    template <class TYPE, bsl::size_t SIZE>
-    static TYPE* end(TYPE (&array)[SIZE]);
-    	// Return the past-the-end iterator for the specified 'array' of
-        // template parameter 'SIZE' elements of template parameter 'TYPE'.
-
-    template <class TYPE, bsl::size_t SIZE>
-    static bsl::reverse_iterator<TYPE*> rbegin(TYPE (&array)[SIZE]);
-        // Return a reverse iterator pointing to the last element of the
-        // specified 'array' of template parameter 'SIZE' elements of template
+        // 'array' of template parameter 'LENGTH' elements of template
         // parameter 'TYPE'.
 
-    template <class TYPE, bsl::size_t SIZE>
-    static bsl::reverse_iterator<TYPE*> rend(TYPE (&array)[SIZE]);
+    template <class TYPE, bsl::size_t LENGTH>
+    static TYPE* end(TYPE (&array)[LENGTH]);
+    	// Return the past-the-end iterator for the specified 'array' of
+        // template parameter 'LENGTH' elements of template parameter 'TYPE'.
+
+    template <class TYPE, bsl::size_t LENGTH>
+    static bsl::reverse_iterator<TYPE*> rbegin(TYPE (&array)[LENGTH]);
+        // Return a reverse iterator pointing to the last element of the
+        // specified 'array' of template parameter 'LENGTH' elements of
+        // template parameter 'TYPE'.
+
+    template <class TYPE, bsl::size_t LENGTH>
+    static bsl::reverse_iterator<TYPE*> rend(TYPE (&array)[LENGTH]);
         // Return the past-the-end reverse iterator for the specified 'array'
-        // of template parameter 'SIZE' elements of template parameter 'TYPE'.
+        // of template parameter 'LENGTH' elements of template parameter
+        // 'TYPE'.
 
-    template <class TYPE, bsl::size_t SIZE>
-    static bsl::size_t size(TYPE (&array)[SIZE]);
-        // Return the number of elements in the specified 'array' of 'SIZE'
-        // elements of template parameter 'TYPE'. 
+    template <class TYPE, bsl::size_t LENGTH>
+    static bsl::size_t size(TYPE (&array)[LENGTH]);
+        // Return the length of the specified 'array' of template parameter
+        // 'LENGTH' elements of template parameter 'TYPE'. 
 
-    template <class TYPE, bsl::size_t SIZE>
-    static char (&sizer(TYPE (&array)[SIZE]))[SIZE];
+    template <class TYPE, bsl::size_t LENGTH>
+    static bsl::size_t length(TYPE (&array)[LENGTH]);
+        // Return the length of the specified 'array' of template parameter
+        // 'LENGTH' elements of template parameter 'TYPE'. 
+
+    template <class TYPE, bsl::size_t LENGTH>
+    static char (&sizer(TYPE (&array)[LENGTH]))[LENGTH];
         // Return a reference to an array of char with the same number of
-        // elements as the specified 'array' of template parameter 'SIZE'
+        // elements as the specified 'array' of template parameter 'LENGTH'
         // elements of template parameter 'TYPE'. This function is *not*
         // implemented and can only be used in a non-evaluated context. The
         // function is used together with 'sizeof()' to get a constant
-        // expression with the 'SIZE' of the 'array'.
-        //@SEE_ALSO: BDEU_ARRAYUTIL_SIZE
+        // expression with the 'LENGTH' of the 'array'.
+        //@SEE_ALSO: BDEU_ARRAYUTIL_SIZE, BDEU_ARRAYUTIL_LENGTH
 };
 
 }
 
 // ---------------------------------------------------------------------------
 
-template <class TYPE, bsl::size_t SIZE>
-TYPE* BloombergLP::bdeu_ArrayUtil::begin(TYPE (&array)[SIZE])
+template <class TYPE, bsl::size_t LENGTH>
+TYPE* BloombergLP::bdeu_ArrayUtil::begin(TYPE (&array)[LENGTH])
 {
     return array;
 }
 
-template <class TYPE, bsl::size_t SIZE>
-TYPE* BloombergLP::bdeu_ArrayUtil::end(TYPE (&array)[SIZE])
+template <class TYPE, bsl::size_t LENGTH>
+TYPE* BloombergLP::bdeu_ArrayUtil::end(TYPE (&array)[LENGTH])
 {
-    return array + SIZE;
+    return array + LENGTH;
 }
 
-template <class TYPE, bsl::size_t SIZE>
+template <class TYPE, bsl::size_t LENGTH>
 bsl::reverse_iterator<TYPE*>
-BloombergLP::bdeu_ArrayUtil::rbegin(TYPE (&array)[SIZE])
+BloombergLP::bdeu_ArrayUtil::rbegin(TYPE (&array)[LENGTH])
 {
     return bsl::reverse_iterator<TYPE*>(end(array));
 }
 
-template <class TYPE, bsl::size_t SIZE>
+template <class TYPE, bsl::size_t LENGTH>
 bsl::reverse_iterator<TYPE*>
-BloombergLP::bdeu_ArrayUtil::rend(TYPE (&array)[SIZE])
+BloombergLP::bdeu_ArrayUtil::rend(TYPE (&array)[LENGTH])
 {
     return bsl::reverse_iterator<TYPE*>(begin(array));
 }
 
-template <class TYPE, bsl::size_t SIZE>
-bsl::size_t BloombergLP::bdeu_ArrayUtil::size(TYPE (&)[SIZE])
+template <class TYPE, bsl::size_t LENGTH>
+bsl::size_t BloombergLP::bdeu_ArrayUtil::size(TYPE (&)[LENGTH])
 {
-    return SIZE;
+    return LENGTH;
+}
+
+template <class TYPE, bsl::size_t LENGTH>
+bsl::size_t BloombergLP::bdeu_ArrayUtil::length(TYPE (&)[LENGTH])
+{
+    return LENGTH;
 }
 
 // ---------------------------------------------------------------------------
