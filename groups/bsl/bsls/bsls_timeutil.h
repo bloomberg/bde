@@ -80,11 +80,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Precision on Windows
 /// - - - - - - - - - -
-// Providing that the underlying timer is capable of reporting the
-// 'QueryPerformanceCounter' interface, the nanosecond values reported by
-// 'getTimer' or 'convertRawTime' will be in the range (t - 2, t], where t is
-// the real (infinitely precise floating point) number of nanoseconds expressed
-// by the current raw timer count.
+// Providing that the underlying timer is capable of supporting the
+// 'QueryPerformanceCounter' interface, 'getTimer' and 'convertRawTime' will
+// perform their calculations to nanosecond precision based on the values
+// reported by 'QueryPerformanceCounter'.  Because of overflow concerns, these
+// routines do not simply divide the result of 'QueryPerformanceCounter' by the
+// result of 'QueryPerformanceFrequency'.  In the course of calculating the
+// final nanosecond-precision time, there are two places where some precision
+// might be lost.  Therefore, the times reported by 'getTimer' and
+// 'convertRawTime' may be as much as two nanoseconds less than the actual time
+// expressed by the 'QueryPerformanceCounter' interface.  Note that the times
+// will still be monotonically non-decreasing. 
 //
 ///Usage
 ///-----
