@@ -160,7 +160,7 @@ void pause(bsls::AtomicInt *value)
                                 // cases 1 & 2
                                 // -----------
 
-enum { MAIN_THREAD = 1, CHILD_THREAD = 2 };
+enum { NO_THREAD = 0, MAIN_THREAD = 1, CHILD_THREAD = 2 };
 
 struct ThreadInfo {
     Obj             *d_lock;
@@ -173,7 +173,7 @@ extern "C" void *threadFunction(void *arg)
     ThreadInfo *info = (ThreadInfo *)arg;
 
     info->d_lock->lock();                                             // LOCK
-    if (0 == info->d_firstIn) {
+    if (NO_THREAD == info->d_firstIn) {
         info->d_firstIn = CHILD_THREAD;
     }
     info->d_lock->unlock();                                           // UNLOCK
@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
 
             ThreadInfo info;
             info.d_lock       = &mX;
-            info.d_firstIn    = 0;
+            info.d_firstIn    = NO_THREAD;
             info.d_threadDone = 0;
 
             ThreadId id;
@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
                 id = createThread(&threadFunction, &info);
 
                 pause(&info.d_threadDone);
-                ASSERT(0 == info.d_firstIn);
+                ASSERT(NO_THREAD == info.d_firstIn);
             }                                                         // UNLOCK
 
             joinThread(id);
@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
 
             ThreadInfo info;
             info.d_lock       = &mX;
-            info.d_firstIn    = 0;
+            info.d_firstIn    = NO_THREAD;
             info.d_threadDone = 0;
 
             ThreadId id;
@@ -556,13 +556,13 @@ int main(int argc, char *argv[])
                 id = createThread(&threadFunction, &info);
 
                 pause(&info.d_threadDone);
-                ASSERT(0 == info.d_firstIn);
+                ASSERT(NO_THREAD == info.d_firstIn);
 
                 mG.release();
             }
 
             pause(&info.d_threadDone);
-            ASSERT(0 == info.d_firstIn);
+            ASSERT(NO_THREAD == info.d_firstIn);
 
             mX.unlock();                                              // UNLOCK
 
@@ -626,7 +626,7 @@ int main(int argc, char *argv[])
 
             ThreadInfo info;
             info.d_lock       = &mX;
-            info.d_firstIn    = 0;
+            info.d_firstIn    = NO_THREAD;
             info.d_threadDone = 0;
 
             ThreadId id = createThread(&threadFunction, &info);
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
             pause(&info.d_threadDone);
 
             mX.lock();                                                // LOCK
-            if (0 == info.d_firstIn) {
+            if (NO_THREAD == info.d_firstIn) {
                 info.d_firstIn = MAIN_THREAD;
             }
             mX.unlock();                                              // UNLOCK
@@ -650,14 +650,14 @@ int main(int argc, char *argv[])
 
             ThreadInfo info;
             info.d_lock       = &mX;
-            info.d_firstIn    = 0;
+            info.d_firstIn    = NO_THREAD;
             info.d_threadDone = 0;
 
             ThreadId id = createThread(&threadFunction, &info);
 
             pause(&info.d_threadDone);
 
-            if (0 == info.d_firstIn) {
+            if (NO_THREAD == info.d_firstIn) {
                 info.d_firstIn = MAIN_THREAD;
             }
             mX.unlock();                                              // UNLOCK

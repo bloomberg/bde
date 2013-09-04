@@ -19,13 +19,7 @@ BSLS_IDENT("$Id: $")
 // ("mutex") by wrapping a suitable platform-specific mechanism.  The
 // 'bsls::BslLock' class provides 'lock' and 'unlock' operations.  Note that
 // 'bsls::BslLock' is not intended for direct client use; see 'bslmt_mutex'
-// instead.
-//
-// The behavior is undefined if 'lock' is called twice on a 'bsls::BslLock'
-// object from a thread without an intervening call to 'unlock' (i.e.,
-// 'bsls::BslLock' is non-recursive), or if 'unlock' is invoked from a thread
-// that does not hold the lock.  In particular, a call to 'lock' *may* deadlock
-// if the calling thread already holds the lock.
+// instead.  Also note that 'bsls::BslLock' is not recursive.
 //
 // This component also provides the 'bsls::BslLockGuard' class, a mechanism
 // that follows the RAII idiom for automatically acquiring and releasing the
@@ -258,31 +252,10 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-// Rather than setting 'WINVER' or 'NTDDI_VERSION', just forward-declare the
-// Windows 2000 functions that are used.
-
-struct _RTL_CRITICAL_SECTION;
-
-typedef struct _RTL_CRITICAL_SECTION *LPCRITICAL_SECTION;
-
-typedef int           BOOL;
-typedef unsigned long DWORD;
-
-extern "C" {
-    __declspec(dllimport) BOOL __stdcall InitializeCriticalSectionAndSpinCount(
-                                         LPCRITICAL_SECTION lpCriticalSection,
-                                         DWORD              dwSpinCount);
-
-    __declspec(dllimport) void __stdcall DeleteCriticalSection(
-                                         LPCRITICAL_SECTION lpCriticalSection);
-
-    __declspec(dllimport) void __stdcall EnterCriticalSection(
-                                         LPCRITICAL_SECTION lpCriticalSection);
-
-    __declspec(dllimport) void __stdcall LeaveCriticalSection(
-                                         LPCRITICAL_SECTION lpCriticalSection);
-
-}  // extern "C"
+#ifndef INCLUDED_WINDOWS
+#include <windows.h>
+#define INCLUDED_WINDOWS
+#endif
 
 #else
 
@@ -303,27 +276,14 @@ namespace bsls {
 class BslLock {
     // This 'class' implements a light-weight, portable wrapper of an OS-level
     // mutex to support intra-process synchronization.  The mutex implemented
-    // by this class is *not* error checking, and is *non*-recursive.  Note
-    // that 'BslLock' is *not* intended for direct use by client code; it is
-    // meant for internal use only.
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-  private:
-    // PRIVATE TYPES
-    enum {
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        CRITICAL_SECTION_BUFFER_SIZE = 5 * sizeof(void *)
-#else
-        CRITICAL_SECTION_BUFFER_SIZE = 6 * sizeof(void *)
-#endif
-    };
-#endif
+    // by this class is *non*-recursive.  Note that 'BslLock' is *not* intended
+    // for direct use by client code; it is meant for internal use only.
 
     // DATA
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    void *d_lock[CRITICAL_SECTION_BUFFER_SIZE];  // 'CriticalSection' buffer
+    CRITICAL_SECTION d_lock;  // Windows critical section
 #else
-    pthread_mutex_t d_lock;                      // pthreads mutex object
+    pthread_mutex_t  d_lock;  // pthreads mutex object
 #endif
 
   private:
@@ -390,15 +350,14 @@ class BslLockGuard {
         // Destroy this guard object and release the lock on the object it
         // manages (if any) by invoking the 'unlock' method of the object that
         // was supplied at construction of this guard.  If no lock is currently
-        // being managed, this method has no effect.  The behavior is undefined
-        // unless the calling thread holds the lock on the object managed by
-        // this guard (if any).
+        // being managed, this method has no effect.  Note that if this guard
+        // object currently manages a lock, this method assumes the behavior
+        // of 'BslLock::unlock'.
 
     // MANIPULATORS
     void release();
-        // Release from management the object currently managed by this guard,
-        // if any.  If no object is currently being managed, this method has no
-        // effect.
+        // Release from management, with no effect, the object currently
+        // managed by this guard, if any.
 };
 
 // ============================================================================
@@ -422,9 +381,7 @@ BslLock::BslLock()
         BSLS_SPIN_COUNT = 30
     };
 
-    InitializeCriticalSectionAndSpinCount(
-                          reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock),
-                          BSLS_SPIN_COUNT);
+    InitializeCriticalSectionAndSpinCount(&d_lock, BSLS_SPIN_COUNT);
 #else
     const int status = pthread_mutex_init(&d_lock, 0);
     (void)status;
@@ -436,7 +393,7 @@ inline
 BslLock::~BslLock()
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    DeleteCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock));
+    DeleteCriticalSection(&d_lock);
 #else
     const int status = pthread_mutex_destroy(&d_lock);
     BSLS_ASSERT(0 == status);
@@ -448,7 +405,7 @@ inline
 void BslLock::lock()
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    EnterCriticalSection( reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock));
+    EnterCriticalSection(&d_lock);
 #else
     const int status = pthread_mutex_lock(&d_lock);
     (void)status;
@@ -460,7 +417,7 @@ inline
 void BslLock::unlock()
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    LeaveCriticalSection( reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock));
+    LeaveCriticalSection(&d_lock);
 #else
     const int status = pthread_mutex_unlock(&d_lock);
     (void)status;
