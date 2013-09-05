@@ -1678,20 +1678,22 @@ class ZoneinfoData {
 void ZoneinfoData::populateBuffer(const RawHeader& header)
 {
     d_size = sizeof(RawHeader)
-             + header.numIsGmt() * 1
-             + header.numIsStd() * 1
-             + header.numLeaps() * sizeof(RawLeapInfo)
-             + header.numTransitions() * (4 + 1)
-             + header.numLocalTimeTypes() * sizeof(RawLocalTimeTypes)
-             + header.abbrevDataSize();
+             + bsl::max(header.numIsGmt(), 0) * 1
+             + bsl::max(header.numIsStd(), 0) * 1
+             + bsl::max(header.numLeaps(), 0) * sizeof(RawLeapInfo)
+             + bsl::max(header.numTransitions(), 0) * (4 + 1)
+             + bsl::max(header.numLocalTimeTypes(), 0) *
+                                                      sizeof(RawLocalTimeTypes)
+             + bsl::max(header.abbrevDataSize(), 0);
     if ('2' == header.version()) {
         d_size += sizeof(RawHeader)
-                  + header.numIsGmt() * 1
-                  + header.numIsStd() * 1
-                  + header.numLeaps() * sizeof(RawLeapInfo64)
-                  + header.numTransitions() * (8 + 1)
-                  + header.numLocalTimeTypes() * sizeof(RawLocalTimeTypes)
-                  + header.abbrevDataSize();
+                  + bsl::max(header.numIsGmt(), 0) * 1
+                  + bsl::max(header.numIsStd(), 0) * 1
+                  + bsl::max(header.numLeaps(), 0) * sizeof(RawLeapInfo64)
+                  + bsl::max(header.numTransitions(), 0) * (8 + 1)
+                  + bsl::max(header.numLocalTimeTypes(), 0) *
+                                                      sizeof(RawLocalTimeTypes)
+                  + bsl::max(header.abbrevDataSize(), 0);
     }
     d_buffer = new char[d_size];
     memset(d_buffer, 0, d_size);
@@ -1795,14 +1797,18 @@ void ZoneinfoData::populateLocalTimeTypeBuf64()
 
 void ZoneinfoData::populateAbbreviationData()
 {
-    char *buffer = getAbbrevData();
-    memset(buffer, 0, getRawHeader()->abbrevDataSize());
+    if (getRawHeader()->abbrevDataSize() > 0) {
+        char *buffer = getAbbrevData();
+        memset(buffer, 0, getRawHeader()->abbrevDataSize());
+    }
 }
 
 void ZoneinfoData::populateAbbreviationData64()
 {
-    char *buffer = getAbbrevData64();
-    memset(buffer, 0, getRawHeader()->abbrevDataSize());
+    if (getRawHeader64()->abbrevDataSize() > 0) {
+        char *buffer = getAbbrevData64();
+        memset(buffer, 0, getRawHeader64()->abbrevDataSize());
+    }
 }
 
 // CREATORS
