@@ -629,13 +629,15 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE>
 //  inline void my_PtrStack<TYPE>::freeNode(Node *node)
 //  {
+//      Node *prev;
 //      do {
 //        node->d_next_p = (Node*) bsls::AtomicOperations::getPtr(
 //                                                              &d_freeList_p);
+//        prev = node->d_next_p;
 //      } while (bsls::AtomicOperations::testAndSwapPtr(
 //                                                    &d_freeList_p,
-//                                                    node->d_next_p,
-//                                                    node) != node->d_next_p);
+//                                                    prev,
+//                                                    node) != prev);
 //  }
 //..
 // Now, we begin to define the public "stack-like" interface for 'my_PtrStack'.
@@ -647,13 +649,15 @@ BSLS_IDENT("$Id: $")
 //  inline void my_PtrStack<TYPE>::push(TYPE *item)
 //  {
 //      Node *node = allocateNode();
+//      Node *prev;
 //      node->d_item_p = item;
 //      do {
 //          node->d_next_p = (Node*) bsls::AtomicOperations::getPtr(&d_list_p);
+//          prev = node->d_next_p;
 //      } while (bsls::AtomicOperations::testAndSwapPtr(
 //                                                    &d_list_p,
-//                                                    node->d_next_p,
-//                                                    node)!= node->d_next_p);
+//                                                    prev,
+//                                                    node) != prev);
 //  }
 //..
 // Finally, we define the 'pop' method which removes the node from the top
