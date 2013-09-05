@@ -32,7 +32,7 @@ using bsl::endl;
 // according to their internal levelization in the component implementation.
 //
 // [ 2]   Test machinery
-// [ 3]   imp. class bdema_ManagedPtr_Ref
+// [ 3]   imp. class bslma::ManagedPtr_Ref
 // [4-5]  (tested classes migrated to their own components)
 // [6-15] class bdema_ManagedPtr
 // [16]   class bdema_ManagedPtrNilDeleter   [DEPRECATED]
@@ -80,12 +80,12 @@ using bsl::endl;
 // [ 6] bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type);
 // [ 6] template<class TARGET_TYPE> bdema_ManagedPtr(TARGET_TYPE *ptr);
 // [11] bdema_ManagedPtr(bdema_ManagedPtr& original);
-// [11] bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [11] bdema_ManagedPtr(bslma::ManagedPtr_Ref<BDEMA_TYPE> ref);
 // [12] bdema_ManagedPtr(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
 // [10] bdema_ManagedPtr(TYPE *ptr, FACTORY *factory)
 // [10] bdema_ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
 // [ 6] ~bdema_ManagedPtr();
-// [11] operator bdema_ManagedPtr_Ref<OTHER>();
+// [11] operator bslma::ManagedPtr_Ref<OTHER>();
 // [ 7] void load(nullptr_t=0,nullptr_t=0,nullptr_t=0);
 // [ 7] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
 // [ 7] void load(TYPE *ptr, FACTORY *factory)
@@ -96,7 +96,7 @@ using bsl::endl;
 // [ 8] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
 // [13] void swap(bdema_ManagedPt& rhs);
 // [14] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-// [14] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [14] bdema_ManagedPtr& operator=(bslma::ManagedPtr_Ref<BDEMA_TYPE> ref);
 // [15] void clear();
 // [15] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
 // [ 9] operator BoolType() const;
@@ -108,7 +108,7 @@ using bsl::endl;
 // [16] class bdema_ManagedPtrNilDeleter
 // [17] class bdema_ManagedPtrNoOpDeleter
 //
-// [ 3] imp. class bdema_ManagedPtr_Ref
+// [ 3] imp. class bslma::ManagedPtr_Ref
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING TEST MACHINERY
@@ -666,8 +666,8 @@ void validateManagedState(unsigned int                   LINE,
         {
             bsls::AssertTestHandlerGuard guard;
 
-            ASSERT_SAFE_FAIL(*obj);
-            ASSERT_SAFE_FAIL(obj.deleter());
+            ASSERT_SAFE_FAIL_RAW(*obj);
+            ASSERT_SAFE_FAIL_RAW(obj.deleter());
         }
 #endif
     }
@@ -725,7 +725,7 @@ void validateManagedState(unsigned int                   LINE,
         {
             bsls::AssertTestHandlerGuard guard;
 
-            ASSERT_SAFE_FAIL(obj.deleter());
+            ASSERT_SAFE_FAIL_RAW(obj.deleter());
         }
 #endif
     }
@@ -784,7 +784,7 @@ void validateManagedState(unsigned int                        LINE,
         {
             bsls::AssertTestHandlerGuard guard;
 
-            ASSERT_SAFE_FAIL(obj.deleter());
+            ASSERT_SAFE_FAIL_RAW(obj.deleter());
         }
 #endif
     }
@@ -933,7 +933,7 @@ void validateManagedState(unsigned int                        LINE,
 //: cases dominate our analysis, "V(bslma::Allocator, Base)", and "V(actual,
 //: actual)".  The former can be explicitly coded up as a non-template
 //: function.  The latter is already implemented as
-//: 'bdema_ManagedPtr_FactoryDeleter'.  Note that there is a third category of
+//: 'bslma::ManagedPtr_FactoryDeleter'.  Note that there is a third category of
 //: deleter, where the deleter function acts only on the 'object' parameter and
 //: ignores the 'factory'.  This is an important case, as we must support '0'
 //: literals and null pointers for factories based on existing code.  We can
@@ -1440,7 +1440,7 @@ void doConstructObject(int callLine, int testLine, int index,
 
         bdema_ManagedPtr<POINTER_TYPE> testObject(pO);
 
-        typedef bdema_ManagedPtr_FactoryDeleter<ObjectType,bslma::Allocator>
+        typedef bslma::ManagedPtr_FactoryDeleter<ObjectType,bslma::Allocator>
                                                                   DeleterClass;
         const bdema_ManagedPtrDeleter del(TestUtil::stripPointerType(pO),
                                           &da,
@@ -1518,7 +1518,7 @@ void doConstructObjectFactory(int callLine, int testLine, int,
     // correctly cleared.
     if (!negativeTesting) {
         typedef typename
-        bdema_ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::Type
+        bslma::ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::Type
                                                                   DeleterClass;
 
         const bdema_ManagedPtrDeleter del;
@@ -2723,7 +2723,7 @@ void testLoadAliasOps1(int callLine,
                 if (0 == p.ptr()) {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
+                    ASSERT_SAFE_FAIL_RAW(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
@@ -2732,7 +2732,7 @@ void testLoadAliasOps1(int callLine,
                 else {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
+                    ASSERT_SAFE_FAIL_RAW(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
@@ -2852,7 +2852,7 @@ void testLoadAliasOps2(int callLine,
                 if (0 == p.ptr()) {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
+                    ASSERT_SAFE_FAIL_RAW(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),       0 == p.ptr());
@@ -2861,14 +2861,14 @@ void testLoadAliasOps2(int callLine,
                 else {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
+                    ASSERT_SAFE_FAIL_RAW(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
                     LOOP_ASSERT(p.ptr(), 0 == p.ptr());
                     LOOP2_ASSERT(&alias1,   pAlias1.ptr(),
                                  &alias1 == pAlias1.ptr());
 
-                    ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
+                    ASSERT_SAFE_FAIL_RAW(pAlias2.loadAlias(pAlias1, 0));
                     ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
@@ -3133,7 +3133,7 @@ void testLoadAliasOps1(int callLine,
                 if (0 == p.ptr()) {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
+                    ASSERT_SAFE_FAIL_RAW(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
@@ -3142,7 +3142,7 @@ void testLoadAliasOps1(int callLine,
                 else {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
+                    ASSERT_SAFE_FAIL_RAW(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
@@ -3264,7 +3264,7 @@ void testLoadAliasOps2(int callLine,
                 if (0 == p.ptr()) {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
+                    ASSERT_SAFE_FAIL_RAW(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),       0 == p.ptr());
@@ -3273,14 +3273,14 @@ void testLoadAliasOps2(int callLine,
                 else {
                     bsls::AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
+                    ASSERT_SAFE_FAIL_RAW(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
                     LOOP_ASSERT(p.ptr(), 0 == p.ptr());
                     LOOP2_ASSERT(&alias1,   pAlias1.ptr(),
                                  &alias1 == pAlias1.ptr());
 
-                    ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
+                    ASSERT_SAFE_FAIL_RAW(pAlias2.loadAlias(pAlias1, 0));
                     ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
@@ -6576,7 +6576,7 @@ int main(int argc, char *argv[])
         //    the testing is adequate.]
         //   void swap(bdema_ManagedPtr<BDEMA_TYPE>& rhs);
         //   bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-        //   bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+        //   bdema_ManagedPtr& operator=(bslma::ManagedPtr_Ref<BDEMA_TYPE> ref);
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -6698,7 +6698,7 @@ int main(int argc, char *argv[])
                 TObj *p = new (da) MyTestObject(&numDeletes);
                 Obj o(p);
 
-                bdema_ManagedPtr_Ref<TObj> r = o;
+                bslma::ManagedPtr_Ref<TObj> r = o;
                 o2 = r;
 
                 ASSERT(o2.ptr() == p);
@@ -6713,13 +6713,13 @@ int main(int argc, char *argv[])
             Obj o(p);
             Obj o2;
 
-            bdema_ManagedPtr_Ref<TObj> r = o;
+            bslma::ManagedPtr_Ref<TObj> r = o;
             o2 = r;
             ASSERT(o2);
             ASSERT(!o);
             ASSERT(0 == numDeletes);
 
-            bdema_ManagedPtr_Ref<TObj> r2 = o;
+            bslma::ManagedPtr_Ref<TObj> r2 = o;
             o2 = r2;
             ASSERT(!o2);
             ASSERT(!o);
@@ -6734,7 +6734,7 @@ int main(int argc, char *argv[])
             DObj o(p);
             Obj o2;
 
-            bdema_ManagedPtr_Ref<TObj> r = o;
+            bslma::ManagedPtr_Ref<TObj> r = o;
             o2 = r;
             ASSERT(o2);
             ASSERT(!o);
@@ -6806,7 +6806,7 @@ int main(int argc, char *argv[])
         //    the testing is adequate.]
         //   void swap(bdema_ManagedPtr<BDEMA_TYPE>& rhs);
         //   bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-        //   bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+        //   bdema_ManagedPtr& operator=(bslma::ManagedPtr_Ref<BDEMA_TYPE> ref);
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -7120,14 +7120,14 @@ int main(int argc, char *argv[])
         //:   the source managed pointer object.
         //:
         //: 4 Move semantics for temporary objects (rvalues) are supported
-        //:   through an implicit conversion to 'bdema_ManagedPtr_Ref', and
+        //:   through an implicit conversion to 'bslma::ManagedPtr_Ref', and
         //:   the single argument (implicit) constructor taking ownership from
         //:   such a managed reference.
         //:
         //: 5 const-qualified objects cannot be moved from (compile-fail test).
         //:
         //: 6 Both lvalue and rvalue objects of 'bdema_ManagedPtr' types can
-        //:   implicitly convert to a 'bdema_ManagedPtr_Ref' of any compatible
+        //:   implicitly convert to a 'bslma::ManagedPtr_Ref' of any compatible
         //:   type, i.e., where a pointer to the specified '_Ref' type may be
         //:   converted from a pointer to the specified 'Managed' type.
         //:
@@ -7142,15 +7142,15 @@ int main(int argc, char *argv[])
         //   First we test the conversion operator, including compile-fail test
         //   for incompatible types
         //
-        //   Next we test construction from a 'bdema_ManagedPtr_Ref' object
+        //   Next we test construction from a 'bslma::ManagedPtr_Ref' object
         //
         //   Finally we test the tricky combinations of invoking the (lvalue)
         //   move constructor, including with rvalues, and values of different
         //   target types.
         //
         // Tested:
-        //   operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>();
-        //   bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+        //   operator bslma::ManagedPtr_Ref<BDEMA_OTHER_TYPE>();
+        //   bdema_ManagedPtr(bslma::ManagedPtr_Ref<BDEMA_TYPE> ref);
         //   bdema_ManagedPtr(bdema_ManagedPtr &original);
         // --------------------------------------------------------------------
 
@@ -7160,7 +7160,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\tTest operator bdema_ManagedPtr_Ref<OTHER>()\n";
+        if (verbose) cout << "\tTest operator bslma::ManagedPtr_Ref<OTHER>()\n";
 
         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
         {
@@ -7173,7 +7173,7 @@ int main(int argc, char *argv[])
                 TObj x(&numDeletes);
                 Obj  o(&x, 0, countedNilDelete);
 
-                bdema_ManagedPtr_Ref<TObj> r = o;
+                bslma::ManagedPtr_Ref<TObj> r = o;
                 // Check no memory is allocated/released and no deleters run
                 LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
                 ASSERT(0 == numDeletes);
@@ -7206,13 +7206,13 @@ int main(int argc, char *argv[])
                 // To test conversion from an rvalue, we must bind the
                 // the temporary to a function argument in order to prolong the
                 // lifetime of the temporary until after testing is complete.
-                // We must bind the temporary to a 'bdema_ManagedPtr_Ref' and
+                // We must bind the temporary to a 'bslma::ManagedPtr_Ref' and
                 // not a whole 'bdema_ManagedPtr' because we are testing an
                 // implementation detail of that move-constructor that would be
                 // invoked.
                 struct local {
                     static void test(void * px,
-                                     bdema_ManagedPtr_Ref<TObj> r)
+                                     bslma::ManagedPtr_Ref<TObj> r)
                     {
                         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
 
@@ -7240,7 +7240,7 @@ int main(int argc, char *argv[])
                 TObj x(&numDeletes);
                 const Obj o(&x, 0, countedNilDelete);
 
-                bdema_ManagedPtr_Ref<TObj> r = o;   // should not compile
+                bslma::ManagedPtr_Ref<TObj> r = o;   // should not compile
                 LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
                 ASSERT(0 == numDeletes);
             }
@@ -7315,7 +7315,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout <<
-             "\tTest bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref)\n";
+             "\tTest bdema_ManagedPtr(bslma::ManagedPtr_Ref<BDEMA_TYPE> ref)\n";
 
         int numDeletes = 0;
         {
@@ -7328,7 +7328,7 @@ int main(int argc, char *argv[])
             ASSERT(o);
             ASSERT(o.ptr() == p);
 
-            bdema_ManagedPtr_Ref<TObj> r = o;
+            bslma::ManagedPtr_Ref<TObj> r = o;
             ASSERT(o);
             Obj o2(r);
 
@@ -7776,7 +7776,7 @@ int main(int argc, char *argv[])
             TObj *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bdema_ManagedPtrDeleter del(p, &da,
-             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
+             &bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             validateManagedState(L_, o, p, del);
 
@@ -7796,7 +7796,7 @@ int main(int argc, char *argv[])
             TObj *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bdema_ManagedPtrDeleter del(p, &da,
-             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
+             &bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             validateManagedState(L_, o, p, del);
 
@@ -7816,7 +7816,7 @@ int main(int argc, char *argv[])
             TObj *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bdema_ManagedPtrDeleter del(p, &da,
-             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
+             &bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             validateManagedState(L_, o, p, del);
 
@@ -7842,7 +7842,7 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bdema_ManagedPtrDeleter del(p, &ta,
-             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
+             &bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             bslma::TestAllocatorMonitor tam2(&ta);
 
@@ -7869,7 +7869,7 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bdema_ManagedPtrDeleter del(p, &ta,
-             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
+             &bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             bslma::TestAllocatorMonitor tam2(&ta);
 
@@ -7896,7 +7896,7 @@ int main(int argc, char *argv[])
             TObj *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bdema_ManagedPtrDeleter del(p, &ta,
-             &bdema_ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
+             &bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>::deleter);
 
             bslma::TestAllocatorMonitor tam2(&ta);
 
@@ -8677,9 +8677,9 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtr_Ref
+        // TESTING bslma::ManagedPtr_Ref
         //
-        // 'bdema_ManagedPtr_Ref' is similar to an in-core value semantic type
+        // 'bslma::ManagedPtr_Ref' is similar to an in-core value semantic type
         // having a single pointer as its only attribute; it does not offer the
         // traditional range of value-semantic operations such as equality
         // comparison and printing.  Its test concerns and plan are closely
@@ -8692,14 +8692,14 @@ int main(int argc, char *argv[])
         //: 1 blah ...
         //
         // Testing:
-        //    explicit bdema_ManagedPtr_Ref(bdema_ManagedPtr_Members *base);
-        //    bdema_ManagedPtr_Ref(const bdema_ManagedPtr_Ref& original);
-        //    ~bdema_ManagedPtr_Ref();
-        //    bdema_ManagedPtr_Ref& operator=(const bdema_ManagedPtr_Ref&);
-        //    bdema_ManagedPtr_Members *base() const;
+        //    explicit bslma::ManagedPtr_Ref(bslma::ManagedPtr_Members *base);
+        //    bslma::ManagedPtr_Ref(const bslma::ManagedPtr_Ref& original);
+        //    ~bslma::ManagedPtr_Ref();
+        //    bslma::ManagedPtr_Ref& operator=(const bslma::ManagedPtr_Ref&);
+        //    bslma::ManagedPtr_Members *base() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING bdema_ManagedPtr_Ref"
+        if (verbose) cout << "\nTESTING bslma::ManagedPtr_Ref"
                           << "\n----------------------------" << endl;
 
         bslma::TestAllocatorMonitor gam(&globalAllocator);
@@ -8710,18 +8710,18 @@ int main(int argc, char *argv[])
             MyTestObject x(&deleteCount);
 
             {
-                bdema_ManagedPtr_Members empty;
-                bdema_ManagedPtr_Members simple(&x, 0, doNothingDeleter);
+                bslma::ManagedPtr_Members empty;
+                bslma::ManagedPtr_Members simple(&x, 0, doNothingDeleter);
 
                 if (verbose) cout << "\tTest value constructor\n";
 
-                const bdema_ManagedPtr_Ref<MyTestObject> ref(&empty, 0);
-                bdema_ManagedPtr_Members * base = ref.base();
+                const bslma::ManagedPtr_Ref<MyTestObject> ref(&empty, 0);
+                bslma::ManagedPtr_Members * base = ref.base();
                 LOOP2_ASSERT(&empty, base, &empty == base);
 
                 if (verbose) cout << "\tTest copy constructor\n";
 
-                bdema_ManagedPtr_Ref<MyTestObject> other = ref;
+                bslma::ManagedPtr_Ref<MyTestObject> other = ref;
                 base = ref.base();
                 LOOP2_ASSERT(&empty, base, &empty == base);
                 base = other.base();
@@ -8729,7 +8729,7 @@ int main(int argc, char *argv[])
 
                 if (verbose) cout << "\tTest assignment\n";
 
-                const bdema_ManagedPtr_Ref<MyTestObject> second(&simple, &x);
+                const bslma::ManagedPtr_Ref<MyTestObject> second(&simple, &x);
                 base = second.base();
                 LOOP2_ASSERT(&simple, base, &simple == base);
 
@@ -8754,7 +8754,7 @@ int main(int argc, char *argv[])
 
         {
             bsls::AssertTestHandlerGuard guard;
-            ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr_Ref<MyTestObject> nil(0, 0));
+            ASSERT_SAFE_FAIL_RAW(bslma::ManagedPtr_Ref<MyTestObject> nil(0, 0));
         }
 #else
         if (verbose) cout << "\tNegative testing disabled due to lack of "

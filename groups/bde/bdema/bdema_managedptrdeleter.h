@@ -51,12 +51,17 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_MANAGEDPTRDELETER
+#include <bslma_managedptrdeleter.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
 
+#if 0
                        // =============================
                        // class bdema_ManagedPtrDeleter
                        // =============================
@@ -285,6 +290,20 @@ bool operator!=(const bdema_ManagedPtrDeleter& lhs,
         || lhs.factory() != rhs.factory()
         || lhs.deleter() != rhs.deleter();
 }
+#else
+
+typedef bslma::ManagedPtrDeleter bdema_ManagedPtrDeleter;
+
+bsl::ostream& operator<<(bsl::ostream&                  stream,
+                         const bdema_ManagedPtrDeleter& object);
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference to 'stream'.
+    // If 'stream' is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified and can change
+    // without notice.  Also note that this method has the same behavior as
+    // 'object.print(stream, 0, -1)' with the attribute names elided.
+
+#endif
 
 }  // close namespace BloombergLP
 #endif

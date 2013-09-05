@@ -19,6 +19,7 @@ namespace BloombergLP {
 // ACCESSORS
                                   // Aspects
 
+#if 0
 bsl::ostream&
 bdema_ManagedPtrDeleter::print(bsl::ostream& stream,
                                int           level,
@@ -43,6 +44,7 @@ bdema_ManagedPtrDeleter::print(bsl::ostream& stream,
 
     return stream;
 }
+#endif
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&                  stream,
