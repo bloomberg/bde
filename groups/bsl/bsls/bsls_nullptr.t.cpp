@@ -281,12 +281,13 @@ int main(int argc, char *argv[])
         ASSERT(Local::isNullPointer(0));
         ASSERT(Local::isNullPointer(NULL));
         ASSERT(Local::isNullPointer(false));
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-        ASSERT(Local::isNullPointer(s_cZero));
-        ASSERT(Local::isNullPointer(cZero));
-#else
+#if  defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T) \
+ && !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT(!Local::isNullPointer(s_cZero));
         ASSERT(!Local::isNullPointer(cZero));
+#else
+        ASSERT(Local::isNullPointer(s_cZero));
+        ASSERT(Local::isNullPointer(cZero));
 #endif
         ASSERT(Local::isNullPointer(1-1));
         ASSERT(Local::isNullPointer(0*1));
