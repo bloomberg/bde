@@ -671,7 +671,7 @@ void validateManagedState(unsigned int                   LINE,
         }
 #endif
     }
-    else {
+    else if (ptr) {
         // Different negative testing constraints when 'ptr' is null.
         ASSERT(true  == (bool)obj);
         ASSERT(false == !obj);
@@ -687,6 +687,9 @@ void validateManagedState(unsigned int                   LINE,
 
         const bdema_ManagedPtrDeleter& objDel = obj.deleter();
         LOOP3_ASSERT(LINE, del, objDel, del == objDel);
+    }
+    else {
+        ASSERT(!"This line should not be reachable.");
     }
 
     ASSERT(gam.isInUseSame());
