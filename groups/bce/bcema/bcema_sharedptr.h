@@ -1892,12 +1892,17 @@ class bcema_SharedPtr : public bsl::shared_ptr<ELEMENT_TYPE> {
     using bsl::shared_ptr<ELEMENT_TYPE>::rep;
     using bsl::shared_ptr<ELEMENT_TYPE>::ptr;
     using bsl::shared_ptr<ELEMENT_TYPE>::numReferences;
-    using bsl::shared_ptr<ELEMENT_TYPE>::managedPtr;
+//    using bsl::shared_ptr<ELEMENT_TYPE>::managedPtr;
     using bsl::shared_ptr<ELEMENT_TYPE>::reset;
     using bsl::shared_ptr<ELEMENT_TYPE>::get;
     using bsl::shared_ptr<ELEMENT_TYPE>::unique;
     using bsl::shared_ptr<ELEMENT_TYPE>::use_count;
     using bsl::shared_ptr<ELEMENT_TYPE>::owner_before;
+
+    bdema_ManagedPtr<ELEMENT_TYPE> managedPtr() const;
+        // Return a managed pointer that refers to the same object as this
+        // shared pointer and which has a deleter that decrements the
+        // reference count for the shared object.
 #endif
 };
 
@@ -3010,6 +3015,19 @@ bool bcema_SharedPtr<ELEMENT_TYPE>::owner_before(
                                   const bcema_SharedPtr<ANY_TYPE>& other) const
 {
     return bsl::less<bcema_SharedPtrRep *>()(rep(), other.rep());
+}
+#else  // 0
+template <class ELEMENT_TYPE>
+bdema_ManagedPtr<ELEMENT_TYPE>
+bcema_SharedPtr<ELEMENT_TYPE>::managedPtr() const
+{
+    bslma::ManagedPtr<ELEMENT_TYPE> temp =
+                                   bsl::shared_ptr<ELEMENT_TYPE>::managedPtr();
+
+    bdema_ManagedPtr<ELEMENT_TYPE> result(
+                      static_cast<bslma::ManagedPtr_Ref<ELEMENT_TYPE> >(temp));
+
+    return result;
 }
 #endif // 0
                     // --------------------------
