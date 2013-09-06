@@ -855,7 +855,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    const int rc = d_tokenizer.advanceToNextToken();
+    int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         return rc;                                                    // RETURN
     }
@@ -877,7 +877,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                 return -1;                                            // RETURN
             }
 
-            const int rc = d_tokenizer.advanceToNextToken();
+            rc = d_tokenizer.advanceToNextToken();
             if (rc) {
                 d_logStream << "Error reading token after value of element '"
                             << i - 1 << "'\n";
