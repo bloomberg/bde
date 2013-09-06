@@ -281,8 +281,12 @@ int main(int argc, char *argv[])
         ASSERT(Local::isNullPointer(0));
         ASSERT(Local::isNullPointer(NULL));
         ASSERT(Local::isNullPointer(false));
-#if  defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T) \
- && !defined(BSLS_PLATFORM_CMP_MSVC)
+#if  defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)                             \
+&& !(defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VER_MAJOR < 40700)) \
+&&  !defined(BSLS_PLATFORM_CMP_MSVC)
+        // Early nullptr implementations have this bug, was this a change in
+        // the working paper before standardization?
+
         ASSERT(!Local::isNullPointer(s_cZero));
         ASSERT(!Local::isNullPointer(cZero));
 #else
