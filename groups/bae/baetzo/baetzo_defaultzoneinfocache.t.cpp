@@ -1173,7 +1173,7 @@ int main(int argc, char *argv[])
 
             const baetzo_Zoneinfo *TZ = Obj::defaultCache()->getZoneinfo(ID);
             ASSERT(0   != TZ);
-            ASSERT(236 == TZ->numTransitions());
+            ASSERT(237 == TZ->numTransitions());
         }
 
         if (verbose) cout << "\nTesting user defind default caches"
