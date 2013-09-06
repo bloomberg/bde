@@ -169,13 +169,15 @@ BDES_IDENT("$Id: $")
 // Finally we confirm that certain properties of the 'timezone' object are in
 // agreement with the properties defined in the binary data (see
 // 'baetzo_zoneinfobinaryreader'): (1) That the object's identifier is
-// "Asia/Bangkok", and (2) the object contains two local time descriptors,
-// "BMT" (Bangkok Mean Time) and "ICT" (Indochina Time), in that order:
+// "Asia/Bangkok", and (2) the object contains three local time descriptors,
+// "LMT" (Local Mean Time), "BMT" (Bangkok Mean Time) and "ICT" (Indochina
+// Time), in that order:
 //..
 //  assert(BANGKOK_ID == timeZone.identifier());
-//  assert(2          == timeZone.numDescriptors());
 //  baetzo_Zoneinfo::LocalTimeDescriptorConstIterator iterator =
 //                                                  timeZone.descriptorBegin();
+//  assert("LMT" == iterator->description());
+//  ++iterator;
 //  assert("BMT" == iterator->description());
 //  ++iterator;
 //  assert("ICT" == iterator->description());

@@ -165,7 +165,7 @@ int baetzo_DataFileLoader::loadTimeZone(baetzo_Zoneinfo *result,
         // if the data-file loader is not correctly configured, return
         // 'UNSPECIFIED_ERROR' (different from 'BAETZO_UNSUPPORTED_ID').
 
-        BAEL_LOG_ERROR << "Failed to open time-zone information file'"
+        BAEL_LOG_ERROR << "Failed to open time-zone information file '"
                        << path << "'" << BAEL_LOG_END;
 
         return isRootPathPlausible()

@@ -630,12 +630,14 @@ int main(int argc, char *argv[])
 //..
 // Finally we verify several properties of the timezone: (1) That its
 // identifier is "Asia/Bangkok", and (2) it contains two transitions referring
-// to two local time descriptors, "BMT" (Bangkok Mean Time), and "ICT"
-// (Indochina Time):
+// to three local time descriptors, "LMT" (Local Mean Time), "BMT" (Bangkok
+// Mean Time), and "ICT" (Indochina Time):
 //..
     ASSERT(BANGKOK_ID == timeZone.identifier());
     baetzo_Zoneinfo::TransitionConstIterator iterator =
                                                    timeZone.beginTransitions();
+    ASSERT("LMT" == iterator->descriptor().description());
+    ++iterator;
     ASSERT("BMT" == iterator->descriptor().description());
     ++iterator;
     ASSERT("ICT" == iterator->descriptor().description());

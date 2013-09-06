@@ -1856,7 +1856,7 @@ int main(int argc, char *argv[])
 
         // Bangkok data file has 1 transition, +1 for the first 'bdet_Datetime'
 
-        LOOP_ASSERT(value.numTransitions(), 2 == value.numTransitions());
+        LOOP_ASSERT(value.numTransitions(), 3 == value.numTransitions());
 
         {
             LogVerbosityGuard guard;
