@@ -658,32 +658,12 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDPTR_FACTORYDELETER
-#include <bslma_managedptr_factorydeleter.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR_MEMBERS
-#include <bslma_managedptr_members.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDREFERENCE
-#include <bslmf_addreference.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_IF
-#include <bslmf_if.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -702,16 +682,32 @@ BDES_IDENT("$Id: $")
 #include <bsls_nullptr.h>
 #endif
 
-#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
-#include <bsls_unspecifiedbool.h>
-#endif
-
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ADDREFERENCE
+#include <bslmf_addreference.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_IF
+#include <bslmf_if.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
+#include <bsls_unspecifiedbool.h>
+#endif
+
 #endif
 
 namespace BloombergLP {
@@ -1168,25 +1164,6 @@ struct bdema_ManagedPtrNilDeleter {
 
     static void deleter(void *, void *);
         // Deleter function that does nothing.
-};
-
-             // =================================================
-             // private class bslma::ManagedPtr_FactoryDeleterType
-             // =================================================
-
-template <class TARGET_TYPE, class FACTORY_TYPE>
-struct bdema_ManagedPtr_FactoryDeleterType
-    : bslmf::If<bslmf::IsConvertible<FACTORY_TYPE*, bslma::Allocator*>::VALUE,
-               bslma::ManagedPtr_FactoryDeleter<TARGET_TYPE, bslma::Allocator>,
-               bslma::ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> > {
-    // This metafunction class-template provides a means to compute the
-    // preferred deleter function for a factory class for those methods of
-    // 'bdema_ManagedPtr' that supply only a factory, and no additional deleter
-    // function.  The intent is to use a common deleter function for all
-    // allocators that implement the 'bslma::Allocator' protocol, rather than
-    // create a special deleter function based on the complete type of each
-    // allocator, each doing the same thing (invoking the virtual function
-    // 'deleteObject').
 };
 
 // ============================================================================

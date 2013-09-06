@@ -7,6 +7,7 @@ BDES_IDENT_RCSID(bcema_sharedptrrep_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 namespace BloombergLP {
+#if 0
 
                           // ------------------------
                           // class bcema_SharedPtrRep
@@ -89,6 +90,8 @@ bool bcema_SharedPtrRep::tryAcquireRef()
     }
     return false;
 }
+
+#endif
 
 }  // close namespace BloombergLP
 
