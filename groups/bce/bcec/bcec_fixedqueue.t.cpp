@@ -8,6 +8,7 @@
 #include <bcemt_configuration.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_qlock.h>
+#include <bcemt_timedsemaphore.h>
 #include <bcema_sharedptr.h>
 #include <bcema_testallocator.h>
 #include <bcemt_threadgroup.h>
@@ -119,6 +120,41 @@ typedef bcec_FixedQueue<Element*> Obj;
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
+
+class ExceptionTester 
+{
+public:
+    static bces_AtomicInt s_throwFrom;
+
+    ExceptionTester() {}
+
+    ExceptionTester(const ExceptionTester& rhs) {
+        if (s_throwFrom &&
+            bcemt_ThreadUtil::selfIdAsInt() == s_throwFrom) {
+            throw 1;
+        }
+    }
+
+    ExceptionTester& operator=(const ExceptionTester& rhs) {
+    }
+};
+bces_AtomicInt ExceptionTester::s_throwFrom = 1;
+
+void exceptionProducer(bcec_FixedQueue<ExceptionTester> *tester,
+                       bcemt_TimedSemaphore             *sema, 
+                       bces_AtomicInt                   *numCaught) {
+    enum { NUM_ITERATIONS = 2 };
+
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        try {
+            tester->pushBack(ExceptionTester());
+        } catch (...) {
+            ++(*numCaught);
+        }
+        sema->post();
+    }
+}
+
 namespace Backoff {
 
 void hardwork(int* item, int spin)
@@ -1032,6 +1068,74 @@ int main(int argc, char *argv[])
                      bcemt_Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 21: {
+        // ---------------------------------------------------------
+        // Exception safety test
+        //
+        // Test that the queue provides the Strong exception safety
+        // guarantee.
+        // ---------------------------------------------------------
+        
+        bcema_TestAllocator ta(veryVeryVerbose);
+        {        
+            // a.  popping from a full queue with exception leaves a non-full
+            //     queue and unblocks a pusher
+            enum {QUEUE_LENGTH = 3};
+            bcec_FixedQueue<ExceptionTester> queue(QUEUE_LENGTH, 
+                                                         &ta);
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 != queue.tryPushBack(ExceptionTester()));
+
+            bcemt_TimedSemaphore sema;
+            bces_AtomicInt numCaught = 0;
+
+            bcemt_ThreadUtil::Handle producer;
+            int rc = bcemt_ThreadUtil::create(&producer,
+                                              bdef_BindUtil::bind(
+                                                         &exceptionProducer,
+                                                         &queue, &sema, 
+                                                         &numCaught));
+            BSLS_ASSERT_OPT(0 == rc); // test invariant
+            
+            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsInt();
+            bool caught = false;
+            try {
+                ExceptionTester test = queue.popFront();
+            } catch (...) {
+                caught = true;
+            }
+            ASSERT(caught);
+            ASSERT(0 == 
+                   sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
+
+            ASSERT(QUEUE_LENGTH == queue.length());
+
+            // b.  pushing into a queue with exception does not increase the
+            // length of the queue
+            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsInt(
+                                    bcemt_ThreadUtil::handleToId(producer));
+            
+            // pop an item to unblock the pusher
+            ExceptionTester test = queue.popFront();
+            ASSERT(0 == 
+                   sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
+            ASSERT(1 == numCaught);
+
+            ASSERT(QUEUE_LENGTH - 1 == queue.length());
+            ASSERT(!queue.isFull());
+            ASSERT(0 == queue.tryPushBack(ExceptionTester()));
+
+            queue.disable();
+            queue.removeAll();
+            bcemt_ThreadUtil::join(producer);
+        }
+        ASSERT(0 < ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+        break;
+      }
+
       case 20: {
         // ---------------------------------------------------------
         // Template Requirements Test

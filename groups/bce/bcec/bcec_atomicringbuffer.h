@@ -317,94 +317,93 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
 template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE *data)
 {
-  unsigned int generation;
-  unsigned int index;
-  int retval = d_impl.acquirePopIndex(&generation, &index);
-
-  if (0 != retval) {
-    return retval;
-  }
-
-  // copy data
-  *data = d_elements[index];
-  d_elements[index].~TYPE();
-  
-  d_impl.releaseElement(generation, index);
-
-  // notify pusher of available element
-  if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
-    d_pushControlSema.post();
-  }
-
+    unsigned int generation;
+    unsigned int index;
+    int retval = d_impl.acquirePopIndex(&generation, &index);
+    
+    if (0 != retval) {
+        return retval;
+    }
+    
+    // copy data
+    *data = d_elements[index];
+    d_elements[index].~TYPE();
+    
+    d_impl.releaseElement(generation, index);
+    
+    // notify pusher of available element
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
+        d_pushControlSema.post();
+    }
+    
   return 0;
 }
-
+    
 // MANIPULATORS
 template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::pushBack(const TYPE &data)
 {
-  int retval;
-  while (0 != (retval = tryPushBack(data)))
-  {
-      if (-2 == retval) {
-          return -2;
-      }
-      
-      d_numWaitingPushers.relaxedAdd(1);
-      
-      if (isFull() && isEnabled()) {
-          d_pushControlSema.wait();
-      }
-      
-      d_numWaitingPushers.relaxedAdd(-1);
-  }
-  
-  return 0;
+    int retval;
+    while (0 != (retval = tryPushBack(data))) {
+        if (-2 == retval) {
+            return -2;
+        }
+        
+        d_numWaitingPushers.relaxedAdd(1);
+        
+        if (isFull() && isEnabled()) {
+            d_pushControlSema.wait();
+        }
+        
+        d_numWaitingPushers.relaxedAdd(-1);
+    }
+    
+    return 0;
 }
-
+    
 template <typename TYPE>
 void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
 {
-  while(0 != tryPopFront(data)) {
-    d_numWaitingPoppers.relaxedAdd(1);
+    while(0 != tryPopFront(data)) {
+        d_numWaitingPoppers.relaxedAdd(1);
 
-    if (isEmpty()) {
-      d_popControlSema.wait();
-    }
+        if (isEmpty()) {
+            d_popControlSema.wait();
+        }
 
-    d_numWaitingPoppers.relaxedAdd(-1);
-  }
+        d_numWaitingPoppers.relaxedAdd(-1);
+}
 }
 
 template <typename TYPE>
 TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
 {
-  unsigned int generation;
-  unsigned int index;
-
-  while(0 != d_impl.acquirePopIndex(&generation, &index)) {
-    d_numWaitingPoppers.relaxedAdd(1);
-
-    if (isEmpty()) {
-      d_popControlSema.wait();
+    unsigned int generation;
+    unsigned int index;
+    
+    while(0 != d_impl.acquirePopIndex(&generation, &index)) {
+        d_numWaitingPoppers.relaxedAdd(1);
+        
+        if (isEmpty()) {
+            d_popControlSema.wait();
+        }
+        
+        d_numWaitingPoppers.relaxedAdd(-1);
     }
-
-    d_numWaitingPoppers.relaxedAdd(-1);
-  }
-
-  TYPE result(d_elements[index]);
-  d_elements[index].~TYPE();
-  
-  d_impl.releaseElement(generation, index);
-
-  // notify pusher of available element
-  if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
-    d_pushControlSema.post();
-  }
-
-  return result;
+    
+    TYPE result(d_elements[index]);
+    d_elements[index].~TYPE();
+    
+    d_impl.releaseElement(generation, index);
+    
+    // notify pusher of available element
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
+        d_pushControlSema.post();
+    }
+    
+    return result;
 }           
-     
+    
 template <typename TYPE>
 void bcec_AtomicRingBuffer<TYPE>::removeAll()
 {
