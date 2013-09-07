@@ -1,6 +1,7 @@
 // bslmf_nthparameter.t.cpp                  -*-C++-*-
 
 #include "bslmf_nthparameter.h"
+#include <bslmf_integralconstant.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -105,6 +106,10 @@ inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
 inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
+
+template <int V>
+inline
+int integerConstTypeToInt(bsl::integral_constant<int, V>) { return V; }
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -564,7 +569,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -581,6 +586,107 @@ int main(int argc, char *argv[])
 
         usageExample1();
 
+      } break;
+
+      case 2: {
+        // --------------------------------------------------------------------
+        // FULL TEST
+        //
+        // Concerns
+        //  o 'bslmf::NthParameter' can handle from 1 to 10 type arguments.
+        //  o 'bslmf::NthParameter' produces the correct 'Type' for 'N' in
+        //    range 0 to 9.
+        //
+        // Plan:
+        //  o Use 'integral_constant' to create 10 different types 'T0' to 'T9'
+        //    as aliases for 'integral_constant<int, 0>' to
+        //    'integral_constant<int, 9>', respectively.
+        //  o Instantiate 'bslmf::NthParameter<0, T0>' and verify that the
+        //    resulting 'Type' is 'T0'.
+        //  o Repeat the test with an ever longer list of type arguments and
+        //    with every valid value of 'N' until we've tested
+        //    bslmf::NthParameter<9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>'.
+        //
+        // Testing:
+        //   bslmf::NthParameter<N, FIRST_PARAM, ...>::Type
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nFULL TEST"
+                            "\n=========\n");
+
+        typedef bsl::integral_constant<int, 0> T0;
+        typedef bsl::integral_constant<int, 1> T1;
+        typedef bsl::integral_constant<int, 2> T2;
+        typedef bsl::integral_constant<int, 3> T3;
+        typedef bsl::integral_constant<int, 4> T4;
+        typedef bsl::integral_constant<int, 5> T5;
+        typedef bsl::integral_constant<int, 6> T6;
+        typedef bsl::integral_constant<int, 7> T7;
+        typedef bsl::integral_constant<int, 8> T8;
+        typedef bsl::integral_constant<int, 9> T9;
+
+#define DO_TEST(N, ...) {                                               \
+              typedef bslmf::NthParameter<N, __VA_ARGS__>::Type Result; \
+              ASSERT(N == integerConstTypeToInt(Result()));             \
+      }
+
+          DO_TEST(0, T0);
+          DO_TEST(0, T0, T1);
+          DO_TEST(1, T0, T1);
+          DO_TEST(0, T0, T1, T2);
+          DO_TEST(1, T0, T1, T2);
+          DO_TEST(2, T0, T1, T2);
+          DO_TEST(0, T0, T1, T2, T3);
+          DO_TEST(1, T0, T1, T2, T3);
+          DO_TEST(2, T0, T1, T2, T3);
+          DO_TEST(3, T0, T1, T2, T3);
+          DO_TEST(0, T0, T1, T2, T3, T4);
+          DO_TEST(1, T0, T1, T2, T3, T4);
+          DO_TEST(2, T0, T1, T2, T3, T4);
+          DO_TEST(3, T0, T1, T2, T3, T4);
+          DO_TEST(4, T0, T1, T2, T3, T4);
+          DO_TEST(0, T0, T1, T2, T3, T4, T5);
+          DO_TEST(1, T0, T1, T2, T3, T4, T5);
+          DO_TEST(2, T0, T1, T2, T3, T4, T5);
+          DO_TEST(3, T0, T1, T2, T3, T4, T5);
+          DO_TEST(4, T0, T1, T2, T3, T4, T5);
+          DO_TEST(5, T0, T1, T2, T3, T4, T5);
+          DO_TEST(0, T0, T1, T2, T3, T4, T5, T6);
+          DO_TEST(1, T0, T1, T2, T3, T4, T5, T6);
+          DO_TEST(2, T0, T1, T2, T3, T4, T5, T6);
+          DO_TEST(3, T0, T1, T2, T3, T4, T5, T6);
+          DO_TEST(4, T0, T1, T2, T3, T4, T5, T6);
+          DO_TEST(5, T0, T1, T2, T3, T4, T5, T6);
+          DO_TEST(6, T0, T1, T2, T3, T4, T5, T6);
+          DO_TEST(0, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(1, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(2, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(3, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(4, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(5, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(6, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(7, T0, T1, T2, T3, T4, T5, T6, T7);
+          DO_TEST(0, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(1, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(2, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(3, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(4, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(5, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(6, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(7, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(8, T0, T1, T2, T3, T4, T5, T6, T7, T8);
+          DO_TEST(0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(1, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(2, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(3, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(4, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(5, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(6, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(7, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(8, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+          DO_TEST(9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+
+#undef DO_TEST
       } break;
 
       case 1: {
