@@ -509,7 +509,7 @@ BDES_IDENT("$Id: $")
 // class methods:
 //..
 //  addr2 = addr1.clone();
-//  assert(addr1 != addr2);                               // Not equal...
+//  assert(!bcem_Aggregate::areIdentical(addr1, addr2));  // Not identical...
 //  assert(bcem_Aggregate::areEquivalent(addr1, addr2));  // but equivalent
 //  assert(&addr1.recordDef() != &addr2.recordDef()); // Different schema addr
 //..
