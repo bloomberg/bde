@@ -462,9 +462,9 @@ namespace CASE_2 {
 bool calledTop = false;
 
 static
-void top()
+int top()
 {
-    if (calledTop) return;
+    if (calledTop) return 9;
     calledTop = true;
 
     bslma::TestAllocator ta;
@@ -498,14 +498,16 @@ void top()
     if (verbose) {
         *out_p << str;
     }
+
+    return 7 + !!verbose;
 }
 
 bool calledHighMiddle = false;
 
 static
-void highMiddle(int i)
+int highMiddle(int i)
 {
-    if (calledHighMiddle) return;
+    if (calledHighMiddle) return 40;
     calledHighMiddle = true;
 
     calledTop = false;
@@ -513,34 +515,44 @@ void highMiddle(int i)
     i ^= ~i;            // effectively 'i = 0', but 'uses' value of 'i'
     for (; i < 40; ++i) {
         if (i & 16) {
-            top();
+            i += 5;
+            ASSERT(top() >= 6);
         }
         else if (i & 8) {
-            top();
+            i += 7;
+            ASSERT(top() >= 7);
         }
     }
 
     ASSERT(calledTop);
+
+    return i;
 }
 
 bool calledLowMiddle = false;
 
 int lowMiddle()
 {
-    if (calledLowMiddle) return 7;
+    if (calledLowMiddle) return 30;
     calledLowMiddle = true;
 
     calledHighMiddle = false;
 
-    for (int i = 0; i < 30; ++i) {
+    int i = 0;
+    for (; i < 30; ++i) {
         if (i & 4) {
-            highMiddle(10);
+            i += 12;
+            ASSERT(highMiddle(10) >= 40);
+        }
+        else if ((i & 2) && (i & 16)) {
+            i += 5;
+            ASSERT(highMiddle(10) >= 39);
         }
     }
 
     ASSERT(calledHighMiddle);
 
-    return 5;
+    return i;
 }
 
 static
@@ -551,7 +563,12 @@ int bottom()
     int i = 0;
     for (; i < 20; ++i) {
         if (i & 8) {
-            i *= lowMiddle();
+            i += 7;
+            ASSERT(lowMiddle() >= 30);
+        }
+        if ((i & 2) && (i & 4)) {
+            i += 4;
+            ASSERT(lowMiddle() >= 28);
         }
     }
 
@@ -562,8 +579,8 @@ int bottom()
 
 // Make global ptrs to the static routines to prevent optimizer inlinng them.
 
-void (*highMiddlePtr)(int) = &highMiddle;
-int  (*bottomPtr)()        = &bottom;
+int (*highMiddlePtr)(int) = &highMiddle;
+int (*bottomPtr)()        = &bottom;
 
 }  // close namespace CASE_2
 
@@ -606,23 +623,29 @@ void top(bslma::Allocator *alloc)
     }
 }
 
-void bottom(bslma::Allocator *alloc)
+int bottom(bslma::Allocator *alloc)
 {
     // still attempting to thwart optimizer -- all this does is call 'top'
     // a bunch of times.
 
     called = false;
 
-    for (int i = 0; i < 0x20; ++i) {
+    int i = 0;
+    for (; i < 0x20; ++i) {
         if ((i & 2) && (i & 4)) {
+            i += 7;
             top(alloc);
         }
         else if ((i & 1) && (i & 8)) {
+            i += 5;
             top(alloc);
         }
     }
 
     ASSERT(called);
+    ASSERT(i >= 0x20);
+
+    return i;
 }
 
 }  // close namespace CASE_1
@@ -897,7 +920,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Manipulator & Accessor Test\n"
                              "===========================\n";
 
-        TC::bottom(&ta);
+        int result = TC::bottom(&ta);
+        ASSERT(result >= 0x20);
 
         ASSERT(0 == defaultAllocator.numAllocations());
       } break;
