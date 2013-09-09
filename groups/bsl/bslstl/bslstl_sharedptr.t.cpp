@@ -3918,6 +3918,14 @@ int main(int argc, char *argv[])
         //   bsl::shared_ptr(bslma::ManagedPtr<OT> & original);
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\nTesting constructing from 'ManagedPtr'"
+                            "\n======================================\n");
+
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
+        bslma::DefaultAllocatorGuard dag(
+                                      &bslma::NewDeleteAllocator::singleton());
+#endif
+
         ManagedPtrTestDeleter<bsls::Types::Int64> deleter;
 
         bsls::Types::Int64 obj1, obj2;
@@ -4352,6 +4360,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nConcern: 'bsl::shared_ptr' compliance"
                             "\n=====================================\n");
 
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
+        bslma::DefaultAllocatorGuard dag(
+                                      &bslma::NewDeleteAllocator::singleton());
+#endif
+
         if (verbose) printf("\nTesting 'reset'."
                             "\n----------------\n");
 
@@ -4662,6 +4675,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'swap'"
                             "\n==============\n");
+
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
+        bslma::DefaultAllocatorGuard dag(
+                                      &bslma::NewDeleteAllocator::singleton());
+#endif
 
         if (verbose) printf("\tWith default allocator.\n");
 
@@ -5531,9 +5549,14 @@ int main(int argc, char *argv[])
             printf("\nTesting load of null ptr(on empty object)"
                    "\n-----------------------------------------\n");
 
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
+        bslma::DefaultAllocatorGuard dag(
+                                      &bslma::NewDeleteAllocator::singleton());
+#endif
+
         bslma::TestAllocator ta(veryVeryVerbose);
 
-#if 0 // !defined(BSLSTL_REFERENCE_COUNTING_NULLS)
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
         if (verbose)
             printf("\nTesting load of null ptr(on empty object)"
                    "\n-----------------------------------------\n");
@@ -5729,7 +5752,7 @@ int main(int argc, char *argv[])
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-#endif  // reference counting doubles
+#endif  // reference counting nulls
 
         if (verbose)
             printf("\nTesting load of non-null ptr (on non-empty object)"
@@ -6177,6 +6200,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting ASSIGNMENT OPERATORS"
                             "\n============================\n");
 
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
+        bslma::DefaultAllocatorGuard dag(
+                                      &bslma::NewDeleteAllocator::singleton());
+#endif
+
         if (verbose) printf("\nTesting ASSIGNMENT to empty object"
                             "\n----------------------------------\n");
         {
@@ -6396,12 +6424,10 @@ int main(int argc, char *argv[])
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-//#if defined(AJM_HAS_RECONCILED_CONFLICTING_BRANCHES)
             Obj w(0); const Obj& W = w;
             ASSERT(0 == W.ptr());
             ASSERT(0 == W.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
-//#endif // AJM_HAS_RECONCILED_CONFLICTING_BRANCHES
 
             Obj x(0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
@@ -6430,26 +6456,6 @@ int main(int argc, char *argv[])
             printf("\nTesting (cast) null ptr constructor"
                    "\n-----------------------------------\n");
 
-#if 0
-        numDeallocations = ta.numDeallocations();
-        {
-            Obj w((TObj*)0); const Obj& W = w;
-            ASSERT(0 == W.ptr());
-            ASSERT(0 == W.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-
-            Obj x((TObj*)0, &ta); const Obj& X = x;
-            ASSERT(0 == X.ptr());
-            ASSERT(0 == X.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-
-            Obj z((TObj*)0, &ta, &ta); const Obj& Z = z;
-            ASSERT(0 == Z.ptr());
-            ASSERT(0 == Z.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-        }
-        ASSERT(numDeallocations == ta.numDeallocations());
-#else // C++11 semantic reference counts explicit nulls
         numDefaultDeallocations = defaultAllocator.numDeallocations();
         numDefaultAllocations   = defaultAllocator.numAllocations();
         numAllocations   = ta.numAllocations();
@@ -6463,13 +6469,6 @@ int main(int argc, char *argv[])
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(++numDefaultAllocations ==
                                             defaultAllocator.numAllocations());
-#else
-            ASSERT(0 == W.numReferences());
-
-            ASSERT(numAllocations == ta.numAllocations());
-            ASSERT(numDefaultAllocations ==
-                                            defaultAllocator.numAllocations());
-#endif
 
             Obj x((TObj*)0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
@@ -6480,11 +6479,34 @@ int main(int argc, char *argv[])
             ASSERT(0 == Z.ptr());
             ASSERT(1 == Z.numReferences());
             ASSERT(++numAllocations == ta.numAllocations());
+#else
+            ASSERT(0 == W.numReferences());
+
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDefaultAllocations ==
+                                            defaultAllocator.numAllocations());
+
+            Obj x((TObj*)0, &ta); const Obj& X = x;
+            ASSERT(0 == X.ptr());
+            ASSERT(0 == X.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+
+            Obj z((TObj*)0, &ta, &ta); const Obj& Z = z;
+            ASSERT(0 == Z.ptr());
+            ASSERT(0 == Z.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+#endif
         }
+
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
         ASSERT(2 + numDeallocations == ta.numDeallocations());
         ASSERT(++numDefaultDeallocations ==
                                           defaultAllocator.numDeallocations());
+#else
+        ASSERT(numDeallocations == ta.numDeallocations());
+        ASSERT(numDefaultDeallocations == defaultAllocator.numDeallocations());
 #endif
+
 
         if (verbose)
             printf("\nTesting constructor (with factory)"
@@ -6830,6 +6852,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Constructors and Destructor"
                             "\n===================================\n");
 
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
+        bslma::DefaultAllocatorGuard dag(
+                                      &bslma::NewDeleteAllocator::singleton());
+#endif
+
         bslma::TestAllocator ta(veryVeryVerbose);
 
         if (verbose) printf("\nTesting default constructor"
@@ -6940,6 +6967,11 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting shared_ptr"
                             "\n------------------\n");
+
+#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
+        bslma::DefaultAllocatorGuard dag(
+                                      &bslma::NewDeleteAllocator::singleton());
+#endif
 
         bsls::Types::Int64 numDeletes = 0;
         {
