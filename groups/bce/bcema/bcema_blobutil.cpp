@@ -31,7 +31,7 @@ void findBufferIndexFromOffset(int               *bufferIndex,
     int i = 0;
 
     for (*previousBuffersLength = 0; i < blob.numBuffers(); ++i) {
-        bcema_BlobBuffer buffer = blob.buffer(i);
+        const bcema_BlobBuffer& buffer = blob.buffer(i);
 
         if (*previousBuffersLength + buffer.size() > offset) {
             break;
