@@ -689,6 +689,8 @@ int main(int argc, char *argv[])
         }
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
+     
+/* 
         {
             bsl::string pipeName;
 
@@ -720,6 +722,46 @@ int main(int argc, char *argv[])
             ASSERT(bsl::string(MSG1) == server.message(1));
 
         }
+
+*/        
+        {
+            bsl::string pipeName;
+
+            ControlServer server(&ta);
+
+            ASSERT(0 == bdesu_PipeUtil::makeCanonicalName
+                   (&pipeName, "ctrl.baea.pcctest7"));
+#ifdef BSLS_PLATFORM_OS_UNIX
+            unlink(pipeName.c_str());
+#endif
+
+            int rc = server.start(pipeName);
+            ASSERT(0 == rc && "Failed to start pipe control channel");
+//..
+// Once the server is started, clients can send messages to the server.
+//..
+     const char MSG0[]  = "this is the first message";
+     const char MSG1[]  = "this is the second message";
+//
+     rc = bdesu_PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
+     ASSERT(0 == rc);
+     rc = bdesu_PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
+     ASSERT(0 == rc);
+     rc = bdesu_PipeUtil::send(pipeName, "EXIT\n");
+     ASSERT(0 == rc);
+//..
+// The server shuts down once it processes the "EXIT" control message.
+//..
+     server.stop();  // block until shutdown
+//..
+// Finally, let's ensure the server received each control message sent.
+//..
+     ASSERT(2 == server.numMessages());
+     ASSERT(bsl::string(MSG0) == server.message(0));
+     ASSERT(bsl::string(MSG1) == server.message(1));
+//..
+        }
+
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 #endif

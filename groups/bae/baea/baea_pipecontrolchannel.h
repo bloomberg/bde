@@ -105,7 +105,7 @@ BDES_IDENT("$Id: $")
 // Now, construct and run the server using a canonical name for the pipe:
 //..
 //   bsl::string pipeName;
-//   bdesu_PipeUtil::makeCanonicalPipeName(&pipeName, "ctrl.pcctest");
+//   bdesu_PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
 //
 //   ControlServer server;
 //
@@ -119,12 +119,11 @@ BDES_IDENT("$Id: $")
 //   const char MSG0[]  = "this is the first message";
 //   const char MSG1[]  = "this is the second message";
 //
-//   int rc;
 //   rc = bdesu_PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
 //   assert(0 == rc);
 //   rc = bdesu_PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
 //   assert(0 == rc);
-//   rc = bdesu_PipeUtil::send(pipeName, "EXIT");
+//   rc = bdesu_PipeUtil::send(pipeName, "EXIT\n");
 //   assert(0 == rc);
 //..
 // The server shuts down once it processes the "EXIT" control message.
