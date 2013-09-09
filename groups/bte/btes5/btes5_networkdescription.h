@@ -139,7 +139,6 @@ class btes5_NetworkDescription {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    // TODO: replace both with addProxy(int, const btes5_ProxyDescription&) ?
     bsl::size_t addProxy(bsl::size_t                  level,
                          const bteso_Endpoint&        address,
                          const btes5_Credentials&     credentials);

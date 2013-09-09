@@ -265,7 +265,6 @@ int main(int argc, char *argv[])
             "Proxy level 1: proxy2.region.com:1091 proxy2.region.com:1092\n";
         LOOP2_ASSERT(s.str(), expected, expected == s.str());
 
-        // TODO Credentials tests, incl. utility functions
       } break;
       case 1: {
         // --------------------------------------------------------------------

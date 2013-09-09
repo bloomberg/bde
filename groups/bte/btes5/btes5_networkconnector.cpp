@@ -24,9 +24,9 @@ BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 // 'btes5_NetworkConnector' implements asynchronous connection establishments.
 // Because of that, callbacks related to IO and timeout events can be invoked
 // after an associated connection has been cancelled, or, indeed, after the
-// 'btes5_NetworkConnector' object has been destroyed. To avoid crashing, the
-// state referenced by the callbacks is allocated, with its lifetime controlled
-// by bcema_SharedPtr.
+// 'btes5_NetworkConnector' object has been destroyed.  The state referenced by
+// the callbacks is allocated, with its lifetime controlled by
+// 'bcema_SharedPtr'.
 //
 // Two structures are used to maintain state: a 'Connector' for object
 // variables such as the SOCKS5 network description, and an 'Attempt' for the
@@ -134,17 +134,12 @@ struct btes5_NetworkConnector::Attempt {
     // consistent:
     //: 1 Atomic member 'd_teminating' ensures that only one termination is
     //:   processed on an object; once this variable is set (changed from the
-    //:   initial value of 0) no more 'terminate' call will proceed on this
+    //:   initial value of 0) no more 'terminate' calls will proceed on this
     //:   object.
     //:
     //: 2 The access to 'd_socket_p' is protected by 'd_socketLock' since it
     //:   can otherwise be closed (deallocated) while another function tries to
     //:   use it.  Since it's a pointer, 0 is used to indicate socket absence.
-
-    // TYPES
-    typedef bcema_SharedPtr<Attempt> Context;
-        // A shared pointer of this type is bound into the callback functors
-        // for object lifetime management.
 
     // DATA
     const ConnectionStateCallback   d_callback;      // client callback
@@ -226,7 +221,6 @@ static void terminate(
         attempt->d_connector->d_eventManager_p->deregisterTimer(
                                                          attempt->d_timer);
     }
-    // TODO: deregister connect event if appropriate
     if (btes5_NetworkConnector::e_SUCCESS == status) {
         bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
         attempt->d_callback(status,
@@ -236,7 +230,6 @@ static void terminate(
     } else {
         bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
         if (attempt->d_socket_p) {
-            // TODO: cancel any negotiation in progress
             attempt->d_connector->d_socketFactory_p
                                            ->deallocate(attempt->d_socket_p);
             attempt->d_socket_p = 0;
@@ -278,7 +271,6 @@ static void socksConnectCb(
         }
     }
     else {
-        // TODO: special handling for password failure?
         while (++attempt->d_indices[level]
                 == attempt->d_connector->d_socks5Servers.numProxies(level)) {
             if (!level) {

@@ -450,15 +450,11 @@ static void sendAuthenticationRequest(Negotiation::Context negotiation)
     // +----+------+----------+------+----------+
 
     bsl::ostringstream request;
-
-    unsigned char buffer = VERSION_USERNAME_PASSWORD_AUTH;
-    request << buffer;
-
-    buffer = negotiation->d_credentials.username().size();
-    request << buffer << negotiation->d_credentials.username();
-
-    buffer = negotiation->d_credentials.password().size();
-    request << buffer << negotiation->d_credentials.password();
+    request << (unsigned char) VERSION_USERNAME_PASSWORD_AUTH
+            << (unsigned char) negotiation->d_credentials.username().size()
+            << negotiation->d_credentials.username()
+            << (unsigned char) negotiation->d_credentials.password().size()
+            << negotiation->d_credentials.password();
 
     if (registerReadCb(authenticationCallback, negotiation)) {
         return;
