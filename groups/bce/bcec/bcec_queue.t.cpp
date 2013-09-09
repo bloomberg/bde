@@ -141,6 +141,7 @@ void aSsErT(int c, const char *s, int i)
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
+#define T_()  cout << '\t' << flush;          // Print tab w/o newline
 #define L_ __LINE__                           // current Line number
 #define TAB cout << '\t';
 
@@ -3211,7 +3212,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
-        if (verbose) cout << "1. Explicit Pushes and Pops\n";
+        if (verbose) cout << "\t1. Explicit Pushes and Pops\n";
         {
             enum { NUM_V = 4 };
             Element v[NUM_V];    const Element *V = &v[0];
@@ -3220,12 +3221,12 @@ int main(int argc, char *argv[])
                 for (int tj = 0; tj < ti; ++tj) {
                     ASSERT(V[tj] != V[ti]);
                 }
-                if (veryVerbose) { P_(ti); P(V[ti]); }
+                if (veryVerbose) { T_() T_() P_(ti); P(V[ti]); }
             }
 
             Obj x(&ta);    const Obj& X = x;
 
-            if (verbose) cout << "'pushBack' && 'length'\n";
+            if (verbose) cout << "\t\t'pushBack' && 'length'\n";
             {
                 ASSERT(0 == myLength(&x));
 
@@ -3241,7 +3242,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[1] == x.queue().back());
             }
 
-            if (verbose) cout << "'popBack' && 'length'\n";
+            if (verbose) cout << "\t\t'popBack' && 'length'\n";
             {
                 ASSERT(2 == myLength(&x));
 
@@ -3256,7 +3257,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == myLength(&x));
             }
 
-            if (verbose) cout << "'pushFront' && 'length'\n";
+            if (verbose) cout << "\t\t'pushFront' && 'length'\n";
             {
                 ASSERT(0 == myLength(&x));
 
@@ -3272,7 +3273,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[2] == x.queue().back());
             }
 
-            if (verbose) cout << "'popFront' && 'length'\n";
+            if (verbose) cout << "\t\t'popFront' && 'length'\n";
             {
                 ASSERT(2 == myLength(&x));
 
@@ -3290,7 +3291,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.numBytesInUse());
 
-        if (verbose) cout << "2. Random pushes and pops\n";
+        if (verbose) cout << "\t2. Random pushes and pops\n";
         {
             Obj x(&ta);                     const Obj& X = x;
             bsl::deque<Element> d(&ta);     const bsl::deque<Element>& D = d;
@@ -3309,7 +3310,7 @@ int main(int argc, char *argv[])
                 } while (expectedLength == ll);
                 const int LENGTH = ll;
 
-                if (veryVerbose) { P_(X.length()); P(LENGTH); }
+                if (veryVerbose) { T_() T_() P_(X.length()); P(LENGTH); }
 
                 if (expectedLength < LENGTH) {
                     while (expectedLength < LENGTH) {
@@ -3323,12 +3324,18 @@ int main(int argc, char *argv[])
                         if (bdeu_Random::generate15(&seed) & 0x80) {
                             x.pushBack(v);
                             d.push_back(v);
-                            if (veryVeryVerbose) cout << "PUB: " << v << endl;
+                            if (veryVeryVerbose) {
+                                cout << "\t\t\tPUB: " << v;
+                                T_() P_(LENGTH); P(X.length());
+                            }
                         }
                         else {
                             x.pushFront(v);
                             d.push_front(v);
-                            if (veryVeryVerbose) cout << "PUF: " << v << endl;
+                            if (veryVeryVerbose) {
+                                cout << "\t\t\tPUF: " << v;
+                                T_() P_(LENGTH); P(X.length());
+                            }
                         }
 
                         ++expectedLength;
@@ -3346,15 +3353,19 @@ int main(int argc, char *argv[])
                             const Element popped = D.back();
                             d.pop_back();
                             ASSERT(popped == x.popBack());
-                            if (veryVeryVerbose) cout << "POB: " << popped <<
-                                                                          endl;
+                            if (veryVeryVerbose) {
+                                cout << "\t\t\tPOB: " << popped;
+                                T_() P_(LENGTH); P(X.length());
+                            }
                         }
                         else {
                             const Element popped = D.front();
                             d.pop_front();
-                            if (veryVeryVerbose) cout << "POF: " << popped <<
-                                                                          endl;
                             ASSERT(popped == x.popFront());
+                            if (veryVeryVerbose) {
+                                cout << "\t\t\tPOF: " << popped;
+                                T_() P_(LENGTH); P(X.length());
+                            }
                         }
 
                         --expectedLength;
