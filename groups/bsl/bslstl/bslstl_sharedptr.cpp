@@ -9,15 +9,27 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_map.h>            // for testing only
 #include <bslstl_string.h>         // for testing only
 #include <bslstl_vector.h>         // for testing only
+
+#include <bslma_newdeleteallocator.h>
 #include <bsls_alignmentutil.h>
+
+#include <stdio.h>                 // 'sprintf'
 
 ///IMPLEMENTATION NOTES
 ///--------------------
-// The following expression is a class invariant of 'bsl::shared_ptr' and shall
-// always be 'true':
+// The following expression is a class invariant of 'bcema_shared_ptr' and
+// shall always be 'true':
 //..
 //  !d_rep_p || d_ptr_p
 //..
+// However, this will not be true for the standard 'bsl::shared_ptr', which
+// must also permit the state:
+//..
+//  !d_rep_p && !d_ptr_p
+//..
+// implying that null pointer values are still reference counted, and will
+// invoke their deleter (with a null pointer value) when the last shared owner
+// is destroyed.
 
 namespace BloombergLP {
 namespace bslstl {
@@ -54,6 +66,26 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
     Rep *rep = new (basicAllocator->allocate(repSize)) Rep(basicAllocator);
 
     return bsl::shared_ptr<char>((char *)rep->ptr(), rep);
+}
+
+
+                        // -------------------------------
+                        // class bslstl::SharedPtr_ImpUtil
+                        // -------------------------------
+
+void SharedPtr_ImpUtil::checkAllocatorIsNewDelete(bslma::Allocator *allocator)
+{
+    static bool firstBadCall = false;
+    if (!firstBadCall) {
+        bslma::Allocator *expected = &bslma::NewDeleteAllocator::singleton();
+        if (allocator != expected) {
+            firstBadCall = true;
+            fprintf(stderr,
+                    "ERROR: Constructing a shared pointer without an allocator"
+                    " when the default is not the NewDelete allocator; see"
+                    " {TEAM BDEI:SMART POINTER CONSTRUCTORS<GO>}\n");
+        }
+    }
 }
 
 }  // close namespace bslstl

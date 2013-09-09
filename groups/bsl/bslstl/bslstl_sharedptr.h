@@ -1632,7 +1632,7 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_OSTREAM
 #endif
 
-#define BCEMA_SUPPORT_NAKED_NEW_DRQS27411521
+//#define BCEMA_SUPPORT_NAKED_NEW_DRQS27411521
 //  THIS MACRO IS *ONLY* TO SUPPORT BDE DEVELOPMENT AND TESTING.
 //  DO ***NOT*** DEFINE IN PRODUCTION CODE.
 //  Define this macro to enable support for the "new" semantics for passing
@@ -2597,6 +2597,7 @@ shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source);
     // compiler diagnostic will be emitted indicating the error.
 
 // STANDARD FREE FUNCTIONS
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
 template<class DELETER, class ELEMENT_TYPE>
 DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
 
@@ -2605,6 +2606,7 @@ DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
 //
 // template<class ELEMENT_TYPE, class ALLOC, class... Args>
 // shared_ptr<ELEMENT_TYPE> allocate_shared(const ALLOC& a, Args&&... args);
+#endif
 
                         // ==============
                         // class weak_ptr
@@ -2996,6 +2998,22 @@ struct SharedPtr_DefaultDeleter {
         // Calls 'delete(ptr)'.
 };
 
+                           // ================================
+                           // private struct SharedPtr_ImpUtil
+                           // ================================
+
+struct SharedPtr_ImpUtil {
+    // This 'struct' provides a namespace for non-generic implementation
+    // utilities shared by all instantiations of the 'bsl::shared_ptr'
+    // template.
+
+    static void checkAllocatorIsNewDelete(bslma::Allocator *allocator);
+        // If the specified 'allocator' is not the NewDelete allocator
+        // singleton then, if this is the first such occurence since the
+        // current task was started, write a message to the console warning
+        // about a pending change of behavior in the next BDE release.
+};
+
 }  // close namespace bslstl
 }  // close namespace BloombergLP
 
@@ -3098,6 +3116,14 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
 
     BloombergLP::bslma::Allocator *defaultAllocator =
                                BloombergLP::bslma::Default::defaultAllocator();
+
+    // The following test is to alert users of a coming change of behavior in
+    // BDE 3.0, when 'bsl::shared_ptr' will have semantics specified by the
+    // C++11 standard.
+
+    BloombergLP::bslstl::SharedPtr_ImpUtil::checkAllocatorIsNewDelete(
+                                                             defaultAllocator);
+
     d_rep_p = RepMaker::makeOutofplaceRep(ptr,
                                           defaultAllocator,
                                           defaultAllocator);
@@ -3348,10 +3374,14 @@ template <class COMPATIBLE_TYPE>
 inline
 void shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE *ptr)
 {
+#if 0
 #if defined(BCEMA_SUPPORT_NAKED_NEW_DRQS27411521)
     SelfType(ptr).swap(*this);
 #else
     SelfType(ptr, 0).swap(*this);
+#endif
+#else
+    SelfType(ptr).swap(*this);
 #endif
 }
 
@@ -4237,6 +4267,7 @@ bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
     return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.ptr()));
 }
 
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
 // STANDARD FREE FUNCTIONS
 template<class DELETER, class ELEMENT_TYPE>
 DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
@@ -4244,6 +4275,7 @@ DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
     BloombergLP::bslma::SharedPtrRep *rep = p.rep();
     return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
 }
+#endif
 
 namespace BloombergLP {
 namespace bslstl {

@@ -289,6 +289,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #define INCLUDED_TYPEINFO
 #endif
 
+//#define BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -415,6 +417,7 @@ class SharedPtrRep {
         // that derived classes must override this method to perform the
         // appropriate action such as deleting the shared object.
 
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
     virtual void *getDeleter(const std::type_info& type) = 0;
         // Return a pointer to the deleter stored by the derived representation
         // (if any) if the deleter has the same type as that described by the
@@ -422,6 +425,7 @@ class SharedPtrRep {
         // this methods appears to be a simple accessor, it is declared as non-
         // 'const' qualified to support representations storing the deleter
         // directly as a data member.
+#endif
 
     // ACCESSORS
     virtual void *originalPtr() const = 0;

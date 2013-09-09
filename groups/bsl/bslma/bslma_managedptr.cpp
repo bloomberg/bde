@@ -4,6 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_newdeleteallocator.h>
+#include <stdio.h>    // 'sprintf'
+
 // Design notes
 // ------------
 // These notes are recorded here as they are not part of the public interface,
@@ -32,6 +35,26 @@ namespace bslma {
 
 void ManagedPtrUtil::noOpDeleter(void *, void *)
 {
+}
+
+                         // ------------------------
+                         // class ManagedPtr_ImpUtil
+                         // ------------------------
+
+void ManagedPtr_ImpUtil::checkDefaultAllocatorIsNewDeleteAllocator()
+{
+    static bool firstBadCall = false;
+    if (!firstBadCall) {
+        bslma::Allocator *allocator =  bslma::Default::allocator();
+        bslma::Allocator *expected  = &bslma::NewDeleteAllocator::singleton();
+        if (allocator != expected) {
+            firstBadCall = true;
+            fprintf(stderr,
+                  "ERROR: Constructing a managed pointer without an allocator "
+                  "when the default is not the NewDelete allocator; see "
+                  "{TEAM BDEI:SMART POINTER CONSTRUCTORS<GO>}\n");
+        }
+    }
 }
 
 }  // close package namespace

@@ -714,6 +714,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_unspecifiedbool.h>
 #endif
 
+
+#define BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521
+
+
 namespace BloombergLP {
 
 namespace bslma {
@@ -1353,6 +1357,21 @@ struct ManagedPtr_DefaultDeleter {
         // Calls 'delete(ptr)' after casting 'ptr' to a 'MANAGED_TYPE *'.
 };
 
+                        // =================================
+                        // private struct ManagedPtr_ImpUtil
+                        // =================================
+
+struct ManagedPtr_ImpUtil {
+    // This 'struct' provides a namespace for non-generic implementation
+    // utilities shared by all instantiations of the 'ManagedPtr' template.
+
+    static void checkDefaultAllocatorIsNewDeleteAllocator();
+        // If the currently installed default allocator is not the NewDelete
+        // allocator singleton then, if this is the first such occurence since
+        // the current task was started, write a message to the console warning
+        // about a pending change of behavior in the next BDE release.
+};
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -1456,6 +1475,8 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
             stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
+
+    ManagedPtr_ImpUtil::checkDefaultAllocatorIsNewDeleteAllocator();
 }
 #else
 template <class TARGET_TYPE>
@@ -1467,7 +1488,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
             &ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter,
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
+    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
 }
 #endif
 

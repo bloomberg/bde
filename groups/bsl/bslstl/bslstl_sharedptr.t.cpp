@@ -4382,7 +4382,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
 
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
             ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
+#endif
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());
@@ -4410,7 +4412,9 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
             ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
+#endif
         }
         ASSERT(1 == numDeletes);
         if (veryVerbose) {
@@ -4429,7 +4433,9 @@ int main(int argc, char *argv[])
             MyTestDeleter deleter(&ta);
             Obj x; const Obj& X=x;
 
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
             ASSERT(0 == bsl::get_deleter<MyTestDeleter>(x));
+#endif
 
             x.reset(p, deleter);
 
@@ -4442,8 +4448,10 @@ int main(int argc, char *argv[])
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
 
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
             ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
             ASSERT(0 != bsl::get_deleter<MyTestDeleter>(x));
+#endif
         }
         ASSERT(1 == numDeletes);
         ASSERT(++numDeallocations == ta.numDeallocations());
@@ -4489,7 +4497,9 @@ int main(int argc, char *argv[])
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
 
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
             ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
+#endif
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
         ASSERT(1 == numDeletes);
@@ -6447,10 +6457,19 @@ int main(int argc, char *argv[])
         {
             Obj w((TObj*)0); const Obj& W = w;  // Rep with default allocator
             ASSERT(0 == W.ptr());
+#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
             ASSERT(1 == W.numReferences());
+
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(++numDefaultAllocations ==
                                             defaultAllocator.numAllocations());
+#else
+            ASSERT(0 == W.numReferences());
+
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDefaultAllocations ==
+                                            defaultAllocator.numAllocations());
+#endif
 
             Obj x((TObj*)0, &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
