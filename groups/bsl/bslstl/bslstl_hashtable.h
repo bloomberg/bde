@@ -4062,7 +4062,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
     // KEY_CONFIG.  Otherwise, after the initial size comparison, the rest
     // depends only on the anchors.
 
-    typedef typename KEY_CONFIG::KeyType   KeyType;
     typedef typename KEY_CONFIG::ValueType ValueType;
     typedef typename ::bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
     typedef bslalg::HashTableImpUtil ImpUtil;

@@ -143,13 +143,13 @@ struct Assert_If<false> : Assert_FalseType {
 
 #else
 
-template <int INTEGER>
+template <bool IS_VALID>
 struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
     // Declared but not defined.  If assert macro references this type, then
     // compilation will fail (assert failure).
 
 template <>
-struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<1> {
+struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<true> {
     // Specialization for value 1 (true).  Referencing this specialization will
     // allow compilation to succeed (assert succeeded).
 
@@ -158,7 +158,7 @@ struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<1> {
 
 namespace bslmf {
 
-template <int INTEGER>
+template <bool IS_VALID>
 struct AssertTest {
     // Instantiating this type involves instantiating its template parameter.
     // This dummy type is just used to force instantiation of a meta-function
@@ -184,28 +184,41 @@ struct AssertTest {
 // with SunCC.  So don't use it with other compilers.
 
 #define BSLMF_ASSERT(expr)                                         \
-    struct BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)              \
+    struct BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)               \
         : ::BloombergLP::bslmf::Assert_If<!!(int)(expr)>           \
     {                                                              \
         BSLMF_COMPILE_TIME_ASSERTION_FAILURE * dummy;              \
     };                                                             \
                                                                    \
-    enum { BSLMF_ASSERT_CAT(bslmf_Assert_Check_, __LINE__)        \
-           = sizeof(BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)) }  \
+    enum { BSLMF_ASSERT_CAT(bslmf_Assert_Check_, __LINE__)         \
+           = sizeof(BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)) }   \
 
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
 
 #define BSLMF_ASSERT(expr) \
 typedef BloombergLP::bslmf::AssertTest< \
-    sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(int)(expr)>)> \
+        sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
                 bslmf_Assert_MSVC_ZI_BUG
+
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40800
+
+// gcc 4.8.1 introduces a new warning for unused typedefs, which we cannot
+// silence with _Pragam("GCC disagnostic ignored \"-Wwarning\""), so we switch
+// to an implementation declaring a function instead.  As with the typedef
+// based implementations, we must include '__LINE__' in the name of the
+// decalared function to allow multiple uses in the same class definition.
+
+#define BSLMF_ASSERT(expr)                                      \
+void BSLMF_ASSERT_CAT(BDE_static_assert_declaration, __LINE__)( \
+     BloombergLP::bslmf::AssertTest<                            \
+         sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)>*)
 
 #else
 
 #define BSLMF_ASSERT(expr) \
 typedef BloombergLP::bslmf::AssertTest< \
-    sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(int)(expr)>)> \
+         sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
                 BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)
 
 #endif
