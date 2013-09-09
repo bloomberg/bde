@@ -148,9 +148,11 @@ int main(int argc, char *argv[])
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
 // SUN:  BSLMF_ASSERT is defined the way that breaks this test
-#if !defined(BSLS_PLATFORM_CMP_MSVC) &&                    \
-    !defined(BSLS_PLATFORM_CMP_SUN)  &&                    \
-    !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
+// GCC:  Declares a function, rather than a typedef, from v4.8.1
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
+    !defined(BSLS_PLATFORM_CMP_MSVC) &&                      \
+    !defined(BSLS_PLATFORM_CMP_SUN)  &&                      \
+    !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40800)
         bslmf_Assert_145 t1; // test typedef name creation; matches above line
         bslmf_Assert_146 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2
