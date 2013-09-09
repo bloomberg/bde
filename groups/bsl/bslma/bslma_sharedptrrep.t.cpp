@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf("\nThis test case is deprecated"
                             "\n============================\n");
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 7: {
         // --------------------------------------------------------------------

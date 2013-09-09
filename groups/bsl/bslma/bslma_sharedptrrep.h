@@ -358,7 +358,7 @@ class SharedPtrRep {
         // '0 < incrementAmount' and '0 < numReferences()'.
         //
         // DEPRECATED: Use 'acquireRef' instead.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     void acquireWeakRef();
         // Atomically acquire a weak reference to the shared object referred to
@@ -497,7 +497,7 @@ void SharedPtrRep::incrementRefs(int incrementAmount)
     d_adjustedSharedCount.addRelaxed(incrementAmount * 2);
                                                 // minimum consistency: relaxed
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 void SharedPtrRep::releaseWeakRef()

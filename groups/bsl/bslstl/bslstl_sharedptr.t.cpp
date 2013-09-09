@@ -6872,7 +6872,7 @@ int main(int argc, char *argv[])
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) printf("\nTesting basic constructor"
@@ -6900,7 +6900,7 @@ int main(int argc, char *argv[])
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         if (verbose) printf("\nTesting 'clear'"
@@ -6927,13 +6927,13 @@ int main(int argc, char *argv[])
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(p == X.ptr());
             ASSERT(1 == X.numReferences());
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             x.clear();
 #else
             x.reset();
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             numDeallocations += 2;
             ASSERT(numDeallocations == ta.numDeallocations());
@@ -6944,7 +6944,7 @@ int main(int argc, char *argv[])
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
 
         ASSERT(1 == numDeletes);

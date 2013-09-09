@@ -1245,7 +1245,7 @@ class ManagedPtr {
         // deleter for the currently managed object, and reset this managed
         // pointer as empty.  It is undefined behavior to run the returned
         // deleter unless the returned pointer to target object is not null.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     TARGET_TYPE *release(ManagedPtrDeleter *deleter);
         // Load the specified 'deleter' for the currently managed object and
@@ -1790,7 +1790,7 @@ ManagedPtr<TARGET_TYPE>::release()
     d_members.clear();
     return result;
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <typename TARGET_TYPE>
 TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
