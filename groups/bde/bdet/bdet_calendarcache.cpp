@@ -26,7 +26,8 @@ bool hasExpired(const bsl::time_t& interval,
     // Return 'true' if at least the specified time 'interval' has elapsed
     // since the specified 'loadTime', and 'false' otherwise.
 {
-    const bsl::time_t now = bsl::time(0);  BSLS_ASSERT(bsl::time_t(-1) != now);
+    const bsl::time_t now = bsl::time(0);
+    BSLS_ASSERT(static_cast<bsl::time_t>(-1) != now);
 
     const bsl::time_t elapsedTime = now - loadTime;
 
@@ -334,7 +335,7 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
                                                                 bsl::time(0),
                                                                 d_allocator_p);
 
-    BSLS_ASSERT(bsl::time_t(-1) != repPtr->loadTime());
+    BSLS_ASSERT(static_cast<bsl::time_t>(-1) != repPtr->loadTime());
 
     // Take over management of 'repPtr' and (indirectly) 'calendarPtr', and
     // release the calendar proctor.

@@ -2,16 +2,25 @@
 #include <bdet_calendarcache.h>
 
 #include <bdet_calendarloader.h>
+#include <bdet_date.h>            // for testing only
 #include <bdet_packedcalendar.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+// TBD remove when 'bslma::TestAllocator' is thread-safe
+// BEGIN TEMPORARY WORKAROUND
+#include <bslma_mallocfreeallocator.h>
+// END   TEMPORARY WORKAROUND
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstdio.h>       // printf()
-#include <bsl_cstdlib.h>      // atoi()
-#include <bsl_cstring.h>      // strcmp()
+#include <bsl_cstdlib.h>      // 'atoi'
+#include <bsl_cstring.h>      // 'strcmp'
 #include <bsl_iostream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -23,41 +32,70 @@
 #endif
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::flush;
+using namespace bsl;
 
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD
-// ----------------------------------------------------------------------------
-// bdet_CalendarCacheEntryPtr class:
-// [ ?] bdet_CalendarCacheEntryPtr();
-// [ ?] bdet_CalendarCacheEntryPtr(const CacheEntryPtr& original);
-// [ ?] ~bdet_CalendarCacheEntryPtr();
-// [ ?] bdet_CalendarCacheEntryPtr& operator=(const CacheEntryPtr& rhs);
-// [ ?] const bdet_Calendar *operator->() const;
-// [ ?] const bdet_Calendar *ptr() const;
+// We are testing: (1) a thread-safe mechanism, 'bdet_CalendarCache', that is
+// a cache of 'bdet_Calendar' objects, and (2) a reference-counted handle to
+// calendar instances retrieved from a cache, 'bdet_CalendarCacheEntryPtr'
+// ('Entry' for short).  We make extensive use of a concrete instance of
+// 'bdet_CalendarLoader', 'TestLoader', that has been crafted for our purposes,
+// and, of course, the 'bslma' test allocator.
 //
-// bdet_CalendarCache class:
-// [ ?] bdet_CalendarCache(Loader *loader, Alloc *ba=0);
-// [ ?] ~bdet_CalendarCache();
-// [ ?] bdet_CalendarCacheEntryPtr getCalendar(const char *name);
-// [ ?] int invalidate(const char *name);
-// [ ?] int invalidateAll();
-// [ ?] bdet_CalendarCacheEntryPtr lookupCalendar(const char *name) const;
+// Two issues of note are taken into account in testing this component.  One is
+// that 'Entry' objects can take ownership of calendars that have been removed
+// from the cache (either via 'invalidate' or 'invalidateAll', or due to a
+// timeout).  We need to be mindful of this when, for example, checking test
+// allocators for expected memory use.  To that end, 'Entry' objects are scoped
+// in such a way that takes this into account.
+//
+// The second issue is that of the timeout with which a cache object may be
+// optionally configured.  Thorough testing of timeouts is problematic in that
+// it entails use of 'sleep', which increases the running time of test cases
+// and can lead to intermittent failures in regression testing.  Consequently,
+// we make very judicious use of 'sleep' in positively-numbered test cases; in
+// particular, we generally use a timeout of 0 where we are only interested in
+// whether or not a cache has been constructed with a timeout.  We relegate the
+// few lengthy sleeps in the test driver to a negative test case (-1).
+//
+// Separate test cases are included for ensuring exception-neutrality and
+// thread-safety.  Finally, negative testing is applied, in applicable test
+// cases, to ensure that precondition violations are detected in appropriate
+// build modes.
+// ----------------------------------------------------------------------------
+// 'bdet_CalendarCacheEntryPtr' class:
+// [ 3] bdet_CalendarCacheEntryPtr();
+// [ 3] bdet_CalendarCacheEntryPtr(const CacheEntryPtr& original);
+// [ 3] ~bdet_CalendarCacheEntryPtr();
+// [ 3] bdet_CalendarCacheEntryPtr& operator=(const CacheEntryPtr& rhs);
+// [ 3] const bdet_Calendar *operator->() const;
+// [ 3] const bdet_Calendar *ptr() const;
+//
+// 'bdet_CalendarCache' class:
+// [ 2] bdet_CalendarCache(Loader *loader,          Alloc *ba = 0);
+// [ 2] bdet_CalendarCache(Loader *loader, timeout, Alloc *ba = 0);
+// [ 2] ~bdet_CalendarCache();
+// [ 4] bdet_CalendarCacheEntryPtr getCalendar(const char *name);
+// [ 5] int invalidate(const char *name);
+// [ 5] int invalidateAll();
+// [ 4] bdet_CalendarCacheEntryPtr lookupCalendar(const char *name) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
-// [ 4] EXCEPTION NEUTRALITY
+// [ 8] USAGE EXAMPLE
+// [ *] CONCERN: In no case does memory come from the global allocator.
+// [ *] CONCERN: Precondition violations are detected when enabled.
+// [ 6] CONCERN: All memory allocation is exception neutral.
+// [ 7] CONCERN: All manipulators and accessors are thread-safe.
+// [-1] CONCERN: A non-trivial timeout is processed correctly.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -105,10 +143,19 @@ static void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -116,6 +163,8 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef bdet_CalendarCache         Obj;
 typedef bdet_CalendarCacheEntryPtr Entry;
+
+typedef bdet_TimeInterval          Interval;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef HANDLE    ThreadId;
@@ -128,6 +177,90 @@ typedef void *(*ThreadFunction)(void *arg);
 // ============================================================================
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+static const bdet_Date gFirstDate1(2000, 1,  1);  // "CAL-1" calendar
+static const bdet_Date gFirstDate2(2005, 5, 15);  // "CAL-2"    "
+static const bdet_Date gFirstDate3(2010, 9, 30);  // "CAL-3"    "
+
+static const bdet_Date gLastDate(2020, 12, 31);
+
+static const int       gHolidayOffset = 38;
+
+class TestLoader : public bdet_CalendarLoader {
+    // This concrete calendar loader successfully loads calendars named
+    // "CAL-1", "CAL-2", and "CAL-3" only.  An attempt to load a calendar by
+    // any other name results in a non-zero result status being returned from
+    // the 'load' method.
+
+  private:
+    // NOT IMPLEMENTED
+    TestLoader(const TestLoader&);             // = delete
+    TestLoader& operator=(const TestLoader&);  // = delete
+
+  public:
+    // CREATORS
+    TestLoader();
+
+    ~TestLoader();
+
+    // MANIPULATORS
+    int load(bdet_PackedCalendar *result, const char *calendarName);
+};
+
+// CREATORS
+inline
+TestLoader::TestLoader()
+{
+}
+
+TestLoader::~TestLoader()
+{
+}
+
+int TestLoader::load(bdet_PackedCalendar *result, const char *calendarName)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(calendarName);
+
+    if (0 == bsl::strcmp("CAL-1", calendarName)
+     || 0 == bsl::strcmp("CAL-2", calendarName)
+     || 0 == bsl::strcmp("CAL-3", calendarName)) {
+
+        // Three calendars are recognized by this loader.
+
+        bdet_Date firstDate;
+
+        switch (calendarName[4]) {
+          case '1': {
+            firstDate = gFirstDate1;
+          } break;
+          case '2': {
+            firstDate = gFirstDate2;
+          } break;
+          case '3': {
+            firstDate = gFirstDate3;
+          } break;
+          default: {
+            ASSERT(!"Internal error.");
+          }
+        }
+
+        result->removeAll();
+        result->setValidRange(firstDate, gLastDate);
+
+        // The following is required to trigger an allocation in 'result'.
+
+        result->addHoliday(firstDate + gHolidayOffset);
+
+        return 0;                                                     // RETURN
+    }
+
+    if (0 == bsl::strcmp("ERROR", calendarName)) {
+        return -1;                                                    // RETURN
+    }
+
+    return 1;
+}
 
 static
 ThreadId createThread(ThreadFunction func, void *arg)
@@ -162,70 +295,335 @@ void sleepSeconds(int seconds)
 #endif
 }
 
-// TBD test loader that loads three named calendars (or somesuch small number)
+namespace TestCase7 {
 
-static int holidayOffset = 38;
-
-class TestLoader : public bdet_CalendarLoader {
-
-    // DATA
-    bdet_Date d_firstDate;
-
-  private:
-    // NOT IMPLEMENTED
-    TestLoader(const TestLoader&);
-    TestLoader& operator=(const TestLoader&);
-
-  public:
-    // CREATORS
-    TestLoader(bslma::Allocator *basicAllocator = 0);
-
-    ~TestLoader();
-
-    // MANIPULATORS
-    int load(bdet_PackedCalendar *result, const char *calendarName);
-
-    void getFirstDate(bdet_Date *date);
+struct ThreadInfo {
+    int  d_numIterations;
+    Obj *d_cache_p;
+    Obj *d_cacheWithTimeout_p;
 };
 
-// CREATORS
-inline
-TestLoader::TestLoader(bslma::Allocator *)
+extern "C" void *threadFunction1(void *arg)
 {
-}
+    ThreadInfo *info = (ThreadInfo *)arg;
 
-inline
-TestLoader::~TestLoader()
-{
-}
+    Obj& mX = *info->d_cache_p;             const Obj& X = mX;
+    Obj& mY = *info->d_cacheWithTimeout_p;  const Obj& Y = mY;
 
-int TestLoader::load(bdet_PackedCalendar *result, const char *calendarName)
-{
-    BSLS_ASSERT(result);
-    BSLS_ASSERT(calendarName);
+    for (int i = 0; i < info->d_numIterations; ++i) {
+        {
+            Entry e = mX.getCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
 
-    if (0 == bsl::strcmp("ERROR", calendarName)) {
-        return -1;
+        {
+            Entry e = Y.lookupCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = mX.getCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = mX.getCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        if (0 == i % 3) {
+            mX.invalidate("CAL-1");
+        }
+
+        if (0 == i % 10) {
+            mX.invalidateAll();
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        if (0 == i % 3) {
+            mY.invalidate("CAL-1");
+        }
     }
 
-    if (0 == bsl::strcmp("NOT_FOUND", calendarName)) {
-        return 1;
+    return arg;
+}
+
+extern "C" void *threadFunction2(void *arg)
+{
+    ThreadInfo *info = (ThreadInfo *)arg;
+
+    Obj& mX = *info->d_cache_p;             const Obj& X = mX;
+    Obj& mY = *info->d_cacheWithTimeout_p;  const Obj& Y = mY;
+
+    for (int i = 0; i < info->d_numIterations; ++i) {
+        {
+            Entry e = mX.getCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = mX.getCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = mX.getCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        if (0 == i % 5) {
+            mX.invalidate("CAL-2");
+        }
+
+        if (0 == i % 10) {
+            mY.invalidateAll();
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        if (0 == i % 5) {
+            mY.invalidate("CAL-2");
+        }
     }
 
-    result->removeAll();
-    result->setValidRange(d_firstDate, bdet_Date(9999,12,31));
-    result->addHoliday(d_firstDate + holidayOffset);
-    d_firstDate++;
-
-    return 0;
+    return arg;
 }
 
-void TestLoader::getFirstDate(bdet_Date *date)
+extern "C" void *threadFunction3(void *arg)
 {
-    BSLS_ASSERT(date);
+    ThreadInfo *info = (ThreadInfo *)arg;
 
-    *date = d_firstDate;
+    Obj& mX = *info->d_cache_p;             const Obj& X = mX;
+    Obj& mY = *info->d_cacheWithTimeout_p;  const Obj& Y = mY;
+
+    for (int i = 0; i < info->d_numIterations; ++i) {
+        {
+            Entry e = mX.getCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = mX.getCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = mX.getCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = Y.lookupCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        if (0 == i % 7) {
+            mX.invalidate("CAL-3");
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-3");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate3);
+            }
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-1");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate1);
+            }
+        }
+
+        {
+            Entry e = mY.getCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        {
+            Entry e = X.lookupCalendar("CAL-2");
+            if (e.ptr()) {
+                ASSERT(e->firstDate() == gFirstDate2);
+            }
+        }
+
+        if (0 == i % 7) {
+            mY.invalidate("CAL-3");
+        }
+    }
+
+    return arg;
 }
+
+}  // close namespace TestCase7
 
 // ============================================================================
 //                                USAGE EXAMPLE
@@ -237,8 +635,8 @@ class my_CalendarLoader : public bdet_CalendarLoader {
 
   private:
     // NOT IMPLEMENTED
-    my_CalendarLoader(const my_CalendarLoader&);
-    my_CalendarLoader& operator=(const my_CalendarLoader&);
+    my_CalendarLoader(const my_CalendarLoader&);             // = delete
+    my_CalendarLoader& operator=(const my_CalendarLoader&);  // = delete
 
   public:
     // CREATORS
@@ -256,7 +654,6 @@ my_CalendarLoader::my_CalendarLoader(bslma::Allocator *)
 {
 }
 
-inline
 my_CalendarLoader::~my_CalendarLoader()
 {
 }
@@ -301,17 +698,21 @@ int main(int argc, char *argv[])
     _CrtSetReportMode(_CRT_WARN,  0);
 #endif
 
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -456,122 +857,253 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 7: {
         // --------------------------------------------------------------------
-        // TESTING EXCEPTION NEUTRALITY
+        // CONCURRENCY
+        //   Ensure that all manipulators and accessors are thread-safe.
         //
         // Concerns:
-        //  1.  The 'calendar', 'invalidate' and 'invalidateAll' methods are
-        //      exception neutral.
+        //: 1 That all manipulators and accessors are thread-safe.
         //
         // Plan:
+        //: 1 Create two 'bslma::TestAllocator' objects; install one as the
+        //:   current default allocator and supply the other to two caches,
+        //:   one that does not have a timeout and one that does.
+        //:
+        //: 2 Within a loop, create three threads that iterate a specified
+        //:   number of times and that perform a different ("random") sequence
+        //:   of operations on the two caches from P-1.  (C-1)
         //
-        //  To address concern 1, we use the 'BEGIN_BSLMA_EXCEPTION_TEST' and
-        //  'END_BSLMA_EXCEPTION_TEST' macros to generator exceptions in order
-        //  to verify that there is no memory leak when we invoke the above
-        //  methods and that this object can be destroyed.
-        //
-        //  Tactics:
-        //      - Ad Hoc test data selection method
-        //      - Brute force test case implementation technique
-        //
-        //  Testing:
-        //      Exception neutrality
+        // Testing:
+        //   CONCERN: All manipulators and accessors are thread-safe.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << " TESTING EXCEPTION NEUTRALITY"
-                          << endl
-                          << "============================="
-                          << endl;
+                          << "CONCURRENCY" << endl
+                          << "===========" << endl;
 
-        {
-            TestLoader loader;
-            Obj X(&loader, &testAllocator);
-            Entry e;
+        using namespace TestCase7;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
-              e = X.getCalendar("ERROR");
-              ASSERT(0 == e.ptr());
-              e = X.getCalendar("VALID");
-              ASSERT(0 != e.ptr());
-              e = X.getCalendar("VALID1");
-              ASSERT(0 != e.ptr());
-              e = X.getCalendar("VALID");
-              ASSERT(0 != e.ptr());
+        TestLoader loader;
 
-              X.invalidate("VALID1");
-              e = X.getCalendar("VALID1");
-              ASSERT(0 != e.ptr());
+// TBD reinstate the following when 'bslma::TestAllocator' is thread-safe
+#if 0
+        bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-              X.invalidateAll();
-              e = X.getCalendar("VALID");
-              ASSERT(0 != e.ptr());
-              e = X.getCalendar("VALID1");
-              ASSERT(0 != e.ptr());
-            } END_BSLMA_EXCEPTION_TEST
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj mX(&loader,              &sa);
+        Obj mY(&loader, Interval(0), &sa);
+#endif
+// BEGIN TEMPORARY WORKAROUND
+        bslma::Allocator *Z = &bslma::MallocFreeAllocator::singleton();
+
+        bslma::DefaultAllocatorGuard dag(Z);
+
+        Obj mX(&loader,              Z);
+        Obj mY(&loader, Interval(0), Z);
+// END   TEMPORARY WORKAROUND
+
+        const int NUM_TEST_ITERATIONS   =   10;
+        const int NUM_THREAD_ITERATIONS = 1000;
+
+        ThreadInfo info = { NUM_THREAD_ITERATIONS, &mX, &mY };
+
+        for (int ti = 0; ti < NUM_TEST_ITERATIONS; ++ti) {
+            ThreadId id1 = createThread(&threadFunction1, &info);
+            ThreadId id2 = createThread(&threadFunction2, &info);
+            ThreadId id3 = createThread(&threadFunction3, &info);
+
+            joinThread(id1);
+            joinThread(id2);
+            joinThread(id3);
         }
-        {
-            // Testing a calendar cache with a timeout value.
 
-            TestLoader loader;
-            Obj X(&loader, bdet_TimeInterval(1), &testAllocator);
-            bdet_Date date1, date2;
-            Entry e;
-
-            BEGIN_BSLMA_EXCEPTION_TEST {
-              e = X.getCalendar("VALID");
-              ASSERT(0 != e.ptr());
-              e = X.getCalendar("VALID1");
-              ASSERT(0 != e.ptr());
-
-              sleepSeconds(2);
-
-              loader.getFirstDate(&date1);
-              e = X.getCalendar("VALID");
-              loader.getFirstDate(&date2);
-              ASSERT(0 != e.ptr());
-              ASSERT(date1 != date2);
-
-              loader.getFirstDate(&date1);
-              e = X.getCalendar("VALID1");
-              loader.getFirstDate(&date2);
-              ASSERT(0 != e.ptr());
-              ASSERT(date1 != date2);
-            } END_BSLMA_EXCEPTION_TEST
-        }
       } break;
-      case 3: {
+      case 6: {
         // --------------------------------------------------------------------
-        // TESTING THE 'invalidate' and 'invalidateAll' METHODS
-        //
-        // We want to demonstrate that 'invalidate()' will mark the specified
-        // calendar entry in the cache for reload, and 'invalidateAll()' will
-        // mark all entries in the cache for reload.
+        // EXCEPTION NEUTRALITY
+        //   Ensure that all memory allocation is exception neutral.
         //
         // Concerns:
-        //  1.  The 'invalidate()' method can be called to mark a calendar for
-        //      reload without affecting other entries, regardless of whether
-        //      this calendar existed in the cache before the invalidation.
-        //  2.  The 'invalidateAll()' method marks all entries in the cache for
-        //      reload.
+        //: 1 That 'getCalendar', the only method that allocates memory, is
+        //:   exception neutral.
         //
         // Plan:
+        //: 1 We use the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
+        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros to generate
+        //:   exceptions in order to verify that there is no memory leak when
+        //:   we invoke 'getCalendar'.  (C-1)
         //
-        //  To address concern 1, we will call the 'invalidate()' method with
-        //  both valid and invalid 'calendarName'.  Then we will load the valid
-        //  calendars again and make sure they are loaded via the loader and
-        //  not from the cache.  We'll also make sure no other entries are
-        //  modified.
+        // Testing:
+        //   CONCERN: All memory allocation is exception neutral.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "EXCEPTION NEUTRALITY" << endl
+                          << "====================" << endl;
+
+        if (verbose) cout << "\nTesting a cache without a timeout." << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, &sa);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+              Entry e;
+              int rc;
+
+              e  = mX.getCalendar("ERROR");
+                                         ASSERT(!e.ptr());
+
+              e  = mX.getCalendar("CAL-1");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate1);
+
+              e  = mX.getCalendar("CAL-2");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate2);
+
+              e  = mX.getCalendar("CAL-1");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate1);
+
+              rc = mX.invalidate("CAL-2");
+                                         ASSERT(1 == rc);
+
+              e  = mX.getCalendar("CAL-2");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate2);
+
+              rc = mX.invalidateAll();   ASSERT(2 == rc);
+
+              e  = mX.getCalendar("CAL-1");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate1);
+
+              e  = mX.getCalendar("CAL-2");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate2);
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting a cache with a timeout." << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, Interval(0), &sa);  const Obj& X = mX;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+              Entry e;
+
+              e = mX.getCalendar("CAL-1");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate1);
+
+              e = mX.getCalendar("CAL-2");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate2);
+
+              // "CAL-1" is invalidated in cache by 'getCalendar' before being
+              // reloaded.
+
+              e = mX.getCalendar("CAL-1");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate1);
+
+              // "CAL-2" is invalidated in cache by 'lookupCalendar'.
+
+              e = X.lookupCalendar("CAL-2");
+                                         ASSERT(!e.ptr());
+
+              e = mX.getCalendar("CAL-2");
+                                         ASSERT(e.ptr());
+                                         ASSERT(e->firstDate() == gFirstDate2);
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+        }
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // 'invalidate' and 'invalidateAll'
+        //   Ensure that 'invalidate' and 'invalidateAll' behave as expected.
         //
-        //  To address concern 2, we will call the 'invalidateAll()' method on
-        //  both an empty cache and on a non-empty cache and make sure all the
-        //  entries are reloaded from the loader the next time they are
-        //  accessed.
+        // Concerns:
+        //: 1 That 'invalidate', when supplied with a string identifying a
+        //:   calendar in the cache, invalidates the named calendar and leaves
+        //:   other calendars in the cache (if any) unaffected.
+        //:
+        //: 2 That 'invalidate' has no effect if the string supplied to it does
+        //:   not identify any calendar in the cache.
+        //:
+        //: 3 That 'invalidate' returns the correct status value.
+        //:
+        //: 4 That 'invalidate' can be called on an empty cache.
+        //:
+        //: 5 That calendars that have been invalidated by 'invalidate' can be
+        //:   reloaded successfully.
+        //:
+        //: 6 That 'invalidate' is not affected by a timeout.
+        //:
+        //: 7 That 'invalidateAll' invalidates all calendars in the calendar.
+        //:
+        //: 8 That 'invalidateAll' returns the correct status value.
+        //:
+        //: 9 That calendars that have been invalidated by 'invalidateAll' can
+        //:   be reloaded successfully.
+        //:
+        //: 10 That 'invalidateAll' can be called on an empty cache.
+        //:
+        //: 11 That 'invalidateAll' is not affected by a timeout.
+        //:
+        //: 12 QoI: Asserted precondition violations are detected when enabled.
         //
-        // Tactics:
-        //      - Ad Hoc test data selection method
-        //      - Brute force test case implementation technique
+        // Plan:
+        //: 1 'invalidate' is tested ad hoc as follows: (C-1..6)
+        //:
+        //:   1 'invalidate' is called on an empty cache that has no timeout.
+        //:     (C-4)
+        //:
+        //:   2 "CAL-1" is loaded into the cache, then 'invalidate' is called
+        //:     with strings slightly different from "CAL-1".  (C-2)
+        //:
+        //:   3 'invalidate' is called with "CAL-1".
+        //:
+        //:   4 "CAL-1" and "CAL-2" are loaded into the cache (reloaded in the
+        //:     case of "CAL-1") and each is invalidated in turn.  (C-1, C-3,
+        //:     C-5)
+        //:
+        //:   5 P-1.1..4 is repeated on a cache that has a timeout.  (C-6)
+        //:
+        //: 2 'invalidateAll' is tested ad hoc as follows: (C-7..11)
+        //:
+        //:   1 'invalidateAll' is called on an empty cache that has no
+        //:     timeout.  (C-10)
+        //:
+        //:   2 'invalidateAll' is successively called on the cache after it
+        //:     has been loaded with one, two, and three calendars.  (C-7..9)
+        //:
+        //:   3 P-2.1..2 is repeated on a cache that has a timeout.  (C-11)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-12)
         //
         // Testing:
         //   int invalidate(const char *name);
@@ -579,365 +1111,1149 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'invalidate' and 'invalidateAll" << endl
-                          << "=======================================" << endl;
+                          << "'invalidate' and 'invalidateAll'" << endl
+                          << "================================" << endl;
+
+        if (verbose) cout << "\nTesting 'invalidate' (w/o timeout)." << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, &sa);  const Obj& X = mX;
+
+            Entry e;
+            int rc;
+
+            // Call 'invalidate' on an empty cache.
+
+            rc = mX.invalidate("x");         ASSERT(0 == rc);
+
+            // Load "CAL-1" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+
+            rc = mX.invalidate("aCAL-1");    ASSERT(0 == rc);
+            rc = mX.invalidate("CAL-1z");    ASSERT(0 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT( e.ptr());
+
+            rc = mX.invalidate("CAL-1");     ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+
+            // Load "CAL-1" and "CAL-2" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-2");    ASSERT( e.ptr());
+
+            rc = mX.invalidate("CAL-1");     ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT( e.ptr());
+
+            rc = mX.invalidate("CAL-2");     ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT(!e.ptr());
+
+            rc = mX.invalidate("CAL-2");     ASSERT(0 == rc);
+        }
+
+        if (verbose) cout << "\nTesting 'invalidate' (with timeout)." << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, Interval(60), &sa);  const Obj& X = mX;
+
+            Entry e;
+            int rc;
+
+            // Call 'invalidate' on an empty cache.
+
+            rc = mX.invalidate("x");         ASSERT(0 == rc);
+
+            // Load "CAL-1" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+
+            rc = mX.invalidate("aCAL-1");    ASSERT(0 == rc);
+            rc = mX.invalidate("CAL-1z");    ASSERT(0 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT( e.ptr());
+
+            rc = mX.invalidate("CAL-1");     ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+
+            // Load "CAL-1" and "CAL-2" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-2");    ASSERT( e.ptr());
+
+            rc = mX.invalidate("CAL-1");     ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT( e.ptr());
+
+            rc = mX.invalidate("CAL-2");     ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT(!e.ptr());
+
+            rc = mX.invalidate("CAL-2");     ASSERT(0 == rc);
+        }
+
+        if (verbose) cout << "\nTesting 'invalidateAll' (w/o timeout)."
+                          << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, &sa);  const Obj& X = mX;
+
+            Entry e;
+            int rc;
+
+            // Call 'invalidateAll' on an empty cache.
+
+            rc = mX.invalidateAll();         ASSERT(0 == rc);
+
+            // Load "CAL-1" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+
+            rc = mX.invalidateAll();         ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+
+            // Load "CAL-1" and "CAL-2" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-2");    ASSERT( e.ptr());
+
+            rc = mX.invalidateAll();         ASSERT(2 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT(!e.ptr());
+
+            // Load "CAL-1", "CAL-2", and "CAL-3" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-2");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-3");    ASSERT( e.ptr());
+
+            rc = mX.invalidateAll();         ASSERT(3 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-3");  ASSERT(!e.ptr());
+        }
+
+        if (verbose) cout << "\nTesting 'invalidateAll' (with timeout)."
+                          << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, Interval(60), &sa);  const Obj& X = mX;
+
+            Entry e;
+            int rc;
+
+            // Call 'invalidateAll' on an empty cache.
+
+            rc = mX.invalidateAll();         ASSERT(0 == rc);
+
+            // Load "CAL-1" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+
+            rc = mX.invalidateAll();         ASSERT(1 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+
+            // Load "CAL-1" and "CAL-2" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-2");    ASSERT( e.ptr());
+
+            rc = mX.invalidateAll();         ASSERT(2 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT(!e.ptr());
+
+            // Load "CAL-1", "CAL-2", and "CAL-3" into the cache.
+
+            e  = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-2");    ASSERT( e.ptr());
+            e  = mX.getCalendar("CAL-3");    ASSERT( e.ptr());
+
+            rc = mX.invalidateAll();         ASSERT(3 == rc);
+
+            e  = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-2");  ASSERT(!e.ptr());
+            e  = X.lookupCalendar("CAL-3");  ASSERT(!e.ptr());
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            TestLoader           loader;
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            Obj mX(&loader, &sa);
+
+            {
+                ASSERT_SAFE_FAIL(mX.invalidate(0));
+
+                ASSERT_SAFE_PASS(mX.invalidate(""));
+            }
+        }
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // 'getCalendar' AND 'lookupCalendar'
+        //   Ensure that 'getCalendar' and 'lookupCalendar' behave as expected
+        //   in the absence of exceptions (exception neutrality is tested in a
+        //   a later test case).
+        //
+        // Concerns:
+        //: 1 That 'getCalendar', when supplied with a string not recognized
+        //:   by the loader, returns null.
+        //:
+        //: 2 That 'getCalendar', when supplied with a string identifying a
+        //:   calendar recognized by the loader that is NOT present in the
+        //:   cache, loads the specified calendar into the cache and returns a
+        //:   reference to that calendar.
+        //:
+        //: 3 That 'getCalendar', when supplied with a string identifying a
+        //:   calendar recognized by the loader that IS present in the cache
+        //:   and has NOT expired, returns a reference to that calendar.
+        //:
+        //: 4 That 'getCalendar', when supplied with a string identifying a
+        //:   calendar recognized by the loader that IS present in the cache
+        //:   but HAS expired, reloads the specified calendar into the cache
+        //:   and returns a reference to that (newly-loaded) calendar.
+        //:
+        //: 5 That 'getCalendar' allocates memory if and only if it loads a
+        //:   calendar into the cache.
+        //:
+        //: 6 That 'lookupCalendar', when supplied with a string not
+        //:   identifying a calendar present in the cache, returns null.
+        //:
+        //: 7 That 'lookupCalendar', when supplied with a string identifying a
+        //:   calendar present in the cache that has NOT expired, returns a
+        //:   reference to that calendar.
+        //:
+        //: 8 That 'lookupCalendar', when supplied with a string identifying a
+        //:   calendar present in the cache that HAS expired, returns null.
+        //:
+        //: 9 That 'lookupCalendar' allocates no memory from any allocator.
+        //:
+        //: 10 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 'getCalendar' and 'lookupCalendar' are tested ad hoc, using a
+        //:   cache with no timeout, as follows: (C-1..2, C-5..6, C-9)
+        //:
+        //:   1 'getCalendar' and 'lookupCalendar' are called with various
+        //:     strings on the initially empty cache.  (C-1)
+        //:
+        //:   2 Using 'getCalendar', the "CAL-1" calendar is loaded into the
+        //:     cache, then 'lookupCalendar' and 'getCalendar' are called with
+        //:     various strings.
+        //:
+        //:   3 A second calendar, "CAL-2", is loaded into the cache, and
+        //:     'lookupCalendar' and 'getCalendar' are again called with
+        //:     various strings.  (C-2, C-5..6, C-9)
+        //:
+        //: 2 'getCalendar' and 'lookupCalendar' are further tested ad hoc,
+        //:   using a cache with a 1-second timeout, as follows: (C-3..4,
+        //:   C-7..8)
+        //:
+        //:   1 Calendars "CAL-1" and "CAL-2" are loaded into the cache, then
+        //:     'lookupCalendar' and 'getCalendar' are used to verify that the
+        //:     calendars have not yet expired.  (C-3, C-7).
+        //:
+        //:   2 Sleep for 2 seconds.
+        //:
+        //:   3 'lookupCalendar' is used to verify that "CAL-1" has expired
+        //:     (null is returned); 'getCalendar' is used to verify that
+        //:     "CAL-2" has expired ("CAL-2" is reloaded into the cache).
+        //:     (C-4, C-8).
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-10)
+        //
+        // Testing:
+        //   bdet_CalendarCacheEntryPtr getCalendar(const char *name);
+        //   bdet_CalendarCacheEntryPtr lookupCalendar(const char *name) const;
+
+        if (verbose) cout << endl
+                          << "'getCalendar' AND 'lookupCalendar'" << endl
+                          << "==================================" << endl;
+
+        if (verbose) cout << "\nTesting without a timeout." << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, &sa);  const Obj& X = mX;
+
+            // Empty cache.
+            {
+                Entry e;
+
+                e = mX.getCalendar("ERROR");      ASSERT(!e.ptr());
+
+                LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+
+                e = mX.getCalendar("CAL-Z");      ASSERT(!e.ptr());
+
+                LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+
+                e = X.lookupCalendar("CAL-Z");    ASSERT(!e.ptr());
+
+                LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+            }
+
+            int daLastNumBlocksTotal, saLastNumBlocksTotal;
+
+            // Cache with one entry.
+            {
+                Entry e1, ex;
+
+                e1 = mX.getCalendar("CAL-1");     ASSERT(e1.ptr());
+                                                  ASSERT(e1->firstDate() ==
+                                                                  gFirstDate1);
+
+                LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+                LOOP_ASSERT(sa.numBlocksInUse(), 0 <  sa.numBlocksInUse());
+
+                daLastNumBlocksTotal = da.numBlocksTotal();
+                saLastNumBlocksTotal = sa.numBlocksTotal();
+
+                ex = X.lookupCalendar("CAL-1");   ASSERT(ex.ptr());
+                                                  ASSERT(ex.ptr() == e1.ptr());
+
+                LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                             daLastNumBlocksTotal == da.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                             saLastNumBlocksTotal == sa.numBlocksTotal());
+
+                ex = mX.getCalendar("CAL-1");     ASSERT(ex.ptr());
+                                                  ASSERT(ex.ptr() == e1.ptr());
+
+                LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                             daLastNumBlocksTotal == da.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                             saLastNumBlocksTotal == sa.numBlocksTotal());
+
+                ex = mX.getCalendar("aCAL-1");    ASSERT(!ex.ptr());
+
+                ex = mX.getCalendar("CAL-1z");    ASSERT(!ex.ptr());
+
+                ex = X.lookupCalendar("aCAL-1");  ASSERT(!ex.ptr());
+
+                ex = X.lookupCalendar("CAL-1z");  ASSERT(!ex.ptr());
+
+                LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                             daLastNumBlocksTotal == da.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                             saLastNumBlocksTotal == sa.numBlocksTotal());
+            }
+
+            // Cache with two entries.
+            {
+                Entry e1, e2, ex, ey;
+
+                const int lastNumBlocksInUse = sa.numBlocksInUse();
+
+                e2 = mX.getCalendar("CAL-2");     ASSERT(e2.ptr());
+                                                  ASSERT(e2->firstDate() ==
+                                                                  gFirstDate2);
+
+                LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+                LOOP2_ASSERT(lastNumBlocksInUse, sa.numBlocksInUse(),
+                             lastNumBlocksInUse < sa.numBlocksInUse());
+
+                daLastNumBlocksTotal = da.numBlocksTotal();
+                saLastNumBlocksTotal = sa.numBlocksTotal();
+
+                ey = X.lookupCalendar("CAL-2");   ASSERT(ey.ptr());
+                                                  ASSERT(ey.ptr() == e2.ptr());
+
+                e1 = mX.getCalendar("CAL-1");     ASSERT(e1.ptr());
+                                                  ASSERT(e1->firstDate() ==
+                                                                  gFirstDate1);
+
+                ex = X.lookupCalendar("CAL-1");   ASSERT(ex.ptr());
+                                                  ASSERT(ex.ptr() == e1.ptr());
+
+                ex = X.lookupCalendar("CAL-Z");   ASSERT(!ex.ptr());
+
+                LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                             daLastNumBlocksTotal == da.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                             saLastNumBlocksTotal == sa.numBlocksTotal());
+            }
+        }
+
+        if (verbose) cout << "\nTesting with a timeout." << endl;
+        {
+            TestLoader loader;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&loader, Interval(1), &sa);  const Obj& X = mX;
+
+            Entry e1, e2, eo;
+
+            e1 = mX.getCalendar("CAL-1");    ASSERT( e1.ptr());
+            e2 = mX.getCalendar("CAL-2");    ASSERT( e2.ptr());
+
+            eo = X.lookupCalendar("CAL-1");  ASSERT( eo.ptr());
+                                             ASSERT( eo.ptr() == e1.ptr());
+
+            eo = X.lookupCalendar("CAL-2");  ASSERT( eo.ptr());
+                                             ASSERT( eo.ptr() == e2.ptr());
+
+            eo = mX.getCalendar("CAL-1");    ASSERT( eo.ptr());
+                                             ASSERT( eo.ptr() == e1.ptr());
+
+            eo = mX.getCalendar("CAL-2");    ASSERT( eo.ptr());
+                                             ASSERT( eo.ptr() == e2.ptr());
+
+            const int saLastNumBlocksTotal = sa.numBlocksTotal();
+
+            sleepSeconds(2);
+
+            eo = X.lookupCalendar("CAL-1");  ASSERT(!eo.ptr());
+
+            eo = mX.getCalendar("CAL-2");    ASSERT( eo.ptr());
+                                             ASSERT( eo.ptr() != e2.ptr());
+
+            LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                         saLastNumBlocksTotal <  sa.numBlocksTotal());
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            TestLoader loader;
+
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            {
+                Obj mX(&loader, &sa);
+
+                ASSERT_SAFE_FAIL(mX.getCalendar(0));
+
+                ASSERT_SAFE_PASS(mX.getCalendar(""));
+            }
+
+            {
+                const Obj X(&loader, &sa);
+
+                ASSERT_SAFE_FAIL(X.lookupCalendar(0));
+
+                ASSERT_SAFE_PASS(X.lookupCalendar(""));
+            }
+        }
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // 'bdet_CalendarCacheEntryPtr'
+        //   Ensure that 'bdet_CalendarCacheEntryPtr' correctly implements a
+        //   reference-counted handle to entries in a calendar cache.
+        //
+        // Concerns:
+        //: 1 The default constructor creates an empty object (i.e., a null
+        //:   pointer).
+        //:
+        //: 2 'ptr' and 'operator->' both return null for an empty object.
+        //:
+        //: 3 'ptr' and 'operator->' return the same (non-null) address for a
+        //:   non-empty object.
+        //:
+        //: 4 An object copy constructed from an empty object is empty.
+        //:
+        //: 5 An object copy constructed from a non-empty object refers to the
+        //:   same calendar as the initial (source) object, and adjusts the
+        //:   reference count accordingly.
+        //:
+        //: 6 The assignment operator correctly adjusts the reference count of
+        //:   both the target and source objects.
+        //:
+        //: 7 Assignment to self has no effect on the reference count of the
+        //:   object.
+        //:
+        //: 8 The reference returned by the assignment operator is to the
+        //:   target object (i.e., '*this').
+        //:
+        //: 9 The destructor reclaims memory if and only if the target object
+        //:   holds the last reference to a calendar.
+        //
+        // Plan:
+        //   The 'Entry' constructor used to create non-null objects is
+        //   'private', so we must make use of the (as yet unproven)
+        //   'getCalendar' manipulator to obtain such.  Testing is facilitated
+        //   by also making use of the (as yet unproven) 'invalidate'
+        //   manipulator and 'lookupCalendar' accessor.
+        //
+        //   The 'Entry' class is tested with a series of ad hoc tests:
+        //
+        //: 1 An object is created using the default constructor.  (C-1..2)
+        //:
+        //: 2 An object is copy constructed from an empty object.  (C-4)
+        //:
+        //: 3 A non-null 'Entry' object obtained from 'getCalendar' is used to
+        //:   create, via copy construction, up to three additional 'Entry'
+        //:   objects.  One at a time, the objects are allowed to go out of
+        //:   scope.  (C-3, C-5, C-9)
+        //:
+        //: 4 An empty object is assigned to another empty object.  (C-8)
+        //:
+        //: 5 The assignment operator is further tested for: empty assigned to
+        //:   non-empty, non-empty assigned to empty, non-empty assigned to
+        //:   non-empty, and self-assignment.  (C-6..7)
+        //
+        // Testing:
+        //   bdet_CalendarCacheEntryPtr();
+        //   bdet_CalendarCacheEntryPtr(const CacheEntryPtr& original);
+        //   ~bdet_CalendarCacheEntryPtr();
+        //   bdet_CalendarCacheEntryPtr& operator=(const CacheEntryPtr& rhs);
+        //   const bdet_Calendar *operator->() const;
+        //   const bdet_Calendar *ptr() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "'bdet_CalendarCacheEntryPtr'" << endl
+                          << "============================" << endl;
 
         TestLoader loader;
-        Obj mX(&loader, &testAllocator);
 
-        bdet_Date date1, date2;
-        Entry e, eV, eV2;
+        bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-        int ret;
+        bslma::DefaultAllocatorGuard dag(&da);
 
-        // try 'invalidate' on an empty cache
+        Obj mX(&loader, &sa);  const Obj& X = mX;
 
-        ret = mX.invalidate("VALID");      ASSERT(0 == ret);
+        int lastNumBlocksInUse;
 
-        // try 'invalidateAll' on an empty cache
+        if (verbose) cout << "\nTesting 'EntryPtr' default ctor." << endl;
 
-        ret = mX.invalidateAll();          ASSERT(0 == ret);
+        {
+            Entry e;         ASSERT(!e.ptr());
+                             ASSERT(!e.operator->());
+        }
 
-        // load two entries into the cache
+        if (verbose) cout << "\nTesting 'EntryPtr' copy ctor." << endl;
 
-        e = mX.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
-        eV = e;
+        // copy empty
+        {
+            Entry e1;        ASSERT(!e1.ptr());
+                             ASSERT(!e1.operator->());
 
-        e = mX.getCalendar("VALID1");
-        ASSERT(0 != e.ptr());
-        eV2 = e;
+            Entry e2(e1);    ASSERT(!e2.ptr());
+                             ASSERT(!e2.operator->());
 
-        // invalidate a non-exist entry
+                             ASSERT(!e1.ptr());
+                             ASSERT(!e1.operator->());
+        }
 
-        ret = mX.invalidate("NONEXIST");   ASSERT(0 == ret);
-        loader.getFirstDate(&date1);
+        // copy non-empty
+        {
+            Entry e = mX.getCalendar("CAL-1");         mX.invalidate("CAL-1");
 
-        e = mX.getCalendar("VALID");
-        ASSERT(       0 != e.ptr());
-        ASSERT(eV.ptr() == e.ptr());
+                             ASSERT(e.ptr());
+                             ASSERT(e.operator->());
+                             ASSERT(e.ptr() == e.operator->());
+                             ASSERT(e->firstDate() == gFirstDate1);
 
-        e = mX.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV2.ptr() == e.ptr());
+            lastNumBlocksInUse = sa.numBlocksInUse();
+        }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 == date2);       // verify both are in the cache
+        // copy non-empty twice
+        {
+            Entry e1 = mX.getCalendar("CAL-1");        mX.invalidate("CAL-1");
 
-        // invalidate a valid entry
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
 
-        ret = mX.invalidate("VALID");      ASSERT(1 == ret);
-        loader.getFirstDate(&date1);
+            lastNumBlocksInUse = sa.numBlocksInUse();
 
-        e = mX.getCalendar("VALID");
-        ASSERT(       0 != e.ptr());
-        ASSERT(eV.ptr() != e.ptr());
-        eV = e;
+            {
+                Entry e2(e1);
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 != date2);       // verify "VALID" is reloaded
+                             ASSERT(e2.ptr());
+                             ASSERT(e2->firstDate() == gFirstDate1);
+                             ASSERT(e2.ptr() == e1.ptr());
 
-        loader.getFirstDate(&date1);
-        e = mX.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV2.ptr() == e.ptr());
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+            }
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 == date2);       // verify "VALID1" is still in cache
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+        }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
 
-        // invalidate another valid entry
+        // copy non-empty thrice
+        {
+            Entry e1 = mX.getCalendar("CAL-1");        mX.invalidate("CAL-1");
 
-        ret = mX.invalidate("VALID1");     ASSERT(1 == ret);
-        loader.getFirstDate(&date1);
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
 
-        e = mX.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV2.ptr() != e.ptr());
-        eV2 = e;
+            lastNumBlocksInUse = sa.numBlocksInUse();
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 != date2);       // verify "VALID1" is reloaded
+            {
+                Entry e2(e1);
 
-        // try 'invalidateAll()' on a non-empty cache
+                             ASSERT(e2.ptr());
+                             ASSERT(e2->firstDate() == gFirstDate1);
+                             ASSERT(e2.ptr() == e1.ptr());
 
-        e = mX.getCalendar("VALID");
-        ASSERT(       0 != e.ptr());
-        ASSERT(eV.ptr() == e.ptr());
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
 
-        e = mX.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV2.ptr() == e.ptr());
+                {
+                    Entry e3(e2);
 
-        ret = mX.invalidateAll();          ASSERT(2 == ret);
-        loader.getFirstDate(&date1);
+                             ASSERT(e3.ptr());
+                             ASSERT(e3->firstDate() == gFirstDate1);
+                             ASSERT(e3.ptr() == e2.ptr());
+                             ASSERT(e2.ptr() == e1.ptr());
 
-        e = mX.getCalendar("VALID");
-        ASSERT(       0 != e.ptr());
-        ASSERT(eV.ptr() != e.ptr());
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+                }
+                             ASSERT(e2.ptr());
+                             ASSERT(e2->firstDate() == gFirstDate1);
+                             ASSERT(e2.ptr() == e1.ptr());
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 != date2);       // verify "VALID" is reloaded
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+            }
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
 
-        loader.getFirstDate(&date1);
-        e = mX.getCalendar("VALID1");
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+        }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
 
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV2.ptr() != e.ptr());
+        if (verbose) cout << "\nTesting 'EntryPtr' 'operator='." << endl;
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 != date2);       // verify "VALID1" is reloaded
+        // assign empty to empty
+        {
+            Entry e1;        ASSERT(!e1.ptr());
+
+            Entry e2;        ASSERT(!e2.ptr());
+
+            Entry *p = &(e2 = e1);
+
+                             ASSERT(!e2.ptr());
+                             ASSERT(!e1.ptr());
+                             ASSERT(p == &e2);
+        }
+
+        // assign empty to non-empty with one live reference
+        {
+            Entry e = mX.getCalendar("CAL-1");        mX.invalidate("CAL-1");
+
+                             ASSERT(e.ptr());
+                             ASSERT(e->firstDate() == gFirstDate1);
+
+            lastNumBlocksInUse = sa.numBlocksInUse();
+
+            e = Entry();     ASSERT(!e.ptr());
+
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
+
+            lastNumBlocksInUse = sa.numBlocksInUse();
+        }
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+
+        // assign empty to non-empty with two live references
+        {
+            Entry e1 = mX.getCalendar("CAL-1");        mX.invalidate("CAL-1");
+
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
+
+            lastNumBlocksInUse = sa.numBlocksInUse();
+
+            {
+                Entry e2(e1);
+
+                             ASSERT(e2.ptr());
+                             ASSERT(e2->firstDate() == gFirstDate1);
+                             ASSERT(e2.ptr() == e1.ptr());
+
+                e1 = Entry();
+
+                             ASSERT(!e1.ptr());
+                             ASSERT( e2.ptr());
+                             ASSERT( e2->firstDate() == gFirstDate1);
+
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+            }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
+
+            lastNumBlocksInUse = sa.numBlocksInUse();
+        }
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+
+        // assign non-empty to empty
+        {
+            Entry e1;        ASSERT(!e1.ptr());
+
+            {
+                Entry e2 = mX.getCalendar("CAL-1");    mX.invalidate("CAL-1");
+
+                             ASSERT(e2.ptr());
+                             ASSERT(e2->firstDate() == gFirstDate1);
+
+                lastNumBlocksInUse = sa.numBlocksInUse();
+
+                e1 = e2;     ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
+                             ASSERT(e1.ptr() == e2.ptr());
+
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+            }
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
+
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+        }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
+
+        // assign to self
+        {
+            Entry e = mX.getCalendar("CAL-1");         mX.invalidate("CAL-1");
+
+                             ASSERT(e.ptr());
+                             ASSERT(e->firstDate() == gFirstDate1);
+
+            lastNumBlocksInUse = sa.numBlocksInUse();
+
+            e = e;           ASSERT(e.ptr());
+                             ASSERT(e->firstDate() == gFirstDate1);
+
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+        }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
+
+        // assign non-empty to non-empty referencing the same calendar
+        {
+            Entry e1 = mX.getCalendar("CAL-1");
+
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
+
+            lastNumBlocksInUse = sa.numBlocksInUse();
+
+            {
+                Entry e2 = X.lookupCalendar("CAL-1");  mX.invalidate("CAL-1");
+
+                             ASSERT(e2.ptr());
+                             ASSERT(e2->firstDate() == gFirstDate1);
+                             ASSERT(e1.ptr() == e2.ptr());
+
+                e1 = e2;     ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
+                             ASSERT(e1.ptr() == e2.ptr());
+
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+            }
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
+
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+        }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
+
+        // assign non-empty to non-empty referencing different calendars
+        {
+            Entry e1 = mX.getCalendar("CAL-1");        mX.invalidate("CAL-1");
+
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate1);
+
+            lastNumBlocksInUse = sa.numBlocksInUse();
+
+            {
+                Entry e2 = mX.getCalendar("CAL-2");    mX.invalidate("CAL-2");
+
+                             ASSERT(e2.ptr());
+                             ASSERT(e2->firstDate() == gFirstDate2);
+                             ASSERT(e1.ptr() != e2.ptr());
+
+                             ASSERT(lastNumBlocksInUse <  sa.numBlocksInUse());
+
+                lastNumBlocksInUse = sa.numBlocksInUse();
+
+                e1 = e2;     ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate2);
+                             ASSERT(e1.ptr() == e2.ptr());
+
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
+
+                lastNumBlocksInUse = sa.numBlocksInUse();
+            }
+                             ASSERT(e1.ptr());
+                             ASSERT(e1->firstDate() == gFirstDate2);
+
+                             ASSERT(lastNumBlocksInUse == sa.numBlocksInUse());
+        }
+                             ASSERT(lastNumBlocksInUse >  sa.numBlocksInUse());
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING THE 'getCalendar' METHOD
-        //
-        // We want to demonstrate that the 'getCalendar' method returns a
-        // 'bdet_Calendar' object from the cache when a valid entry with
-        // matching 'calendarName' is found; and that it loads the
-        // 'bdet_Calendar' object using the loader and properly inserts it
-        // into the cache when a matching 'calendarName' is not found.  We also
-        // want to demonstrate that if the calendar cache object has a timeout
-        // value, the expired entries will get reloaded using the loader when
-        // they are accessed.
+        // CTORS AND DTOR
+        //   Ensure that the constructors configure the cache with the expected
+        //   loader, timeout, and allocator; and that the destructor releases
+        //   all memory.
         //
         // Concerns:
-        //  1.  The 'getCalendar' method returns 0 if an invalid 'calendarName'
-        //      is given.
-        //  2   The 'getCalendar' method returns the properly-loaded
-        //      'bdet_Calendar' object and inserts it into the cache if a
-        //      valid 'calendarName' is given but is not found in the cache.
-        //  3.  The 'getCalendar' method returns the properly-loaded
-        //      'bdet_Calendar' object from the cache if a matching
-        //      'calendarName' is found, but does not modify the cache nor call
-        //      the loader.
-        //  4.  A calendar cache without a timeout value does not expire any of
-        //      its entries.
-        //  5.  A calendar cache with a timeout value expires an entry only
-        //      after its timeout value has been reached.
+        //: 1 The cache uses the loader supplied at construction.
+        //:
+        //: 2 If a timeout is NOT supplied at construction, calendars do not
+        //:   expire from the cache.
+        //:
+        //: 3 If a timeout IS supplied at construction, calendars expire from
+        //:   the cache per the specified timeout.
+        //:
+        //: 4 If an allocator is NOT supplied at construction, the default
+        //:   allocator in effect at the time of construction becomes the
+        //:   object allocator for the resulting cache.
+        //:
+        //: 5 If an allocator IS supplied at construction, that allocator
+        //:   becomes the object allocator for the resulting cache.
+        //:
+        //: 6 Supplying a null allocator address has the same effect as not
+        //:   supplying an allocator.
+        //:
+        //: 7 No memory is allocated from any allocator during construction.
+        //:
+        //: 8 Every object releases any allocated memory at destruction.
+        //:
+        //: 9 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
+        //: 1 Using a loop-based approach, construct three distinct objects
+        //:   without a timeout, in turn, but configured differently: (a)
+        //:   without passing an allocator, (b) passing a null allocator
+        //:   address explicitly, and (c) passing the address of a test
+        //:   allocator distinct from the default.  For each of these three
+        //:   iterations: (C-1..2, C-4..8)
+        //:
+        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
+        //:     the current default allocator (note that a ubiquitous test
+        //:     allocator is already installed as the global allocator).
+        //:
+        //:   2 Use the two-argument constructor to dynamically create an
+        //:     object, 'mX', with its object allocator configured
+        //:     appropriately (see P-1); use a distinct test allocator for the
+        //:     object's footprint.
+        //:
+        //:   3 Use the appropriate test allocators to verify that no memory
+        //:     is allocated by the constructor.  (C-7)
+        //:
+        //:   4 Use the (as yet unproven) 'getCalendar' manipulator to load a
+        //:     a calendar into 'mX'; verify that the calendar loader supplied
+        //:     at construction is used and that use of the object and default
+        //:     allocators are as expected.  (C-1, C4..6)
+        //:
+        //:   5 Use the (as yet unproven) 'lookupCalendar' accessor to verify
+        //:     that a timeout is not in effect (see the TEST PLAN regarding
+        //:     timeout testing).  (C-2)
+        //:
+        //:   6 Verify that all object memory is released when the object is
+        //:     destroyed.  (C-8)
+        //:
+        //: 2 Repeat P-1, but this time using the three-argument constructor
+        //:   to supply a timeout (P-1.2), and using 'getCalendar' instead of
+        //:   'lookupCalendar' to reload the calendar (P-1.5).  (C-1, C-3..8)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-9)
         //
-        //  To address concern 1, we will call the 'getCalendar' method with
-        //  some invalid 'calendarName' values and make sure it returns 0.
-        //
-        //  To address concern 2, we will call the 'getCalendar' method with a
-        //  valid 'calendarName' which is not in the cache.  We first make sure
-        //  the 'getCalendar' method returns the correct 'bdet_Calendar" object
-        //  by checking its 'firstDate' and holidays.  Then we verify the new
-        //  object is properly loaded into the cache by iterating through all
-        //  cache entries.  We also verify that the test loader's 'load'
-        //  method was called by making sure that the 'd_firstDate' member has
-        //  been modified.  We will do the above for the following 2 cases:
-        //  when the cache is empty, and when the cache has one or more
-        //  entries.
-        //
-        //  To address concern 3, we will call the 'getCalendar' method with a
-        //  'calendarName' that is already in the cache.  We first make sure
-        //  it returns the correct 'bdet_Calendar' object by checking its
-        //  'firstDate' and holidays.  Then we verify that this
-        //  'bdet_Calendar' object is retrieved from the cache by making sure
-        //  the test loader's 'load' method was not called.
-        //
-        //  To address concern 4, we will construct a calendar cache object
-        //  without a timeout value and verify that all its entries are still
-        //  considered valid in the cache after a certain amount of time.
-        //
-        //  To address concern 5, we will construct a calendar cache object
-        //  with a timeout.  Then we will load a calendar, wait for a while,
-        //  then insert another one.  We will then test whether they are valid
-        //  at different times.  During the test we will also try to "use"
-        //  these entries by fetching them from the cache and making sure that
-        //  has no effect on the expiration of the cache entries.
-        //
-        //  Tactics:
-        //    - Ad Hoc test data selection method
-        //    - Brute force test case implementation technique
-        //
-        //  Testing:
-        //    const bdet_Calendar *getCalendar(const char *name);
+        // Testing:
+        //   bdet_CalendarCache(Loader *loader,          Alloc *ba = 0);
+        //   bdet_CalendarCache(Loader *loader, timeout, Alloc *ba = 0);
+        //   ~bdet_CalendarCache();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << " TESTING THE 'getCalendar' METHOD" << endl
-                          << "=================================" << endl;
+                          << "CTORS AND DTOR" << endl
+                          << "==============" << endl;
 
-        TestLoader loader;
+        if (verbose) cout << "\nTesting a cache with no timeout." << endl;
 
-        Obj mZ(&loader, 0);
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
-        Obj mX(&loader, &testAllocator);
+            const char CONFIG = cfg;  // how we specify the allocator
 
-        bdet_Date date1, date2;
-        const bdet_Date FirstDate(1,1,1), FirstDate1(1,1,2);
-        Entry e, e1, e0;
+            TestLoader loader;
 
-        // Concern 1
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-        if (verbose) cout << endl
-                          << "   Testing concern 1" << endl;
+            bslma::DefaultAllocatorGuard dag(&da);
 
-        e = mX.getCalendar("ERROR");
-        ASSERT(0 == e.ptr());
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
 
-        e = mX.getCalendar("NOT_FOUND");
-        ASSERT(0 == e.ptr());
+            switch (CONFIG) {
+              case 'a': {
+                objPtr = new (fa) Obj(&loader);
+                objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                objPtr = new (fa) Obj(&loader, 0);
+                objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                objPtr = new (fa) Obj(&loader, &sa);
+                objAllocatorPtr = &sa;
+              } break;
+              default: {
+                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+              } break;
+            }
 
-        // Concern 2 for empty cache
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
-        if (verbose) cout << endl
-                          << "  Testing concern 2 (empty cache)" << endl;
-        loader.getFirstDate(&date1);
-        e = mX.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
-        loader.getFirstDate(&date2);
-        ASSERT(date1 != date2); // Verify 'load' method is called.
-        ASSERT(date1 == e->firstDate());
-        ASSERT(    1 == e->isHoliday(e->firstDate()+holidayOffset));
+            // Verify no allocation from the object/non-object allocators.
 
-        // Concern 2 for non-empty cache
+            LOOP2_ASSERT(CONFIG,  oa.numBlocksTotal(),
+                         0 ==  oa.numBlocksTotal());
+            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
+                         0 == noa.numBlocksTotal());
 
-        if (verbose) cout << endl
-                          << "   Testing concern 2 (non-empty cache)" << endl;
-        loader.getFirstDate(&date1);
-        e1 = mX.getCalendar("VALID1");
-        ASSERT(    0 != e1.ptr());
+            {
+                Entry e1 = mX.getCalendar("CAL-1");
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 != date2); // Verify 'load' method is called.
-        ASSERT(date1 == e1->firstDate());
-        ASSERT(    1 == e1->isHoliday(e1->firstDate()+holidayOffset));
+                LOOP_ASSERT(CONFIG, e1.ptr());
+                LOOP_ASSERT(CONFIG, e1->firstDate() == gFirstDate1);
 
-        e0 = mX.getCalendar("VALID0");  // Insert an entry between them.
-        ASSERT(0 != e0.ptr());
+                // Check that some object memory is now in use.
 
-        // Concern 3
+                LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksInUse());
 
-        if (verbose) cout << endl
-                          << "   Testing concern 3" << endl;
-        loader.getFirstDate(&date1);
-        e = mX.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
+                if ('c' == CONFIG) {
+                    LOOP_ASSERT(CONFIG, 0 == da.numBlocksInUse());
+                }
 
-        loader.getFirstDate(&date2);
-        ASSERT(    date1 == date2); // Verify 'load' method is not called.
-        ASSERT(FirstDate == e->firstDate());
-        ASSERT(        1 == e->isHoliday(e->firstDate()+holidayOffset));
+                const int lastNumBlocksInUse = oa.numBlocksInUse();
 
-        e = mX.getCalendar("VALID1");
-        ASSERT(0 != e.ptr());
+                Entry e2 = X.lookupCalendar("CAL-1");
 
-        loader.getFirstDate(&date2);
-        ASSERT(     date1 == date2); // Verify 'load' method is not called.
-        ASSERT(FirstDate1 == e->firstDate());
-        ASSERT(         1 == e->isHoliday(e->firstDate()+holidayOffset));
+                LOOP_ASSERT(CONFIG, e2.ptr());
+                LOOP_ASSERT(CONFIG, e2.ptr() == e1.ptr());
+                LOOP_ASSERT(CONFIG, e2->firstDate() == gFirstDate1);
 
-        // Concern 4 and 5
+                // Check that no additional object memory is in use.
 
-        TestLoader loaderY;
-        Obj mY(&loaderY, bdet_TimeInterval(4), &testAllocator);
-        Entry eV, eV1;
+                LOOP_ASSERT(CONFIG, lastNumBlocksInUse == oa.numBlocksInUse());
 
-        // Load first entry into 'mY'.
+                if ('c' == CONFIG) {
+                    LOOP_ASSERT(CONFIG, 0 == da.numBlocksInUse());
+                }
+            }
+            LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksInUse());
 
-        e = mY.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
-        eV = e;
+            // Reclaim dynamically allocated object under test.
 
-        sleepSeconds(2);
+            fa.deleteObject(objPtr);
 
-        // Load second entry into 'mY'.
+            // Verify all memory is released on object destruction.
 
-        e = mY.getCalendar("VALID1");
-        ASSERT(0 != e.ptr());
-        eV1 = e;
+            LOOP_ASSERT( fa.numBlocksInUse(), 0 ==  fa.numBlocksInUse());
+            LOOP_ASSERT( oa.numBlocksInUse(), 0 ==  oa.numBlocksInUse());
+            LOOP_ASSERT(noa.numBlocksInUse(), 0 == noa.numBlocksInUse());
+        }
 
-        sleepSeconds(1);
+        if (verbose) cout << "\nTesting a cache with a timeout." << endl;
 
-        // Now access both entries from cache to verify they are still there.
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
-        loaderY.getFirstDate(&date1);
-        e = mY.getCalendar("VALID");
-        ASSERT(       0 != e.ptr());
-        ASSERT(eV.ptr() == e.ptr());
+            const char CONFIG = cfg;  // how we specify the allocator
 
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2);  // Verify 'load' method is not called.
+            TestLoader loader;
 
-        loaderY.getFirstDate(&date1);
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-        e = mY.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV1.ptr() == e.ptr());
+            bslma::DefaultAllocatorGuard dag(&da);
 
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2);  // Verify 'load' method is not called.
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
 
-        sleepSeconds(2);
+            switch (CONFIG) {
+              case 'a': {
+                objPtr = new (fa) Obj(&loader, Interval(0));
+                objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                objPtr = new (fa) Obj(&loader, Interval(0), 0);
+                objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                objPtr = new (fa) Obj(&loader, Interval(0), &sa);
+                objAllocatorPtr = &sa;
+              } break;
+              default: {
+                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+              } break;
+            }
 
-        // Now only the second entry should be in the cache.
+            Obj&                   mX = *objPtr;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
-        loaderY.getFirstDate(&date1);
-        e = mY.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV1.ptr() == e.ptr());
+            // Verify no allocation from the object/non-object allocators.
 
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2);  // Verify 'load' method is not called.
+            LOOP2_ASSERT(CONFIG,  oa.numBlocksTotal(),
+                         0 ==  oa.numBlocksTotal());
+            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
+                         0 == noa.numBlocksTotal());
 
-        loaderY.getFirstDate(&date1);
+            {
+                Entry e1 = mX.getCalendar("CAL-1");
 
-        e = mY.getCalendar("VALID");
-        ASSERT(       0 != e.ptr());
-        ASSERT(eV.ptr() != e.ptr());
+                LOOP_ASSERT(CONFIG, e1.ptr());
+                LOOP_ASSERT(CONFIG, e1->firstDate() == gFirstDate1);
 
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 != date2);  // Verify 'load' method is called.
+                // Check that some object memory is now in use.
 
-        sleepSeconds(2);
+                LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksInUse());
 
-        // Now the second entry should expire.
+                if ('c' == CONFIG) {
+                    LOOP_ASSERT(CONFIG, 0 == da.numBlocksInUse());
+                }
 
-        loaderY.getFirstDate(&date1);
+                const int lastNumBlocksInUse = oa.numBlocksInUse();
 
-        e = mY.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV1.ptr() != e.ptr());
+                Entry e2 = mX.getCalendar("CAL-1");
 
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 != date2);  // Verify 'load' method is called.
+                LOOP_ASSERT(CONFIG, e2.ptr());
+                LOOP_ASSERT(CONFIG, e2.ptr() != e1.ptr());
+                LOOP_ASSERT(CONFIG, e2->firstDate() == gFirstDate1);
 
-        // Verify that after reloading, the reload flag is cleared.
+                // Check that additional object memory is in use.
 
-        loaderY.getFirstDate(&date1);
+                LOOP_ASSERT(CONFIG, lastNumBlocksInUse < oa.numBlocksInUse());
 
-        e = mY.getCalendar("VALID1");
-        ASSERT(        0 != e.ptr());
-        ASSERT(eV1.ptr() != e.ptr());
+                if ('c' == CONFIG) {
+                    LOOP_ASSERT(CONFIG, 0 == da.numBlocksInUse());
+                }
+            }
+            LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksInUse());
 
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 == date2);  // Verify 'load' method is not called.
+            // Reclaim dynamically allocated object under test.
 
-        // The entries in 'mX' should still be there.
+            fa.deleteObject(objPtr);
 
-        loader.getFirstDate(&date1);
+            // Verify all memory is released on object destruction.
 
-        e = mX.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
+            LOOP_ASSERT( fa.numBlocksInUse(), 0 ==  fa.numBlocksInUse());
+            LOOP_ASSERT( oa.numBlocksInUse(), 0 ==  oa.numBlocksInUse());
+            LOOP_ASSERT(noa.numBlocksInUse(), 0 == noa.numBlocksInUse());
+        }
 
-        e = mX.getCalendar("VALID1");
-        ASSERT(0 != e.ptr());
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
-        loader.getFirstDate(&date2);
-        ASSERT(date1 == date2);  // Verify 'load' method is not called.
+            TestLoader loader;
+
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            {
+                ASSERT_SAFE_FAIL(Obj(      0,               &sa));
+
+                ASSERT_SAFE_FAIL(Obj(&loader,                 0));
+            }
+
+            {
+                ASSERT_SAFE_FAIL(Obj(      0, Interval( 0), &sa));
+
+                ASSERT_SAFE_FAIL(Obj(&loader, Interval( 0),   0));
+
+                ASSERT_SAFE_FAIL(Obj(&loader, Interval(-1), &sa));
+
+                ASSERT_SAFE_PASS(Obj(&loader, Interval( 0), &sa));
+
+                ASSERT_SAFE_PASS(Obj(&loader, Interval( 1), &sa));
+            }
+        }
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Create a calendar cache 'mX'.
+        //: 2 Load "CAL-1" into 'mX' with 'EntryPtr' 'e1' referring to "CAL-1".
+        //: 3 Create 'EntryPtr' 'e2' as a copy of 'e1'.
+        //: 4 Let 'e2' go out of scope.
+        //: 5 Let 'e1' go out of scope.
+        //: 6 Look up "CAL-1" in the cache.
+        //: 7 Invalidate "CAL-1" in the cache.
+        //: 8 Verify "CAL-1" is no longer present in the cache.
+        //: 9 Reload "CAL-1" into the cache.
+        //: 10 Let 'mX' go out of scope.
         //
         // Testing:
-        //   This test *exercises* basic functionality, but "tests" nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -945,113 +2261,204 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         TestLoader loader;
-        Obj mX(&loader);
 
-        Entry e;
+        bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-        e = mX.getCalendar("ERROR");       ASSERT(0 == e.ptr());
+        bslma::DefaultAllocatorGuard dag(&da);
 
-        e = mX.getCalendar("NOT_FOUND");   ASSERT(0 == e.ptr());
+        int daLastNumBlocksTotal;
+        int saLastNumBlocksTotal, saLastNumBlocksInUse;
 
-        e = mX.getCalendar("VALID");       ASSERT(0 != e.ptr());
+        {
+            // 1 Create a calendar cache 'mX'.
 
-        TestLoader loaderY;
-        Obj mY(&loaderY, bdet_TimeInterval(4), &testAllocator);
-        Entry el, eV, eV1;
-        bdet_Date date1, date2;
+            Obj mX(&loader, &sa);  const Obj& X = mX;
 
-        el = mY.lookupCalendar("VALID");
-        ASSERT(0 == el.ptr());
+            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
 
-        e = mY.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
+            {
+                // 2 Load "CAL-1" into 'mX' with 'EntryPtr' 'e1' referring to
+                //   "CAL-1".
 
-        el = mY.lookupCalendar("VALID");
-        ASSERT(e.ptr() == el.ptr());
+                Entry e1 = mX.getCalendar("CAL-1");
 
-        loaderY.getFirstDate(&date1);
+                ASSERT(e1.ptr());
+                ASSERT(e1->firstDate() == gFirstDate1);
 
-        eV = e;
+                LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+                LOOP_ASSERT(sa.numBlocksInUse(), 0 <  sa.numBlocksInUse());
 
-        sleepSeconds(2);
+                daLastNumBlocksTotal = da.numBlocksTotal();
+                saLastNumBlocksTotal = sa.numBlocksTotal();
+                saLastNumBlocksInUse = sa.numBlocksInUse();
 
-        // Now access the entry in the cache to verify it is still there.
+                {
+                    // 3 Create 'EntryPtr' 'e2' as a copy of 'e1'.
 
-        loaderY.getFirstDate(&date2);
-        el = mY.lookupCalendar("VALID");
-        e = mY.getCalendar("VALID");
+                    Entry e2(e1);
 
-        ASSERT(eV.ptr() == e.ptr());
-        ASSERT(eV.ptr() == el.ptr());
-        ASSERT(date1 == date2);
+                    ASSERT(e1.ptr() == e2.ptr());
+                    ASSERT(e2->firstDate() == gFirstDate1);
 
-        sleepSeconds(3);
+                    LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                                 daLastNumBlocksTotal == da.numBlocksTotal());
+                    LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                                 saLastNumBlocksTotal == sa.numBlocksTotal());
+                }
+                // 4 Let 'e2' go out of scope.
 
-        // Now access the entry in the cache to verify it is no longer there.
+                ASSERT(e1->firstDate() == gFirstDate1);
 
-        el = mY.lookupCalendar("VALID");
-        ASSERT(0 == el.ptr());
+                LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                             daLastNumBlocksTotal == da.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                             saLastNumBlocksTotal == sa.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksInUse, sa.numBlocksInUse(),
+                             saLastNumBlocksInUse == sa.numBlocksInUse());
+            }
+            // 5 Let 'e1' go out of scope.
 
-        e = mY.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
-        ASSERT(eV.ptr() != e.ptr());
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 != date2);
+            LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                         daLastNumBlocksTotal == da.numBlocksTotal());
+            LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                         saLastNumBlocksTotal == sa.numBlocksTotal());
+            LOOP2_ASSERT(saLastNumBlocksInUse, sa.numBlocksInUse(),
+                         saLastNumBlocksInUse == sa.numBlocksInUse());
+
+            {
+                // 6 Look up "CAL-1" in the cache.
+
+                Entry e = X.lookupCalendar("CAL-1");
+
+                ASSERT(e.ptr());
+                ASSERT(e->firstDate() == gFirstDate1);
+
+                LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                             daLastNumBlocksTotal == da.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                             saLastNumBlocksTotal == sa.numBlocksTotal());
+            }
+
+            // 7 Invalidate "CAL-1" in the cache.
+
+            int rc = mX.invalidate("CAL-1");
+
+            ASSERT(1 == rc);
+
+            LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                         daLastNumBlocksTotal == da.numBlocksTotal());
+            LOOP2_ASSERT(saLastNumBlocksInUse, sa.numBlocksInUse(),
+                         saLastNumBlocksInUse >  sa.numBlocksInUse());
+
+            saLastNumBlocksInUse = sa.numBlocksInUse();
+
+            // 8 Verify "CAL-1" is no longer present in the cache.
+
+            Entry e = X.lookupCalendar("CAL-1");
+
+            ASSERT(!e.ptr());
+
+            LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                         daLastNumBlocksTotal == da.numBlocksTotal());
+            LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                         saLastNumBlocksTotal == sa.numBlocksTotal());
+
+            // 9 Reload "CAL-1" into the cache.
+
+            e = mX.getCalendar("CAL-1");
+
+            ASSERT(e.ptr());
+            ASSERT(e->firstDate() == gFirstDate1);
+
+            LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            LOOP2_ASSERT(saLastNumBlocksInUse, sa.numBlocksInUse(),
+                         saLastNumBlocksInUse < sa.numBlocksInUse());
+        }
+        // 10 Let 'mX' go out of scope.
+
+        LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+        LOOP_ASSERT(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
 
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // TESTING TIMEOUT GREATER THAN 60 SECONDS
+        // TIMEOUT GREATER THAN 20 SECONDS
+        //   Ensure that a non-trivial timeout is processed correctly.
         //
         // Concerns:
-        //: 1 An object having a timeout value greater than 20 seconds
-        //+   correctly expires any of its cache entries.
+        //: 1 A cache having a timeout greater than 20 seconds correctly
+        //:   expires its entries.
         //
         // Plan:
-        //: 1 Create an object that has a timeout of greater than 20 seconds,
-        //:   and use the 'getCalendar' method to load a calendar using the
-        //:   object.
+        //: 1 Create a cache with a timeout of greater than 20 seconds.
         //:
-        //: 2 Wait a period less than the timeout and use the 'lookupCalendar'
-        //:   method to retrieve the calendar loaded in P-1.  Verify that the
-        //:   calendar was successfully retrieved.  (C-1)
+        //: 2 Use the 'getCalendar' method to load a calendar into the cache.
         //:
-        //: 3 Wait a period so that the cumulative waiting period for P-2 to
-        //:   P-3 is greater than the timeout.  Use the 'getCalendar' method to
-        //:   retrieve the calendar loaded in P-1.  Verify that the calendar
-        //:   was reloaded.  (C-1)
+        //: 3 Wait a period significantly less than the timeout and use the
+        //:   'lookupCalendar' method to retrieve the calendar loaded in P-1.
+        //:   Verify that the calendar was successfully retrieved.
+        //:
+        //: 4 Wait another period so that the cumulative waiting time for P-2
+        //:   and P-3 is greater than the timeout of the cache.  Again use the
+        //:   'lookupCalendar' method to retrieve the calendar loaded in P-1,
+        //:   and verify that the calendar is no longer in the cache.
+        //:
+        //: 5 Repeat P-1..4, but this time use the 'getCalendar' method to
+        //:   observe the affects of a timeout.  (C-1)
         //
-        //  Testing:
-        //    const bdet_Calendar *getCalendar(const char *calendarName);
+        // Testing:
+        //   CONCERN: A non-trivial timeout is processed correctly.
         // --------------------------------------------------------------------
 
-        TestLoader loaderY;
-        Obj mY(&loaderY, bdet_TimeInterval(30), &testAllocator);
-        const Obj& Y = mY;
+        if (verbose) cout << endl
+                          << "TIMEOUT GREATER THAN 20 SECONDS" << endl
+                          << "===============================" << endl;
 
-        Entry e, eV;
-        bdet_Date date1, date2;
+        TestLoader loader;
 
-        e = mY.getCalendar("VALID");
-        ASSERT(0 != e.ptr());
-        eV = e;
-        loaderY.getFirstDate(&date1);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-        sleepSeconds(2);
+        Obj mX(&loader, Interval(30), &sa);  const Obj& X = mX;
 
-        e = Y.lookupCalendar("VALID");
-        ASSERT(eV.ptr() == e.ptr());
-        loaderY.getFirstDate(&date2);
+        // Observe affects of timeout via 'lookupCalendar' method.
+        {
+            Entry e;
 
-        ASSERT(date1 == date2);
+            e = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
 
-        sleepSeconds(30);
+            sleepSeconds( 5);
 
-        e = mY.getCalendar("VALID");
-        ASSERT(0        != e.ptr());
-        ASSERT(eV.ptr() != e.ptr());
-        loaderY.getFirstDate(&date2);
-        ASSERT(date1 != date2);
+            e = X.lookupCalendar("CAL-1");  ASSERT( e.ptr());
+
+            sleepSeconds(30);
+
+            e = X.lookupCalendar("CAL-1");  ASSERT(!e.ptr());
+        }
+
+        // Observe affects of timeout via 'getCalendar' method.
+        {
+            Entry e;
+
+            e = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+
+            const int saLastNumBlocksTotal = sa.numBlocksTotal();
+
+            sleepSeconds( 5);
+
+            e = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+
+            LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                         saLastNumBlocksTotal == sa.numBlocksTotal());
+
+            sleepSeconds(30);
+
+            e = mX.getCalendar("CAL-1");    ASSERT( e.ptr());
+
+            LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                         saLastNumBlocksTotal <  sa.numBlocksTotal());
+        }
 
       } break;
       default: {
@@ -1059,6 +2466,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

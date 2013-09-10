@@ -41,7 +41,9 @@ BDES_IDENT("$Id: $")
 ///Thread-Safety
 ///-------------
 // The 'bdet_DefaultCalendarCache' class is fully thread-safe (see
-// 'bsldoc_glossary').
+// 'bsldoc_glossary') provided that the allocator supplied to 'initialize' and
+// the default allocator in effect during the lifetime of the default cache are
+// both fully thread-safe.
 //
 ///Usage
 ///-----

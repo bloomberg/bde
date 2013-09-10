@@ -210,7 +210,7 @@ extern "C" void *threadFunctionC(void *arg)
     return arg;
 }
 
-}  // close namspace TestCase3
+}  // close namespace TestCase3
 
 // ============================================================================
 //                                USAGE EXAMPLE
