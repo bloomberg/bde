@@ -6154,6 +6154,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
             }
         }
 
+#if defined(BDE_BUILD_TARGET_EXC)
         if (verbose) printf("\tWith passing an allocator and checking for "
                             "allocation exceptions using default value.\n");
         {
@@ -6267,6 +6268,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 LOOP2_ASSERT(LINE, ti, 0 == testAllocator.numBlocksInUse());
             }
         }
+#endif  // BDE_BUILD_TARGET_EXC
 
         if (verbose) printf("\tAllocators hooked up properly when using "
                             "default value constructors.\n");
@@ -6503,6 +6505,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
         }
     }
 
+#if defined(BDE_BUILD_TARGET_EXC)
     if (verbose) printf("\tWith passing an allocator and checking for "
                         "allocation exceptions.\n");
     {
@@ -6567,6 +6570,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
             LOOP2_ASSERT(LINE, ti, 0 == testAllocator.numBlocksInUse());
         }
     }
+#endif  // BDE_BUILD_TARGET_EXC
 
     const int RANDOM_ACCESS_ITERATOR_TAG =
           bsl::is_same<std::random_access_iterator_tag,
@@ -7404,6 +7408,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                                      Y11.get_allocator() == X.get_allocator());
                     }
                 }
+#if defined(BDE_BUILD_TARGET_EXC)
                 {   // Exception checking.
 
                     const bsls::Types::Int64 BB =
@@ -7448,6 +7453,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         LOOP2_ASSERT(SPEC, N,  B + 0 == A);
                     }
                 }
+#endif  // BDE_BUILD_TARGET_EXC
                 {                            // with 'original' destroyed
                     Obj Y5(X);
                     if (veryVerbose) {
