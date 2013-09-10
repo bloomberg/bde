@@ -266,7 +266,7 @@ class bdeut_FunctionOutputIterator
         template <class TYPE>
         AssignmentProxy& operator=(const TYPE& rhs);
             // Invoke d_function(rhs).  The behavior is undefined if
-            // 'FUNCTION' is a function pointer type, and the a valid function
+            // 'FUNCTION' is a function pointer type and a valid function
             // pointer was not supplied at construction.
     };
 
