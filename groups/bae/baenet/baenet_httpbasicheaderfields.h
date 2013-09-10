@@ -87,6 +87,8 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bsls_objectbuffer.h>
 #endif
 
+#include <bsls_types.h>
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -127,7 +129,7 @@ class baenet_HttpBasicHeaderFields {
     bdeut_NullableValue<baenet_HttpContentType>      d_contentType;
     bsl::vector<baenet_HttpTransferEncoding::Value>  d_transferEncoding;
     bsl::vector<baenet_HttpRequestMethod::Value>     d_allow;
-    bdeut_NullableValue<int>                             d_contentLength;
+    bdeut_NullableValue<bsls_Types::Int64>                             d_contentLength;
 
   public:
     // TYPES
@@ -319,7 +321,7 @@ class baenet_HttpBasicHeaderFields {
         // Return a reference to the modifiable "ContentLanguage" attribute of
         // this object.
 
-    bdeut_NullableValue<int>& contentLength();
+    bdeut_NullableValue<bsls_Types::Int64>& contentLength();
         // Return a reference to the modifiable "ContentLength" attribute of
         // this object.
 
@@ -449,7 +451,7 @@ class baenet_HttpBasicHeaderFields {
         // Return a reference to the non-modifiable "ContentLanguage" attribute
         // of this object.
 
-    const bdeut_NullableValue<int>& contentLength() const;
+    const bdeut_NullableValue<bsls_Types::Int64>& contentLength() const;
         // Return a reference to the non-modifiable "ContentLength" attribute
         // of this object.
 
@@ -855,7 +857,7 @@ bsl::vector<bsl::string>& baenet_HttpBasicHeaderFields::contentLanguage()
 }
 
 inline
-bdeut_NullableValue<int>& baenet_HttpBasicHeaderFields::contentLength()
+bdeut_NullableValue<bsls_Types::Int64>& baenet_HttpBasicHeaderFields::contentLength()
 {
     return d_contentLength;
 }
@@ -1232,7 +1234,7 @@ const bsl::vector<bsl::string>&
 }
 
 inline
-const bdeut_NullableValue<int>&
+const bdeut_NullableValue<bsls_Types::Int64>&
                             baenet_HttpBasicHeaderFields::contentLength() const
 {
     return d_contentLength;

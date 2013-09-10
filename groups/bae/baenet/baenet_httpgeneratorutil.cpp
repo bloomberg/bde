@@ -178,6 +178,8 @@ class HeaderFieldGenerator {
                 const bdeut_StringRef&        fieldName);
     int execute(const int&                    object,
                 const bdeut_StringRef&        fieldName);
+    int execute(const bsls_Types::Int64&                    object,
+                const bdeut_StringRef&        fieldName);
     int execute(const bsl::string&            object,
                 const bdeut_StringRef&        fieldName);
     int execute(const bdet_Datetime&          object,
@@ -329,6 +331,14 @@ int HeaderFieldGenerator::execute(const TYPE&            object,
 }
 
 int HeaderFieldGenerator::execute(const int&             object,
+                                  const bdeut_StringRef& fieldName)
+{
+    (*d_stream_p) << fieldName << ": " << object << "\r\n";
+
+    return 0;
+}
+
+int HeaderFieldGenerator::execute(const bsls_Types::Int64&             object,
                                   const bdeut_StringRef& fieldName)
 {
     (*d_stream_p) << fieldName << ": " << object << "\r\n";
