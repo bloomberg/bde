@@ -24,8 +24,9 @@ using namespace bsl;
 //:   correctly.  I.e., type traits, pre- and post-increment operators,
 //:   assignment to the dereferenced iterator.
 //:
-//:  2 That bdeut_FunctionOutputIterator can be correctly created with either
-//:    a function pointer, bdef_MemFnInstance, bdef_Function.
+//: 2 That bdeut_FunctionOutputIterator can be correctly created with either
+//:   a function pointer, bdef_MemFnInstance, bdef_Function.
+//
 //=============================================================================
 //
 //                       // ----------------------------
@@ -35,11 +36,16 @@ using namespace bsl;
 // CREATORS
 // [ 3] bdeut_FunctionOutputIterator();
 // [ 4] explicit bdeut_FunctionOutputIterator(const FUNCTION& function);
+// [ 5] bdeut_FunctionOutputIterator(FunctionOutputIterator&);
+// [ 3] ~bdeut_FunctionOutputIterator();
 //
 // MANIPULATORS
-// [ 6] AssignmentProxy operator*();
-// [ 7] bdeut_FunctionOutputIterator& operator++();
-// [ 7] bdeut_FunctionOutputIterator& operator++(int);
+// [ 6] bdeut_FunctionOutputIterator& operator=(FunctionOutputIterator&);
+// [ 4] AssignmentProxy operator*();
+//
+// FREE OPERATORS
+// [ 7] bdeut_FunctionOutputIterator& operator++(FunctionOutputIterator&);
+// [ 7] bdeut_FunctionOutputIterator operator++(FunctionOutputIterator&, int);
 // ---------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
@@ -364,6 +370,8 @@ int main(int argc, char *argv[])
     veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
 
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
     switch (test) { case 0:
       case 8: {
         // --------------------------------------------------------------------
@@ -395,28 +403,28 @@ int main(int argc, char *argv[])
           //   are defined and doesn't affect iterator behavior.
           //
           // Concerns:
-          //   1 Pre-increment and post-increment operators should be
-          //     declared and defined so they could be called by client code
-          //
-          //   2 Iterator should preserve its behavior after increment
-          //     operator was invoked
+          //: 1 Pre-increment and post-increment operators should be
+          //:   declared and defined so they could be called by client code
+          //:
+          //: 2 Iterator should preserve its behavior after increment
+          //:   operator was invoked
           //
           // Plan:
-          //   1 Create iterator object
-          //
-          //   2 Invoke iterator pre-increment operator
-          //
-          //   3 Check that functor is invoked on assignment of dereferenced
-          //     iterator
-          //
-          //   4 Invoke iterator post-increment operator
-          //
-          //   5 Check that functor is invoked on assignment of dereferenced
-          //     iterator
+          //: 1 Create iterator object
+          //:
+          //: 2 Invoke iterator pre-increment operator
+          //:
+          //: 3 Check that functor is invoked on assignment of dereferenced
+          //:   iterator
+          //:
+          //: 4 Invoke iterator post-increment operator
+          //:
+          //: 5 Check that functor is invoked on assignment of dereferenced
+          //:   iterator
           //
           // Testing:
-          //   bdeut_FunctionOutputIterator<FUNCTION>::operator++()
-          //   bdeut_FunctionOutputIterator<FUNCTION>::operator++(int)
+          //   FunctionOutputIterator& operator++(FunctionOutputIterator&)
+          //   FunctionOutputIterator operator++(FunctionOutputIterator&, int)
           // ----------------------------------------------------------------
 
           if (verbose) {
@@ -458,40 +466,39 @@ int main(int argc, char *argv[])
           ASSERT(setterId == value.getLastSetterId());
 
       } break;
-
       case 6: {
-
           // ----------------------------------------------------------------
           // Assignment operator:
-          //   Ensure that the functional object of the original iterator
-          //   (i.e., r-value iterator) will be invoked on assignment to
-          //   dereferenced iterator.
+          //   Ensure that when the functional object of the original iterator
+          //   (i.e., r-value iterator in the assument being tested) will be
+          //   invoked on assignment to dereferenced iterator.
+          //
+          //   Note that this operation is currently supplied by the compiler.
           //
           // Concerns:
-          //   1 L-value iterator is in appropriate state after assignment.
-          //
-          //   2 R-value iterator can be 'const'.
-          //
-          //   3 After assignment L-value iterator holds a copy of
-          //     functional object from the r-value iterator.
-          //
-          //   4 After assignment l-value iterator invokes functional object
+          //: 1 L-value iterator is in appropriate state after assignment.
+          //:
+          //: 2 R-value iterator can be 'const'.
+          //:
+          //: 3 After assignment L-value iterator holds a copy of
+          //:   functional object from the r-value iterator.
+          //:
+          //: 4 After assignment l-value iterator invokes functional object
           //
           // Plan:
-          //   1 Create original iterator object
-          //
-          //   2 Create another iterator object and assign original
-          //     iterator to it
-          //
-          //   3 Check that assignment operator makes a copy of
-          //     the functional object of the original iterator
-          //
-          //   4 Check that functor is invoked on assignment of dereferenced
-          //     iterator
+          //: 1 Create original iterator object
+          //:
+          //: 2 Create another iterator object and assign original
+          //:   iterator to it
+          //:
+          //: 3 Check that assignment operator makes a copy of
+          //:   the functional object of the original iterator
+          //:
+          //: 4 Check that functor is invoked on assignment of dereferenced
+          //:   iterator
           //
           // Testing:
-          //   bdeut_FunctionOutputIterator<FUNCTION>::operator=(
-          //       const bdeut_FunctionOutputIterator<FUNCTION>&)
+          //   FunctionOutputIterator::operator=(const FunctionOutputIterator&)
           // ----------------------------------------------------------------
           if (verbose) {
               bsl::cout
@@ -534,7 +541,6 @@ int main(int argc, char *argv[])
           ASSERT(theValue2 == value.get());
 
       } break;
-
       case 5: {
           // ----------------------------------------------------------------
           // Copy CTOR:
@@ -542,30 +548,31 @@ int main(int argc, char *argv[])
           //   (i.e., argument of the copy ctor) will be invoked
           //   on assignment to dereferenced iterator.
           //
+          //   Note that this operation is currently supplied by the compiler.
+          //
           // Concerns:
-          //   1 The newly created object is in appropriate state.
-          //
-          //   2 The copy CTOR argument can be 'const'.
-          //
-          //   3 The newly created iterator holds a copy of functional object
-          //     from the iterator specified in the copy ctor.
-          //
-          //   4 The newly created iterator invokes functional object
+          //: 1 The newly created object is in appropriate state.
+          //:
+          //: 2 The copy CTOR argument can be 'const'.
+          //:
+          //: 3 The newly created iterator holds a copy of functional object
+          //:   from the iterator specified in the copy ctor.
+          //:
+          //: 4 The newly created iterator invokes functional object
           //
           // Plan:
-          //   1 Create original iterator object
-          //
-          //   2 Create a copy of the original iterator object with copy CTOR
-          //
-          //   3 Check that copy CTOR makes a copy of the functional object
-          //     of the original iterator (specified in the copy constructor)
-          //
-          //   4 Check that functor is invoked on assignment of dereferenced
-          //     iterator
+          //: 1 Create original iterator object
+          //:
+          //: 2 Create a copy of the original iterator object with copy CTOR
+          //:
+          //: 3 Check that copy CTOR makes a copy of the functional object
+          //:   of the original iterator (specified in the copy constructor)
+          //:
+          //: 4 Check that functor is invoked on assignment of dereferenced
+          //:   iterator
           //
           // Testing:
-          //   bdeut_FunctionOutputIterator<FUNCTION>(
-          //       const bdeut_FunctionOutputIterator<FUNCTION>&)
+          //   bdeut_FunctionOutputIterator(const FunctionOutputIterator&)
           // ----------------------------------------------------------------
           if (verbose) {
               bsl::cout
@@ -607,7 +614,6 @@ int main(int argc, char *argv[])
           // was set to 'value'
           ASSERT(theValue2 == value.get());
       } break;
-
       case 4: {
           // ----------------------------------------------------------------
           // VALUE CTOR:
@@ -616,24 +622,28 @@ int main(int argc, char *argv[])
           //   iterator.
           //
           // Concerns:
-          //   1 The newly created object is in appropriate state.
+          //: 1 The newly created object is in appropriate state.
+          //:
+          //: 2 Ctor argument can be 'const'.
+          //:
+          //: 3 That, if a functor is supplied, the newly created iterator
+          //:   holds a copy of functor, and invokes it when the iterator is
+          //:   dereferenced and assigned to.
+          //:
+          //: 4 That, if a function pointer is supplied, the newly created
+          //:   iterator holds a pointer to the function, and invokes it when
+          //:   the iterator is dereferenced and assigned to.
           //
-          //   2 Ctor argument can be 'const'.
+          //:Plan:
+          //: 1 Create an iterator using an instance of the test type
+          //:   'VALUE<int>' and 'VALUE<int>::Setter', derefence and assign a
+          //:   value a couple times, use functions provided by the test type
+          //:   to verify that the functor was copied and invoked correctly.
+          //:   (C-1,2,3).
+          //:
+          //: 2 Create an iterator and supply the test 'simpleFunction'
+          //:   function. (C-4)
           //
-          //   3 The newly created iterator holds a copy of functional object
-          //     specified in the ctor.
-          //
-          //   4 The newly created iterator invokes functional object
-          //
-          // Plan:
-          //   1 Create iterator object with value constructor specifying
-          //     const original functor
-          //
-          //   2 Check that iterator makes a copy of original
-          //     (specified in the constructor) functor
-          //
-          //   3 Check that functor is invoked on assignment of dereferenced
-          //     iterator
           //
           // Testing:
           //   bdeut_FunctionOutputIterator<FUNCTION>(const FUNCTION&)
@@ -646,49 +656,94 @@ int main(int argc, char *argv[])
                   << "==========" << bsl::endl;
           }
 
-          const int initialValue =  1;
-          const int theValue     = 17;
+          if (veryVerbose) {
+              bsl::cout << "\tSupply a functor at construction" << bsl::endl;
+          }
+          {
+              const int initialValue =  1;
+              const int valueA       = 17;
+              const int valueB       = 20;
 
-          typedef Value<int> IntValue;
-          IntValue value(initialValue);
+              typedef Value<int> IntValue;
+              IntValue value(initialValue);
 
-          const IntValue::Setter setter = value.createSetter();
+              const IntValue::Setter setter = value.createSetter();
 
-          // value CTOR
-          bdeut_FunctionOutputIterator<IntValue::Setter> it(setter);
+              // value CTOR
+              bdeut_FunctionOutputIterator<IntValue::Setter> it(setter);
 
-          *it = theValue;
+              *it = valueA;
+              
+              // check that copy of the functional object 'setter' was
+              // actually invoked
+              ASSERT((setter.getId() + 1) == value.getLastSetterId());
 
-          // check that copy of the functional object 'setter' was
-          // actually invoked
-          ASSERT((setter.getId() + 1) == value.getLastSetterId());
+              // check that functional object was invoked and 'valueA' was
+              // set to 'value'
+              ASSERT(valueA == value.get());
 
-          // check that functional object was invoked and 'theValue' was set
-          // to 'value'
-          ASSERT(theValue == value.get());
+              *it = valueB;
+              
+              // check that copy of the functional object 'setter' was
+              // actually invoked
+              ASSERT((setter.getId() + 1) == value.getLastSetterId());
 
+              // check that functional object was invoked and 'valueB' was
+              // set to 'value'
+              ASSERT(valueB == value.get());
+
+          }
+
+          if (veryVerbose) {
+              bsl::cout << "\tSupply a function pointer at construction" 
+                        << bsl::endl;
+          }
+          {
+              const int initialValue =  1;
+              const int valueA       = 17;
+              const int valueB       = 20;
+
+              simpleFunctionValue = initialValue;
+
+              // value CTOR
+              bdeut_FunctionOutputIterator<void (*)(int)> it(&simpleFunction);
+
+
+              *it = valueA;
+              
+              // check that function was invoked and 'simpleFunctionValue' was
+              // set to 'valueA'.
+              ASSERT(valueA == simpleFunctionValue);
+
+              *it = valueB;
+              
+              // check that function was invoked and 'simpleFunctionValue' was
+              // set to 'valueB'.
+              ASSERT(valueB == simpleFunctionValue);
+              
+          }
       } break;
       case 3: {
           // ----------------------------------------------------------------
           // DEFAULT CTOR
           //
           // Concerns:
-          //   1 Default ctor of iterator invokes default ctor of the
-          //     functional object.
+          //: 1 Default ctor of iterator invokes default ctor of the
+          //:   functional object.
+          //:
+          //: 2 Functional object created with default constructor
+          //:   should be invoked any way.
           //
-          //   2 Functional object created with default constructor
-          //     should be invoked any way.
-          //
-          //   Iterator has no accessors to check attribute values.
-          //   Iterator has no manipulators which change attribute values.
+          // Note that the iterator has no accessors to check attribute values
+          // and no manipulators which change attribute values.
           //
           // Plan:
-          //  1 Create an object, using the default ctor.
-          //
-          //  2 Assign value to dereferenced iterator.
-          //
-          //  3 Check that corresponding functional object (singleton) was
-          //    invoked with correct value.
+          //: 1 Create an object, using the default ctor.
+          //:
+          //: 2 Assign value to dereferenced iterator.
+          //:
+          //: 3 Check that corresponding functional object (singleton) was
+          //:   invoked with correct value.
           //
           // Testing:
           //   bdeut_FunctionOutputIterator<FUNCTION>();
@@ -715,8 +770,6 @@ int main(int argc, char *argv[])
           // check that functional object was invoked and 'theValue' was set
           // to 'value'
           ASSERT(theValue == IntValue::singleton.get());
-
-
       } break;
       case 2: {
           // ----------------------------------------------------------------
@@ -725,16 +778,16 @@ int main(int argc, char *argv[])
           //   Ensure that bdeut_FunctionOutputIterator defines required traits
           //
           // Concerns:
-          //  1 There must be following types (traits) define in
-          //    bdeut_FunctionOutputIterator:
-          //    iterator_category
-          //    value_type
-          //    difference_type
-          //    pointer
-          //    reference
+          //: 1 There must be following types (traits) define in
+          //:   bdeut_FunctionOutputIterator:
+          //:     iterator_category
+          //:     value_type
+          //:     difference_type
+          //:     pointer
+          //:     reference
           //
           // Plan:
-          //  1 Check that required types are defined
+          //: 1 Check that required types are defined
           //
           // Testing:
           //   bdeut_FunctionOutputIterator::iterator_category
@@ -788,15 +841,15 @@ int main(int argc, char *argv[])
           //   Developers' Sandbox.
           //
           // Concerns:
-          //  1 The class is functional enough to enable comprehensive
-          //    testing in subsequent cases
+          //: 1 The class is functional enough to enable comprehensive
+          //:   testing in subsequent cases
           //
           // Plan:
-          //  1 Create an object, using the ctor with functional object.
-          //
-          //  2 Assign value to dereferenced iterator.
-          //
-          //  3 Check that functional object was invoked with correct value.
+          //: 1 Create an object, using the ctor with functional object.
+          //:
+          //: 2 Assign value to dereferenced iterator.
+          //:
+          //: 3 Check that functional object was invoked with correct value.
           //
           // Testing:
           //   BREATHING TEST

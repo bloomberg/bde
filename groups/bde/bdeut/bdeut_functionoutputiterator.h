@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an iterator template mechanism,
 // 'bdeut_FunctionOutputIterator', that adapts a client supplied functor (or
-// function) to a C++ compliant output iterator.  This component allows
+// function pointer) to a C++ compliant output iterator.  This component allows
 // clients to more easily create custom output iterators.
 //
 // A 'bdeut_FunctionOutputIterator' instance's template parameter type
@@ -27,8 +27,8 @@ BDES_IDENT("$Id: $")
 //..
 //  void operator()(const TYPE&)'
 //..
-// where 'TYPE' is the type that will be assigned (by clients) to the
-// dereferenced iterator.  For example:
+// where 'TYPE' is the type of the object that will be assigned (by clients)
+// to the dereferenced iterator.  For example:
 //..
 //  void myFunction(const int& value) {};
 //  typedef void (*MyFunctionPtr)(const int&);
@@ -37,19 +37,19 @@ BDES_IDENT("$Id: $")
 //  MyFunctionIterator it(&foo);
 //  *it = 5;                       // Calls 'myFunction(5)'!
 //..
-// Notice that dereferencing the output iterator and assigning 5 to it invokes
-// the functor with the value 5.
+// Notice that assigning 5 to the dereferenced output iterator invokes the
+// function with the value 5.
 //
 // The provided output iterator has the following attributes:
 //
 //: o Meets the requirements for an output iterator according to the
-//:   C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
+//:   C++ Standard (C++11, Section 24.2.4 [output.iterators]).
 //:
 //: o Dereferencing an iterator and assigning to the result leads to a call
 //:   of the functional object owned by iterator.  The value assigned to the
-//:   dereferenced iterator is passed to the call of functional object
-//:   as a constant reference.  Basically the assignment '*it = value' causes
-//:   the call 'function(value)'.
+//:   dereferenced iterator is passed to a call of the function or functor
+//:   owned by the iterator as a constant reference.  Basically the assignment
+//:   '*it = value' causes the call 'function(value)'.
 //:
 //: o Incrementing an iterator is a no-op.
 //
@@ -58,12 +58,15 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Supplying a Free-Function
-/// - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'bdeut_FunctionOutputIterator' with a
-// free-function.  Consider we have a function 'foo' that prints integers in
-// some predefined format, and we would like to print out all unique elements
-// of a sorted 'array'.
+///Example 1: Adapting a Free-Function to an Output Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want use a provided function 'foo' that prints integers in some
+// predefined format to print each unique element of an array.  Instead of
+// manually writing a loop and checking for duplicate elements, we would like
+// to use a standard algorithm such as 'unique_copy' do that.  However,
+// 'unique_copy' takes in an output iterator instead of a free function.  We
+// can use 'bdeut_FunctionOutputIterator' to adapt 'foo' into an output
+// iterator that is acceptable by 'unique_copy'.
 //
 // First, we define that function foo:
 //..
@@ -98,8 +101,8 @@ BDES_IDENT("$Id: $")
 //  2 3 5 7 11
 //..
 //
-///Example 2: Supplying a User Defined Functor
-///- - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Adapting A Functor to An Output Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates using a 'bdeut_FunctionOutputIterator'
 // with a user defined functor object.  Consider we have an 'Accumulator'
 // class, for accumulating integer values into a total, and we want to adapt
@@ -167,8 +170,8 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 3: use of bdef_Function and bdef_BindUtil::bind
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: Adapting a Functor Using bdef_Function and bdef_BindUtil::bind
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates using a 'bdeut_FunctionOutputIterator'
 // with a functor created using 'bdef_BindUtil'.  Consider the 'Accumulator'
 // class defined in Example 2, which we want to adapt to accumulate a set of
@@ -233,26 +236,21 @@ class bdeut_FunctionOutputIterator
                            void,
                            void,
                            void> {
-    // Provide an output iterator that passes elements to a call of
-    // functional object.  Dereferencing this iterator and assigning to the
-    // result (of dereferencing) causes to a call of operator() of
-    // the functor with an assigned value as a parameter.  See the Attributes
-    // section under @DESCRIPTION in the component-level documentation for
-    // information on the class attributes.
-    //
-    // This class:
-    //: o is *exception-neutral* (agnostic)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
+    // Provide an output iterator that calls an object of the (template
+    // parameter) type 'FUNCTION'.  If 'FUNCTION' is a functor, dereferencing
+    // this iterator and assigning to the result (of dereferencing) will call
+    // the 'operator()' of the functor with the assigned value as a parameter.
+    // Similarly, if 'FUNCTION' if a function pointer type,  assigning to the
+    // dereferenced iterator will call the function supplied at construction
+    // with the assigned value as a parameter.
 
     // PRIVATE TYPES
     class AssignmentProxy {
         // Provide an object that can appear on the left side of an assignment
         // from 'TYPE'.  The assignment to the instance of AssignmentProxy is
-        // valid and results in call of operator(TYPE) of the functor passed as
-        // a parameter of constructor.  Instance of this class is created every
-        // time when host class is dereferenced.
+        // valid and results in call of operator(TYPE) of the functor or
+        // function passed as a parameter of constructor.  Instance of this
+        // class is created every time when host class is dereferenced.
 
         // DATA
         FUNCTION& d_function; // reference to functional object to be invoked
@@ -277,30 +275,61 @@ class bdeut_FunctionOutputIterator
   public:
     // CREATORS
     bdeut_FunctionOutputIterator();
-        // Create 'bdeut_FunctionOutputIterator' object.
+        // Create 'bdeut_FunctionOutputIterator' object that, when an
+        // assignment is performed on the dereferenced object, will call a
+        // default constructed instance of the (template parameter) type
+        // 'FUNCTION' passing the assigned value as the argument.  Note that
+        // if 'FUNCTION' is a function pointer type, then the default
+        // constructed 'FUNCTION' will be 0, and the behavior when assigning to
+        // a deferenced iterator will be undefined.
 
     explicit bdeut_FunctionOutputIterator(const FUNCTION& function);
-        // Create 'bdeut_FunctionOutputIterator' object having the specified
-        // 'function' value.
+        // Create 'bdeut_FunctionOutputIterator' object that, when an
+        // assignment is performed on the dereferenced object, will call the
+        // specified 'function' passing the assigned value as the argument.
+
+    //! ~bdeut_FunctionOutputIterator(
+    //                      const bdeut_FunctionOutputIterator &rhs) = default;
+        // Create 'bdeut_FunctionOutputIterator' object that, when an
+        // assignment is performed on the dereferenced object, will call the
+        // same function or functor used by the specified 'rhs'.
+
+    //! ~bdeut_FunctionOutputIterator() = default;
+        // Destroy this object.
+
 
     // MANIPULATORS
+    //! ~bdeut_FunctionOutputIterator& operator=(
+    //                      const bdeut_FunctionOutputIterator &rhs) = default;
+        // Create 'bdeut_FunctionOutputIterator' object that, when an
+        // assignment is performed on the dereferenced object, will call the
+        // function or functor used by the specified 'rhs'.
+
     AssignmentProxy operator*();
-        // Return an object which can appear on the left-hand side of
-        // an assignment from 'TYPE'.  The assignment itself invokes
-        // functional object.  This function is non-const in accordance
-        // with the input iterator requirements, even though '*this'
-        // is not modified.
-
-    bdeut_FunctionOutputIterator& operator++();
-        // Do nothing and return '*this'.  This function is non-const in
-        // accordance with the input iterator requirements, even though
-        // '*this' is not modified.
-
-    bdeut_FunctionOutputIterator& operator++(int);
-        // Do nothing and return '*this'.  This function is non-const in
-        // accordance with the input iterator requirements, even though
-        // '*this' is not modified.
+        // Return an object that can appear on the left-hand side of
+        // an assignment from 'TYPE'.  When a value is assinged to the
+        // returned value, invoke the functor or function indicated at
+        // construction supplying the assigned value as the parameter.  This
+        // function is non-const in accordance with the input iterator
+        // requirements, even though '*this' is not modified.
 };
+
+// FREE OPERATORS
+template <class FUNCTION>
+inline
+bdeut_FunctionOutputIterator<FUNCTION>& operator++(
+                             bdeut_FunctionOutputIterator<FUNCTION>& iterator);
+  // Do nothing and return 'iterator'.  This function is non-const in
+  // accordance with the input iterator requirements, even though 'iterator' is
+  // not modified.
+
+template <class FUNCTION>
+inline
+bdeut_FunctionOutputIterator<FUNCTION> operator++(
+                        bdeut_FunctionOutputIterator<FUNCTION>& iterator, int);
+  // Do nothing and return 'iterator'.  This function is non-const in
+  // accordance with the input iterator requirements, even though 'iterator' is
+  // not modified.
 
 // ============================================================================
 //                 INLINE DEFINITIONS
@@ -360,21 +389,21 @@ bdeut_FunctionOutputIterator<FUNCTION>::operator*()
     return AssignmentProxy(d_function);
 }
 
-
+// FREE OPERATORS
 template <class FUNCTION>
 inline
 bdeut_FunctionOutputIterator<FUNCTION>&
-bdeut_FunctionOutputIterator<FUNCTION>::operator++()
+operator++(bdeut_FunctionOutputIterator<FUNCTION>& iterator)
 {
-    return *this;
+    return iterator;
 }
 
 template <class FUNCTION>
 inline
-bdeut_FunctionOutputIterator<FUNCTION>&
-bdeut_FunctionOutputIterator<FUNCTION>::operator++(int)
+bdeut_FunctionOutputIterator<FUNCTION>
+operator++(bdeut_FunctionOutputIterator<FUNCTION>& iterator, int)
 {
-    return *this;
+    return iterator;
 }
 
 }  // close enterprise namespace
