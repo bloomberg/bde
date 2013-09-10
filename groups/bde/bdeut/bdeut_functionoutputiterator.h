@@ -247,10 +247,10 @@ class bdeut_FunctionOutputIterator
     // PRIVATE TYPES
     class AssignmentProxy {
         // Provide an object that can appear on the left side of an assignment
-        // from 'TYPE'.  The assignment to the instance of AssignmentProxy is
-        // valid and results in call of operator(TYPE) of the functor or
-        // function passed as a parameter of constructor.  Instance of this
-        // class is created every time when host class is dereferenced.
+        // from 'TYPE'.  The assignment to an instance of 'AssignmentProxy'
+        // results in a call of operator(TYPE) of the functor or function
+        // supplied at construction.  Instance of this class are created every
+        // time when host class is dereferenced.
 
         // DATA
         FUNCTION& d_function; // reference to functional object to be invoked
@@ -265,7 +265,9 @@ class bdeut_FunctionOutputIterator
         // MANIPULATORS
         template <class TYPE>
         AssignmentProxy& operator=(const TYPE& rhs);
-            // Invoke d_function(rhs).
+            // Invoke d_function(rhs).  The behavior is undefined if
+            // 'FUNCTION' is a function pointer type, and the a valid function
+            // pointer was not supplied at construction.
     };
 
     // DATA
@@ -292,7 +294,7 @@ class bdeut_FunctionOutputIterator
     //                      const bdeut_FunctionOutputIterator &rhs) = default;
         // Create 'bdeut_FunctionOutputIterator' object that, when an
         // assignment is performed on the dereferenced object, will call the
-        // same function or functor used by the specified 'rhs'.
+        // same function or functor used by the specified 'rhs' object.
 
     //! ~bdeut_FunctionOutputIterator() = default;
         // Destroy this object.
@@ -311,7 +313,10 @@ class bdeut_FunctionOutputIterator
         // returned value, invoke the functor or function indicated at
         // construction supplying the assigned value as the parameter.  This
         // function is non-const in accordance with the input iterator
-        // requirements, even though '*this' is not modified.
+        // requirements, even though '*this' is not modified.   Note that
+        // if 'FUNCTION' is a function pointer type and a valid function
+        // pointer was not supplied at construction, then the behavior when
+        // assigning to a deferenced iterator will be undefined.
 };
 
 // FREE OPERATORS
@@ -319,17 +324,13 @@ template <class FUNCTION>
 inline
 bdeut_FunctionOutputIterator<FUNCTION>& operator++(
                              bdeut_FunctionOutputIterator<FUNCTION>& iterator);
-  // Do nothing and return 'iterator'.  This function is non-const in
-  // accordance with the input iterator requirements, even though 'iterator' is
-  // not modified.
+  // Do nothing and return 'iterator'.
 
 template <class FUNCTION>
 inline
 bdeut_FunctionOutputIterator<FUNCTION> operator++(
                         bdeut_FunctionOutputIterator<FUNCTION>& iterator, int);
-  // Do nothing and return 'iterator'.  This function is non-const in
-  // accordance with the input iterator requirements, even though 'iterator' is
-  // not modified.
+  // Do nothing and return 'iterator'.
 
 // ============================================================================
 //                 INLINE DEFINITIONS
