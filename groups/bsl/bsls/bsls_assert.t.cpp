@@ -11,6 +11,7 @@
 #include <cstdio>    // 'fprintf'
 #include <cstdlib>   // 'atoi'
 #include <cstring>   // 'strcmp'
+#include <exception> // 'exception'
 #include <iostream>  // 'cout'
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -861,7 +862,10 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-#ifdef BDE_BUILD_TARGET_SAFE_2
+#ifndef BDE_BUILD_TARGET_SAFE_2
+        if (veryVerbose) cout << "\tsafe mode 2 is *not* defined" << endl;
+        sillyFunc(veryVerbose);
+#else
         if (veryVerbose) cout << "\tSAFE MODE 2 *is* defined." << endl;
 
         // bsls::Assert::setFailureHandler(::testDriverPrint);
@@ -870,13 +874,20 @@ int main(int argc, char *argv[])
                                                           // for regression
         globalReset();
         ASSERT(false == globalAssertFiredFlag);
-        sillyFunc(veryVerbose);
-        ASSERT(true == globalAssertFiredFlag);
-#else
-        if (veryVerbose) cout << "\tsafe mode 2 is *not* defined" << endl;
-        sillyFunc(veryVerbose);
-#endif
-
+#ifdef BDE_BUILD_TARGET_EXC
+        try
+        {
+#endif  // BDE_BUILD_TARGET_EXC
+            sillyFunc(veryVerbose);
+            ASSERT(false);
+#ifdef BDE_BUILD_TARGET_EXC
+        }
+        catch(const std::exception &)
+        {
+            ASSERT(true == globalAssertFiredFlag);
+        }
+#endif  // BDE_BUILD_TARGET_EXC
+#endif  // BDE_BUILD_TARGET_SAFE_2
       } break;
       case 11: {
         // --------------------------------------------------------------------
