@@ -248,9 +248,9 @@ class bdeut_FunctionOutputIterator
     class AssignmentProxy {
         // Provide an object that can appear on the left side of an assignment
         // from 'TYPE'.  The assignment to an instance of 'AssignmentProxy'
-        // results in a call of operator(TYPE) of the functor or function
-        // supplied at construction.  Instance of this class are created every
-        // time when host class is dereferenced.
+        // results in a call of 'operator(TYPE)' of the functor or function
+        // supplied at construction.  Instances of this class are created every
+        // time an object of the host class is dereferenced.
 
         // DATA
         FUNCTION& d_function; // reference to functional object to be invoked
