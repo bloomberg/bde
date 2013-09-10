@@ -3339,7 +3339,7 @@ void testLoadAliasOps2(int callLine,
                                     ? 0
                                     : &alias1;
 
-                pAlias.loadAlias(p, pTarget);
+                pAlias1.loadAlias(p, pTarget);
 
                 LOOP_ASSERT(p.ptr(),  0 == p.ptr());
                 LOOP2_ASSERT(pTarget, pAlias1.ptr(), pTarget == pAlias1.ptr());

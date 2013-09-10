@@ -8,13 +8,10 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdlib.h>     // atoi()
-#include <string.h>     // memcpy()
-//#include <bsl_iostream.h>
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
-//using bsl::cout;
-//using bsl::endl;
 
 //=============================================================================
 //                             TEST PLAN

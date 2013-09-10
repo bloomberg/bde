@@ -79,12 +79,20 @@ namespace bslstl {
 
 class BadWeakPtr : public native_std::exception {
   public:
+    BadWeakPtr();
+        // Create a 'BadWeakPtr' object.  Note that this function is explicitly
+        // user-declared, to make it simple to declare 'const' objects of this
+        // type.
 
     // ACCESSORS
-    const char *what() const BSLS_NOTHROW_SPEC;
+    const char *what() const throw();
         // Return a pointer to the string literal "bad_weak_ptr", with a
         // storage duration of the lifetime of the program.  Note that the
-        // caller should *not* attempt to free this memory.
+        // caller should *not* attempt to free this memory.  Note that the
+        // 'bsls_exceptionutil' macro 'BSLS_NOTHROW_SPEC' is deliberately not
+        // used here, as a number of standard libraries declare the base
+        // 'exception' class explicitly with the no-throw specification, even
+        // in a build that may not recongnise exceptions.
 };
 
 // ===========================================================================
@@ -95,9 +103,14 @@ class BadWeakPtr : public native_std::exception {
                        // class BadWeakPtr
                        // ----------------
 
+inline
+BadWeakPtr::BadWeakPtr()
+: native_std::exception()
+{
+}
 
 inline
-const char *BadWeakPtr::what() const BSLS_NOTHROW_SPEC
+const char *BadWeakPtr::what() const throw()
 {
     return "bad_weak_ptr";
 }

@@ -5,8 +5,8 @@
 #include <bslma_testallocator.h>
 #include <bsls_bsltestutil.h>
 
+#include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'memcpy'
 
 using namespace BloombergLP;
 
