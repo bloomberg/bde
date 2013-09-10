@@ -253,7 +253,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(&failAbort)
+, d_failureHandler(basicAllocator ? basicAllocator
+                                  : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(DEFAULT_NUM_RECORDED_FRAMES + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(DEFAULT_NUM_RECORDED_FRAMES))
 , d_ostream(&bsl::cerr)
@@ -263,6 +264,12 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 {
     BSLS_ASSERT_SAFE(d_maxRecordedFrames >= DEFAULT_NUM_RECORDED_FRAMES);
     BSLS_ASSERT_SAFE(d_traceBufferLength >= d_maxRecordedFrames);
+
+    // This must be assigned in a statement in the body of the c'tor rather
+    // than in the initializer list to work around a microsoft bug with
+    // function pointers.
+
+    d_failureHandler = &failAbort;
 }
 
 baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
@@ -273,7 +280,8 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(&failAbort)
+, d_failureHandler(basicAllocator ? basicAllocator
+                                  : &bslma::MallocFreeAllocator::singleton())
 , d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
 , d_ostream(&bsl::cerr)
@@ -282,9 +290,14 @@ baesu_StackTraceTestAllocator::baesu_StackTraceTestAllocator(
                                : &bslma::MallocFreeAllocator::singleton())
 {
     BSLS_ASSERT_OPT(numRecordedFrames >= 2);
-
     BSLS_ASSERT(d_maxRecordedFrames >= numRecordedFrames);
     BSLS_ASSERT(d_traceBufferLength >= d_maxRecordedFrames);
+
+    // This must be assigned in a statement in the body of the c'tor rather
+    // than in the initializer list to work around a microsoft bug with
+    // function pointers.
+
+    d_failureHandler = &failAbort;
 }
 
 baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
@@ -295,12 +308,13 @@ baesu_StackTraceTestAllocator::~baesu_StackTraceTestAllocator()
 
         reportBlocksInUse();
 
-        (*d_failureHandler)();
+        d_failureHandler();
 
         release();
     }
 }
 
+// MANIPULATORS
 void *baesu_StackTraceTestAllocator::allocate(size_type size)
 {
     if (0 == size) {
@@ -313,7 +327,7 @@ void *baesu_StackTraceTestAllocator::allocate(size_type size)
     // the size passed.  The alignment must be large enough to accommodate the
     // stack addresses (type 'void *') in the buffer, it must be large enough
     // to accommodate the 'BlockHeader's alignment requirements, and it must be
-    // large enough to accomodate whatever the alignment requirements of
+    // large enough to accommodate whatever the alignment requirements of
     // whatever the client intends to store in their portion of the block.  We
     // can infer the requirements of our pointers and block header at compile
     // time in 'FIXED_ALIGN', then we infer the alignment requirement of the
@@ -372,7 +386,7 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
         *d_ostream << "Badly aligned block passed to allocator '"
                    << d_name << "' must have been allocated by another type"
                    << " of allocator\n";
-        (*d_failureHandler)();
+        d_failureHandler();
 
         return;                                                       // RETURN
     }
@@ -383,7 +397,7 @@ void baesu_StackTraceTestAllocator::deallocate(void *address)
 
     if (checkBlockHeader(blockHdr)) {
         guard.release()->unlock();
-        (*d_failureHandler)();
+        d_failureHandler();
 
         return;                                                       // RETURN
     }
@@ -408,7 +422,7 @@ void baesu_StackTraceTestAllocator::release()
                                      blockHdr; blockHdr = blockHdr->d_next_p) {
         if (checkBlockHeader(blockHdr)) {
             guard.release()->unlock();
-            (*d_failureHandler)();
+            d_failureHandler();
 
             return;                                                   // RETURN
         }
@@ -435,10 +449,9 @@ void baesu_StackTraceTestAllocator::setDemanglingPreferredFlag(bool value)
     d_demangleFlag = value;
 }
 
-void baesu_StackTraceTestAllocator::setFailureHandler(FailureHandler func)
+void baesu_StackTraceTestAllocator::setFailureHandler(
+                                         const bdef_Function<void (*)()>& func)
 {
-    BSLS_ASSERT(0 != func);
-
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
 
     d_failureHandler = func;
