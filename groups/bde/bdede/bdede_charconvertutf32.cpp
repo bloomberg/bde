@@ -13,7 +13,7 @@ BDES_IDENT_RCSID(bdede_charconvertutf32_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>    // 'bsl::find'
 
 #include <bsl_climits.h>      // 'CHAR_BIT'
-#include <bsl_cstring.h>      // 'CHAR_BIT'
+#include <bsl_cstring.h>
 
 ///IMPLEMENTATION NOTES
 ///--------------------
@@ -109,13 +109,12 @@ namespace {
 
 // TYPES
 typedef unsigned int Iso10646Char;
-    // For storing uncompressed Unicode character (21 bits, 17 planes).
+    // For storing an uncompressed Unicode character (21 bits, 17 planes).
 
 typedef unsigned char OctetType;
-    // Treating the octets as a signed (or default, which is usally signed)
-    // 'char' has so many pitfalls in widening that the code would become
-    // unreadable.  This typedef (used especially for pointer punning) gives a
-    // shorter way to write all the conversions necessary.
+    // 'char' often defaults to a signed type, which becomes problematic in
+    // widening to 32 bit values, so we use this unsigned type to store bytes
+    // of UTF-8.
 
 // Portability/sanity checks -- data type sizes.
 BSLMF_ASSERT(8 == CHAR_BIT);
@@ -124,7 +123,7 @@ BSLMF_ASSERT(sizeof(char) == sizeof(OctetType));
 
 enum {
     // The return values of all the public functions defined by this component
-    // return a bit-wise-or of these two flags.  When the output is to
+    // return a bit-wise Or of these two flags.  When the output is to
     // container rather than a fixed-length buffer, the 'OUT_OF_SPACE_BIT'
     // is not set.
 
@@ -137,26 +136,26 @@ enum {
 enum Utf8Bits {
     // Masks and shifts used to assemble and dismantle UTF-8 encodings.
 
-    ONE_OCT_CONT_WID   = 7,               // Content in a one-octet coding
+    ONE_OCT_CONT_WID   = 7,               // content in a one-octet coding
     ONE_OCTET_MASK     = 0xff & (~0 << ONE_OCT_CONT_WID),
-    ONE_OCTET_TAG      = 0xff & 0,        // Compare this to masked bits
+    ONE_OCTET_TAG      = 0xff & 0,        // compare this to masked bits
 
-    CONTINUE_CONT_WID  = 6,               // Content in a continuation
+    CONTINUE_CONT_WID  = 6,               // content in a continuation
                                           //                      octet
     CONTINUE_MASK      = 0xff & (~0 << CONTINUE_CONT_WID),
-    CONTINUE_TAG       = ONE_OCTET_MASK,  // Compare this to masked bits
+    CONTINUE_TAG       = ONE_OCTET_MASK,  // compare this to masked bits
 
-    TWO_OCT_CONT_WID   = 5,               // Content in a two-octet header
+    TWO_OCT_CONT_WID   = 5,               // content in a two-octet header
     TWO_OCTET_MASK     = 0xff & (~0 << TWO_OCT_CONT_WID),
-    TWO_OCTET_TAG      = CONTINUE_MASK,   // Compare this to masked bits
+    TWO_OCTET_TAG      = CONTINUE_MASK,   // compare this to masked bits
 
-    THREE_OCT_CONT_WID = 4,               // Content in a 3-octet header
+    THREE_OCT_CONT_WID = 4,               // content in a 3-octet header
     THREE_OCTET_MASK   = 0xff & (~0 << THREE_OCT_CONT_WID),
-    THREE_OCTET_TAG    = TWO_OCTET_MASK,  // Compare this to masked bits
+    THREE_OCTET_TAG    = TWO_OCTET_MASK,  // compare this to masked bits
 
-    FOUR_OCT_CONT_WID  = 3,               // Content in a four-octet header
+    FOUR_OCT_CONT_WID  = 3,               // content in a four-octet header
     FOUR_OCTET_MASK    = 0xff & (~0 << FOUR_OCT_CONT_WID),
-    FOUR_OCTET_TAG     = THREE_OCTET_MASK // Compare this to masked bits
+    FOUR_OCTET_TAG     = THREE_OCTET_MASK // compare this to masked bits
 };
 
 struct Capacity {
@@ -174,7 +173,7 @@ struct Capacity {
 
     // MANIPULATORS
     void operator--() { --d_capacity; }
-        // Decrement 'd_capacity'
+        // Decrement 'd_capacity'.
 
     void operator-=(int delta) { d_capacity -= delta; }
         // Decrement 'd_capacity' by 'delta'.
@@ -247,7 +246,8 @@ bool isSingleOctet(OctetType oct)
 
 static inline
 bool isContinuation(OctetType oct)
-    // Return 'true' if the specified 'oct' is a continuation octet.
+    // Return 'true' if the specified 'oct' is a continuation octet and 'false'
+    // otherwise.
 {
     return (oct & CONTINUE_MASK) == CONTINUE_TAG;
 }
@@ -255,7 +255,7 @@ bool isContinuation(OctetType oct)
 static inline
 bool isTwoOctetHeader(OctetType oct)
     // Return 'true' if the specified 'oct' is the first octet of a two-octet
-    // UTF-8 sequence.
+    // UTF-8 sequence and 'false' otherwise.
 {
     return (oct & TWO_OCTET_MASK) == TWO_OCTET_TAG;
 }
@@ -263,7 +263,7 @@ bool isTwoOctetHeader(OctetType oct)
 static inline
 bool isThreeOctetHeader(OctetType oct)
     // Return 'true' if the specified 'oct' is the first octet of a three-octet
-    // UTF-8 sequence.
+    // UTF-8 sequence and 'false' otherwise.
 {
     return (oct & THREE_OCTET_MASK) == THREE_OCTET_TAG;
 }
@@ -271,7 +271,7 @@ bool isThreeOctetHeader(OctetType oct)
 static inline
 bool isFourOctetHeader(OctetType oct)
     // Return 'true' if the specified 'oct' is the first octet of a four-octet
-    // UTF-8 sequence.
+    // UTF-8 sequence and 'false' otherwise.
 {
     return (oct & FOUR_OCTET_MASK) == FOUR_OCTET_TAG;
 }
@@ -323,7 +323,7 @@ int lookaheadContinuations(const OctetType * const octbuf, int n)
 static inline
 bool fitsInSingleOctet(Iso10646Char uc)
     // Return 'true' if the specified Unicode value 'uc' can be coded in a
-    // single UTF-8 octet.
+    // single UTF-8 octet and 'false' otherwise.
 {
     return 0 == (uc & (~Iso10646Char(0) << ONE_OCT_CONT_WID));
 }
@@ -331,7 +331,7 @@ bool fitsInSingleOctet(Iso10646Char uc)
 static inline
 bool fitsInTwoOctets(Iso10646Char uc)
     // Return 'true' if the specified Unicode value 'uc' can be coded in two
-    // UTF-8 octets or less.
+    // UTF-8 octets or less and 'false' otherwise.
 {
     return 0 == (uc & (~Iso10646Char(0) << (TWO_OCT_CONT_WID +
                                                       CONTINUE_CONT_WID)));
@@ -340,7 +340,7 @@ bool fitsInTwoOctets(Iso10646Char uc)
 static inline
 bool fitsInThreeOctets(Iso10646Char uc)
     // Return 'true' if the specified Unicode value 'uc' can be coded in three
-    // UTF-8 octets or less.
+    // UTF-8 octets or less and 'false' otherwise.
 {
     return 0 == (uc & (~Iso10646Char(0) << (THREE_OCT_CONT_WID +
                                                   2 * CONTINUE_CONT_WID)));
@@ -349,7 +349,7 @@ bool fitsInThreeOctets(Iso10646Char uc)
 static inline
 bool fitsInFourOctets(Iso10646Char uc)
     // Return 'true' if the specified Unicode value 'uc' can be coded in four
-    // UTF-8 octets or less.
+    // UTF-8 octets or less and 'false' otherwise.
 {
     return 0 == (uc & (~Iso10646Char(0) << (FOUR_OCT_CONT_WID +
                                                   3 * CONTINUE_CONT_WID)));
@@ -395,32 +395,34 @@ static inline
 bool isIllegal16BitValue(Iso10646Char uc)
     // Return 'true' if the specified Unicode value 'uc' is a value reserved
     // for the encoding of double-word planes in UTF-16 (such values are
-    // illegal in ANY Unicode format).
+    // illegal in ANY Unicode format) and 'false' otherwise.
 {
     return uc >= 0xd800 && uc < 0xe000;
 }
 
 static inline
 bool isIllegalFourOctetValue(Iso10646Char uc)
-    // Return 'true' if the specified 32-bit value is too high to be
-    // represented in Unicode.
+    // Return 'true' if the specified 32-bit value 'uc' is too high to be
+    // represented in Unicode and 'false' otherwise.
 {
     return uc > 0x10ffff;
 }
 
 static inline
 bool isLegalUtf32ErrorChar(Iso10646Char uc)
-    // Return 'true' if the specified 32-bit value is legal to be represented
-    // in unicode.
+    // Return 'true' if the specified 32-bit value 'uc' is legal to be
+    // represented in unicode and 'false' otherwise.
 {
     return uc < 0xd800 || (uc >= 0xe000 && uc <= 0x10ffff);
 }
 
 static inline
 const OctetType *skipUtf8Character(const OctetType *input)
-    // Return a pointer to the next Unicode character after the char in the
-    // sequence beginning at 'input'.  Note that this routine is able to handle
-    // illegal sequences.
+    // Return a pointer to the next Unicode character after the character in
+    // the sequence beginning at 'input'.  Note that an incomplete sequence is
+    // skipped as a single char, and that any first byte that is neither a
+    // single byte nor a header of a valid UTF-8 sequence is interpreted as a
+    // 5-byte header.
 {
     const OctetType uc = *input;
 
@@ -439,18 +441,18 @@ const OctetType *skipUtf8Character(const OctetType *input)
 static
 bsl::size_t utf32BufferLengthNeeded(const char *input)
     // Return the number of 'Iso10646Char's sufficient to store the
-    // null-terminated utf-8 sequence beginning at the specified 'input',
+    // null-terminated UTF-8 sequence beginning at the specified 'input',
     // including the terminating 0 word of the output.  Note that if the
     // translation occurs with 0 specified as the error character and errors
-    // are present, this will be an over estimate, otherwise the result will be
-    // completely precise.
+    // are present, this will be an over-estimate, otherwise the result will be
+    // exact..
 {
     // Note that to exactly calculate the size would require much more detailed
     // decoding and would hence be much slower.  Also, the default is for the
-    // error character not to be 0, in which case this estimate will be
-    // completely precise.  Also, error sequences will usually range from
-    // extremely rare to totally not present.  For these reasons, this faster,
-    // less exact algorithm was chosen.
+    // error character not to be 0, in which case this estimate will be exact.
+    // Also, error sequences will usually range from extremely rare to totally
+    // not present.  For these reasons, this faster, less exact algorithm was
+    // chosen.
 
     const OctetType *octets = constOctetCast(input);
 
@@ -463,10 +465,10 @@ bsl::size_t utf32BufferLengthNeeded(const char *input)
 }
 
 static
-bsl::size_t utf8BufferLengthNeeded(const Iso10646Char    *input,
-                                   const OctetType        errorCharacter)
+bsl::size_t utf8BufferLengthNeeded(const Iso10646Char *input,
+                                   const OctetType     errorCharacter)
     // Return the length, in bytes, of the UTF-8 sequence needed to store the
-    // translation of the utf32 sequence pointed at by 'input', including the
+    // translation of the UTF-32 sequence pointed at by 'input', including the
     // terminating 0, when using the specified 'errorCharacter'.  Note that
     // this estimate will always be completely precise.
 {
@@ -493,9 +495,7 @@ namespace {
     // Second unnamed namespace -- the static routines that precede this use
     // constants from the first unnamed namespace.  Now we are declaring two
     // local classes, 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator', that
-    // use those static routines.  To keep the names of these local classes and
-    // their functions private to this translation unit, we put them in the
-    // unnamed namespace.
+    // use those static routines.
 
 template <class CAPACITY>
 class Utf8ToUtf32Translator {
@@ -529,9 +529,9 @@ class Utf8ToUtf32Translator {
                           bsl::size_t      capacity,
                           const OctetType *input,
                           Iso10646Char     errorChar);
-        // Create a "Utf8ToUtf32Translator' object to translate UTF-8 from the
+        // Create a 'Utf8ToUtf32Translator' object to translate UTF-8 from the
         // specified 'input' to be written as UTF-32 to the specified 'output',
-        // which has the specified 'capacity' 'Iso10646Char's of room in it.
+        // that has the specified 'capacity' 'Iso10646Char's of room in it.
         // When an error is encountered in the input, output 'errorChar' to the
         // output unless 'errorChar' is 0, in which case no output
         // corresponding to the error sequence is generated.
@@ -586,17 +586,17 @@ class Utf8ToUtf32Translator {
                   Iso10646Char       errorChar);
         // Translate a UTF-8 stream from the specified null-terminated 'input'
         // to a UTF-32 stream written to the buffer at the specified 'output',
-        // always null terminating the result.  If the template argument is
+        // always null-terminating the result.  If the template argument is
         // type 'Capacity', the output buffer is the specified 'capacity' words
         // long, and encode as many Unicode characters as will fit, including
         // the terminating null character.  If the template argument is type
-        // 'NoopCapacity', "capacity' is ignored, the output buffer is assumed
+        // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-32 sequence is to be
         // translated.  Write to the specified '*numCharsWritten' the number of
         // Unicode characters written, including the terminating null
         // character.  If the specified 'errorChar' is non-zero, write
         // 'errorChar' to the output every time an error character is
-        // encountered in the input, otherwise write no output corresponding to
+        // encountered in the input; otherwise write no output corresponding to
         // error characters in the input.  The behavior is undefined unless
         // 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
 };
@@ -634,12 +634,12 @@ class Utf32ToUtf8Translator {
                           bsl::size_t         capacity,
                           const Iso10646Char *input,
                           const OctetType     errorChar);
-        // Create a "Utf32ToUtf8Translator' object to translate UTF-32 from the
+        // Create a 'Utf32ToUtf8Translator' object to translate UTF-32 from the
         // specified 'input' to be written as UTF-8 to the specified 'output'
-        // buffer, which is the specified 'capacity' length in 'Iso10646Char's,
+        // buffer that is the specified 'capacity' length in 'Iso10646Char's,
         // or is guaranteed to have adequate room for the translation if
-        // "CAPACITY' is 'NoopCapacity'.  Initialize 'd_errorChar' to the
-        // specified 'errorCar'.
+        // 'CAPACITY' is 'NoopCapacity'.  Initialize 'd_errorChar' to the
+        // specified 'errorChar'.
 
     // PRIVATE MANIPULATORS
     void advance(unsigned delta)
@@ -698,7 +698,7 @@ class Utf32ToUtf8Translator {
         // type 'Capacity', the output buffer is the specified 'capacity' bytes
         // long, and encode as many Unicode characters as will fit, including
         // the terminating null character.  If the template argument is type
-        // 'NoopCapacity', "capacity' is ignored, the output buffer is assumed
+        // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-8 sequence is to be
         // translated.  Write to the specified '*numCharsWritten' the number of
         // Unicode characters written, including the terminating 0.  Write to
@@ -1035,9 +1035,9 @@ int bdede_CharConvertUtf32::utf8ToUtf32(unsigned int *dstBuffer,
 
     typedef Utf8ToUtf32Translator<Capacity> Translator;
 
-    bsl::size_t ncw;
+    bsl::size_t localNumCharsWritten;
     if (0 == numCharsWritten) {
-        numCharsWritten = &ncw;
+        numCharsWritten = &localNumCharsWritten;
     }
     if (0 == dstCapacity) {
         *numCharsWritten = 0;
@@ -1068,9 +1068,9 @@ int bdede_CharConvertUtf32::utf32ToUtf8(bsl::string        *dstString,
     dstString->resize(bufferLen);
     BSLS_ASSERT_SAFE(dstString->length() == bufferLen);
 
-    bsl::size_t numBytesWritten, ncw;
+    bsl::size_t numBytesWritten, localNumCharsWritten;
     if (!numCharsWritten) {
-        numCharsWritten = &ncw;
+        numCharsWritten = &localNumCharsWritten;
     }
     char *begin = &dstString->front();
     int ret = Translator::translate(begin,
@@ -1084,8 +1084,9 @@ int bdede_CharConvertUtf32::utf32ToUtf8(bsl::string        *dstString,
     BSLS_ASSERT(!(ret & OUT_OF_SPACE_BIT));
     BSLS_ASSERT(0 == (*dstString)[numBytesWritten - 1]);
 
-    // The terminating '\0' is not strictly included in the 'length' of the
-    // string, so resize down by 1 byte.
+    // There are two '\0's in 'dstString->c_str()' beginning at char
+    // 'dstString->length() - 1' -- advjust 'length' to reflect the earlier
+    // '\0'.
 
     dstString->resize(numBytesWritten - 1);
 
@@ -1108,9 +1109,9 @@ int bdede_CharConvertUtf32::utf32ToUtf8(bsl::vector<char>  *dstVector,
     BSLS_ASSERT(bufferLen > 0);
     dstVector->resize(bufferLen);
 
-    bsl::size_t numBytesWritten, ncw;
+    bsl::size_t numBytesWritten, localNumCharsWritten;
     if (!numCharsWritten) {
-        numCharsWritten = &ncw;
+        numCharsWritten = &localNumCharsWritten;
     }
     char *begin = &dstVector->front();
     int ret = Translator::translate(begin,
@@ -1140,12 +1141,12 @@ int bdede_CharConvertUtf32::utf32ToUtf8(char               *dstBuffer,
     BSLS_ASSERT_SAFE(dstBuffer);
     BSLS_ASSERT_SAFE(srcString);
 
-    bsl::size_t ncw, nbw;
+    bsl::size_t localNumCharsWritten, localNumBytesWritten;
     if (0 == numCharsWritten) {
-        numCharsWritten = &ncw;
+        numCharsWritten = &localNumCharsWritten;
     }
     if (0 == numBytesWritten) {
-        numBytesWritten = &nbw;
+        numBytesWritten = &localNumBytesWritten;
     }
 
     if (0 == dstCapacity) {
@@ -1162,14 +1163,12 @@ int bdede_CharConvertUtf32::utf32ToUtf8(char               *dstBuffer,
                                     numCharsWritten,
                                     numBytesWritten,
                                     errorCharacter);
-    ncw = *numCharsWritten;    // may be self-assign
-    nbw = *numBytesWritten;    // may be self-assign
 
-    BSLS_ASSERT_SAFE(ncw > 0);
-    BSLS_ASSERT_SAFE(nbw > 0);
-    BSLS_ASSERT_SAFE(ncw <= nbw);
-    BSLS_ASSERT_SAFE(nbw <= dstCapacity);
-    BSLS_ASSERT_SAFE(0 == dstBuffer[nbw - 1]);
+    BSLS_ASSERT_SAFE(*numCharsWritten > 0);
+    BSLS_ASSERT_SAFE(*numBytesWritten > 0);
+    BSLS_ASSERT_SAFE(*numCharsWritten <= *numBytesWritten);
+    BSLS_ASSERT_SAFE(*numBytesWritten <= dstCapacity);
+    BSLS_ASSERT_SAFE(0 == dstBuffer[*numBytesWritten - 1]);
 
     return ret;
 }

@@ -60,36 +60,31 @@ using bsl::flush;
 //:   STL container oupput destinations.
 //---------------------------------------------------------------------------
 // [17] USAGE EXAMPLE
-// [16] UTF-32 <- UTF-8 Random garbage input, random error char
+// [16] UTF-32 <- UTF-8 Random garbage input, random error character
 // [15] UTF-32 <- UTF-8 Table generated random sequences, random error char
-// [14] UTF-8 <- UTF-32 Random garbage input, random error char
-// [13] UTF-8 <- UTF-32 Table generated random sequences, 0 error char
-// [12] UTF-8 <- UTF-32 Table generated random sequences, default error char
+// [14] UTF-8 <- UTF-32 Random garbage input, random error character
+// [13] UTF-8 <- UTF-32 Table generated random sequences, 0 error character
+// [12] UTF-8 <- UTF-32 Table generated random sequences, default error
+//                                                                    character
 // [11] Translating real prose in 4 languages, both directions
 // [10] Negative testing, all functions, all condtions
-// [ 9] UTF-8 <- UTF-32 to vector, string, buffer, passing non-zero error char
-// [ 8] UTF-8 <- UTF-32 to vector, string, buffer, 0 error char
-// [ 7] UTF-8 <- UTF-32 to vector, string, buffer, default error char
-// [ 6] oUTF-32 <- UTF-8 Translation to vector, passing non-zero error char
-// [ 5] UTF-32 <- UTF-8 Translation to vector, 0 error char
-// [ 4] UTF-32 <- UTF-8 Translation to fixed-length buffers, 0 error char
-// [ 3] UTF-32 <- UTF-8 Translation to vector, default error char
-// [ 2] UTF-32 <- UTF-8 Translation to fixed-length buffers, default error char
+// [ 9] UTF-8 <- UTF-32 to vector, string, buffer, passing non-zero error
+//                                                                    character
+// [ 8] UTF-8 <- UTF-32 to vector, string, buffer, 0 error character
+// [ 7] UTF-8 <- UTF-32 to vector, string, buffer, default error character
+// [ 6] oUTF-32 <- UTF-8 Translation to vector, passing non-zero error
+//                                                                    character
+// [ 5] UTF-32 <- UTF-8 Translation to vector, 0 error character
+// [ 4] UTF-32 <- UTF-8 Translation to fixed-length buffers, 0 error character
+// [ 3] UTF-32 <- UTF-8 Translation to vector, default error character
+// [ 2] UTF-32 <- UTF-8 Translation to fixed-length buffers, default error
+//                                                                    character
 // [ 1] Breathing Test
 //---------------------------------------------------------------------------
 
 //==========================================================================
 //              MODIFIED "STANDARD" BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
-
-// There are two changes here.  First, the variable 'testStatus' and the
-// function 'aSsErT' are moved into the anonymous namespace; previously
-// they were file-level static.  The Sun compiler (Suite 8) did not believe
-// that file-level statics should be visible in a template function.
-// Second, the function and macro are changed so that they constitute an
-// expression that returns 'true' if the test passes and 'false' otherwise.
-// This allows verbose flags to govern additional error reporting when a
-// failure occurs.
 
 namespace {
 int testStatus = 0;
@@ -2074,7 +2069,7 @@ unsigned char utf8MultiLang[] = {
 const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 
 //-----------------------------------------------------------------------------
-// Encode a 4-byte UTF-8 value, print as a sequence of decimal ints.
+// Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
 //-----------------------------------------------------------------------------
 
 char *decodeFourByteUtf8String(char *outBuf, unsigned val)
@@ -2379,42 +2374,58 @@ static const struct Utf32TableStruct {
     const char   *d_utf8String;
     const bool    d_error;
 } utf32Table[] = {
-    { L_, 1,             "\x01",              0 },  // 1 char min
-    { L_, 0x80,          "\xc2\x80",          0 },  // 2 char min
-    { L_, 1<<11,         "\xe0\xa0\x80",      0 },  // 3 char min
-    { L_, 1<<16,         "\xf0\x90\x80\x80",  0 },  // 4 char min
 
-    { L_, 'H',           "\x48",              0 },  // 1 char med
-    { L_, 0x2f1,         "\xcb\xb1",          0 },  // 2 char med
-    { L_, 0x2710,        "\xe2\x9c\x90",      0 },  // 3 char med
+    // minimal valid values encoded for 1-4 character long UTF-8 sequences
+
+    { L_, 1,             "\x01",              0 },
+    { L_, 0x80,          "\xc2\x80",          0 },
+    { L_, 1<<11,         "\xe0\xa0\x80",      0 },
+    { L_, 1<<16,         "\xf0\x90\x80\x80",  0 },
+
+    // medium, valid values encoded for 1-4 character long UTF-8 sequences
+
+    { L_, 'H',           "\x48",              0 },  // 1 character
+    { L_, 0x2f1,         "\xcb\xb1",          0 },  // 2 character
+    { L_, 0x2710,        "\xe2\x9c\x90",      0 },  // 3 character
     { L_, 0xd7ff,        "\xed\x9f\xbf",      0 },  // 3 below UTF-16 bit plane
     { L_, 0xe000,        "\xee\x80\x80",      0 },  // 3 above UTF-16 bit plane
-    { L_, 0x186a0,       "\xf0\x98\x9a\xa0",  0 },  // 4 char med
+    { L_, 0x186a0,       "\xf0\x98\x9a\xa0",  0 },  // 4 character
 
-    { L_, 0x7f,          "\x7f",              0 },  // 1 char max
-    { L_, (1<<11)-1,     "\xdf\xbf",          0 },  // 2 char max
-    { L_, (1<<16)-1,     "\xef\xbf\xbf",      0 },  // 3 char max
-    { L_, 0x10ffff,      "\xf4\x8f\xbf\xbf",  0 },  // 4 char max
+    // maximum valid values for 1-4 character long UTF-8 sequences
 
-    { L_, 0xd800,        "?",                 1 },  // UTF-16 lower bit plane
-    { L_, 0xd8ff,        "?",                 1 },  // UTF-16 lower bit plane
-    { L_, 0xd917,        "?",                 1 },  // UTF-16 lower bit plane
-    { L_, 0xdaaf,        "?",                 1 },  // UTF-16 lower bit plane
-    { L_, 0xdb09,        "?",                 1 },  // UTF-16 lower bit plane
+    { L_, 0x7f,          "\x7f",              0 },  // 1 character max
+    { L_, (1<<11)-1,     "\xdf\xbf",          0 },  // 2 character max
+    { L_, (1<<16)-1,     "\xef\xbf\xbf",      0 },  // 3 character max
+    { L_, 0x10ffff,      "\xf4\x8f\xbf\xbf",  0 },  // 4 character max
 
-    { L_, 0xdc00,        "?",                 1 },  // UTF-16 upper bit plane
-    { L_, 0xdcff,        "?",                 1 },  // UTF-16 upper bit plane
-    { L_, 0xdd80,        "?",                 1 },  // UTF-16 upper bit plane
-    { L_, 0xdea7,        "?",                 1 },  // UTF-16 upper bit plane
-    { L_, 0xdf03,        "?",                 1 },  // UTF-16 upper bit plane
-    { L_, 0xdfff,        "?",                 1 },  // UTF-16 upper bit plane
+    // values that are not valid unicode because they are in the lower
+    // UTF-16 bit plane.
 
-    { L_, 0x110000,      "?",                 1 },  // above Unicode
-    { L_, 0x120000,      "?",                 1 },  // above Unicode
-    { L_, 1<<21,         "?",                 1 },  // above Unicode
-    { L_, 1<<29,         "?",                 1 },  // above Unicode
-    { L_, 1<<31,         "?",                 1 },  // above Unicode
-    { L_, (0xffff<<16),  "?",                 1 },  // above Unicode
+    { L_, 0xd800,        "?",                 1 },
+    { L_, 0xd8ff,        "?",                 1 },
+    { L_, 0xd917,        "?",                 1 },
+    { L_, 0xdaaf,        "?",                 1 },
+    { L_, 0xdb09,        "?",                 1 },
+    { L_, 0xdbff,        "?",                 1 },
+
+    // values that are not valid unicode because they are in the upper
+    // UTF-16 bit plane.
+
+    { L_, 0xdc00,        "?",                 1 },
+    { L_, 0xdcff,        "?",                 1 },
+    { L_, 0xdd80,        "?",                 1 },
+    { L_, 0xdea7,        "?",                 1 },
+    { L_, 0xdf03,        "?",                 1 },
+    { L_, 0xdfff,        "?",                 1 },
+
+    // values that are not valid unicode because they are too high
+
+    { L_, 0x110000,      "?",                 1 },
+    { L_, 0x120000,      "?",                 1 },
+    { L_, 1<<21,         "?",                 1 },
+    { L_, 1<<29,         "?",                 1 },
+    { L_, 1<<31,         "?",                 1 },
+    { L_, (0xffff<<16),  "?",                 1 },
 };
 enum { NUM_UTF32_TABLE = sizeof utf32Table / sizeof *utf32Table };
 
@@ -2425,53 +2436,74 @@ static const struct Utf8TableStruct {
     const bool    d_error;
     const int     d_truncBy;
 } utf8Table[] = {
-    { L_, "1\x01z",              1,         0, 0 },  // 1 char min
-    { L_, "1\xc2\x80z",          0x80,      0, 0 },  // 2 char min
-    { L_, "1\xe0\xa0\x80z",      1<<11,     0, 0 },  // 3 char min
-    { L_, "1\xf0\x90\x80\x80z",  1<<16,     0, 0 },  // 4 char min
 
-    { L_, "1\x48z",              'H',       0, 0 },  // 1 char med
-    { L_, "1\xcb\xb1z",          0x2f1,     0, 0 },  // 2 char med
-    { L_, "1\xe2\x9c\x90z",      0x2710,    0, 0 },  // 3 char med
-    { L_, "1\xed\x9f\xbfz",      0xd7ff,    0, 0 },  // 3 below UTF16 bit plane
-    { L_, "1\xee\x80\x80z",      0xe000,    0, 0 },  // 3 above UTF16 bit plane
-    { L_, "1\xf0\x98\x9a\xa0z",  0x186a0,   0, 0 },  // 4 char med
+    // minimal UTF-8 values for 1-4 length octet sequences
 
-    { L_, "1\x7fz",              0x7f,      0, 0 },  // 1 char max
-    { L_, "1\xdf\xbfz",          (1<<11)-1, 0, 0 },  // 2 char max
-    { L_, "1\xef\xbf\xbfz",      (1<<16)-1, 0, 0 },  // 3 char max
-    { L_, "1\xf4\x8f\xbf\xbfz",  0x10ffff,  0, 0 },  // 4 char max
+    { L_, "1\x01z",              1,         0, 0 },
+    { L_, "1\xc2\x80z",          0x80,      0, 0 },
+    { L_, "1\xe0\xa0\x80z",      1<<11,     0, 0 },
+    { L_, "1\xf0\x90\x80\x80z",  1<<16,     0, 0 },
 
-    { L_, "1\xc0\x80z",          '?',       1, 0 },  // 2 char zero
-    { L_, "1\xe0\x80\x80z",      '?',       1, 0 },  // 3 char zero
-    { L_, "1\xf0\x80\x80\x80z",  '?',       1, 0 },  // 4 char zero
-    { L_, "1\xf8\x80\x80\x80\x80z", '?',    1, 0 },  // 5 char zero
+    // medium valid values for various length UTF-8 octet sequences
 
-    { L_, "1\xc1\xbfz",          '?',       1, 0 },  // 2 char 1 too small
-    { L_, "1\xe0\x9f\xbfz",      '?',       1, 0 },  // 3 char 1 too small
-    { L_, "1\xf0\x8f\xbf\xbfz",  '?',       1, 0 },  // 4 char 1 too small
+    { L_, "1\x48z",              'H',       0, 0 },
+    { L_, "1\xcb\xb1z",          0x2f1,     0, 0 },
+    { L_, "1\xe2\x9c\x90z",      0x2710,    0, 0 },
+    { L_, "1\xed\x9f\xbfz",      0xd7ff,    0, 0 },  // below UTF-16 bit plane
+    { L_, "1\xee\x80\x80z",      0xe000,    0, 0 },  // above UTF-16 bit plane
+    { L_, "1\xf0\x98\x9a\xa0z",  0x186a0,   0, 0 },  //
 
-    { L_, "1\xf4\x90\x80\x80z",  '?',       1, 0 },  // 4 char 1 too much
-    { L_, "1\xf7\xbf\xbf\xbfz",  '?',       1, 0 },  // 4 char WAY too much
+    // maximum valid values for various length UTF-8 octet sequences
 
-    { L_, "1\xfb\xbf\xbf\xbf\xbfz", '?',    1, 0 },  // 5 char disaster
+    { L_, "1\x7fz",              0x7f,      0, 0 },
+    { L_, "1\xdf\xbfz",          (1<<11)-1, 0, 0 },
+    { L_, "1\xef\xbf\xbfz",      (1<<16)-1, 0, 0 },
+    { L_, "1\xf4\x8f\xbf\xbfz",  0x10ffff,  0, 0 },
 
-    { L_, "1\xed\xa0\x80z",      '?',       1, 0 },  // Illegal UTF16 bit plane
-    { L_, "1\xed\xa3\xbfz",      '?',       1, 0 },  // Illegal UTF16 bit plane
-    { L_, "1\xed\xb0\x80z",      '?',       1, 0 },  // Illegal UTF16 bit plane
-    { L_, "1\xed\xb3\xbfz",      '?',       1, 0 },  // Illegal UTF16 bit plane
-    { L_, "1\xed\xb6\x99z",      '?',       1, 0 },  // Illegal UTF16 bit plane
+    // invalid UTF-8 encodings of zero of various lengths
 
-    { L_, "1\xc2z",              '?',       1, 1 },  // 2 char trunc - 1
-    { L_, "1\xe0\xa0z",          '?',       1, 1 },  // 3 char trunc - 1
-    { L_, "1\xe0z",              '?',       1, 2 },  // 3 char trunc - 2
-    { L_, "1\xf0\x90\x80z",      '?',       1, 1 },  // 4 char trunc - 1
-    { L_, "1\xf0\x90z",          '?',       1, 2 },  // 4 char trunc - 2
-    { L_, "1\xf0z",              '?',       1, 3 },  // 4 char trunc - 3
-    { L_, "1\xfb\xbf\xbf\xbfz",  '?',       1, 1 },  // 5 char disaster trunc-1
-    { L_, "1\xfb\xbf\xbfz",      '?',       1, 2 },  // 5 char disaster trunc-2
-    { L_, "1\xfb\xbfz",          '?',       1, 3 },  // 5 char disaster trunc-3
-    { L_, "1\xfbz",              '?',       1, 4 },  // 5 char disaster trunc-4
+    { L_, "1\xc0\x80z",          '?',       1, 0 },  // 2 character zero
+    { L_, "1\xe0\x80\x80z",      '?',       1, 0 },  // 3 character zero
+    { L_, "1\xf0\x80\x80\x80z",  '?',       1, 0 },  // 4 character zero
+    { L_, "1\xf8\x80\x80\x80\x80z", '?',    1, 0 },  // 5 character zero
+
+    // non-minimal UTF-8 encodings
+
+    { L_, "1\xc1\xbfz",          '?',       1, 0 },  // 2 character 1 too small
+    { L_, "1\xe0\x9f\xbfz",      '?',       1, 0 },  // 3 character 1 too small
+    { L_, "1\xf0\x8f\xbf\xbfz",  '?',       1, 0 },  // 4 character 1 too small
+
+    // 4-char encodings with invalid values too high
+
+    { L_, "1\xf4\x90\x80\x80z",  '?',       1, 0 },  // 1 too much
+    { L_, "1\xf7\xbf\xbf\xbfz",  '?',       1, 0 },  // WAY too much
+
+    // 5 character sequence (all 5 char sequences are invalid UTF-8)
+
+    { L_, "1\xfb\xbf\xbf\xbf\xbfz", '?',    1, 0 },
+
+    // UTF-8 values that are invalid because their values are reserved for the
+    // UTF-16 upper or lower bit planes
+
+    { L_, "1\xed\xa0\x80z",      '?',       1, 0 },
+    { L_, "1\xed\xa3\xbfz",      '?',       1, 0 },
+    { L_, "1\xed\xb0\x80z",      '?',       1, 0 },
+    { L_, "1\xed\xb3\xbfz",      '?',       1, 0 },
+    { L_, "1\xed\xb6\x99z",      '?',       1, 0 },
+
+    // incomplete UTF-8 sequences -- truncated early by a single byte value
+    // (in all cases 'z') being unexpectedly encountered.
+
+    { L_, "1\xc2z",              '?',       1, 1 },
+    { L_, "1\xe0\xa0z",          '?',       1, 1 },
+    { L_, "1\xe0z",              '?',       1, 2 },
+    { L_, "1\xf0\x90\x80z",      '?',       1, 1 },
+    { L_, "1\xf0\x90z",          '?',       1, 2 },
+    { L_, "1\xf0z",              '?',       1, 3 },
+    { L_, "1\xfb\xbf\xbf\xbfz",  '?',       1, 1 },
+    { L_, "1\xfb\xbf\xbfz",      '?',       1, 2 },
+    { L_, "1\xfb\xbfz",          '?',       1, 3 },
+    { L_, "1\xfbz",              '?',       1, 4 },
 };
 enum { NUM_UTF8_TABLE = sizeof utf8Table / sizeof *utf8Table };
 
@@ -2493,7 +2525,7 @@ int main(int argc, char **argv)
         //   Simple example illustrating how one might use the 'utf8ToUtv32'
         //   and 'utf32ToUtf8' methods to translate between UTF-8 and UTF-32.
         //
-        // Concers:
+        // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
         //
@@ -2618,7 +2650,7 @@ int main(int argc, char **argv)
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // PURELY RANDOM UTF-8 -> UTF-32 TEST
+        // RANDOM UTF-8 -> UTF-32 TEST
         //
         // Concerns:
         //   That the translator can handle random input without dire effects.
@@ -2633,7 +2665,7 @@ int main(int argc, char **argv)
         // Plan:
         //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
         //:   Linux.
-        //: 2 Generate 'numBytes', a length from 6-16, of bytes of of input
+        //: 2 Generate 'numBytes', a length from 6-16, of bytes of input
         //:   that the test sequence is to be.
         //: 3 For each loop, iterate twice, once with a non-zero randomly
         //:   generated legal UTF-32 'errorChar', and once with
@@ -2852,7 +2884,7 @@ int main(int argc, char **argv)
                         errorChar = myRandUtf32Char();
                         unsigned int utf32ErrorSeq[] = { errorChar, 0 };
 
-                        // Note UTF32 -> UTF-8 translation is already
+                        // Note UTF-32 -> UTF-8 translation is already
                         // well-tested.
 
                         ret = Util::utf32ToUtf8(&utf8ErrorSeq,
@@ -2874,7 +2906,8 @@ int main(int argc, char **argv)
                     for (; repeat;) {
                         idx = myRand15() % UTF8_TABLE_MOD;
                         if (NUM_UTF8_TABLE == idx) {
-                            // continuation char, unless previous was truncated
+                            // continuation character, unless previous was
+                            // truncated
 
                             repeat = prevTrunc;
                             if (!prevTrunc) {
@@ -3005,7 +3038,7 @@ int main(int argc, char **argv)
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // PURELY RANDOM TEST UTF-32 -> UTF-8
+        // RANDOM TEST UTF-32 -> UTF-8
         //
         // Concerns:
         //   That the UTF-32 -> UTF-8 translators will function properly with
@@ -3457,14 +3490,14 @@ int main(int argc, char **argv)
         //
         // Concerns:
         //   That the translators will function properly on real,
-        //   human-generated, multi language prose.
+        //   human-generated, multi-language prose.
         //
         // Plan:
-        //   The char array 'utf8Multilang' above contains prose written in
-        //   Chinese, Hindi, French, and Greek written in UTF-8, with a few
-        //   4-octet sequences added.  This will be translated into UTF-32 and
-        //   back, which should be achievable without any errors, and the
-        //   final result should be identical to the original.
+        //: o The character array 'utf8Multilang' above contains prose written
+        //:   in Chinese, Hindi, French, and Greek written in UTF-8, with a few
+        //:   4-octet sequences added.  This will be translated into UTF-32 and
+        //:   back, which should be achievable without any errors, and the
+        //:   final result should be identical to the original.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "REAL PROSE TEST\n"
@@ -3661,7 +3694,7 @@ int main(int argc, char **argv)
             ASSERT(fillWord == utf32DestVec.front());
         }
 
-        if (verbose) cout << "UTF32 <- UTF-8: null pointers\n";
+        if (verbose) cout << "UTF-32 <- UTF-8: null pointers\n";
         {
             typedef bsl::vector<unsigned int> Utf32Vec;
 
@@ -3774,7 +3807,7 @@ int main(int argc, char **argv)
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // Testing Utf-32 -> utf-8 Translation With Zero error char
+        // Testing UTF-32 -> UTF-8 Translation With Zero error char
         //
         // Concerns:
         //: 1 That UTF-32 -> UTF-8 translation is performed correctly when
@@ -4168,7 +4201,7 @@ int main(int argc, char **argv)
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // Testing Utf-32 -> utf-8 Translation
+        // Testing UTF-32 -> UTF-8 Translation
         //
         // Concerns:
         //: 1 That UTF-32 -> UTF-8 translation is performed correctly
@@ -4700,7 +4733,7 @@ int main(int argc, char **argv)
         // Plan:
         //   Repeat the first loop of the vector test in case 3 with multiple
         //   values of 'errorChar' other than 0 and verify that the specified
-        //   char is properly substituted.  Only do those cases where
+        //   character is properly substituted.  Only do those cases where
         //   'IS_ERROR' is true and 'IS_TRUNC' is 0.
         // --------------------------------------------------------------------
 

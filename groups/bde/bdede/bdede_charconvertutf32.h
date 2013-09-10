@@ -30,7 +30,7 @@ BDES_IDENT("$Id: $")
 // described in detail in RFC 3629 (http://www.ietf.org/rfc/rfc3629.txt).
 //
 // UTF-32 is simply a name for storing raw Unicode values as sequential
-// 'unsigned int values in memory.
+// 'unsigned int' values in memory.
 //
 // Valid Unicode values are in the ranges '[ 1 .. 0xd7ff ]' and
 // '[ 0xe000 .. 0x10ffff ]'.  The value '0' is used to terminate sequences.
@@ -55,7 +55,7 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example: Round-Trip Multi-Lingual Conversion:
+///Example: Round-Trip Multi-Lingual Conversion
 ///--------------------------------------------
 // The following snippets of code illustrate a typical use of the
 // 'bdede_CharConvertUtf32' struct's utility functions, first converting from
@@ -72,8 +72,8 @@ BDES_IDENT("$Id: $")
 //      "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
 //      "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
 //..
-// Then, we declare an enum summarizing the counts of characters in the string
-// and verify that the counts add up to the length of the string:
+// Then, we declare an 'enum' summarizing the counts of characters in the
+// string and verify that the counts add up to the length of the string:
 //..
 //  enum { NUM_ASCII_CHARS   = 5,
 //         NUM_GREEK_CHARS   = 3,
@@ -93,7 +93,7 @@ BDES_IDENT("$Id: $")
 //..
 //  bsl::vector<unsigned int> v32;
 //..
-// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))', it
+// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))'; it
 // is entirely redundant -- 'v32' will automatically be grown to the correct
 // size.  Also note that if 'v32' were not empty, that would not be a problem
 // -- any contents will be discarded.
@@ -140,7 +140,7 @@ BDES_IDENT("$Id: $")
 //  bsl::size_t utf8CharsWritten;
 //..
 // Again, note that it would be a waste of time for the caller to 'resize' or
-// 'reserve' 'v32', it will be automatically 'resize'd by the translator to the
+// 'reserve' 's'; it will be automatically 'resize'd by the translator to the
 // right length.
 //
 // Now, we do the reverse transform:
@@ -151,7 +151,7 @@ BDES_IDENT("$Id: $")
 //..
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
-// number of chars translated was as expected:
+// number of characters translated was as expected:
 //..
 //  assert(0 == retVal);
 //  assert(utf8MultiLang == s);
@@ -201,23 +201,25 @@ struct bdede_CharConvertUtf32 {
     // CLASS METHODS
     static int utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                            const char                *srcString,
-                           unsigned int               errorCharacter  = '?');
+                           unsigned int               errorCharacter = '?');
         // Load into the specified 'dstVector' the result of converting the
         // specified null-terminated UTF-8 'srcString' to its UTF-32
         // equivalent.  Optionally specify 'errorCharacter' to be substituted,
         // if not 0, for invalid encodings in the input string.  Return 0 on
         // success and 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT'
         // otherwise.  Invalid encodings are multi-byte encoding parts out of
-        // sequence, non-minimal UTF-8 encodings of characters, or characters
-        // outside the ranges which UTF-32 can validly encode (i.e.
-        // '[ 1 .. 0xd7ff ]' and '[ 0xe000 .. 0x10ffff ]').  If
-        // 'errorCharacter' is 0, invalid input characters are ignored (i.e.,
-        // produce no corresponding output characters).  The behavior is
-        // undefined unless 'srcString' is null-terminated and 'errorCharacter'
-        // is a valid Unicode character.  Note that one *character* always
-        // occupies one 32-bit *word* of output; there is no 'numCharsWritten'
-        // argument since, after the call, 'dstVector->size()' will equal the
-        // number of characters written.
+        // sequence, non-minimal UTF-8 encodings of characters, UTF-8 encodings
+        // of more than four bytes length, or characters outside the ranges
+        // which UTF-32 can validly encode (i.e., '[ 1 .. 0xd7ff ]' and
+        // '[ 0xe000 .. 0x10ffff ]').  If 'errorCharacter' is 0, invalid input
+        // characters are ignored (i.e., produce no corresponding output
+        // characters).  Any previous contents of the destination are
+        // discarded.  The behavior is undefined unless 'srcString' is
+        // null-terminated and 'errorCharacter' is a valid Unicode character.
+        // Note that one *character* always occupies one 32-bit *word* of
+        // output; there is no 'numCharsWritten' argument since, after the
+        // call, 'dstVector->size()' will equal the number of characters
+        // written.
 
     static int utf8ToUtf32(unsigned int *dstBuffer,
                            bsl::size_t   dstCapacity,
@@ -233,23 +235,26 @@ struct bdede_CharConvertUtf32 {
         // 'errorCharacter' to be substituted (if not 0) for invalid encodings
         // in the input string.  Invalid encodings are multi-byte encoding
         // parts out of sequence, non-minimal UTF-8 encodings of characters,
-        // UTF-8 encodings of more than four bytes length, or illegal Unicode
-        // characters (in the range '[ 0xd800 .. 0xdfff ]').  If
+        // UTF-8 encodings of more than four bytes length, or characters
+        // outside the ranges which UTF-32 can validly encode (i.e.,
+        // '[ 1 .. 0xd7ff ]' and '[ 0xe000 .. 0x10ffff ]').  If
         // 'errorCharacter' is 0, invalid input characters are ignored (i.e.,
         // produce no corresponding output characters).  Return 0 on success
-        // and a bit-wise or of the bits specified by
-        // 'bdede_CharConvertStatus::Enum' otherwise to indicate that there
-        // were invalid character sequences or if 'dstCapacity' was inadequate
-        // to store the output.  If 'dstCapacity > 0' yet 'dstCapacity'
-        // specifies a buffer too small to hold the output, the maximal
-        // null-terminated prefix of the properly converted result string is
-        // loaded into 'dstBuffer'.  The behavior is undefined unless
-        // 'dstBuffer' refers to an array of at least 'dstCapacity' elements,
-        // 'srcString' is null-terminated, and 'errorCharacter' is either 0 or
-        // a valid single-word encoded UTF-32 character (in the range
-        // '[ 1 .. 0xd7ff ]' or '[ 0xe000 .. 0x10ffff ]').  Note that if
-        // 'dstCapacity' is 0, '*dstBuffer' is not modified and this function
-        // returns a value with
+        // and a bit-wise OR of the masks defined by
+        // 'bdede_CharConvertStatus::Enum' otherwise, where
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' will be set if
+        // one or more invalid character sequences were encountered in the
+        // input, and 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be
+        // set if the output space was exhausted before conversion was
+        // complete.  If 'dstCapacity > 0' yet 'dstCapacity' specifies a buffer
+        // too small to hold the output, the maximal null-terminated prefix of
+        // the properly converted result string is loaded into 'dstBuffer'.
+        // The behavior is undefined unless 'dstBuffer' refers to an array of
+        // at least 'dstCapacity' elements, 'srcString' is null-terminated, and
+        // 'errorCharacter' is either 0 or a valid single-word encoded UTF-32
+        // character (in the range '[ 1 .. 0xd7ff ]' or
+        // '[ 0xe000 .. 0x10ffff ]').  Note that if 'dstCapacity' is 0,
+        // '*dstBuffer' is not modified and this function returns a value with
         // 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
         // written into '*numCharsWritten' (if that pointer is not 0), since
         // there is insufficient space for even a null terminator alone.  Also
@@ -270,11 +275,11 @@ struct bdede_CharConvertUtf32 {
         // number of Unicode *characters* written, including the null
         // terminator, is to be loaded.  Optionally specify 'errorCharacter' to
         // be substituted (if not 0) for invalid encodings in the input string.
-        // Invalid encodings are values that are illegal Unicode values (in the
-        // range '[ 0xd800 .. 0xdfff ]' or above '0x10ffff').  If
-        // 'errorCharacter' is 0, invalid input characters are ignored (i.e.,
-        // produce no corresponding output characters).  Any previous contents
-        // of the destination are discarded.  Return 0 on success and
+        // Invalid encodings are illegal Unicode values (in the range
+        // '[ 0xd800 .. 0xdfff ]' or above '0x10ffff').  If 'errorCharacter' is
+        // 0, invalid input characters are ignored (i.e., produce no
+        // corresponding output characters).  Any previous contents of the
+        // destination are discarded.  Return 0 on success and
         // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
         // invalid character sequences were encountered in the input.  The
         // behavior is undefined unless 'srcString' is null-terminated and
@@ -295,9 +300,9 @@ struct bdede_CharConvertUtf32 {
         // number of Unicode *characters* written, including the null
         // terminator, is to be loaded.  Optionally specify 'errorCharacter' to
         // be substituted (if not 0) for invalid encodings in the input string.
-        // Invalid encodings are incomplete multi-word encodings or parts of a
-        // two-word encoding out of their proper sequence.  If 'errorCharacter'
-        // is 0, invalid input characters are ignored (i.e., produce no
+        // Invalid encodings are illegal Unicode values (in the range
+        // '[ 0xd800 .. 0xdfff ]' or above '0x10ffff').  If 'errorCharacter' is
+        // 0, invalid input characters are ignored (i.e., produce no
         // corresponding output characters).  Any previous contents of the
         // destination are discarded.  Return 0 on success and
         // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
@@ -329,7 +334,7 @@ struct bdede_CharConvertUtf32 {
         // illegal Unicode values (in the range '[ 0xd800 .. 0xdfff ]' or above
         // '0x10ffff').  If 'errorCharacter' is 0, invalid input characters are
         // ignored (i.e., produce no corresponding output characters).  Return
-        // 0 on success and a bit-wise-or of the masks defined by
+        // 0 on success and a bit-wise OR of the masks defined by
         // 'bdede_CharConvertStatus::Enum' otherwise, where
         // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' will be set if
         // one or more invalid character sequences were encountered in the
@@ -345,8 +350,8 @@ struct bdede_CharConvertUtf32 {
         // 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
         // written into '*numCharsWritten' and '*numBytesWritten' (if those
         // pointers are not zero), since there is insufficient space for even a
-        // null terminator alone, and that since UTF-8 is a variable-length
-        // encoding, 'numBytesWritten' may be up to four times
+        // null terminator alone.  Also note that since UTF-8 is a
+        // variable-length encoding, 'numBytesWritten' may be up to four times
         // 'numCharsWritten', and, therefore, an input 'srcString' of
         // 'dstCapacity' *characters* (including terminating 0) may not fit
         // into 'dstBuffer'.  Also note that the amount of room needed will
