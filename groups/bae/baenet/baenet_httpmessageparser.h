@@ -128,7 +128,9 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
 
 
 namespace BloombergLP {

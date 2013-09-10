@@ -338,7 +338,7 @@ int HeaderFieldGenerator::execute(const int&             object,
     return 0;
 }
 
-int HeaderFieldGenerator::execute(const bsls_Types::Int64&             object,
+int HeaderFieldGenerator::execute(const bsls_Types::Int64& object,
                                   const bdeut_StringRef& fieldName)
 {
     (*d_stream_p) << fieldName << ": " << object << "\r\n";
