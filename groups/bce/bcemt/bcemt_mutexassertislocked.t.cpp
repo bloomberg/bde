@@ -377,8 +377,8 @@ int main(int argc, char *argv[])
         // TESTING ON LOCK HELD BY ANOTHER THREAD
         //
         // Concerns:
-        //: 1 That BCEMT_MUTEX_ASSERT_*IS_LOCKED is never calliing
-        //:   'bsls::Assert::invokeHandler' if the mutex is locked by anohter
+        //: 1 That BCEMT_MUTEX_ASSERT_*IS_LOCKED is never calling
+        //:   'bsls::Assert::invokeHandler' if the mutex is locked by another
         //:   thread.
         //
         // Plan:
@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
         // TESTING BCEMT_MUTEX_ASSERT_*IS_LOCKED
         //
         // Concerns:
-        //: 1 That BCEMT_MUTEX_ASSERT_*IS_LOCKED is never calliing
+        //: 1 That BCEMT_MUTEX_ASSERT_*IS_LOCKED is never calling
         //:   'bsls::Assert::invokeHandler' if the mutex is locked.
         //: 2 That, in appropriate build modes, 'invokeHandler' is in fact
         //:   called.  This test is only run when exceptions are enabled.
