@@ -77,13 +77,13 @@ int veryVerbose;
         // This 'class' provides a fully *thread-safe* unidirectional queue of
         // 'int' values.  See {'bsls_glossary'|Fully Thread-Safe}.  All public
         // manipulators operate as single, atomic actions.
-  
+
         // DATA
         bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
                                          // standard container
-  
+
         mutable bcemt_Mutex  d_mutex;    // mutex to provide thread safety
-  
+
         // PRIVATE MANIPULATOR
         int popImp(int *result);
             // Assign the value at the front of the queue to the specified
@@ -91,37 +91,37 @@ int veryVerbose;
             // return 0 if the queue was not initially empty, and a non-zero
             // value (with no effect) otherwise.  The behavior is undefined
             // unless 'd_mutex' is locked.
-  
+
       public:
         // CREATORS
         MyThreadSafeQueue();
             // Create a 'MyThreadSafeQueue' object using the default
             // allocator.
-  
+
         // MANIPULATORS
         int pop(int *result);
             // Assign the value at the front of the queue to the specified
             // '*result', and remove the value at the front of the queue;
             // return 0 if the queue was not initially empty, and a non-zero
             // value (with no effect) otherwise.
-  
+
         void popAll(bsl::vector<int> *result);
             // Assign the values of all the elements from this queue, in order,
             // to the specified '*result', and remove them from this queue.
             // Any previous contents of '*result' are discarded.  Note that, as
             // with the other public manipulators, this entire operation occurs
             // as a single, atomic action.
-  
+
         void push(int value);
             // ...
-  
+
         template <class INPUT_ITER>
         void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
             // ...
     };
 //..
-// Notice that our public manipulators have two forms: push/pop a single
-// element, and push/pop a collection of elements.  Popping even a single
+// Notice that our public manipulators have two forms: pop/push a single
+// element, and pop/push a collection of elements.  Popping even a single
 // element is non-trivial, so we factor this operation into a non-*thread-safe*
 // private manipulator that performs the pop, and is used in both public 'pop'
 // methods.  This private manipulator requires that the mutex be locked, but
@@ -135,7 +135,7 @@ int veryVerbose;
     int MyThreadSafeQueue::popImp(int *result)
     {
         BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex);
-  
+
         if (d_deque.empty()) {
             return -1;                                                // RETURN
         }
@@ -146,14 +146,15 @@ int veryVerbose;
         }
     }
 //..
-// Notice that, as a precondition check, the private manipulator checks that
-// the mutex has been acquired using one of the 'BCEMT_MUTEX_ASSERT*_IS_LOCKED'
-// macros.  We use the '...ASSERT_SAFE...' version of the macro so that the
-// check, which on some platforms is as expensive as locking the mutex, is not
-// performed except in a safe build mode.
+// Notice that, on the very first line, the private manipulator verifies, as a
+// precondition check, that the mutex has been acquired, using one of the
+// 'BCEMT_MUTEX_ASSERT*_IS_LOCKED' macros.  We use the '...ASSERT_SAFE...'
+// version of the macro so that the check, which on some platforms is as
+// expensive as locking the mutex, is performed only in the safe build mode.
 //
-// Next, we define the constructors, then the public manipulators, all of which
-// must acquire a lock on the mutex.  Note that there is a bug in 'popAll':
+// Next, we define the constructors (elided), followed by the public
+// manipulators; each manipulator must acquire a lock on the mutex (note that
+// there is a bug in 'popAll'):
 //..
     // CREATORS
     MyThreadSafeQueue::MyThreadSafeQueue()
@@ -165,18 +166,18 @@ int veryVerbose;
     int MyThreadSafeQueue::pop(int *result)
     {
         BSLS_ASSERT(result);
-  
+
         d_mutex.lock();
         int rc = popImp(result);
         d_mutex.unlock();
         return rc;
     }
-  
+
     void MyThreadSafeQueue::popAll(bsl::vector<int> *result)
     {
         BSLS_ASSERT(result);
-  
-        const int size = (int) d_deque.size();
+
+        const int size = static_cast<int>(d_deque.size());
         result->resize(size);
         int *begin = result->begin();
         for (int index = 0; index < size; ++index) {
@@ -206,7 +207,7 @@ int veryVerbose;
 // Then, in our function 'example2Function', we make use of our class to create
 // and exercise a 'MyThreadSafeQueue' object:
 //..
-    void exampleFunction(bsl::ostream& stream)
+    void testThreadSafeQueue(bsl::ostream& stream)
     {
         MyThreadSafeQueue queue;
 //..
@@ -214,13 +215,13 @@ int veryVerbose;
 //..
         const int rawData[] = { 17, 3, 21, -19, 4, 87, 29, 3, 101, 31, 36 };
         enum { RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
-  
+
         queue.pushRange(rawData + 0, rawData + RAW_DATA_LENGTH);
 //..
 // Then, we pop a few items off the front of the queue and verify their values:
 //..
         int value = -1;
-  
+
         ASSERT(0 == queue.pop(&value));    ASSERT(17 == value);
         ASSERT(0 == queue.pop(&value));    ASSERT( 3 == value);
         ASSERT(0 == queue.pop(&value));    ASSERT(21 == value);
@@ -230,7 +231,7 @@ int veryVerbose;
 //..
         bsl::vector<int> v;
         queue.popAll(&v);
-  
+
         stream << "Remaining raw numbers: ";
         for (bsl::size_t ti = 0; ti < v.size(); ++ti) {
             stream << (ti ? ", " : "") << v[ti];
@@ -238,15 +239,17 @@ int veryVerbose;
         stream << bsl::endl;
     }
 //..
-// Then, we build in non-safe mode and run.  Since the test case is being run
-// in a single thread and our check is disabled, the bug where the mutex was
-// not acquired does not manifest itself in a visible error and we observe the
-// seemingly correct output:
+// Then, we build in non-safe mode and run:
 //..
 //  Remaining raw numbers: -19, 4, 87, 29, 3, 101, 31, 36
 //..
-// Now, we build in safe mode, which enables our check, run the program, which
-// calls 'example2Function', and observe that when we call 'popAll', the
+// Notice that, since the test case is being run in a single thread and our
+// check is disabled, the bug where the mutex was not acquired does not
+// manifest itself in a visible error, and we observe the seemingly correct
+// output.
+//
+// Now, we build in safe mode (which enables our check), run the program (which
+// calls 'example2Function'), and observe that, when we call 'popAll', the
 // 'BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex)' macro issues an error message
 // and aborts:
 //..
@@ -255,11 +258,12 @@ int veryVerbose;
 //  4-2.6.18-gcc-4.6.1/bcemt_mutexassertislocked.t.cpp, line 137
 //  Aborted (core dumped)
 //..
-// Finally, we see that the message printed above and a call to 'abort' are the
-// result of a call to 'bsls::Assert::invokeHandler', which in this case was
-// configured (by default) to call 'bsls::Assert::failAbort'.  Other handlers
-// may produce different results, but in all cases should prevent the program
-// from proceeding normally.
+// Finally, note that the message printed above and the subsequent aborting of
+// the program were the result of a call to 'bsls::Assert::invokeHandler',
+// which in this case was configured (by default) to call
+// 'bsls::Assert::failAbort'.  Other handlers may be installed that produce
+// different results, but in all cases should prevent the program from
+// proceeding normally.
 
                                 // ------
                                 // case 3
@@ -361,7 +365,7 @@ int main(int argc, char *argv[])
         //: 1 That the usage example compiles and functions as expected.
         //
         // Plan:
-        //: o Call 'exampleFunction', which implements and runs the usage
+        //: o Call 'testThreadSafeQueue', which implements and runs the usage
         //:   example, but don't call it in safe assert mode unless
         //:   'veryVerbose' is selected, since it will abort in that mode.
         // --------------------------------------------------------------------
@@ -377,7 +381,7 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        exampleFunction(cout);
+        testThreadSafeQueue(cout);
       } break;
       case 3: {
         // --------------------------------------------------------------------
