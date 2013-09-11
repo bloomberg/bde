@@ -7,8 +7,10 @@
 
 #include <bsls_atomic.h>
 
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_vector.h>
 
 #include <bces_atomictypes.h>
 
@@ -53,6 +55,211 @@ static void aSsErT(int c, const char *s, int i)
 
 int verbose;
 int veryVerbose;
+
+                            // -------------
+                            // Usage Example
+                            // -------------
+
+// Sometimes multithreaded code is written such that the author of a function
+// requires that a caller has already acquired a mutex.  The
+// 'BCEMT_MUTEX_ASSERT*_IS_LOCKED' family of assertions allows the programmers
+// to verify, using defensive programming techniques, that the mutex in
+// question is indeed locked.
+//
+// Suppose we have a fully thread-safe queue that contains 'int' values, and is
+// guarded by an internal mutex.  We can use
+// 'BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED' to ensure (in appropriate build modes)
+// that proper internal locking of the mutex is taking place.
+//
+// First, we define the container:
+//..
+    class MyThreadSafeQueue {
+        // This 'class' provides a fully *thread-safe* unidirectional queue of
+        // 'int' values.  See {'bsls_glossary'|Fully Thread-Safe}.  All public
+        // manipulators operate as single, atomic actions.
+  
+        // DATA
+        bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
+                                         // standard container
+  
+        mutable bcemt_Mutex  d_mutex;    // mutex to provide thread safety
+  
+        // PRIVATE MANIPULATOR
+        int popImp(int *result);
+            // Assign the value at the front of the queue to the specified
+            // '*result', and remove the value at the front of the queue;
+            // return 0 if the queue was not initially empty, and a non-zero
+            // value (with no effect) otherwise.  The behavior is undefined
+            // unless 'd_mutex' is locked.
+  
+      public:
+        // CREATORS
+        MyThreadSafeQueue();
+            // Create a 'MyThreadSafeQueue' object using the default
+            // allocator.
+  
+        // MANIPULATORS
+        int pop(int *result);
+            // Assign the value at the front of the queue to the specified
+            // '*result', and remove the value at the front of the queue;
+            // return 0 if the queue was not initially empty, and a non-zero
+            // value (with no effect) otherwise.
+  
+        void popAll(bsl::vector<int> *result);
+            // Assign the values of all the elements from this queue, in order,
+            // to the specified '*result', and remove them from this queue.
+            // Any previous contents of '*result' are discarded.  Note that, as
+            // with the other public manipulators, this entire operation occurs
+            // as a single, atomic action.
+  
+        void push(int value);
+            // ...
+  
+        template <class INPUT_ITER>
+        void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
+            // ...
+    };
+//..
+// Notice that our public manipulators have two forms: push/pop a single
+// element, and push/pop a collection of elements.  Popping even a single
+// element is non-trivial, so we factor this operation into a non-*thread-safe*
+// private manipulator that performs the pop, and is used in both public 'pop'
+// methods.  This private manipulator requires that the mutex be locked, but
+// cannot lock the mutex itself, since the correctness of 'popAll' demands that
+// all of the pops be collectively performed using a single mutex
+// lock/unlock.
+//
+// Then, we define the private manipulator:
+//..
+    // PRIVATE MANIPULATOR
+    int MyThreadSafeQueue::popImp(int *result)
+    {
+        BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex);
+  
+        if (d_deque.empty()) {
+            return -1;                                                // RETURN
+        }
+        else {
+            *result = d_deque.front();
+            d_deque.pop_front();
+            return 0;                                                 // RETURN
+        }
+    }
+//..
+// Notice that, as a precondition check, the private manipulator checks that
+// the mutex has been acquired using one of the 'BCEMT_MUTEX_ASSERT*_IS_LOCKED'
+// macros.  We use the '...ASSERT_SAFE...' version of the macro so that the
+// check, which on some platforms is as expensive as locking the mutex, is not
+// performed except in a safe build mode.
+//
+// Next, we define the constructors, then the public manipulators, all of which
+// must acquire a lock on the mutex.  Note that there is a bug in 'popAll':
+//..
+    // CREATORS
+    MyThreadSafeQueue::MyThreadSafeQueue()
+    : d_deque()
+    , d_mutex()
+    {}
+
+    // MANIPULATORS
+    int MyThreadSafeQueue::pop(int *result)
+    {
+        BSLS_ASSERT(result);
+  
+        d_mutex.lock();
+        int rc = popImp(result);
+        d_mutex.unlock();
+        return rc;
+    }
+  
+    void MyThreadSafeQueue::popAll(bsl::vector<int> *result)
+    {
+        BSLS_ASSERT(result);
+  
+        const int size = (int) d_deque.size();
+        result->resize(size);
+        int *begin = result->begin();
+        for (int index = 0; index < size; ++index) {
+            int rc = popImp(&begin[index]);
+            BSLS_ASSERT(0 == rc);
+        }
+    }
+
+    void MyThreadSafeQueue::push(int value)
+    {
+        d_mutex.lock();
+        d_deque.push_back(value);
+        d_mutex.unlock();
+    }
+
+    template <class INPUT_ITER>
+    void MyThreadSafeQueue::pushRange(const INPUT_ITER& first,
+                                      const INPUT_ITER& last)
+    {
+        d_mutex.lock();
+        d_deque.insert(d_deque.begin(), first, last);
+        d_mutex.unlock();
+    }
+//..
+// Notice that, in 'popAll', we forgot to lock/unlock the mutex!
+//
+// Then, in our function 'example2Function', we make use of our class to create
+// and exercise a 'MyThreadSafeQueue' object:
+//..
+    void exampleFunction(bsl::ostream& stream)
+    {
+        MyThreadSafeQueue queue;
+//..
+// Next, we populate the queue using 'pushRange':
+//..
+        const int rawData[] = { 17, 3, 21, -19, 4, 87, 29, 3, 101, 31, 36 };
+        enum { RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
+  
+        queue.pushRange(rawData + 0, rawData + RAW_DATA_LENGTH);
+//..
+// Then, we pop a few items off the front of the queue and verify their values:
+//..
+        int value = -1;
+  
+        ASSERT(0 == queue.pop(&value));    ASSERT(17 == value);
+        ASSERT(0 == queue.pop(&value));    ASSERT( 3 == value);
+        ASSERT(0 == queue.pop(&value));    ASSERT(21 == value);
+//..
+// Next, we attempt to empty the queue with 'popAll', which, if built in safe
+// mode, would fail because it neglects to lock the mutex:
+//..
+        bsl::vector<int> v;
+        queue.popAll(&v);
+  
+        stream << "Remaining raw numbers: ";
+        for (bsl::size_t ti = 0; ti < v.size(); ++ti) {
+            stream << (ti ? ", " : "") << v[ti];
+        }
+        stream << bsl::endl;
+    }
+//..
+// Then, we build in non-safe mode and run.  Since the test case is being run
+// in a single thread and our check is disabled, the bug where the mutex was
+// not acquired does not manifest itself in a visible error and we observe the
+// seemingly correct output:
+//..
+//  Remaining raw numbers: -19, 4, 87, 29, 3, 101, 31, 36
+//..
+// Now, we build in safe mode, which enables our check, run the program, which
+// calls 'example2Function', and observe that when we call 'popAll', the
+// 'BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex)' macro issues an error message
+// and aborts:
+//..
+//  Assertion failed: BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex), file /bb/big
+//  storn/dev_framework/bchapman/git/bde-core/groups/bce/bcemt/unix-Linux-x86_6
+//  4-2.6.18-gcc-4.6.1/bcemt_mutexassertislocked.t.cpp, line 137
+//  Aborted (core dumped)
+//..
+// Finally, we see that the message printed above and a call to 'abort' are the
+// result of a call to 'bsls::Assert::invokeHandler', which in this case was
+// configured (by default) to call 'bsls::Assert::failAbort'.  Other handlers
+// may produce different results, but in all cases should prevent the program
+// from proceeding normally.
 
                                 // ------
                                 // case 3
@@ -146,6 +353,32 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 That the usage example compiles and functions as expected.
+        //
+        // Plan:
+        //: o Call 'exampleFunction', which implements and runs the usage
+        //:   example, but don't call it in safe assert mode unless
+        //:   'veryVerbose' is selected, since it will abort in that mode.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+        if (!veryVerbose) {
+            cout << "Usage example not run in safe mode unless 'veryVerbose'"
+                    " is set since it will abort\n";
+            break;
+        }
+#endif
+
+        exampleFunction(cout);
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING ON LOCK HELD BY ANOTHER THREAD
