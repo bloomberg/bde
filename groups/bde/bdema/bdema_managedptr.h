@@ -1478,8 +1478,13 @@ bdema_ManagedPtr<TARGET_TYPE>::operator
     BSLMF_ASSERT((bslmf::IsConvertible<TARGET_TYPE *,
                                        REFERENCED_TYPE *>::VALUE));
 
-    return bslma::ManagedPtr<TARGET_TYPE>::operator
+#if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_MSVC)
+    typedef bslma::ManagedPtr_Ref<REFERENCED_TYPE> ResultType;
+    return bslma::ManagedPtr<TARGET_TYPE>::operator ResultType();
+#else
+    return bslma::ManagedPtr<TARGET_TYPE>::operator template
                                       bslma::ManagedPtr_Ref<REFERENCED_TYPE>();
+#endif
 }
 
                       // --------------------------------
