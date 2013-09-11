@@ -225,17 +225,26 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
+// Sun Studio comilers have non-standard iterator behavior requiring iterators
+// to inherit from 'iterator' (rather than simply meeting the needs of
+// 'std::iterator_traits').  In addition, Sun Studio requires the 'value_type'
+// of the iterator to be instantiable (i.e., not 'void' as permitted by the
+// C++ standard).
+#define BDEUT_SUNITERATORWORKAROUND \
+     : public bsl::iterator<bsl::output_iterator_tag, void *, void, void, void>
+#else
+#define BDEUT_SUNITERATORWORKAROUND 
+#endif
+                                                            
+
                      // ==================================
                      // class bdeut_FunctionOutputIterator
                      // ==================================
 
 template <class FUNCTION>
-class bdeut_FunctionOutputIterator
-    : public bsl::iterator<bsl::output_iterator_tag,
-                           void,
-                           void,
-                           void,
-                           void> {
+class bdeut_FunctionOutputIterator BDEUT_SUNITERATORWORKAROUND {
     // Provide an output iterator that calls an object of the (template
     // parameter) type 'FUNCTION'.  If 'FUNCTION' is a functor, dereferencing
     // this iterator and assigning to the result (of dereferencing) will call
@@ -275,6 +284,15 @@ class bdeut_FunctionOutputIterator
                          // assigned to dereferenced instance of this class
 
   public:
+    // PUBLIC
+    typedef bsl::output_iterator_tag iterator_category;
+    typedef void                     difference_type;
+    typedef void                     value_type;
+    typedef void                     reference;
+    typedef void                     pointer;
+        // Provide type aliases required by C++ standard 'iterator_traits'.
+
+
     // CREATORS
     bdeut_FunctionOutputIterator();
         // Create 'bdeut_FunctionOutputIterator' object that, when an
