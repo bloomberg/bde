@@ -93,10 +93,7 @@ int veryVerbose;
             // unless 'd_mutex' is locked.
 
       public:
-        // CREATORS
-        MyThreadSafeQueue();
-            // Create a 'MyThreadSafeQueue' object using the default
-            // allocator.
+        // ...
 
         // MANIPULATORS
         int pop(int *result);
@@ -152,16 +149,9 @@ int veryVerbose;
 // version of the macro so that the check, which on some platforms is as
 // expensive as locking the mutex, is performed only in the safe build mode.
 //
-// Next, we define the constructors (elided), followed by the public
-// manipulators; each manipulator must acquire a lock on the mutex (note that
-// there is a bug in 'popAll'):
+// Next, we define the public manipulators; all of which must acquire a lock on
+// the mutex (note that there is a bug in 'popAll'):
 //..
-    // CREATORS
-    MyThreadSafeQueue::MyThreadSafeQueue()
-    : d_deque()
-    , d_mutex()
-    {}
-
     // MANIPULATORS
     int MyThreadSafeQueue::pop(int *result)
     {
