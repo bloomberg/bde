@@ -256,18 +256,18 @@ struct bdesu_FileUtil {
         // Open the file at the specified 'path' for writing if the specified
         // 'writableFlag' is 'true', and for reading otherwise.  If the
         // specified 'existFlag' is 'true', succeed only if the file exists;
-        // otherwise, succeed only if it does not exist (in which case create
-        // it).  Optionally, if 'writableFlag' is 'true', specify 'appendFlag'
-        // to indicate whether the file should be opened in append mode.
-        // 'appendFlag' has no effect if 'writableFlag' is false.  Return a
-        // valid 'FileDescriptor' for the file on success, or 'INVALID_FD'
-        // otherwise.  Note that two calls are necessary to open a file which
-        // may or may not exist.  Also note that if 'writableFlag' and
-        // 'existFlag' are both 'false', this function will necessarily fail.
-        // Also note that when a file is opened in 'append' mode, all writes
-        // will go to the end of the file, even if there has been seeking on
-        // the file descriptor or another process has changed the length of
-        // the file, though append-mode writes are not guaranteed to be atomic.
+        // otherwise, open the file unconditionally (creating the file if it
+        // does not already exist).  Optionally, if 'writableFlag' is 'true',
+        // specify 'appendFlag' to indicate whether the file should be opened
+        // in append mode.  'appendFlag' has no effect if 'writableFlag' is
+        // false.  Return a valid 'FileDescriptor' for the file on success, or
+        // 'INVALID_FD' otherwise.  Note that if 'writableFlag' and 'existFlag'
+        // are both 'false', and the file does not already exist, 'open' will
+        // create an empty file.  Also note that when a file is opened in
+        // 'append' mode, all writes will go to the end of the file, even if
+        // there has been seeking on the file descriptor or another process has
+        // changed the length of the file, though append-mode writes are not
+        // guaranteed to be atomic.
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
