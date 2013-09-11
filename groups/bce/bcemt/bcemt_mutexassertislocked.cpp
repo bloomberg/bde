@@ -18,10 +18,10 @@ BDES_IDENT_RCSID(bcemt_mutex_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-void bcemt_MutexAssertIsLocked::assertIsLockedImpl(bcemt_Mutex *mutex,
-                                                   const char  *text,
-                                                   const char  *file,
-                                                   int          line)
+void bcemt_MutexAssertIsLocked_Imp::assertIsLockedImpl(bcemt_Mutex *mutex,
+                                                       const char  *text,
+                                                       const char  *file,
+                                                       int          line)
 {
 #if   defined(BCES_PLATFORM_POSIX_THREADS)
 

@@ -17,6 +17,18 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+//=============================================================================
+//                             TEST PLAN
+//-----------------------------------------------------------------------------
+//                              OVERVIEW
+// [4] Usage Example
+// [3] Mutex locked by other thread
+// [2] Testing locked mutexes
+// [2] Testing unlocked mutexes
+//-----------------------------------------------------------------------------
+// [1] Breathing test
+//-----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -259,31 +271,18 @@ int veryVerbose;
                                 // case 3
                                 // ------
 
-namespace TEST_CASE_3 {
+struct TestCase3SubThread {
+    bcemt_Mutex     *d_mutexToAssertOn;
+    bcemt_Mutex     *d_mutexThatMainThreadWillUnlock;
+    bsls::AtomicInt *d_subthreadWillIncrementValue;
 
-bcemt_Mutex lockedBySubThread;
-bcemt_Mutex lockedByMainThread;
-
-bsls::AtomicInt state;
-
-}  // close namespace TEST_CASE_3
-
-extern "C"
-void *testCase3SubThread(void *)
-{
-    using namespace TEST_CASE_3;
-
-    lockedBySubThread.lock();
-    ++state;
-    lockedByMainThread.lock();
-
-    // Clean up the locks on the mutexes
-
-    lockedByMainThread.unlock();
-    lockedBySubThread.unlock();
-
-    return 0;
-}
+    void operator()()
+    {
+        d_mutexToAssertOn->lock();
+        ++*d_subthreadWillIncrementValue;
+        d_mutexThatMainThreadWillUnlock->lock();
+    }
+};
 
                                 // ------
                                 // case 2
@@ -391,32 +390,49 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING LOCK HELD BY OTHER THREAD\n"
                              "=================================\n";
 
-        TEST_CASE_3::state = 0;
-        TEST_CASE_3::lockedByMainThread.lock();
+        bcemt_Mutex     mutexToAssertOn;
+        bcemt_Mutex     mutexThatMainThreadWillUnlock;
+        bsls::AtomicInt subthreadWillIncrementValue;
+
+        subthreadWillIncrementValue = 0;
+        mutexThatMainThreadWillUnlock.lock();
+
+        TestCase3SubThread functor;
+        functor.d_mutexToAssertOn = &mutexToAssertOn;
+        functor.d_mutexThatMainThreadWillUnlock =
+                                        &mutexThatMainThreadWillUnlock;
+        functor.d_subthreadWillIncrementValue = &subthreadWillIncrementValue;
 
         bcemt_ThreadUtil::Handle handle;
-        int sts = bcemt_ThreadUtil::create(&handle,
-                                           &testCase3SubThread,
-                                           0);
+        int sts = bcemt_ThreadUtil::create(&handle, functor);
         ASSERT(0 == sts);
 
         bcemt_ThreadUtil::microSleep(10 * 1000);
 
-        while (0 == TEST_CASE_3::state) {
+        while (0 == subthreadWillIncrementValue) {
             ; // do nothing
         }
 
         // The subthread has locked the mutex.  Now observe that none of these
         // macros blow up.
 
-        BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&TEST_CASE_3::lockedBySubThread);
-        BCEMT_MUTEX_ASSERT_IS_LOCKED(     &TEST_CASE_3::lockedBySubThread);
-        BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED( &TEST_CASE_3::lockedBySubThread);
+        BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&mutexToAssertOn);
+        BCEMT_MUTEX_ASSERT_IS_LOCKED(     &mutexToAssertOn);
+        BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED( &mutexToAssertOn);
 
-        TEST_CASE_3::lockedByMainThread.unlock();    // let subthread finish
+        // The subthread is blocked waiting for us to unlock
+        // 'mutexThatMainThreadWillUnlock'.  Unlock it so the subthread can
+        // finish and join the sub thread.
 
+        mutexThatMainThreadWillUnlock.unlock();
         sts = bcemt_ThreadUtil::join(handle);
         ASSERT(0 == sts);
+
+        // Both mutexes are locked, unlock them so they won't assert when
+        // destroyed.
+
+        mutexToAssertOn.              unlock();
+        mutexThatMainThreadWillUnlock.unlock();
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -429,9 +445,9 @@ int main(int argc, char *argv[])
         //:   called.  This test is only run when exceptions are enabled.
         //
         //: Plan:
-        //: 1 C-1 with the mutex locked and the assert handler set to
+        //: 1 With the mutex locked and the assert handler set to
         //:   'bsls::failAbort' (the default), call all three '*_IS_LOCKED'
-        //:   asserts and verify that they don't fail.
+        //:   asserts and verify that they don't fail (C-1).
         //: 2 Only if exceptions are enabled, unlock the mutex and set the
         //:   assert handler to 'TEST_CASE_2::myHandler' then call all 3
         //:   macros in try-catch blocks.  Expect throws depending on the
@@ -442,83 +458,89 @@ int main(int argc, char *argv[])
                              "=====================================\n";
 
         bcemt_Mutex mutex;
-
         mutex.lock();
 
-        BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&mutex);
-        BCEMT_MUTEX_ASSERT_IS_LOCKED(&mutex);
-        BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED(&mutex);
+        if (veryVerbose) cout << "Plan 1: testing with mutex locked\n";
+        {
 
-        mutex.unlock();
+            BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&mutex);
+            BCEMT_MUTEX_ASSERT_IS_LOCKED(&mutex);
+            BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED(&mutex);
+        }
+
+        if (veryVerbose) cout << "Plan 2: testing with mutex unlocked\n";
+        {
+            mutex.unlock();
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-        bsls::Assert::setFailureHandler(&TEST_CASE_2::myHandler);
+            bsls::Assert::setFailureHandler(&TEST_CASE_2::myHandler);
 
-        bool expectThrow;
+            bool expectThrow;
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-        expectThrow = true;
+            expectThrow = true;
 #else
-        expectThrow = false;
+            expectThrow = false;
 #endif
 
-        try {
-            TEST_CASE_2::mode = TEST_CASE_2::SAFE_MODE;
-            TEST_CASE_2::expectedLine = __LINE__ + 1;
-            BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&mutex);
-            ASSERT(!expectThrow);
+            try {
+                TEST_CASE_2::mode = TEST_CASE_2::SAFE_MODE;
+                TEST_CASE_2::expectedLine = __LINE__ + 1;
+                BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&mutex);
+                ASSERT(!expectThrow);
 
-            if (veryVerbose) cout << "Didn't throw SAFE\n";
-        } catch (int thrown) {
-            ASSERT(5 == thrown);
-            ASSERT(expectThrow);
+                if (veryVerbose) cout << "Didn't throw SAFE\n";
+            } catch (int thrown) {
+                ASSERT(5 == thrown);
+                ASSERT(expectThrow);
 
-            if (veryVerbose) cout << "Threw SAFE\n";
-        }
+                if (veryVerbose) cout << "Threw SAFE\n";
+            }
 
 #ifdef BSLS_ASSERT_IS_ACTIVE
-        expectThrow = true;
+            expectThrow = true;
 #else
-        expectThrow = false;
+            expectThrow = false;
 #endif
 
-        try {
-            TEST_CASE_2::mode = TEST_CASE_2::NORMAL_MODE;
-            TEST_CASE_2::expectedLine = __LINE__ + 1;
-            BCEMT_MUTEX_ASSERT_IS_LOCKED(&mutex);
-            ASSERT(!expectThrow);
+            try {
+                TEST_CASE_2::mode = TEST_CASE_2::NORMAL_MODE;
+                TEST_CASE_2::expectedLine = __LINE__ + 1;
+                BCEMT_MUTEX_ASSERT_IS_LOCKED(&mutex);
+                ASSERT(!expectThrow);
 
-            if (veryVerbose) cout << "Didn't throw\n";
-        } catch (int thrown) {
-            ASSERT(5 == thrown);
-            ASSERT(expectThrow);
+                if (veryVerbose) cout << "Didn't throw\n";
+            } catch (int thrown) {
+                ASSERT(5 == thrown);
+                ASSERT(expectThrow);
 
-            if (veryVerbose) cout << "Threw\n";
-        }
+                if (veryVerbose) cout << "Threw\n";
+            }
 
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-        expectThrow = true;
+            expectThrow = true;
 #else
-        expectThrow = false;
+            expectThrow = false;
 #endif
 
-        try {
-            TEST_CASE_2::mode = TEST_CASE_2::OPT_MODE;
-            TEST_CASE_2::expectedLine = __LINE__ + 1;
-            BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED(&mutex);
-            ASSERT(!expectThrow);
+            try {
+                TEST_CASE_2::mode = TEST_CASE_2::OPT_MODE;
+                TEST_CASE_2::expectedLine = __LINE__ + 1;
+                BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED(&mutex);
+                ASSERT(!expectThrow);
 
-            if (veryVerbose) cout << "Didn't throw OPT\n";
-        } catch (int thrown) {
-            ASSERT(5 == thrown);
-            ASSERT(expectThrow);
+                if (veryVerbose) cout << "Didn't throw OPT\n";
+            } catch (int thrown) {
+                ASSERT(5 == thrown);
+                ASSERT(expectThrow);
 
-            if (veryVerbose) cout << "Threw OPT\n";
+                if (veryVerbose) cout << "Threw OPT\n";
+            }
+
+            bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+#endif
         }
-
-        bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
-#endif
       } break;
       case 1: {
         // ------------------------------------------------------------------
