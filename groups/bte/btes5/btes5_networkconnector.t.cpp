@@ -5,6 +5,7 @@
 
 #include <bcec_fixedqueue.h>
 #include <bcema_testallocator.h>            // thread-safe allocator
+#include <bcemt_threadutil.h>               // for sleep
 #include <bdef_bind.h>
 #include <bdef_placeholder.h>
 #include <bsl_iostream.h>
@@ -442,12 +443,15 @@ int main(int argc, char *argv[])
         //  Test concurrency through overlapping conection attempts.
         //
         // Concerns:
-        //: 1 Two connections can be established concurrency.
+        //: 1 Two connections can be established concurrently, using different
+        //:   connectors and different proxies.
         //
         // Plan:
-        //: 1 Using an array-driven method, for each combination of delays:
-        //:   1 Construct 2 test proxies with delayed responses.
-        //:   2 Check for successful connection using the two connectors.
+        //: 1 Using a table-driven method:
+        //:   1 Start two test proxies with a given response-delay
+        //:   1 Construct and start a 'btes5_NetworkConnector' using one proxy
+        //:   2 After a delay, start the second connector via the other proxy
+        //:   3 Check for successful connection using the two connectors.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -462,6 +466,7 @@ int main(int argc, char *argv[])
         btes5_TestServerArgs args;  // reused for all servers
         args.d_verbosity = verbosity;
         const btes5_Credentials credentials("gooduser", "goodpass");
+        args.d_expectedCredentials = credentials;
 
         bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
         btemt_TcpTimerEventManager eventManager;
@@ -473,69 +478,107 @@ int main(int argc, char *argv[])
 
         bteso_Endpoint proxy;  // address of just-started proxy server
 
-        static const double DATA[] = { 0.001, 0.004, 0.016, 0.064 };
+        const bdet_TimeInterval proxyTimeout(2.0);
+        const bdet_TimeInterval totalTimeout(5.0);
+
+        static const struct {
+            int    d_line;                // source line number
+            double d_proxy1DelaySeconds;  // delay before every response
+            double d_proxy2DelaySeconds;  // delay before every response
+            double d_lagSeconds;          // delay before starting attempt
+        } DATA[] = {
+        //LINE DELAY1  DELAY2    LAG
+        //--   ------  ------  -----
+        { L_,   0.000,  0.000, 0.000 },  // baseline: no delay
+
+        { L_,   0.000,  0.000, 0.000 },  // simultaneous start with delays
+        { L_,   0.010,  0.000, 0.000 },
+        { L_,   0.010,  0.010, 0.000 },
+        { L_,   0.040,  0.010, 0.000 },
+        { L_,   0.040,  0.040, 0.000 },
+        { L_,   0.010,  0.040, 0.000 },
+        { L_,   0.000,  0.040, 0.000 },
+
+        { L_,   0.000,  0.000, 0.010 },  // lag 10 mS start with delays
+        { L_,   0.010,  0.000, 0.010 },
+        { L_,   0.010,  0.010, 0.010 },
+        { L_,   0.040,  0.010, 0.010 },
+        { L_,   0.040,  0.040, 0.010 },
+        { L_,   0.010,  0.040, 0.010 },
+        { L_,   0.000,  0.040, 0.010 },
+
+        { L_,   0.000,  0.000, 0.040 },  // lag 40 mS start with delays
+        { L_,   0.010,  0.000, 0.040 },
+        { L_,   0.010,  0.010, 0.040 },
+        { L_,   0.040,  0.010, 0.040 },
+        { L_,   0.040,  0.040, 0.040 },
+        { L_,   0.010,  0.040, 0.040 },
+        { L_,   0.000,  0.040, 0.040 },
+
+        };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         for (int t1 = 0; t1 < NUM_DATA; t1++) {
-            const bdet_TimeInterval DELAY1(DATA[t1]);
+            const int               LINE  (DATA[t1].d_line);
+            const bdet_TimeInterval DELAY1(DATA[t1].d_proxy1DelaySeconds);
+            const bdet_TimeInterval DELAY2(DATA[t1].d_proxy2DelaySeconds);
+            const bdet_TimeInterval LAG   (DATA[t1].d_lagSeconds);
 
-            for (int t2 = 0; t2 < NUM_DATA; t2++) {
-                const bdet_TimeInterval DELAY2(DATA[t2]);
-                if (veryVeryVerbose) { T_ P_(DELAY1) P(DELAY2) }
+            if (veryVeryVerbose) { T_ P_(LINE) P_(DELAY1) P_(DELAY2) P(LAG) }
 
-                using namespace bdef_PlaceHolders;
+            using namespace bdef_PlaceHolders;
 
-                args.d_delay = DELAY1;
-                args.d_label = "proxy1";
-                btes5_TestServer proxy1(&proxy, &args);
-                btes5_NetworkDescription proxies1;
-                proxies1.addProxy(0, proxy, credentials);
-                btes5_NetworkConnector connector1(proxies1,
-                                                  &factory,
-                                                  &eventManager);
+            args.d_delay = DELAY1;
+            args.d_label = "proxy1";
+            btes5_TestServer proxy1(&proxy, &args);
+            btes5_NetworkDescription proxies1;
+            proxies1.addProxy(0, proxy, credentials);
+            btes5_NetworkConnector connector1(proxies1,
+                                              &factory,
+                                              &eventManager);
 
-                bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus>
-                    queue1(1);
-                btes5_NetworkConnector::ConnectionStatus status1;
-                btes5_NetworkConnector::ConnectionStateCallback
-                    cb1 = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
-                                             &queue1);
-                btes5_NetworkConnector::AttemptHandle attempt1
-                  = connector1.makeAttemptHandle(cb1,
-                                                 bdet_TimeInterval(2), // proxy
-                                                 bdet_TimeInterval(5), // total
-                                                 destination);
-                connector1.startAttempt(attempt1);
+            bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus>
+                queue1(1);
+            btes5_NetworkConnector::ConnectionStatus status1;
+            btes5_NetworkConnector::ConnectionStateCallback
+                cb1 = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
+                                         &queue1);
+            btes5_NetworkConnector::AttemptHandle attempt1
+              = connector1.makeAttemptHandle(cb1,
+                                             proxyTimeout,
+                                             totalTimeout,
+                                             destination);
+            connector1.startAttempt(attempt1);
 
-                args.d_delay = DELAY2;
-                args.d_label = "proxy2";
-                btes5_TestServer proxy2(&proxy, &args);
-                btes5_NetworkDescription proxies2;
-                proxies2.addProxy(0, proxy, credentials);
-                btes5_NetworkConnector connector2(proxies2,
-                                                  &factory,
-                                                  &eventManager);
-                bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus>
-                    queue2(1);
-                btes5_NetworkConnector::ConnectionStatus status2;
-                btes5_NetworkConnector::ConnectionStateCallback
-                    cb2 = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
-                                              &queue2);
-                btes5_NetworkConnector::AttemptHandle attempt2
-                  = connector2.makeAttemptHandle(cb2,
-                                                 bdet_TimeInterval(2), // proxy
-                                                 bdet_TimeInterval(5), // total
-                                                 destination);
-                connector2.startAttempt(attempt2);
+            args.d_delay = DELAY2;
+            args.d_label = "proxy2";
+            btes5_TestServer proxy2(&proxy, &args);
+            btes5_NetworkDescription proxies2;
+            proxies2.addProxy(0, proxy, credentials);
+            btes5_NetworkConnector connector2(proxies2,
+                                              &factory,
+                                              &eventManager);
+            bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus>
+                queue2(1);
+            btes5_NetworkConnector::ConnectionStatus status2;
+            btes5_NetworkConnector::ConnectionStateCallback
+                cb2 = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
+                                          &queue2);
+            btes5_NetworkConnector::AttemptHandle attempt2
+              = connector2.makeAttemptHandle(cb2,
+                                             proxyTimeout,
+                                             totalTimeout,
+                                             destination);
+            bcemt_ThreadUtil::sleep(LAG);
+            connector2.startAttempt(attempt2);
 
-                // wait for connection results and check for success
+            // wait for connection results and check for success
 
-                queue1.popFront(&status1);
-                LOOP3_ASSERT(DELAY1, DELAY2, status1,
-                            btes5_NetworkConnector::e_SUCCESS == status1);
-                queue2.popFront(&status2);
-                LOOP3_ASSERT(DELAY1, DELAY2, status2,
-                            btes5_NetworkConnector::e_SUCCESS == status2);
-            }
+            queue1.popFront(&status1);
+            LOOP2_ASSERT(LINE, status1,
+                         btes5_NetworkConnector::e_SUCCESS == status1);
+            queue2.popFront(&status2);
+            LOOP2_ASSERT(LINE, status2,
+                         btes5_NetworkConnector::e_SUCCESS == status2);
         }
       } break;
 
