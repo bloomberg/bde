@@ -4,6 +4,7 @@
 #include <btes5_testserver.h> // for testing only
 
 #include <bcec_fixedqueue.h>
+#include <bcema_testallocator.h>            // thread-safe allocator
 #include <bdef_bind.h>
 #include <bdef_placeholder.h>
 #include <bsl_iostream.h>
@@ -13,8 +14,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsl_sstream.h>
-#include <btemt_session.h> // for testing only
-#include <btemt_sessionpool.h> // for testing only
+#include <btemt_session.h>                  // for testing only
+#include <btemt_sessionpool.h>              // for testing only
 #include <bteso_inetstreamsocketfactory.h>
 
 using namespace BloombergLP;
@@ -43,22 +44,22 @@ using namespace bsl;
 // [ ] void cancelAttempt(AttemptHandle& connectionAttempt);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [5] USAGE EXAMPLE
+// [7] USAGE EXAMPLE
 // [2] CONCERN: All memory allocation is from the object's allocator.
 // [3] CONCERN: Timeout when the proxy doesn't respond.
 // [3] CONCERN: Failover to second proxy after the first proxy timeout.
 // [4] CONCERN: Failover to second proxy after the first proxy failure.
 // [ ] CONCERN: Failover to second proxy after the first proxy doesn't exist.
-// [ ] CONCERN: Failure when the only proxy can't be resolved.
+// [5] CONCERN: Failure when the only proxy can't be resolved.
 // [ ] CONCERN: Failure when the only proxy fails (destination unreachable).
-// [5] CONCERN: Normal connection with proxy and destination as hostname.
+// [7] CONCERN: Normal connection with proxy and destination as hostname.
 // [ ] CONCERN: Normal connection with proxy as IP and destination as hostname.
 // [ ] CONCERN: Normal connection with proxy and destination as IP.
 // [ ] CONCERN: Two overlapping connection attempts.
 // [3] CONCERN: Total timeout before proxy timeout.
-// [5] CONCERN: Connection with 2 levels.
+// [4] CONCERN: Connection with 2 levels.
 // [4] CONCERN: Two proxy levels, one proxy in each level failing.
-// [ ] CONCERN: Connection with 3 levels.
+// [4] CONCERN: Connection with 3 levels.
 // [ ] CONCERN: Connection with 3 levels, with 2 proxies in each level failing.
 // [ ] CONCERN: Cancelling a connection attempt.
 // [4] CONCERN: Connect with construction-time username/password.
@@ -374,7 +375,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 5: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -435,14 +436,168 @@ int main(int argc, char *argv[])
             ASSERT(connectThroughProxies(proxy, proxy) > 0);
         }
       } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // OVERLAPPED CONNECTIONS
+        //  Test concurrency through overlapping conection attempts.
+        //
+        // Concerns:
+        //: 1 Two connections can be established concurrency.
+        //
+        // Plan:
+        //: 1 Using an array-driven method, for each combination of delays:
+        //:   1 Construct 2 test proxies with delayed responses.
+        //:   2 Check for successful connection using the two connectors.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "OVERLAPPED CONNECTIONS" << endl
+                          << "======================" << endl;
+
+        bcema_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+        bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+        btes5_TestServerArgs args;  // reused for all servers
+        args.d_verbosity = verbosity;
+        const btes5_Credentials credentials("gooduser", "goodpass");
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        btemt_TcpTimerEventManager eventManager;
+        eventManager.enable();
+
+        bteso_Endpoint destination;
+        args.d_label = "destination";
+        btes5_TestServer destinationServer(&destination, &args);
+
+        bteso_Endpoint proxy;  // address of just-started proxy server
+
+        static const double DATA[] = { 0.001, 0.004, 0.016, 0.064 };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        for (int t1 = 0; t1 < NUM_DATA; t1++) {
+            const bdet_TimeInterval DELAY1(DATA[t1]);
+
+            for (int t2 = 0; t2 < NUM_DATA; t2++) {
+                const bdet_TimeInterval DELAY2(DATA[t2]);
+                if (veryVeryVerbose) { T_ P_(DELAY1) P(DELAY2) }
+
+                using namespace bdef_PlaceHolders;
+
+                args.d_delay = DELAY1;
+                args.d_label = "proxy1";
+                btes5_TestServer proxy1(&proxy, &args);
+                btes5_NetworkDescription proxies1;
+                proxies1.addProxy(0, proxy, credentials);
+                btes5_NetworkConnector connector1(proxies1,
+                                                  &factory,
+                                                  &eventManager);
+
+                bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus>
+                    queue1(1);
+                btes5_NetworkConnector::ConnectionStatus status1;
+                btes5_NetworkConnector::ConnectionStateCallback
+                    cb1 = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
+                                             &queue1);
+                btes5_NetworkConnector::AttemptHandle attempt1
+                  = connector1.makeAttemptHandle(cb1,
+                                                 bdet_TimeInterval(2), // proxy
+                                                 bdet_TimeInterval(5), // total
+                                                 destination);
+                connector1.startAttempt(attempt1);
+
+                args.d_delay = DELAY2;
+                args.d_label = "proxy2";
+                btes5_TestServer proxy2(&proxy, &args);
+                btes5_NetworkDescription proxies2;
+                proxies2.addProxy(0, proxy, credentials);
+                btes5_NetworkConnector connector2(proxies2,
+                                                  &factory,
+                                                  &eventManager);
+                bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus>
+                    queue2(1);
+                btes5_NetworkConnector::ConnectionStatus status2;
+                btes5_NetworkConnector::ConnectionStateCallback
+                    cb2 = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
+                                              &queue2);
+                btes5_NetworkConnector::AttemptHandle attempt2
+                  = connector2.makeAttemptHandle(cb2,
+                                                 bdet_TimeInterval(2), // proxy
+                                                 bdet_TimeInterval(5), // total
+                                                 destination);
+                connector2.startAttempt(attempt2);
+
+                // wait for connection results and check for success
+
+                queue1.popFront(&status1);
+                LOOP3_ASSERT(DELAY1, DELAY2, status1,
+                            btes5_NetworkConnector::e_SUCCESS == status1);
+                queue2.popFront(&status2);
+                LOOP3_ASSERT(DELAY1, DELAY2, status2,
+                            btes5_NetworkConnector::e_SUCCESS == status2);
+            }
+        }
+      } break;
+
+      case 5: {
+        // --------------------------------------------------------------------
+        // UNRESOLVED PROXY
+        //
+        // Concerns:
+        //: 1 Proper timeout processing when a proxy is not resolvable.
+        //
+        // Plan:
+        //: 1 Connect using a bogus proxy and verify error code.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TIMEOUT TEST" << endl
+                          << "============" << endl;
+
+        bteso_Endpoint destination;
+        btes5_TestServerArgs destinationArgs;
+        destinationArgs.d_verbosity = verbosity;
+        destinationArgs.d_label = "destination";
+        btes5_TestServer destinationServer(&destination, &destinationArgs);
+
+        bteso_Endpoint proxy("unresolvable-proxy.bogus-domain.com", 8100);
+        btes5_NetworkDescription proxies;
+        proxies.addProxy(0, proxy);
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        btemt_TcpTimerEventManager eventManager;
+        eventManager.enable();
+
+        bcec_FixedQueue<btes5_NetworkConnector::ConnectionStatus> queue(1);
+        btes5_NetworkConnector::ConnectionStatus status;
+
+        using namespace bdef_PlaceHolders;
+        btes5_NetworkConnector::ConnectionStateCallback
+            cb = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
+        {
+            if (verbose) cout << "\nUnresolvable proxy" << endl;
+            btes5_NetworkConnector connector(proxies, &factory, &eventManager);
+            btes5_NetworkConnector::AttemptHandle attempt
+                = connector.makeAttemptHandle(cb,
+                                              bdet_TimeInterval(1), // proxy
+                                              bdet_TimeInterval(5), // total
+                                              destination);
+            connector.startAttempt(attempt);
+            queue.popFront(&status);
+            LOOP_ASSERT(status, btes5_NetworkConnector::e_ERROR == status);
+        }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // CASCADED PROXIES
-        //  Test of connectivity using 2 levels of proxies.
+        //  Test of connectivity using 2 and 3 levels of proxies.
         //
         // Concerns:
         //: 1 Connections through 2 levels, with a failure in each level.
         //: 2 proper authentication of username and password.
+        //: 3 Connection with 3 levels of proxies.
         //
         // Plan:
         //: 1 Using a 'btes5_TestServer' construct a destination server.
@@ -450,11 +605,13 @@ int main(int argc, char *argv[])
         //:   1 One unresponsive proxy
         //:   2 One proxy with non-matching credentials
         //: 3 Verify successful connection to destination.
+        //: 4 Construct and add a third-level proxy and connect.
         //
         // Testing:
         //   CONCERN: Failover to second proxy after the first proxy failure.
         //   CONCERN: Two proxy levels, one proxy in each level failing.
         //   CONCERN: Connect with construction-time username/password.
+        //   CONCERN: Connection with 3 levels.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -494,7 +651,6 @@ int main(int argc, char *argv[])
         btes5_TestServer proxy11(&proxy, &args);
         proxies.addProxy(1, proxy, credentials);
 
-        if (veryVerbose) { P_(destination) P(proxies) }
 
         bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
         btemt_TcpTimerEventManager eventManager;
@@ -506,15 +662,42 @@ int main(int argc, char *argv[])
         using namespace bdef_PlaceHolders;
         btes5_NetworkConnector::ConnectionStateCallback
             cb = bdef_BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
-        btes5_NetworkConnector connector(proxies, &factory, &eventManager);
-        btes5_NetworkConnector::AttemptHandle attempt
-            = connector.makeAttemptHandle(cb,
-                                          bdet_TimeInterval(1), // proxy
-                                          bdet_TimeInterval(5), // total
-                                          destination);
-        connector.startAttempt(attempt);
-        queue.popFront(&status);
-        LOOP_ASSERT(status, btes5_NetworkConnector::e_SUCCESS == status);
+        {
+            if (veryVerbose) { P_(destination) P(proxies) }
+
+            btes5_NetworkConnector connector(proxies, &factory, &eventManager);
+            btes5_NetworkConnector::AttemptHandle attempt
+                = connector.makeAttemptHandle(cb,
+                                              bdet_TimeInterval(1), // proxy
+                                              bdet_TimeInterval(5), // total
+                                              destination);
+            connector.startAttempt(attempt);
+            queue.popFront(&status);
+            LOOP_ASSERT(status, btes5_NetworkConnector::e_SUCCESS == status);
+        }
+
+        if (verbose) cout << "\nConnect through 3 levels of proxies" << endl;
+
+        args.d_label = "proxy-2.0";
+        args.d_mode = btes5_TestServerArgs::e_CONNECT;
+        args.d_expectedCredentials.set("gooduser", "goodpass");
+        btes5_TestServer proxy20(&proxy, &args);
+        proxies.addProxy(2, proxy, credentials);
+        {
+            if (veryVerbose) { P_(destination) P(proxies) }
+
+            btes5_NetworkConnector connector(proxies, &factory, &eventManager);
+            btes5_NetworkConnector::AttemptHandle attempt
+                = connector.makeAttemptHandle(cb,
+                                              bdet_TimeInterval(1), // proxy
+                                              bdet_TimeInterval(5), // total
+                                              destination);
+            connector.startAttempt(attempt);
+            queue.popFront(&status);
+            LOOP_ASSERT(status, btes5_NetworkConnector::e_SUCCESS == status);
+        }
+
+
       } break;
       case 3: {
         // --------------------------------------------------------------------

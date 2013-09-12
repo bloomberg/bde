@@ -538,10 +538,10 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
         {
             bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
             attempt->d_socket_p = makeSocket(
-                attempt->d_connector->d_socketFactory_p,
-                &error,
-                attempt->d_connector->d_minSourcePort,
-                attempt->d_connector->d_maxSourcePort);
+                                       attempt->d_connector->d_socketFactory_p,
+                                       &error,
+                                       attempt->d_connector->d_minSourcePort,
+                                       attempt->d_connector->d_maxSourcePort);
             if (!attempt->d_socket_p) {
                 continue; // try again if more servers
             }
