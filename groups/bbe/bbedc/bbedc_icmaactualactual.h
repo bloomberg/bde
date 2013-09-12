@@ -15,6 +15,9 @@ BDES_IDENT_PRAGMA_ONCE
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
+//@DEPRECATED: The 'yearsDiff' function interface cannot calculate the year
+// fraction correctly.
+//
 //@DESCRIPTION: This component provides a namespace for pure procedures that
 // manipulate dates as prescribed by the International Swaps and Derivatives
 // Association (ISMA) Actual/Actual day-count convention, known both as
@@ -72,6 +75,8 @@ struct bbedc_IcmaActualActual {
         // If 'beginDate <= endDate', then the result is non-negative.  Note
         // that reversing the order of 'beginDate' and 'endDate' negates the
         // result.
+        //
+        // DEPRECATED: this function is deprecated.
 
     static double yearsDiff(const bdet_Date& beginDate,
                             const bdet_Date& endDate);
@@ -82,25 +87,9 @@ struct bbedc_IcmaActualActual {
         // year 1752.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result.
         //
-        // This function is completely wrong and is DEPRECATED.  An error
-        // message will be printed to 'cout' if it is called.
+        // DEPRECATED: The value returned by this function is incorrect, and
+        // an alternative is under development.
 };
-
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-                       // -----------------------------
-                       // struct bbedc_IcmaActualActual
-                       // -----------------------------
-
-// CLASS METHODS
-inline
-int bbedc_IcmaActualActual::daysDiff(const bdet_Date& beginDate,
-                                     const bdet_Date& endDate)
-{
-    return endDate - beginDate;
-}
 
 }  // close namespace BloombergLP
 

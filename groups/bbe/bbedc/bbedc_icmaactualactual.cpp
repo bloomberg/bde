@@ -19,6 +19,21 @@ namespace BloombergLP {
                        // -----------------------------
 
 // CLASS METHODS
+int bbedc_IcmaActualActual::daysDiff(const bdet_Date& beginDate,
+                                     const bdet_Date& endDate)
+{
+    int result = endDate - beginDate;
+
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        bsl::cout << "ERROR: deprecated 'bbedc_IcmaActualActual::daysDiff'"
+                     " called.  result: " << result << bsl::endl;
+    }
+
+    return result;
+}
+
 double bbedc_IcmaActualActual::yearsDiff(const bdet_Date& beginDateIn,
                                          const bdet_Date& endDateIn)
 {
