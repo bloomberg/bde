@@ -1478,24 +1478,12 @@ bdema_ManagedPtr<TARGET_TYPE>::operator
     BSLMF_ASSERT((bslmf::IsConvertible<TARGET_TYPE *,
                                        REFERENCED_TYPE *>::VALUE));
 
-#if 0
+    // Note that this formulation, casting to a reference to the base class, is
+    // the result of testing and working around various compiler bugs on
+    // different platofrms.  It is not recommended to try to replace with
+    // something more specific.
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
-    typedef bslma::ManagedPtr_Ref<REFERENCED_TYPE> ResultType;
-    return bslma::ManagedPtr<TARGET_TYPE>::operator ResultType();
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
     return static_cast< bslma::ManagedPtr<TARGET_TYPE>& >(*this);
-//    bslma::ManagedPtr_Ref<REFERENCED_TYPE> result =
-//                                      bslma::ManagedPtr<TARGET_TYPE>::operator
-//                                      bslma::ManagedPtr_Ref<REFERENCED_TYPE>();
-//    return result;
-#else
-    return bslma::ManagedPtr<TARGET_TYPE>::operator template
-                                      bslma::ManagedPtr_Ref<REFERENCED_TYPE>();
-#endif
-#else
-    return static_cast< bslma::ManagedPtr<TARGET_TYPE>& >(*this);
-#endif
 }
 
                       // --------------------------------
