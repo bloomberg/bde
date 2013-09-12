@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a means to throw standard exceptions
 // without introducing a compile-time dependency on the standard exception
-// classes.  This valuable where header files define function templates or
+// classes.  This is valuable where header files define function templates or
 // inline functions that may throw these types as exceptions.
 //
 ///Usage
