@@ -6,16 +6,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//
-//
+// This test driver tests utility functions provided by the
+// 'bsls::BslExceptionUtil' namespace.  We need to verify that each function
+// throws the documented exception.
 //-----------------------------------------------------------------------------
+// [ 1] void throwBadAlloc();
+// [ 1] void throwBadCast();
+// [ 1] void throwBadException();
+// [ 1] void throwBadTypeid();
+// [ 1] void throwException();
+//-----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE 1
 
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
@@ -62,6 +69,16 @@ static void aSsErT(bool b, const char *s, int i)
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 #if defined(BDE_BUILD_TARGET_EXC)
+///Example 1: Throwing a standard exception
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we are implementing a class that must conform to the requirements of
+// the C++ Standard.  There are several clauses that dictate throwing an
+// exception of a standard type to indicate failure.  However, we do not want
+// to expose the standard exception header to our clients, which would be
+// typical when implementing function templates inline, and we want to have a
+// consistent behavior when building with a compiler in a non-standard mode
+// that does not support exceptions.
+//
 // First we declare a function template that wants to throw a standard
 // exception.  Note that the 'exception' header is not included at this point.
 //..
@@ -71,15 +88,21 @@ static void aSsErT(bool b, const char *s, int i)
     void testFunction(int selector)
         //  Throw a standard exception according to the specified 'selector'.
     {
-      switch (selector) {
-        case 1: bsls::BslExceptionUtil::throwBadAlloc();
-        case 2: bsls::BslExceptionUtil::throwBadCast();
-        default: bsls::BslExceptionUtil::throwException();
-      }
+        switch (selector) {
+//..
+//  Now we can use the utilities in this component to throw the desired
+//  exception, even though the standard exception classes are not visible to
+//  this code.
+//..
+          case  1: bsls::BslExceptionUtil::throwBadAlloc();
+          case  2: bsls::BslExceptionUtil::throwBadCast();
+          default: bsls::BslExceptionUtil::throwException();
+        }
     }
 //..
-// However, if client code wishes to catch the exception, the '.cpp' file must
-// '#include' the appropriate header.
+// Finally, we can write some client code that calls our function, and wishes
+// to catch the thrown exception.  Observe that this file must #include the
+// corresponding standard header in order to catch the exception.
 //..
     #include <exception>
     #include <new>
@@ -110,10 +133,10 @@ static void aSsErT(bool b, const char *s, int i)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    // bool veryVerbose = argc > 3;
-    // bool veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+//  bool     veryVerbose = argc > 3;
+//  bool veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -148,11 +171,24 @@ int main(int argc, char *argv[])
         // BREATHING/USAGE TEST
         //
         // Concerns:
+        //: 1. Each function throws a standard exception that can be caught as
+        //:    the documented type.
         //
         // Plan:
+        //: 1. For each utility function in the class 'BslExceptionUtil', use a
+        //:    try/catch block to demonstrate that the documented exception is
+        //:    thrown.
+        //: 2. Use an 'ASSERT(false)' after the throwing function to find any
+        //:    cases where the exception is not thrown.
+        //: 3. Use a 'catch(...)' block to observe if the wrong exception type
+        //:    is thrown.
         //
         // Testing:
-        //
+        //   void throwBadAlloc();
+        //   void throwBadCast();
+        //   void throwBadException();
+        //   void throwBadTypeid();
+        //   void throwException();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -172,6 +208,9 @@ int main(int argc, char *argv[])
                 P(ex.what());
             }
         }
+        catch(...) {
+            ASSERT(!"Threw the wrong exception type, expected std::bad_alloc");
+        }
 
         try {
             if (verbose) printf("\nThrowing a 'bad_cast' exception");
@@ -182,6 +221,9 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(ex.what());
             }
+        }
+        catch(...) {
+            ASSERT(!"Threw the wrong exception type, expected std::bad_cast");
         }
 
         try {
@@ -194,6 +236,10 @@ int main(int argc, char *argv[])
                 P(ex.what());
             }
         }
+        catch(...) {
+            ASSERT(
+               !"Threw the wrong exception type, expected std::bad_exception");
+        }
 
         try {
             if (verbose) printf("\nThrowing a 'bad_typeid' exception");
@@ -205,6 +251,10 @@ int main(int argc, char *argv[])
                 P(ex.what());
             }
         }
+        catch(...) {
+            ASSERT(
+                  !"Threw the wrong exception type, expected std::bad_typeid");
+        }
 
         try {
             if (verbose) printf("\nThrowing an 'exception' exception");
@@ -215,6 +265,9 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(ex.what());
             }
+        }
+        catch(...) {
+            ASSERT(!"Threw the wrong exception type, expected std::exception");
         }
 #endif // defined BDE_BUILD_TARGET_EXC
       } break;

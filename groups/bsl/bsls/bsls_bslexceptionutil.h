@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide functions for use in 'bsl' that throw standard exceptions.
 //
 //@CLASSES:
-//  bsls::BslExceptiontUtil: namespace for utilities to throw exceptions
+//  bsls::BslExceptionUtil: namespace for utilities to throw exceptions
 //
 //@SEE_ALSO: bsl_exception, bsl_new, bsl_typeinfo
 //
@@ -43,14 +43,20 @@ BSLS_IDENT("$Id: $")
 //      //  Throw a standard exception according to the specified 'selector'.
 //  {
 //    switch (selector) {
-//      case 1: bsls::BslExceptionUtil::throwBadAlloc();
-//      case 2: bsls::BslExceptionUtil::throwBadCast();
+//..
+//  Now we can use the utilities in this component to throw the desired
+//  exception, even though the standard exception classes are not visible to
+//  this code.
+//..
+//      case  1: bsls::BslExceptionUtil::throwBadAlloc();
+//      case  2: bsls::BslExceptionUtil::throwBadCast();
 //      default: bsls::BslExceptionUtil::throwException();
 //    }
 //  }
 //..
-// However, if client code wishes to catch the exception, the '.cpp' file must
-// '#include' the appropriate header.
+// Finally, we can write some client code that calls our function, and wishes
+// to catch the thrown exception.  Observe that this file must #include the
+// corresponding standard header in order to catch the exception.
 //..
 //  #include <exception>
 //  #include <new>

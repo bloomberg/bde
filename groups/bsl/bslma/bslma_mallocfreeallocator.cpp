@@ -114,7 +114,7 @@ void *MallocFreeAllocator::allocate(size_type size)
         bsls::BslExceptionUtil::throwBadAlloc();
     }
 
-    return result; 
+    return result;
 }
 }  // close package namespace
 
