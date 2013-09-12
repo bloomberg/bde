@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 3: {
-       // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // Concerns:
         //   The usage example provided in the component header file must

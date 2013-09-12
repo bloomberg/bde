@@ -30,8 +30,8 @@ BDES_IDENT_PRAGMA_ONCE
 // Actual/Actual convention:
 //..
 //  const int daysDiff = bbedc_DayCount::daysDiff(
-//                         d1, 
-//                         d2, 
+//                         d1,
+//                         d2,
 //                         bbedc_DayCountConvention::BBEDC_ISDA_ACTUAL_ACTUAL);
 //  assert(73 == daysDiff);
 //..
@@ -39,8 +39,8 @@ BDES_IDENT_PRAGMA_ONCE
 // Actual/Actual convention:
 //..
 //  const double yearsDiff = bbedc_DayCount::yearsDiff(
-//                         d1, 
-//                         d2, 
+//                         d1,
+//                         d2,
 //                         bbedc_DayCountConvention::BBEDC_ISDA_ACTUAL_ACTUAL);
 //  // Need fuzzy comparison since 'yearsDiff' is a double.  Expect
 //  // '0.2 == yearsDiff'.
