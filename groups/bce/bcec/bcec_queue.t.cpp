@@ -3310,8 +3310,6 @@ int main(int argc, char *argv[])
                 } while (expectedLength == ll);
                 const int LENGTH = ll;
 
-                if (veryVerbose) { T_() T_() P_(X.length()); P(LENGTH); }
-
                 if (expectedLength < LENGTH) {
                     while (expectedLength < LENGTH) {
                         ASSERT(expectedLength == (int) D.size());
@@ -3324,17 +3322,17 @@ int main(int argc, char *argv[])
                         if (bdeu_Random::generate15(&seed) & 0x80) {
                             x.pushBack(v);
                             d.push_back(v);
-                            if (veryVeryVerbose) {
-                                cout << "\t\t\tPUB: " << v;
-                                T_() P_(LENGTH); P(X.length());
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPUB: " << v << endl;
                             }
                         }
                         else {
                             x.pushFront(v);
                             d.push_front(v);
-                            if (veryVeryVerbose) {
-                                cout << "\t\t\tPUF: " << v;
-                                T_() P_(LENGTH); P(X.length());
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPUF: " << v << endl;
                             }
                         }
 
@@ -3353,18 +3351,18 @@ int main(int argc, char *argv[])
                             const Element popped = D.back();
                             d.pop_back();
                             ASSERT(popped == x.popBack());
-                            if (veryVeryVerbose) {
-                                cout << "\t\t\tPOB: " << popped;
-                                T_() P_(LENGTH); P(X.length());
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPOB: " << popped << endl;
                             }
                         }
                         else {
                             const Element popped = D.front();
                             d.pop_front();
                             ASSERT(popped == x.popFront());
-                            if (veryVeryVerbose) {
-                                cout << "\t\t\tPOF: " << popped;
-                                T_() P_(LENGTH); P(X.length());
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPOF: " << popped << endl;
                             }
                         }
 
