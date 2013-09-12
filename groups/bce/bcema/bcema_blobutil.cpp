@@ -73,6 +73,8 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
 
     BSLS_ASSERT(sourceBufferIndex < source.numBuffers());
 
+    const int destStartLength = dest->length();
+
     dest->trimLastDataBuffer();
 
     const int destBufferIndex = dest->numDataBuffers();
@@ -104,7 +106,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
             src.setSize(numBytesRemaining);
         }
 
-        dest->appendBuffer(src);
+        dest->appendDataBuffer(src);
 
         ++sourceBufferIndex;
         numBytesRemaining -= src.size();
@@ -121,7 +123,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
             src.setSize(numBytesRemaining);
         }
 
-        dest->appendBuffer(src);
+        dest->appendDataBuffer(src);
 
         ++sourceBufferIndex;
         numBytesRemaining -= src.size();
@@ -129,12 +131,10 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
 
     // Set new length.
 
-    int newLength = dest->length() + length;
+    int newLength = destStartLength + length;
 
     BSLS_ASSERT(-numBytesRemaining == dest->totalSize() - newLength);
     BSLS_ASSERT(newLength          <= dest->totalSize());
-
-    dest->setLength(newLength);
 }
 
 void bcema_BlobUtil::append(bcema_Blob *dest,
