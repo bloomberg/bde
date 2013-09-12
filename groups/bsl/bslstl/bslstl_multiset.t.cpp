@@ -4688,6 +4688,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
                 ASSERTV(SPEC, X != Y11);
                 ASSERTV(SPEC, Y11.get_allocator() == X.get_allocator());
             }
+#if defined(BDE_BUILD_TARGET_EXC)
             {   // Exception checking.
 
                 const bsls::Types::Int64 BB = oa.numBlocksTotal();
@@ -4726,6 +4727,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
                     ASSERTV(SPEC, B + 0 == A);
                 }
             }
+#endif  // BDE_BUILD_TARGET_EXC
         }
     }
 }
