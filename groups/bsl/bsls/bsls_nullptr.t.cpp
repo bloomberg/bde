@@ -62,6 +62,17 @@ static void aSsErT(bool b, const char *s, int i)
 //                  GLOBAL HELPER MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
+// The rules defining a null pointer constatnt were tightend by a C++ core
+// language issue after C++11 was published, so that arbitrary integer constant
+// expressions with the value 0 are no longer null pointer constants; only
+// integer literals with the value zero, and literals of type 'std::nullptr_t',
+// form null pointer constants.  See the link below for furher details.
+//     http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#903
+
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700)  \
+ || (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VER_MAJOR >= 30400)
+# define BSLS_NULLPTR_IMPLEMENTS_CORE_DEFECT_903
+#endif
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -233,8 +244,12 @@ int main(int argc, char *argv[])
         //: 1 There exists a type alias 'bsl::nullptr_t', aliasing a type that
         //:   represents null pointer literals.
         //: 2 Functions having parameters of type 'bsl::nullptr_t' can be
-        //:   invoked only with null pointer literals, '0' and 'NULL'.
-        //: 3 Functions having parameters of type 'bsl::nullptr_t' cannot be
+        //:   invoked with null pointer literals, '0' and 'NULL'.
+        //: 3 If the compiler does not yet implement Core Defect 903, functions
+        //:   can also be invoked with arbirary integral constants having value
+        //:   0; otherwise 'nullptr_t' is convertible strictly from only the
+        //:   set of values in concern (2).
+        //: 4 Functions having parameters of type 'bsl::nullptr_t' cannot be
         //:   invoked pointers or pointer-to-members, even if they hold the
         //:   null pointer value.
         //
@@ -246,10 +261,10 @@ int main(int argc, char *argv[])
         //:   2 The second overload uses an ellipsis parameter list to weakly
         //:     match an argument of fundamental type, and returns 'false'.
         //: 2 Call the static method all valid null pointer literals, and check
-        //:   that the result is 'true' in each case. (C-2)
+        //:   that the result is 'true' in each case. (C-2,3)
         //: 3 Call the static method with various objects, including pointers
         //:   and pointer-to-members, and check that the result is 'false' in
-        //:   each case. (C-3)
+        //:   each case. (C-4)
         //
         // Testing:
         //   bsl::nullptr_t
@@ -281,12 +296,8 @@ int main(int argc, char *argv[])
         ASSERT(Local::isNullPointer(0));
         ASSERT(Local::isNullPointer(NULL));
         ASSERT(Local::isNullPointer(false));
-#if  defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)                             \
-&& !(defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VER_MAJOR < 40700)) \
-&&  !defined(BSLS_PLATFORM_CMP_MSVC)
-        // Early nullptr implementations have this bug, was this a change in
-        // the working paper before standardization?
-
+#if defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)     \
+ && defined(BSLS_NULLPTR_IMPLEMENTS_CORE_DEFECT_903)
         ASSERT(!Local::isNullPointer(s_cZero));
         ASSERT(!Local::isNullPointer(cZero));
 #else
@@ -320,9 +331,11 @@ int main(int argc, char *argv[])
         //: 1 The metafunction struct 'bsls::Nullptr_Impl' contains a nested
         //:   alias named 'Type'.
         //: 2 Functions having parameters of type 'bsls::Nullptr_Impl::Type'
-        //:   can be invoked only with null pointer literals, such as '0' and
+        //:   can be invoked with null pointer literals, such as '0' and
         //:   'NULL'.
         //: 3 Functions having parameters of type 'bsls::Nullptr_Impl::Type'
+        //:   can be invoked with arbirary integral constants having value '0'.
+        //: 4 Functions having parameters of type 'bsls::Nullptr_Impl::Type'
         //:   cannot be invoked by pointers or pointer-to-members, even if they
         //:   hold the null pointer value.
         //
@@ -334,10 +347,10 @@ int main(int argc, char *argv[])
         //:   2 The second overload uses an ellipsis parameter list to weakly
         //:     match an argument of fundamental type, and returns 'false'.
         //: 2 Call the static method all valid null pointer literals, and check
-        //:   that the result is 'true' in each case. (C-2)
+        //:   that the result is 'true' in each case. (C-2,3)
         //: 3 Call the static method with various objects, including pointers
         //:   and pointer-to-members, and check that the result is 'false' in
-        //:   each case. (C-3)
+        //:   each case. (C-4)
         //
         // Testing:
         //   bsls::Nullptr_Impl::Type
