@@ -20,13 +20,24 @@ using namespace bsl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//                              OVERVIEW
-// [4] Usage Example
-// [3] Mutex locked by other thread
-// [2] Testing locked mutexes
-// [2] Testing unlocked mutexes
+//                              Overview
+//                              --------
+// Two main testing strategies are employed here:
+//: 1 Assert on a locked mutex and observe nothing happens.
+//: 2 Assert on an unlocked mutex with an assert handler installed that will
+//:   throw an exception, catch the exception, and verify that an exception
+//:   was thrown.
 //-----------------------------------------------------------------------------
-// [1] Breathing test
+// MACROS
+//: o BCEMT_MUTEX_ASSERT_IS_LOCKED
+//: o BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED
+//: o BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 4] USAGE EXAMPLE
+// [ 2] CONCERN: Testing macros on mutexes locked by the current thread
+// [ 2] CONCERN: Testing macros on unlocked mutexes
+// [ 3] CONCERN: Testing macros on mutexes locked by a different thread
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
@@ -129,8 +140,8 @@ int veryVerbose;
             // ...
     };
 //..
-// Notice that our public manipulators have two forms: pop/push a single
-// element, and pop/push a collection of elements.  Popping even a single
+// Notice that our public manipulators have two forms: push/pop a single
+// element, and push/pop a collection of elements.  Popping even a single
 // element is non-trivial, so we factor this operation into a non-*thread-safe*
 // private manipulator that performs the pop, and is used in both public 'pop'
 // methods.  This private manipulator requires that the mutex be locked, but
@@ -159,7 +170,7 @@ int veryVerbose;
 // precondition check, that the mutex has been acquired, using one of the
 // 'BCEMT_MUTEX_ASSERT*_IS_LOCKED' macros.  We use the '...ASSERT_SAFE...'
 // version of the macro so that the check, which on some platforms is as
-// expensive as locking the mutex, is performed only in the safe build mode.
+// expensive as locking the mutex, is performed in only the safe build mode.
 //
 // Next, we define the public manipulators; all of which must acquire a lock on
 // the mutex (note that there is a bug in 'popAll'):

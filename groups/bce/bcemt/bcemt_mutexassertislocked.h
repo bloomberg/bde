@@ -21,7 +21,7 @@ BDES_IDENT("$Id: $")
 // other threads.  If the macro is active in the current build mode, when the
 // macro is called, if the supplied mutex is unlocked, the assert handler
 // installed for 'BSLS_ASSERT' will be called.  The assert handler installed by
-// default will report and error and abort the task.
+// default will report an error and abort the task.
 //
 // The three macros defined by the component are analogous to the macros
 // defined by BSLS_ASSERT:
