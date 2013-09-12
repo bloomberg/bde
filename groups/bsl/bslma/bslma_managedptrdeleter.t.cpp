@@ -225,7 +225,13 @@ void debugprint(const ManagedPtrDeleter& obj)
     printf("ManagedPtrDeleter[");
     printf("object: ");     bsls::debugprint(obj.object());
     printf(", factory: ");  bsls::debugprint(obj.factory());
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+//    Obj::Deleter d = obj.deleter();
+    void *d = obj.deleter();
+    printf(", deleter: ");  bsls::debugprint(d);
+#else
     printf(", deleter: ");  bsls::debugprint(obj.deleter());
+#endif
     printf("]");
 }
 
@@ -846,8 +852,12 @@ int main(int argc, char *argv[])
             const Obj::Deleter DELETER1 = DEFAULT_DATA[ti].d_deleter;
 
             if (veryVerbose) {
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+                T_ P_(LINE1) P_(OBJECT1) P_(FACTORY1) P_((void *)DELETER1)
+#else
                 T_ P_(LINE1) P_(OBJECT1) P_(FACTORY1) P_(DELETER1)
-            }
+#endif
+}
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -864,7 +874,12 @@ int main(int argc, char *argv[])
                 const Obj::Deleter DELETER2 = DEFAULT_DATA[tj].d_deleter;
 
                 if (veryVerbose) {
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+                    T_ T_ P_(LINE2) P_(OBJECT2) P_(FACTORY2)
+                                                           P_((void *)DELETER2)
+#else
                     T_ T_ P_(LINE2) P_(OBJECT2) P_(FACTORY2) P_(DELETER2)
+#endif
                 }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
@@ -1322,7 +1337,11 @@ int main(int argc, char *argv[])
             void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
             const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+            if (veryVerbose) { T_ P_(OBJECT) P_(FACTORY) P_((void *)DELETER) }
+#else
             if (veryVerbose) { T_ P_(OBJECT) P_(FACTORY) P_(DELETER) }
+#endif
 
             Obj mX(OBJECT, FACTORY, DELETER);  const Obj& X = mX;
 
@@ -1340,7 +1359,11 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE,  OBJECT, X. object(), OBJECT  == X. object());
             LOOP3_ASSERT(LINE, FACTORY, X.factory(), FACTORY == X.factory());
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+            LOOP_ASSERT(LINE,                        DELETER == X.deleter());
+#else
             LOOP3_ASSERT(LINE, DELETER, X.deleter(), DELETER == X.deleter());
+#endif
         }
 
         // confirm that global state has not been altered, implying the
@@ -1444,7 +1467,13 @@ int main(int argc, char *argv[])
                 void        *const FACTORY = DEFAULT_DATA[ti].d_factory;
                 const Obj::Deleter DELETER = DEFAULT_DATA[ti].d_deleter;
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+                if (veryVerbose) {
+                    T_ P_(OBJECT) P_(FACTORY) P_((void *)DELETER)
+                }
+#else
                 if (veryVerbose) { T_ P_(OBJECT) P_(FACTORY) P_(DELETER) }
+#endif
 
                 mX.set(OBJECT, FACTORY, DELETER);
 
@@ -1463,8 +1492,12 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, OBJECT, X.object(), OBJECT == X.object());
                 LOOP3_ASSERT(LINE, FACTORY, X.factory(),
                              FACTORY == X.factory());
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+                LOOP_ASSERT(LINE, DELETER == X.deleter());
+#else
                 LOOP3_ASSERT(LINE, DELETER, X.deleter(),
                              DELETER == X.deleter());
+#endif
             }
         }
 
