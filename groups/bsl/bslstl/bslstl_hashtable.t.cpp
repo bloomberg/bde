@@ -7003,9 +7003,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
     bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
     const TestValues VALUES(&tda);
 
-    const int TYPE_ALLOC =
-         bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
-         + bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value
+                         + bslma::UsesBslmaAllocator<VALUE>::value;
 
     const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
     const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
