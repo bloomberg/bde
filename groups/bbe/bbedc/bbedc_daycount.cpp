@@ -39,6 +39,13 @@ int bbedc_DayCount::daysDiff(const bdet_Date&               beginDate,
         numDays = bbedc_Actual365Fixed::daysDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ICMA_ACTUAL_ACTUAL: {
+        static bool firstTime = true;
+        if (firstTime) {
+            firstTime = false;
+            bsl::cout << "ERROR: deprecated 'bbedc_DayCount::daysDiff'"
+                         " called with ICMA Actual/Actual.\n";
+        }
+
         numDays = bbedc_IcmaActualActual::daysDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ISDA_ACTUAL_ACTUAL: {
