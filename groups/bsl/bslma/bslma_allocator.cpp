@@ -14,6 +14,12 @@ namespace bslma {
                         // class Allocator
                         // ---------------
 
+// CLASS METHODS
+void Allocator::throwBadAlloc()
+{
+    bsls::BslExceptionUtil::throwBadAlloc();
+}
+
 // CREATORS
 Allocator::~Allocator()
 {
