@@ -706,12 +706,12 @@ int main(int argc, char *argv[])
         const char *C_STRING_2 = STRING_2;
         ASSERT(C_STRING_1 != C_STRING_2);
 
-        
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
         // This awkward-looking preprocessor logic guarantees that the test is
         // run in the 'bsl-oss' repository, but that it runs only if the macro
         // 'BSL_HASH_CSTRINGS_AS_POINTERS' is defined in 'bsl-internal'.  This
-        // allows for the one-release tranisition (BDE 2.19) from the old hash
+        // allows for the one-release transition (BDE 2.19) from the old hash
         // semantics treating 'const char *' as a string, to the C++ standard
         // semantics treating 'const char *' as a pointer.  All of this
         // pre-processor logic for the next release, along with the poisoning
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
 
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
-        
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
