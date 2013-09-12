@@ -148,14 +148,27 @@ static void aSsErT(int c, const char *s, int i) {
 //                    GLOBAL CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-int globalVerbose         = 0;
-int globalVeryVerbose     = 0;
-int globalVeryVeryVerbose = 0;
+bool globalVerbose         = false;
+bool globalVeryVerbose     = false;
+bool globalVeryVeryVerbose = false;
 
-static bool globalAssertFiredFlag;
-static const char *globalText;
-static const char *globalFile;
-static int globalLine;
+static bool globalAssertFiredFlag = false;
+static const char *globalText = "";
+static const char *globalFile = "";
+static int globalLine = -1;
+
+#ifndef BDE_BUILD_TARGET_EXC
+static bool globalReturnOnTestAssert = false;
+    // This flag is very dangerous, as it will cause the test-driver assertion
+    // handler to simple 'return' by default, exposing any additional function
+    // under test to the subsequent undefined behavior.  In general, exception-
+    // free builds should avoid executing such tests, rather than set this
+    // flag.  However, there is some subset of this test driver that would
+    // benefit from being able to invoke this handler in a test mode to be sure
+    // that correct behavior occurs in the presence of the various preprocessor
+    // checks for exceptions being disabled.  This flag allows for testing such
+    // behavior that does not rely on aborting out of the assert handler.
+#endif
 
 //=============================================================================
 //                  GLOBAL HELPER MACROS FOR TESTING
@@ -192,7 +205,7 @@ static void globalReset()
     if (globalVeryVeryVerbose)
         cout << "*** globalReset()" << endl;
 
-    globalAssertFiredFlag = 0;
+    globalAssertFiredFlag = false;
     globalText = "";
     globalFile = "";
     globalLine = -1;
@@ -224,6 +237,9 @@ static void testDriverHandler(const char *text, const char *file, int line)
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
+    if (globalReturnOnTestAssert) {
+        return;                                                       // RETURN
+    }
     std::abort();
 #endif
 }
@@ -254,6 +270,9 @@ static void testDriverPrint(const char *text, const char *file, int line)
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
+    if (globalReturnOnTestAssert) {
+        return;                                                       // RETURN
+    }
     std::abort();
 #endif
 }
@@ -951,6 +970,14 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE #4" << endl
                           << "================" << endl;
 
+#ifndef BDE_BUILD_TARGET_EXC
+        if (verbose) {
+            cout <<
+               "\tTest disabled as exceptions are NOT enabled.\n"
+              "\tCalling the test funciton would abort." << endl;
+        }
+
+#else
         if (verbose) cout <<
                             "\n4. Creating a Custom Assertion Handler" << endl;
 
@@ -961,7 +988,7 @@ int main(int argc, char *argv[])
         ASSERTION_TEST_BEGIN
         ourMain();
         ASSERTION_TEST_END
-
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1019,9 +1046,17 @@ int main(int argc, char *argv[])
 
         bsls::Assert::setFailureHandler(::testDriverPrint);
 
+#ifndef BDE_BUILD_TARGET_EXC
+        globalReturnOnTestAssert = true;
+#endif
+
         ASSERTION_TEST_BEGIN
         someFunc(1, 1, 0);
         ASSERTION_TEST_END
+
+#ifndef BDE_BUILD_TARGET_EXC
+        globalReturnOnTestAssert = false;
+#endif
 
       } break;
       case 7: {
@@ -1336,6 +1371,10 @@ int main(int argc, char *argv[])
         int         line;                    // initialized each time
 
         const char *expr = "false == true";
+
+#ifndef BDE_BUILD_TARGET_EXC
+        globalReturnOnTestAssert = true;
+#endif
 
         if (verbose) {
             cout << "\nCurrent build-mode settings:" << endl;
@@ -1708,6 +1747,10 @@ int main(int argc, char *argv[])
         globalReset();
         ASSERT(false        == globalAssertFiredFlag);
 
+#ifndef BDE_BUILD_TARGET_EXC
+        globalReturnOnTestAssert = true;
+#endif
+
         ASSERTION_TEST_BEGIN
         bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
         ASSERTION_TEST_END
@@ -1716,6 +1759,10 @@ int main(int argc, char *argv[])
         ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
         ASSERT(        0 == std::strcmp("FiLe",       globalFile));
         ASSERT(-12345678 == globalLine);
+
+#ifndef BDE_BUILD_TARGET_EXC
+        globalReturnOnTestAssert = false;
+#endif
 
         if (verbose) cout <<
            "\nVerify that 'lockAssertAdminisration' blocks callback changes."
@@ -1759,6 +1806,10 @@ int main(int argc, char *argv[])
            "\nVerify that 'BSLS_ASSERT_OPT' does fire for '0' expressions."
                                                                        << endl;
 
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = true;
+#endif
+
         if (veryVerbose) cout << "\tInteger-valued expression" << endl;
         {
             globalReset();
@@ -1798,6 +1849,10 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
             LOOP2_ASSERT(line, globalLine, line == globalLine);
         }
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = false;
+#endif
 
       } break;
       case -1: {
