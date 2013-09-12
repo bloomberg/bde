@@ -69,8 +69,11 @@ static void aSsErT(bool b, const char *s, int i)
 // form null pointer constants.  See the link below for furher details.
 //     http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#903
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700)  \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VER_MAJOR >= 30400)
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700)
+    // Note that Clang will pick up a fix for this standard issue when
+    // Clang 3.4 is released.  This conversion is merely a warning in earlier
+    // versions of Clang.
+
 # define BSLS_NULLPTR_IMPLEMENTS_CORE_DEFECT_903
 #endif
 //=============================================================================
