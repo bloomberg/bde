@@ -5,11 +5,13 @@ BDES_IDENT_RCSID(btes5_testserver_cpp, "$Id$ $CSID$")
 
 #include <btes5_testserver.h>
 
+#include <bcema_sharedptr.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_mutex.h>
 #include <bcemt_thread.h>                   // thread management util
 #include <bdef_bind.h>
 #include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 #include <bsl_iostream.h>
 #include <bslma_default.h>
 #include <bsls_atomic.h>
@@ -19,6 +21,7 @@ BDES_IDENT_RCSID(btes5_testserver_cpp, "$Id$ $CSID$")
 #include <btemt_message.h>
 #include <btemt_session.h>
 #include <btemt_sessionpool.h>
+#include <btemt_tcptimereventmanager.h>
 #include <bteso_resolveutil.h>
 #include <btesos_tcptimedchannel.h>
 
@@ -193,7 +196,8 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
     bcemt_Mutex d_clientLock;  // serialize access to 'd_client_p'
     bcemt_Mutex d_dstLock;     // serialize access to 'd_dst_p'
 
-    bcema_SharedPtr<btemt_SessionPool> d_sessionPool;  // managed pool
+    bcema_SharedPtr<btemt_SessionPool> d_sessionPool;   // managed pool
+    btemt_TcpTimerEventManager         d_eventManager;  // for delayed writes
 
     bslma::Allocator     *d_allocator_p; // memory allocator (held, not owned)
 
@@ -225,7 +229,12 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
     int clientWrite(const char *buf, int length);
         // Send the specified 'buf' of the specified 'length' bytes to the
         // client using 'd_channel_p'.  Return 0 on success, and a non-zero
-        // value otherwise.
+        // value otherwise.  If 'd_args->d_delay' is set, wait that much before
+        // sending the data.
+
+    int clientWriteImmediate(bcema_SharedPtr<bcema_Blob> blob);
+        // Send the specified 'blob' to the client using 'd_channel_p'.  Return
+        // 0 on success, and a non-zero value otherwise.
 
              // SOCKS5 protocol processing
 
@@ -427,6 +436,23 @@ void btes5_TestServer::SessionFactory::readMessageCb(
     }
 }
 
+int btes5_TestServer::SessionFactory::clientWriteImmediate(
+    bcema_SharedPtr<bcema_Blob> blob)
+{
+    int rc = 0;
+    {
+        bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
+        if (d_client_p) {
+            rc = d_client_p->write(*blob);
+        }
+    }
+    if (rc) {
+        LOG_DEBUG << "cannot send " << blob->length()
+                  << " bytes to the client, rc " << rc << LOG_END;
+    }
+    return rc;
+}
+
 int btes5_TestServer::SessionFactory::clientWrite(const char *buf, int length)
 {
     bcema_SharedPtr<char>
@@ -435,21 +461,23 @@ int btes5_TestServer::SessionFactory::clientWrite(const char *buf, int length)
     bsl::memcpy(buffer.ptr(), buf, length);
     bcema_BlobBuffer blobBuffer(buffer, length);
 
-    bcema_Blob blob(d_allocator_p);
-    blob.prependDataBuffer(blobBuffer);
+    bcema_SharedPtr<bcema_Blob> blob(new (*d_allocator_p)
+                                         bcema_Blob(d_allocator_p),
+                                     d_allocator_p);
+    blob->prependDataBuffer(blobBuffer);
 
-    int rc = 0;
-    {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-        if (d_client_p) {
-            rc = d_client_p->write(blob);
-        }
+    if (bdet_TimeInterval() == d_args.d_delay) {
+        return clientWriteImmediate(blob);                            // RETURN
     }
-    if (rc) {
-        LOG_DEBUG << "cannot send " << length << " bytes to the client, rc "
-                  << rc << LOG_END;
-    }
-    return rc;
+
+    bdet_TimeInterval scheduledTime = bdetu_SystemTime::now() + d_args.d_delay;
+    bteso_EventManager::Callback cb
+        = bdef_BindUtil::bindA(d_allocator_p,
+                               &SessionFactory::clientWriteImmediate,
+                               this,
+                               blob);
+    d_eventManager.registerTimer(scheduledTime, cb);
+    return 0;
 }
 
 void btes5_TestServer::SessionFactory::readIgnore(const unsigned char *data,
@@ -507,14 +535,10 @@ void btes5_TestServer::SessionFactory::readMethods(
 
     Socks5MethodResponse methodResponse(method);
     int rc = clientWrite((char *)&methodResponse, sizeof(methodResponse));
-    if (rc) {
-        stop(true);
-        BSLS_ASSERT(false);
-    } else {
+    if (!rc) {
         LOG_DEBUG << "Wrote MethodResponse(method = " << method << ")"
                   << LOG_END;
     }
-
 }
 
 void btes5_TestServer::SessionFactory::readCredentials(
@@ -830,6 +854,7 @@ btes5_TestServer::SessionFactory::SessionFactory(
 : d_args(args)
 , d_client_p(0)
 , d_dst_p(0)
+, d_eventManager(bslma::Default::allocator(allocator))
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
     btemt_ChannelPoolConfiguration config;
@@ -867,14 +892,22 @@ btes5_TestServer::SessionFactory::SessionFactory(
                                _4,
                                true);
 
-    BSLS_ASSERT(0 == d_sessionPool->start());
+    int rc;  // return code
+
+    rc = d_eventManager.enable();
+    BSLS_ASSERT(!rc);
+
+    rc = d_sessionPool->start();
+    BSLS_ASSERT(!rc);
+
     int handle;
-    BSLS_ASSERT(0 == d_sessionPool->listen(&handle,
-                                           cb,
-                                           0,         // let system assign port
-                                           1,         // backlog
-                                           1,         // REUSEADDR
-                                           this));
+    rc = d_sessionPool->listen(&handle,
+                               cb,
+                               0,         // let system assign port
+                               1,         // backlog
+                               1,         // REUSEADDR
+                               this);
+    BSLS_ASSERT(!rc);
 
     const int port = d_sessionPool->portNumber(handle);
     LOG_DEBUG << "listening on port " << port << LOG_END;

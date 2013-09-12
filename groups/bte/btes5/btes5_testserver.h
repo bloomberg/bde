@@ -67,6 +67,10 @@ BDES_IDENT("$Id: $")
 #include <bcema_sharedptr.h>
 #endif
 
+#ifndef INCLUDED_BDET_TIMEINTERVAL
+#include <bdet_timeinterval.h>
+#endif
+
 #ifndef INCLUDED_BDEUT_BIGENDIAN
 #include <bdeut_bigendian.h>
 #endif
@@ -124,8 +128,9 @@ struct btes5_TestServerArgs {
         e_DEBUG   // debugging information
     };
 
-    Mode        d_mode;
-    int         d_reply; // SOCSK5 reply field
+    Mode              d_mode;
+    int               d_reply;  // SOCSK5 reply field
+    bdet_TimeInterval d_delay;  // if set, wait this much before every response
 
     bteso_Endpoint d_destination; // override the connection address if set
 
@@ -153,6 +158,7 @@ struct btes5_TestServerArgs {
         //: o 'd_expectedIp = 0'
         //: o 'd_expectedPort = 0'
         //: o 'd_expectedDestination' unset
+        //: o 'd_expectedCredentials' unset
         // Optionally specify an ’allocator’ used to supply memory. If
         // ’allocator’ is 0, the currently installed default allocator is used. 
 

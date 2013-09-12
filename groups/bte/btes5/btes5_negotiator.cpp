@@ -507,7 +507,9 @@ static void methodCallback(Negotiation::Context negotiation)
       } break;
       default: {
         bsl::ostringstream description;
-        description << "unknown response from proxy server " << pkt.d_method;
+        description << "unknown response "
+                    << (int) pkt.d_method
+                    << " from proxy server";
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
                   btes5_DetailedError(description.str()));
