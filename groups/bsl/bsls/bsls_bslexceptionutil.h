@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility to throw standard language-support exceptions.
+//@PURPOSE: Provide functions for use in 'bsl' that throw standard exceptions.
 //
 //@CLASSES:
 //  bsls::BslExceptiontUtil: namespace for utilities to throw exceptions
@@ -21,6 +21,18 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Throwing a standard exception
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we are implementing a class that must conform to the requirements of
+// the C++ Standard.  There are several clauses that dictate throwing an
+// exception of a standard type to indicate failure.  However, we do not want
+// to expose the standard exception header to our clients, which would be
+// typical when implementing function templates inline, and we want to have a
+// consistent behavior when building with a compiler in a non-standard mode
+// that does not support exceptions.
+//
 // First we declare a function template that wants to throw a standard
 // exception.  Note that the 'exception' header is not included at this point.
 //..
@@ -87,9 +99,9 @@ namespace BloombergLP {
 
 namespace bsls {
 
-                        //====================
-                        // class StdExceptUtil
-                        //====================
+                        //=======================
+                        // class BslExceptionUtil
+                        //=======================
 
 struct BslExceptionUtil {
     // This 'struct' provides a namespace for 'static' utility functions that

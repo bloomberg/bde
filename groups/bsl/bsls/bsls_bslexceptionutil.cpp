@@ -27,9 +27,9 @@ namespace BloombergLP {
 
 namespace bsls {
 
-                      //========================
+                      //------------------------
                       // class BslExceptiontUtil
-                      //========================
+                      //------------------------
 
 // CLASS METHODS
 BSLS_BSLEXCEPTIONUTIL_NORETURN

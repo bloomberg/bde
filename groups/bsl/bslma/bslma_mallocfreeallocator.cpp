@@ -105,8 +105,6 @@ MallocFreeAllocator& MallocFreeAllocator::singleton()
 // MANIPULATORS
 void *MallocFreeAllocator::allocate(size_type size)
 {
-    BSLS_ASSERT_SAFE(0 <= size);
-
     if (!size) {
         return 0;
     }
