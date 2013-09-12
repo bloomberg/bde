@@ -1734,7 +1734,6 @@ class shared_ptr {
         // specied 'ptr' using the specified 'deleter', using the currently
         // installed default allocator to provide storage.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if 0
     explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
         // Create a shared pointer taking ownership of the specified 'rep' and
@@ -1751,7 +1750,6 @@ class shared_ptr {
         //  shared_ptr(TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
         //..
 #endif
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
   public:
     // TYPES
@@ -1759,10 +1757,8 @@ class shared_ptr {
         // 'element_type' is an alias to the 'ELEMENT_TYPE' template parameter.
         // Note that 'element_type' refers to the same type as 'ElementType'.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef ELEMENT_TYPE ElementType;
         // 'ElementType' is an alias to the 'ELEMENT_TYPE' template parameter.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(shared_ptr,
@@ -2172,7 +2168,6 @@ class shared_ptr {
         // that the behavior of this method is the same as
         // 'loadAlias(source, ptr)'.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     void clear();
         // Reset this shared pointer to the empty state.  If this shared
         // pointer is managing a (possibly shared) object, then release the
@@ -2205,7 +2200,6 @@ class shared_ptr {
         //..
         // Further note that the behavior of this method is the same as
         // 'reset(source, object)'.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create "in-place" in a large enough contiguous memory region both an
@@ -2403,7 +2397,6 @@ class shared_ptr {
         // one) that share ownership of the object referred to by this shared
         // pointer.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     int numReferences() const;
         // Return a "snapshot" of the number of shared pointers (including this
         // one) that share ownership of the object referred to by this shared
@@ -2414,7 +2407,6 @@ class shared_ptr {
         // Return the address of the modifiable object referred to by this
         // shared pointer, or 0 if this shared pointer is empty.  Note that the
         // behavior of this function is the same as 'get'.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -2638,11 +2630,9 @@ class weak_ptr {
         // 'element_type' is an alias for the 'ELEMENT_TYPE' parameter of this
         // class template.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef ELEMENT_TYPE ElementType;
         // 'ElementType' is an alias for the 'ELEMENT_TYPE' parameter of this
         // class template, and is equivalent to 'element_type'.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(
@@ -2743,7 +2733,6 @@ class weak_ptr {
         // if this weak pointer is in the empty state.  Note that the behavior
         // of this method is the same as that of 'numReferences'.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     shared_ptr<ELEMENT_TYPE> acquireSharedPtr() const;
         // Return a shared pointer to the object referred to by this weak
         // pointer if 'false == expired()', and a shared pointer in the empty
@@ -2755,7 +2744,6 @@ class weak_ptr {
         // share ownership of the object referred to by this weak pointer, or 0
         // if this weak pointer is in the empty state.  Note that the behavior
         // of this method is the same as that of 'use_count'.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
                         // C++0x Compatibility
@@ -3459,7 +3447,6 @@ void shared_ptr<ELEMENT_TYPE>::reset(const shared_ptr<ANY_TYPE>&  source,
     SelfType(source, ptr).swap(*this);
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class ELEMENT_TYPE>
 inline
 void shared_ptr<ELEMENT_TYPE>::clear()
@@ -3480,7 +3467,6 @@ shared_ptr<ELEMENT_TYPE>::loadAlias(const shared_ptr<ANY_TYPE>&  source,
         SelfType(source, object).swap(*this);
     }
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class ELEMENT_TYPE>
 void
@@ -3990,7 +3976,6 @@ long shared_ptr<ELEMENT_TYPE>::use_count() const
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class ELEMENT_TYPE>
 inline
 ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const
@@ -4004,7 +3989,6 @@ int shared_ptr<ELEMENT_TYPE>::numReferences() const
 {
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
                         // --------------
                         // class weak_ptr
@@ -4165,7 +4149,6 @@ weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
                                                            other.d_rep_p);
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::acquireSharedPtr() const
@@ -4179,7 +4162,6 @@ int weak_ptr<ELEMENT_TYPE>::numReferences() const
 {
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
               // --------------------------------------------
               // struct owner_less<shared_ptr<ELEMENT_TYPE> >
