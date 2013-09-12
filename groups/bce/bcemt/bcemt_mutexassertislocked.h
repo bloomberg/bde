@@ -137,7 +137,7 @@ BDES_IDENT("$Id: $")
 // version of the macro so that the check, which on some platforms is as
 // expensive as locking the mutex, is performed in only the safe build mode.
 //
-// Next, we define the public manipulators; all of which must acquire a lock on
+// Next, we define the public manipulators; each of which must acquire a lock on
 // the mutex (note that there is a bug in 'popAll'):
 //..
 //  // MANIPULATORS
