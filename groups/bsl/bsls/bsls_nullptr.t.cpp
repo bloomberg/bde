@@ -74,7 +74,7 @@ static void aSsErT(bool b, const char *s, int i)
     // Clang 3.4 is released.  This conversion is merely a warning in earlier
     // versions of Clang.
 
-# define BSLS_NULLPTR_IMPLEMENTS_CORE_DEFECT_903
+# define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903
 #endif
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
         ASSERT(Local::isNullPointer(NULL));
         ASSERT(Local::isNullPointer(false));
 #if defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)     \
- && defined(BSLS_NULLPTR_IMPLEMENTS_CORE_DEFECT_903)
+ && defined(BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903)
         ASSERT(!Local::isNullPointer(s_cZero));
         ASSERT(!Local::isNullPointer(cZero));
 #else
