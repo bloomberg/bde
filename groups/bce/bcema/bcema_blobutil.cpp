@@ -79,7 +79,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
 
     const int destBufferIndex = dest->numDataBuffers();
     while (destBufferIndex < dest->numBuffers()) {
-        dest->removeBuffer(destBufferIndex);
+        dest->removeBuffer(dest->numBuffers() - 1);
     }
 
     dest->reserveBufferCapacity(dest->numDataBuffers()
@@ -135,6 +135,8 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
 
     BSLS_ASSERT(-numBytesRemaining == dest->totalSize() - newLength);
     BSLS_ASSERT(newLength          <= dest->totalSize());
+
+    (void) newLength; // quash potential compiler warning
 }
 
 void bcema_BlobUtil::append(bcema_Blob *dest,
