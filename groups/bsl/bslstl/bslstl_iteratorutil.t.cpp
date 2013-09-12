@@ -2,8 +2,6 @@
 
 #include <bslstl_iteratorutil.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
