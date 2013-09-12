@@ -1239,13 +1239,11 @@ class ManagedPtr {
         // will ultimately be destroyed, and the destructor for 'ptr' is not
         // called directly.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bslma::ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> release();
         // Return a raw pointer to the current target object (if any) and the
         // deleter for the currently managed object, and reset this managed
         // pointer as empty.  It is undefined behavior to run the returned
         // deleter unless the returned pointer to target object is not null.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     TARGET_TYPE *release(ManagedPtrDeleter *deleter);
         // Load the specified 'deleter' for the currently managed object and
@@ -1773,7 +1771,6 @@ void ManagedPtr<TARGET_TYPE>::clear()
     d_members.clear();
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <typename TARGET_TYPE>
 bslma::ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
 ManagedPtr<TARGET_TYPE>::release()
@@ -1790,7 +1787,6 @@ ManagedPtr<TARGET_TYPE>::release()
     d_members.clear();
     return result;
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <typename TARGET_TYPE>
 TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
