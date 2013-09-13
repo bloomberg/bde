@@ -995,12 +995,14 @@ class bdema_ManagedPtr : public bslma::ManagedPtr<TARGET_TYPE> {
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
+#if 0
     template <class REFERENCED_TYPE>
     operator bslma::ManagedPtr_Ref<REFERENCED_TYPE>();
         // Return a managed pointer reference, referring to this object.  Note
         // that this conversion operator is used implicitly to allow the
         // construction of managed pointers from rvalues because temporaries
         // cannot be passed by modifiable reference.
+#endif
 
     void load(bsl::nullptr_t = 0, bsl::nullptr_t = 0);
         // Destroy the current managed object (if any) and reset this managed
@@ -1469,6 +1471,7 @@ bdema_ManagedPtr<TARGET_TYPE>::release()
     return bsl::pair<TARGET_TYPE *, bdema_ManagedPtrDeleter>(ptr, deleter);
 }
 
+#if 0
 template <class TARGET_TYPE>
 template <class REFERENCED_TYPE>
 inline
@@ -1485,6 +1488,7 @@ bdema_ManagedPtr<TARGET_TYPE>::operator
 
     return static_cast< bslma::ManagedPtr<TARGET_TYPE>& >(*this);
 }
+#endif
 
                       // --------------------------------
                       // class bdema_ManagedPtrNilDeleter
