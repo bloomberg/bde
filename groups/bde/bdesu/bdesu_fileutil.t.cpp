@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -560,6 +560,93 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING: Unix File Permissions for 'createDirectoies'
+        //
+        // Concerns:
+        //: 1 The permissions of a file created with 'createDirectories' on
+        //:   unix are chmod 0777.  Although not (currently) contractually
+        //:   guaranteed, this matches the behavior for std::fstream and is
+        //:   consistent with the use of a umask (see DRQS 40563234).
+        //
+        // Plan:
+        //: 1 Create a directory
+        //: 2 Read its permissions via 'stat64' or 'stat'.
+        //: 3 Observe that the permission are chmod 0777 (C-1).
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+            "TESTING: Unix File Permissions for 'open' & 'createDirectories\n"
+            "==============================================================\n";
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
+#else
+        umask(0);
+
+        if (verbose) cout << "Testing 'createDirectories'\n";
+        {
+            const bsl::string& testBaseDir = tempFileName(
+                                              "tmp.bdesu_fileutil_14.mkdir1");
+            bsl::string fullPath = testBaseDir;
+            fullPath += '/';
+            fullPath += tempFileName("dir2");
+
+            if (veryVerbose) { P(fullPath); }
+
+            (void) bdesu_FileUtil::remove(testBaseDir, true);
+
+            int rc = Obj::createDirectories(fullPath, true);
+            ASSERT(0 == rc);
+
+            ASSERT(Obj::exists(testBaseDir));
+            ASSERT(Obj::exists(fullPath));
+
+# ifdef BSLS_PLATFORM_OS_CYGWIN
+            struct stat info;
+            ASSERT(0 == ::stat(  fullPath.c_str(), &info));
+# else
+            struct stat64 info;
+            ASSERT(0 == ::stat64(fullPath.c_str(), &info));
+# endif
+            info.st_mode &= 0777;
+
+            enum { EXPECTED_PERMS = S_IRUSR|S_IWUSR|S_IXUSR |
+                                    S_IRGRP|S_IWGRP|S_IXGRP |
+                                    S_IROTH|S_IWOTH|S_IXOTH };
+
+            const bool eqLeafDir = EXPECTED_PERMS == info.st_mode;
+
+            if (veryVeryVerbose || !eqLeafDir) {
+                bsl::ios_base::fmtflags flags = cout.flags();
+                cout << bsl::oct << "Leaf dir: ";
+                P_(EXPECTED_PERMS);    P(info.st_mode);
+                cout.flags(flags);
+            }
+            ASSERT(eqLeafDir);
+
+# ifdef BSLS_PLATFORM_OS_CYGWIN
+            ASSERT(0 == ::stat(  testBaseDir.c_str(), &info));
+# else
+            ASSERT(0 == ::stat64(testBaseDir.c_str(), &info));
+# endif
+            info.st_mode &= 0777;
+
+            const bool eqBaseDir = EXPECTED_PERMS == info.st_mode;
+
+            if (veryVeryVerbose || !eqBaseDir) {
+                bsl::ios_base::fmtflags flags = cout.flags();
+                cout << bsl::oct << "Base dir: ";
+                P_(EXPECTED_PERMS);    P(info.st_mode);
+                cout.flags(flags);
+            }
+            ASSERT(eqBaseDir);
+
+            ASSERT(0 == bdesu_FileUtil::remove(testBaseDir, true));
+        }
+#endif
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TESTING: Unix File Permissions for 'open' and 'createDirectoies'
@@ -625,67 +712,6 @@ int main(int argc, char *argv[])
             ASSERT(eq);
 
             ASSERT(0 == bdesu_FileUtil::remove(testFile, false));
-        }
-
-        if (verbose) cout << "Testing 'createDirectories'\n";
-        {
-            const bsl::string& testBaseDir = tempFileName(
-                                              "tmp.bdesu_fileutil_14.mkdir1");
-            bsl::string fullPath = testBaseDir;
-            fullPath += '/';
-            fullPath += tempFileName("dir2");
-
-            if (veryVerbose) P(fullPath);
-
-            (void) bdesu_FileUtil::remove(testBaseDir, true);
-
-            int rc = Obj::createDirectories(fullPath, true);
-            ASSERT(0 == rc);
-
-            ASSERT(Obj::exists(testBaseDir));
-            ASSERT(Obj::exists(fullPath));
-
-# ifdef BSLS_PLATFORM_OS_CYGWIN
-            struct stat info;
-            ASSERT(0 == ::stat(  fullPath.c_str(), &info));
-# else
-            struct stat64 info;
-            ASSERT(0 == ::stat64(fullPath.c_str(), &info));
-# endif
-            info.st_mode &= 0777;
-
-            enum { EXPECTED_PERMS = S_IRUSR|S_IWUSR|S_IXUSR |
-                                    S_IRGRP|S_IWGRP|S_IXGRP |
-                                    S_IROTH|S_IWOTH|S_IXOTH };
-
-            const bool eqLeafDir = EXPECTED_PERMS == info.st_mode;
-
-            if (veryVerbose || !eqLeafDir) {
-                bsl::ios_base::fmtflags flags = cout.flags();
-                cout << bsl::oct << "Leaf dir: ";
-                P_(EXPECTED_PERMS);    P(info.st_mode);
-                cout.flags(flags);
-            }
-            ASSERT(eqLeafDir);
-
-# ifdef BSLS_PLATFORM_OS_CYGWIN
-            ASSERT(0 == ::stat(  testBaseDir.c_str(), &info));
-# else
-            ASSERT(0 == ::stat64(testBaseDir.c_str(), &info));
-# endif
-            info.st_mode &= 0777;
-
-            const bool eqBaseDir = EXPECTED_PERMS == info.st_mode;
-
-            if (veryVerbose || !eqBaseDir) {
-                bsl::ios_base::fmtflags flags = cout.flags();
-                cout << bsl::oct << "Base dir: ";
-                P_(EXPECTED_PERMS);    P(info.st_mode);
-                cout.flags(flags);
-            }
-            ASSERT(eqBaseDir);
-
-            ASSERT(0 == bdesu_FileUtil::remove(testBaseDir, true));
         }
 #endif
       } break;
@@ -1495,7 +1521,7 @@ int main(int argc, char *argv[])
         bdesu_FileUtil::remove(dirName, true);
         bdesu_FileUtil::createDirectories(dirName, true);
         bdesu_FileUtil::setWorkingDirectory(dirName);
-        for(int i=0; i<4; ++i) {
+        for (int i=0; i<4; ++i) {
             char name[16];
             sprintf(name, "woof.a.%d", i);
             bdesu_FileUtil::FileDescriptor fd =
@@ -2314,7 +2340,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::map(fd, (void**)&p, 0, pageSize,
                                    bdesu_MemoryUtil::BDESU_ACCESS_READ_WRITE));
         printf("mapped at %p\n", p);
-        for(int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 10000; ++i) {
           ASSERT(0 == bdesu_FileUtil::seek(fd, 0,
                                    bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING));
           int buf;
