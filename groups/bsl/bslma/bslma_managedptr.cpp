@@ -50,9 +50,9 @@ void ManagedPtr_ImpUtil::checkDefaultAllocatorIsNewDeleteAllocator()
         if (allocator != expected) {
             firstBadCall = true;
             fprintf(stderr,
-                  "ERROR: Constructing a managed pointer without an allocator "
-                  "when the default is not the NewDelete allocator; see "
-                  "{TEAM BDEI:SMART POINTER CONSTRUCTORS<GO>}\n");
+                  "WARNING: Constructing a managed pointer without an "
+                  "allocator when the default is not the NewDelete allocator; "
+                  "see {TEAM BDEI:SMART POINTER CONSTRUCTORS<GO>}\n");
         }
     }
 }

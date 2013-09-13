@@ -1526,7 +1526,7 @@ void doConstructOnullFactory(int callLine, int testLine, int index,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test ConstructOnull", g_veryVeryVeryVerbose);
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
 
     const bslma::ManagedPtrDeleter del;
@@ -1563,7 +1563,7 @@ void doConstructObjectFactory(int callLine, int testLine, int,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test ConstructObject", g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
@@ -1647,7 +1647,8 @@ void doConstructObjectFactoryDzero(int callLine, int testLine, int,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test ConstructObjectDzero",
+                            g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
@@ -1726,7 +1727,8 @@ void doConstructObjectFactoryDeleter(int callLine, int testLine, int index,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test ConstructObjectDeleter",
+                            g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
@@ -1798,7 +1800,8 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
     // allocations and destructions within this function, while 'pF' is the
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
-    bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test ConstructObjectDeleter2",
+                            g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FactoryPolicy::factory(&ta);
     FactoryType *pF = nullFactory
