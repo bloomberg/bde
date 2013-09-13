@@ -11,7 +11,7 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdepu_Iso8601: namespace for ISO8601 date/time conversion functions
-/// bdepu_Iso8601Default: define process-wide default behaviors
+/// bdepu_Iso8601Configuration: define process-wide default behaviors
 //
 //@SEE_ALSO: bdet_date, bdet_datetime, bdet_datetimetz, bdet_datetz, bdet_time,
 //           bdet_timetz, baexml_encoder, baexml_decoder
@@ -226,7 +226,7 @@ struct bdepu_Iso8601 {
     static int generate(char                 *buffer,
                         const bdet_Datetime&  object,
                         int                   bufferLength);
-        // Write the ISO8601 representation of the specified 'object' to
+        // Write the ISO8601 representation of the specified 'object' to the
         // specified 'buffer' truncating (if necessary) to the specified
         // 'bufferLength', and return the length of the formatted string
         // before truncation (not including a null terminator).  If
@@ -262,7 +262,7 @@ struct bdepu_Iso8601 {
                         const bdet_DatetimeTz&  object,
                         int                     bufferLength,
                         bool                    useZAbbreviationForUtc);
-        // Write the ISO8601 representation of the specified 'object' to
+        // Write the ISO8601 representation of the specified 'object' to the
         // specified 'buffer' truncating (if necessary) to the specified
         // 'bufferLength', and return the length of the formatted string
         // before truncation (not including a null terminator).  Optionally
@@ -271,7 +271,7 @@ struct bdepu_Iso8601 {
         // 'useZAbbreviationForUtc' is 'true' 10am UTC will be formatted as
         // "10:00:00.000Z", and will be formatted as "10:00:00.000+000"
         // otherwise).  If 'useZAbbreviationForUtc' is not supplied, the
-        // process wide default value, 'defaultUseZAbbreviationForUtc' is used.
+        // process wide default value 'defaultUseZAbbreviationForUtc' is used.
         // If 'bufferLength' is larger than necessary to contain the string
         // representation of 'object', then a null terminator is appended to
         // the output.  The behavior is undefined unless '0 <= bufferLength'.
@@ -289,7 +289,7 @@ struct bdepu_Iso8601 {
                            const bdet_Datetime&  object);
     static int generateRaw(char             *buffer,
                            const bdet_Time&  object);
-        // Write the ISO8601 representation of the specified 'object' to
+        // Write the ISO8601 representation of the specified 'object' to the
         // specified 'buffer' and return the length of the formatted string
         // (not including a null terminator).  The behavior is undefined unless
         // 'buffer' holds enough characters.  Note that, for each type of
@@ -314,7 +314,7 @@ struct bdepu_Iso8601 {
     static int generateRaw(char                   *buffer,
                            const bdet_DatetimeTz&  object,
                            bool                    useZAbbreviationForUtc);
-        // Write the ISO8601 representation of the specified 'object' to
+        // Write the ISO8601 representation of the specified 'object' to the
         // specified 'buffer' and return the length of the formatted string
         // (not including a null terminator).  Optionally specify
         // 'useZAbbreviationForUtc' to indicate whether to abbreviate a
@@ -322,7 +322,7 @@ struct bdepu_Iso8601 {
         // 'useZAbbreviationForUtc' is 'true' 10am UTC will be formatted as
         // "10:00:00.000Z", and will be formatted as "10:00:00.000+000"
         // otherwise).  If 'useZAbbreviationForUtc' is not supplied, the
-        // process wide default value, 'defaultUseZAbbreviationForUtc' is used.
+        // process wide default value 'defaultUseZAbbreviationForUtc' is used.
         // The behavior is undefined unless 'buffer' holds enough characters.
         // Note that, for each type of 'object', the return value is always the
         // same (as enumerated in the '_STRLEN' constants).  Also note that a
@@ -364,7 +364,7 @@ struct bdepu_Iso8601 {
         // 'true' 10am UTC will be formatted as "10:00:00.000Z", and will be
         // formatted as "10:00:00.000+000" otherwise).  If
         // 'useZAbbreviationForUtc' is not supplied, the process wide default
-        // value, 'defaultUseZAbbreviationForUtc' is used.  Return a reference
+        // value 'defaultUseZAbbreviationForUtc' is used.  Return a reference
         // to the modifiable 'stream'.
 
     static int parse(bdet_Date  *result,
@@ -542,24 +542,21 @@ struct bdepu_Iso8601 {
         // 'ss == 60' and there is rounding up due to the '{.d+}' field.
 };
 
-                        // ===========================
-                        // struct bdepu_Iso8601Default
-                        // ===========================
+                        // =================================
+                        // struct bdepu_Iso8601Configuration
+                        // =================================
 
-struct bdepu_Iso8601Default {
+struct bdepu_Iso8601Configuration {
     // This 'struct' provides a namespace for utility functions that configure
     // process wide defaults for 'bdepu_Iso8601'.
 
     // CLASS METHODS
-    static void enableUseZAbbreviationForUtc();
-        // Enable using the character 'Z' as an abbreviation for a time zone
-        // offset of 00:00 (UTC).  For example, enabling this option would
-        // mean that 10:00am UTC would be formatted as "10:00:00.000Z".
-
-    static void disableUseZAbbreviationForUtc();
-        // Disable using the character 'Z' as an abbreviation for a time zone
-        // offset of 00:00 (UTC).  For example, disabling this option would
-        // mean that 10:00am UTC would be formatted as "10:00:00.000+00:00".
+    static void setUseZAbbreviationForUtc(bool useZAbbrevationForUtcFlag);
+        // Set to the specified 'useZAbbrevationForUtcFlag' whether to use the
+        // character 'Z' as an abbreviation for a time zone offset of 00:00
+        // (UTC).  For example, if this option is enabled, 10:00am UTC would
+        // be formatted as "10:00:00.000Z", and formatted as
+        // "10:00:00.000+00:00" otherwise.
 
     static bool useZAbbreviationForUtc();
         // Return 'true' if, by default, 'Z' should be used as an abbreviation
@@ -581,7 +578,7 @@ int bdepu_Iso8601::generate(char               *buffer,
     return generate(buffer,
                     object,
                     bufLen,
-                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+                    bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 
 }
 
@@ -593,7 +590,7 @@ int bdepu_Iso8601::generate(char               *buffer,
     return generate(buffer,
                     object,
                     bufLen,
-                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+                    bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline
@@ -604,7 +601,7 @@ int bdepu_Iso8601::generate(char                   *buffer,
     return generate(buffer,
                     object,
                     bufLen,
-                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+                    bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline
@@ -613,7 +610,7 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
 {
     return generateRaw(buffer,
                        object,
-                       bdepu_Iso8601Default::useZAbbreviationForUtc());
+                       bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline
@@ -622,7 +619,7 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
 {
     return generateRaw(buffer,
                        object,
-                       bdepu_Iso8601Default::useZAbbreviationForUtc());
+                       bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline
@@ -631,7 +628,7 @@ int bdepu_Iso8601::generateRaw(char                   *buffer,
 {
     return generateRaw(buffer,
                        object,
-                       bdepu_Iso8601Default::useZAbbreviationForUtc());
+                       bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline
@@ -673,7 +670,7 @@ bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&      stream,
 {
     return generate(stream,
                     object,
-                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+                    bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline
@@ -696,7 +693,7 @@ bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&      stream,
 {
     return generate(stream,
                     object,
-                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+                    bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline
@@ -719,7 +716,7 @@ bsl::ostream& bdepu_Iso8601::generate(bsl::ostream&      stream,
 {
     return generate(stream,
                     object,
-                    bdepu_Iso8601Default::useZAbbreviationForUtc());
+                    bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 }
 
 inline

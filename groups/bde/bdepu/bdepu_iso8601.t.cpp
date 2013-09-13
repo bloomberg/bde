@@ -61,9 +61,8 @@ using bsl::flush;
 // [ 3] static int parse(bdet_DateTz *, const char *, int);
 // [ 3] static int parse(bdet_TimeTz *, const char *, int);
 // [ 3] static int parse(bdet_DatetimeTz *, const char *, int);
-// [ 7] void bdepu_Iso8601Default::enableUseZAbbreviationForUtc()
-// [ 7] void bdepu_Iso8601Default::enableUseZAbbreviationForUtc()
-// [ 7] bool bdepu_Iso8601Default::useZAbbreviationForUtc()
+// [ 7] void bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(bool)
+// [ 7] bool bdepu_Iso8601Configuration::useZAbbreviationForUtc()
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
@@ -208,14 +207,14 @@ void testTimezone(const char *tzStr,
     const bsl::string dateStr = "2000-01-02";
     const bsl::string timeStr = "12:34:56";
     const bsl::string datetimeStr = "2001-02-03T14:21:34";
-    
+
     const bdet_Date       initDate( 3,  3,  3);
     const bdet_DateTz     initDateTz(initDate,-120);
     const bdet_Time       initTime(11, 11, 11);
     const bdet_TimeTz     initTimeTz(initTime, 120);
     const bdet_Datetime   initDatetime(  initDate, initTime);
     const bdet_DatetimeTz initDatetimeTz(initDatetime, 180);
-    
+
     int ret;
     bdet_Date date(initDate);
     const bsl::string& dateTzStr = dateStr + tzStr;
@@ -270,7 +269,7 @@ void testTimezone(const char *tzStr,
 //-----------------------------------------------------------------------------
 
 // Note that the following test case is factored into function to avoid
-// intenral compiler errors building optimized versions of the test driver.
+// internal compiler errors building optimized versions of the test driver.
 
 void testCase4TestingParse()
 {
@@ -732,7 +731,7 @@ void testCase4TestingParse()
 //-----------------------------------------------------------------------------
 
 // Note that the following test case is factored into function to avoid
-// intenral compiler errors building optimized versions of the test driver.
+// internal compiler errors building optimized versions of the test driver.
 
 void testCase3TestingParse()
 {
@@ -1241,7 +1240,7 @@ void testCase3TestingParse()
 //-----------------------------------------------------------------------------
 
 // Note that the following test case is factored into function to avoid
-// intenral compiler errors building optimized versions of the test driver.
+// internal compiler errors building optimized versions of the test driver.
 
 void testCase2TestingGenerate()
 {
@@ -1768,7 +1767,7 @@ void testCase2TestingGenerate()
     }
 
     if (verbose)
-        cout << "\tTest 'enableUseZAbbreviationForUtc' configuration.\n";
+        cout << "\tTest 'setUseZAbbreviationForUtc' configuration.\n";
 
     for (int i = 0; i < NUM_UTC_OFFSETS; ++i ) {
         const int UTC_OFFSET = UTC_OFFSETS[i];
@@ -1810,7 +1809,7 @@ void testCase2TestingGenerate()
         }
 
         // Test generated vs expected values with Z enabled.
-        bdepu_Iso8601Default::enableUseZAbbreviationForUtc();
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(true);
         {
             bsl::vector<char> dateOutput(100, '*');
             bsl::vector<char> timeOutput(100, '*');
@@ -1859,7 +1858,7 @@ void testCase2TestingGenerate()
                     expectedDatetimeWithZ == datetimeStream.str());
         }
         // Test generated vs expected values with Z disabled.
-        bdepu_Iso8601Default::disableUseZAbbreviationForUtc();
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(false);
         {
             bsl::vector<char> dateOutput(100, '*');
             bsl::vector<char> timeOutput(100, '*');
@@ -1974,55 +1973,41 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING: bdepu_Iso8601Default
+        // TESTING: bdepu_Iso8601Configuration
         //
         // Concerns:
         //: 1 The default value for 'useZAbbreviationForUtc' is 'false'.
         //:
-        //: 2 Calling 'enableUseZAbbreviationForUtc' sets
-        //:   'useZAbbreviationForUtc to 'true'.
-        //:
-        //: 2 Calling 'disableUseZAbbreviationForUtc' sets
-        //:   'useZAbbreviationForUtc to 'false'.
+        //: 2 Calling 'setUseZAbbreviationForUtc' sets
+        //:   'useZAbbreviationForUtc'  to the indicated status.
         //
         // Plan:
-        //: 1 User a loop-based test over a range of valid date & time values
-        //:   selected to test various formatting properties: (C1-5)
-        //:   1 For each value, perform an orthogonal perturbation for timezone
-        //:     offsets
+        //: 1 Verify that if 'setUseZAbbreviationForUtc' is not called,
+        //:   'useZAbbreviationForUtc' returns 'false'. (C-1)
         //:
-        //:   2 For each value, perform an orthogonal perturbation for the
-        //:     output buffer length, testing buffers to short for the
-        //:     resulting formatted value.
-        //:
-        //: 2 For a UTC value generate a formatted value of each of the 3 'Tz"
-        //:   types with the optional 'useZAbbreviationForUtc' as both 'true'
-        //:   and 'false' (C-6)
-        //:
-        //: 3 For a UTC value generate a formatted value of each of the 3 'Tz"
-        //:   types both with, and without, the default useZAbbreviationForUtc
-        //:   option enabled. (C-7)
+        //: 2 Call 'setUseZAbbreviationForUtc' with both 'true' and 'false'
+        //:   and verify that 'useZAbbreviationForUtc' returns the
+        //:   corresponding state. (C-2)
         //
         // Testing:
-        //  void enableUseZAbbreviationForUtc();
-        //  void disableUseZAbbreviationForUtc();
+        //  void setUseZAbbreviationForUtc(bool);
         //  bool useZAbbreviationForUtc();
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING: bdepu_Iso8601Default"
-                               << "\n============================="
+        if (verbose) bsl::cout << "\nTESTING: bdepu_Iso8601Configuration"
+                               << "\n==================================="
                                << bsl::endl;
 
-        ASSERT(false == bdepu_Iso8601Default::useZAbbreviationForUtc());
+        ASSERT(false == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 
-        bdepu_Iso8601Default::disableUseZAbbreviationForUtc();
-        ASSERT(false == bdepu_Iso8601Default::useZAbbreviationForUtc());
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(false);
+        ASSERT(false == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 
-        bdepu_Iso8601Default::enableUseZAbbreviationForUtc();
-        ASSERT(true == bdepu_Iso8601Default::useZAbbreviationForUtc());
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(true);
+        ASSERT(true == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
 
-        bdepu_Iso8601Default::disableUseZAbbreviationForUtc();
-        ASSERT(false == bdepu_Iso8601Default::useZAbbreviationForUtc());
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(false);
+        ASSERT(false == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
       }
       case 6: {
         // --------------------------------------------------------------------

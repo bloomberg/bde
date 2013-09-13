@@ -22,7 +22,7 @@ namespace BloombergLP {
 
 // GLOBAL CONFIGURATION
 static bool g_useZAbbreviationForUtc = false;
-        
+
 // STATIC HELPER FUNCTIONS
 static
 int parseUint(const char **nextPos,
@@ -392,12 +392,11 @@ char *generateTimeZoneOffset(char *buffer,
         *buffer++ = 'Z';
     }
     else {
-        int  timezoneOffset = tzOffset;
         char timezoneSign;
 
-        if (0 > timezoneOffset) {
-            timezoneOffset = -timezoneOffset;
-            timezoneSign   = '-';
+        if (0 > tzOffset) {
+            tzOffset     = -tzOffset;
+            timezoneSign = '-';
         }
         else {
             timezoneSign = '+';
@@ -405,10 +404,10 @@ char *generateTimeZoneOffset(char *buffer,
 
         // TZ offset cannot be more than 24 hours.
 
-        BSLS_ASSERT(timezoneOffset <= 24 * 60);
+        BSLS_ASSERT(tzOffset <= 24 * 60);
         *buffer++ = timezoneSign;
-        buffer = generateInt(buffer, timezoneOffset / 60        , 2, ':');
-        buffer = generateInt(buffer, timezoneOffset % 60        , 2     );
+        buffer = generateInt(buffer, tzOffset / 60        , 2, ':');
+        buffer = generateInt(buffer, tzOffset % 60        , 2     );
     }
     return buffer;
 }
@@ -499,7 +498,8 @@ int bdepu_Iso8601::generate(char               *buffer,
     int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
 
     BSLS_ASSERT(outLen == sizeof(outBuf) ||
-                (0 == object.offset() && useZAbbreviationForUtc));
+                (0 == object.offset() && useZAbbreviationForUtc &&
+                 outLen <= static_cast<int>(sizeof(outBuf))));
 
     return copyBuf(buffer, bufLen, outBuf, outLen);
 }
@@ -516,7 +516,8 @@ int bdepu_Iso8601::generate(char               *buffer,
     int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
 
     BSLS_ASSERT(outLen == sizeof(outBuf) ||
-                (0 == object.offset() && useZAbbreviationForUtc));
+                (0 == object.offset() && useZAbbreviationForUtc &&
+                 outLen <= static_cast<int>(sizeof(outBuf))));
 
     return copyBuf(buffer, bufLen, outBuf, outLen);
 }
@@ -533,7 +534,8 @@ int bdepu_Iso8601::generate(char                   *buffer,
     int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
 
     BSLS_ASSERT(outLen == sizeof(outBuf) ||
-                (0 == object.offset() && useZAbbreviationForUtc));
+                (0 == object.offset() && useZAbbreviationForUtc &&
+                 outLen <= static_cast<int>(sizeof(outBuf))));
 
     return copyBuf(buffer, bufLen, outBuf, outLen);
 }
@@ -773,7 +775,7 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
     // of 19.  Timezone may be optionally specified:
     // "2005-01-31T08:59:59.999-04:00".  Also, there might be more than 3
     // decimal places for the fraction of a second.  But when storing in
-    // bdet_Datetime, we only take the 4 most significant digits.h rounded to
+    // bdet_Datetime, we only take the 4 most significant digits rounded to
     // 3 digits.
 
     enum { MINIMUM_LENGTH = 19 };
@@ -1032,21 +1034,17 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
     return 0;
 }
 
-                        // ---------------------------
-                        // struct bdepu_Iso8601Default
-                        // ---------------------------
+                        // ---------------------------------
+                        // struct bdepu_Iso8601Configuration
+                        // ---------------------------------
 
-void bdepu_Iso8601Default::enableUseZAbbreviationForUtc()
+void bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(
+                                                bool useZAbbrevationForUtcFlag)
 {
-    g_useZAbbreviationForUtc = true;
+    g_useZAbbreviationForUtc = useZAbbrevationForUtcFlag;
 }
 
-void bdepu_Iso8601Default::disableUseZAbbreviationForUtc()
-{
-    g_useZAbbreviationForUtc = false;
-}
-
-bool bdepu_Iso8601Default::useZAbbreviationForUtc()
+bool bdepu_Iso8601Configuration::useZAbbreviationForUtc()
 {
     return g_useZAbbreviationForUtc;
 }
