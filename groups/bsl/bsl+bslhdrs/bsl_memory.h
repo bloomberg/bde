@@ -54,6 +54,8 @@ namespace bsl
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstl_allocator.h>
+#include <bslstl_allocatortraits.h>
+#include <bslstl_sharedptr.h>
 #endif
 
 #endif
