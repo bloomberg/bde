@@ -849,6 +849,9 @@ int main(int argc, char *argv[])
 
             // Verify that the signatures and return types are standard.
 
+            using namespace bslma;  // operators migrate with type to a
+                                    // differnt namespace
+
             operatorPtr operatorEq = operator==;
             operatorPtr operatorNe = operator!=;
 
@@ -989,10 +992,8 @@ int main(int argc, char *argv[])
 
             // Verify that the signatures and return types are standard.
 
-            funcPtr     printMember = &Obj::print;
             operatorPtr operatorOp  = operator<<;
 
-            (void)printMember;  // quash potential compiler warnings
             (void)operatorOp;
         }
 
@@ -1163,7 +1164,14 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, &os == &(os << X));
 
                     if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+
+                    // Verify output is formatted as expected.
+
+                    if (veryVeryVerbose) { P(os.str()) }
+
+                    LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
                 }
+#if 0
                 else {
 
                     // Verify supplied stream is returned by reference.
@@ -1171,13 +1179,14 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
 
                     if (veryVeryVerbose) { T_ T_ Q(print) }
+
+                    // Verify output is formatted as expected.
+
+                    if (veryVeryVerbose) { P(os.str()) }
+
+                    LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
                 }
-
-                // Verify output is formatted as expected.
-
-                if (veryVeryVerbose) { P(os.str()) }
-
-                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
+#endif
             }
         }
 

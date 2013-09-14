@@ -1175,7 +1175,7 @@ namespace BloombergLP {
                         // =====================
 
 template <class ELEMENT_TYPE>
-class bcema_SharedPtr {
+class bcema_SharedPtr : public bsl::shared_ptr<ELEMENT_TYPE> {
     // This class provides a thread-safe reference-counted "smart pointer" to
     // support "shared ownership" of objects: a shared pointer ensures that the
     // shared object is destroyed, using the appropriate deletion method, only
@@ -1196,6 +1196,7 @@ class bcema_SharedPtr {
     // More generally, this class supports a complete set of *in*-*core*
     // pointer semantic operations.
 
+#if 0
     // DATA
     ELEMENT_TYPE               *d_ptr_p;  // pointer to the shared object
 
@@ -1235,6 +1236,7 @@ class bcema_SharedPtr {
         // the specified 'ptr, that will destroy the object pointed to by the
         // specied 'ptr' using the specified 'deleter', using the currently
         // installed default allocator to provide storage.
+#endif
 
   public:
     // TYPES
@@ -1504,6 +1506,7 @@ class bcema_SharedPtr {
         // reference to that object.  Note that if 'rhs' is null, then this
         // shared pointer will also be empty after the assignment.
 
+#if 0
     void clear();
         // Reset this shared pointer to the empty state.  If this shared
         // pointer is managing a (possibly shared) object, then release the
@@ -1876,6 +1879,31 @@ class bcema_SharedPtr {
         // 'bcema_SharedPtrRep' object used by the specified 'other' shared
         // pointer under the total ordering supplied by
         // 'bsl::less<bcema_SharedPtrRep *>', and 'false' otherwise.
+#else
+    using bsl::shared_ptr<ELEMENT_TYPE>::clear;
+    using bsl::shared_ptr<ELEMENT_TYPE>::load;
+    using bsl::shared_ptr<ELEMENT_TYPE>::loadAlias;
+    using bsl::shared_ptr<ELEMENT_TYPE>::createInplace;
+    using bsl::shared_ptr<ELEMENT_TYPE>::release;
+    using bsl::shared_ptr<ELEMENT_TYPE>::swap;
+    using bsl::shared_ptr<ELEMENT_TYPE>::operator[];
+    using bsl::shared_ptr<ELEMENT_TYPE>::operator*;
+    using bsl::shared_ptr<ELEMENT_TYPE>::operator->;
+    using bsl::shared_ptr<ELEMENT_TYPE>::rep;
+    using bsl::shared_ptr<ELEMENT_TYPE>::ptr;
+    using bsl::shared_ptr<ELEMENT_TYPE>::numReferences;
+//    using bsl::shared_ptr<ELEMENT_TYPE>::managedPtr;
+    using bsl::shared_ptr<ELEMENT_TYPE>::reset;
+    using bsl::shared_ptr<ELEMENT_TYPE>::get;
+    using bsl::shared_ptr<ELEMENT_TYPE>::unique;
+    using bsl::shared_ptr<ELEMENT_TYPE>::use_count;
+    using bsl::shared_ptr<ELEMENT_TYPE>::owner_before;
+
+    bdema_ManagedPtr<ELEMENT_TYPE> managedPtr() const;
+        // Return a managed pointer that refers to the same object as this
+        // shared pointer and which has a deleter that decrements the
+        // reference count for the shared object.
+#endif
 };
 
 // FREE OPERATORS
@@ -2180,7 +2208,7 @@ struct bcema_SharedPtrNilDeleter {
                             // ---------------------
                             // class bcema_SharedPtr
                             // ---------------------
-
+#if 0
 // PRIVATE CLASS METHODS
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE, class ALLOCATOR>
@@ -2220,14 +2248,13 @@ bcema_SharedPtr<ELEMENT_TYPE>::makeInternalRep(ELEMENT_TYPE       *,
 {
     return rep;
 }
-
+#endif
 
 // CREATORS
 template <class ELEMENT_TYPE>
 inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr()
-: d_ptr_p(0)
-, d_rep_p(0)
+: bsl::shared_ptr<ELEMENT_TYPE>()
 {
 }
 
@@ -2235,15 +2262,8 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(COMPATIBLE_TYPE *ptr)
-: d_ptr_p(ptr)
+: bsl::shared_ptr<ELEMENT_TYPE>(ptr)
 {
-    typedef bcema_SharedPtrOutofplaceRep<COMPATIBLE_TYPE, bslma::Allocator *>
-                                                                      RepMaker;
-
-    bslma::Allocator *defaultAllocator = bslma::Default::defaultAllocator();
-    d_rep_p = RepMaker::makeOutofplaceRep(ptr,
-                                          defaultAllocator,
-                                          defaultAllocator);
 }
 
 template <class ELEMENT_TYPE>
@@ -2252,20 +2272,15 @@ inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(
                                               COMPATIBLE_TYPE  *ptr,
                                               bslma::Allocator *basicAllocator)
-: d_ptr_p(ptr)
+: bsl::shared_ptr<ELEMENT_TYPE>(ptr, basicAllocator)
 {
-    typedef bcema_SharedPtrOutofplaceRep<COMPATIBLE_TYPE, bslma::Allocator *>
-                                                                      RepMaker;
-
-    d_rep_p = RepMaker::makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 }
 
 template <class ELEMENT_TYPE>
 inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(ELEMENT_TYPE       *ptr,
                                                bcema_SharedPtrRep *rep)
-: d_ptr_p(ptr)
-, d_rep_p(rep)
+: bsl::shared_ptr<ELEMENT_TYPE>(ptr, rep)
 {
 }
 
@@ -2274,8 +2289,7 @@ template <class COMPATIBLE_TYPE, class DISPATCH>
 inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(COMPATIBLE_TYPE  *ptr,
                                                DISPATCH *const&  dispatch)
-: d_ptr_p(ptr)
-, d_rep_p(makeInternalRep(ptr, dispatch, dispatch))
+: bsl::shared_ptr<ELEMENT_TYPE>(ptr, dispatch)
 {
 }
 
@@ -2286,19 +2300,15 @@ bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(
                                               COMPATIBLE_TYPE  *ptr,
                                               const DELETER&    deleter,
                                               bslma::Allocator *basicAllocator)
-: d_ptr_p(ptr)
+: bsl::shared_ptr<ELEMENT_TYPE>(ptr, deleter, basicAllocator)
 {
-    typedef bcema_SharedPtrOutofplaceRep<COMPATIBLE_TYPE, DELETER> RepMaker;
-
-    d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
 }
 
 template <class ELEMENT_TYPE>
 inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(bsl::nullptr_t,
                                                bslma::Allocator *)
-: d_ptr_p(0)
-, d_rep_p(0)
+: bsl::shared_ptr<ELEMENT_TYPE>()
 {
 }
 
@@ -2308,8 +2318,7 @@ inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(bsl::nullptr_t,
                                                const DELETER&,
                                                bslma::Allocator *)
-: d_ptr_p(0)
-, d_rep_p(0)
+: bsl::shared_ptr<ELEMENT_TYPE>()
 {
 }
 
@@ -2318,24 +2327,8 @@ template <class COMPATIBLE_TYPE>
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(
                              bdema_ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
                              bslma::Allocator                  *basicAllocator)
-: d_ptr_p(managedPtr.ptr())
-, d_rep_p(0)
+: bsl::shared_ptr<ELEMENT_TYPE>(managedPtr, basicAllocator)
 {
-    typedef bcema_SharedPtrInplaceRep<bdema_ManagedPtr<ELEMENT_TYPE> > Rep;
-
-    if (d_ptr_p) {
-        if (&bcema_SharedPtrRep::managedPtrDeleter ==
-                                              managedPtr.deleter().deleter()) {
-            d_rep_p = static_cast<bcema_SharedPtrRep *>
-                                       (managedPtr.release().second.factory());
-        }
-        else {
-            basicAllocator = bslma::Default::allocator(basicAllocator);
-            Rep *rep = new(*basicAllocator) Rep(basicAllocator);
-            (*rep->ptr()) = managedPtr;
-            d_rep_p = rep;
-        }
-    }
 }
 
 template <class ELEMENT_TYPE>
@@ -2343,17 +2336,8 @@ template <class COMPATIBLE_TYPE>
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(
                                 bsl::auto_ptr<COMPATIBLE_TYPE>  autoPtr,
                                 bslma::Allocator               *basicAllocator)
-: d_ptr_p(autoPtr.get())
-, d_rep_p(0)
+: bsl::shared_ptr<ELEMENT_TYPE>(autoPtr, basicAllocator)
 {
-    typedef bcema_SharedPtrInplaceRep<bsl::auto_ptr<COMPATIBLE_TYPE> > Rep;
-
-    if (d_ptr_p) {
-        basicAllocator = bslma::Default::allocator(basicAllocator);
-        Rep *rep = new (*basicAllocator) Rep(basicAllocator);
-        (*rep->ptr()) = autoPtr;
-        d_rep_p = rep;
-    }
 }
 
 template <class ELEMENT_TYPE>
@@ -2361,59 +2345,34 @@ template <class ANY_TYPE>
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(
                                       const bcema_SharedPtr<ANY_TYPE>&  source,
                                       ELEMENT_TYPE                     *object)
-: d_ptr_p(object)
-, d_rep_p(source.d_rep_p)
+: bsl::shared_ptr<ELEMENT_TYPE>(source, object)
 {
-    if (d_ptr_p && d_rep_p) {
-        d_rep_p->acquireRef();
-    } else {
-        d_ptr_p = 0;
-        d_rep_p = 0;
-    }
 }
 
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(
                                  const bcema_SharedPtr<COMPATIBLE_TYPE>& other)
-: d_ptr_p(other.d_ptr_p)
-, d_rep_p(other.d_rep_p)
+: bsl::shared_ptr<ELEMENT_TYPE>(other)
 {
-    if (d_ptr_p) {
-        d_rep_p->acquireRef();
-    } else {
-        d_rep_p = 0;
-    }
 }
 
 template <class ELEMENT_TYPE>
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(const bcema_SharedPtr& original)
-: d_ptr_p(original.d_ptr_p)
-, d_rep_p(original.d_rep_p)
+: bsl::shared_ptr<ELEMENT_TYPE>(original)
 {
-    if (d_ptr_p) {
-        d_rep_p->acquireRef();
-    } else {
-        d_rep_p = 0;
-    }
 }
 
 template <class ELEMENT_TYPE>
 inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(bcema_SharedPtrRep *rep)
-: d_ptr_p(rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0)
-, d_rep_p(rep)
+: bsl::shared_ptr<ELEMENT_TYPE>(rep)
 {
 }
 
 template <class ELEMENT_TYPE>
 bcema_SharedPtr<ELEMENT_TYPE>::~bcema_SharedPtr()
 {
-    BSLS_ASSERT_SAFE(!d_rep_p || d_ptr_p);
-
-    if (d_rep_p) {
-        d_rep_p->releaseRef();
-    }
 }
 
 // MANIPULATORS
@@ -2421,6 +2380,7 @@ template <class ELEMENT_TYPE>
 bcema_SharedPtr<ELEMENT_TYPE>&
 bcema_SharedPtr<ELEMENT_TYPE>::operator=(const bcema_SharedPtr& rhs)
 {
+#if 0
     // Instead of testing '&rhs == this', which happens infrequently, optimize
     // for when reps are the same.
 
@@ -2432,6 +2392,10 @@ bcema_SharedPtr<ELEMENT_TYPE>::operator=(const bcema_SharedPtr& rhs)
     }
 
     return *this;
+#else
+    bsl::shared_ptr<ELEMENT_TYPE>::operator=(rhs);
+    return *this;
+#endif
 }
 
 template <class ELEMENT_TYPE>
@@ -2440,6 +2404,7 @@ bcema_SharedPtr<ELEMENT_TYPE>&
 bcema_SharedPtr<ELEMENT_TYPE>::operator=(
                                    const bcema_SharedPtr<COMPATIBLE_TYPE>& rhs)
 {
+#if 0
     // Instead of testing '&rhs == this', which happens infrequently, optimize
     // for when reps are the same.
 
@@ -2451,6 +2416,10 @@ bcema_SharedPtr<ELEMENT_TYPE>::operator=(
     }
 
     return *this;
+#else
+    bsl::shared_ptr<ELEMENT_TYPE>::operator=(rhs);
+    return *this;
+#endif
 }
 
 template <class ELEMENT_TYPE>
@@ -2459,10 +2428,16 @@ inline
 bcema_SharedPtr<ELEMENT_TYPE>&
 bcema_SharedPtr<ELEMENT_TYPE>::operator=(bsl::auto_ptr<COMPATIBLE_TYPE> rhs)
 {
+#if 0
     SelfType(rhs).swap(*this);
     return *this;
+#else
+    bsl::shared_ptr<ELEMENT_TYPE>::operator=(rhs);
+    return *this;
+#endif
 }
 
+#if 0
 template <class ELEMENT_TYPE>
 inline
 void bcema_SharedPtr<ELEMENT_TYPE>::clear()
@@ -3041,7 +3016,20 @@ bool bcema_SharedPtr<ELEMENT_TYPE>::owner_before(
 {
     return bsl::less<bcema_SharedPtrRep *>()(rep(), other.rep());
 }
+#else  // 0
+template <class ELEMENT_TYPE>
+bdema_ManagedPtr<ELEMENT_TYPE>
+bcema_SharedPtr<ELEMENT_TYPE>::managedPtr() const
+{
+    bslma::ManagedPtr<ELEMENT_TYPE> temp =
+                                   bsl::shared_ptr<ELEMENT_TYPE>::managedPtr();
 
+    bdema_ManagedPtr<ELEMENT_TYPE> result(
+                      static_cast<bslma::ManagedPtr_Ref<ELEMENT_TYPE> >(temp));
+
+    return result;
+}
+#endif // 0
                     // --------------------------
                     // struct bcema_SharedPtrLess
                     // --------------------------
