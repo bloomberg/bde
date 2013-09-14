@@ -1,6 +1,7 @@
 bslstl_algorithmworkaround
 bslstl_allocator
 bslstl_allocatortraits
+bslstl_badweakptr
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool
 bslstl_bitset
@@ -27,6 +28,7 @@ bslstl_queue
 bslstl_randomaccessiterator
 bslstl_set
 bslstl_setcomparator
+bslstl_sharedptr
 bslstl_simplepool
 bslstl_stack
 bslstl_sstream
