@@ -1540,10 +1540,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_hashutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -1738,7 +1734,6 @@ class shared_ptr {
         // specied 'ptr' using the specified 'deleter', using the currently
         // installed default allocator to provide storage.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if 0
     explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
         // Create a shared pointer taking ownership of the specified 'rep' and
@@ -1755,7 +1750,6 @@ class shared_ptr {
         //  shared_ptr(TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
         //..
 #endif
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
   public:
     // TYPES
@@ -3889,8 +3883,19 @@ template <class ELEMENT_TYPE>
 inline
 void shared_ptr<ELEMENT_TYPE>::swap(shared_ptr<ELEMENT_TYPE>& other)
 {
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_rep_p, &other.d_rep_p);
+    // We directly implement swapping of two pointers, rather than simply
+    // calling 'bsl::swap' or using 'bslalg::SwapUtil', to avoid (indirectly)
+    // including the platform <algorithm> header which may transitively
+    // include other standard headers.  This reduces the risk of platform-
+    // specifc cycles, which have been observed to cause problems.
+
+    ELEMENT_TYPE *tempPtr_p = d_ptr_p;
+    d_ptr_p = other.d_ptr_p;
+    other.d_ptr_p = tempPtr_p;
+
+    BloombergLP::bslma::SharedPtrRep *tempRep_p = d_rep_p;
+    d_rep_p = other.d_rep_p;
+    other.d_rep_p = tempRep_p;
 }
 
 // ACCESSORS
@@ -4100,8 +4105,19 @@ void weak_ptr<ELEMENT_TYPE>::reset()
 template <class ELEMENT_TYPE>
 void weak_ptr<ELEMENT_TYPE>::swap(weak_ptr<ELEMENT_TYPE>& other)
 {
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_rep_p, &other.d_rep_p);
+    // We directly implement swapping of two pointers, rather than simply
+    // calling 'bsl::swap' or using 'bslalg::SwapUtil', to avoid (indirectly)
+    // including the platform <algorithm> header which may transitively
+    // include other standard headers.  This reduces the risk of platform-
+    // specifc cycles, which have been observed to cause problems.
+
+    ELEMENT_TYPE *tempPtr_p = d_ptr_p;
+    d_ptr_p = other.d_ptr_p;
+    other.d_ptr_p = tempPtr_p;
+
+    BloombergLP::bslma::SharedPtrRep *tempRep_p = d_rep_p;
+    d_rep_p = other.d_rep_p;
+    other.d_rep_p = tempRep_p;
 }
 
 // ACCESSORS
