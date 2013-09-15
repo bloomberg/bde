@@ -476,8 +476,39 @@ int main(int argc, char *argv[])
         // Testing:
         //   void incrementRefs(int incrementAmount = 1);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nThis test case is deprecated"
-                            "\n============================\n");
+        if (verbose) printf("\nTesting 'incrementRefs'"
+                            "\n=======================\n");
+        {
+            TObj t;
+            Obj& x = t;
+            Obj const& X = x;
+
+            ASSERT(1 == X.numReferences());
+
+            x.incrementRefs();
+            ASSERT(2 == X.numReferences());
+
+            x.incrementRefs();
+            ASSERT(3 == X.numReferences());
+
+            x.incrementRefs(1);
+            ASSERT(4 == X.numReferences());
+
+            x.releaseRef();
+            x.releaseRef();
+            x.releaseRef();
+
+            ASSERT(1 == X.numReferences());
+
+            x.incrementRefs(3);
+            ASSERT(4 == X.numReferences());
+
+            x.incrementRefs(3);
+            ASSERT(7 == X.numReferences());
+
+            x.incrementRefs(3);
+            ASSERT(10 == X.numReferences());
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------

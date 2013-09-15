@@ -345,6 +345,13 @@ class SharedPtrRep {
         // to by this representation.  The behavior is undefined unless
         // '0 < numReferences()'.
 
+    void incrementRefs(int incrementAmount = 1);
+        // Atomically increment the number of shared references to the shared
+        // object referred to by this representation by the specified
+        // 'incrementAmount'.  The behavior is undefined unless
+        // '0 < incrementAmount' and '0 < numReferences()'.
+        //
+        // DEPRECATED: Use 'acquireRef' instead.
 
     void acquireWeakRef();
         // Atomically acquire a weak reference to the shared object referred to
@@ -473,6 +480,15 @@ void SharedPtrRep::acquireRef()
     d_adjustedSharedCount.addRelaxed(2);        // minimum consistency: relaxed
 }
 
+inline
+void SharedPtrRep::incrementRefs(int incrementAmount)
+{
+    BSLS_ASSERT_SAFE(0 < incrementAmount);
+    BSLS_ASSERT_SAFE(0 < numReferences());
+
+    d_adjustedSharedCount.addRelaxed(incrementAmount * 2);
+                                                // minimum consistency: relaxed
+}
 
 inline
 void SharedPtrRep::releaseWeakRef()

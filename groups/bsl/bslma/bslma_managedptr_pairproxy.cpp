@@ -1,16 +1,18 @@
-// bslma_managedptrdeleter.cpp                                        -*-C++-*-
-#include <bslma_managedptrdeleter.h>
+// bslma_managedptr_pairproxy.cpp                                     -*-C++-*-
+#include <bslma_managedptr_pairproxy.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_assert.h>
+#include <bslma_default.h>        // for testing only
+#include <bslma_testallocator.h>  // for testing only
 
 namespace BloombergLP {
 namespace bslma {
 
 }  // close package namespace
 }  // close enterprise namespace
+
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.

@@ -53,10 +53,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
-//#ifndef INCLUDED_BSL_IOSFWD
-//#include <bsl_iosfwd.h>
-//#endif
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -149,24 +145,6 @@ class ManagedPtrDeleter {
 
     void *object() const;
         // Return a pointer to the managed object associated with this deleter.
-
-                                  // Aspects
-#if 0
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute value
-        // indicates the number of spaces per indentation level for this and
-        // all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  Note that the format
-        // is not fully specified, and can change without notice.
-#endif
 };
 
 // FREE OPERATORS
@@ -181,17 +159,6 @@ bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
     // same value, and 'false' otherwise.  Two 'ManagedPtrDeleter' objects do
     // not have the same value if any of the corresponding values of their
     // 'object', 'factory' and 'deleter' attributes are not the same.
-
-#if 0
-bsl::ostream& operator<<(bsl::ostream&            stream,
-                         const ManagedPtrDeleter& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
-    // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified and can change
-    // without notice.  Also note that this method has the same behavior as
-    // 'object.print(stream, 0, -1)' with the attribute names elided.
-#endif
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS

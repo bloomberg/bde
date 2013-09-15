@@ -1533,10 +1533,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_hashutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -1731,6 +1727,22 @@ class shared_ptr {
         // specied 'ptr' using the specified 'deleter', using the currently
         // installed default allocator to provide storage.
 
+#if 0
+    explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
+        // Create a shared pointer taking ownership of the specified 'rep' and
+        // pointing to the object stored in the specified 'rep'.  The behavior
+        // is undefined unless 'rep->originalPtr()' points to an object of type
+        // 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT* increment the
+        // number of references to 'rep'.
+        //
+        // DEPRECATED This constructor will be made inaccessible in the next
+        // BDE release, as the undefined behavior is too easily triggered and
+        // offers no simple way to guard against misuse.  Instead, call the
+        // constructor taking an additional 'TYPE *' initial argument:
+        //..
+        //  shared_ptr(TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
+        //..
+#endif
 
   public:
     // TYPES
@@ -3864,8 +3876,19 @@ template <class ELEMENT_TYPE>
 inline
 void shared_ptr<ELEMENT_TYPE>::swap(shared_ptr<ELEMENT_TYPE>& other)
 {
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_rep_p, &other.d_rep_p);
+    // We directly implement swapping of two pointers, rather than simply
+    // calling 'bsl::swap' or using 'bslalg::SwapUtil', to avoid (indirectly)
+    // including the platform <algorithm> header which may transitively
+    // include other standard headers.  This reduces the risk of platform-
+    // specifc cycles, which have been observed to cause problems.
+
+    ELEMENT_TYPE *tempPtr_p = d_ptr_p;
+    d_ptr_p = other.d_ptr_p;
+    other.d_ptr_p = tempPtr_p;
+
+    BloombergLP::bslma::SharedPtrRep *tempRep_p = d_rep_p;
+    d_rep_p = other.d_rep_p;
+    other.d_rep_p = tempRep_p;
 }
 
 // ACCESSORS
@@ -4075,8 +4098,19 @@ void weak_ptr<ELEMENT_TYPE>::reset()
 template <class ELEMENT_TYPE>
 void weak_ptr<ELEMENT_TYPE>::swap(weak_ptr<ELEMENT_TYPE>& other)
 {
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
-    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_rep_p, &other.d_rep_p);
+    // We directly implement swapping of two pointers, rather than simply
+    // calling 'bsl::swap' or using 'bslalg::SwapUtil', to avoid (indirectly)
+    // including the platform <algorithm> header which may transitively
+    // include other standard headers.  This reduces the risk of platform-
+    // specifc cycles, which have been observed to cause problems.
+
+    ELEMENT_TYPE *tempPtr_p = d_ptr_p;
+    d_ptr_p = other.d_ptr_p;
+    other.d_ptr_p = tempPtr_p;
+
+    BloombergLP::bslma::SharedPtrRep *tempRep_p = d_rep_p;
+    d_rep_p = other.d_rep_p;
+    other.d_rep_p = tempRep_p;
 }
 
 // ACCESSORS
