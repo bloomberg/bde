@@ -67,12 +67,9 @@ using std::swap;
 // [ 4] void *factory() const
 // [ 4] void *object() const
 //
-// [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const
-//
 // FREE OPERATORS
 // [ 6] bool operator==(const bslma::ManagedPtrDeleter& lhs, rhs)
 // [ 6] bool operator!=(const bslma::ManagedPtrDeleter& lhs, rhs)
-// [ 5] operator<<(ostream& s, const bslma::ManagedPtrDeleter& d)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
@@ -226,7 +223,6 @@ void debugprint(const ManagedPtrDeleter& obj)
     printf("object: ");     bsls::debugprint(obj.object());
     printf(", factory: ");  bsls::debugprint(obj.factory());
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-//    Obj::Deleter d = obj.deleter();
     void *d = obj.deleter();
     printf(", deleter: ");  bsls::debugprint(d);
 #else
@@ -857,7 +853,7 @@ int main(int argc, char *argv[])
 #else
                 T_ P_(LINE1) P_(OBJECT1) P_(FACTORY1) P_(DELETER1)
 #endif
-}
+            }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -909,280 +905,15 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
-        //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
-        //
-        // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 7 The output 'operator<<' returns the supplied 'ostream'.
-        //
-        // Plan:
-        //   In order to produce predictable pointer values to test against
-        //   predefined string literals (specified at compile-time) we will
-        //   cast specific integral values to pointers.  While it would be
-        //   undefined behavior to use the result of dereferencing any of
-        //   these pointers, it will be perfectly well defined to simply
-        //   print their values.
-        //
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 6)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
-        //:
-        //:   1 Define twelve carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
-        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
-        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', unless the parameters are,
-        //:       arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:       invoked instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 7)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3)
+        //   This component does not support printing.
         //
         // Testing:
-        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-        //   operator<<(ostream& s, const bslma::ManagedPtrDeleter& d);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPRINT AND OUTPUT OPERATOR"
                             "\n=========================\n");
 
-#if 0
-    if (verbose) printf("\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables.\n");
-        {
-            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
-            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
-
-            // Verify that the signatures and return types are standard.
-
-            funcPtr     printMember = &Obj::print;
-            operatorPtr operatorOp  = operator<<;
-
-            (void)printMember;  // quash potential compiler warnings
-            (void)operatorOp;
-        }
-
-        if (verbose) printf(
-             "\nCreate a table of distinct value/format combinations.\n");
-
-        static const struct {
-            int                   d_line;           // source line number
-            int                   d_level;
-            int                   d_spacesPerLevel;
-
-            bsls::Types::UintPtr  d_object;  // enter unsigned numbers into the
-            bsls::Types::UintPtr  d_factory; // table, as we cannot enter ptr.
-            bsls::Types::UintPtr  d_deleter; // constants; convert later
-
-            const char           *d_expected_p;
-        } DATA[] = {
-
-#define NL "\n"
-#define SP " "
-
-        // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
-        // ------------------------------------------------------------------
-
-        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
-        //---- - ---  ------      -------     -------  ---
-
-        { L_,  0,  0, 0xdeadf00d, 0xbadb100d, 0x12345678,
-                                                      "["                    NL
-                                                      "object = 0xdeadf00d"  NL
-                                                      "factory = 0xbadb100d" NL
-                                                      "deleter = 0x12345678" NL
-                                                      "]"                    NL
-                                                                             },
-
-        { L_,  0,  1, 0xdeadf00d, 0xbadb100d, 0x12345678,
-                                                     "["                     NL
-                                                     " object = 0xdeadf00d"  NL
-                                                     " factory = 0xbadb100d" NL
-                                                     " deleter = 0x12345678" NL
-                                                     "]"                     NL
-                                                                             },
-
-        { L_,  0, -1, 0xdeadf00d, 0xbadb100d, 0x12345678,
-                                                      "["                    SP
-                                                      "object = 0xdeadf00d"  SP
-                                                      "factory = 0xbadb100d" SP
-                                                      "deleter = 0x12345678" SP
-                                                      "]"
-                                                                             },
-
-        // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
-        // ------------------------------------------------------------------
-
-        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
-        //---- - ---  ------      -------     -------  ---
-
-        { L_,  3,  0,  0xdeadf00d, 0xbadb100d, 0x12345678,
-                                                      "["                    NL
-                                                      "object = 0xdeadf00d"  NL
-                                                      "factory = 0xbadb100d" NL
-                                                      "deleter = 0x12345678" NL
-                                                      "]"                    NL
-                                                                             },
-
-        { L_,  3,  2,  0xdeadf00d, 0xbadb100d, 0x12345678,
-                                              "      ["                      NL
-                                              "        object = 0xdeadf00d"  NL
-                                              "        factory = 0xbadb100d" NL
-                                              "        deleter = 0x12345678" NL
-                                              "      ]"                      NL
-                                                                             },
-
-        { L_,  3, -2,  0xdeadf00d, 0xbadb100d, 0x12345678,
-                                                      "      ["              SP
-                                                      "object = 0xdeadf00d"  SP
-                                                      "factory = 0xbadb100d" SP
-                                                      "deleter = 0x12345678" SP
-                                                      "]"
-                                                                             },
-
-        { L_, -3,  0,  0xdeadf00d, 0xbadb100d, 0x12345678,
-                                                      "["                    NL
-                                                      "object = 0xdeadf00d"  NL
-                                                      "factory = 0xbadb100d" NL
-                                                      "deleter = 0x12345678" NL
-                                                      "]"                    NL
-                                                                             },
-
-        { L_, -3,  2,  0xdeadf00d, 0xbadb100d, 0x12345678,
-                                              "["                            NL
-                                              "        object = 0xdeadf00d"  NL
-                                              "        factory = 0xbadb100d" NL
-                                              "        deleter = 0x12345678" NL
-                                              "      ]"                      NL
-                                                                             },
-
-        { L_, -3, -2,  0xdeadf00d, 0xbadb100d, 0x12345678,
-                                                      "["                    SP
-                                                      "object = 0xdeadf00d"  SP
-                                                      "factory = 0xbadb100d" SP
-                                                      "deleter = 0x12345678" SP
-                                                      "]"
-                                                                             },
-        // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
-        // -----------------------------------------------------------------
-
-        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
-        //---- - ---  ------      -------     -------  ---
-
-        { L_,  2,  3, 0xd155ea5e, 0xf1a5c0e5, 0xbadd15c0,
-                                             "      ["                       NL
-                                             "         object = 0xd155ea5e"  NL
-                                             "         factory = 0xf1a5c0e5" NL
-                                             "         deleter = 0xbadd15c0" NL
-                                             "      ]"                       NL
-                                                                             },
-
-        //// -----------------------------------------------------------------
-        //// P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
-        //// -----------------------------------------------------------------
-
-        //LINE L SPL  OBJECT      FACTORY     DELETER  EXP
-        //---- - ---  ------      -------     -------  ---
-
-        { L_, -9, -9, 0xdeadf00d, 0xbadb100d, 0x12345678,
-                                      "[ 0xdeadf00d 0xbadb100d 0x12345678 ]" },
-
-        { L_, -9, -9, 0xd155ea5e, 0xf1a5c0e5, 0xbadd15c0,
-                                      "[ 0xd155ea5e 0xf1a5c0e5 0xbadd15c0 ]" },
-
-#undef NL
-#undef SP
-
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        if (verbose) printf("\nTesting with various print specifications.\n"
-                          );
-        {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE    = DATA[ti].d_line;
-                const int          L       = DATA[ti].d_level;
-                const int          SPL     = DATA[ti].d_spacesPerLevel;
-                void        *const OBJECT  = (void*)DATA[ti].d_object;
-                void        *const FACTORY = (void*)DATA[ti].d_factory;
-                const Obj::Deleter DELETER = (Obj::Deleter)(void*)
-                                                            DATA[ti].d_deleter;
-                const char *const  EXP     = DATA[ti].d_expected_p;
-
-                if (veryVerbose) {
-                    T_ P_(L) P_(SPL) P_(OBJECT) P_(FACTORY) P(DELETER)
-                }
-
-                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) printf(EXP; }
-
-                const Obj X(OBJECT, FACTORY, DELETER);
-
-                ostringstream os;
-
-                if (-9 == L && -9 == SPL) {
-
-                    // Verify supplied stream is returned by reference.
-
-                    LOOP_ASSERT(LINE, &os == &(os << X));
-
-                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
-                }
-                else {
-
-                    // Verify supplied stream is returned by reference.
-
-                    LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
-
-                    if (veryVeryVerbose) { T_ T_ Q(print) }
-                }
-
-                // Verify output is formatted as expected.
-
-                if (veryVeryVerbose) { P(os.str()) }
-
-                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
-            }
-        }
-
-        // confirm that global state has not been altered, implying the
-        // deleters have not been run.
-        LOOP2_ASSERT(L_, g_i1, 0 == g_i1);
-        LOOP2_ASSERT(L_, g_i2, 0 == g_i2);
-        LOOP2_ASSERT(L_, g_i3, 0 == g_i3);
-#endif
+        if (verbose) printf("\nThis component does not support printing.\n");
       } break;
       case 4: {
         // --------------------------------------------------------------------

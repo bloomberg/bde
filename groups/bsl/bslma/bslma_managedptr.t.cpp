@@ -834,7 +834,6 @@ void debugprint(const ManagedPtrDeleter& obj)
     printf("object: ");     bsls::debugprint(obj.object());
     printf(", factory: ");  bsls::debugprint(obj.factory());
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-//    Obj::Deleter d = obj.deleter();
     void *d = obj.deleter();
     printf(", deleter: ");  bsls::debugprint(d);
 #else
