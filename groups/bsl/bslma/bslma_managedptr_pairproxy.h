@@ -9,9 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide the internal state of a managed pointer class.
 //
-//@INTERNAL_DEPRECATED: This component is supplied only to support a deprecated
-// method of bslma::ManagedPtr.
-//
 //@CLASSES:
 //  bslma::ManagedPtr_PairProxy: internal state of a bcema_ManagedPtr object
 //

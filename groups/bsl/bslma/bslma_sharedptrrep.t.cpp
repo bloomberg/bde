@@ -476,7 +476,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   void incrementRefs(int incrementAmount = 1);
         // --------------------------------------------------------------------
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) printf("\nTesting 'incrementRefs'"
                             "\n=======================\n");
         {
@@ -510,10 +509,6 @@ int main(int argc, char *argv[])
             x.incrementRefs(3);
             ASSERT(10 == X.numReferences());
         }
-#else
-        if (verbose) printf("\nThis test case is deprecated"
-                            "\n============================\n");
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 7: {
         // --------------------------------------------------------------------
