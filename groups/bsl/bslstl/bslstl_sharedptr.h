@@ -1738,6 +1738,8 @@ class shared_ptr {
         // 'element_type' is an alias to the 'ELEMENT_TYPE' template parameter.
         // Note that 'element_type' refers to the same type as 'ElementType'.
 
+    typedef ELEMENT_TYPE ElementType;
+        // 'ElementType' is an alias to the 'ELEMENT_TYPE' template parameter.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(shared_ptr,
@@ -2147,6 +2149,38 @@ class shared_ptr {
         // that the behavior of this method is the same as
         // 'loadAlias(source, ptr)'.
 
+    void clear();
+        // Reset this shared pointer to the empty state.  If this shared
+        // pointer is managing a (possibly shared) object, then release the
+        // reference to the shared object, calling the deleter to destroy the
+        // shared object if this pointer is the last reference.  Note that the
+        // behavior of this method is the same as 'reset()'.
+        //
+        // DEPRECATED: Use 'reset' instead.
+
+    template <class ANY_TYPE>
+    void loadAlias(const shared_ptr<ANY_TYPE>&  source,
+                   ELEMENT_TYPE                     *object);
+        // Modify this shared pointer to manage the same modifiable object (if
+        // any) as the specified 'source' shared pointer to the (template
+        // parameter) type 'ANY_TYPE', and refer to the modifiable object at
+        // the specified 'object' address (i.e., make this shared pointer an
+        // "alias" of 'source').  If this shared pointer is already managing a
+        // (possibly shared) object, then release the shared reference to that
+        // shared object, and destroy it using its associated deleter if this
+        // shared pointer held the last shared reference to that object.  Note
+        // that typically the objects referred to by 'source' and 'object' have
+        // identical lifetimes (e.g., one might be a part of the other) so that
+        // the deleter for 'source' will destroy them both, but they do not
+        // necessarily have the same type.  Note that if either 'source' is
+        // unset or 'object' is null, then this shared pointer will be reset to
+        // the empty state.  Also note that this function is logically
+        // equivalent to:
+        //..
+        //  *this = shared_ptr<ELEMENT_TYPE>(source, object);
+        //..
+        // Further note that the behavior of this method is the same as
+        // 'reset(source, object)'.
 
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create "in-place" in a large enough contiguous memory region both an
@@ -2344,6 +2378,16 @@ class shared_ptr {
         // one) that share ownership of the object referred to by this shared
         // pointer.
 
+    int numReferences() const;
+        // Return a "snapshot" of the number of shared pointers (including this
+        // one) that share ownership of the object referred to by this shared
+        // pointer.  Note that the behavior of this function is the same as
+        // 'use_count'.
+
+    ELEMENT_TYPE *ptr() const;
+        // Return the address of the modifiable object referred to by this
+        // shared pointer, or 0 if this shared pointer is empty.  Note that the
+        // behavior of this function is the same as 'get'.
 };
 
 // FREE OPERATORS
@@ -2567,6 +2611,9 @@ class weak_ptr {
         // 'element_type' is an alias for the 'ELEMENT_TYPE' parameter of this
         // class template.
 
+    typedef ELEMENT_TYPE ElementType;
+        // 'ElementType' is an alias for the 'ELEMENT_TYPE' parameter of this
+        // class template, and is equivalent to 'element_type'.
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(
@@ -2667,6 +2714,17 @@ class weak_ptr {
         // if this weak pointer is in the empty state.  Note that the behavior
         // of this method is the same as that of 'numReferences'.
 
+    shared_ptr<ELEMENT_TYPE> acquireSharedPtr() const;
+        // Return a shared pointer to the object referred to by this weak
+        // pointer if 'false == expired()', and a shared pointer in the empty
+        // state otherwise. Note that the behavior of this method is the same
+        // as that of 'lock'.
+
+    int numReferences() const;
+        // Return a "snapshot" of the current number of shared pointers that
+        // share ownership of the object referred to by this weak pointer, or 0
+        // if this weak pointer is in the empty state.  Note that the behavior
+        // of this method is the same as that of 'use_count'.
 };
 
                         // C++0x Compatibility
@@ -2919,6 +2977,22 @@ struct SharedPtr_ImpUtil {
         // singleton then, if this is the first such occurence since the
         // current task was started, write a message to the console warning
         // about a pending change of behavior in the next BDE release.
+};
+
+                           // =================================
+                           // private struct SharedPtr_SwapUtil
+                           // =================================
+
+struct SharedPtr_SwapUtil {
+    // This 'struct' provides a namespace for a private swap implementation,
+    // intended to avoid the use of 'bslalg_swaputil' (using 'bslalg_swaputil'
+    // from within this component would introduce a cycle through the STL
+    // override headers).
+
+    // CLASS METHODS
+    template <class SWAP_TYPE>
+    static void swap(SWAP_TYPE *lhs, SWAP_TYPE *rhs);
+        // Swap the specified 'lhs' and 'rhs' object.
 };
 
 }  // close namespace bslstl
@@ -3370,6 +3444,26 @@ void shared_ptr<ELEMENT_TYPE>::reset(const shared_ptr<ANY_TYPE>&  source,
     SelfType(source, ptr).swap(*this);
 }
 
+template <class ELEMENT_TYPE>
+inline
+void shared_ptr<ELEMENT_TYPE>::clear()
+{
+    reset();
+}
+
+template <class ELEMENT_TYPE>
+template <class ANY_TYPE>
+void
+shared_ptr<ELEMENT_TYPE>::loadAlias(const shared_ptr<ANY_TYPE>&  source,
+                                    ELEMENT_TYPE                *object)
+{
+    if (source.d_rep_p == d_rep_p && object) {
+        d_ptr_p = d_rep_p ? object : 0;
+    }
+    else {
+        SelfType(source, object).swap(*this);
+    }
+}
 
 template <class ELEMENT_TYPE>
 void
@@ -3770,8 +3864,8 @@ template <class ELEMENT_TYPE>
 inline
 void shared_ptr<ELEMENT_TYPE>::swap(shared_ptr<ELEMENT_TYPE>& other)
 {
-    BloombergLP::bslalg::SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
-    BloombergLP::bslalg::SwapUtil::swap(&d_rep_p, &other.d_rep_p);
+    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
+    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_rep_p, &other.d_rep_p);
 }
 
 // ACCESSORS
@@ -3868,6 +3962,19 @@ long shared_ptr<ELEMENT_TYPE>::use_count() const
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
 
+template <class ELEMENT_TYPE>
+inline
+ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const
+{
+    return d_ptr_p;
+}
+
+template <class ELEMENT_TYPE>
+inline
+int shared_ptr<ELEMENT_TYPE>::numReferences() const
+{
+    return d_rep_p ? d_rep_p->numReferences() : 0;
+}
 
                         // --------------
                         // class weak_ptr
@@ -3968,8 +4075,8 @@ void weak_ptr<ELEMENT_TYPE>::reset()
 template <class ELEMENT_TYPE>
 void weak_ptr<ELEMENT_TYPE>::swap(weak_ptr<ELEMENT_TYPE>& other)
 {
-    BloombergLP::bslalg::SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
-    BloombergLP::bslalg::SwapUtil::swap(&d_rep_p, &other.d_rep_p);
+    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_ptr_p, &other.d_ptr_p);
+    BloombergLP::bslstl::SharedPtr_SwapUtil::swap(&d_rep_p, &other.d_rep_p);
 }
 
 // ACCESSORS
@@ -4023,6 +4130,19 @@ weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
                                                            other.d_rep_p);
 }
 
+template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::acquireSharedPtr() const
+{
+    return lock();
+}
+
+template <class ELEMENT_TYPE>
+inline
+int weak_ptr<ELEMENT_TYPE>::numReferences() const
+{
+    return d_rep_p ? d_rep_p->numReferences() : 0;
+}
 
               // --------------------------------------------
               // struct owner_less<shared_ptr<ELEMENT_TYPE> >
@@ -4210,6 +4330,18 @@ inline
 void SharedPtr_DefaultDeleter<ANY_TYPE>::operator()(ANY_TYPE *ptr) const
 {
     delete ptr;
+}
+
+                           // ---------------------------------
+                           // private struct SharedPtr_SwapUtil
+                           // ---------------------------------
+
+template <class SWAP_TYPE>
+void SharedPtr_SwapUtil::swap(SWAP_TYPE *lhs, SWAP_TYPE *rhs)
+{
+    SWAP_TYPE tmp(*lhs);
+    *lhs = *rhs;
+    *rhs = tmp;
 }
 
 }  // close namespace bslstl

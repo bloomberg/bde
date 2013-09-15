@@ -1236,6 +1236,11 @@ class ManagedPtr {
         // will ultimately be destroyed, and the destructor for 'ptr' is not
         // called directly.
 
+    bslma::ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> release();
+        // Return a raw pointer to the current target object (if any) and the
+        // deleter for the currently managed object, and reset this managed
+        // pointer as empty.  It is undefined behavior to run the returned
+        // deleter unless the returned pointer to target object is not null.
 
     TARGET_TYPE *release(ManagedPtrDeleter *deleter);
         // Load the specified 'deleter' for the currently managed object and
@@ -1763,6 +1768,22 @@ void ManagedPtr<TARGET_TYPE>::clear()
     d_members.clear();
 }
 
+template <typename TARGET_TYPE>
+bslma::ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
+ManagedPtr<TARGET_TYPE>::release()
+{
+    typedef bslma::ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
+                                                                   ResultType;
+    TARGET_TYPE *p = ptr();
+    if (!p) {
+        // undefined behavior to call d_members.deleter() if 'p' is null.
+
+        return ResultType();                                          // RETURN
+    }
+    ResultType result = {p, d_members.deleter()};
+    d_members.clear();
+    return result;
+}
 
 template <typename TARGET_TYPE>
 TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
