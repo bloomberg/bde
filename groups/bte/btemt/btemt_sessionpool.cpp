@@ -985,7 +985,7 @@ int btemt_SessionPool::listen(
                  const btemt_SessionPool::SessionStateCallback&  cb,
                  int                                             portNumber,
                  int                                             backlog,
-                 int                                             ,
+                 int                                             reuseAddress,
                  btemt_SessionFactory                           *factory,
                  void                                           *userData,
                  const bteso_SocketOptions                      *socketOptions)
@@ -996,7 +996,7 @@ int btemt_SessionPool::listen(
                   cb,
                   endpoint,
                   backlog,
-                  1,
+                  reuseAddress,
                   factory,
                   userData,
                   socketOptions);
