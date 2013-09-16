@@ -972,7 +972,7 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
 
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    const int rc = d_tokenizer.advanceToNextToken();
+    int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         d_logStream << "Error advancing to the first token. "
                     << "Expecting a '{' or '[' as the first character\n";
@@ -987,7 +987,11 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
     d_maxDepth            = options.maxDepth();
     d_skipUnknownElements = options.skipUnknownElements();
 
-    return decodeImp(value, 0, TypeCategory());
+    rc = decodeImp(value, 0, TypeCategory());
+
+    d_tokenizer.resetStreamBufGetPointer();
+
+    return rc;
 }
 
 template <typename TYPE>
