@@ -428,6 +428,10 @@ int bcema_BlobUtil::write(STREAM&           stream,
         return -1;
     }
 
+    if (sourcePosition == 0 && numBytes == 0) {
+        return 0;
+    }
+
     int bufferIndex  = 0;
     int bytesSkipped = 0;
     while (bytesSkipped + source.buffer(bufferIndex).size() <= sourcePosition)
