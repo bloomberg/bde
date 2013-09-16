@@ -1,10 +1,13 @@
+#include <bsls_platform.h>           // This test driver must check for a
+#if defined(BSLS_PLATFORM_OS_UNIX)   // supported OS before including headers.
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
 #include <ctime>
 #ifndef std
 # error std was expected to be a macro
-#endif
+#endif  // std
+#endif  // BSLS_PLATFORM_OS_UNIX
 int main() { return 0; }
 
 // ----------------------------------------------------------------------------
