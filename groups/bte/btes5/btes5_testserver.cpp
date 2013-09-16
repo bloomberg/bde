@@ -534,7 +534,7 @@ void Socks5Session::readCredentials(
 
     *needed = 0;
     *consumed = sizeof(*data) + ulen + 1 + plen;
-    bsl::string username((char *) ubuf, ulen, d_allocator_p);
+    bsl::string username((const char *) ubuf, ulen, d_allocator_p);
     bsl::string password(reinterpret_cast<const char *>(ubuf + ulen + 1),
                          plen,
                          d_allocator_p);
