@@ -18,47 +18,114 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:
+//@DESCRIPTION: This component provides a set of macros that expand to
+// multiple repetitions of a user-specified "repetition phrase".  The
+// repetition phrase is specified as macro which is invoked multiple times in
+// each invocation of a 'BSLS_MACROREPEAT*' macro.  For example:
+//..
+//  #define FOO(n) foo ## n
+//  doit(BSLS_MACROREPEAT_COMMA(5, FOO));
+//..
+// will expand FOO(n) with arguments 1 through 5, inserting commas beteween
+// the expansions, resulting in:
+//..
+//  doit(foo1, foo2, foo3, foo4, foo5);
+//..
+// Use of these macros is less error-prone and often more compact than
+// manually repeating the specified pattern.  In addition, it is sometimes
+// more readable than the cut-and-paste alternative because the reader does
+// not need to examine each argument to verify that it forms a linear
+// sequence.
+//
+// Each of these macros can appear within the repetition phrase of another of
+// these macros but, because of limitations in the C proprocessor language,
+// none of these macros can appear (directly or indirectly) within its own
+// repetition phrase.
 //
 ///Usage
 ///-----
-// Instantiate and call 'foo<X>()' for 'X' in '0' to '5':
+// The following examples demonstrate potential uses of the macros in this
+// component.
+//
+///Usage Example 1: Repeated template instantiation
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we wish to explictly instantiate a template with a
+// sequence of integer values.  First, assume a function template 'foo<V>'
+// that adds the (compile-time) value 'V' to a global 'total' each time it is
+// called:
 //..
 //  int total = 0;
 //  template <int V> void foo() { total += V; }
-//
+//..
+// Now, if we instantiate and call 'foo<X>()' once for each 'X' in the range
+// '2' to '6'.  To do that, we create a macro, 'FOO_STMNT(X)' which
+// and calls 'foo<X+1>' (i.e., 'FOO_STMNT(1)' will call 'foo<2>()'). Then
+// we invoke 'FOO_STMNT' 5 times with arguments 1, 2, 3, 4, and 5 using the
+// 'BSLS_MACROREPEAT' macro:
+//..
 //  int main() {
 //
-//      #define FOO_STMNT(X) foo<X>();  // Semicolon at end of each statement
-//      #define NUM_REPS 5
-//      BSLS_MACROREPEAT(NUM_REPS, FOO_STMNT)
-//      ASSERT(15 == total);
+//      #define FOO_STMNT(X) foo<X+1>();  // Semicolon at end of each statement
+//      BSLS_MACROREPEAT(5, FOO_STMNT)
+//      assert(20 == total);
 //      return 0;
 // }
 //..
-// Insert the numbers 2, 4, 6 and 8 into a string:
+// 
+///Usage Example 2: Repeated function arguments
+///- - - - - - - - - - - - - - - - - - - - - - 
+// In this example, we supply as series of identical arguments to a function
+// invocation, using 'BSLS_MACROREPEAT_COMMA'.  First, assume a function,
+// 'fmtQuartet' that takes four integer arguments and formats them into a
+// string:
 //..
 //  #include <cstring>
+//  #include <cstdio>
 //
+//  void fmtQuartet(char *result, int a, int b, int c, int d) {
+//      std::sprintf(result, "%d %d %d %d", a, b, c, d);
+//  }
+//..
+// Now we wish to invoke this function, but in a context where the last three
+// arguments are always the same as each other.  For this situation we define
+// a macro 'X(x)' that ignores its argument and simply expands to an
+// unchanging set of tokens. If the repeated argument is named 'i', then the
+// expansion of 'X(x)' is simply '(i)':
+//..
 //  int main() {
 //      char buffer[20];
-//      #define DOUBLE(x) ((x) * 2)
-//      std::sprintf(buffer, "%d %d %d %d", BSLS_MACROREPEAT_COMMA(4, DOUBLE));
-//      ASSERT(0 == std::strcmp(buffer, "2 4 6 8"));
+//      int i = 8;
+//      #define X(x) (i)
+//..
+// Finally, we invoke macro 'X(x)' three times within the argument list of
+// 'fmtQuart'.  We use 'BSLS_MACROREPEAT_COMMA' for these invocations, as it
+// inserts a comma between each repetition:
+//..
+//      fmtQuartet(buffer, "%d %d %d %d", 7, BSLS_MACROREPEAT_COMMA(3, X));
+//      assert(0 == std::strcmp(buffer, "7 8 8 8"));
 //      return 0;
 //  }
 //..
-// Compute (at compile time) a mask for 7 bits:
+//
+///Usage Example 3: Bitmask computation
+///- - - - - - - - - - - - - - - - - - 
+// In this example, we Compute (at compile time) a 7-bit mask.  First, we
+// defined a macro 'BITVAL' that computes the value of a single bit 'B' in the
+// mask:
 //..
 //  #define BITVAL(B) (1 << (B - 1))
+//..
+// Then we use the 'BSLS_MACROREPEAT_SEP' to invoke 'BITVAL' 7 times,
+// separating the repetitions with the bitwise OR operator:
+//..
 //  const unsigned mask = BSLS_MACROREPEAT_SEP(7, BITVAL, |);
 //
 //  int main() {
-//      ASSERT(127 == mask);
+//      assert(127 == mask);
 //      return 0;
 //  }
 
-#define BSLS_MACROREPEAT(N, MACRO) BSLS_MACROREPEAT_SEP(N, MACRO, )
+#define BSLS_MACROREPEAT(N, MACRO) BSLS_MACROREPEAT_##N(MACRO)
     // Expand to 'N' invocations of 'MACRO(x)', where 'x' in each invocation
     // is the next number in the sequence from '1' to 'N'.  If 'N' is '0',
     // then the expansion is empty.  For example 'BSLS_MACROREPEAT(3, XYZ)'
@@ -90,6 +157,28 @@ BSLS_IDENT("$Id: $")
 // ============================================================================
 //                           IMPLEMENTATION MACROS
 // ============================================================================
+
+#define BSLS_MACROREPEAT_0(MACRO)
+#define BSLS_MACROREPEAT_1(MACRO) MACRO(1)
+#define BSLS_MACROREPEAT_2(MACRO) BSLS_MACROREPEAT_1(MACRO) MACRO(2)
+#define BSLS_MACROREPEAT_3(MACRO) BSLS_MACROREPEAT_2(MACRO) MACRO(3)
+#define BSLS_MACROREPEAT_4(MACRO) BSLS_MACROREPEAT_3(MACRO) MACRO(4)
+#define BSLS_MACROREPEAT_5(MACRO) BSLS_MACROREPEAT_4(MACRO) MACRO(5)
+#define BSLS_MACROREPEAT_6(MACRO) BSLS_MACROREPEAT_5(MACRO) MACRO(6)
+#define BSLS_MACROREPEAT_7(MACRO) BSLS_MACROREPEAT_6(MACRO) MACRO(7)
+#define BSLS_MACROREPEAT_8(MACRO) BSLS_MACROREPEAT_7(MACRO) MACRO(8)
+#define BSLS_MACROREPEAT_9(MACRO) BSLS_MACROREPEAT_8(MACRO) MACRO(9)
+#define BSLS_MACROREPEAT_10(MACRO) BSLS_MACROREPEAT_9(MACRO) MACRO(10)
+#define BSLS_MACROREPEAT_11(MACRO) BSLS_MACROREPEAT_10(MACRO) MACRO(11)
+#define BSLS_MACROREPEAT_12(MACRO) BSLS_MACROREPEAT_11(MACRO) MACRO(12)
+#define BSLS_MACROREPEAT_13(MACRO) BSLS_MACROREPEAT_12(MACRO) MACRO(13)
+#define BSLS_MACROREPEAT_14(MACRO) BSLS_MACROREPEAT_13(MACRO) MACRO(14)
+#define BSLS_MACROREPEAT_15(MACRO) BSLS_MACROREPEAT_14(MACRO) MACRO(15)
+#define BSLS_MACROREPEAT_16(MACRO) BSLS_MACROREPEAT_15(MACRO) MACRO(16)
+#define BSLS_MACROREPEAT_17(MACRO) BSLS_MACROREPEAT_16(MACRO) MACRO(17)
+#define BSLS_MACROREPEAT_18(MACRO) BSLS_MACROREPEAT_17(MACRO) MACRO(18)
+#define BSLS_MACROREPEAT_19(MACRO) BSLS_MACROREPEAT_18(MACRO) MACRO(19)
+#define BSLS_MACROREPEAT_20(MACRO) BSLS_MACROREPEAT_19(MACRO) MACRO(20)
 
 #define BSLS_MACROREPEAT_C0(MACRO)
 #define BSLS_MACROREPEAT_C1(MACRO) MACRO(1)
