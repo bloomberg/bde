@@ -5,6 +5,7 @@ BDES_IDENT_RCSID(btes5_testserver_cpp, "$Id$ $CSID$")
 
 #include <btes5_testserver.h>
 
+#include <bcema_blobutil.h>
 #include <bcema_sharedptr.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_mutex.h>
@@ -31,9 +32,12 @@ namespace BloombergLP {
 
 namespace {
 
-#define LOG_STREAM(severity, args) {                       \
+static bcemt_Mutex g_logLock;  // serialize diagnostics
+
+#define LOG_STREAM(severity, args) {                      \
     if (severity <= (args).d_verbosity) {                 \
-        *(args).d_logStream_p << (args).d_label << ": "; \
+        bcemt_LockGuard<bcemt_Mutex> guard(&g_logLock);   \
+        *(args).d_logStream_p << (args).d_label << ": ";  \
         *(args).d_logStream_p
 
 #define LOG_END bsl::endl; \
@@ -42,6 +46,7 @@ namespace {
 
 #define LOG_DEBUG LOG_STREAM(btes5_TestServerArgs::e_DEBUG, d_args)
 #define LOG_ERROR LOG_STREAM(btes5_TestServerArgs::e_ERROR, d_args)
+#define LOG_TRACE LOG_STREAM(btes5_TestServerArgs::e_TRACE, d_args)
 
 }  // close unnamed namespace
 
@@ -119,109 +124,50 @@ struct Socks5ConnectResponse3 {
     unsigned char d_data[1];
 };
 
-                             // ===================
-                             // class Socks5Session
-                             // ===================
+                             // ====================
+                             // struct Socks5Session
+                             // ====================
 
 struct Socks5Session : public btemt_Session {
-    // A concrete implementation of 'btemt_Session'.  This is an adapter to a
-    // 'SessionFactory' object that actually implements the SOCKS5 proxy.
-    // A 'Socks5Session' can represent one of two connections from a proxy: a
-    // client connection (which is used for negotiation), or a destination
-    // connection.
+    // A concrete implementation of 'btemt_Session'.  A 'Socks5Session' can
+    // represent one of two connections from a proxy: a client connection
+    // (which is used for negotiation), or a destination connection.
 
     // DATA
-    btes5_TestServer::SessionFactory * const d_factory;
+    btes5_TestServer::SessionFactory * const d_factory_p;
         // factory managing this session, not owned
-
-    const bool d_client;  // 'true' iff this is a proxy client connection
-
-  private:
-    // NOT IMPLEMENTED
-    Socks5Session(const Socks5Session&);
-    Socks5Session& operator=(const Socks5Session&);
-
-  public:
-    // CREATORS
-    Socks5Session(btes5_TestServer::SessionFactory *factory,
-                  bool                              client);
-         // Create a new 'Socks5Session' managed by the specified 'factory'
-         // that represents the client connection if the specified 'client' is
-         // true, and the destination connection otherwise.
-
-     ~Socks5Session();
-         // Destroy this object.
-
-     // MANIPULATORS
-     virtual int start();
-         // Begin the asynchronous operation of this session.
-
-     virtual int stop();
-         // Stop the operation of this session.
-
-    // ACCESSORS
-    btemt_AsyncChannel *channel() const;
-        // Return the communication channel used by this session.
-
-};
-
-                    // ======================================
-                    // class btes5_TestServer::SessionFactory
-                    // ======================================
-
-class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
-    // This class is a concrete implementation of the 'btemt_SessionFactory'
-    // that allocates 'Socks5Session' objects.  No specific allocation strategy
-    // (such as pooling) is implemented.  An object of this type supports only
-    // one proxy connection at a time; multiple proxy hosts can be supported by
-    // multiple objects.
-    //
-    // A 'SessionFactory' constructs a 'btemt_SessionPool' to manage IO events,
-    // and allocates (when requested by the session pool) sessions which serve
-    // as adapters to the 'SessionFactory' that allocated them.
-    //
-    // A 'SessionFactory' object maintains two connections.  One is accepted,
-    // and is used for client connection SOCKS5 negotiation.  The other is to
-    // the destination, to which the proxy tries to connect after the
-    // negotiation is concluded.  Each connection corresponds to a
-    // 'btemt_Session' object, but the actual IO is done by the allocating
-    // 'SessionFactory' through two 'btemt_AsynChannel' objects.  Since these
-    // channels can be modified asynchronously, they are protected by mutexes.
 
     const btes5_TestServerArgs&  d_args;  // arguments controlling the proxy
 
-    btemt_AsyncChannel          *d_client_p;  // client channel, not owned
-    btemt_AsyncChannel          *d_dst_p;     // destination channel, not owned
-
-    bcemt_Mutex d_clientLock;  // serialize access to 'd_client_p'
-    bcemt_Mutex d_dstLock;     // serialize access to 'd_dst_p'
-
-    bcema_SharedPtr<btemt_SessionPool> d_sessionPool;   // managed pool
     btemt_TcpTimerEventManager         d_eventManager;  // for delayed writes
 
-    bslma::Allocator     *d_allocator_p; // memory allocator (held, not owned)
+    bool                d_client;      // 'true' iff client connection
+    btemt_AsyncChannel *d_channel_p;   // connection channel, not owned
+    Socks5Session      *d_opposite_p;  // opposite side of the proxy, not owned
+    bteso_IPv4Address   d_peer;        // peer address, for diagnostics
+    bslma::Allocator   *d_allocator_p; // memory allocator, not owned
 
     // PRIVATE MANIPULATORS
 
              // btemt_AsyncChannel interface
 
     template<typename MSG>
-    int readMessage(void (SessionFactory::*func)(const MSG *data,
-                                                 int      length,
-                                                 int     *numConsumed,
-                                                 int     *numNeeded));
+    int readMessage(void (Socks5Session::*func)(const MSG *data,
+                                                int        length,
+                                                int       *numConsumed,
+                                                int       *numNeeded));
         // Queue up reading a message of the specified type 'MSG', and arrange
         // to invoke the specified 'func' when it's received.
 
     template<typename MSG>
-    void readMessageCb(int                   result,
-                       int                  *consumed,
-                       int                  *needed,
-                       const btemt_DataMsg&  msg,
-                       void (SessionFactory::*func)(const MSG *data,
-                                                    int      length,
-                                                    int     *numConsumed,
-                                                    int     *numNeeded));
+    void readMessageCb(int                    result,
+                       int                   *consumed,
+                       int                   *needed,
+                       const btemt_DataMsg&   msg,
+                       void (Socks5Session::*func)(const MSG *data,
+                                                   int        length,
+                                                   int       *numConsumed,
+                                                   int       *numNeeded));
         // If the specified 'result' is 'BTEMT_SUCCESS' invoke the specified
         // 'func' passing it the data from the specified 'msg' as the specified
         // template type 'MSG'.
@@ -271,14 +217,76 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
     void readProxy(int                   result,
                    int                  *consumed,
                    int                  *needed,
-                   const btemt_DataMsg&  msg,
-                   bool                  fromClient);
+                   const btemt_DataMsg&  msg);
         // If the specified 'result' is 'BTEMT_SUCCESS' forward the specified
-        // 'msg' to the opposite connection per the specified 'fromClient',
-        // updating the counters at the specified 'consumed' location to
-        // reflect the bytes forwarded, and the specified 'needed' location to
-        // request (at least) one more byte.  This method actually implements
-        // the proxy after negotiation and connection have been completed.
+        // 'msg' to the opposite connection, updating the counters at the
+        // specified 'consumed' location to reflect the bytes forwarded, and
+        // the specified 'needed' location to request (at least) one more byte.
+        // This method actually implements the proxy after negotiation and
+        // connection have been completed.
+
+    void startDestination(Socks5Session *clientSession);
+        // Start proxy logic with the specified 'clientSession'.
+
+    void startClient();
+        // Start SOCSK5 negotiation with a client.
+
+  private:
+    // NOT IMPLEMENTED
+    Socks5Session(const Socks5Session&);
+    Socks5Session& operator=(const Socks5Session&);
+
+  public:
+    // CREATORS
+    Socks5Session(btes5_TestServer::SessionFactory *factory,
+                  btemt_AsyncChannel               *channel,
+                  const btes5_TestServerArgs&       arg,
+                  bslma::Allocator                 *allocator);
+         // Create a new 'Socks5Session' managed by the specified 'factory' for
+         // the connection accessed through the specified 'channel', configured
+         // by the specified 'args', and use the specified 'allocator' to
+         // supply memory.
+
+     ~Socks5Session();
+         // Destroy this object.
+
+     // MANIPULATORS
+     virtual int start();
+         // Begin the asynchronous operation of this session.
+
+     virtual int stop();
+         // Stop the operation of this session.
+
+    // ACCESSORS
+    btemt_AsyncChannel *channel() const;
+        // Return the communication channel used by this session.
+
+};
+
+                    // ======================================
+                    // class btes5_TestServer::SessionFactory
+                    // ======================================
+
+class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
+    // This class is a concrete implementation of the 'btemt_SessionFactory'
+    // that allocates 'Socks5Session' objects.  No specific allocation strategy
+    // (such as pooling) is implemented.
+    //
+    // A 'SessionFactory' constructs a 'btemt_SessionPool' to manage IO events,
+    // and allocates (when requested by the session pool) sessions that
+    // implement proxy functionality.  A pair of 'Socks5Session' objects
+    // support one logical proxy with two connections.  One is accepted, and is
+    // used for client-side SOCKS5 negotiation.  The other is to the
+    // destination, to which the proxy tries to connect after the negotiation
+    // is concluded.
+
+    const btes5_TestServerArgs&  d_args;  // arguments controlling the proxy
+
+    bcema_SharedPtr<btemt_SessionPool> d_sessionPool;   // managed pool
+
+    bslma::Allocator     *d_allocator_p; // memory allocator (held, not owned)
+
+    // PRIVATE MANIPULATORS
 
                         // 'btemt_SessionPool' callbacks
 
@@ -310,12 +318,17 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
     void sessionStateCb(int            state,
                         int            handle,
                         btemt_Session *session,
-                        void          *userData,
-                        bool           client);
+                        void          *clientSession);
         // Process the session state change for the specified 'state',
-        // 'handle', 'session', 'userData', and 'client'.  If 'client' is
-        // 'true' the session represents the client connection; otherwise, it
-        // represents the (attempted) connection to the destination.
+        // 'handle', 'session' and 'clientSession'.  If 'clientSession' is 0
+        // 'session' represents the client connection; otherwise, 'session'
+        // represents the destination connection associated with
+        // 'clientSession'.
+
+    void connect(const bteso_Endpoint& destination, void *userData);
+        // Asynchronously connect to the specified 'destination', using
+        // 'btemt_SessionPool::connect', and pass the specified 'userData' to
+        // the session state callback.
 
                       // 'btemt_SessionFactory' interface
 
@@ -328,97 +341,41 @@ class btes5_TestServer::SessionFactory : public btemt_SessionFactory {
     virtual void deallocate(btemt_Session *session);
        // Deallocate the specified 'session'.
 
-                          // 'btemt_Session' interface
-
-     int start(bool client);
-         // Begin the asynchronous operation on the client connection if the
-         // specified 'client' is true, or on the destination connection
-         // otherwise.
-
-     int stop(bool client);
-         // Stop operations on the client connection if the specified 'client'
-         // is true, or on the destination connection otherwise.  In addition,
-         // stop the opposite side of the connection as well.
-
-    // ACCESSORS
-    btemt_AsyncChannel *channel(bool client) const;
-        // Return the communication channel to the client, if the specified
-        // 'client' is true, and to the destination otherwise.
 };
 
                         // --------------------
-                        // class Socks5Session
+                        // struct Socks5Session
                         // --------------------
-
-// CREATORS
-Socks5Session::Socks5Session(btes5_TestServer::SessionFactory *factory,
-                             bool                              client)
-: d_factory(factory)
-, d_client(client)
-{
-}
-
-Socks5Session::~Socks5Session()
-{
-}
-
-// MANIPULATORS
-int Socks5Session::start()
-{
-    return d_factory->start(d_client);
-    return 0;
-}
-
-int Socks5Session::stop()
-{
-    return d_factory->stop(d_client);
-}
-
-// ACCCESSORS
-btemt_AsyncChannel* BloombergLP::Socks5Session::channel() const
-{
-    return d_factory->channel(d_client);
-}
-
-                    // --------------------------------------
-                    // class btes5_TestServer::SessionFactory
-                    // --------------------------------------
 
 // PRIVATE MANIPULATORS
 template<typename MSG>
-int btes5_TestServer::SessionFactory::readMessage(
-    void (SessionFactory::*func)(const MSG *data,
-                                int      length,
-                                int     *numConsumed,
-                                int     *numNeeded))
+int Socks5Session::readMessage(
+    void (Socks5Session::*func)(const MSG *data,
+                                int        length,
+                                int       *numConsumed,
+                                int       *numNeeded))
 {
     using namespace bdef_PlaceHolders;
     btemt_AsyncChannel::ReadCallback cb
         = bdef_BindUtil::bindA(d_allocator_p,
-                               &SessionFactory::readMessageCb<MSG>,
+                               &Socks5Session::readMessageCb<MSG>,
                                this,
                                _1,
                                _2,
                                _3,
                                _4,
                                func);
-    int rc = -1;
-    {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-        if (d_client_p) {
-            rc = d_client_p->read(sizeof(MSG), cb);
-        }
-    }
+    int rc = d_channel_p->read(sizeof(MSG), cb);
     return rc;
 }
 
 template<typename MSG>
-void btes5_TestServer::SessionFactory::readMessageCb(
+void Socks5Session::readMessageCb(
                                   int                   result,
                                   int                  *consumed,
                                   int                  *needed,
                                   const btemt_DataMsg&  msg,
-                                  void (SessionFactory::*func)(
+                                  void (Socks5Session::*func)(
                                                         const MSG *data,
                                                         int        length,
                                                         int       *numConsumed,
@@ -431,29 +388,31 @@ void btes5_TestServer::SessionFactory::readMessageCb(
         (this->*func)(reinterpret_cast<MSG*>(data), length, consumed, needed);
     } else {
         LOG_ERROR << "async read failed, result " << result << LOG_END;
-        stop(true);
+        stop();
         BSLS_ASSERT(false);
     }
 }
 
-int btes5_TestServer::SessionFactory::clientWriteImmediate(
+int Socks5Session::clientWriteImmediate(
     bcema_SharedPtr<bcema_Blob> blob)
 {
-    int rc = 0;
-    {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-        if (d_client_p) {
-            rc = d_client_p->write(*blob);
-        }
+    if (btes5_TestServerArgs::e_TRACE <= d_args.d_verbosity) {
+        *d_args.d_logStream_p << d_args.d_label << ": sending "
+                              << blob->length() << " bytes to client "
+                              << d_peer << ": ";
+        bcema_BlobUtil::hexDump(*d_args.d_logStream_p, *blob);
+        *d_args.d_logStream_p << bsl::endl;
     }
+    int rc = d_channel_p->write(*blob);
     if (rc) {
         LOG_DEBUG << "cannot send " << blob->length()
                   << " bytes to the client, rc " << rc << LOG_END;
+        stop();
     }
     return rc;
 }
 
-int btes5_TestServer::SessionFactory::clientWrite(const char *buf, int length)
+int Socks5Session::clientWrite(const char *buf, int length)
 {
     bcema_SharedPtr<char>
         buffer(reinterpret_cast<char*>(d_allocator_p->allocate(length)),
@@ -473,14 +432,14 @@ int btes5_TestServer::SessionFactory::clientWrite(const char *buf, int length)
     bdet_TimeInterval scheduledTime = bdetu_SystemTime::now() + d_args.d_delay;
     bteso_EventManager::Callback cb
         = bdef_BindUtil::bindA(d_allocator_p,
-                               &SessionFactory::clientWriteImmediate,
+                               &Socks5Session::clientWriteImmediate,
                                this,
                                blob);
     d_eventManager.registerTimer(scheduledTime, cb);
     return 0;
 }
 
-void btes5_TestServer::SessionFactory::readIgnore(const unsigned char *data,
+void Socks5Session::readIgnore(const unsigned char *data,
                                int                  length,
                                int                 *consumed,
                                int                 *needed)
@@ -491,7 +450,7 @@ void btes5_TestServer::SessionFactory::readIgnore(const unsigned char *data,
     *needed = 1;  // keep reading one byte at a time
 }
 
-void btes5_TestServer::SessionFactory::readMethods(
+void Socks5Session::readMethods(
     const Socks5MethodRequestHeader *data,
     int                              length,
     int                             *consumed,
@@ -526,11 +485,11 @@ void btes5_TestServer::SessionFactory::readMethods(
             }
             BSLS_ASSERT(i < data->d_numMethods);
         }
-        readMessage(&SessionFactory::readCredentials);
+        readMessage(&Socks5Session::readCredentials);
     } else {
         method = 0;  // method: no authentication
         BSLS_ASSERT(method == supportedMethods[0]);
-        readMessage(&SessionFactory::readConnect);
+        readMessage(&Socks5Session::readConnect);
     }
 
     Socks5MethodResponse methodResponse(method);
@@ -541,7 +500,7 @@ void btes5_TestServer::SessionFactory::readMethods(
     }
 }
 
-void btes5_TestServer::SessionFactory::readCredentials(
+void Socks5Session::readCredentials(
     const Socks5CredentialsHeader *data,
     int                            length,
     int                           *consumed,
@@ -586,7 +545,7 @@ void btes5_TestServer::SessionFactory::readCredentials(
         response[1] = 0;
         int rc = clientWrite(response, sizeof(response));
         BSLS_ASSERT(!rc);
-        readMessage(&SessionFactory::readConnect);
+        readMessage(&Socks5Session::readConnect);
     } else {
         LOG_ERROR << "authentication failure:"
                   << " expected " << d_args.d_expectedCredentials
@@ -594,12 +553,11 @@ void btes5_TestServer::SessionFactory::readCredentials(
                   << LOG_END;
         response[1] = 1;
         clientWrite(response, sizeof(response));
-        stop(true);
+        stop();
     }
 }
 
-void btes5_TestServer::SessionFactory::readConnect(
-                                const Socks5ConnectBase *data,
+void Socks5Session::readConnect(const Socks5ConnectBase *data,
                                 int                      length,
                                 int                     *consumed,
                                 int                     *needed)
@@ -685,8 +643,7 @@ void btes5_TestServer::SessionFactory::readConnect(
         LOG_ERROR << "unsupported request address type "
                   << data->d_addressType << ", closing"
                   << LOG_END;
-        BSLS_ASSERT(false);
-        stop(true);
+        stop();
     }
 
     if (btes5_TestServerArgs::e_FAIL == d_args.d_mode) {
@@ -710,136 +667,145 @@ void btes5_TestServer::SessionFactory::readConnect(
             destination = d_args.d_destination;
         }
         if (destination.isSet()) {
-            int handle;
-
-            using namespace bdef_PlaceHolders;
-            btemt_SessionPool::SessionStateCallback cb
-                = bdef_BindUtil::bindA(d_allocator_p,
-                                       &SessionFactory::sessionStateCb,
-                                       this,
-                                       _1,
-                                       _2,
-                                       _3,
-                                       _4,
-                                       false);
-
-            const int numAttempts = 3;
-            bdet_TimeInterval interval(0.1);
-            int rc = d_sessionPool->connect(&handle,
-                                            cb,
-                                            destination.hostname().c_str(),
-                                            destination.port(),
-                                            numAttempts,
-                                            interval,
-                                            this);
-            if (rc) {
-                LOG_ERROR << "cannot initiate connection to " << destination
-                          << ", rc" << rc << LOG_END;
-                BSLS_ASSERT(false);
-            }
-
+            d_factory_p->connect(destination, this);
         }
 
     }
 }
 
-void btes5_TestServer::SessionFactory::readProxy(
-                   int                   result,
-                   int                  *consumed,
-                   int                  *needed,
-                   const btemt_DataMsg&  msg,
-                   bool                  fromClient)
+void Socks5Session::readProxy(int                   result,
+                              int                  *consumed,
+                              int                  *needed,
+                              const btemt_DataMsg&  msg)
 {
     if (btemt_AsyncChannel::BTEMT_SUCCESS == result) {
         const int length = msg.data()->length();
         int rc = -1;
-        if (fromClient) {
-            bcemt_LockGuard<bcemt_Mutex> lock(&d_dstLock);
-            if (d_dst_p) {
-                rc = d_dst_p->write(msg);
-            }
-        } else {
-            bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-            if (d_client_p) {
-                rc = d_client_p->write(msg);
+        if (d_opposite_p) {
+            rc = d_opposite_p->d_channel_p->write(msg);
+            if (rc) {
+                LOG_ERROR << "cannot forward " << length << " bytes to "
+                          << d_opposite_p->d_peer << ", rc " << rc << LOG_END;
+            } else {
+                LOG_TRACE << "forwarded " << length << " bytes from "
+                          << d_peer << " to " << d_opposite_p->d_peer
+                          << LOG_END;
             }
         }
+        else {
+            LOG_ERROR << "cannot forward: no opposite side" << LOG_END;
+        }
+
         if (rc) {
-            LOG_ERROR << "cannot forward " << length << " bytes, rc " << rc
-                      << LOG_END;
-            BSLS_ASSERT(false);
+            stop();
         }
-        *consumed = length;
-        *needed = 1;
-    } else {
-        LOG_ERROR << "read failed, result " << result << LOG_END;
-        BSLS_ASSERT(false);
+        else {
+            *consumed = length;
+            *needed = 1;
+        }
+    }
+    else {
+        LOG_ERROR << "read from " << d_peer << " failed, result " << result
+                  << LOG_END;
+        stop();
     }
 }
 
-                        // 'btemt_SessionPool' callbacks
-
-void btes5_TestServer::SessionFactory::sessionStateCb(int            state,
-                                                      int            handle,
-                                                      btemt_Session *session,
-                                                      void          *userData,
-                                                      bool           client)
+void Socks5Session::startDestination(Socks5Session *clientSession)
 {
-    UNUSED(handle);
-    UNUSED(userData);
+    d_client = false;
+    d_opposite_p = clientSession;
+    clientSession->d_opposite_p = this;
 
-    bsl::ostringstream peer(d_allocator_p);  // address for diagnostics
-    if (client) {
-        peer << "Client";
-        {
-            bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-            if (d_client_p) {
-                peer << " from " << d_client_p->peerAddress();
-            }
-        }
-        switch (state) {
-          case btemt_SessionPool::SESSION_DOWN: {
-              LOG_DEBUG << peer.str() << " has disconnected" << LOG_END;
-            stop(true);
-          } break;
-          case btemt_SessionPool::SESSION_UP: {
-              LOG_DEBUG << peer.str() << " connected" << LOG_END;
-          } break;
-          default: {
-            LOG_ERROR << peer.str() << ": unexpected state " << state
-                      << LOG_END;
-            BSLS_ASSERT(false);
-          } break;
-        }
+    LOG_DEBUG << "Connected to destination " << d_peer << LOG_END;
+    Socks5ConnectResponse1 response;  // d_reply = SUCCESS by default
+    clientSession->clientWrite((char *) &response, sizeof(response));
+
+    // start proxying by forwarding received data to the opposite side
+
+    using namespace bdef_PlaceHolders;
+
+    btemt_AsyncChannel::ReadCallback destinationCb
+        = bdef_BindUtil::bindA(d_allocator_p,
+                               &Socks5Session::readProxy,
+                               this,
+                               _1,
+                               _2,
+                               _3,
+                               _4);
+    d_channel_p->read(1, destinationCb);
+
+    btemt_AsyncChannel::ReadCallback clientCb
+        = bdef_BindUtil::bindA(d_allocator_p,
+                               &Socks5Session::readProxy,
+                               clientSession,
+                               _1,
+                               _2,
+                               _3,
+                               _4);
+    clientSession->d_channel_p->read(1, clientCb);
+}
+
+void Socks5Session::startClient()
+{
+    d_client = true;
+    LOG_DEBUG << "Accepted connection from " << d_peer << LOG_END;
+    BSLS_ASSERT(!d_eventManager.enable());
+
+    // client connection: start negotiation
+
+    if (btes5_TestServerArgs::e_IGNORE == d_args.d_mode) {
+        readMessage(&Socks5Session::readIgnore);
     } else {
-        peer << "Destination";
-        {
-            bcemt_LockGuard<bcemt_Mutex> lock(&d_dstLock);
-            if (d_dst_p) {
-                peer << " " << d_dst_p->peerAddress();
-            }
-        }
-        switch (state) {
-          case btemt_SessionPool::SESSION_UP: {
-            LOG_DEBUG << "Connected to " << peer.str() << LOG_END;
-            Socks5ConnectResponse1 response;  // d_reply = SUCCESS by default
-            clientWrite((char *) &response, sizeof(response));
-          } break;
-          default: {
-            LOG_ERROR << "Connection to " << peer.str() << " failed, state "
-                      << state << LOG_END;
-            Socks5ConnectResponse1 response;
-            response.d_base.d_reply = 4;  // Host unreachable
-            clientWrite((char *) &response, sizeof(response));
-          } break;
-        }
+        readMessage(&Socks5Session::readMethods);
     }
 }
+
+// CREATORS
+Socks5Session::Socks5Session(btes5_TestServer::SessionFactory *factory,
+                             btemt_AsyncChannel               *channel,
+                             const btes5_TestServerArgs&       args,
+                             bslma::Allocator                 *allocator)
+: d_factory_p(factory)
+, d_args(args)
+, d_eventManager(allocator)
+, d_channel_p(channel)
+, d_opposite_p(0)
+, d_peer(channel->peerAddress())
+, d_allocator_p(allocator)
+{
+}
+
+Socks5Session::~Socks5Session()
+{
+}
+
+// MANIPULATORS
+int Socks5Session::start()
+{
+    return 0;  // real processing is in 'startClient' or 'startDestination'
+}
+
+int Socks5Session::stop()
+{
+    d_channel_p->close();
+    return 0;
+}
+
+// ACCCESSORS
+btemt_AsyncChannel *Socks5Session::channel() const
+{
+    return d_channel_p;
+}
+
+                    // --------------------------------------
+                    // class btes5_TestServer::SessionFactory
+                    // --------------------------------------
 
 // PRIVATE MANIPULATORS
 void btes5_TestServer::SessionFactory::poolStateCb(int   reason,
-                                                         int   source,
-                                                         void *userData)
+                                                   int   source,
+                                                   void *userData)
 {
     UNUSED(userData);
     LOG_DEBUG << "Pool state changed: (" << reason << ", " << source
@@ -852,9 +818,6 @@ btes5_TestServer::SessionFactory::SessionFactory(
     const btes5_TestServerArgs&  args,
     bslma::Allocator            *allocator)
 : d_args(args)
-, d_client_p(0)
-, d_dst_p(0)
-, d_eventManager(bslma::Default::allocator(allocator))
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
     btemt_ChannelPoolConfiguration config;
@@ -889,13 +852,9 @@ btes5_TestServer::SessionFactory::SessionFactory(
                                _1,
                                _2,
                                _3,
-                               _4,
-                               true);
+                               _4);
 
     int rc;  // return code
-
-    rc = d_eventManager.enable();
-    BSLS_ASSERT(!rc);
 
     rc = d_sessionPool->start();
     BSLS_ASSERT(!rc);
@@ -904,9 +863,10 @@ btes5_TestServer::SessionFactory::SessionFactory(
     rc = d_sessionPool->listen(&handle,
                                cb,
                                0,         // let system assign port
-                               1,         // backlog
+                               5,         // backlog
                                1,         // REUSEADDR
-                               this);
+                               this,      // SessionFactory
+                               0);        // userData
     BSLS_ASSERT(!rc);
 
     const int port = d_sessionPool->portNumber(handle);
@@ -922,25 +882,94 @@ btes5_TestServer::SessionFactory::~SessionFactory()
 }
 
 // MANIPULATORS
+void btes5_TestServer::SessionFactory::sessionStateCb(
+                                                  int            state,
+                                                  int            handle,
+                                                  btemt_Session *session,
+                                                  void          *clientSession)
+{
+    UNUSED(handle);
+    Socks5Session *s = dynamic_cast<Socks5Session *>(session);
+    Socks5Session *cs = reinterpret_cast<Socks5Session*>(clientSession);
+
+    if (s && btemt_SessionPool::SESSION_UP == state) {
+        if (cs) {
+            s->startDestination(cs);
+        }
+        else {
+            s->startClient();
+        }
+    }
+    else {
+        if (cs) {
+            LOG_DEBUG << "client " << cs->d_peer
+                      << ": destination connection state " << state << LOG_END;
+            switch (state) {
+              case btemt_SessionPool::CONNECT_ATTEMPT_FAILED: {
+                return;  // another attempt may succeed
+              } break;
+              case btemt_SessionPool::SESSION_ALLOC_FAILED:
+              case btemt_SessionPool::SESSION_STARTUP_FAILED:
+              case btemt_SessionPool::CONNECT_FAILED:
+              case btemt_SessionPool::CONNECT_ABORTED:
+                Socks5ConnectResponse1 response;
+                response.d_base.d_reply = 4;  // Host unreachable
+                cs->clientWrite((char *) &response, sizeof(response));
+                cs->stop();
+              break;
+            }
+        }
+        else {
+            LOG_ERROR << "client connection state " << state << LOG_END;
+        }
+        if (s) {
+            s->stop();
+        }
+    }
+}
+
+void btes5_TestServer::SessionFactory::connect(
+                                            const bteso_Endpoint&  destination,
+                                            void                  *userData)
+{
+    int handle;
+
+    using namespace bdef_PlaceHolders;
+    btemt_SessionPool::SessionStateCallback cb = bdef_BindUtil::bindA(
+                             d_allocator_p,
+                             &btes5_TestServer::SessionFactory::sessionStateCb,
+                             this,
+                             _1,
+                             _2,
+                             _3,
+                             _4);
+
+    const int numAttempts = 3;
+    bdet_TimeInterval interval(0.2);
+    int rc = d_sessionPool->connect(&handle,
+                                    cb,
+                                    destination.hostname().c_str(),
+                                    destination.port(),
+                                    numAttempts,
+                                    interval,
+                                    this,
+                                    userData);  // userData = clientSession
+    if (rc) {
+        LOG_ERROR << "cannot initiate connection to " << destination
+                  << ", rc" << rc << LOG_END;
+        BSLS_ASSERT(false);
+    }
+}
+
 void
 btes5_TestServer::SessionFactory::allocate(
     btemt_AsyncChannel                    *channel,
     const btemt_SessionFactory::Callback&  callback)
 {
-    bool client;
-    {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-        if (d_client_p) {
-            client = false;
-            d_dst_p = channel;
-        } else {
-            client = true;
-            d_client_p = channel;
-        }
-    }
-    LOG_DEBUG << "allocate a "
-              << (client ? "client" : "destination") << " session" << LOG_END;
-    Socks5Session *session = new (*d_allocator_p) Socks5Session(this, client);
+    Socks5Session *session = new (*d_allocator_p) Socks5Session(this,
+                                                                channel,
+                                                                d_args,
+                                                                d_allocator_p);
     callback(0, session);
 }
 
@@ -949,88 +978,13 @@ btes5_TestServer::SessionFactory::deallocate(btemt_Session *session)
 {
     Socks5Session *s = dynamic_cast<Socks5Session *>(session);
     BSLS_ASSERT(s);
-    d_allocator_p->deleteObjectRaw(session);
-    LOG_DEBUG << "deallocated "
+    LOG_DEBUG << "deallocate "
               << (s->d_client ? "client" : "destination") << " session"
               << LOG_END;
-}
-
-                          // 'btemt_Session' interface
-
-int btes5_TestServer::SessionFactory::start(bool client)
-{
-    if (client) {
-        // client connection: start negotiation
-
-        if (btes5_TestServerArgs::e_IGNORE == d_args.d_mode) {
-            readMessage(&SessionFactory::readIgnore);
-        } else {
-            readMessage(&SessionFactory::readMethods);
-        }
-    } else {
-        // start proxying by forwarding received data to the opposite side
-
-        using namespace bdef_PlaceHolders;
-
-        {
-            bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-            if (d_client_p) {
-                btemt_AsyncChannel::ReadCallback cb
-                    = bdef_BindUtil::bindA(d_allocator_p,
-                                           &SessionFactory::readProxy,
-                                           this,
-                                           _1,
-                                           _2,
-                                           _3,
-                                           _4,
-                                           true);
-                d_client_p->read(1, cb);
-            }
-        }
-        {
-            bcemt_LockGuard<bcemt_Mutex> lock(&d_dstLock);
-            if (d_dst_p) {
-                btemt_AsyncChannel::ReadCallback cb
-                    = bdef_BindUtil::bindA(d_allocator_p,
-                                           &SessionFactory::readProxy,
-                                           this,
-                                           _1,
-                                           _2,
-                                           _3,
-                                           _4,
-                                           false);
-                d_dst_p->read(1, cb);
-            }
-        }
-
+    if (s->d_opposite_p) {
+        s->d_opposite_p->d_opposite_p = 0;
     }
-    return 0;
-}
-
-int btes5_TestServer::SessionFactory::stop(bool client)
-{
-    {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_clientLock);
-        if (d_client_p) {
-            d_client_p->close();
-            d_client_p = 0;
-        }
-    }
-    {
-        bcemt_LockGuard<bcemt_Mutex> lock(&d_dstLock);
-        if (d_dst_p) {
-            d_dst_p->close();
-            d_dst_p = 0;
-        }
-    }
-    return 0;
-}
-
-// ACCCESSORS
-btemt_AsyncChannel *
-btes5_TestServer::SessionFactory::channel(bool client) const
-{
-    return client ? d_client_p : d_dst_p;
+    d_allocator_p->deleteObjectRaw(session);
 }
 
                          // ---------------------------

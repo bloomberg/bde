@@ -125,7 +125,8 @@ struct btes5_TestServerArgs {
         // Severity of log messages.
         e_NONE,   // no logging
         e_ERROR,  // error condition
-        e_DEBUG   // debugging information
+        e_DEBUG,  // debugging information
+        e_TRACE   // trace: most verbose output
     };
 
     Mode              d_mode;

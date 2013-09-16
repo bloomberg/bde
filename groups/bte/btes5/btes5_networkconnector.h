@@ -46,7 +46,6 @@ BDES_IDENT("$Id: $")
 //                 volatile int                                 *state)
 //  {
 //      if (0 == status) {
-//          cout << "connection succeeded" << endl;
 //          // Success: conduct I/O operations with 'socket' ... and deallocate
 //          socketFactory->deallocate(socket);
 //      } else {

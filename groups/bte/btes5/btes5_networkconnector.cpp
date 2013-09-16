@@ -271,10 +271,16 @@ static void socksConnectCb(
         }
     }
     else {
+        const bsl::size_t index = attempt->d_indices[level]; // failed proxy
+        const btes5_ProxyDescription& proxy
+            = attempt->d_connector ->d_socks5Servers.beginLevel(level)[index];
+
         while (++attempt->d_indices[level]
                 == attempt->d_connector->d_socks5Servers.numProxies(level)) {
             if (!level) {
-                terminate(attempt, btes5_NetworkConnector::e_ERROR, error);
+                btes5_DetailedError e(error);
+                e.setAddress(proxy.address());
+                terminate(attempt, btes5_NetworkConnector::e_ERROR, e);
                 return;                                               // RETURN
             }
             --level; // try a lower (closer) proxy level

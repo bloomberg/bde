@@ -439,7 +439,7 @@ static void sendAuthenticationRequest(Negotiation::Context negotiation)
                                 _2,
                                 _3,
                                 negotiation));
-        return;
+        return;                                                       // RETURN
     }
 
     // The Username/Password request (RFC 1929) format is:
@@ -472,15 +472,20 @@ static void sendAuthenticationRequest(Negotiation::Context negotiation)
 static void methodCallback(Negotiation::Context negotiation)
     // Process SOCKS5 Method Selection response.
 {
+    negotiation->d_eventManager_p->deregisterSocketEvent(
+                                                  negotiation->d_handle,
+                                                  bteso_EventType::BTESO_READ);
     MethodResponsePkt pkt;
     int rc = negotiation->d_socket_p->read(
                                   reinterpret_cast<char *>(&pkt),
                                   sizeof(pkt));
     if (sizeof(pkt) != rc) {
+        bsl::ostringstream description;
+        description << "error reading method response, rc " << rc;
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error reading method response"));
-        return;
+                  btes5_DetailedError(description.str()));
+        return;                                                       // RETURN
     }
 
     switch (pkt.d_method) {
