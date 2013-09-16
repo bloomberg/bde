@@ -1,3 +1,73 @@
+bsl-internal (2.19.0.0) unstable; urgency=low
+
+  * Bump changelog
+  * aae0485 bump version to 2.19.0
+  * bcff1b6 [APPROVAL] INTERNAL review/repair_master_for_smart_pointers_preview to master
+  * 03336de [APPROVAL] review/repair_master_for_smart_pointers_preview to master
+  * a77bc65 [APPROVAL] INTERNAL fix-sharedptr-build to master
+  * 4e10a64 [APPROVAL] fix-sharedptr-build to master
+  * 29593d3 [APPROVAL] INTERNAL pending/master/pre_open_source_smart_pointer_drqs44171378 to master
+  * d20fa7f [APPROVAL] pending/master/pre_open_source_smart_pointer_drqs44171378 to master
+  * 7c264a7 [APPROVAL] OSS review/fix_bsls_tests_with_exceptions_disabled_drqs44103530 to master
+  * f43fe77 [APPROVAL] review/fix_bsls_tests_with_exceptions_disabled_drqs44103530 to master
+  * 7569895 [APPROVAL] OSS review/fix_bslstl_tests_with_exceptions_disabled_drqs44299839 to master
+  * eb1bfec [APPROVAL] review/fix_bslstl_tests_with_exceptions_disabled_drqs44299839 to master
+  * 835f222 [APPROVAL] OSS review/eliminate_bslalg_traits_dependency_drqs44165753 to master
+  * d268753 [APPROVAL] review/eliminate_bslalg_traits_dependency_drqs44165753 to master
+  * 0cbe058 [APPROVAL] OSS review/nullptr_test_driver_errors_for_cpp11_drqs44133301 to master
+  * a0f11d3 [APPROVAL] review/nullptr_test_driver_errors_for_cpp11_drqs44133301 to master
+  * fa56930 Deferred Clang workaround until we can detect the compiler version correctly
+  * 081747e [APPROVAL] INTERNAL pending/master/disable_hash_const_char_ptr_for_bde2_19_drqs43693827 to master
+  * f4a1344 [APPROVAL] pending/master/disable_hash_const_char_ptr_for_bde2_19_drqs43693827 to master
+  * 602b480 [APPROVAL] OSS review/fix_bsls_assert_test_driver_for_SAFE_2_drqs35732116 to master
+  * 4b245d9 [APPROVAL] review/fix_bsls_assert_test_driver_for_SAFE_2_drqs35732116 to master
+  * 2251d7f [APPROVAL] OSS review/bslscm_version-typos-drqs-38509725 to master
+  * ec96999 [APPROVAL] review/bslscm_version-typos-drqs-38509725 to master
+  * 9f6b68f [APPROVAL] OSS review/avoid_unused_typedef_warning_in_bslmf_assert_drqs43498884 to master
+  * 5115e12 [APPROVAL] review/avoid_unused_typedef_warning_in_bslmf_assert_drqs43498884 to master
+  * 04719a8 [APPROVAL] OSS pending/master/timeutil-documentation-polish-drqs-37372082 to master
+  * 4398622 [APPROVAL] pending/master/timeutil-documentation-polish-drqs-37372082 to master
+  * 98cb88f [APPROVAL] OSS pending/master/string-exception-safety-drqs42721799 to master
+  * 925b2d4 [APPROVAL] pending/master/string-exception-safety-drqs42721799 to master
+  * 784a6d5 [APPROVAL] INTERNAL pending/master/missing-multimap-stdlib-include-drqs-43053581 to master
+  * cdd47c1 [APPROVAL] pending/master/missing-multimap-stdlib-include-drqs-43053581 to master
+  * f2629b1 [APPROVAL] pending/master/fix-rbtreenode-testdriver-warning-drqs43267441 to master
+  * 348b634 [APPROVAL] meta-packages-in-binary-arch-drqs-43603654 to master
+  * 677144f [APPROVAL] OSS review/bsls-mutex-drqs-41890133 to master
+  * 509e753 [APPROVAL] review/bsls-mutex-drqs-41890133 to master
+  * d391f00 [APPROVAL] OSS pending/master/bsl_gcc_warnings_remediation-drqs38366484_rebase to master
+  * 0b9cfe0 [APPROVAL] pending/master/bsl_gcc_warnings_remediation-drqs38366484_rebase to master
+  * 9eb7138 fixed -WConversion warnings in
+  * 90b18cb [APPROVAL] pending/master/const-cast-qual-drqs40473559 to master
+  * db894c5 Corrected bslscm_version to refer to bsl instead of bde in its component doc.
+  * cbcf7dd [APPROVAL] OSS pending/master/fix_pkg_grp_doc_for_automation-drqs-36664046 to master
+  * b1edb17 [APPROVAL] pending/master/fix_pkg_grp_doc_for_automation-drqs-36664046 to master
+  * 0f19a4e [APPROVAL] OSS bsls_alignment-drqs-36719760-importbsl to master
+  * 9bda5ee [APPROVAL] bsls_alignment-drqs-36719760-importbsl to master
+  * 5ba0513 [APPROVAL] OSS pending/master/bsldoc-thread-doc-drqs-39756936 to master
+  * 0e4e785 [APPROVAL] pending/master/bsldoc-thread-doc-drqs-39756936 to master
+  * 53a9855 [APPROVAL] OSS pending/master/msvc-ice-hashtable-drqs40550559 to master
+  * 2c00eb1 [APPROVAL] pending/master/msvc-ice-hashtable-drqs40550559 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Sep 2013 11:56:41 -0400
+
+bsl-internal (MERGE_BASE_master_2.18.x) git; urgency=low
+
+  * c16cf32 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
+  * 688a736 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
+  * 9e2df54 [APPROVAL] OSS review/format_errors_cause_doxygen_problems-drqs-40608146 to master
+  * 9a16918 [APPROVAL] review/format_errors_cause_doxygen_problems-drqs-40608146 to master
+  * 45ed364 [APPROVAL] pending/master/bslstp_deprecate-drqs-36656841 to master
+  * 59d7214 [APPROVAL] OSS pending/master/fix-dual-stlmode-include-drqs41100790 to master
+  * 1bb7998 [APPROVAL] pending/master/fix-dual-stlmode-include-drqs41100790 to master
+  * ccfaeaf [APPROVAL] OSS review/bsl-platform-namespace-drqs41495060 to master
+  * 503b0c1 [APPROVAL] review/bsl-platform-namespace-drqs41495060 to master
+  * 83cdc4d [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
+  * 1d1ade6 [APPROVAL] review/bsl-stringref-drqs41338618 to master
+  * 3cae99a drqs-40608146: Additional format fixes in 2.17 for 'doxygen' conversion.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 14:10:01 -0400
+
 bsl-internal (2.18.0.0) unstable; urgency=low
 
   * Bump changelog
