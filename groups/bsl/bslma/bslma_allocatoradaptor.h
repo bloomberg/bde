@@ -33,6 +33,9 @@ BSLS_IDENT("$Id: $")
 // using a 'bslma::Allocator':
 //..
 //  #include <bslma_allocator.h>
+//  #include <bslma_default.h>
+//  #include <bsls_nullptr.h>
+//
 //  #include <cstring>
 //  #include <cstdlib>
 //
@@ -44,14 +47,15 @@ BSLS_IDENT("$Id: $")
 //      char             *d_data;
 //
 //  public:
-//      FilePath(bslma::Allocator* basicAllocator = nullptr)
+//      FilePath(bslma::Allocator* basicAllocator = 0 /* nullptr */)
 //          : d_allocator(bslma::Default::allocator(basicAllocator))
-//          , d_data(nullptr) { }
+//          , d_data(0 /* nullptr */) { }
 //
-//      FilePath(const char* s, bslma::Allocator* basicAllocator = nullptr)
+//      FilePath(const char* s, bslma::Allocator* basicAllocator = 0)
 //          : d_allocator(bslma::Default::allocator(basicAllocator))
 //      {
-//          d_data = d_allocator.allocate(std::strlen(s) + 1);
+//          d_data =
+//               static_cast<char*>(d_allocator->allocate(std::strlen(s) + 1));
 //          std::strcpy(d_data, s);
 //      }
 //
@@ -69,27 +73,44 @@ BSLS_IDENT("$Id: $")
 //  class MagicAllocator {
 //      bool d_useMalloc;
 //  public:
-//      typedef TYPE value_type;
+//      typedef TYPE        value_type;
+//      typedef TYPE       *pointer;
+//      typedef const TYPE *const_pointer;
+//      typedef unsigned    size_type;
+//      typedef int         difference_type;
 //
-//      MagicAllocator(bool useMalloc = false) : d_useMalloc(useMalloc) { }
+//      template <class U>
+//      struct rebind {
+//          typedef MagicAllocator<U> other;
+//      };
+//
+//      explicit MagicAllocator(bool useMalloc = false)
+//          : d_useMalloc(useMalloc) { }
 //
 //      template <class U>
 //      MagicAllocator(const MagicAllocator<U>& other)
 //          : d_useMalloc(other.getUseMalloc()) { }
 //
-//      value_type *allocate(std::size_t n) {
+//      value_type *allocate(std::size_t n, void* = 0 /* nullptr */) {
 //          if (d_useMalloc)
 //              return (value_type*) std::malloc(n * sizeof(value_type));
 //          else
 //              return (value_type*) ::operator new(n * sizeof(value_type));
 //      }
 //
-//      void deallocate(value_type *p, std::size_t n) {
+//      void deallocate(value_type *p, std::size_t) {
 //          if (d_useMalloc)
 //              std::free(p);
 //          else
 //              ::operator delete(p);
 //      }
+//
+//      static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
+//
+//      void construct(pointer p, const TYPE& value)
+//          { new((void *)p) TYPE(value); }
+//
+//      void destroy(pointer p) { p->~TYPE(); }
 //
 //      int getUseMalloc() const { return d_useMalloc; }
 //  };
@@ -114,13 +135,15 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main()
 //  {
-//      MagicAllocator<char> ma(true)
-//      bslma::AllocatorAdaptor<MagicAdaptor<char> > maa(ma);
+//      MagicAllocator<char> ma(true);
+//      bslma::AllocatorAdaptor<MagicAllocator<char> > maa(ma);
 //
 //      my::FilePath usrbin("/usr/local/bin", &maa);
 //
 //      assert(&maa == usrbin.getAllocator());
-//      assert(ma == usrbin.getAllocator().getAdaptedAllocator());
+//      assert(ma == maa.getAdaptedAllocator());
+//
+//      return 0;
 //  }
 //..
 

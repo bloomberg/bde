@@ -121,118 +121,120 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // Let's start with a simple class, 'my::FilePath', which allocates storage
 // using a 'bslma::Allocator':
 //..
-#include <bslma_allocator.h>
-#include <bslma_default.h>
-#include <bsls_nullptr.h>
-
-#include <cstring>
-#include <cstdlib>
-
-namespace my {
-
-class FilePath {
-    // Store the path of a file or directory
-    bslma::Allocator *d_allocator;
-    char             *d_data;
-
-public:
-    FilePath(bslma::Allocator* basicAllocator = 0 /* nullptr */)
-        : d_allocator(bslma::Default::allocator(basicAllocator))
-        , d_data(0 /* nullptr */) { }
-
-    FilePath(const char* s, bslma::Allocator* basicAllocator = 0 /* nullptr */)
-        : d_allocator(bslma::Default::allocator(basicAllocator))
-    {
-        d_data = static_cast<char*>(d_allocator->allocate(std::strlen(s) + 1));
-        std::strcpy(d_data, s);
-    }
-
-    bslma::Allocator *getAllocator() const { return d_allocator; }
-
-    //...
-};
-
-} // close namespace my
+    #include <bslma_allocator.h>
+    #include <bslma_default.h>
+    #include <bsls_nullptr.h>
+  
+    #include <cstring>
+    #include <cstdlib>
+  
+    namespace my {
+  
+    class FilePath {
+        // Store the path of a file or directory
+        bslma::Allocator *d_allocator;
+        char             *d_data;
+  
+    public:
+        FilePath(bslma::Allocator* basicAllocator = 0 /* nullptr */)
+            : d_allocator(bslma::Default::allocator(basicAllocator))
+            , d_data(0 /* nullptr */) { }
+  
+        FilePath(const char* s, bslma::Allocator* basicAllocator = 0)
+            : d_allocator(bslma::Default::allocator(basicAllocator))
+        {
+            d_data =
+                 static_cast<char*>(d_allocator->allocate(std::strlen(s) + 1));
+            std::strcpy(d_data, s);
+        }
+  
+        bslma::Allocator *getAllocator() const { return d_allocator; }
+  
+        //...
+    };
+  
+    } // close namespace my
 //..
 // Next, assume that an STL-allocator exists that uses memory exactly the way
 // you need:
 //..
-template <class TYPE>
-class MagicAllocator {
-    bool d_useMalloc;
-public:
-    typedef TYPE        value_type;
-    typedef TYPE       *pointer;
-    typedef const TYPE *const_pointer;
-    typedef unsigned    size_type;
-    typedef int         difference_type;
-
-    template <class U>
-    struct rebind {
-        typedef MagicAllocator<U> other;
+    template <class TYPE>
+    class MagicAllocator {
+        bool d_useMalloc;
+    public:
+        typedef TYPE        value_type;
+        typedef TYPE       *pointer;
+        typedef const TYPE *const_pointer;
+        typedef unsigned    size_type;
+        typedef int         difference_type;
+  
+        template <class U>
+        struct rebind {
+            typedef MagicAllocator<U> other;
+        };
+  
+        explicit MagicAllocator(bool useMalloc = false)
+            : d_useMalloc(useMalloc) { }
+  
+        template <class U>
+        MagicAllocator(const MagicAllocator<U>& other)
+            : d_useMalloc(other.getUseMalloc()) { }
+  
+        value_type *allocate(std::size_t n, void* = 0 /* nullptr */) {
+            if (d_useMalloc)
+                return (value_type*) std::malloc(n * sizeof(value_type));
+            else
+                return (value_type*) ::operator new(n * sizeof(value_type));
+        }
+  
+        void deallocate(value_type *p, std::size_t) {
+            if (d_useMalloc)
+                std::free(p);
+            else
+                ::operator delete(p);
+        }
+  
+        static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
+  
+        void construct(pointer p, const TYPE& value)
+            { new((void *)p) TYPE(value); }
+  
+        void destroy(pointer p) { p->~TYPE(); }
+  
+        int getUseMalloc() const { return d_useMalloc; }
     };
-
-    explicit MagicAllocator(bool useMalloc = false)
-        : d_useMalloc(useMalloc) { }
-
-    template <class U>
-    MagicAllocator(const MagicAllocator<U>& other)
-        : d_useMalloc(other.getUseMalloc()) { }
-
-    value_type *allocate(std::size_t n, void* = 0 /* nullptr */) {
-        if (d_useMalloc)
-            return (value_type*) std::malloc(n * sizeof(value_type));
-        else
-            return (value_type*) ::operator new(n * sizeof(value_type));
+            
+    template <class T, class U>
+    inline
+    bool operator==(const MagicAllocator<T>& a, const MagicAllocator<U>& b)
+    {
+        return a.getUseMalloc() == b.getUseMalloc();
     }
-
-    void deallocate(value_type *p, std::size_t) {
-        if (d_useMalloc)
-            std::free(p);
-        else
-            ::operator delete(p);
+  
+    template <class T, class U>
+    inline
+    bool operator!=(const MagicAllocator<T>& a, const MagicAllocator<U>& b)
+    {
+        return a.getUseMalloc() != b.getUseMalloc();
     }
-
-    static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
-
-    void construct(pointer p, const TYPE& value)
-        { new((void *)p) TYPE(value); }
-
-    void destroy(pointer p) { p->~TYPE(); }
-
-    int getUseMalloc() const { return d_useMalloc; }
-};
-        
-template <class T, class U>
-inline
-bool operator==(const MagicAllocator<T>& a, const MagicAllocator<U>& b)
-{
-    return a.getUseMalloc() == b.getUseMalloc();
-}
-
-template <class T, class U>
-inline
-bool operator!=(const MagicAllocator<T>& a, const MagicAllocator<U>& b)
-{
-    return a.getUseMalloc() != b.getUseMalloc();
-}
 //..
 // Now, if we want to create a 'FilePath' using a 'MagicAllocator', we
 // need to adapt the 'MagicAllocator' to the 'bslma::Allocator' protocol.
 // This is where 'bslma::AllocatorAdaptor' comes in:
 //..
-int usageExample()
-{
-    MagicAllocator<char> ma(true);
-    bslma::AllocatorAdaptor<MagicAllocator<char> > maa(ma);
-
-    my::FilePath usrbin("/usr/local/bin", &maa);
-
-    ASSERT(&maa == usrbin.getAllocator());
-    ASSERT(ma == maa.getAdaptedAllocator());
-
-    return 0;
-}
+    int usageExample1()
+    {
+        MagicAllocator<char> ma(true);
+        bslma::AllocatorAdaptor<MagicAllocator<char> > maa(ma);
+  
+        my::FilePath usrbin("/usr/local/bin", &maa);
+  
+        ASSERT(&maa == usrbin.getAllocator());
+        ASSERT(ma == maa.getAdaptedAllocator());
+  
+        return 0;
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -262,6 +264,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
+
+        usageExample1();
 
       } break;
 
