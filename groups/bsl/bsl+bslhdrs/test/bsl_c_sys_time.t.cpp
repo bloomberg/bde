@@ -1,8 +1,11 @@
+#include <bsls_platform.h>           // This test driver must check for a
+#if defined(BSLS_PLATFORM_OS_UNIX)   // supported OS before including headers.
 #include <bsl_c_sys_time.h>
 #include <sys/time.h>
 #ifdef std
 #   error std was not expected to be a macro
-#endif
+#endif  // std
+#endif  // BSLS_PLATFORM_OS_UNIX
 namespace std { }
 int main() { return 0; }
 
