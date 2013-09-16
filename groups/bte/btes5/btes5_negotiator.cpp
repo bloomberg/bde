@@ -96,18 +96,21 @@ struct ConnectRspBase {
     unsigned char d_atype;
 };
 
-                              // ==================
-                              // struct Negotiation
-                              // ==================
-struct Negotiation {
-    // Objects describing the state of a SOCKS connection negotiation. The
-    // object lifetime is managed by using a 'bcema_SharedPtr<Negotiation>' in
-    // callback registration. A 'Negotiation' object is in one of two states:
-    // it's created in the normal state  indicated by 'd_terminating == 0', and
-    // it enters a terminating state when 'd_terminating != 0'.
+}  // close unnamed namespace
+
+                        // ============================
+                        // struct btes5_Negotiation_Imp
+                        // ============================
+struct btes5_Negotiation_Imp {
+    // Objects describing the state of a SOCKS connection negotiation.  The
+    // object lifetime is managed by using a
+    // 'bcema_SharedPtr<btes5_Negotiation_Imp>' in callback registration.  A
+    // 'btes5_Negotiation_Imp' object is in one of two states: it's created in
+    // the normal state indicated by 'd_terminating == 0', and it enters a
+    // terminating state when 'd_terminating != 0'.
 
     // TYPES
-    typedef bcema_SharedPtr<Negotiation> Context;
+    typedef bcema_SharedPtr<btes5_Negotiation_Imp> Context;
         // A shared pointer of this type is bound into the callback functors
         // for object lifetime management.
 
@@ -142,29 +145,30 @@ struct Negotiation {
         // memory allocator, not owned
 
     // CREATORS
-    Negotiation(bteso_StreamSocket<bteso_IPv4Address>     *socket,
+    btes5_Negotiation_Imp(
+                bteso_StreamSocket<bteso_IPv4Address>     *socket,
                 const bteso_Endpoint&                      destination,
                 btes5_Negotiator::NegotiationStateCallback callback,
                 const bdet_TimeInterval&                   timeout,
                 bteso_TimerEventManager                   *eventManager,
                 bslma::Allocator                          *allocator);
-        // Create a 'Negotiation' object to connect to the specified
+        // Create a 'btes5_Negotiation_Imp' object to connect to the specified
         // 'destination' over the specified 'socket' and asynchrounously invoke
         // the specified 'callback', using the specified 'eventManager' to
         // schedule callbacks and 'allocator' to supply memory.  If the
         // specified 'timeout' is not empty a successful negotiation must
         // complete within this time period.
 
-    ~Negotiation();
+    ~btes5_Negotiation_Imp();
         // Destroy this object.
 
 };
 
-                             // ------------------
-                             // struct Negotiation
-                             // ------------------
+                        // ----------------------------
+                        // struct btes5_Negotiation_Imp
+                        // ----------------------------
 // CREATORS
-Negotiation::Negotiation(
+btes5_Negotiation_Imp::btes5_Negotiation_Imp(
     bteso_StreamSocket<bteso_IPv4Address>      *socket,
     const bteso_Endpoint&                      destination,
     btes5_Negotiator::NegotiationStateCallback callback,
@@ -184,7 +188,7 @@ Negotiation::Negotiation(
 {
 }
 
-Negotiation::~Negotiation()
+btes5_Negotiation_Imp::~btes5_Negotiation_Imp()
 {
     // clean up in case 'terminate' was called prior to registering timer
     if (d_timer) {
@@ -192,7 +196,7 @@ Negotiation::~Negotiation()
     }
 }
 
-static void terminate(Negotiation::Context                negotiation,
+static void terminate(btes5_Negotiation_Imp::Context      negotiation,
                       btes5_Negotiator::NegotiationStatus status,
                       const btes5_DetailedError&          error)
     // Terminate the specified 'negotiation', and invoke the user-supplied
@@ -215,8 +219,8 @@ static void terminate(Negotiation::Context                negotiation,
     negotiation->d_callback(status, error);
 }
 
-static int registerReadCb(void (*cb) (Negotiation::Context),
-                          Negotiation::Context     negotiation)
+static int registerReadCb(void (*cb) (btes5_Negotiation_Imp::Context),
+                          btes5_Negotiation_Imp::Context     negotiation)
     // Register the specified 'cb' to be invoked with the argument of the
     // specified 'negotiation' on read events on 'negotiation->d_handle'.
     // Return 0 on success and a negative value otherwise.
@@ -236,10 +240,14 @@ static int registerReadCb(void (*cb) (Negotiation::Context),
     return 0;
 }
 
-static void connectCallback(Negotiation::Context negotiation)
+static void connectCallback(btes5_Negotiation_Imp::Context negotiation)
     // Process response from the SOCKS5 connect request for the specified
     // 'negotiation'.
 {
+    if (negotiation->d_terminating) {
+        return;                                                       // RETURN
+    }
+
     bsl::ostringstream e("connect response: ", negotiation->d_allocator_p);
 
     ConnectRspBase hdr;
@@ -335,7 +343,7 @@ static void connectCallback(Negotiation::Context negotiation)
               btes5_DetailedError(e.str()));
 }
 
-static void connectToEndpoint(Negotiation::Context negotiation)
+static void connectToEndpoint(btes5_Negotiation_Imp::Context negotiation)
     // Send the appropriate request to connect to the endpoint past the SOCKS
     // server.
 {
@@ -367,14 +375,15 @@ static void connectToEndpoint(Negotiation::Context negotiation)
     }
 }
 
-static void sendAuthenticationRequest(Negotiation::Context negotiation);
+static void sendAuthenticationRequest(btes5_Negotiation_Imp::Context
+                                                                  negotiation);
     // Send the username and password credentials to authenticate with the
     // SOCKS5 server.
 
-static void setCredentials(int                      status,
-                           const bslstl::StringRef& username,
-                           const bslstl::StringRef& password,
-                           Negotiation::Context     negotiation)
+static void setCredentials(int                            status,
+                           const bslstl::StringRef&       username,
+                           const bslstl::StringRef&       password,
+                           btes5_Negotiation_Imp::Context negotiation)
     // Set user name and password to authenticate the client to the SOCKS5
     // server.
 {
@@ -389,8 +398,12 @@ static void setCredentials(int                      status,
     }
 }
 
-static void authenticationCallback(Negotiation::Context negotiation)
+static void authenticationCallback(btes5_Negotiation_Imp::Context negotiation)
 {
+    if (negotiation->d_terminating) {
+        return;                                                       // RETURN
+    }
+
     AuthenticationResponsePkt pkt;
     int rc = negotiation->d_socket_p->read(reinterpret_cast<char *>(&pkt),
                                            sizeof(pkt));
@@ -414,7 +427,8 @@ static void authenticationCallback(Negotiation::Context negotiation)
     connectToEndpoint(negotiation);
 }
 
-static void sendAuthenticationRequest(Negotiation::Context negotiation)
+static void sendAuthenticationRequest(
+                                    btes5_Negotiation_Imp::Context negotiation)
 {
     if (!negotiation->d_credentials.isSet() && negotiation->d_provider_p) {
         negotiation->d_acquiringCredentials = true;
@@ -458,9 +472,13 @@ static void sendAuthenticationRequest(Negotiation::Context negotiation)
     }
 }
 
-static void methodCallback(Negotiation::Context negotiation)
+static void methodCallback(btes5_Negotiation_Imp::Context negotiation)
     // Process SOCKS5 Method Selection response.
 {
+    if (negotiation->d_terminating) {
+        return;                                                       // RETURN
+    }
+
     negotiation->d_eventManager_p->deregisterSocketEvent(
                                                   negotiation->d_handle,
                                                   bteso_EventType::BTESO_READ);
@@ -511,15 +529,19 @@ static void methodCallback(Negotiation::Context negotiation)
     }
 }
 
-static void timeoutCallback(Negotiation::Context negotiation)
+static void timeoutCallback(btes5_Negotiation_Imp::Context negotiation)
     // Expire the specified 'negotiation'.
 {
+    if (negotiation->d_terminating) {
+        return;                                                       // RETURN
+    }
+
     negotiation->d_timer = 0;
     terminate(negotiation,
               btes5_Negotiator::e_ERROR, btes5_DetailedError("timeout"));
 }
 
-static int sendMethodRequest(Negotiation::Context negotiation)
+static int sendMethodRequest(btes5_Negotiation_Imp::Context negotiation)
     // Send SOCKS5 greeting including list of authentication methods supported
     // using the specified 'negotiation' for managing object lifetime. Return 0
     // for success and a non-zero value for error.
@@ -567,8 +589,6 @@ static int sendMethodRequest(Negotiation::Context negotiation)
     return 0;
 }
 
-}  // close unnamed namespace
-
                            // ----------------------
                            // class btes5_Negotiator
                            // ----------------------
@@ -591,14 +611,16 @@ int btes5_Negotiator::negotiate(
     NegotiationStateCallback               callback,
     const bdet_TimeInterval&               timeout)
 {
-    Negotiation::Context
-        negotiation(new (*d_allocator_p) Negotiation(socket,
-                                                     destination,
-                                                     callback,
-                                                     timeout,
-                                                     d_eventManager_p,
-                                                     d_allocator_p),
+    btes5_Negotiation_Imp::Context
+        negotiation(new (*d_allocator_p) btes5_Negotiation_Imp(
+                                                              socket,
+                                                              destination,
+                                                              callback,
+                                                              timeout,
+                                                              d_eventManager_p,
+                                                              d_allocator_p),
                         d_allocator_p);
+    d_negotiation = negotiation;
     return sendMethodRequest(negotiation);
 }
 
@@ -609,15 +631,17 @@ int btes5_Negotiator::negotiate(
     const bdet_TimeInterval&               timeout,
     const btes5_Credentials&               credentials)
 {
-    Negotiation::Context
-        negotiation(new (*d_allocator_p) Negotiation(socket,
-                                                     destination,
-                                                     callback,
-                                                     timeout,
-                                                     d_eventManager_p,
-                                                     d_allocator_p),
+    btes5_Negotiation_Imp::Context
+        negotiation(new (*d_allocator_p) btes5_Negotiation_Imp(
+                                                              socket,
+                                                              destination,
+                                                              callback,
+                                                              timeout,
+                                                              d_eventManager_p,
+                                                              d_allocator_p),
                         d_allocator_p);
     negotiation->d_credentials = credentials;
+    d_negotiation = negotiation;
     return sendMethodRequest(negotiation);
 }
 
@@ -628,16 +652,28 @@ int btes5_Negotiator::negotiate(
     const bdet_TimeInterval&               timeout,
     btes5_CredentialsProvider             *provider)
 {
-    Negotiation::Context
-        negotiation(new (*d_allocator_p) Negotiation(socket,
-                                                     destination,
-                                                     callback,
-                                                     timeout,
-                                                     d_eventManager_p,
-                                                     d_allocator_p),
+    btes5_Negotiation_Imp::Context
+        negotiation(new (*d_allocator_p) btes5_Negotiation_Imp(
+                                                              socket,
+                                                              destination,
+                                                              callback,
+                                                              timeout,
+                                                              d_eventManager_p,
+                                                              d_allocator_p),
                         d_allocator_p);
     negotiation->d_provider_p = provider;
+    d_negotiation = negotiation;
     return sendMethodRequest(negotiation);
+}
+
+void btes5_Negotiator::cancelNegotiation()
+{
+    btes5_Negotiation_Imp::Context currentNegotiation = d_negotiation.lock();
+    if (currentNegotiation) {
+        terminate(currentNegotiation,
+                  btes5_Negotiator::e_ERROR,
+                  btes5_DetailedError("btes5_Negotiation_Imp cancelled"));
+    }
 }
 
 }  // close enterprise namespace

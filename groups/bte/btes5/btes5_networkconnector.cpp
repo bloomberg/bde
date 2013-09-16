@@ -216,6 +216,7 @@ static void terminate(
     if (attempt->d_terminating.testAndSwap(0, 1)) {
         return; // this attempt is already being terminated
     }
+    attempt->d_connector->d_negotiator.cancelNegotiation();
 
     if (attempt->d_timer) {
         attempt->d_connector->d_eventManager_p->deregisterTimer(

@@ -165,6 +165,10 @@
 #include <btes5_credentials.h>
 #endif
 
+#ifndef INCLUDED_BCEMA_WEAKPTR
+#include <bcema_weakptr.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -186,6 +190,8 @@
 #endif
 
 namespace BloombergLP {
+
+struct btes5_Negotiation_Imp;
 
                         // ======================
                         // class btes5_Negotiator
@@ -219,8 +225,9 @@ class btes5_Negotiator {
 
   private:
     // DATA
-    bteso_TimerEventManager *d_eventManager_p; // socket event manager, held
-    bslma::Allocator        *d_allocator_p;    // memory allocator, held
+    bteso_TimerEventManager    *d_eventManager_p; // socket event manager, held
+    bcema_WeakPtr<btes5_Negotiation_Imp>  d_negotiation;    // negotiation in progress
+    bslma::Allocator           *d_allocator_p;    // memory allocator, held
 
     // NOT IMPLEMENTED
     btes5_Negotiator();
@@ -271,6 +278,13 @@ class btes5_Negotiator {
         // negotiation is finished. Return 0 on successful start, and a
         // non-zero value on immediate failure. Note that 'socket' will not be
         // closed on error.
+
+    void cancelNegotiation();
+        // Cancel the negotiation in progress.  If there is no negotiation in
+        // progress, this call has no effect.  Callbacks already in progress
+        // when this method is called may proceed and invoke the 'callback'
+        // supplied to 'negotiate'.  Otherwise, the callback will be invoked
+        // with 'result == btes5_Negotiator::e_ERROR'.
 
 };
 

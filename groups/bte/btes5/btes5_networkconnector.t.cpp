@@ -375,6 +375,10 @@ int main(int argc, char *argv[])
                         ? btes5_TestServerArgs::e_ERROR
                         : btes5_TestServerArgs::e_NONE;
 
+    // preserve allocator for test apparatus
+
+    bslma::Allocator *alloc = bslma::Default::defaultAllocator();
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
@@ -400,15 +404,15 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+        bcema_TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
         bteso_Endpoint destination;
         btes5_TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
         destinationArgs.d_mode = btes5_TestServerArgs::e_IGNORE;
         btes5_TestServer destinationServer(&destination, &destinationArgs);
-        if (verbose) {
-            cout << "destination server started on " << destination << endl;
-        }
 
         bteso_Endpoint region;
         btes5_TestServerArgs regionArgs;
@@ -418,9 +422,6 @@ int main(int argc, char *argv[])
         regionArgs.d_expectedDestination.set("destination.example.com", 8194);
         regionArgs.d_destination = destination; // override connection address
         btes5_TestServer regionServer(&region, &regionArgs);
-        if (verbose) {
-            cout << "regional proxy server started on " << region << endl;
-        }
 
         btes5_TestServerArgs corpArgs;
         corpArgs.d_verbosity = verbosity;
@@ -429,15 +430,8 @@ int main(int argc, char *argv[])
         corpArgs.d_mode = btes5_TestServerArgs::e_CONNECT;
         bteso_Endpoint proxy;
         btes5_TestServer proxyServer(&proxy, &corpArgs);
-        if (verbose) {
-            cout << "corporate proxy started on " << proxy << endl;
-        }
 
-        {
-            bcema_TestAllocator da("defaultAllocator", veryVeryVerbose);
-            bslma::DefaultAllocatorGuard guard(&da);
-            ASSERT(connectThroughProxies(proxy, proxy) > 0);
-        }
+        ASSERT(connectThroughProxies(proxy, proxy) > 0);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -836,6 +830,9 @@ int main(int argc, char *argv[])
                           << "TIMEOUT TEST" << endl
                           << "============" << endl;
 
+        bcema_TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
         bteso_Endpoint destination;
         btes5_TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
@@ -1026,6 +1023,11 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
+        // install a 'TestAllocator' as defalt to check for memory leaks
+
+        bcema_TestAllocator ta("test1", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&ta);
+
         bteso_Endpoint destination;
         btes5_TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
@@ -1047,11 +1049,6 @@ int main(int argc, char *argv[])
 
         btes5_NetworkDescription proxies;
         proxies.addProxy(0, proxy);
-
-        // install a 'TestAllocator' as defalt to check for memory leaks
-
-        bcema_TestAllocator ta("test1", veryVeryVerbose);
-        bslma::DefaultAllocatorGuard guard(&ta);
 
         bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
         btemt_TcpTimerEventManager eventManager;
