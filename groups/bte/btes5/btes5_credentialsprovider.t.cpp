@@ -98,7 +98,7 @@ struct ProviderImp : bsls::ProtocolTestImp<btes5_CredentialsProvider> {
     virtual void acquireCredentials(const bteso_Endpoint&, Callback) {
         markDone();
     };
-    virtual void cancelAcquiringCredentials() { markDone(); }
+    virtual void cancelAcquiringCredentials()                   { markDone(); }
 };
 
 // ============================================================================

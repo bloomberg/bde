@@ -133,10 +133,6 @@ class btes5_CredentialsProvider {
         // SOCKS5 authentication. If 'status != 0' no username or password is
         // available.
 
-    // NOT IMPLEMENTED
-    btes5_CredentialsProvider(const btes5_CredentialsProvider&);
-    btes5_CredentialsProvider& operator=(const btes5_CredentialsProvider&);
-
   public:
     // CREATORS
     btes5_CredentialsProvider();
