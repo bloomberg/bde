@@ -225,7 +225,7 @@ static int registerReadCb(void (*cb) (Negotiation::Context),
         readCb = bdef_BindUtil::bind(cb, negotiation);
     int rc = negotiation->d_eventManager_p->registerSocketEvent(
                                                    negotiation->d_handle,
-                                                   bteso_EventType::READ,
+                                                   bteso_EventType::BTESO_READ,
                                                    readCb);
     if (rc < 0) {
         terminate(negotiation,
@@ -286,7 +286,7 @@ static void connectCallback(Negotiation::Context negotiation)
 
     // consume address and port (not presently used)
     char buf[260]; // maximum length of address + 2 is 257
-    BSLS_ASSERT(addressLength + 2 <= sizeof(buf));
+    BSLS_ASSERT(addressLength + 2 <= (int) sizeof(buf));
     rc = negotiation->d_socket_p->read(buf, addressLength + 2);
     if (addressLength + 2 != rc) {
         e << "error reading bound address, expected " << addressLength + 2
@@ -339,38 +339,27 @@ static void connectToEndpoint(Negotiation::Context negotiation)
     // Send the appropriate request to connect to the endpoint past the SOCKS
     // server.
 {
-    bsl::ostringstream request;
-    unsigned char buffer;
+    bsl::ostringstream req;
 
-    buffer = VERSION;
-    request << buffer;
-
-    buffer = TCP_STREAM_CONNECTION;
-    request << buffer;
-
-    buffer = 0x00; // reserved
-    request << buffer;
-
-    buffer = DOMAINNAME; // adress type
-    request << buffer;
+    req << (unsigned char) VERSION
+        << (unsigned char) TCP_STREAM_CONNECTION
+        << (unsigned char) 0x00         // reserved
+        << (unsigned char) DOMAINNAME;  // adress type
 
     int length = negotiation->d_destination.hostname().size();
-    buffer = length;
-    request << buffer;
-    request << negotiation->d_destination.hostname();
+    req << (unsigned char) length
+            << negotiation->d_destination.hostname();
 
-    // encode 2-byte port in network (bigendian) order
-    buffer = (negotiation->d_destination.port() >> 8) & 0xff; // MSB
-    request << buffer;
-    buffer = negotiation->d_destination.port() & 0xff; // LSB
-    request << buffer;
+    // encode 2-byte port in network (bigendian) order: MSB first
+    req << (unsigned char) ((negotiation->d_destination.port() >> 8) & 0xff)
+        << (unsigned char) (negotiation->d_destination.port() & 0xff);
 
     if (registerReadCb(connectCallback, negotiation)) {
         return;
     }
-    const bsl::string& buf = request.str();
+    const bsl::string& buf = req.str();
     int rc = negotiation->d_socket_p->write(buf.c_str(), buf.size());
-    if (rc != buf.size()) {
+    if (rc != (int) buf.size()) {
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error writing connection request"));
@@ -461,7 +450,7 @@ static void sendAuthenticationRequest(Negotiation::Context negotiation)
     }
     const bsl::string& buf = request.str();
     int rc = negotiation->d_socket_p->write(buf.c_str(), buf.size());
-    if (rc != buf.size()) {
+    if (rc != (int) buf.size()) {
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error writing username/password"));

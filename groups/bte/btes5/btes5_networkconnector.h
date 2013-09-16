@@ -222,8 +222,8 @@ class btes5_NetworkConnector {
     // 'ConnectionHandle' object can be used to cancel the connection attempt.
 
     // PRIVATE TYPES
-    class Connector; // persistent state of the network connector
-    class Attempt;   // state of a connection attempt
+    struct Connector;  // persistent state of the network connector
+    struct Attempt;    // state of a connection attempt
 
 public:
     // TYPES

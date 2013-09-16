@@ -564,7 +564,7 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
                 if (attempt->d_socket_p) {
                     rc = attempt->d_connector->d_eventManager_p
                         ->registerSocketEvent(attempt->d_socket_p->handle(),
-                                              bteso_EventType::CONNECT,
+                                              bteso_EventType::BTESO_CONNECT,
                                               cb);
                 }
             }

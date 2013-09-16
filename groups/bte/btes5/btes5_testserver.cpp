@@ -61,7 +61,7 @@ struct Socks5MethodResponse {
 
     Socks5MethodResponse(int method = 0)
     : d_version(5)
-    , d_method(method) {
+    , d_method((unsigned char) method) {
     }
 };
 
@@ -383,9 +383,12 @@ void Socks5Session::readMessageCb(
 {
     if (btemt_AsyncChannel::BTEMT_SUCCESS == result) {
         const int length = msg.data()->length();
-        char data[length];
-        msg.data()->copyOut(data, length, 0);
-        (this->*func)(reinterpret_cast<MSG*>(data), length, consumed, needed);
+        bsl::string buf(length, '\0');
+        msg.data()->copyOut(&buf[0], length, 0);
+        (this->*func)(reinterpret_cast<MSG*>(&buf[0]),
+                                             length,
+                                             consumed,
+                                             needed);
     } else {
         LOG_ERROR << "async read failed, result " << result << LOG_END;
         stop();
@@ -579,7 +582,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
             reinterpret_cast<Socks5ConnectResponseBase *>(respBuffer);
 
     respBase->d_version = 5;
-    respBase->d_reply = d_args.d_reply;
+    respBase->d_reply = (unsigned char) d_args.d_reply;
     respBase->d_reserved = 0;
     respBase->d_addressType = data->d_addressType;
 
@@ -635,7 +638,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
                 || d_args.d_expectedDestination == destination);
 
         Socks5ConnectResponse3 *resp = (Socks5ConnectResponse3 *)respBuffer;
-        resp->d_hostLen = hostLen;
+        resp->d_hostLen = (unsigned char) hostLen;
         memcpy(&resp->d_data[0], hostBuffer, hostLen);
         memcpy(&resp->d_data[hostLen], &port, sizeof(port));
         respLen = sizeof(Socks5ConnectResponse3) - 1 + hostLen + sizeof(port);
@@ -649,7 +652,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
     if (btes5_TestServerArgs::e_FAIL == d_args.d_mode) {
         unsigned char reply = 1; // general SOCKS server failure
         if (d_args.d_reply) {
-            reply = d_args.d_reply;
+            reply = (unsigned char) d_args.d_reply;
         }
         LOG_DEBUG << "sending error code " << reply
                   << " and closing" << LOG_END;
