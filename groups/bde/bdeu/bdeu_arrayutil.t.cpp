@@ -27,7 +27,8 @@ using namespace bsl;
 //--------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -91,19 +92,19 @@ namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE {
     {
 ///Usage Example 1
 ///---------------
-// When creating a sequence of values it is often easy to write the sequence
-// as an initialized array and use this array to initialize a container. Since
+// When creating a sequence of values it is often easy to write the sequence as
+// an initialized array and use this array to initialize a container.  Since
 // the array's length may get adjusted in during when the program is
 // maintained, the code using the array should automatically determine the
 // array's length or automatically determine iterators to the beginning and the
-// end of the array. For example, to initialize a 'bsl::vector<int>' with the
+// end of the array.  For example, to initialize a 'bsl::vector<int>' with the
 // first few prime numbers stored in an array the following code uses the
-// 'begin()' and 'end()' methods of 'bdeu_ArrayUtil':
+// 'begin' and 'end' methods of 'bdeu_ArrayUtil':
 //..
     const int        primes[] = { 2, 3, 5, 7, 11, 13, 17 };
     bsl::vector<int> values(bdeu_ArrayUtil::begin(primes),
                             bdeu_ArrayUtil::end(primes));
-  
+
     ASSERT(values.size() == bdeu_ArrayUtil::size(primes));
 //..
 // After constructing 'values' with the content of the array 'primes' the
@@ -115,74 +116,79 @@ namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE {
     int reversePrimes[BDEU_ARRAYUTIL_SIZE(primes)];
     bsl::copy(values.rbegin(), values.rend(),
               bdeu_ArrayUtil::begin(reversePrimes));
-  
+
     ASSERT(bsl::mismatch(bdeu_ArrayUtil::rbegin(primes),
                          bdeu_ArrayUtil::rend(primes),
                          bdeu_ArrayUtil::begin(reversePrimes)).second
            == bdeu_ArrayUtil::end(reversePrimes));
 //..
 // After defining the array 'reversePrimes' with the same length as 'primes'
-// the elements of 'values' are copied in reverse order into this array. The
+// the elements of 'values' are copied in reverse order into this array.  The
 // assertion verifies that 'reversePrimes' contains the values from 'primes'
-// but in reverse order: 'bsl::mismatch()' is used with a reverse sequence of
-// 'primes' by using the 'rbegin()' and 'rend()' methods for 'primes' and
-// normal sequence using the 'begin()' and 'end()' methods for 'reversePrimes'.
+// but in reverse order: 'bsl::mismatch' is used with a reverse sequence of
+// 'primes' by using the 'rbegin' and 'rend' methods for 'primes' and normal
+// sequence using the 'begin' and 'end' methods for 'reversePrimes'.
+//..
     }
+//..
 //
 ///Usage Example 2
 ///---------------
-// The functions 'begin()', 'end()', and 'size()' provided by this component
-// are similar to functions provided by containers. The main difference is that
+// The functions 'begin', 'end', and 'size' provided by this component are
+// similar to functions provided by containers.  The main difference is that
 // they reside in a utility component rather than being member functions.
 //
-// A typical use case for the 'size()' function is a function expecting a
-// pointer to a sequence of keys (e.g., columns in a database) and the number
-// of the keys in the sequence:
+// A typical use case for the 'size' function is a function expecting a pointer
+// to a sequence of keys (e.g., columns in a database) and the number of the
+// keys in the sequence:
 //..
-    void query(const bsl::string*  columns,
+    void query(const bsl::string  *columns,
                int                 numberOfColumns,
-               bsl::string        *result) {
+               bsl::string        *result)
+    {
         for (int i = 0; i != numberOfColumns; ++i) {
             result[i] = "queried " + columns[i];
         }
     }
-  
-    void loadData(bsl::vector<bsl::string> *data) {
+
+    void loadData(bsl::vector<bsl::string> *data)
+    {
         const bsl::string columns[] = { "column1", "column2", "column3" };
         bsl::string       result[BDEU_ARRAYUTIL_SIZE(columns)];
-         query(columns, bdeu_ArrayUtil::size(columns), result);
+        query(columns, bdeu_ArrayUtil::size(columns), result);
         data->assign(bdeu_ArrayUtil::begin(result),
                      bdeu_ArrayUtil::end(result));
     }
 //..
-// The 'loadData()' function shows how to use the different function templates.
-// The array 'columns' doesn't have a length specified. It is determined from
-// the number of elements it is initialized with. In this case it is easy to
+// The 'loadData' function shows how to use the different function templates.
+// The array 'columns' doesn't have a length specified.  It is determined from
+// the number of elements it is initialized with.  In this case it is easy to
 // see that there are three elements but in real situations the number of
-// elements can be non-trivial to get right. Also, changing the number of
+// elements can be non-trivial to get right.  Also, changing the number of
 // elements would make it necessary to apply the corresponding change in
-// multiple places. Thus, the length is determined using 'bdeu_ArrayUtil':
+// multiple places.  Thus, the length is determined using 'bdeu_ArrayUtil':
 //
-// * The length of 'result' should match the length of 'columns'. When
-//   specifying  the length of an array a constant expression is necessary.
-//   In C++ 2011 the function 'bdeu_ArrayUtil::size()' could return a constant
-//   expression butcompilers not, yet, implementing the standard a trick needs
+// * The length of 'result' should match the length of 'columns'.  When
+//   specifying the length of an array a constant expression is necessary.  In
+//   C++ 2011 the function 'bdeu_ArrayUtil::size' could return a constant
+//   expression but compilers not, yet, implementing the standard a trick needs
 //   to be used (using 'sizeof' with a reference to suitably sized array of
-//   'char'). This trick is packaged into the macro 'BDEU_ARRAYUTIL_SIZE()'.
+//   'char').  This trick is packaged into the macro 'BDEU_ARRAYUTIL_SIZE()'.
 // * When the length is needed in a context where a const expression isn't
-//   required, e.g., when calling 'query()', the `bdeu_ArrayUtil::size()'
-//   function can be used with the array.
-// * The 'bdeu_ArrayUtil::begin()' and 'bdeu_ArrayUtil::end()' functions are
-//   used to obtain begin and end iterators used with the vector's 'assign()'
-//   function to put the 'result' obtained from the call to 'query()' into the
-//   vector pointed to by 'data'.
+//   required, e.g., when calling 'query', the `bdeu_ArrayUtil::size' function
+//   can be used with the array.
+// * The 'bdeu_ArrayUtil::begin' and 'bdeu_ArrayUtil::end' functions are used
+//   to obtain begin and end iterators used with the vector's 'assign' function
+//   to put the 'result' obtained from the call to 'query' into the 'vector'
+//   pointed to by 'data'.
 //
 // Similar needs for an array of a sequence of values frequently arise when
-// using one of the database interfaces. Another common use case are test
+// using one of the database interfaces.  Another common use case are test
 // cases where the content of a somehow computed sequence needs to be compared
 // with an expected result:
 //..
-    void checkData(const bsl::vector<bsl::string>& data) {
+    void checkData(const bsl::vector<bsl::string>& data)
+    {
         const bsl::string expect[] = {
             "queried column1", "queried column2", "queried column3"
         };
@@ -197,29 +203,30 @@ namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE {
 // array 'expect':
 //
 // * First it is made sure that the lengths of 'data' and 'expect' are
-//   identical using 'bdeu_ArrayUtil::size()'.
-// * Next, the sequences are compared using the 'mismatch()' algorithm: To get
-//   the begin and of the 'expect' array 'bdeu_ArrayUtil::begin()' and
-//   'bdeu_ArrayUtil::end()', respectively, are used.
+//   identical using 'bdeu_ArrayUtil::size'.
+// * Next, the sequences are compared using the 'mismatch' algorithm: To get
+//   the begin and of the 'expect' array 'bdeu_ArrayUtil::begin' and
+//   'bdeu_ArrayUtil::end', respectively, are used.
 //..
-    void usageExample(int verbose) {
+    void usageExample(bool verbose)
+    {
         if (verbose) cout << "\nUsing Basic Functions"
                           << "\n--------------" << endl;
-         bsl::vector<bsl::string> data;
+        bsl::vector<bsl::string> data;
         loadData(&data);
         checkData(data);
     }
 //..
-// close namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE
-}
+}  // close namespace BDEU_ARRAYUTIL_USAGE_EXAMPLE
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int     test = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -266,7 +273,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == BDEU_ARRAYUTIL_LENGTH(constIntArray));
 
         volatile int volatileIntArray[] = { 1, 2 };
-        ASSERT(volatileIntArray     == bdeu_ArrayUtil::begin(volatileIntArray));
+        ASSERT(volatileIntArray == bdeu_ArrayUtil::begin(volatileIntArray));
         ASSERT(volatileIntArray + 2 == bdeu_ArrayUtil::end(volatileIntArray));
         ASSERT(bsl::reverse_iterator<volatile int*>(volatileIntArray + 2)
                == bdeu_ArrayUtil::rbegin(volatileIntArray));
@@ -336,7 +343,7 @@ int main(int argc, char *argv[])
         ASSERT(1234 == bdeu_ArrayUtil::length(userDefinedArray));
         ASSERT(1234 == sizeof(bdeu_ArrayUtil::sizer(userDefinedArray)));
         ASSERT(1234 == BDEU_ARRAYUTIL_SIZE(userDefinedArray));
-               ASSERT(1234 == BDEU_ARRAYUTIL_LENGTH(userDefinedArray));
+        ASSERT(1234 == BDEU_ARRAYUTIL_LENGTH(userDefinedArray));
 
       } break;
       case 1: {
@@ -345,7 +352,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   - Both const and non-const arrays should work.
-        //   - The functions should be callalable with arbitrary types. 
+        //   - The functions should be callable with arbitrary types.
         //   - The functions should be applicable to different array sizes.
         //
         // Plan:
@@ -442,7 +449,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
