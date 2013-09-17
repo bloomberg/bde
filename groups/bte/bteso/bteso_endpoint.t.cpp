@@ -38,10 +38,10 @@ using namespace bsl;
 // MANIPULATORS
 // [ ] bteso_Endpoint& operator=(const bteso_Endpoint& rhs) = default;
 // [2] void set(hostname, int port);
+// [3] int setIfValid(hostname, int port);
 // [ ] void reset();
 //
 // ACCESSORS
-// [2] bool isSet() const;
 // [2] const bsl::string& hostname() const;
 // [2] int port() const;
 //
@@ -182,19 +182,25 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // ISVALID
-        //   Verify 'isValid' works correctly.
+        //   Verify 'isValid' and 'setIfValid' work correctly.
         //
         // Concerns:
         //: 1 isValid accepts hostnames between 1 and 254 characters.
         //: 2 isValid accepts port numbers from 1 to 65636.
         //: 3 isValid rejects empty strings, and strings longer than 255 bytes.
         //: 4 isValid rejects port numbers less than 1 or greater than 65535.
+        //: 5 setIfValid sets the attributes iff its parameters are valid.
+        //: 6 setIfValid returns 0 iff its parameters are valid
         //
         // Plan:
-        //: 1 Use brute-force assertions to check near the boundaries.
+        //: 1 Use a data driven approach to check is the values are valid:
+        //:   1 Check against expected return of 'isValid'.
+        //:   2 Call 'setIfValid' and check the return code.
+        //:   3 Check if the object value was changed based on validity.
         //
         // Testing:
         //   bool isValid(const bslstl::StringRef& hostname, int port);
+        //   int setIfValid(hostname, int port);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -211,20 +217,51 @@ int main(int argc, char *argv[])
         const string tooLongHostname(s.str(), ta);
         ASSERT(256 == tooLongHostname.length());
 
-        ASSERT(bteso_Endpoint::isValid("",                  1) == false);
-        ASSERT(bteso_Endpoint::isValid("h",                 1) == true);
-        ASSERT(bteso_Endpoint::isValid(longHostname,        1) == true);
-        ASSERT(bteso_Endpoint::isValid(tooLongHostname,     1) == false);
+        static const struct {
+            int         d_line;  // source line number
+            const char *d_hostname;
+            int         d_port;
+            bool        d_valid;
+        } DATA[] = {
 
-        ASSERT(bteso_Endpoint::isValid("h",                -1) == false);
-        ASSERT(bteso_Endpoint::isValid("h",                 0) == false);
-        ASSERT(bteso_Endpoint::isValid("h",                 1) == true);
-        ASSERT(bteso_Endpoint::isValid("h",             65535) == true);
-        ASSERT(bteso_Endpoint::isValid("h",             65536) == false);
-        ASSERT(bteso_Endpoint::isValid("h",             65537) == false);
+        //LINE HOSTNAME                  PORT  VALID
+        //---- ----------------         -----  -----
+        { L_,  "",                          0, true },
+        { L_,  "",                          1, false },
+        { L_,  "h",                         1, true  },
+        { L_,  longHostname.c_str(),        1, true  },
+        { L_,  tooLongHostname.c_str(),     1, false },
 
-        ASSERT(bteso_Endpoint::isValid(longHostname,    65535) == true);
-        ASSERT(bteso_Endpoint::isValid(tooLongHostname, 65536) == false);
+        { L_,  "h",                        -1, false },
+        { L_,  "h",                         0, false },
+        { L_,  "h",                         1, true  },
+        { L_,  "h",                     65535, true  },
+        { L_,  "h",                     65536, false },
+        { L_,  "h",                     65537, false },
+
+        { L_,  longHostname.c_str(),    65535, true  },
+        { L_,  tooLongHostname.c_str(), 65536, false },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        const bteso_Endpoint obj0("initial.host.name", 12345);
+
+        for (int ti = 0; ti < NUM_DATA; ti++) {
+            const int   LINE     = DATA[ti].d_line;
+            const char *HOSTNAME = DATA[ti].d_hostname;
+            const int   PORT     = DATA[ti].d_port;
+            const bool  VALID    = DATA[ti].d_valid;
+
+            if (veryVerbose) { T_ P_(LINE) P_(HOSTNAME) P_(PORT) P(VALID) }
+
+            LOOP4_ASSERT(LINE, HOSTNAME, PORT, VALID,
+                         VALID == bteso_Endpoint::isValid(HOSTNAME, PORT));
+
+            bteso_Endpoint obj(obj0);
+            int rc = obj.setIfValid(HOSTNAME, PORT);
+            LOOP4_ASSERT(LINE, HOSTNAME, PORT, VALID, VALID == (0 == rc));
+            LOOP4_ASSERT(LINE, HOSTNAME, PORT, VALID, VALID == (obj0 != obj));
+        }
 
       } break;
       case 2: {
@@ -247,7 +284,6 @@ int main(int argc, char *argv[])
         //   bteso_Endpoint(bteso_Endpoint& original, *allocator = 0);
         //   ~bteso_Endpoint();
         //   void set(hostname, int port);
-        //   bool isSet() const;
         //   const bsl::string& hostname() const;
         //   int port() const;
         //   bool operator!=(lhs, rhs);
@@ -258,10 +294,9 @@ int main(int argc, char *argv[])
                           << "================" << endl;
 
         bteso_Endpoint address1;
-        ASSERT(!address1.isSet());
+        ASSERT(!address1.port());
 
         address1.set("localhost", 8194);
-        ASSERT(address1.isSet());
         ASSERT(address1.hostname() == "localhost");
         ASSERT(address1.port() == 8194);
         if (verbose) {
@@ -274,7 +309,6 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ea("explicitAllocator", veryVeryVerbose);
         {
             bteso_Endpoint address2(address1, &ea);
-            ASSERT(address2.isSet());
             ASSERT(address2.hostname() == "localhost");
             ASSERT(address2.port() == 8194);
             ASSERT(address1 == address2);
@@ -290,13 +324,12 @@ int main(int argc, char *argv[])
                      << endl;
             }
             address1 = address2;
-            ASSERT(address1.isSet());
             ASSERT(address1.hostname() == "bloomberg.com");
             ASSERT(address1.port() == 80);
 
-            ASSERT(address1.isSet());
             address1.reset();
-            ASSERT(!address1.isSet());
+            ASSERT(!address1.port());
+            ASSERT(address1.hostname().empty());
         }
 
         // verify that the default allocator was not used
@@ -324,10 +357,10 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
         bteso_Endpoint address1;
-        ASSERT(!address1.isSet());
+        ASSERT(!address1.port());
+        ASSERT(address1.hostname().empty());
 
         address1.set("localhost", 8194);
-        ASSERT(address1.isSet());
         ASSERT(address1.hostname() == "localhost");
         ASSERT(address1.port() == 8194);
         if (verbose) {

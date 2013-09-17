@@ -9,10 +9,6 @@ BDES_IDENT_RCSID(bteso_endpoint_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace {
-
-}  // close anonymous namespace
-
                             // --------------------
                             // class bteso_Endpoint
                             // --------------------
@@ -20,16 +16,16 @@ namespace {
 // CLASS METHODS
 bool bteso_Endpoint::isValid(const bslstl::StringRef& hostname, int port)
 {
-    return 1 <= hostname.length() && hostname.length() <= 255
-        && 1 <= port && port <= 65535;
+    return (1 <= hostname.length() && hostname.length() <= 255
+            && 1 <= port && port <= 65535)
+        || (hostname.isEmpty() && 0 == port);
 }
 
 // CREATORS
 bteso_Endpoint::bteso_Endpoint(bslma::Allocator *allocator)
 : d_hostname(bslma::Default::allocator(allocator))
-, d_port(-1)
+, d_port(0)
 {
-    // 'port >=- 0' is the internal indicator for 'this->isSet()'.
 }
 
 bteso_Endpoint::bteso_Endpoint(const bteso_Endpoint&  original,
@@ -43,7 +39,7 @@ bteso_Endpoint::bteso_Endpoint(const bslstl::StringRef& hostname,
                                int                      port,
                                bslma::Allocator        *allocator)
 : d_hostname(bslma::Default::allocator(allocator))
-, d_port(-1)
+, d_port(0)
 {
     set(hostname, port);
 }
@@ -55,24 +51,30 @@ bteso_Endpoint::~bteso_Endpoint()
 // MANIPULATORS
 void bteso_Endpoint::set(const bslstl::StringRef& hostname, int port)
 {
-    BSLS_ASSERT(1 <= hostname.length() && hostname.length() <= 255);
-    BSLS_ASSERT(1 <= port && port <= 65535);
+    BSLS_ASSERT(isValid(hostname, port));
     d_hostname = hostname;
     d_port = port;
 }
 
+int bteso_Endpoint::setIfValid(const bslstl::StringRef& hostname, int port)
+{
+    if (isValid(hostname, port)) {
+        d_hostname = hostname;
+        d_port = port;
+        return 0;
+    }
+    else {
+        return -1;
+    }
+}
+
 void bteso_Endpoint::reset()
 {
-    d_port = -1;
+    d_port = 0;
     d_hostname.clear();
 }
 
 // ACCESSORS
-bool bteso_Endpoint::isSet() const
-{
-    return d_port >= 0;
-}
-
 const bsl::string& bteso_Endpoint::hostname() const
 {
     return d_hostname;
@@ -86,8 +88,7 @@ int bteso_Endpoint::port() const
 // FREE OPERATORS
 bool operator==(const bteso_Endpoint& lhs, const bteso_Endpoint& rhs)
 {
-    return ((!lhs.isSet() && !rhs.isSet())
-            || (lhs.port() == rhs.port() && lhs.hostname() == rhs.hostname()));
+    return lhs.port() == rhs.port() && lhs.hostname() == rhs.hostname();
 }
 
 bool operator!=(const bteso_Endpoint& lhs, const bteso_Endpoint& rhs)

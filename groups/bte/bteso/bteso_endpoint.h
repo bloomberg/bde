@@ -63,9 +63,12 @@ namespace BloombergLP {
 class bteso_Endpoint {
     // This value-semantic class characterizes a TCP, UDP, SCTP, etc. address
     // as a host and port.  The host may be a domain name (requiring name
-    // resolution), or a dotted-decimal address.  Note that port 0 is sometimes
-    // used to indicate the system should assign a free port number, however, 0
-    // is not a valid port number for 'bteso_Endpoint'.
+    // resolution), or a dotted-decimal address.  Objects can either have the
+    // default value, or syntactically valid hostname and port.  The default
+    // state is signified by the port attribute being 0 and the hostname being
+    // an empty string; either one can be used as an indicator of the default
+    // value.  Otherwise !both! hostname and port contain syntactically valid
+    // values, as defined by 'isValid'.
 
     // DATA
     bsl::string d_hostname; // remote host name
@@ -74,15 +77,15 @@ class bteso_Endpoint {
   public:
     // CLASS METHODS
     static bool isValid(const bslstl::StringRef& hostname, int port);
-        // Return 'true' if '1 <= hostname.size() && hostname.size <= 255' and
+        // Return 'true' if '!hostname.size() && !port' (the default value) or
+        // '1 <= hostname.size() && hostname.size <= 255' and
         // '1 <= port && port <= 65535', and 'false' otherwise.
 
     // CREATORS
     explicit bteso_Endpoint(bslma::Allocator *allocator = 0);
         // Construct a 'bteso_Endpoint' object. If the optionally specified
         // 'allocator' is not 0 use it to supply memory, otherwise use the
-        // default allocator. Note that 'isSet()' will return 'false' for this
-        // object until 'operator=()' or 'set()' is executed.
+        // default allocator.
 
     bteso_Endpoint(const bteso_Endpoint&  original,
                    bslma::Allocator      *allocator = 0);
@@ -110,25 +113,25 @@ class bteso_Endpoint {
 
     void set(const bslstl::StringRef& hostname, int port);
         // Set the attributes of this object to the specified 'hostname' and
-        // 'port'. The behavior is undefined unless
-        // '1 <= hostname.size() && hostname.size <= 255' and
-        // '1 <= port && port <= 65535'.
+        // 'port'.  The behavior is undefined unless 'isValid(hostname, port)'
+        // would return 'true'.
+
+    int setIfValid(const bslstl::StringRef& hostname, int port);
+        // Set the attributes of this object to the specified 'hostname' and
+        // 'port' if 'isValid(hostname, port)' would return 'true' and return
+        // 0.  Otherwise leave the value of this object unchanged and return a
+        // non-zero value.
 
     void reset();
-        // Reset this object to an empty state.
+        // Reset this object to the default value.
 
     // ACCESSORS
-    bool isSet() const;
-        // Return 'true' if this object is set, and 'false' otherwise.
-
     const bsl::string& hostname() const;
         // Return a reference providing non-modifiable access to the hostname
-        // attribute of this object. The behavior is undefined unless
-        // 'true == isSet()'.
+        // attribute of this object.
 
     int port() const;
-        // Return the port number attribute of this object. The behavior is
-        // undefined unless 'true == isSet()'.
+        // Return the port number attribute of this object.
 
 };
 
