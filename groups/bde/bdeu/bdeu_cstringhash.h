@@ -63,8 +63,8 @@ struct bdeu_CStringHash {
     // 'bsl::unordered_set'.  Note that this class is an empty POD type.
 
     // STANDARD TYPEDEFS
-    typedef const char *argument_type;
-    typedef bool result_type;
+    typedef const char  *argument_type;
+    typedef bsl::size_t  result_type;
 
     //! bdeu_CStringHash() = default;
         // Create a 'bdeu_CStringHash' object.
