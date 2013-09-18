@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING META-FUNCTIONS bdes_AlignmentOf<T>::Type
+        // TESTING META-FUNCTION bdes_AlignmentOf<T>::Type
         //
         //   Ensure that the right type is selected for each possible
         //      alignment.

@@ -598,15 +598,11 @@ int main(int argc, char *argv[])
         // Plan:
         //   First, ensure that 'MaxAlign' is the maximally aligned type.
         //
-        //   Next, ensure that the size of the maximally aligned type is
+        //   Then, ensure that the size of the maximally aligned type is
         //   equal to its alignment offset.
-        //
-        //   Finally, ensure that 'roundUpToMaximalAlignment' rounds its
-        //   argument up to the nearest multiple of 'sizeof(MaxAlign)'.
         //
         // Testing:
         //   MaxAlign
-        //   static int roundUpToMaximalAlignment(int size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "MAXIMUM ALIGNMENT TEST" << endl

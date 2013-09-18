@@ -7,11 +7,9 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a header file to satisfy old redundant #includes.
+//@PURPOSE: Provide a namespace for platform dependent 64 bit integer types.
 //
-//@DEPRECATED: This component should not be used in new code, and will be
-// deleted in the near future.  Please see 'bdef_function', 'bdef_bind', etc.
-// for alternatives that should be used for all future development.
+//@DEPRECATED: Use 'bsls_types' instead.
 //
 //@DESCRIPTION: This component has been deleted, but there remains legacy code
 // still including this header, without relying on its contents.  To avoid

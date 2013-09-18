@@ -451,10 +451,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_alignmentfromtype.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
-#include <bsls_alignmentutil.h>
-#endif
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #ifndef INCLUDED_BSLS_ALIGNMENTIMP
 #include <bsls_alignmentimp.h>

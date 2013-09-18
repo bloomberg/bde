@@ -144,7 +144,7 @@ bool bdes_PlatformUtil::isLittleEndian()
 //                 COMPILE-TIME CONSTANT PRE-PROCESSOR MACROS
 // ============================================================================
 
-// single consumer remains in:
+// single consumer of 'BDES_PLATFORMUTIL_NTOHS' remains in:
 //   .../pc_controls/controls/blpmonsvc/apire/apire_nethost.h 
 #ifndef BDES_PLATFORMUTIL_NTOHS
 #define BDES_PLATFORMUTIL_NTOHS(X)           BSLS_BYTEORDER_NTOHS(X)
