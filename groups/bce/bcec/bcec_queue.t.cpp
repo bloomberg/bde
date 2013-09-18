@@ -11,14 +11,18 @@
 #include <bcemt_threadgroup.h>
 #include <bces_atomictypes.h>
 
-#include <bslma_defaultallocatorguard.h>
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bdetu_systemtime.h>
+#include <bdeu_random.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
@@ -108,16 +112,16 @@ volatile int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
 {
-   if (c) {
-       cout << "Error " << __FILE__ << "(" << i << "): " << s
-            << "    (failed)" << endl;
-       if (0 <= testStatus && testStatus <= 100) ++testStatus;
-   }
+    if (c) {
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+                 << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+#define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
 //=============================================================================
 //                      STANDARD BDE LOOP-ASSERT TEST MACRO
@@ -137,6 +141,7 @@ void aSsErT(int c, const char *s, int i)
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
+#define T_()  cout << '\t' << flush;          // Print tab w/o newline
 #define L_ __LINE__                           // current Line number
 #define TAB cout << '\t';
 
@@ -171,6 +176,18 @@ static const int MICRO_DECI_SEC =    10000;
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
 
+Element randElement(int *seed)
+{
+    enum { DIV_BIT  = 1 << 14,
+           DIV_MASK = DIV_BIT - 1 };
+
+    const unsigned int num = bdeu_Random::generate15(seed);
+    const unsigned int div = bdeu_Random::generate15(seed);
+    const Element      ret = num + ((double) (div & DIV_MASK) / DIV_BIT);
+
+    return (div & DIV_BIT) ? ret : -ret;
+}
+
 class MyBarrier {
     // This class is a fast 2-thread barrier implemented with semaphores.
     // Since it can only coordinate two threads, it can use much simpler
@@ -186,8 +203,9 @@ class MyBarrier {
         // c'tor
     {}
 
-    void wait() {
+    void wait()
         // wait until the other thread has reach the 'MyBarrier'
+    {
 
         if (0 == d_threadWaiting.testAndSwap(0, 1)) {
             d_entryGate.wait();
@@ -206,17 +224,17 @@ class MyBarrier {
 //-----------------------------------------------------------------------------
 namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE {
 
-struct myData
+struct MyData
 {
-    // myData...
+    // MyData...
 };
 
-bcec_Queue<myData>  myWorkQueue;
-bdec_Queue<myData>& rawQueue = myWorkQueue.queue();
+bcec_Queue<MyData>  myWorkQueue;
+bdec_Queue<MyData>& rawQueue = myWorkQueue.queue();
 bcemt_Mutex&        queueMutex = myWorkQueue.mutex();
 
-myData  data1;
-myData  data2;
+MyData  data1;
+MyData  data2;
 bool pairFoundFlag = false;
 
 void myWork()
@@ -1626,6 +1644,21 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }  // close namespace zerotst
 
+namespace TEST_CASE_2 {
+
+int myLength(bcec_Queue<Element> *q)
+{
+    const bcec_Queue<Element>& Q = *q;
+
+    int ret = Q.length();
+
+    ASSERT(ret == q->queue().length());
+
+    return ret;
+}
+
+}  // close namespace TEST_CASE_2
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1644,7 +1677,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // ---------------------------------------------------------
         // TESTING sequence constraints using 'backwards'
         // ---------------------------------------------------------
@@ -1666,7 +1699,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 18: {
+      case 19: {
         // ---------------------------------------------------------
         // TESTING sequence constraints using popFront(TYPE*)
         // ---------------------------------------------------------
@@ -1690,7 +1723,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         //  Basic test for popFront(TYPE*) and popBack(TYPE*)
         // --------------------------------------------------------------------
@@ -1740,7 +1773,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 
       } break;
-      case 16: {
+      case 17: {
         // ---------------------------------------------------------
         // TESTING queue of zero ptr
         // ---------------------------------------------------------
@@ -1762,7 +1795,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 15: {
+      case 16: {
         // ---------------------------------------------------------
         // TESTING sequence constraints
         // ---------------------------------------------------------
@@ -1784,7 +1817,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE 1
         //   The first usage example from the header has been incorporated into
@@ -1811,7 +1844,7 @@ int main(int argc, char *argv[])
             myProducer(NTHREADS);
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE 2
         //   The second usage example from the header has been incorporated
@@ -1868,7 +1901,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // multithreaded test of tryPopFront, tryPopBack
         //
@@ -1926,7 +1959,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::join(handle);
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TEST BLOCKING ON EMPTY QUEUE
         //
@@ -1956,7 +1989,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
 
-        ASSERT(0 == mX.queue().length());
+        ASSERT(0 == mX.length());
 
         TestClass13 tc13(&mX, &barrier);
 
@@ -1971,22 +2004,21 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::microSleep(50*1000);        // 50 mSec
 
         ASSERT(4 == tc13.s_pushCount);
-        ASSERT(4 == mX.queue().length());  // 5th push is blocking on high
-                                           // watermark
+        ASSERT(4 == mX.length());  // 5th push is blocking on high watermark
 
         ASSERT(TestClass13::VALID_VAL == mX.popFront());
         ASSERT(!barrier.timedWait(timeout));
         bcemt_ThreadUtil::yield();
         bcemt_ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(5 == tc13.s_pushCount);
-        ASSERT(4 == mX.queue().length());
+        ASSERT(4 == mX.length());
 
         ASSERT(TestClass13::VALID_VAL == mX.popBack());
         ASSERT(!barrier.timedWait(timeout));
         bcemt_ThreadUtil::yield();
         bcemt_ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(6 == tc13.s_pushCount);
-        ASSERT(4 == mX.queue().length());
+        ASSERT(4 == mX.length());
 
         for (int i = 0; 4 > i; ++i) {
             bool back = !(1 & i);
@@ -1997,7 +2029,7 @@ int main(int argc, char *argv[])
                 ASSERT(TestClass13::VALID_VAL == mX.popFront());
             }
             ASSERT(6 == tc13.s_pushCount);
-            ASSERT(3 - i == mX.queue().length());
+            ASSERT(3 - i == mX.length());
         }
 
         {
@@ -2008,7 +2040,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
       }  break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TEST BLOCKING ON EMPTY QUEUE
         //
@@ -2043,7 +2075,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
 
-        ASSERT(0 == mX.queue().length());
+        ASSERT(0 == mX.length());
 
         TestClass12 tc12(&mX, &barrier);
 
@@ -2052,14 +2084,14 @@ int main(int argc, char *argv[])
         mX.pushFront(e);
         mX.pushBack(e);
 
-        ASSERT(2 == mX.queue().length());
+        ASSERT(2 == mX.length());
 
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
         ASSERT(!barrier.timedWait(timeout));
 
-        ASSERT(0 == mX.queue().length());
+        ASSERT(0 == mX.length());
 
         for (int i = 0; i < 4; ++i) {
             enum { SLEEP_TIME = 10 * 1000 };        // 10 mSec
@@ -2067,13 +2099,13 @@ int main(int argc, char *argv[])
             ASSERT(!barrier.timedWait(timeout));
             bcemt_ThreadUtil::yield();
             bcemt_ThreadUtil::microSleep(SLEEP_TIME);
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
 
             mX.pushBack(e);
-            ASSERT(1 >= mX.queue().length());
+            ASSERT(1 >= mX.length());
 
             ASSERT(!barrier.timedWait(timeout));
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
         }
 
         e = TestClass12::TERMINATE;
@@ -2088,7 +2120,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bdetu_SystemTime::now() < timeout);
       }  break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TEST TRYPOPFRONT, TRYPOPBACK -- SINGLE THREAD TEST
         //
@@ -2114,7 +2146,7 @@ int main(int argc, char *argv[])
         Element e;
         int sts;
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         e = -7;
         sts = mX.tryPopFront(&e);
@@ -2124,7 +2156,7 @@ int main(int argc, char *argv[])
         ASSERT(v.empty());
         mX.tryPopFront(100);
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         for (int i = 0; i < 10; ++i) {
             mX.pushBack((Element) i);
@@ -2186,7 +2218,7 @@ int main(int argc, char *argv[])
         ASSERT(3 == v.front());
         ASSERT(0 == v.back());
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         v.clear();
         mX.tryPopBack(1, &v);
@@ -2216,7 +2248,7 @@ int main(int argc, char *argv[])
         }
         v.clear();
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
 
         ASSERT(0 != mX.tryPopBack(&e));
         ASSERT(0 != mX.tryPopFront(&e));
@@ -2234,9 +2266,9 @@ int main(int argc, char *argv[])
             ASSERT(i == e);
         }
 
-        ASSERT(!X.queue().length());
+        ASSERT(!X.length());
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TEST USE OF THE BDEC_QUEUE INTERFACE
         //
@@ -2255,14 +2287,15 @@ int main(int argc, char *argv[])
         using namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE;
 
         {
-            myWorkQueue.pushBack( myData() );
-            myWorkQueue.pushBack( myData() );
+            myWorkQueue.pushBack( MyData() );
+            myWorkQueue.pushBack( MyData() );
             myWork();
             ASSERT(0 == rawQueue.length());
+            ASSERT(0 == myWorkQueue.length());
         }
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING REMOVEALL
         //
@@ -2303,7 +2336,7 @@ int main(int argc, char *argv[])
             mX.pushBack(VC);
 
             mX.removeAll();
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
         }
 
         {
@@ -2315,14 +2348,14 @@ int main(int argc, char *argv[])
             mX.pushBack(VC);
 
             mX.removeAll(&buffer);
-            ASSERT(0 == mX.queue().length());
+            ASSERT(0 == mX.length());
             ASSERT(3 == buffer.size());
             ASSERT(VA == buffer[0]);
             ASSERT(VB == buffer[1]);
             ASSERT(VC == buffer[2]);
         }
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING INTERNAL BDEC QUEUE ACCESSORS
         //
@@ -2480,7 +2513,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING TIMED PUSH FUNCTIONS IN PRESENCE OF A HIGH WATER MARK
         //
@@ -2683,7 +2716,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING PUSH FUNCTIONS IN PRESENCE OF A HIGH WATER MARK
         //
@@ -2850,7 +2883,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING TIMED POP FUNCTIONS IN MULTI-THREAD
         //
@@ -2991,7 +3024,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::create(&thread, s3);
             bcemt_ThreadUtil::join(thread);
 
-            ASSERT(0 == x.queue().length());    // make sure thread ran
+            ASSERT(0 == x.length());    // make sure thread ran
         }
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -2999,7 +3032,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { P(ta); }
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING PUSH AND POP FUNCTIONS IN MULTI-THREAD
         //
@@ -3088,6 +3121,264 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
 
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // SINGLE_THREADED TESTING PUSHES, POPS, AND LENGTH
+        //
+        // Concerns:
+        //: 1 That for a 'bcec_Queue' 'q', 'q.length() == q.queue().length()'
+        //:   always.  This is verified by the 'myLength' function.  Since
+        //:   it is usually impossible to test manipulators without calling
+        //:   accessors, or accessors without calling manipulators, this
+        //:   testing will take place while the manipulators are being tested
+        //:   rather than in a separate section.
+        //:
+        //: 2 That 'pushBack' has the same effect on the queue as calling
+        //:   'pushBack on the underlying 'bdec_Queue'.
+        //:
+        //: 3 That 'popBack' calls 'popBack' on the underlying 'bdec_Queue',
+        //:   except it also returns the popped value.
+        //:
+        //: 4 That 'pushFront' has the same effect on the queue as calling
+        //:   'pushFront on the underlying 'bdec_Queue'.
+        //:
+        //: 5 That 'popFront' calls 'popFront' on the underlying 'bdec_Queue',
+        //:   except it also returns the popped value.
+        //
+        // Plan:
+        //: 1 Testing 'pushBack', 'popBack', 'pushFront', and 'popFront':
+        //:
+        //:   o Push a couple of different values into 'x', the queue, with
+        //:     'pushBack', monitoring the length of the queue with 'myLength'
+        //:     and monitoring the contents of the queue with
+        //:     'x.queue().back()' and 'x.queue().front()'. C-2, C-1.
+        //:
+        //:   o Pop the two values from the 'x', the queue, using 'popBack',
+        //:     observing that the correct values are returned, and monitoring
+        //:     the length of the queue with 'myLength' and monitoring the
+        //:     contents of the queue with 'x.queue().back()' and
+        //:     'x.queue().front()'. C-3, C-1.
+        //:
+        //:   o Push a couple of new, different values into 'x', the queue,
+        //:     with 'pushFront', monitoring the length of the queue with
+        //:     'myLength' and monitoring the contents of the queue with
+        //:     'x.queue().back()' and 'x.queue().front()'. C-4, C-1.
+        //:
+        //:   o Pop the two values from the 'x', the queue, using 'popFront',
+        //:     observing that the correct values are returned, and monitoring
+        //:     the length of the queue with 'myLength' and monitoring the
+        //:     contents of the queue with 'x.queue().back()' and
+        //:     'x.queue().front()'. C-5, C-1.
+        //:
+        //: 2 Iterate, randomly choosing a queue length in the range 0-7.  This
+        //    test tests C-1, C-2, C-3, C-4, and C-5, just more thoroughly.
+        //:
+        //:   o If the chosen length is longer than the existing queue length,
+        //:     grow the queue to the desired queue length by random choosing
+        //:     'pushFront' or 'pushBack', and pushing random doubles into the
+        //:     queue.  Simultaneously push the same value onto the same end of
+        //:     a 'bsl::deque' kept in parallel.
+        //;
+        //:   o If the chosen length is shorter than the existing queue, shrink
+        //:     the queue to the designated queue length by randomly calling
+        //:     'popFront' or 'popBack'.  Simultaneously do a similar pop from
+        //:     the parallel 'bsl::deque', and observe the values popped are
+        //:     identical.
+        //;
+        //:   o Each iteration, whether growing or shrinking, frequently check
+        //:     the length is as expected, via 'myLength', but also verify it
+        //:     matches the length of the 'deque'. check the length of the
+        //:     deque, and call '.queue().length()' on the queue and observe
+        //:     that all three lengths match with the expected value.
+        //
+        // Testing:
+        //   pushFront
+        //   pushBack
+        //   popFront
+        //   popBack
+        //   length
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING PUSH, POP, and LENGTH\n"
+                             "=============================\n";
+
+        using namespace TEST_CASE_2;
+
+        bsls::Stopwatch sw;
+        sw.start();
+
+        int seed = 123456789;
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        if (verbose) cout << "\t1. Explicit Pushes and Pops\n";
+        {
+            enum { NUM_V = 4 };
+            Element v[NUM_V];    const Element *V = &v[0];
+            for (int ti = 0; ti < NUM_V; ++ti) {
+                v[ti] = randElement(&seed);
+                for (int tj = 0; tj < ti; ++tj) {
+                    ASSERT(V[tj] != V[ti]);
+                }
+                if (veryVerbose) { T_() T_() P_(ti); P(V[ti]); }
+            }
+
+            Obj x(&ta);    const Obj& X = x;
+
+            if (verbose) cout << "\t\t'pushBack' && 'length'\n";
+            {
+                ASSERT(0 == myLength(&x));
+
+                x.pushBack(V[0]);
+
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[0] == x.queue().back());
+
+                x.pushBack(V[1]);
+
+                ASSERT(2 == myLength(&x));
+                ASSERT(V[0] == x.queue().front());
+                ASSERT(V[1] == x.queue().back());
+            }
+
+            if (verbose) cout << "\t\t'popBack' && 'length'\n";
+            {
+                ASSERT(2 == myLength(&x));
+
+                ASSERT(V[1] == x.popBack());
+
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[0] == x.queue().front());
+                ASSERT(V[0] == x.queue().back());
+
+                ASSERT(V[0] == x.popBack());
+
+                ASSERT(0 == myLength(&x));
+            }
+
+            if (verbose) cout << "\t\t'pushFront' && 'length'\n";
+            {
+                ASSERT(0 == myLength(&x));
+
+                x.pushFront(V[2]);
+
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[2] == x.queue().back());
+
+                x.pushFront(V[3]);
+
+                ASSERT(2 == myLength(&x));
+                ASSERT(V[3] == x.queue().front());
+                ASSERT(V[2] == x.queue().back());
+            }
+
+            if (verbose) cout << "\t\t'popFront' && 'length'\n";
+            {
+                ASSERT(2 == myLength(&x));
+
+                ASSERT(V[3] == x.popFront());
+
+                ASSERT(1 == myLength(&x));
+                ASSERT(V[2] == x.queue().front());
+                ASSERT(V[2] == x.queue().back());
+
+                ASSERT(V[2] == x.popFront());
+
+                ASSERT(0 == myLength(&x));
+            }
+        }
+
+        ASSERT(0 == ta.numBytesInUse());
+
+        if (verbose) cout << "\t2. Random pushes and pops\n";
+        {
+            Obj x(&ta);                     const Obj& X = x;
+            bsl::deque<Element> d(&ta);     const bsl::deque<Element>& D = d;
+
+            ASSERT(0 == D.size());
+            ASSERT(0 == X.length());
+            ASSERT(x.queue().length() == X.length());
+
+            int expectedLength = 0;
+            const int ITERATIONS = veryVeryVerbose ? 50 : 5000;
+
+            for (int i = 0; i < ITERATIONS; ++i) {
+                int ll;
+                do {
+                    ll = bdeu_Random::generate15(&seed) % 8;
+                } while (expectedLength == ll);
+                const int LENGTH = ll;
+
+                if (expectedLength < LENGTH) {
+                    while (expectedLength < LENGTH) {
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == myLength(&x));
+
+                        // Generate a fairly random double using 'generate15'.
+
+                        const Element v = randElement(&seed);
+
+                        if (bdeu_Random::generate15(&seed) & 0x80) {
+                            x.pushBack(v);
+                            d.push_back(v);
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPUB: " << v << endl;
+                            }
+                        }
+                        else {
+                            x.pushFront(v);
+                            d.push_front(v);
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPUF: " << v << endl;
+                            }
+                        }
+
+                        ++expectedLength;
+
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == myLength(&x));
+                    }
+                }
+                else {
+                    while (expectedLength > LENGTH) {
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == myLength(&x));
+
+                        if (bdeu_Random::generate15(&seed) & 0x80) {
+                            const Element popped = D.back();
+                            d.pop_back();
+                            ASSERT(popped == x.popBack());
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPOB: " << popped << endl;
+                            }
+                        }
+                        else {
+                            const Element popped = D.front();
+                            d.pop_front();
+                            ASSERT(popped == x.popFront());
+                            if (veryVerbose) {
+                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                cout << "\tPOF: " << popped << endl;
+                            }
+                        }
+
+                        --expectedLength;
+
+                        ASSERT(expectedLength == (int) D.size());
+                        ASSERT(expectedLength == myLength(&x));
+                    }
+                }
+
+                ASSERT(LENGTH == expectedLength);
+            }
+        }
+        sw.stop();
+
+        if (verbose) P(sw.accumulatedWallTime());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -3386,7 +3677,7 @@ int main(int argc, char *argv[])
 
             tgroup.joinAll();
 
-            ASSERT(0 == queue.queue().length());
+            ASSERT(0 == queue.length());
 
             if (verbose) {
                 cout << "Total seconds = " <<
@@ -3467,7 +3758,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

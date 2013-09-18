@@ -428,6 +428,7 @@ class bcec_Queue {
                                           // ("Expected an expression").
 
     // DATA
+    mutable
     bcemt_Mutex      d_mutex;             // mutex object used to synchronize
                                           // access to this queue
 
@@ -447,6 +448,7 @@ class bcec_Queue {
                                           // insertions will be blocked, or
                                           // -1 if unlimited
 
+  private:
     // NOT IMPLEMENTED
     bcec_Queue(const bcec_Queue<TYPE>&);
     bcec_Queue<TYPE>& operator=(const bcec_Queue<TYPE>&);
@@ -467,18 +469,25 @@ class bcec_Queue {
         // defines an instance 'x' with an initial capacity of 8 items, but
         // with a logical length of 0 items.
 
+        // DATA
         unsigned int d_i;
-        ~InitialCapacity() { }
-        explicit InitialCapacity(int i) : d_i(i) { }
+
+        // CREATORS
+        explicit InitialCapacity(int i)
+        : d_i(i)
+            // Create an object with the specified value 'i'.
+        {}
     };
 
     // CREATORS
+    explicit
     bcec_Queue(bslma::Allocator *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
+    explicit
     bcec_Queue(int               highWaterMark,
                bslma::Allocator *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' having either the
@@ -489,6 +498,7 @@ class bcec_Queue {
         // allocator is used.  The behavior is undefined unless
         // 'highWaterMark != 0'.
 
+    explicit
     bcec_Queue(const InitialCapacity&  numItems,
                bslma::Allocator       *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' with sufficient
@@ -511,7 +521,7 @@ class bcec_Queue {
         // 'highWaterMark != 0'.
 
     bcec_Queue(const bdec_Queue<TYPE>&  srcQueue,
-               bslma::Allocator        *basicAllocator = 0);
+               bslma::Allocator        *basicAllocator = 0);        // IMPLICIT
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values from the specified 'srcQueue'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -694,6 +704,11 @@ class bcec_Queue {
         // negative value indicates no suggested-maximum capacity, and is not
         // necessarily the same negative value that was passed to the
         // constructor.
+
+    int length() const;
+        // Return the number of elements in this queue.  Note that if other
+        // threads are manipulating the queue, this information may be obsolete
+        // by the time it is returned.
 };
 
 // ===========================================================================
@@ -787,6 +802,7 @@ TYPE bcec_Queue<TYPE>::popBack()
 {
     // Note that this method is not implemented in terms of 'popBack(TYPE*)'
     // because that would require TYPE to have a default constructor.
+
     unsigned int length;
 
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -814,7 +830,7 @@ int bcec_Queue<TYPE>::timedPopBack(TYPE                     *buffer,
 
     while (0 == (length = d_queue.length())) {
         if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
-            return 1;
+            return 1;                                                 // RETURN
         }
     }
     *buffer = d_queue.back();
@@ -851,6 +867,7 @@ TYPE bcec_Queue<TYPE>::popFront()
 {
     // Note that this method is not implemented in terms of 'popFront(TYPE*)'
     // because that would require TYPE to have a default constructor.
+
     unsigned int length;
 
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -878,7 +895,7 @@ int bcec_Queue<TYPE>::timedPopFront(TYPE                     *buffer,
 
     while (0 == (length = d_queue.length())) {
         if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
-            return 1;
+            return 1;                                                 // RETURN
         }
     }
     *buffer = d_queue.front();
@@ -899,7 +916,7 @@ int bcec_Queue<TYPE>::tryPopFront(TYPE *buffer)
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
     if (0 == (length = d_queue.length())) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     *buffer = d_queue.front();
     d_queue.popFront();
@@ -939,7 +956,7 @@ int bcec_Queue<TYPE>::tryPopBack(TYPE *buffer)
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
     if (0 == (length = d_queue.length())) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     *buffer = d_queue.back();
     d_queue.popBack();
@@ -1018,7 +1035,7 @@ int bcec_Queue<TYPE>::timedPushBack(const TYPE&              item,
     if (d_highWaterMark >= 0) {
         while (d_queue.length() >= d_highWaterMark) {
             if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
-                return 1;
+                return 1;                                             // RETURN
             }
         }
     }
@@ -1035,7 +1052,7 @@ int bcec_Queue<TYPE>::timedPushFront(const TYPE&              item,
     if (d_highWaterMark >= 0) {
         while (d_queue.length() >= d_highWaterMark) {
             if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
-                return 1;
+                return 1;                                             // RETURN
             }
         }
     }
@@ -1105,13 +1122,22 @@ int bcec_Queue<TYPE>::highWaterMark() const
     return d_highWaterMark;
 }
 
+template <class TYPE>
+inline
+int bcec_Queue<TYPE>::length() const
+{
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
+    return d_queue.length();
+}
+
 }  // close namespace BloombergLP
 
 #endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
