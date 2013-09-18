@@ -67,9 +67,10 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] CONCERN: Open in append-mode behavior (particularly on windows)
-// [14] CONCERNS Unix File Permissions for 'open' and 'createDirectoies'
-// [15] USAGE EXAMPLE 1
-// [16] USAGE EXAMPLE 2
+// [14] CONCERN: Unix File Permissions for 'open'
+// [15] CONCERN: Unix File Permissions for 'createDirectories'
+// [16] USAGE EXAMPLE 1
+// [17] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -649,7 +650,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING: Unix File Permissions for 'open' and 'createDirectoies'
+        // TESTING: Unix File Permissions for 'open'
         //
         // Concerns:
         //: 1 The permissions of a file created with 'open' on unix are chmod
@@ -658,7 +659,7 @@ int main(int argc, char *argv[])
         //:   use of a umask (see DRQS 40563234).
         //
         // Plan:
-        //: 1 Open and file, write some data to it, and close it.
+        //: 1 Open a file, write some data to it, and close it.
         //: 2 Read its permissions via 'stat64' or 'stat'.
         //: 3 Observe that the permission are chmod 0666 (C-1).
         // --------------------------------------------------------------------
