@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 
         btes5_DetailedError error1("Error 1");
         ASSERT(error1.description() == "Error 1");
-        ASSERT(!error1.address().isSet());
+        ASSERT(!error1.address().port());
         verbose && cout << "error1=" << error1 << endl;
 
         bteso_Endpoint address2("example.com", 80);
@@ -233,13 +233,13 @@ int main(int argc, char *argv[])
 
         btes5_DetailedError error3(error2);
         ASSERT(error3.description() == error2.description());
-        ASSERT(error3.address().isSet());
+        ASSERT(error3.address().port());
         ASSERT(error3 == error2);
         verbose && cout << "error3=" << error3 << endl;
 
         error1 = error2;
         ASSERT(error1.description() == "Error 2");
-        ASSERT(error1.address().isSet());
+        ASSERT(error1.address().port());
         verbose && cout << "error1=" << error3 << endl;
 
         error2.setDescription("Error 1");
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
 
         btes5_DetailedError error1("Error 1");
         ASSERT(error1.description() == "Error 1");
-        ASSERT(!error1.address().isSet());
+        ASSERT(!error1.address().port());
         verbose && cout << "error1=" << error1 << endl;
 
         bteso_Endpoint address2("example.com", 80);
@@ -311,13 +311,13 @@ int main(int argc, char *argv[])
 
         btes5_DetailedError error3(error2);
         ASSERT(error3.description() == error2.description());
-        ASSERT(error3.address().isSet());
+        ASSERT(error3.address().port());
         ASSERT(error3 == error2);
         verbose && cout << "error3=" << error3 << endl;
 
         error1 = error2;
         ASSERT(error1.description() == "Error 2");
-        ASSERT(error1.address().isSet());
+        ASSERT(error1.address().port());
         verbose && cout << "error1=" << error3 << endl;
 
         error2.setDescription("Error 1");

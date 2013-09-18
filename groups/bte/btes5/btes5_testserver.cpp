@@ -634,7 +634,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
                         nativePort);
         LOG_DEBUG << "connect addr=" << destination << LOG_END;
 
-        BSLS_ASSERT(!d_args.d_expectedDestination.isSet()
+        BSLS_ASSERT(!d_args.d_expectedDestination.port()
                 || d_args.d_expectedDestination == destination);
 
         Socks5ConnectResponse3 *resp = (Socks5ConnectResponse3 *)respBuffer;
@@ -666,10 +666,10 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
     }
 
     if (btes5_TestServerArgs::e_CONNECT == d_args.d_mode) {
-        if (d_args.d_destination.isSet()) {
+        if (d_args.d_destination.port()) {
             destination = d_args.d_destination;
         }
-        if (destination.isSet()) {
+        if (destination.port()) {
             d_factory_p->connect(destination, this);
         }
 

@@ -78,7 +78,7 @@ bsl::ostream& operator<<(bsl::ostream&              output,
                          const btes5_DetailedError& error)
 {
     output << error.description();
-    if (error.address().isSet()) {
+    if (error.address().port()) {
         output << " (" << error.address() << ")";
     }
     return output;
