@@ -578,8 +578,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "TESTING: Unix File Permissions for 'open' & 'createDirectories\n"
-            "==============================================================\n";
+            "TESTING: Unix File Permissions for 'createDirectories\n"
+            "=====================================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
@@ -665,8 +665,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "TESTING: Unix File Permissions for 'open' & 'createDirectories\n"
-            "==============================================================\n";
+            "TESTING: Unix File Permissions for 'open'\n"
+            "=========================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
