@@ -246,9 +246,150 @@ int main(int argc, char *argv[])
     switch (test) {
       case 0:  // Zero is always the leading case.
       case 3: {
+          usageExample();
       } break;
       case 2: {
-          usageExample();
+          {
+              typedef TestFunc0 const FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList0 ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T0, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc1 volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList1<T1> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T1, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc2 const volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList2<T1,T2> ListType;
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT_SAME(T2, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc3 const FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList3<T1,T2,T3> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T3, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc4 volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList4<T1,T2,T3,T4> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T4, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc5 const volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList5<T1,T2,T3,T4,T5> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T5, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc6 const FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList6<T1,T2,T3,T4,T5,T6> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T6, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc7 volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList7<T1,T2,T3,T4,T5,T6,T7> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T7, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc8 const volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList8<T1,T2,T3,T4,T5,T6,T7,T8> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T8, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc9 const FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList9<T1,T2,T3,T4,T5,T6,T7,T8,T9> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T9, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc10 volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList10<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>
+                  ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T10, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc11 const volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList11<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>
+                  ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T11, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc12 const FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList12<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>
+                  ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T12, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc13 volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList13<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,
+                  T12,T13>  ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T13, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef TestFunc14 const volatile FuncType;
+              typedef bslmf::FunctionPointerTraits<FuncType> X;
+              typedef bslmf::TypeList14<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,
+                  T12,T13,T14> ListType;
+              ASSERT(1==X::IS_FUNCTION_POINTER);
+              ASSERT(1==bslmf::IsFunctionPointer<FuncType>::value);
+              ASSERT_SAME(T14, X::ResultType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
       } break;
       case 1: {
           {

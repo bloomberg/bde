@@ -192,6 +192,11 @@ int main(int argc, char *argv[])
 
         // C-2
         ASSERT((is_same<remove_pointer<int>::type, int>::value));
+        ASSERT((is_same<remove_pointer<const int>::type, const int>::value));
+        ASSERT((is_same<remove_pointer<volatile int>::type,
+                        volatile int>::value));
+        ASSERT((is_same<remove_pointer<const volatile int>::type,
+                        const volatile int>::value));
         ASSERT((is_same<remove_pointer<int *&>::type, int *&>::value));
 
         // Test removing a pointer from some function pointer types.

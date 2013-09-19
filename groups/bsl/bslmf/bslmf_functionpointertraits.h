@@ -105,6 +105,37 @@ struct FunctionPointerTraits {
     enum { IS_FUNCTION_POINTER = 0 };
 };
 
+           // ==============================================
+           // class FunctionPointerTraits cv-specializations
+           // ==============================================
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<const PROTOTYPE> 
+     : FunctionPointerTraits<PROTOTYPE> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<volatile PROTOTYPE> 
+     : FunctionPointerTraits<PROTOTYPE> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<const volatile PROTOTYPE> 
+     : FunctionPointerTraits<PROTOTYPE> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+
                    // =======================
                    // class IsFunctionPointer
                    // =======================

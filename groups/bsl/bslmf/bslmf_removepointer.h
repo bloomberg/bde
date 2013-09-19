@@ -51,13 +51,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_functionpointertraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // Permit reliance on transitive includes within robo.
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslmf {
@@ -86,6 +89,42 @@ struct RemovePointer_Imp {
 
 template <class TYPE>
 struct RemovePointer_Imp<TYPE *> {
+     // This partial specialization of 'RemovePointer_Imp', for when the
+     // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
+     // that refers to the type pointed to by 'TYPE'.
+
+    // PUBLIC TYPES
+    typedef TYPE Type;
+        // This 'typedef' is an alias to the type pointed to by the (template
+        // parameter) 'TYPE'.
+};
+
+template <class TYPE>
+struct RemovePointer_Imp<TYPE *const> {
+     // This partial specialization of 'RemovePointer_Imp', for when the
+     // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
+     // that refers to the type pointed to by 'TYPE'.
+
+    // PUBLIC TYPES
+    typedef TYPE Type;
+        // This 'typedef' is an alias to the type pointed to by the (template
+        // parameter) 'TYPE'.
+};
+
+template <class TYPE>
+struct RemovePointer_Imp<TYPE *volatile> {
+     // This partial specialization of 'RemovePointer_Imp', for when the
+     // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
+     // that refers to the type pointed to by 'TYPE'.
+
+    // PUBLIC TYPES
+    typedef TYPE Type;
+        // This 'typedef' is an alias to the type pointed to by the (template
+        // parameter) 'TYPE'.
+};
+
+template <class TYPE>
+struct RemovePointer_Imp<TYPE *const volatile> {
      // This partial specialization of 'RemovePointer_Imp', for when the
      // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
      // that refers to the type pointed to by 'TYPE'.
@@ -131,14 +170,11 @@ struct remove_pointer {
     // a (possibly cv-qualified) pointer type, then 'type' is an alias to the
     // type pointed to by 'TYPE'; otherwise, 'type' is an alias to 'TYPE'.
 
-    typedef typename remove_cv<TYPE>::type TypeNoCv;
-
 #if defined(BSLS_PLATFORM_CMP_IBM)
-    typedef typename BloombergLP::bslmf::RemovePointer_Aix<TypeNoCv,
-            BloombergLP::bslmf::IsFunctionPointer<TypeNoCv>::VALUE>::Type type;
+    typedef typename BloombergLP::bslmf::RemovePointer_Aix<TYPE,
+                BloombergLP::bslmf::IsFunctionPointer<TYPE>::VALUE>::Type type;
 #else
-    typedef typename
-                    BloombergLP::bslmf::RemovePointer_Imp<TypeNoCv>::Type type;
+    typedef typename BloombergLP::bslmf::RemovePointer_Imp<TYPE>::Type type;
         // This 'typedef' is an alias to the type pointed to by the (template
         // parameter) 'TYPE' if 'TYPE' is a (possibly cv-qualified) pointer
         // type; otherwise, 'type' is an alias to 'TYPE'.
