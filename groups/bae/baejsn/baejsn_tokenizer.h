@@ -297,11 +297,12 @@ class baejsn_Tokenizer {
         // the 'value' accessor for prior nodes.
 
     int resetStreamBufGetPointer();
-        // Reset the get pointer of the underlying 'streambuf' to refer to the
-        // the byte following the last byte read by this object, and thereby
-        // allowing users to start reading data from the 'streambuf' where this
-        // object stopped.  Return 0 on success, and a non-zero value
-        // otherwise.
+        // Reset the get pointer of the 'streambuf' held by this object to
+        // refer to the byte following the last processed byte, if the held
+        // 'streambuf' supports seeking, and return an error otherwise leaving
+        // this object unchanged.  After a successful function return users can
+        // read data from the 'streambuf' where this object stopped.  Return 0
+        // on success, and a non-zero value otherwise.
 
     // ACCESSORS
     TokenType tokenType() const;
