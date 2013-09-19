@@ -1,3 +1,44 @@
+bde-core (2.19.0.000.0000) unstable; urgency=low
+
+  * Bump changelog
+  * 423515c [APPROVAL] version-2.19.0-beta_1 to releases/2.19.x
+  * ff7e60e [APPROVAL] pending/master/eliminate_unused_deprecations_drqs42106924 to master
+  * 4107d67 [APPROVAL] pending/master/drqs-43976570-bcema_blobutil-append to master
+  * 8775f7f [APPROVAL] pending/master/Correct_result_type_for_bdeu_CStringHash_drqs44283644 to master
+  * dbfa0c3 [APPROVAL] origin/review/bdesu_fileutil-mkdir-perms-drqs-42274478 to master
+  * e07dde0 [APPROVAL] origin/review/bdeu_arrayutil_drqs41506710 to master
+  * 01d9310 [APPROVAL] origin/review/bcec_queue-length-drqs-40058120 to master
+  * 151062f [APPROVAL] origin/review/bdesu_fileutil-open-doc-drqs-34791435 to master
+  * 61cfbb5 set version tag to 2.19.0_BETA
+  * 9311a36 [APPROVAL] pending/master/drqs-40158465-sessionpool-reuseAddress to master
+  * cdefa12 [APPROVAL] pending/master/function-output-iterator-drqs24797357 to master
+  * 41a1e31 [APPROVAL] pending/master/bcemt-blobutil-drqs42722584 to master
+  * ba20a5b [APPROVAL] pending/master/layer_smart_pointers_over_bsl_drqs44171378 to master
+  * eff2af0 Clean up bdema_ManagedPtr conversion operator
+  * d9a0b94 [APPROVAL] pending/master/bdede_charconvertutf32-drqs-40378282 to master
+  * 6cbd8dd [APPROVAL] origin/review/baesu-stta-bdef_function-drqs-41138141 to master
+  * d56a704 [APPROVAL] origin/review/baesu-opt-test-driver-fails-drqs-40156115 to master
+  * 5aa17c4 [APPROVAL] origin/review/bcema-blobutil-drqs43955304 to master
+  * 96d00d7 [APPROVAL] origin/review/fix-usage-example-btes_leakybucket-drqs-41419016 to master
+  * 8acd6a9 [APPROVAL] origin/review/doc-update-bcema_aggregate-drqs-40263865 to master
+  * 8c639a3 [APPROVAL] origin/review/pipecontrolchannel-doc-drqs44277578 to master
+  * b162fea [APPROVAL] pending/master/drqs-43092807-baejsn_decoder-warning to master
+  * 1007b4f [APPROVAL] pending/master/baetzo-version-2-drqs43840870 to master
+  * 7b62d72 [APPROVAL] meta-packages-in-binary-arch-drqs-43603654 to master
+  * 88a526f [APPROVAL] origin/review/variable-prefix-d_-to-s_-core-drqs-42551602 to master
+  * 2bffb3e [APPROVAL] pending/master/instrument-code-for-bdex-misuse-drqs-43801809 to master
+  * a33bd1f [APPROVAL] pending/master/calendars-datelib-drqs-41890133 to master
+  * 8e1b4a8 Add support for Zoneinfo version '2' in baetzo.
+  * e11f7ca [APPROVAL] pending/master/connect_preconfigured_socket_drqs42875749 to master
+  * efe569b [APPROVAL] origin/review/drqs-36521873-channelpool-shutdownAll to master
+  * 7fd38b6 [APPROVAL] pending/master/asyncfileobserver-testfailures-drqs42038625-rebase to master
+  * ba09c57 [APPROVAL] feature-branch-drqs-42274593 to master
+  * 10ba85f [APPROVAL] pending/master/feature-branch-drqs-42274593 to master
+  * b5fc87b [APPROVAL] origin/review/drqs-36969632-SessionPool-source-port-binding-failure to master
+  * 8d01bde seed 'bdet' with the needed components (which will eventually go in 'bdlt')   bdecs_calendar                            -> bdet_calendar   bdecs_calendarcache                       -> bdet_calendarcache   bdecs_calendarloader                      -> bdet_calendarloader   bdecs_packedcalendar                      -> bdet_packedcalendar   bdec_dayofweekset                         -> bdet_dayofweekset   bdetu_datetimeinterval/bdetu_timeinterval -> bdet_intervalconversionutil   bdetu_datetime                            -> bdet_datetimeutil   bdetu_epoch                               -> bdet_epochutil   bdetu_systemtime                          -> bdet_systemtimeutil Note that the 'bdetu' components are brought in solely to support the calendar-timeout feature of 'bdecs_CalendarCache'.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 19 Sep 2013 11:36:28 -0400
+
 bde-core (2.18.0.000.1000) unstable; urgency=low
 
   * Bump changelog
