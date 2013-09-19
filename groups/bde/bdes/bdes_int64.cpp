@@ -1,4 +1,4 @@
-// bdes_int64.cpp               -*-C++-*-
+// bdes_int64.cpp                                                     -*-C++-*-
 #include <bdes_int64.h>
 
 #include <bdes_ident.h>
@@ -10,7 +10,7 @@ namespace BloombergLP {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

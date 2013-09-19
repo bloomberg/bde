@@ -1,4 +1,4 @@
-// bdes_platform.t.cpp    -*-C++-*-
+// bdes_platform.t.cpp                                                -*-C++-*-
 
 #include <bdes_platform.h>
 
@@ -37,8 +37,6 @@ static void aSsErT(int c, const char *s, int i)
 //--------------------------------------------------------------------------
 // [ 1] Ensure that exactly one of each CMP type is set.
 // [ 1] Ensure that exactly one of each OS type is set.
-// [ 1] Ensure that exactly one of each CPU type is set.
-// [ 1] Ensure that at most one of each CPU subtype is set.
 // [ 1] For each category, ensure MINOR_NUMBER set -> MAJOR_NUMBER set.
 // [ 1] For the OS, type ensure MAJOR_NUMBER set -> SUBTYPE set.
 //==========================================================================
@@ -149,44 +147,6 @@ int main(int argc, char *argv[])
             #endif
             #if defined(BDES_PLATFORM__OS_VER_MINOR)
                 MACRO_TESTGT(BDES_PLATFORM__OS_VER_MINOR, 0);
-            #endif
-
-
-            cout << endl << "Print CPU-related Symbols:" << endl;
-            #if defined(BDES_PLATFORM__CPU_88000)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_88000, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_ALPHA)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_ALPHA, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_HPPA)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_HPPA, 1);
-            #endif
-            // Deprecated but still exposed, and used by some
-            // components.  Thus, of interest.
-            #if defined(BDES_PLATFORM__CPU_X86)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_X86, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_X86_64)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_X86_64, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_IA64)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_IA64, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_MIPS)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_MIPS, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_POWERPC)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_POWERPC, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_SPARC)
-                MACRO_TESTEQ(BDES_PLATFORM__CPU_SPARC, 1);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_VER_MAJOR)
-                MACRO_TESTGT(BDES_PLATFORM__CPU_VER_MAJOR, 0);
-            #endif
-            #if defined(BDES_PLATFORM__CPU_VER_MINOR)
-                MACRO_TESTGT(BDES_PLATFORM__CPU_VER_MINOR, 0);
             #endif
         }
 

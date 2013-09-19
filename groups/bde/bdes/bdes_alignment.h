@@ -1,4 +1,4 @@
-// bdes_alignment.h            -*-C++-*-
+// bdes_alignment.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDES_ALIGNMENT
 #define INCLUDED_BDES_ALIGNMENT
 
@@ -13,7 +13,6 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 // bdes_AlignmentOf: alignment requirements for a given type
-// bdes_AlignmentToType: fundamental type for a given alignment
 // bdes_Alignment: namespace for alignment constants and utility functions
 //
 //@AUTHOR: Pablo Halpern (phalpern)
@@ -452,6 +451,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_alignmentfromtype.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #ifndef INCLUDED_BSLS_ALIGNMENTIMP
 #include <bsls_alignmentimp.h>
 #endif
@@ -463,9 +463,9 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #define bdes_AlignmentOf      bsls::AlignmentFromType
-#define bdes_AlignmentToType  bsls::AlignmentToType
 
 namespace BloombergLP {
 

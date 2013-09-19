@@ -1,4 +1,4 @@
-// bdes_platformutil.cpp      -*-C++-*-
+// bdes_platformutil.cpp                                              -*-C++-*-
 #include <bdes_platformutil.h>
 
 #include <bdes_ident.h>
