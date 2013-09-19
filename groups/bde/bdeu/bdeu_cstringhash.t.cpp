@@ -259,7 +259,8 @@ int main(int argc, char *argv[])
                           << "TESTING STANDARD TYPEDEFS" << endl
                           << "=========================" << endl;
 
-        ASSERT((bslmf::IsSame<bool, bdeu_CStringHash::result_type>::VALUE));
+        ASSERT((bslmf::IsSame<bsl::size_t,
+                              bdeu_CStringHash::result_type>::VALUE));
         ASSERT((bslmf::IsSame<const char *,
                               bdeu_CStringHash::argument_type>::VALUE));
 
