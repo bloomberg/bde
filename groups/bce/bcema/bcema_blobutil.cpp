@@ -43,18 +43,6 @@ void findBufferIndexFromOffset(int               *bufferIndex,
     *bufferIndex = i;
 }
 
-void findFirstAvailableBuffer(int               *firstAvailableBuffer,
-                              int               *previousBuffersLength,
-                              const bcema_Blob&  blob)
-    // Return the index of the first buffer with unused bytes, or
-    // blob.numBuffers() if all buffers are completely used.
-{
-    return findBufferIndexFromOffset(firstAvailableBuffer,
-                                     previousBuffersLength,
-                                     blob,
-                                     blob.length());
-}
-
 }  // close unnamed namespace
 
                            // ---------------------
@@ -85,37 +73,18 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
 
     BSLS_ASSERT(sourceBufferIndex < source.numBuffers());
 
-    int destBufferIndex;
-    int destPreviousBuffersLength;
+    const int destStartLength = dest->length();
 
-    findFirstAvailableBuffer(&destBufferIndex,
-                             &destPreviousBuffersLength,
-                             *dest);
+    dest->trimLastDataBuffer();
 
-    int destStartLength = dest->length();
-
-    // Trim destination blob.
-
-    if (dest->totalSize() != destStartLength) {
-        BSLS_ASSERT(destBufferIndex < dest->numBuffers());
-
-        bcema_BlobBuffer lastBuffer        = dest->buffer(destBufferIndex);
-        int              newLastBufferSize = dest->length()
-                                                   - destPreviousBuffersLength;
-
-        BSLS_ASSERT(lastBuffer.size() > newLastBufferSize);
-
-        while (destBufferIndex != dest->numBuffers()) {
-            dest->removeBuffer(destBufferIndex);
-        }
-
-        if (0 != newLastBufferSize) {
-            lastBuffer.setSize(newLastBufferSize);
-            dest->appendBuffer(lastBuffer);
-        }
-
-        BSLS_ASSERT(dest->totalSize() == destStartLength);
+    const int destBufferIndex = dest->numDataBuffers();
+    while (destBufferIndex < dest->numBuffers()) {
+        dest->removeBuffer(dest->numBuffers() - 1);
     }
+
+    dest->reserveBufferCapacity(dest->numDataBuffers()
+                              + source.numDataBuffers()
+                              - sourceBufferIndex);
 
     // Add aliased source buffer.
 
@@ -137,7 +106,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
             src.setSize(numBytesRemaining);
         }
 
-        dest->appendBuffer(src);
+        dest->appendDataBuffer(src);
 
         ++sourceBufferIndex;
         numBytesRemaining -= src.size();
@@ -154,7 +123,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
             src.setSize(numBytesRemaining);
         }
 
-        dest->appendBuffer(src);
+        dest->appendDataBuffer(src);
 
         ++sourceBufferIndex;
         numBytesRemaining -= src.size();
@@ -167,7 +136,7 @@ void bcema_BlobUtil::append(bcema_Blob        *dest,
     BSLS_ASSERT(-numBytesRemaining == dest->totalSize() - newLength);
     BSLS_ASSERT(newLength          <= dest->totalSize());
 
-    dest->setLength(newLength);
+    (void) newLength; // quash potential compiler warning
 }
 
 void bcema_BlobUtil::append(bcema_Blob *dest,
