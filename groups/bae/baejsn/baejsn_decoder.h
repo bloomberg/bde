@@ -354,7 +354,10 @@ class baejsn_Decoder {
         // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
         // choice, or array type, or a 'bdeat'-compatible dynamic type
         // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // non-zero value otherwise.  Note that this operation internally
+        // buffers input from 'streambuf', and if decoding is successful, will
+        // attempt to update the input position of 'streambuf' to the last
+        // unprocessed byte.
 
     template <typename TYPE>
     int decode(bsl::istream&                 stream,
@@ -365,7 +368,10 @@ class baejsn_Decoder {
         // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
         // choice, or array type, or a 'bdeat'-compatible dynamic type
         // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // non-zero value otherwise.  Note that this operation internally
+        // buffers input from 'stream', and if decoding is successful, will
+        // attempt to update the input position of 'stream' to the last
+        // unprocessed byte.
 
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
@@ -972,7 +978,7 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
 
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    const int rc = d_tokenizer.advanceToNextToken();
+    int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         d_logStream << "Error advancing to the first token. "
                     << "Expecting a '{' or '[' as the first character\n";
@@ -987,7 +993,11 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
     d_maxDepth            = options.maxDepth();
     d_skipUnknownElements = options.skipUnknownElements();
 
-    return decodeImp(value, 0, TypeCategory());
+    rc = decodeImp(value, 0, TypeCategory());
+
+    d_tokenizer.resetStreamBufGetPointer();
+
+    return rc;
 }
 
 template <typename TYPE>

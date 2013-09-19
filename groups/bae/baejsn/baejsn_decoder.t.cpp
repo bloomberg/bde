@@ -35124,7 +35124,7 @@ void *threadFunction(void *data)
 
             const int rc = decoder.decode(&isb, &value, options);
             ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-            ASSERTV(LINE, isb.length(), 0 == isb.length());
+            ASSERTV(LINE, isb.length(), 1 == isb.length()); // trailing newline
             ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
         }
 
@@ -35137,7 +35137,7 @@ void *threadFunction(void *data)
 
             const int rc = decoder.decode(iss, &value, options);
             ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-            ASSERTV(LINE, isb.length(), 0 == isb.length());
+            ASSERTV(LINE, isb.length(), 1 == isb.length()); // trailing newline
             ASSERTV(LINE, decoder.loggedMessages(), EXP, value, EXP == value);
         }
     }
@@ -37566,7 +37566,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, 1 == isb.length()); // trailing newline
                     ASSERTV(LINE, ti, exp, value,
                             bcem_Aggregate::areEquivalent(exp, value));
                 }
@@ -37586,7 +37586,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, 1 == isb.length()); // trailing newline
                     ASSERTV(LINE, ti, exp, value,
                             bcem_Aggregate::areEquivalent(exp, value));
                 }
@@ -37719,7 +37719,7 @@ int main(int argc, char *argv[])
 
                 const int rc = decoder.decode(&isb, &value, options);
                 ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, 1 == isb.length()); // trailing newline
                 ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
                         EXP == value);
             }
@@ -37733,7 +37733,7 @@ int main(int argc, char *argv[])
 
                 const int rc = decoder.decode(iss, &value, options);
                 ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
-                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, 1 == isb.length()); // trailing newline
                 ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
                         EXP == value);
             }

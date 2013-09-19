@@ -145,6 +145,10 @@ BDES_IDENT("$Id: $")
 #include <bdema_bufferedsequentialallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ALIGNEDBUFFER
+#include <bsls_alignedbuffer.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -196,43 +200,42 @@ class baejsn_Tokenizer {
     // Intermediate data buffer used for reading data from the stream.
 
     enum {
-        BAEJSN_BUFSIZE         = 1024 * 8,
-        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE
-                                  - 1 - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+        BAEJSN_BUFSIZE = 1024 * 8,
+        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE - 1
     };
 
     // DATA
-    char                               d_buffer[BAEJSN_BUFSIZE];  // buffer
+    bsls::AlignedBuffer<BAEJSN_BUFSIZE>  d_buffer;               // buffer
 
-    bdema_BufferedSequentialAllocator  d_allocator;               // allocater
-                                                                  // (owned)
+    bdema_BufferedSequentialAllocator    d_allocator;            // allocater
+                                                                 // (owned)
 
-    bsl::string                        d_stringBuffer;            // string
-                                                                  // buffer
+    bsl::string                          d_stringBuffer;         // string
+                                                                 // buffer
 
-    bsl::streambuf                    *d_streamBuf_p;             // streambuf
-                                                                  // (held,
-                                                                  // not owned)
+    bsl::streambuf                      *d_streamBuf_p;          // streambuf
+                                                                 // (held,
+                                                                 // not owned)
 
-    bsl::size_t                        d_cursor;                  // current
-                                                                  // cursor
+    bsl::size_t                          d_cursor;               // current
+                                                                 // cursor
 
-    bsl::size_t                        d_valueBegin;              // cursor for
-                                                                  // beginning
-                                                                  // of value
+    bsl::size_t                          d_valueBegin;           // cursor for
+                                                                 // beginning
+                                                                 // of value
 
-    bsl::size_t                        d_valueEnd;                // cursor for
-                                                                  // end of
-                                                                  // value
+    bsl::size_t                          d_valueEnd;             // cursor for
+                                                                 // end of
+                                                                 // value
 
-    bsl::size_t                        d_valueIter;               // cursor for
-                                                                  // iterating
-                                                                  // value
+    bsl::size_t                          d_valueIter;            // cursor for
+                                                                 // iterating
+                                                                 // value
 
-    TokenType                          d_tokenType;               // token type
+    TokenType                            d_tokenType;            // token type
 
-    ContextType                        d_context;                 // context
-                                                                  // type
+    ContextType                          d_context;              // context
+                                                                 // type
 
     // PRIVATE MANIPULATORS
     int extractStringValue();
@@ -293,6 +296,14 @@ class baejsn_Tokenizer {
         // 'advanceToNextToken' invalidates the string references returned by
         // the 'value' accessor for prior nodes.
 
+    int resetStreamBufGetPointer();
+        // Reset the get pointer of the 'streambuf' held by this object to
+        // refer to the byte following the last processed byte, if the held
+        // 'streambuf' supports seeking, and return an error otherwise leaving
+        // this object unchanged.  After a successful function return users can
+        // read data from the 'streambuf' where this object stopped.  Return 0
+        // on success, and a non-zero value otherwise.
+
     // ACCESSORS
     TokenType tokenType() const;
         // Return the token type of the current token.
@@ -311,7 +322,7 @@ class baejsn_Tokenizer {
 // CREATORS
 inline
 baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
-: d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
+: d_allocator(d_buffer.buffer(), BAEJSN_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_streamBuf_p(0)
 , d_cursor(0)
