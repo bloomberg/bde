@@ -354,7 +354,10 @@ class baejsn_Decoder {
         // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
         // choice, or array type, or a 'bdeat'-compatible dynamic type
         // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // non-zero value otherwise.  Note that this operation internally
+        // buffers input from 'streambuf', and if decoding is successful, will
+        // attempt to update the input position of 'streambuf' to the last
+        // unprocessed byte.
 
     template <typename TYPE>
     int decode(bsl::istream&                 stream,
@@ -365,7 +368,10 @@ class baejsn_Decoder {
         // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
         // choice, or array type, or a 'bdeat'-compatible dynamic type
         // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // non-zero value otherwise.  Note that this operation internally
+        // buffers input from 'stream', and if decoding is successful, will
+        // attempt to update the input position of 'stream' to the last
+        // unprocessed byte.
 
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
