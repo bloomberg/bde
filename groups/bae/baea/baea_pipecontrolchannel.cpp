@@ -254,25 +254,28 @@ int baea_PipeControlChannel::readNamedPipe()
         // Read incoming data on the named pipe until a complete message has
         // been assembled.
 
-        int rc = poll(&fds, 1, -1);
+        int rc         = poll(&fds, 1, -1);
+
+        int savedErrno = errno;
 
         if (0 >= rc) {
-            if (EINTR == errno) {
+            if (EINTR == savedErrno) {
                 BAEL_LOG_DEBUG << "EINTR polling pipe '"
                                << d_pipeName << "'" << BAEL_LOG_END;
                 continue;
             }
             BAEL_LOG_ERROR << "Failed to poll pipe '"
-                           << d_pipeName << "', errno = " << errno << ": "
-                           << bsl::strerror(errno) << BAEL_LOG_END;
+                           << d_pipeName << "', rc = " << rc
+                           << ", errno = " << savedErrno << ": "
+                           << bsl::strerror(savedErrno) << BAEL_LOG_END;
             return -1;
         }
 
         if ((fds.revents & POLLERR) || (fds.revents & POLLNVAL)) {
             BAEL_LOG_TRACE << "Polled POLLERROR or POLLINVAL from file "
                               "descriptor of pipe '"
-                           << d_pipeName << "', errno = " << errno << ": "
-                           << bsl::strerror(errno) << BAEL_LOG_END;
+                           << d_pipeName << "', errno = " << savedErrno << ": "
+                           << bsl::strerror(savedErrno) << BAEL_LOG_END;
             return -1;
         }
 
@@ -282,6 +285,8 @@ int baea_PipeControlChannel::readNamedPipe()
 
             int bytesRead = read(d_impl.d_unix.d_readFd, buffer, BUFFER_SIZE);
 
+            savedErrno    = errno;
+
             if (0 == bytesRead) {
                 BAEL_LOG_TRACE << "Zero bytes read from the pipe"
                                << BAEL_LOG_END;
@@ -289,8 +294,9 @@ int baea_PipeControlChannel::readNamedPipe()
             }
             else if (0 > bytesRead) {
                 BAEL_LOG_ERROR << "Failed to read from pipe '"
-                               << d_pipeName << "', errno = " << errno << ": "
-                               << bsl::strerror(errno) << BAEL_LOG_END;
+                               << d_pipeName
+                               << "', errno = " << savedErrno << ": "
+                               << bsl::strerror(savedErrno) << BAEL_LOG_END;
                 return -1;
             }
             else {
@@ -361,35 +367,42 @@ baea_PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 
     const char *rawPipeName = pipeName.c_str();
 
-    int rc = mkfifo(rawPipeName, 0666);
+    int rc         = mkfifo(rawPipeName, 0666);
 
     if (0 != rc) {
+        int savedErrno = errno;
+
         BAEL_LOG_ERROR << "Unable to create pipe "
-                          "'"          << rawPipeName          << "'"
-                          ": errno = " << errno                << " "
-                          "("          << bsl::strerror(errno) << ")"
+                          "'"          << rawPipeName               << "'"
+                          ": errno = " << savedErrno                << " "
+                          "("          << bsl::strerror(savedErrno) << ")"
                        << BAEL_LOG_END;
         return -4;
     }
 
     d_impl.d_unix.d_readFd = open(rawPipeName, O_RDONLY | O_NONBLOCK);
+
     if (-1 == d_impl.d_unix.d_readFd) {
+        int savedErrno = errno;
+
         BAEL_LOG_ERROR << "Cannot open pipe "
-                          "'"           << rawPipeName          << "' "
+                          "'"           << rawPipeName               << "' "
                           "for reading"
-                          ": errno = "  << errno                << " "
-                          "("           << bsl::strerror(errno) << ")"
+                          ": errno = "  << savedErrno                << " "
+                          "("           << bsl::strerror(savedErrno) << ")"
                        << BAEL_LOG_END;
         return -5;
     }
 
     d_impl.d_unix.d_writeFd = open(rawPipeName, O_WRONLY);
     if (-1 == d_impl.d_unix.d_writeFd) {
+        int savedErrno = errno;
+
         BAEL_LOG_ERROR << "Failed to open named pipe "
-                          "'"           << rawPipeName          << "' "
+                          "'"           << rawPipeName               << "' "
                           "for writing"
-                          ": errno = "  << errno                << " "
-                          "("           << bsl::strerror(errno) << ")"
+                          ": errno = "  << savedErrno                << " "
+                          "("           << bsl::strerror(savedErrno) << ")"
                        << BAEL_LOG_END;
         return -6;
     }
