@@ -1,5 +1,5 @@
-// bcemt_mutexassertislocked.cpp                                      -*-C++-*-
-#include <bcemt_mutexassertislocked.h>
+// bcemt_mutexassert.cpp                                              -*-C++-*-
+#include <bcemt_mutexassert.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_mutex_cpp,"$Id$ $CSID$")
@@ -18,10 +18,10 @@ BDES_IDENT_RCSID(bcemt_mutex_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-void bcemt_MutexAssertIsLocked_Imp::assertIsLockedImpl(bcemt_Mutex *mutex,
-                                                       const char  *text,
-                                                       const char  *file,
-                                                       int          line)
+void bcemt_MutexAssert_Imp::assertIsLockedImpl(bcemt_Mutex *mutex,
+                                               const char  *text,
+                                               const char  *file,
+                                               int          line)
 {
 #if   defined(BCES_PLATFORM_POSIX_THREADS)
 

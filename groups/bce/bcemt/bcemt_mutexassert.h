@@ -1,6 +1,6 @@
-// bcemt_mutexassertislocked.h                                        -*-C++-*-
-#ifndef INCLUDED_BCEMT_MUTEXASSERTISLOCKED
-#define INCLUDED_BCEMT_MUTEXoASSERTISLOCKED
+// bcemt_mutexassert.h                                                -*-C++-*-
+#ifndef INCLUDED_BCEMT_MUTEXASSERT
+#define INCLUDED_BCEMT_MUTEXASSERT
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -9,10 +9,12 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide an assert macro for verifying that a mutex is locked.
 //
+//@CLASSES:
+//
 //@MACROS:
-//  BCEMT_MUTEX_ASSERT_IS_LOCKED: verify a mutex is locked in non-opt modes
-//  BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED: verify a mutex is locked in safe mode
-//  BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED: verify a mutex is locked in all modes
+//  BCEMT_ASSERTMUTEX_IS_LOCKED: verify a mutex is locked in non-opt modes
+//  BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE: verify a mutex is locked in safe mode
+//  BCEMT_ASSERTMUTEX_IS_LOCKED_OPT: verify a mutex is locked in all modes
 //
 //@SEE_ALSO: bcemt_mutex
 //
@@ -24,14 +26,15 @@ BDES_IDENT("$Id: $")
 // default will report an error and abort the task.
 //
 // The three macros defined by the component are analogous to the macros
-// defined by BSLS_ASSERT:
+// defined by 'BSLS_ASSERT':
 //
-//: o BCEMT_MUTEX_ASSERT_IS_LOCKED: active when 'BSLS_ASSERT' is active
+//: o 'BCEMT_ASSERTMUTEX_IS_LOCKED': active when 'BSLS_ASSERT' is active
 //
-//: o BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED: active when 'BSLS_ASSERT_SAFE' is
+//: o 'BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE': active when 'BSLS_ASSERT_SAFE' is
 //:   active
 //
-//: o BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED: active when 'BSLS_ASSERT_OPT' is active
+//: o 'BCEMT_ASSERTMUTEX_IS_LOCKED_OPT': active when 'BSLS_ASSERT_OPT' is
+//:   active
 //
 // In build modes where any one of these macros is not active, calling it will
 // have no effect.
@@ -45,19 +48,20 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: Checking Consistency WIthin a Private Method
+///Example 1: Checking Consistency Within a Private Method
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a mutex.  The
-// 'BCEMT_MUTEX_ASSERT*_IS_LOCKED' family of assertions allows the programmers
+// 'BCEMT__ASSERTMUTEX_IS_LOCKED*' family of assertions allows the programmers
 // to verify, using defensive programming techniques, that the mutex in
 // question is indeed locked.
 //
 // Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal mutex.  We can use
-// 'BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED' to ensure (in appropriate build modes)
-// that proper internal locking of the mutex is taking place.
+// guarded by an internal mutex.  We can use 'BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE'
+// to ensure (in appropriate build modes) that proper internal locking of the
+// mutex is taking place.
 //
 // First, we define the container:
 //..
@@ -111,15 +115,14 @@ BDES_IDENT("$Id: $")
 // private manipulator that performs the pop, and is used in both public 'pop'
 // methods.  This private manipulator requires that the mutex be locked, but
 // cannot lock the mutex itself, since the correctness of 'popAll' demands that
-// all of the pops be collectively performed using a single mutex
-// lock/unlock.
+// all of the pops be collectively performed using a single mutex lock/unlock.
 //
 // Then, we define the private manipulator:
 //..
 //  // PRIVATE MANIPULATOR
 //  int MyThreadSafeQueue::popImp(int *result)
 //  {
-//      BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex);
+//      BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&d_mutex);
 //
 //      if (d_deque.empty()) {
 //          return -1;                                                // RETURN
@@ -133,12 +136,12 @@ BDES_IDENT("$Id: $")
 //..
 // Notice that, on the very first line, the private manipulator verifies, as a
 // precondition check, that the mutex has been acquired, using one of the
-// 'BCEMT_MUTEX_ASSERT*_IS_LOCKED' macros.  We use the '...ASSERT_SAFE...'
+// 'BCEMT_ASSERTMUTEX_IS_LOCKED*' macros.  We use the '...IS_LOCKED_SAFE...'
 // version of the macro so that the check, which on some platforms is as
 // expensive as locking the mutex, is performed in only the safe build mode.
 //
-// Next, we define the public manipulators; each of which must acquire a lock on
-// the mutex (note that there is a bug in 'popAll'):
+// Next, we define the public manipulators; each of which must acquire a lock
+// on the mutex (note that there is a bug in 'popAll'):
 //..
 //  // MANIPULATORS
 //  int MyThreadSafeQueue::pop(int *result)
@@ -228,10 +231,10 @@ BDES_IDENT("$Id: $")
 //
 // Now, we build in safe mode (which enables our check), run the program (which
 // calls 'example2Function'), and observe that, when we call 'popAll', the
-// 'BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex)' macro issues an error message
+// 'BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
 // and aborts:
 //..
-//  Assertion failed: BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(&d_mutex), file /bb/big
+//  Assertion failed: BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&d_mutex), file /bb/big
 //  storn/dev_framework/bchapman/git/bde-core/groups/bce/bcemt/unix-Linux-x86_6
 //  4-2.6.18-gcc-4.6.1/bcemt_mutexassertislocked.t.cpp, line 137
 //  Aborted (core dumped)
@@ -252,47 +255,47 @@ BDES_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    #define BCEMT_MUTEX_ASSERT_IS_LOCKED(mutex_p) do {                        \
-        bcemt_MutexAssertIsLocked_Imp::assertIsLockedImpl(                    \
+    #define BCEMT_ASSERTMUTEX_IS_LOCKED(mutex_p) do {                         \
+        bcemt_MutexAssert_Imp::assertIsLockedImpl(                            \
                            (mutex_p),                                         \
-                           "BCEMT_MUTEX_ASSERT_IS_LOCKED(" #mutex_p ")",      \
+                           "BCEMT_ASSERTMUTEX_IS_LOCKED(" #mutex_p ")",       \
                            __FILE__,                                          \
                            __LINE__); } while (false)
 #else
-    #define BCEMT_MUTEX_ASSERT_IS_LOCKED(mutex_p) ((void) 0)
+    #define BCEMT_ASSERTMUTEX_IS_LOCKED(mutex_p) ((void) 0)
 #endif
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(mutex_p) do {                   \
-        bcemt_MutexAssertIsLocked_Imp::assertIsLockedImpl(                    \
+    #define BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(mutex_p) do {                    \
+        bcemt_MutexAssert_Imp::assertIsLockedImpl(                            \
                            (mutex_p),                                         \
-                           "BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(" #mutex_p ")", \
+                           "BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(" #mutex_p ")",  \
                            __FILE__,                                          \
                            __LINE__); } while (false)
 #else
-    #define BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED(mutex_p) ((void) 0)
+    #define BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(mutex_p) ((void) 0)
 #endif
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
-    #define BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED(mutex_p) do {                    \
-        bcemt_MutexAssertIsLocked_Imp::assertIsLockedImpl(                    \
+    #define BCEMT_ASSERTMUTEX_IS_LOCKED_OPT(mutex_p) do {                     \
+        bcemt_MutexAssert_Imp::assertIsLockedImpl(                            \
                            (mutex_p),                                         \
-                           "BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED(" #mutex_p ")",  \
+                           "BCEMT_ASSERTMUTEX_IS_LOCKED_OPT(" #mutex_p ")",   \
                            __FILE__,                                          \
                            __LINE__); } while (false)
 #else
-    #define BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED(mutex_p) ((void) 0)
+    #define BCEMT_ASSERTMUTEX_IS_LOCKED_OPT(mutex_p) ((void) 0)
 #endif
 
 namespace BloombergLP {
 
 class bcemt_Mutex;
 
-                       // ===============================
-                       // class bcemt_MutexAssertIsLocked
-                       // ===============================
+                       // =======================
+                       // class bcemt_MutexAssert
+                       // =======================
 
-struct bcemt_MutexAssertIsLocked_Imp {
+struct bcemt_MutexAssert_Imp {
     // CLASS METHODS
     static
     void assertIsLockedImpl(bcemt_Mutex *mutex,
@@ -305,8 +308,8 @@ struct bcemt_MutexAssertIsLocked_Imp {
         // performed, 'file' is the name of the source file that called the
         // macro, and 'line' is the line number in the file where the macro was
         // called.  This function is intended to implement
-        // 'BCEMT_MUTEX_ASSERT_IS_LOCKED', 'BCEMT_MUTEX_ASSERT_SAFE_IS_LOCKED',
-        // and 'BCEMT_MUTEX_ASSERT_OPT_IS_LOCKED' and should not otherwise be
+        // 'BCEMT_ASSERTMUTEX_IS_LOCKED', 'BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE',
+        // and 'BCEMT_ASSERTMUTEX_IS_LOCKED_OPT' and should not otherwise be
         // called directly.
 };
 
