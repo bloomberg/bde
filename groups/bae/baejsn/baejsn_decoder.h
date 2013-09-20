@@ -243,6 +243,10 @@ BDES_IDENT("$Id: $")
 #include <bdeat_valuetypefunctions.h>
 #endif
 
+#ifndef INCLUDED_BDEU_PRINTMETHODS
+#include <bdeu_printmethods.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -810,7 +814,9 @@ int baejsn_Decoder::decodeImp(TYPE *value,
     rc = baejsn_ParserUtil::getValue(&valueBaseType, dataValue);
     if (rc) {
         d_logStream << "Could not decode Enum Customized, "
-                    << "value not allowed \"" << valueBaseType << "\"\n";
+                    << "value not allowed \"";
+        bdeu_PrintMethods::print(d_logStream, valueBaseType, 0, -1);
+        d_logStream << "\"\n";
         return -1;                                                    // RETURN
     }
 
@@ -818,7 +824,9 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                                                             valueBaseType);
     if (rc) {
         d_logStream << "Could not convert base type to customized type, "
-                    << "base value disallowed: \"" << valueBaseType << "\"\n";
+                    << "base value disallowed: \";
+        bdeu_PrintMethods::print(d_logStream, valueBaseType, 0, -1);
+        d_logStream << "\"\n";
     }
     return rc;
 }
