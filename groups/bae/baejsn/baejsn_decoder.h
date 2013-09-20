@@ -824,7 +824,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                                                             valueBaseType);
     if (rc) {
         d_logStream << "Could not convert base type to customized type, "
-                    << "base value disallowed: \";
+                    << "base value disallowed: \"";
         bdeu_PrintMethods::print(d_logStream, valueBaseType, 0, -1);
         d_logStream << "\"\n";
     }
