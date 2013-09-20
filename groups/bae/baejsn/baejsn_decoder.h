@@ -814,9 +814,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
     rc = baejsn_ParserUtil::getValue(&valueBaseType, dataValue);
     if (rc) {
         d_logStream << "Could not decode Enum Customized, "
-                    << "value not allowed \"";
-        bdeu_PrintMethods::print(d_logStream, valueBaseType, 0, -1);
-        d_logStream << "\"\n";
+                    << "value not allowed \"" << dataValue << "\"\n";
         return -1;                                                    // RETURN
     }
 
