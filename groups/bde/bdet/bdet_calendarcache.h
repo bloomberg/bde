@@ -64,8 +64,10 @@ BDES_IDENT("$Id: $")
 //
 ///Thread-Safety
 ///-------------
-// The 'bdet_CalendarCacheEntryPtr' and 'bdet_CalendarCache' classes are fully
-// thread-safe (see 'bsldoc_glossary').
+// The 'bdet_CalendarCache' class is fully thread-safe (see 'bsldoc_glossary')
+// provided that the allocator supplied at construction and the default
+// allocator in effect during the lifetime of cache objects are both fully
+// thread-safe.  The 'bdet_CalendarCacheEntryPtr' class is fully thread-safe.
 //
 ///Usage
 ///-----
@@ -289,6 +291,7 @@ class bdet_CalendarCache_EntryPtrRep;
                       // ================================
                       // class bdet_CalendarCacheEntryPtr
                       // ================================
+
 class bdet_CalendarCacheEntryPtr {
     // This class provides access, via its 'operator->', to a shared calendar
     // cache entry.  The lifetime of each shared calendar is managed by a

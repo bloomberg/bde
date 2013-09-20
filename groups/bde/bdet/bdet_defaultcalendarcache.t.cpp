@@ -41,7 +41,8 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] static int initialize(Loader *loader, Allocator *allocator);
+// [ 2] static int initialize(Loader *loader,          Allocator *alloc);
+// [ 2] static int initialize(Loader *loader, timeout, Allocator *alloc);
 // [ 2] static void destroy();
 // [ 2] static bdet_CalendarCache *instance();
 // ----------------------------------------------------------------------------
@@ -117,6 +118,8 @@ typedef bdet_DefaultCalendarCache  Util;
 typedef bdet_CalendarCache         Cache;
 typedef bdet_CalendarCacheEntryPtr Entry;
 
+typedef bdet_TimeInterval          Interval;
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef HANDLE    ThreadId;
 #else
@@ -188,7 +191,7 @@ extern "C" void *threadFunctionB(void *arg)
 
     for (int i = 0; i < info->d_numIterations; ++i) {
         Util::destroy();
-        Util::initialize(info->d_loader_p, info->d_allocator_p);
+        Util::initialize(info->d_loader_p, Interval(30), info->d_allocator_p);
     }
 
     return arg;
@@ -201,13 +204,13 @@ extern "C" void *threadFunctionC(void *arg)
     for (int i = 0; i < info->d_numIterations; ++i) {
         Util::initialize(info->d_loader_p, info->d_allocator_p);
         Util::destroy();
-        Util::initialize(info->d_loader_p, info->d_allocator_p);
+        Util::initialize(info->d_loader_p, Interval(30), info->d_allocator_p);
     }
 
     return arg;
 }
 
-}  // close namspace TestCase3
+}  // close namespace TestCase3
 
 // ============================================================================
 //                                USAGE EXAMPLE
@@ -340,8 +343,10 @@ int main(int argc, char *argv[])
 //..
     static my_CalendarLoader loader;
 
-    bdet_DefaultCalendarCache::initialize(&loader,
-                                          bslma::Default::globalAllocator());
+    int rc = bdet_DefaultCalendarCache::initialize(
+                                            &loader,
+                                            bslma::Default::globalAllocator());
+    ASSERT(!rc);
 //..
 // Note that declaring 'loader' to be 'static' ensures that it remains valid
 // until the cache is destroyed.  Also note that initialization of the cache
@@ -439,11 +444,11 @@ int main(int argc, char *argv[])
                   cout << "Cache  initialized after join." << endl;
                 }
 
-                Entry usA = cachePtr->getCalendar("US");
+                Entry e = cachePtr->getCalendar("US");
 
-                ASSERT( usA.ptr());
-                ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
-                ASSERT(!usA->isHoliday(bdet_Date(2011, 7, 14)));
+                ASSERT( e.ptr());
+                ASSERT( e->isHoliday(bdet_Date(2011, 7,  4)));
+                ASSERT(!e->isHoliday(bdet_Date(2011, 7, 14)));
 
                 Util::destroy();
             }
@@ -459,49 +464,61 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // METHODS TEST
-        //   Ensure that the three interface methods work as expected in the
+        //   Ensure that the four interface methods work as expected in the
         //   absence of concurrency.
         //
         // Concerns:
         //: 1 That the allocator passed to 'initialize' is hooked up correctly.
         //:
-        //: 2 That 'instance' returns non-zero if and only if the default
+        //: 2 That 'initialize' returns the expected status value.
+        //:
+        //: 3 That a cache timeout is in effect if any only if one is supplied
+        //:   to 'initialize'.
+        //:
+        //: 4 That 'instance' returns non-zero if and only if the default
         //:   calendar cache is in the initialized state.
         //:
-        //: 3 That 'destroy' indeed destroys the default calendar cache, with
+        //: 5 That 'destroy' indeed destroys the default calendar cache, with
         //:   associated memory being reclaimed by the allocator supplied to
         //:   'initialize'.
         //:
-        //: 4 That the default calendar cache can be initialized and destroyed
+        //: 6 That the default calendar cache can be initialized and destroyed
         //:   multiple times.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create a test calendar loader and three test allocators.  Set one
         //:   allocator to be the default allocator and another allocator to be
         //:   the global allocator.
         //:
-        //: 2 Supply the loader and the third allocator to the 'initialize'
-        //:   method.  Verify that there is no memory allocated from either
-        //:   allocator, and that the 'instance' method returns the expected
-        //:   result before and after initialization.
+        //: 2 Supply the loader and the third allocator, but no timeout, to the
+        //:   'initialize' method.  Verify that there is no memory allocated
+        //:   from either allocator, that 'initialize' returns the expected
+        //:   value, and that the 'instance' method returns the expected result
+        //:   before and after initialization.
         //:
         //: 3 Access a calendar from the default cache and verify that memory
         //:   use from the three allocators created in P-1 is as expected.
-        //:   (C-1)
         //:
-        //: 4 Destroy the default cache.  Verify that memory is reclaimed by
+        //: 4 Call 'initialize' again and verify that it returns the expected
+        //:   value.
+        //:
+        //: 5 Destroy the default cache.  Verify that memory is reclaimed by
         //:   the supplied allocator, and that 'instance' returns the expected
-        //:   result before and after destruction.  (C-2..3)
+        //:   result after destruction.
         //:
-        //: 5 Repeat P-2..4.  (C-4)
+        //: 6 Repeat P-2..5, this time supplying a timeout value to the
+        //:   'initialize' method.  (C-1..2, C-4..6)
         //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //: 7 Provide a separate test for the timeout feature.  (C-3)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
         //
         // Testing:
-        //   static int initialize(Loader *loader, Allocator *allocator);
+        //   static int initialize(Loader *loader,          Allocator *alloc);
+        //   static int initialize(Loader *loader, timeout, Allocator *alloc);
         //   static void destroy();
         //   static bdet_CalendarCache *instance();
         // --------------------------------------------------------------------
@@ -520,10 +537,15 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-        // "initialize, access, destroy" for the first time
+        int rc;  // for 'initialize' return status
+
+        // "initialize (without timeout), access, destroy" for the first time
         {
                                      ASSERT(!Util::instance());
-            Util::initialize(&mL, &sa);
+
+            rc = Util::initialize(&mL, &sa);
+
+                                     ASSERT(!rc);
                                      ASSERT( Util::instance());
                                      ASSERT(0 == da.numBlocksTotal());
                                      ASSERT(0 == ga.numBlocksTotal());
@@ -531,19 +553,29 @@ int main(int argc, char *argv[])
 
             {
                 Cache *cachePtr = Util::instance();
+                const Cache *constCachePtr = cachePtr;
 
-                Entry usA = cachePtr->getCalendar("US");
+                Entry e = cachePtr->getCalendar("US");
 
-                ASSERT( usA.ptr());
-                ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
-                ASSERT(!usA->isHoliday(bdet_Date(2011, 7, 14)));
+                ASSERT( e.ptr());
+                ASSERT( e->isHoliday(bdet_Date(2011, 7,  4)));
+                ASSERT(!e->isHoliday(bdet_Date(2011, 7, 14)));
 
                                      ASSERT(0 == da.numBlocksInUse());
                                      ASSERT(0 == ga.numBlocksTotal());
                                      ASSERT(0 != sa.numBlocksInUse());
-            }
 
+                e = constCachePtr->lookupCalendar("US");
+
+                ASSERT( e.ptr());
+            }
                                      ASSERT( Util::instance());
+
+            rc = Util::initialize(&mL, &sa);
+
+                                     ASSERT( rc);
+                                     ASSERT( Util::instance());
+
             Util::destroy();
                                      ASSERT(!Util::instance());
                                      ASSERT(0 == da.numBlocksInUse());
@@ -551,10 +583,13 @@ int main(int argc, char *argv[])
                                      ASSERT(0 == sa.numBlocksInUse());
         }
 
-        // "initialize, access, destroy" a second time
+        // "initialize (*with* timeout), access, destroy" a second time
         {
                                      ASSERT(!Util::instance());
-            Util::initialize(&mL, &sa);
+
+            rc = Util::initialize(&mL, Interval(30), &sa);
+
+                                     ASSERT(!rc);
                                      ASSERT( Util::instance());
                                      ASSERT(0 == da.numBlocksInUse());
                                      ASSERT(0 == ga.numBlocksTotal());
@@ -562,24 +597,82 @@ int main(int argc, char *argv[])
 
             {
                 Cache *cachePtr = Util::instance();
+                const Cache *constCachePtr = cachePtr;
 
-                Entry usA = cachePtr->getCalendar("US");
+                Entry e = cachePtr->getCalendar("US");
 
-                ASSERT( usA.ptr());
-                ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
-                ASSERT(!usA->isHoliday(bdet_Date(2011, 7, 14)));
+                ASSERT( e.ptr());
+                ASSERT( e->isHoliday(bdet_Date(2011, 7,  4)));
+                ASSERT(!e->isHoliday(bdet_Date(2011, 7, 14)));
 
                                      ASSERT(0 == da.numBlocksInUse());
                                      ASSERT(0 == ga.numBlocksTotal());
                                      ASSERT(0 != sa.numBlocksInUse());
-            }
 
+                e = constCachePtr->lookupCalendar("US");
+
+                ASSERT( e.ptr());
+            }
                                      ASSERT( Util::instance());
+
+            rc = Util::initialize(&mL, Interval(30), &sa);
+
+                                     ASSERT( rc);
+                                     ASSERT( Util::instance());
+
             Util::destroy();
                                      ASSERT(!Util::instance());
                                      ASSERT(0 == da.numBlocksInUse());
                                      ASSERT(0 == ga.numBlocksTotal());
                                      ASSERT(0 == sa.numBlocksInUse());
+        }
+
+        // Ensure that the timeout parameter is passed to the underlying
+        // 'bdet_CalendarCache' correctly.
+
+        // First 'initialize' without a timeout.
+        {
+            rc = Util::initialize(&mL, &sa);               ASSERT(!rc);
+
+            {
+                Cache *cachePtr = Util::instance();
+                const Cache *constCachePtr = cachePtr;
+
+                Entry e;
+
+                e = cachePtr->getCalendar("US");           ASSERT( e.ptr());
+                e = constCachePtr->lookupCalendar("US");   ASSERT( e.ptr());
+
+                // Verify that a timeout doesn't occur.
+
+                sleepSeconds(2);
+                e = constCachePtr->lookupCalendar("US");   ASSERT( e.ptr());
+            }
+
+            Util::destroy();
+        }
+
+        // Then 'initialize' *with* a timeout.
+        {
+            rc = Util::initialize(&mL, Interval(2), &sa);  ASSERT(!rc);
+
+            {
+                Cache *cachePtr = Util::instance();
+                const Cache *constCachePtr = cachePtr;
+
+                Entry e;
+
+                e = cachePtr->getCalendar("US");           ASSERT( e.ptr());
+                e = constCachePtr->lookupCalendar("US");   ASSERT( e.ptr());
+
+                // Verify that a timeout occurs after 2 seconds (by sleeping
+                // a sufficiently long time).
+
+                sleepSeconds(3);
+                e = constCachePtr->lookupCalendar("US");   ASSERT(!e.ptr());
+            }
+
+            Util::destroy();
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -590,10 +683,41 @@ int main(int argc, char *argv[])
             TestLoader           mL;
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            ASSERT_SAFE_FAIL(Util::initialize(&mL,   0));
-            ASSERT_SAFE_FAIL(Util::initialize(  0, &sa));
+            {
+                ASSERT_SAFE_FAIL(Util::initialize(  0,               &sa));
+                ASSERT(!Util::instance());
 
-            ASSERT(!Util::instance());
+                ASSERT_SAFE_FAIL(Util::initialize(&mL,                 0));
+                ASSERT(!Util::instance());
+
+                ASSERT_SAFE_PASS(Util::initialize(&mL,               &sa));
+                ASSERT( Util::instance());
+
+                Util::destroy();
+            }
+
+            {
+                ASSERT_SAFE_FAIL(Util::initialize(  0, Interval( 0), &sa));
+                ASSERT(!Util::instance());
+
+                ASSERT_SAFE_FAIL(Util::initialize(&mL, Interval( 0),   0));
+                ASSERT(!Util::instance());
+
+                ASSERT_SAFE_FAIL(Util::initialize(&mL, Interval(-1), &sa));
+                ASSERT(!Util::instance());
+
+                ASSERT_SAFE_PASS(Util::initialize(&mL, Interval( 0), &sa));
+                ASSERT( Util::instance());
+
+                Util::destroy();
+                ASSERT(!Util::instance());
+
+                ASSERT_SAFE_PASS(Util::initialize(&mL, Interval( 1), &sa));
+                ASSERT( Util::instance());
+
+                Util::destroy();
+                ASSERT(!Util::instance());
+            }
         }
 
       } break;
@@ -635,66 +759,32 @@ int main(int argc, char *argv[])
         TestLoader           mL;
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                                     ASSERT(!Util::instance());
-        Util::initialize(&mL, &sa);  ASSERT( Util::instance());
-                                     ASSERT(0 == sa.numBlocksTotal());
+                                          ASSERT(!Util::instance());
+
+        int rc = Util::initialize(&mL, &sa);
+
+                                          ASSERT(!rc);
+                                          ASSERT( Util::instance());
+                                          ASSERT(0 == sa.numBlocksTotal());
 
         // Access: P-2
 
         {
             Cache *cachePtr = Util::instance();
 
-            Entry usA = cachePtr->getCalendar("US");
+            Entry e = cachePtr->getCalendar("US");
 
-            ASSERT( usA.ptr());
-            ASSERT( usA->isHoliday(bdet_Date(2011, 7,  4)));
-            ASSERT(!usA->isHoliday(bdet_Date(2011, 7, 14)));
+            ASSERT( e.ptr());
+            ASSERT( e->isHoliday(bdet_Date(2011, 7,  4)));
+            ASSERT(!e->isHoliday(bdet_Date(2011, 7, 14)));
 
-                                     ASSERT(0 != sa.numBlocksInUse());
+                                          ASSERT(0 != sa.numBlocksInUse());
         }
 
         // Destroy: P-3
 
-        Util::destroy();             ASSERT(!Util::instance());
-                                     ASSERT(0 == sa.numBlocksInUse());
-
-
-                                     ASSERT(!Util::instance());
-
-        // Make sure that timeout parameter is passed to 'bdet_CalendarCache'
-        // correctly.
-
-        Util::initialize(&mL, &sa);
-        {
-            Cache *cachePtr = Util::instance();
-            Entry usA = cachePtr->getCalendar("US");
-            ASSERT( usA.ptr());
-            usA = cachePtr->lookupCalendar("US");
-            ASSERT( usA.ptr());
-
-            // Verify that timeout doesn't occur.
-            sleepSeconds(2);
-            usA = cachePtr->lookupCalendar("US");
-            ASSERT( usA.ptr());
-        }
-        Util::destroy();
-
-        Util::initialize(&mL, bdet_TimeInterval(2), &sa);
-        {
-            Cache *cachePtr = Util::instance();
-            Entry usA = cachePtr->getCalendar("US");
-            ASSERT( usA.ptr());
-            usA = cachePtr->lookupCalendar("US");
-            ASSERT( usA.ptr());
-
-
-            // Verify that timeout does occur after 2 seconds.
-            sleepSeconds(2);
-            usA = cachePtr->lookupCalendar("US");
-            ASSERT(!usA.ptr());
-        }
-        Util::destroy();
-
+        Util::destroy();                  ASSERT(!Util::instance());
+                                          ASSERT(0 == sa.numBlocksInUse());
 
       } break;
       default: {

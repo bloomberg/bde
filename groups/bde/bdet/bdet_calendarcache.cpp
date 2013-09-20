@@ -26,7 +26,10 @@ bool hasExpired(const bsl::time_t& interval,
     // Return 'true' if at least the specified time 'interval' has elapsed
     // since the specified 'loadTime', and 'false' otherwise.
 {
-    bsl::time_t elapsedTime = bsl::time(0) - loadTime;
+    const bsl::time_t now = bsl::time(0);
+    BSLS_ASSERT(static_cast<bsl::time_t>(-1) != now);
+
+    const bsl::time_t elapsedTime = now - loadTime;
 
     return elapsedTime >= interval ? true : false;
 }
@@ -291,14 +294,14 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
     BSLS_ASSERT(calendarName);
 
     {
-        bsls::BslLockGuard lockProctor(&d_lock);
+        bsls::BslLockGuard lockGuard(&d_lock);
 
         CacheIterator iter = d_cache.find(calendarName);
 
         if (iter != d_cache.end()) {
 
-            if (!d_hasTimeOutFlag ||
-                !hasExpired(d_timeOut, iter->second.rep()->loadTime())) {
+            if (!d_hasTimeOutFlag
+             || !hasExpired(d_timeOut, iter->second.rep()->loadTime())) {
                 return iter->second;
             }
             else {
@@ -332,7 +335,7 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
                                                                 bsl::time(0),
                                                                 d_allocator_p);
 
-    BSLS_ASSERT(bsl::time_t(-1) != repPtr->loadTime());
+    BSLS_ASSERT(static_cast<bsl::time_t>(-1) != repPtr->loadTime());
 
     // Take over management of 'repPtr' and (indirectly) 'calendarPtr', and
     // release the calendar proctor.
@@ -344,7 +347,7 @@ bdet_CalendarCache::getCalendar(const char *calendarName)
     // Insert newly-loaded calendar into cache if another thread hasn't done so
     // already.
 
-    bsls::BslLockGuard lockProctor(&d_lock);
+    bsls::BslLockGuard lockGuard(&d_lock);
 
     ConstCacheIterator iter = d_cache.find(calendarName);
 
@@ -365,7 +368,7 @@ int bdet_CalendarCache::invalidate(const char *calendarName)
 {
     BSLS_ASSERT(calendarName);
 
-    bsls::BslLockGuard lockProctor(&d_lock);
+    bsls::BslLockGuard lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(calendarName);
 
@@ -380,7 +383,7 @@ int bdet_CalendarCache::invalidate(const char *calendarName)
 
 int bdet_CalendarCache::invalidateAll()
 {
-    bsls::BslLockGuard lockProctor(&d_lock);
+    bsls::BslLockGuard lockGuard(&d_lock);
 
     const int numInvalidated = d_cache.size();
 
@@ -395,7 +398,7 @@ bdet_CalendarCache::lookupCalendar(const char *calendarName) const
 {
     BSLS_ASSERT(calendarName);
 
-    bsls::BslLockGuard lockProctor(&d_lock);
+    bsls::BslLockGuard lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(calendarName);
 

@@ -116,12 +116,12 @@ int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader *loader,
     return initializePrivate(loader, false, bdet_TimeInterval(0), allocator);
 }
 
-
-
 int bdet_DefaultCalendarCache::initialize(bdet_CalendarLoader      *loader,
                                           const bdet_TimeInterval&  timeout,
                                           bslma::Allocator         *allocator)
 {
+    BSLS_ASSERT(0 <= timeout.seconds());
+
     return initializePrivate(loader, true, timeout, allocator);
 }
 

@@ -41,7 +41,9 @@ BDES_IDENT("$Id: $")
 ///Thread-Safety
 ///-------------
 // The 'bdet_DefaultCalendarCache' class is fully thread-safe (see
-// 'bsldoc_glossary').
+// 'bsldoc_glossary') provided that the allocator supplied to 'initialize' and
+// the default allocator in effect during the lifetime of the default cache are
+// both fully thread-safe.
 //
 ///Usage
 ///-----
@@ -67,8 +69,10 @@ BDES_IDENT("$Id: $")
 //..
 //  static my_CalendarLoader loader;
 //
-//  bdet_DefaultCalendarCache::initialize(&loader,
-//                                        bslma::Default::globalAllocator());
+//  int rc = bdet_DefaultCalendarCache::initialize(
+//                                          &loader,
+//                                          bslma::Default::globalAllocator());
+//  assert(!rc);
 //..
 // Note that declaring 'loader' to be 'static' ensures that it remains valid
 // until the cache is destroyed.  Also note that initialization of the cache
@@ -108,11 +112,9 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -152,12 +154,13 @@ struct bdet_DefaultCalendarCache {
                           const bdet_TimeInterval&  timeout,
                           bslma::Allocator         *allocator);
         // Initialize the default 'bdet_CalendarCache' object managed by this
-        // class that uses the specified 'loader' to obtain calendars, have the
+        // class that uses the specified 'loader' to obtain calendars, has the
         // specified 'timeout', and uses the specified 'allocator' to supply
         // memory.  If the default cache is already in the initialized state,
         // this method has no effect.  Return 0 on success, and a non-zero
         // value otherwise.  The behavior is undefined unless 'loader' and
-        // 'allocator' remain valid until a subsequent call to 'destroy'.
+        // 'allocator' remain valid until a subsequent call to 'destroy', and
+        // 'timeout' is 0 or a positive value less than 10 years.
 
     static void destroy();
         // Destroy the default 'bdet_CalendarCache' object managed by this
