@@ -176,10 +176,11 @@ class ConcurrencyCounterGuard {
   private:
     // NOT IMPLEMENTED
     ConcurrencyCounterGuard(const ConcurrencyCounterGuard&);
-    ConcurrencyCounterGuard& operator=(const ConcurrencyCounterGuard);
+    ConcurrencyCounterGuard& operator=(const ConcurrencyCounterGuard&);
 
   public:
-    ConcurrencyCounterGuard(bces_AtomicInt *concurrenyCallCounter)
+
+    explicit ConcurrencyCounterGuard(bces_AtomicInt *concurrenyCallCounter)
         // Increment the specified 'concurrentCallCounter' and assert if the
         // resulting count is greater than 1.
     : d_counter(concurrenyCallCounter)
@@ -229,6 +230,7 @@ class TestDriverTestLoader : public baetzo_Loader {
     TestDriverTestLoader operator=(const TestDriverTestLoader&);
 
   public:
+
     // PUBLIC CONSTANTS
     static const char *NO_REQUESTS;
 
@@ -260,6 +262,20 @@ class TestDriverTestLoader : public baetzo_Loader {
         // descriptor having the specified  'utcOffset', 'dstFlag', and
         // 'name', and add an invalid time zone otherwise.
 
+    void addTimeZone(const char *timeZoneId,
+                     const char *cacheIdentifier,
+                     int         utcOffset,
+                     bool        dstFlag,
+                     const char *name);
+        // If 'timeZoneId' is not 0, add to this test loader a time zone
+        // having the 'timeZoneId', but being identified in the cache using
+        // the specified 'cacheIdentifier', and containing a single local time
+        // descriptor having the specified  'utcOffset', 'dstFlag', and
+        // 'name'; if 'timeZoneId' is not 0 add an invalid time zone.  Note
+        // that this operation is provided to test situations where
+        // 'baetzo_Loader' returns an 'baetzo_Zoneinfo' object different than
+        // the requested id.
+
     void addInvalidTimeZone(const char *identifier);
         // Add to this test load a time zone that is not well-defined with the
         // specified 'identifier'.
@@ -284,22 +300,28 @@ const char *TestDriverTestLoader::NO_REQUESTS = "loadTimeZone not called";
 
 // CREATORS
 TestDriverTestLoader::TestDriverTestLoader(bslma::Allocator *basicAllocator)
-    : d_timeZones(basicAllocator)
-    , d_lastRequestedTimeZone(NO_REQUESTS, basicAllocator)
-    , d_concurrentCallCount(0)
-    , d_delayMicroseconds(0)
-    , d_allocator_p(bslma::Default::allocator(basicAllocator)) { }
+: d_timeZones(basicAllocator)
+, d_lastRequestedTimeZone(NO_REQUESTS, basicAllocator)
+, d_concurrentCallCount(0)
+, d_delayMicroseconds(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
 
 TestDriverTestLoader::TestDriverTestLoader(
                                        int               loadDelayMicroseconds,
                                        bslma::Allocator *basicAllocator)
-    : d_timeZones(basicAllocator)
-    , d_lastRequestedTimeZone(NO_REQUESTS, basicAllocator)
-    , d_concurrentCallCount(0)
-    , d_delayMicroseconds(loadDelayMicroseconds)
-    , d_allocator_p(bslma::Default::allocator(basicAllocator)) { }
+: d_timeZones(basicAllocator)
+, d_lastRequestedTimeZone(NO_REQUESTS, basicAllocator)
+, d_concurrentCallCount(0)
+, d_delayMicroseconds(loadDelayMicroseconds)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
 
-TestDriverTestLoader::~TestDriverTestLoader() { }
+TestDriverTestLoader::~TestDriverTestLoader()
+{
+}
 
 // MANIPULATORS
 void TestDriverTestLoader::addTimeZone(const char *timeZone,
@@ -307,7 +329,8 @@ void TestDriverTestLoader::addTimeZone(const char *timeZone,
                                        bool        dstFlag,
                                        const char *name)
 {
-    baetzo_Zoneinfo zoneinfo; zoneinfo.setIdentifier(timeZone);
+    baetzo_Zoneinfo zoneinfo;
+    zoneinfo.setIdentifier(timeZone);
 
     if (0 == name) {
         d_timeZones[timeZone] = zoneinfo;
@@ -320,6 +343,28 @@ void TestDriverTestLoader::addTimeZone(const char *timeZone,
 
     zoneinfo.addTransition(firstTimeT, type);
     d_timeZones[timeZone] = zoneinfo;
+}
+
+void TestDriverTestLoader::addTimeZone(const char *timeZoneId,
+                                       const char *cacheIdentifier,
+                                       int         utcOffset,
+                                       bool        dstFlag,
+                                       const char *name)
+{
+    baetzo_Zoneinfo zoneinfo;
+    zoneinfo.setIdentifier(timeZoneId);
+
+    if (0 == timeZoneId) {
+        d_timeZones[cacheIdentifier] = zoneinfo;
+        return;                                                       // RETURN
+    }
+
+    baetzo_LocalTimeDescriptor type(utcOffset, dstFlag, name, d_allocator_p);
+    bdet_Datetime firstTime(1, 1, 1);
+    bsls::Types::Int64 firstTimeT = bdetu_Epoch::convertToTimeT64(firstTime);
+
+    zoneinfo.addTransition(firstTimeT, type);
+    d_timeZones[cacheIdentifier] = zoneinfo;
 }
 
 int TestDriverTestLoader::loadTimeZone(baetzo_Zoneinfo *result,
@@ -439,7 +484,7 @@ extern "C" void *workerThread(void *arg)
     return 0;
 }
 
-}
+}  // close namespace BAETZO_ZONEINFOCACHE_CONCURRENCY
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -732,7 +777,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Define a 'TestDriverTestLoader' implementation of 'baetzo_Loader'
         //:   that will delay on calls to 'loadTimeZone', maintain a count of
-        //:   conccurent invocations, and ASSERT if that conccurent call count
+        //:   concurrent invocations, and ASSERT if that conccurent call count
         //:   is greater than 1.
         //:
         //: 2 Create an instance of 'TestDriverTestLoader' and configure that
@@ -1017,23 +1062,28 @@ int main(int argc, char *argv[])
         //:
         //:     4 Verify a subsequent call to 'getZoneinfo' returns success.
         //:
-        //: 2 Create a implementation of 'baetzo_Loader' that returns a
+        //: 2 Using a table-driven approach create a test 'baetzo_Loader' that
+        //:   will return 'baetzo_Zoneinfo' objects having a different time
+        //:   zone id than the one supplied to 'load', and verify that the
+        //:   cache returns an error.
+        //:
+        //: 3 Create a implementation of 'baetzo_Loader' that returns a
         //:    specific error code that is not 'UNSUPPORTED_ID'  For a series
         //:    of test identifiers, ensure that the cache propagates the
         //:    specific error code.
         //:
-        //: 3 For each row in the test-table:
+        //: 4 For each row in the test-table:
         //:    1 Verify that loading a time zone does not allocate from the
         //:      default allocator, and does allocate from the object allocator
         //:
         //:    2 Once the object is destroyed, all memory is released.
         //:
-        //: 4 Use the 'BSLMA_EXCEPTION_TEST' macro, and for each row in the
+        //: 5 Use the 'BSLMA_EXCEPTION_TEST' macro, and for each row in the
         //:   test-table:
         //:    1 Call 'getZoneinfo' and verify the results match the expected
         //:     Zoneinfo value.
         //:
-        //: 5 Use ASSERT_PASS and ASSERT_FAIL to test assertions for null
+        //: 6 Use ASSERT_PASS and ASSERT_FAIL to test assertions for null
         //:   pointers.
         //
         // Testing:
@@ -1064,7 +1114,9 @@ int main(int argc, char *argv[])
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
         if (veryVerbose) cout << "\tTest returning 'UNSPECIFIED_ID'" << endl;
-        TestDriverTestLoader testLoader(Z);
+
+        bslma::TestAllocator loaderAllocator;
+        TestDriverTestLoader testLoader(&loaderAllocator);
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int   LINE    = VALUES[i].d_line;
             const char *ID      = VALUES[i].d_id;
@@ -1115,6 +1167,56 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose)
+                cout << "\tTest Loader returning a Zoneinfo objects with a "
+                     << "different id than the one requested." << endl;
+
+            struct TimeZoneData {
+                int         d_line;       // line number
+                const char *d_timeZoneId; // time zone id
+                const char *d_cacheId;    // cache id
+                bool        d_success;
+            } VALUES[] = {
+                { L_,  "ID_A",  "ID_A" , true  },
+                { L_,  "ID_B",  "ID_B" , true  },
+                { L_,  "ID_C",  "ID_D" , false },
+                { L_,  "ID_E",  "" ,     false },
+                { L_,  "ID_F",  "ID_F" , true },
+            };
+            const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
+
+            bslma::TestAllocator loaderAllocator;
+            TestDriverTestLoader testLoader(&loaderAllocator);
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                testLoader.addTimeZone(VALUES[i].d_timeZoneId,
+                                       VALUES[i].d_cacheId,
+                                       0, true, "A");
+            }
+
+            Obj mX(&testLoader, Z); const Obj& X = mX;
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int   LINE     = VALUES[i].d_line;
+                const char *CACHE_ID = VALUES[i].d_cacheId;
+                const bool  SUCCESS  = VALUES[i].d_success;
+
+                int         rc     = INT_MIN;
+                const Zone *result = mX.getZoneinfo(&rc, CACHE_ID);
+                if (SUCCESS) {
+                    LOOP_ASSERT(LINE, 0 != result);
+                    LOOP_ASSERT(LINE, 0 == rc);
+                }
+                else {
+                    LOOP_ASSERT(LINE, 0 == result);
+                    LOOP_ASSERT(LINE, 0 != rc);
+                    LOOP_ASSERT(LINE, U != rc);
+                    LOOP_ASSERT(LINE, INT_MIN != rc);
+                }
+                LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
+                LOOP_ASSERT(LINE, 0 <  testAllocator.numBytesInUse());
+            }
+        }
+        ASSERT(0 == testAllocator.numBytesInUse());
+        {
+            if (veryVerbose)
                 cout << "\tTest 'getZoneinfo' propagates error codes from "
                      << "'baetzo_Loader'. " << endl;
 
@@ -1157,7 +1259,7 @@ int main(int argc, char *argv[])
             Obj mX(&testLoader, Z); const Obj& X = mX;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            ASSERT(0 <  testAllocator.numBytesInUse());
+            ASSERT(0 == testAllocator.numBytesInUse());
 
             int lastNumBytes = testAllocator.numBytesInUse();
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1225,7 +1327,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING PRIMARY MANIPULATOR (BOOSTRAP)
+        // TESTING PRIMARY MANIPULATOR (BOOTSTRAP)
         //
         // Concerns:
         //: 1 A constructed 'baetzo_ZoneinfoCache' object is initialized
@@ -1235,7 +1337,7 @@ int main(int argc, char *argv[])
         //:   a newly loaded description using the 'baetzo_Loader' protocol
         //:   supplied at construction.
         //:
-        //: 3 Subsequenct calls to 'getZoneinfo' for a successfully loaded time
+        //: 3 Subsequent calls to 'getZoneinfo' for a successfully loaded time
         //:   zone, return that previously cached value.
         //
         // Plan:
