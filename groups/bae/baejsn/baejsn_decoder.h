@@ -301,11 +301,6 @@ class baejsn_Decoder {
     friend struct baejsn_Decoder_ElementVisitor;
 
     // PRIVATE MANIPULATORS
-    int decodeBinaryArray(bsl::vector<char> *value);
-        // Decode into the specified 'value' vector the JSON data currently
-        // referred to by the parser owned by this object.  Return 0 on success
-        // and a non-zero value otherwise.
-
     template <typename TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::DynamicType);
     template <typename TYPE>
@@ -854,7 +849,21 @@ int baejsn_Decoder::decodeImp(bsl::vector<char> *value,
                               int,
                               bdeat_TypeCategory::Array)
 {
-    return decodeBinaryArray(value);
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
+        d_logStream << "Could not decode vector<char> "
+                    << "expected as an element value\n";
+        return -1;                                                    // RETURN
+    }
+
+    bslstl::StringRef dataValue;
+    int rc = d_tokenizer.value(&dataValue);
+
+    if (rc) {
+        d_logStream << "Error reading customized type element value\n";
+        return -1;                                                    // RETURN
+    }
+
+    return baejsn_ParserUtil::getValue(value, dataValue);
 }
 
 template <typename TYPE>

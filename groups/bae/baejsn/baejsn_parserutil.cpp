@@ -6,6 +6,10 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 
 #include <bdema_bufferedsequentialallocator.h>
 
+#include <bdede_base64decoder.h>
+
+#include <bsls_alignedbuffer.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
 #include <bsl_cctype.h>
@@ -508,6 +512,42 @@ int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
     else {
         return -1;                                                    // RETURN
     }
+    return 0;
+}
+
+int baejsn_ParserUtil::getValue(bsl::vector<char> *value,
+                                bslstl::StringRef  data)
+{
+    const int MAX_LENGTH = 1024;
+    bsls::AlignedBuffer<MAX_LENGTH> buffer;
+
+    bdema_BufferedSequentialAllocator allocator(buffer.buffer(), MAX_LENGTH);
+    bsl::string base64String(&allocator);
+
+    int rc = getValue(&base64String, data);
+    if (rc) {
+        return -1;                                                    // RETURN
+    }
+
+    value->clear();
+
+    bdede_Base64Decoder base64Decoder(true);
+    bsl::back_insert_iterator<bsl::vector<char> > outputIterator(*value);
+
+    rc = base64Decoder.convert(outputIterator,
+                               base64String.begin(),
+                               base64String.end());
+
+    if (rc < 0) {
+        return rc;                                                    // RETURN
+    }
+
+    rc = base64Decoder.endConvert(outputIterator);
+
+    if (rc < 0) {
+        return rc;                                                    // RETURN
+    }
+
     return 0;
 }
 

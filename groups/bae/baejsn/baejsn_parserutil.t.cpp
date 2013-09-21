@@ -8,8 +8,10 @@
 #include <bsl_iostream.h>
 
 #include <bsl_string.h>
+#include <bsl_cstring.h>
 
 #include <bdepu_typesparser.h>
+#include <bdeu_printmethods.h>
 
 #include <bdesb_memoutstreambuf.h>            // for testing only
 #include <bdesb_fixedmemoutstreambuf.h>       // for testing only
@@ -60,9 +62,10 @@ using bsl::endl;
 // [17] static int getValue(bdet_DateTz         *v, bslstl::StringRef s);
 // [18] static int getValue(bdet_Datetime       *v, bslstl::StringRef s);
 // [19] static int getValue(bdet_DatetimeTz     *v, bslstl::StringRef s);
+// [20] static int getValue(vector<char>        *v, bslstl::StringRef s);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [20] USAGE EXAMPLE
+// [21] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -191,7 +194,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -256,6 +259,113 @@ int main(int argc, char *argv[])
     ASSERT(bdet_Date(1985, 06, 24) == employee.d_date);
     ASSERT(21                      == employee.d_age);
 //..
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for vector<char> values
+        //
+        // Concerns:
+        //: 1 Valid base64-encoded values are parsed correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
+        //
+        // Testing:
+        //   static int getValue(vector<char>     *v, bslstl::StringRef s);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'vector<char>'"
+                               << "\n======================================"
+                               << bsl::endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+                const char *d_input_p;   // input
+                const char *d_output_p;  // output
+                int         d_outputLen; // output length
+                bool        d_isValid;   // isValid flag
+            } DATA[] = {
+          {  L_,  "\"\"",            "",                   0, true  },
+
+          {  L_,  "\"Ug==\"",        "R",                  1, true  },
+          {  L_,  "\"QVY=\"",        "AV",                 2, true  },
+
+          {  L_,  "\"AA==\"",        "\x00",               1, true  },
+          {  L_,  "\"AQ==\"",        "\x01",               1, true  },
+          {  L_,  "\"\\/w==\"",      "\xFF",               1, true  },
+
+          {  L_,  "\"UVE=\"",        "QQ",                 2, true  },
+
+          {  L_,  "\"YQ==\"",        "a",                  1, true  },
+          {  L_,  "\"YWI=\"",        "ab",                 2, true  },
+          {  L_,  "\"YWJj\"",        "abc",                3, true  },
+          {  L_,  "\"YWJjZA==\"",    "abcd",               4, true  },
+
+          {  L_,  "\"Qmxvb21iZXJnTFA=\"", "BloombergLP",  11, true  },
+
+          {  L_,     "",               "",                   0, false },
+          {  L_,     "\"Q\"",          "",                   0, false },
+          {  L_,     "\"QV\"",         "",                   0, false },
+          {  L_,     "\"QVE\"",        "",                   0, false },
+          {  L_,     "\"QVE==\"",      "",                   0, false },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const char       *INPUT       = DATA[i].d_input_p;
+                const char       *OUTPUT      = DATA[i].d_output_p;
+                const int         LEN         = DATA[i].d_outputLen;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+
+                vector<char> exp(OUTPUT, OUTPUT + LEN);
+                const vector<char>& EXP = exp;
+
+                vector<char> value;
+
+                bslma::TestAllocator da(veryVeryVerbose);
+                bslma::DefaultAllocatorGuard guard(&da);
+                
+                StringRef isb(INPUT);
+                const int rc = Util::getValue(&value, isb);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
+
+                    bool result = EXP == value;
+                    LOOP_ASSERT(LINE, result);
+                    if (!result) {
+                        cout << "EXP: ";
+                        bdeu_PrintMethods::print(cout, EXP, 0, -1);
+                        cout << endl << "VALUE: ";
+                        bdeu_PrintMethods::print(cout, value, 0, -1);
+                        cout << endl;
+                    }
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rc, rc);
+                }
+
+                ASSERT(0 == da.numBlocksTotal());
+            }
+        }
       } break;
       case 19: {
         // --------------------------------------------------------------------
