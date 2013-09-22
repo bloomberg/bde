@@ -7,10 +7,10 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility for converting date/time objects to/from ISO8601.
+//@PURPOSE: Provide functions that convert date/time objects to/from ISO 8601.
 //
 //@CLASSES:
-//  bdepu_Iso8601: namespace for ISO8601 date/time conversion functions
+//  bdepu_Iso8601: namespace for ISO 8601 date/time conversion functions
 /// bdepu_Iso8601Configuration: define process-wide default behaviors
 //
 //@SEE_ALSO: bdet_date, bdet_datetime, bdet_datetimetz, bdet_datetz, bdet_time,
@@ -22,15 +22,22 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace, 'bdepu_Iso8601'
 // containing functions that convert 'bdet' date and time objects to and from
-// a string representation.  The string representation generated and parsed by
-// this component adheres to the ISO8601 standard for dates and time and is
-// suitable for use in XML generation or parsing.
+// a string representation defined by the ISO 8601 standard.  The string
+// representation generated and parsed by this component adheres to the ISO
+// 8601 standard for dates and time and is suitable for use in XML generation
+// or parsing.
 //
 // Each 'generate' function takes a 'bsl::ostream' and a 'bdet' date or time
-// object and writes the ISO8601 representation to the stream.  Each 'parse'
+// object and writes the ISO 8601 representation to the stream.  Each 'parse'
 // function takes a pointer to a 'bdet' date or time object, a character
 // string, and a length and parses the character string into the date or time
 // object, returning a non-zero status on error.
+//
+// This component also provides a class 'bdepu_Iso8601Configuration' that
+// allows clients to configure process-wide default behavior for
+// 'bdepu_Iso8601'.  'bdepu_Iso8601Configuration::setUseZAbbreviationForUtc'
+// sets whether to use 'Z' as an abbreviation for a time zone offset of 00:00
+// (the default value is 'false').
 //
 ///Subset of ISO 8601 Supported 'bdepu_iso8601'
 ///--------------------------------------------
@@ -98,9 +105,9 @@ BDES_IDENT("$Id: $")
 //: o Where 'T' in '<Datetime>' literally is the uppercase letter 'T'.  It must
 //:   be present.
 //
-///Subsets of ISO8601 Format Not Accepted by These Parsers
+///Subsets of ISO 8601 Format Not Accepted by These Parsers
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The ISO8601 standard allows for the following formats which this component
+// The ISO 8601 standard allows for the following formats which this component
 // does not support:
 //
 //: o Ordinal Dates: Dates represented by year and day of year: 2.1.10
@@ -192,7 +199,7 @@ class bdet_TimeTz;
                             // ====================
 
 struct bdepu_Iso8601 {
-    // namespace for ISO8601 date/time conversion functions
+    // namespace for ISO 8601 date/time conversion functions
 
     // TYPES
     enum {
@@ -226,7 +233,7 @@ struct bdepu_Iso8601 {
     static int generate(char                 *buffer,
                         const bdet_Datetime&  object,
                         int                   bufferLength);
-        // Write the ISO8601 representation of the specified 'object' to the
+        // Write the ISO 8601 representation of the specified 'object' to the
         // specified 'buffer' truncating (if necessary) to the specified
         // 'bufferLength', and return the length of the formatted string
         // before truncation (not including a null terminator).  If
@@ -262,25 +269,26 @@ struct bdepu_Iso8601 {
                         const bdet_DatetimeTz&  object,
                         int                     bufferLength,
                         bool                    useZAbbreviationForUtc);
-        // Write the ISO8601 representation of the specified 'object' to the
+        // Write the ISO 8601 representation of the specified 'object' to the
         // specified 'buffer' truncating (if necessary) to the specified
-        // 'bufferLength', and return the length of the formatted string
-        // before truncation (not including a null terminator).  Optionally
-        // specify 'useZAbbreviationForUtc' to indicate whether to abbreviate a
+        // 'bufferLength', and return the length of the formatted string before
+        // truncation (not including a null terminator).  Optionally specify
+        // 'useZAbbreviationForUtc' to indicate whether to abbreviate a
         // time-zone offset of 00:00 (UTC) using the character 'Z' (e.g., if
         // 'useZAbbreviationForUtc' is 'true' 10am UTC will be formatted as
         // "10:00:00.000Z", and will be formatted as "10:00:00.000+000"
         // otherwise).  If 'useZAbbreviationForUtc' is not supplied, the
-        // process wide default value 'defaultUseZAbbreviationForUtc' is used.
-        // If 'bufferLength' is larger than necessary to contain the string
-        // representation of 'object', then a null terminator is appended to
-        // the output.  The behavior is undefined unless '0 <= bufferLength'.
-        // Note that, for each type of 'object', the return value is always the
-        // same (as enumerated in the '_STRLEN' constants).  Also note that a
-        // buffer of size 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to
-        // hold any formatted string, including the null terminator.  Also note
-        // that the output from a 'generate' routine can always be parsed by
-        // the corresponding 'parse' routine without loss of accuracy, provided
+        // process-wide default value 'bdepu_Iso8601::useZAbbreviationForUtc'
+        // is used.  If 'bufferLength' is larger than necessary to contain the
+        // string representation of 'object', then a null terminator is
+        // appended to the output.  The behavior is undefined unless
+        // '0 <= bufferLength'.  Note that, for each type of 'object', the
+        // return value is always the same (as enumerated in the '_STRLEN'
+        // constants).  Also note that a buffer of size
+        // 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to hold any
+        // formatted string, including the null terminator.  Also note that the
+        // output from a 'generate' routine can always be parsed by the
+        // corresponding 'parse' routine without loss of accuracy, provided
         // 'bufferLength' is sufficiently large.
 
     static int generateRaw(char             *buffer,
@@ -289,15 +297,15 @@ struct bdepu_Iso8601 {
                            const bdet_Datetime&  object);
     static int generateRaw(char             *buffer,
                            const bdet_Time&  object);
-        // Write the ISO8601 representation of the specified 'object' to the
+        // Write the ISO 8601 representation of the specified 'object' to the
         // specified 'buffer' and return the length of the formatted string
         // (not including a null terminator).  The behavior is undefined unless
-        // 'buffer' holds enough characters.  Note that, for each type of
-        // 'object', the return value is always the same (as enumerated in the
-        // '_STRLEN' constants).  Also note that a buffer of size
-        // 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to hold any
-        // formatted string, including any null terminator.  It is unspecified
-        // whether the 'buffer' is null terminated on output or not.
+        // 'buffer' has sufficient capacity.  It is unspecified whether the
+        // 'buffer' is null terminated on output or not.  Note that, for each
+        // type of 'object', the return value is always the same (as
+        // enumerated in the '_STRLEN' constants).  Also note that a buffer of
+        // size 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to hold any
+        // formatted string, including any null terminator.
 
     static int generateRaw(char               *buffer,
                            const bdet_DateTz&  object);
@@ -314,7 +322,7 @@ struct bdepu_Iso8601 {
     static int generateRaw(char                   *buffer,
                            const bdet_DatetimeTz&  object,
                            bool                    useZAbbreviationForUtc);
-        // Write the ISO8601 representation of the specified 'object' to the
+        // Write the ISO 8601 representation of the specified 'object' to the
         // specified 'buffer' and return the length of the formatted string
         // (not including a null terminator).  Optionally specify
         // 'useZAbbreviationForUtc' to indicate whether to abbreviate a
@@ -322,14 +330,15 @@ struct bdepu_Iso8601 {
         // 'useZAbbreviationForUtc' is 'true' 10am UTC will be formatted as
         // "10:00:00.000Z", and will be formatted as "10:00:00.000+000"
         // otherwise).  If 'useZAbbreviationForUtc' is not supplied, the
-        // process wide default value 'defaultUseZAbbreviationForUtc' is used.
-        // The behavior is undefined unless 'buffer' holds enough characters.
-        // Note that, for each type of 'object', the return value is always the
-        // same (as enumerated in the '_STRLEN' constants).  Also note that a
-        // buffer of size 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to
-        // hold any formatted string, including any null terminator.  It is
-        // unspecified whether the 'buffer' is null terminated on output or
-        // not.
+        // process-wide default value 'bdepu_Iso8601::useZAbbreviationForUtc'
+        // is used.  The behavior is undefined unless 'buffer' holds enough
+        // characters.  Note that, for each type of 'object', the return value
+        // is always the same (as enumerated in the '_STRLEN' constants).  Also
+        // note that a buffer of size 'BDEPU_MAX_DATETIME_STRLEN + 1' is large
+        // enough to hold any formatted string, including any null terminator.
+        // It is unspecified whether the 'buffer' is null terminated on output
+        // or not.
+
 
     static bsl::ostream& generate(bsl::ostream&    stream,
                                   const bdet_Date& object);
@@ -337,7 +346,7 @@ struct bdepu_Iso8601 {
                                   const bdet_Time& object);
     static bsl::ostream& generate(bsl::ostream&        stream,
                                   const bdet_Datetime& object);
-        // Write the ISO8601 representation of the specified 'object' to
+        // Write the ISO 8601 representation of the specified 'object' to
         // specified 'stream'.  Return a reference to the modifiable 'stream'.
 
     static bsl::ostream& generate(bsl::ostream&      stream,
@@ -357,15 +366,16 @@ struct bdepu_Iso8601 {
                                bsl::ostream&          stream,
                                const bdet_DatetimeTz& object,
                                bool                   useZAbbreviationForUtc);
-        // Write the ISO8601 representation of the specified 'object' to
+        // Write the ISO 8601 representation of the specified 'object' to
         // specified 'stream'.  Optionally specify 'useZAbbreviationForUtc' to
         // indicate whether to abbreviate a time-zone offset of 00:00 (UTC)
-        // using the character 'Z' (e.g., if 'useZAbbreviationForUtc' is
-        // 'true' 10am UTC will be formatted as "10:00:00.000Z", and will be
-        // formatted as "10:00:00.000+000" otherwise).  If
-        // 'useZAbbreviationForUtc' is not supplied, the process wide default
-        // value 'defaultUseZAbbreviationForUtc' is used.  Return a reference
+        // using the character 'Z' (e.g., if 'useZAbbreviationForUtc' is 'true'
+        // 10am UTC will be formatted as "10:00:00.000Z", and will be formatted
+        // as "10:00:00.000+000" otherwise).  If 'useZAbbreviationForUtc' is
+        // not supplied, the process-wide default value
+        // 'bdepu_Iso8601::useZAbbreviationForUtc' is used.  Return a reference
         // to the modifiable 'stream'.
+
 
     static int parse(bdet_Date  *result,
                      const char *input,
@@ -548,14 +558,22 @@ struct bdepu_Iso8601 {
 
 struct bdepu_Iso8601Configuration {
     // This 'struct' provides a namespace for utility functions that configure
-    // process wide defaults for 'bdepu_Iso8601'.
+    // process-wide defaults for 'bdepu_Iso8601'.
+
+  private:
+
+    // CLASS DATA
+    static bool s_useZAbbreviationForUtc;  // whether to use Z-abbreviation for
+                                           // UTC
+
+  public:
 
     // CLASS METHODS
-    static void setUseZAbbreviationForUtc(bool useZAbbrevationForUtcFlag);
-        // Set to the specified 'useZAbbrevationForUtcFlag' whether to use the
-        // character 'Z' as an abbreviation for a time zone offset of 00:00
-        // (UTC).  For example, if this option is enabled, 10:00am UTC would
-        // be formatted as "10:00:00.000Z", and formatted as
+    static void setUseZAbbreviationForUtc(bool useZAbbreviationForUtcFlag);
+        // Set the 'useZAbbreviationForUtc' configuration option to the
+        // specified 'useZAbbreviationForUtcFlag' value.  If
+        // 'useZAbbreviationForUtcFlag' is 'true', 10:00am UTC (for example)
+        // would be formatted as "10:00:00.000Z", and formatted as
         // "10:00:00.000+00:00" otherwise.
 
     static bool useZAbbreviationForUtc();

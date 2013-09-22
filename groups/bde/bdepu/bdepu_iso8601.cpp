@@ -20,9 +20,6 @@ BDES_IDENT_RCSID(bdepu_iso8601_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// GLOBAL CONFIGURATION
-static bool g_useZAbbreviationForUtc = false;
-
 // STATIC HELPER FUNCTIONS
 static
 int parseUint(const char **nextPos,
@@ -442,6 +439,7 @@ int copyBuf(char *dest, int destLen, const char *src, int srcLen)
 
                            // *** GENERATING FUNCTIONS
 
+// CLASS METHODS
 int bdepu_Iso8601::generate(char             *buffer,
                             const bdet_Date&  object,
                             int               bufLen)
@@ -1038,15 +1036,19 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
                         // struct bdepu_Iso8601Configuration
                         // ---------------------------------
 
+// GLOBAL CONFIGURATION
+bool bdepu_Iso8601Configuration::s_useZAbbreviationForUtc = false;
+
+// CLASS METHODS
 void bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(
-                                                bool useZAbbrevationForUtcFlag)
+                                               bool useZAbbreviationForUtcFlag)
 {
-    g_useZAbbreviationForUtc = useZAbbrevationForUtcFlag;
+    s_useZAbbreviationForUtc = useZAbbreviationForUtcFlag;
 }
 
 bool bdepu_Iso8601Configuration::useZAbbreviationForUtc()
 {
-    return g_useZAbbreviationForUtc;
+    return s_useZAbbreviationForUtc;
 }
 
 
