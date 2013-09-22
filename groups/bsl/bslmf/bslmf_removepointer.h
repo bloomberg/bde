@@ -102,8 +102,10 @@ struct RemovePointer_Imp<TYPE *> {
 template <class TYPE>
 struct RemovePointer_Imp<TYPE *const> {
      // This partial specialization of 'RemovePointer_Imp', for when the
-     // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
-     // that refers to the type pointed to by 'TYPE'.
+     // (template parameter) 'TYPE' is a 'const'-qualified pointer type,
+     // provides an alias 'Type' that refers to the type pointed to by 'TYPE'.
+     // Note that this is specifically for 'const'-qualified pointers, and not
+     // for pointers-to-'const'-type.
 
     // PUBLIC TYPES
     typedef TYPE Type;
@@ -114,8 +116,10 @@ struct RemovePointer_Imp<TYPE *const> {
 template <class TYPE>
 struct RemovePointer_Imp<TYPE *volatile> {
      // This partial specialization of 'RemovePointer_Imp', for when the
-     // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
-     // that refers to the type pointed to by 'TYPE'.
+     // (template parameter) 'TYPE' is a 'volatile'-qualified pointer type,
+     // provides an alias 'Type' that refers to the type pointed to by 'TYPE'.
+     // Note that this is specifically for 'volatile'-qualified pointers, and
+     // not for pointers-to-'volatile'-type.
 
     // PUBLIC TYPES
     typedef TYPE Type;
@@ -126,8 +130,10 @@ struct RemovePointer_Imp<TYPE *volatile> {
 template <class TYPE>
 struct RemovePointer_Imp<TYPE *const volatile> {
      // This partial specialization of 'RemovePointer_Imp', for when the
-     // (template parameter) 'TYPE' is a pointer type, provides an alias 'Type'
-     // that refers to the type pointed to by 'TYPE'.
+     // (template parameter) 'TYPE' is a 'const volatile'-qualified pointer
+     // type, provides an alias 'Type' that refers to the type pointed to by
+     // 'TYPE'.  Note that this is specifically for 'const volatile'-qualified
+     // pointers, and not for pointers-to-'const volatile'-type.
 
     // PUBLIC TYPES
     typedef TYPE Type;

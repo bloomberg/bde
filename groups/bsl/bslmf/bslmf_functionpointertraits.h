@@ -110,8 +110,8 @@ struct FunctionPointerTraits {
            // ==============================================
 
 template <class PROTOTYPE>
-struct FunctionPointerTraits<const PROTOTYPE> 
-     : FunctionPointerTraits<PROTOTYPE> {
+struct FunctionPointerTraits<PROTOTYPE * const>
+     : FunctionPointerTraits<PROTOTYPE *> {
     // This class gives information about the specified 'PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
@@ -119,8 +119,8 @@ struct FunctionPointerTraits<const PROTOTYPE>
 };
 
 template <class PROTOTYPE>
-struct FunctionPointerTraits<volatile PROTOTYPE> 
-     : FunctionPointerTraits<PROTOTYPE> {
+struct FunctionPointerTraits<PROTOTYPE * volatile>
+     : FunctionPointerTraits<PROTOTYPE *> {
     // This class gives information about the specified 'PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
@@ -128,8 +128,8 @@ struct FunctionPointerTraits<volatile PROTOTYPE>
 };
 
 template <class PROTOTYPE>
-struct FunctionPointerTraits<const volatile PROTOTYPE> 
-     : FunctionPointerTraits<PROTOTYPE> {
+struct FunctionPointerTraits<PROTOTYPE * const volatile>
+     : FunctionPointerTraits<PROTOTYPE *> {
     // This class gives information about the specified 'PROTOTYPE'.  The
     // general definition gives no information, but specializations for
     // function pointers types define nested types 'ResultType',
