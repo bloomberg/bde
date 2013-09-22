@@ -372,14 +372,27 @@ bdet_Datetime *MySharedDatetime::ptr() const {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                test = argc > 1 ? atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;
 
-    bslma::TestAllocator ta(veryVeryVerbose);
-    int numDeallocations;
-    int numAllocations;
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bsls::Types::Int64 numDeallocations;
+    bsls::Types::Int64 numAllocations;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -774,6 +787,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
