@@ -2494,6 +2494,8 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
     typedef bsl::weak_ptr<MyTestObject>           ObjWP;
     typedef bsl::shared_ptr<MyTestObject>         ObjSP;
     typedef bsl::weak_ptr<MyTestBaseObject>       BaseWP;
@@ -2503,17 +2505,15 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    // This seemingly redundant check for setting the default allocator is to
-    // guarantee that no object at global/namespace scope has already locked
-    // the default allocator before 'main'.
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
-    {
-        bslma::Allocator *pda = bslma::Default::defaultAllocator();
-        ASSERTV(&defaultAllocator, pda, &defaultAllocator == pda);
-    }
 
     bslma::TestAllocator ta("general", veryVeryVerbose);
 
@@ -2525,8 +2525,6 @@ int main(int argc, char *argv[])
                                            defaultAllocator.numDeallocations();
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
-    printf("TEST " __FILE__ " CASE %d\n", test);
-
     switch (test) { case 0:  // Zero is always the leading case.
       case 34: {
 //..
@@ -7209,6 +7207,7 @@ int main(int argc, char *argv[])
     }
 
     // CONCERN: In no case does memory come from the global allocator.
+
     LOOP_ASSERT(globalAllocator.numBlocksTotal(),
                 0 == globalAllocator.numBlocksTotal());
 
