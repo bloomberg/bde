@@ -6224,8 +6224,14 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&da);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
       case 21: {
