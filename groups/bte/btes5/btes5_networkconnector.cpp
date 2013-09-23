@@ -269,7 +269,6 @@ static void socksConnectCb(
     // 'attempt' with the specified 'error'.
 {
     bsl::size_t level = attempt->d_level;
-bsl::cout << "Negotiation result level=" << level << " result=" << result << " error=" << error << bsl::endl;
     if (btes5_Negotiator::e_SUCCESS == result) {
         ++level;
 
@@ -409,7 +408,6 @@ static void connectTcpCb(
             attempt->d_connector->d_eventManager_p->deregisterSocket(
                                                 attempt->d_socket_p->handle());
             rc = attempt->d_socket_p->connectionStatus();
-bsl::cout << "TCP connect result index=" << index << " status=" << rc << bsl::endl;
             if (rc) {
                 attempt->d_connector->d_socketFactory_p->deallocate(
                                                       attempt->d_socket_p);
