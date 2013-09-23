@@ -824,7 +824,7 @@ btes5_TestServer::SessionFactory::SessionFactory(
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
     btemt_ChannelPoolConfiguration config;
-    config.setMaxThreads(1);
+    config.setMaxThreads(3);
     config.setMaxConnections(2);  // client + destination connection
 
     // config.setReadTimeout(5.0);               // in seconds
@@ -866,7 +866,7 @@ btes5_TestServer::SessionFactory::SessionFactory(
     rc = d_sessionPool->listen(&handle,
                                cb,
                                0,         // let system assign port
-                               5,         // backlog
+                               20,        // backlog
                                1,         // REUSEADDR
                                this,      // SessionFactory
                                0);        // userData

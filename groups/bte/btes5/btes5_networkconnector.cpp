@@ -166,6 +166,8 @@ struct btes5_NetworkConnector::Attempt {
 
     bcemt_Mutex d_socketLock;  // serialize 'd_socket_p' access
 
+    int         d_tries;       // number of tries left for this attempt
+
     bslma::Allocator                      *d_allocator_p;
         // memory allocator, not owned
 
@@ -229,16 +231,33 @@ static void terminate(
                             attempt->d_connector->d_socketFactory_p,
                             error);
     } else {
-        bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
-        if (attempt->d_socket_p) {
-            attempt->d_connector->d_socketFactory_p
-                                           ->deallocate(attempt->d_socket_p);
-            attempt->d_socket_p = 0;
+        {
+            bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+            if (attempt->d_socket_p) {
+                attempt->d_connector->d_socketFactory_p
+                                             ->deallocate(attempt->d_socket_p);
+                attempt->d_socket_p = 0;
+            }
         }
-        attempt->d_callback(status,
-                            0,
-                            attempt->d_connector->d_socketFactory_p,
-                            error);
+        if (btes5_NetworkConnector::e_TIMEOUT == status
+                || !attempt->d_tries) {
+            attempt->d_callback(status,
+                                0,
+                                attempt->d_connector->d_socketFactory_p,
+                                error);
+        }
+        else {
+            // try again, from the beginning
+
+            for (bsl::size_t l = 0;
+                 l < attempt->d_connector->d_socks5Servers.levelCount();
+                 ++l) {
+                    attempt->d_indices[l] = 0;
+            }
+            --attempt->d_tries;
+            attempt->d_terminating = 0;
+            tcpConnect(attempt);
+        }
     }
 }
 
@@ -250,6 +269,7 @@ static void socksConnectCb(
     // 'attempt' with the specified 'error'.
 {
     bsl::size_t level = attempt->d_level;
+bsl::cout << "Negotiation result level=" << level << " result=" << result << " error=" << error << bsl::endl;
     if (btes5_Negotiator::e_SUCCESS == result) {
         ++level;
 
@@ -389,6 +409,7 @@ static void connectTcpCb(
             attempt->d_connector->d_eventManager_p->deregisterSocket(
                                                 attempt->d_socket_p->handle());
             rc = attempt->d_socket_p->connectionStatus();
+bsl::cout << "TCP connect result index=" << index << " status=" << rc << bsl::endl;
             if (rc) {
                 attempt->d_connector->d_socketFactory_p->deallocate(
                                                       attempt->d_socket_p);
@@ -628,6 +649,7 @@ btes5_NetworkConnector::Attempt::Attempt(
 , d_level(0)
 , d_indices(connector->d_socks5Servers.levelCount(), 0, allocator)
 , d_socket_p(0)
+, d_tries(2)
 , d_allocator_p(allocator)
 {
 }

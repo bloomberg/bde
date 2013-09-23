@@ -281,10 +281,10 @@ class btes5_Negotiator {
 
     void cancelNegotiation();
         // Cancel the negotiation in progress.  If there is no negotiation in
-        // progress, this call has no effect.  Callbacks already in progress
-        // when this method is called may proceed and invoke the 'callback'
-        // supplied to 'negotiate'.  Otherwise, the callback will be invoked
-        // with 'result == btes5_Negotiator::e_ERROR'.
+        // progress, this call has no effect.  No callback will be invoked as a
+        // result of this call. Note that callbacks already in progress when
+        // this method is called may proceed and invoke the 'callback' supplied
+        // to 'negotiate'.
 
 };
 

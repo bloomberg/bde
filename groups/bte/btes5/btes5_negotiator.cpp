@@ -198,9 +198,11 @@ btes5_Negotiation_Imp::~btes5_Negotiation_Imp()
 
 static void terminate(btes5_Negotiation_Imp::Context      negotiation,
                       btes5_Negotiator::NegotiationStatus status,
-                      const btes5_DetailedError&          error)
-    // Terminate the specified 'negotiation', and invoke the user-supplied
-    // callback with the specified 'status' and 'error'.
+                      const btes5_DetailedError&          error,
+                      bool                                cancel = false)
+    // Terminate the specified 'negotiation'. Optionally specify 'cancel', if
+    // 'false == cancel', invoke the user-supplied callback with the specified
+    // 'status' and 'error'.
 {
     if (negotiation->d_terminating.testAndSwap(0, 1)) {
         return;  // this negotiation is already being terminated
@@ -216,7 +218,9 @@ static void terminate(btes5_Negotiation_Imp::Context      negotiation,
         }
     }
 
-    negotiation->d_callback(status, error);
+    if (!cancel) {
+        negotiation->d_callback(status, error);
+    }
 }
 
 static int registerReadCb(void (*cb) (btes5_Negotiation_Imp::Context),
@@ -249,6 +253,7 @@ static void connectCallback(btes5_Negotiation_Imp::Context negotiation)
     }
 
     bsl::ostringstream e("connect response: ", negotiation->d_allocator_p);
+    e.seekp(0, bsl::ios_base::end);
 
     ConnectRspBase hdr;
     int rc = negotiation->d_socket_p->read(reinterpret_cast<char *>(&hdr),
@@ -672,7 +677,8 @@ void btes5_Negotiator::cancelNegotiation()
     if (currentNegotiation) {
         terminate(currentNegotiation,
                   btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("btes5_Negotiation_Imp cancelled"));
+                  btes5_DetailedError("SOCKS5 negotiation cancelled"),
+                  true);
     }
 }
 

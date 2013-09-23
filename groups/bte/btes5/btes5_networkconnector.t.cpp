@@ -19,6 +19,8 @@
 #include <btemt_sessionpool.h>              // for testing only
 #include <bteso_inetstreamsocketfactory.h>
 
+#include <bsl_cerrno.h>
+
 using namespace BloombergLP;
 using namespace bsl;
 
