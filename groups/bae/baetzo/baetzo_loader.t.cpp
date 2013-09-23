@@ -77,7 +77,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -194,7 +194,8 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // Finally, we define a function 'f' that instantiates an object of type
 // 'MyLoaderImp':
 //..
-    void f() {
+    void f() 
+    {
         MyLoaderImp a;
     }
 //..
@@ -255,7 +256,7 @@ int main(int argc, char *argv[])
     baetzo_Zoneinfo nyTimeZone;
     if (0 != loader.loadTimeZone(&nyTimeZone, "America/New_York")) {
        bsl::cout << "Failed to find time zone data." << bsl::endl;
-       return -1;
+       return -1;                                                     // RETURN
     }
 //..
 // Then, we verify some basic properties of the time zone:

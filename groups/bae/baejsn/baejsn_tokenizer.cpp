@@ -430,6 +430,20 @@ int baejsn_Tokenizer::advanceToNextToken()
     return 0;
 }
 
+int baejsn_Tokenizer::resetStreamBufGetPointer()
+{
+    if (d_cursor >= d_stringBuffer.size()) {
+        return 0;                                                     // RETURN
+    }
+
+    const int numExtraCharsRead = d_stringBuffer.size() - d_cursor;
+    const int newPos = d_streamBuf_p->pubseekoff(-numExtraCharsRead,
+                                                 bsl::ios_base::end,
+                                                 bsl::ios_base::in);
+
+    return newPos >= 0 ? 0 : -1;
+}
+
 // ACCESSORS
 int baejsn_Tokenizer::value(bslstl::StringRef *data) const
 {

@@ -527,8 +527,10 @@ int main(int argc, char *argv[])
 
             result = bteso_SocketImpUtil::connect(handle, server);
             if (verbose) {
-                bsl::cout << "rc = " << result << ", errno = " << errno
-                    << ": " << strerror(errno) << bsl::endl;
+                int savedErrno = errno;
+
+                bsl::cout << "rc = " << result << ", errno = " << savedErrno
+                          << ": " << strerror(savedErrno) << bsl::endl;
             }
 
             ASSERT(result != 0); // connection failed

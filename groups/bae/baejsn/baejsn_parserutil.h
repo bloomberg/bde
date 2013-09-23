@@ -106,6 +106,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -185,6 +189,7 @@ struct baejsn_ParserUtil {
     static int getValue(bdet_DateTz         *value, bslstl::StringRef data);
     static int getValue(bdet_Time           *value, bslstl::StringRef data);
     static int getValue(bdet_TimeTz         *value, bslstl::StringRef data);
+    static int getValue(bsl::vector<char>   *value, bslstl::StringRef data);
         // Load into the specified 'value' the characters read from the
         // specified 'data'.  Return 0 on success or a non-zero value on
         // failure.

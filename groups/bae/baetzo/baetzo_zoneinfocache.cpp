@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baetzo_zoneinfocache_cpp,"$Id$ $CSID$")
 
+#include <bael_log.h>
+
 #include <baetzo_errorcode.h>         // for testing only
 #include <baetzo_zoneinfocache.h>
 #include <baetzo_zoneinfoutil.h>
@@ -15,6 +17,8 @@ BDES_IDENT_RCSID(baetzo_zoneinfocache_cpp,"$Id$ $CSID$")
 #include <bslma_rawdeleterproctor.h>
 
 namespace BloombergLP {
+
+static const char LOG_CATEGORY[] = "BAETZO.ZONEINFOCACHE";
 
                         // --------------------------
                         // class baetzo_ZoneinfoCache
@@ -45,7 +49,8 @@ const baetzo_Zoneinfo *baetzo_ZoneinfoCache::getZoneinfo(
         FAILURE = -1
     };
 
-    BSLMF_ASSERT(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID != FAILURE);
+    BSLMF_ASSERT(static_cast<int>(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID) !=
+                 static_cast<int>(FAILURE));
 
     const baetzo_Zoneinfo *result = lookupZoneinfo(timeZoneId);
 
@@ -85,6 +90,16 @@ const baetzo_Zoneinfo *baetzo_ZoneinfoCache::getZoneinfo(
         }
 
         if (!baetzo_ZoneinfoUtil::isWellFormed(*newTimeZonePtr)) {
+            *rc = FAILURE;
+            return 0;                                                 // RETURN
+        }
+
+        if (newTimeZonePtr->identifier() != timeZoneId) {
+            BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
+            BAEL_LOG_ERROR << "Loaded time zone id "
+                           << newTimeZonePtr->identifier() << " does not match"
+                           << " requested id: " << timeZoneId
+                           << BAEL_LOG_END;
             *rc = FAILURE;
             return 0;                                                 // RETURN
         }

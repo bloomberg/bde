@@ -22,6 +22,17 @@ BDES_IDENT("$Id: $")
 // describing the time zone identified by a user supplied time-zone string
 // identifier.
 //
+///Populating a 'baetzo_Zoneinfo'
+///------------------------------
+// Although not contractually guaranteed, typical implementations of
+// 'baetzo_Loader' should return a 'baetzo_Zoneinfo' object that is
+// well-formed (see 'baetzo_ZoneinfoUtil::isWellFormed'), and whose
+// 'identifier' property matches the requested time zone id.  Implementations
+// not meeting these constraints will generally not interoperate with other
+// components in this package that enforce those constraints on provided
+// 'baetzo_Zoneinfo' objects, e.g., 'baetzo_zoneinfocache' (though such
+// loaders they may be used for testing).
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -133,7 +144,8 @@ BDES_IDENT("$Id: $")
 // Finally, we define a function 'f' that instantiates an object of type
 // 'MyLoaderImp':
 //..
-//  void f() {
+//  void f()
+//  {
 //      MyLoaderImp a;
 //  }
 //..
@@ -156,7 +168,7 @@ BDES_IDENT("$Id: $")
 //  baetzo_Zoneinfo nyTimeZone;
 //  if (0 != loader.loadTimeZone(&nyTimeZone, "America/New_York")) {
 //     bsl::cout << "Failed to find time zone data." << bsl::endl;
-//     return -1;
+//     return -1;                                                     // RETURN
 //  }
 //..
 // Then, we verify some basic properties of the time zone:
@@ -226,7 +238,11 @@ class baetzo_Loader {
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.  If an error occurs during this
         // operation, 'result' will be left in a valid, but otherwise
-        // unspecified state.
+        // unspecified state.  Note that concrete implementations should
+        // typically populate 'result' such that it is well-formed (see
+        // 'baetzo_ZoneinfoUtil::isWellFormed') and 'result->identifier()' is
+        // 'timeZoneId', otherwise the provided 'result' may not be usable by
+        // other components in this package (e.g., 'baetzo_zoneinfocache').
 };
 
 // ============================================================================
