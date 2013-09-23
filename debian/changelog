@@ -1,3 +1,9 @@
+bde-core (2.19.0.000.1001) unstable; urgency=low
+
+  * Bump changelog
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 Sep 2013 18:39:22 -0400
+
 bde-core (2.19.0.000.1000) unstable; urgency=low
 
   * Bump changelog
