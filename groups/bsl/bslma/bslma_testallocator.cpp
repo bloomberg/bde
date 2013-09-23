@@ -5,7 +5,6 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslma_mallocfreeallocator.h>
-#include <bslma_testallocatorexception.h>
 
 #include <bsls_alignment.h>
 #include <bsls_alignmentutil.h>
@@ -13,31 +12,31 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #include <cstdio>   // print messages
-#include <cstdlib>  // abort
-#include <cstring>  // memset
+#include <cstdlib>  // 'abort'
+#include <cstring>  // 'memset'
 
 namespace BloombergLP {
 
 namespace {
 
-typedef unsigned char              Uchar;
+typedef unsigned char               Uchar;
 
 typedef bslma::Allocator::size_type size_type;
 
-const unsigned int ALLOCATED_MEMORY = 0xDEADBEEF;   // magic number identifying
+const unsigned int ALLOCATED_MEMORY   = 0xDEADBEEF; // magic number identifying
                                                     // memory allocated by this
                                                     // allocator
 
-const unsigned int DEALLOCATED_MEMORY = 0xDEADF00D; // new magic number written
+const unsigned int DEALLOCATED_MEMORY = 0xDEADF00D; // 2nd magic number written
                                                     // over other magic number
                                                     // upon deallocation
 
-const unsigned char SCRIBBLED_MEMORY = 0xA5;        // byte used to scribble
+const Uchar SCRIBBLED_MEMORY          = 0xA5;       // byte used to scribble
                                                     // deallocated memory
 
-const Uchar PADDED_MEMORY = 0xB1;                   // byte used to write over
-                                                    // newly allocated memory
-                                                    // and pads.
+const Uchar PADDED_MEMORY             = 0xB1;       // byte used to write over
+                                                    // newly-allocated memory
+                                                    // and pads
 
 enum { PADDING_SIZE = sizeof(bsls::AlignmentUtil::MaxAlignedType) };
                                                     // size of the padding
@@ -49,7 +48,7 @@ enum { PADDING_SIZE = sizeof(bsls::AlignmentUtil::MaxAlignedType) };
                         // ===========
 
 struct Link {
-    // This 'struct' stores a pointer to the next and preceding allocated
+    // This 'struct' holds pointers to the next and preceding allocated
     // memory block in the allocated memory block list.
 
     bsls::Types::Int64  d_index;   // index of this allocation
@@ -62,7 +61,7 @@ struct Link {
                         // =============
 
 struct Header {
-    // This 'struct' defines the data preceding allocated memory.
+    // This 'struct' defines the data preceding the user segment.
 
     unsigned int  d_magicNumber;  // allocated/deallocated/other identifier
 
@@ -93,14 +92,15 @@ union Align {
 
 }  // close unnamed namespace
 
-static void formatBlock(void *address, int length)
+static
+void formatBlock(void *address, int length)
     // Format in hex to 'stdout', a block of memory starting at the specified
-    // starting 'address' of the specified 'length'.  Each line of formatted
-    // output will have a maximum of 16 bytes per line, where each line starts
-    // with the address of that 16-byte chunk.
+    // starting 'address' of the specified 'length' (in bytes).  Each line of
+    // formatted output will have a maximum of 16 bytes per line, where each
+    // line starts with the address of that 16-byte chunk.
 {
-    unsigned char *addr    = reinterpret_cast<unsigned char *>(address);
-    unsigned char *endAddr = addr + length;
+    Uchar *addr    = reinterpret_cast<unsigned char *>(address);
+    Uchar *endAddr = addr + length;
 
     for (int i = 0; addr < endAddr; ++i) {
         if (0 == i % 4) {
@@ -114,33 +114,34 @@ static void formatBlock(void *address, int length)
         }
 
         for (int j = 0; j < 4 && addr < endAddr; ++j) {
-            std::printf("%02x ", *addr++);
+            std::printf("%02x ", *addr);
+            ++addr;
         }
     }
 
     std::printf("\n");
 }
 
-static void formatInvalidMemoryBlock(Align                *address,
-                                     bslma::TestAllocator *allocator,
-                                     int                   underrunBy,
-                                     int                   overrunBy)
+static
+void formatInvalidMemoryBlock(Align                *address,
+                              bslma::TestAllocator *allocator,
+                              int                   underrunBy,
+                              int                   overrunBy)
     // Format the contents of the presumably invalid memory block at the
-    // specified 'address' to 'stdout', using of the specified 'allocator',
-    // 'underrunBy', and 'overrunBy' information.  An appropriate error,
-    // message, if appropriate, is printed first, followed by a block of memory
+    // specified 'address' to 'stdout', using the specified 'allocator',
+    // 'underrunBy', and 'overrunBy' information.  A suitable error message,
+    // if appropriate, is printed first, followed by a block of memory
     // indicating the header and any extra padding appropriate for the current
     // platform.  Finally, the first 64 bytes of memory of the "payload"
-    // portion of the allocated memory is is printed (regardless of the amount
-    // of memory the user requested).
+    // portion of the allocated memory is printed (regardless of the amount of
+    // memory that was requested).
 {
-    unsigned int   magicNumber = address->d_object.d_magicNumber;
-    size_type      numBytes    = address->d_object.d_bytes;
-    unsigned char *payload     =
-                                reinterpret_cast<unsigned char *>(address + 1);
+    unsigned int  magicNumber = address->d_object.d_magicNumber;
+    size_type     numBytes    = address->d_object.d_bytes;
+    Uchar        *payload     = reinterpret_cast<Uchar *>(address + 1);
 
-    if (ALLOCATED_MEMORY != magicNumber)  {
-        if (DEALLOCATED_MEMORY == magicNumber)  {
+    if (ALLOCATED_MEMORY != magicNumber) {
+        if (DEALLOCATED_MEMORY == magicNumber) {
             std::printf("*** Deallocating previously deallocated memory at"
                         " %p. ***\n",
                         static_cast<void *>(payload));
@@ -206,7 +207,7 @@ static void formatInvalidMemoryBlock(Align                *address,
     }
 
     std::printf("Header:\n");
-    formatBlock(address, sizeof *address );
+    formatBlock(address, sizeof *address);
     std::printf("User segment:\n");
     formatBlock(payload, 64);
 }
@@ -221,32 +222,33 @@ struct TestAllocator_List {
     // This 'struct' stores a head 'Link' and a tail 'Link' for list
     // manipulation.
 
-    Link *d_head_p;    // address of first link in list (or 0)
-    Link *d_tail_p;    // address of last link in list (or 0)
+    Link *d_head_p;  // address of first link in list (or 0)
+    Link *d_tail_p;  // address of last link in list (or 0)
 };
 
 }  // close package namespace
 
-static Link *removeLink(bslma::TestAllocator_List *allocatedList, Link *link)
+static
+Link *removeLink(bslma::TestAllocator_List *allocatedList, Link *link)
     // Remove the specified 'link' from the specified 'allocatedList'.  Return
-    // the address of the removed link if 'index' is found, or 0 otherwise.
-    // The behavior is undefined unless 'allocatedList' is not 0.  Note that
-    // the tail pointer of the 'allocatedList' will be updated if the 'Link'
-    // removed is the tail itself.  Also note that the head pointer of the
-    // 'allocatedList' will be updated if the link removed is the head itself.
+    // the address of the removed link.  The behavior is undefined unless
+    // 'allocatedList' and 'link' are non-zero.  Note that the tail pointer of
+    // the 'allocatedList' will be updated if the 'Link' removed is the tail
+    // itself, and the head pointer of the 'allocatedList' will be updated if
+    // the link removed is the head itself.
 {
     BSLS_ASSERT(allocatedList);
     BSLS_ASSERT(link);
 
     if (link == allocatedList->d_tail_p) {
-        allocatedList->d_tail_p = link->d_prev_p;
+        allocatedList->d_tail_p  = link->d_prev_p;
     }
     else {
         link->d_next_p->d_prev_p = link->d_prev_p;
     }
 
     if (link == allocatedList->d_head_p) {
-        allocatedList->d_head_p = link->d_next_p;
+        allocatedList->d_head_p  = link->d_next_p;
     }
     else {
         link->d_prev_p->d_next_p = link->d_next_p;
@@ -255,20 +257,20 @@ static Link *removeLink(bslma::TestAllocator_List *allocatedList, Link *link)
     return link;
 }
 
-static Link *addLink(bslma::TestAllocator_List *allocatedList,
-                     bsls::Types::Int64         index,
-                     bslma::Allocator          *basicAllocator)
+static
+Link *addLink(bslma::TestAllocator_List *allocatedList,
+              bsls::Types::Int64         index,
+              bslma::Allocator          *basicAllocator)
     // Add to the specified 'allocatedList' a 'Link' having the specified
     // 'index', and using the specified 'basicAllocator' to supply memory; also
     // update the tail pointer of the 'allocatedList'.  Return the address of
-    // the allocated 'Link'.  Note that this operation has no effect if
-    // 'allocatedList' is 0.  Also note that the head pointer of the
-    // 'allocatedList' will be updated if the 'allocatedList' is initially
-    // empty.
+    // the allocated 'Link'.  The behavior is undefined unless 'allocatedList'
+    // is non-zero.  Note that the head pointer of the 'allocatedList' will be
+    // updated if the 'allocatedList' is initially empty.
 {
     BSLS_ASSERT(allocatedList);
 
-    Link * link = (Link*) basicAllocator->allocate(sizeof(Link));
+    Link *link = (Link *)basicAllocator->allocate(sizeof(Link));
 
     // Ensure 'allocate' returned memory.
 
@@ -291,7 +293,8 @@ static Link *addLink(bslma::TestAllocator_List *allocatedList,
     return link;
 }
 
-static void printList(const bslma::TestAllocator_List& allocatedList)
+static
+void printList(const bslma::TestAllocator_List& allocatedList)
     // Print the indices of all 'Link' objects currently in the specified
     // 'allocatedList'.
 {
@@ -349,8 +352,7 @@ TestAllocator::TestAllocator(Allocator *basicAllocator)
     d_list_p->d_tail_p = 0;
 }
 
-TestAllocator::TestAllocator(bool       verboseFlag,
-                             Allocator *basicAllocator)
+TestAllocator::TestAllocator(bool verboseFlag, Allocator *basicAllocator)
 : d_name_p(0)
 , d_noAbortFlag(false)
 , d_quietFlag(false)
@@ -382,8 +384,7 @@ TestAllocator::TestAllocator(bool       verboseFlag,
     d_list_p->d_tail_p = 0;
 }
 
-TestAllocator::TestAllocator(const char *name,
-                             Allocator  *basicAllocator)
+TestAllocator::TestAllocator(const char *name, Allocator *basicAllocator)
 : d_name_p(name)
 , d_noAbortFlag(false)
 , d_quietFlag(false)
@@ -476,7 +477,7 @@ TestAllocator::~TestAllocator()
             }
             std::printf(":\n  Number of blocks in use = %lld\n"
                         "   Number of bytes in use = %lld\n",
-                        d_numBlocksInUse, d_numBytesInUse);
+                        d_numBlocksInUse.load(), d_numBytesInUse.load());
 
             if (!d_noAbortFlag) {
                 std::abort();                                         // ABORT
@@ -488,9 +489,12 @@ TestAllocator::~TestAllocator()
 // MANIPULATORS
 void *TestAllocator::allocate(size_type size)
 {
+    bsls::BslLockGuard guard(&d_lock);
+
     bsls::Types::Int64 allocationIndex = d_numAllocations++;  // Note: Postfix
                                                               // is important!
-    d_lastAllocatedNumBytes           = size;
+
+    d_lastAllocatedNumBytes = static_cast<bsls::Types::Int64>(size);
 
     // Set to zero in case of premature returns.
 
@@ -505,13 +509,13 @@ void *TestAllocator::allocate(size_type size)
     }
 #endif
 
-    if (size == 0) {
+    if (0 == size) {
         return 0;                                                     // RETURN
     }
 
     Align *align = (Align *)d_allocator_p->allocate(
                                           sizeof(Align) + size + PADDING_SIZE);
-    if (! align) {
+    if (!align) {
         // We cannot satisfy this request.  Throw 'std::bad_alloc'.
 
         Allocator::throwBadAlloc();
@@ -536,13 +540,13 @@ void *TestAllocator::allocate(size_type size)
 
     ++d_numBlocksInUse;
     if (d_numBlocksMax < d_numBlocksInUse) {
-        d_numBlocksMax = d_numBlocksInUse;
+        d_numBlocksMax = d_numBlocksInUse.load();
     }
     ++d_numBlocksTotal;
 
     d_numBytesInUse += size;
     if (d_numBytesMax < d_numBytesInUse) {
-        d_numBytesMax = d_numBytesInUse;
+        d_numBytesMax = d_numBytesInUse.load();
     }
     d_numBytesTotal += size;
 
@@ -581,7 +585,7 @@ void *TestAllocator::allocate(size_type size)
         std::fflush(stdout);
     }
 
-    d_lastAllocatedAddress_p = address;
+    d_lastAllocatedAddress_p = reinterpret_cast<int *>(address);
     BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                      address,
                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
@@ -590,8 +594,10 @@ void *TestAllocator::allocate(size_type size)
 
 void TestAllocator::deallocate(void *address)
 {
+    bsls::BslLockGuard guard(&d_lock);
+
     ++d_numDeallocations;
-    d_lastDeallocatedAddress_p = address;
+    d_lastDeallocatedAddress_p = reinterpret_cast<int *>(address);
 
     // Set to zero in case of premature returns.
 
@@ -601,7 +607,7 @@ void TestAllocator::deallocate(void *address)
         return;                                                       // RETURN
     }
 
-    Align *align     = ((Align *) address) - 1;
+    Align *align     = (Align *)address - 1;
     bool   miscError = false;
 
     size_type           size;
@@ -609,12 +615,11 @@ void TestAllocator::deallocate(void *address)
     bsls::Types::Int64  allocationIndex;
 
     // The following checks are done deliberately in the order shown to avoid a
-    // possible bus error when attempting to read a 64-bit integer on
-    // misaligned memory (which can happen if the client passes an invalid
-    // address to this method).  If the address of the memory being deallocated
-    // is misaligned, it is very likely that 'd_magicNumber' will not match the
-    // expected value, and so we will skip the read of 'd_bytes' (a 64-bit
-    // integer).
+    // possible bus error when attempting to read a misaligned 64-bit integer,
+    // which can happen if an invalid address is passed to this method.  If the
+    // address of the memory being deallocated is misaligned, it is very likely
+    // that 'd_magicNumber' will not match the expected value, and so we will
+    // skip the reading of 'd_bytes' (a 64-bit integer).
 
     if (ALLOCATED_MEMORY != align->d_object.d_magicNumber) {
         miscError = true;
@@ -643,8 +648,8 @@ void TestAllocator::deallocate(void *address)
         // Check the padding before the segment.  Go backwards so we will
         // report the trashed byte nearest the segment.
 
-        pcBegin = (Uchar *) address - 1;
-        pcEnd   = (Uchar *) &align->d_object.d_padding;
+        pcBegin = (Uchar *)address - 1;
+        pcEnd   = (Uchar *)&align->d_object.d_padding;
 
         for (Uchar *pc = pcBegin; pcEnd <= pc; --pc) {
             if (PADDED_MEMORY != *pc) {
@@ -676,7 +681,8 @@ void TestAllocator::deallocate(void *address)
     else {
         if (miscError) {
             ++d_numMismatches;
-        } else if (overrunBy || underrunBy) {
+        }
+        else {
             ++d_numBoundsErrors;
         }
 
@@ -696,12 +702,12 @@ void TestAllocator::deallocate(void *address)
 
     // At this point we know (almost) for sure that the memory block is
     // currently allocated from this object.  We now proceed to update our
-    // statistics, stamp the blocks header as deallocated, scribble all over
-    // its payload, and give it back to the underlying allocator supplied at
+    // statistics, stamp the block's header as deallocated, scribble over its
+    // payload, and give it back to the underlying allocator supplied at
     // construction.  In verbose mode, we also report the deallocation event to
     // 'stdout'.
 
-    d_lastDeallocatedNumBytes = size;
+    d_lastDeallocatedNumBytes = static_cast<bsls::Types::Int64>(size);
 
     --d_numBlocksInUse;
 
@@ -741,26 +747,10 @@ void TestAllocator::deallocate(void *address)
 }
 
 // ACCESSORS
-int TestAllocator::status() const
-{
-    enum { BSLMA_MEMORY_LEAK = -1, BSLMA_SUCCESS = 0 };
-
-    bsls::Types::Int64 numErrors = d_numMismatches + d_numBoundsErrors;
-
-    if (numErrors > 0) {
-        return static_cast<int>(numErrors);
-    }
-    else if (d_numBlocksInUse || d_numBytesInUse) {
-        return BSLMA_MEMORY_LEAK;
-    }
-    else {
-        return BSLMA_SUCCESS;
-    }
-}
-
-// FREE OPERATORS
 void TestAllocator::print() const
 {
+    bsls::BslLockGuard guard(&d_lock);
+
     if (d_name_p) {
         std::printf("\n"
                     "==================================================\n"
@@ -780,7 +770,7 @@ void TestAllocator::print() const
                 "          IN USE\t%lld\t%lld\n"
                 "             MAX\t%lld\t%lld\n"
                 "           TOTAL\t%lld\t%lld\n"
-                "  NUM MISMATCHES\t%lld\n"
+                "      MISMATCHES\t%lld\n"
                 "   BOUNDS ERRORS\t%lld\n"
                 "--------------------------------------------------\n",
                 numBlocksInUse(), numBytesInUse(),
@@ -789,14 +779,32 @@ void TestAllocator::print() const
                 numMismatches(),  numBoundsErrors());
 
     if (d_list_p->d_head_p) {
-        std::printf(" Indices of Outstanding Memory Allocation:\n ");
+        std::printf(" Indices of Outstanding Memory Allocations:\n ");
         printList(*d_list_p);
     }
     std::fflush(stdout);
 }
 
-}  // close package namespace
+int TestAllocator::status() const
+{
+    enum { BSLMA_MEMORY_LEAK = -1, BSLMA_SUCCESS = 0 };
 
+    bsls::BslLockGuard guard(&d_lock);
+
+    const bsls::Types::Int64 numErrors = d_numMismatches + d_numBoundsErrors;
+
+    if (numErrors > 0) {
+        return static_cast<int>(numErrors);
+    }
+    else if (d_numBlocksInUse || d_numBytesInUse) {
+        return BSLMA_MEMORY_LEAK;
+    }
+    else {
+        return BSLMA_SUCCESS;
+    }
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

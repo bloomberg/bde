@@ -529,19 +529,19 @@ int main(int argc, char *argv[])
 // visually appealing, are not technically required:
 //..
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
-                    my_ShortArray mA(&sa);
-                    const my_ShortArray& A = mA;
-                    for (int ei = 0; ei < NUM_ELEM; ++ei) {
-                        mA.append(VALUES[ei]);
-                    }
-                    if (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
-                    LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
+                  my_ShortArray mA(&sa);
+                  const my_ShortArray& A = mA;
+                  for (int ei = 0; ei < NUM_ELEM; ++ei) {
+                      mA.append(VALUES[ei]);
+                  }
+                  if (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
+                  LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
 
 //..
 // After the exception-safety test we can ensure that all the memory allocated
-// from 'sa' was successfully deallocated.
+// from 'sa' was successfully deallocated:
 //..
             if (veryVerbose) sa.print();
 //
@@ -603,7 +603,7 @@ int main(int argc, char *argv[])
                         "          IN USE\t%lld\t%lld\n"
                         "             MAX\t%lld\t%lld\n"
                         "           TOTAL\t%lld\t%lld\n"
-                        "  NUM MISMATCHES\t%lld\n"
+                        "      MISMATCHES\t%lld\n"
                         "   BOUNDS ERRORS\t%lld\n"
                         "--------------------------------------------------\n";
 
@@ -617,7 +617,7 @@ int main(int argc, char *argv[])
                         "          IN USE\t%lld\t%lld\n"
                         "             MAX\t%lld\t%lld\n"
                         "           TOTAL\t%lld\t%lld\n"
-                        "  NUM MISMATCHES\t%lld\n"
+                        "      MISMATCHES\t%lld\n"
                         "   BOUNDS ERRORS\t%lld\n"
                         "--------------------------------------------------\n";
 
@@ -834,7 +834,7 @@ int main(int argc, char *argv[])
                 }
 
                 strcpy(expBuffer + offset,
-                       " Indices of Outstanding Memory Allocation:\n ");
+                       " Indices of Outstanding Memory Allocations:\n ");
                 offset = strlen(expBuffer);
 
                 for (int i = 0; i < numRemAllocs; ++i) {
@@ -1232,7 +1232,7 @@ int main(int argc, char *argv[])
             "          IN USE\t0\t0\n"
             "             MAX\t0\t0\n"
             "           TOTAL\t0\t0\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
             ;
@@ -1265,10 +1265,10 @@ int main(int argc, char *argv[])
             "          IN USE\t9\t105\n"
             "             MAX\t9\t105\n"
             "           TOTAL\t9\t105\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
-            " Indices of Outstanding Memory Allocation:\n"
+            " Indices of Outstanding Memory Allocations:\n"
             " 0\t1\t2\t3\t4\t5\t6\t7\t\n"
             " 8\t\n "
             ;
@@ -1312,10 +1312,10 @@ int main(int argc, char *argv[])
             "          IN USE\t4\t90\n"
             "             MAX\t5\t101\n"
             "           TOTAL\t6\t111\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
-            " Indices of Outstanding Memory Allocation:\n"
+            " Indices of Outstanding Memory Allocations:\n"
             " 0\t1\t3\t5\t\n "
             ;
 
@@ -1348,7 +1348,7 @@ int main(int argc, char *argv[])
             "          IN USE\t0\t0\n"
             "             MAX\t2\t70\n"
             "           TOTAL\t2\t70\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
             ;
@@ -1488,10 +1488,10 @@ int main(int argc, char *argv[])
             "          IN USE\t3\t60\n"
             "             MAX\t4\t91\n"
             "           TOTAL\t5\t101\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
-            " Indices of Outstanding Memory Allocation:\n"
+            " Indices of Outstanding Memory Allocations:\n"
             " 1\t2\t4\t\n "
             ;
 
