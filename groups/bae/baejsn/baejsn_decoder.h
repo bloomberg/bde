@@ -243,6 +243,10 @@ BDES_IDENT("$Id: $")
 #include <bdeat_valuetypefunctions.h>
 #endif
 
+#ifndef INCLUDED_BDEU_PRINTMETHODS
+#include <bdeu_printmethods.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -297,11 +301,6 @@ class baejsn_Decoder {
     friend struct baejsn_Decoder_ElementVisitor;
 
     // PRIVATE MANIPULATORS
-    int decodeBinaryArray(bsl::vector<char> *value);
-        // Decode into the specified 'value' vector the JSON data currently
-        // referred to by the parser owned by this object.  Return 0 on success
-        // and a non-zero value otherwise.
-
     template <typename TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::DynamicType);
     template <typename TYPE>
@@ -810,7 +809,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
     rc = baejsn_ParserUtil::getValue(&valueBaseType, dataValue);
     if (rc) {
         d_logStream << "Could not decode Enum Customized, "
-                    << "value not allowed \"" << valueBaseType << "\"\n";
+                    << "value not allowed \"" << dataValue << "\"\n";
         return -1;                                                    // RETURN
     }
 
@@ -818,7 +817,9 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                                                             valueBaseType);
     if (rc) {
         d_logStream << "Could not convert base type to customized type, "
-                    << "base value disallowed: \"" << valueBaseType << "\"\n";
+                    << "base value disallowed: \"";
+        bdeu_PrintMethods::print(d_logStream, valueBaseType, 0, -1);
+        d_logStream << "\"\n";
     }
     return rc;
 }
@@ -848,7 +849,21 @@ int baejsn_Decoder::decodeImp(bsl::vector<char> *value,
                               int,
                               bdeat_TypeCategory::Array)
 {
-    return decodeBinaryArray(value);
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
+        d_logStream << "Could not decode vector<char> "
+                    << "expected as an element value\n";
+        return -1;                                                    // RETURN
+    }
+
+    bslstl::StringRef dataValue;
+    int rc = d_tokenizer.value(&dataValue);
+
+    if (rc) {
+        d_logStream << "Error reading customized type element value\n";
+        return -1;                                                    // RETURN
+    }
+
+    return baejsn_ParserUtil::getValue(value, dataValue);
 }
 
 template <typename TYPE>

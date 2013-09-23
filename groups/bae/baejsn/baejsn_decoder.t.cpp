@@ -43,6 +43,7 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
@@ -35169,7 +35170,685 @@ void *threadFunction(void *data)
     return (void *) 0;
 }
 
+} // close namespace CASE6
+
+
+namespace BloombergLP {
+
+namespace test {
+
+                               // =============================
+                               // class HexBinaryCustomizedType
+                               // =============================
+
+class HexBinaryCustomizedType {
+       
+    // INSTANCE DATA
+    bsl::vector<char> d_value;
+
+    // PRIVATE CLASS METHODS
+    static int checkRestrictions(const char *value, int size);
+        // Check if the specified 'value' having the specified 'size'
+        // satisfies the restrictions of this class.  Return 0 if successful
+        // (i.e., the restrictions are satisfied) and non-zero otherwise.
+
+    static int checkRestrictions(const bsl::vector<char>& value);
+        // Check if the specified 'value' satisfies the restrictions of this
+        // class.  Return 0 if successful (i.e., the restrictions are
+        // satisfied) and non-zero otherwise.
+
+  public:
+    // TYPES
+    typedef bsl::vector<char> BaseType;
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    // CREATORS
+    explicit HexBinaryCustomizedType(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'HexBinaryCustomizedType' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    HexBinaryCustomizedType(const HexBinaryCustomizedType& original,
+                            bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'HexBinaryCustomizedType' having the value
+        // of the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~HexBinaryCustomizedType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    HexBinaryCustomizedType& operator=(const HexBinaryCustomizedType& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    int fromVector(const bsl::vector<char>& value);
+        // Convert from the specified 'value' to this type.  Return 0 if
+        // successful and non-zero otherwise.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    bsl::vector<char>& array();
+        // Return the array encapsulated by this object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    const bsl::vector<char>& array() const;
+        // Return the array encapsulated by this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const HexBinaryCustomizedType& lhs,
+                const HexBinaryCustomizedType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const HexBinaryCustomizedType& lhs,
+                const HexBinaryCustomizedType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream,
+                         const HexBinaryCustomizedType& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace test
+
+// TRAITS
+
+BDEAT_DECL_CUSTOMIZEDTYPE_TRAITS(test::HexBinaryCustomizedType)
+
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+namespace test {
+                               // -----------------------------
+                               // class HexBinaryCustomizedType
+                               // -----------------------------
+
+
+// PRIVATE CLASS METHODS
+int HexBinaryCustomizedType::checkRestrictions(const char *value, int size)
+{
+    return 0;
 }
+
+int HexBinaryCustomizedType::checkRestrictions(const bsl::vector<char>& value)
+{
+    return 0;
+}
+
+// CREATORS
+inline
+HexBinaryCustomizedType::HexBinaryCustomizedType(
+    bslma::Allocator *basicAllocator)
+: d_value(basicAllocator)
+{
+}
+
+inline
+HexBinaryCustomizedType::HexBinaryCustomizedType(
+    const HexBinaryCustomizedType& original, bslma::Allocator *basicAllocator)
+: d_value(original.d_value, basicAllocator)
+{
+}
+
+inline
+HexBinaryCustomizedType::~HexBinaryCustomizedType()
+{
+}
+
+// MANIPULATORS
+inline
+HexBinaryCustomizedType& HexBinaryCustomizedType::operator=(
+                                            const HexBinaryCustomizedType& rhs)
+{
+    d_value = rhs.d_value;
+    return *this;
+}
+
+inline
+int HexBinaryCustomizedType::fromVector(const bsl::vector<char>& value)
+{
+    int ret = checkRestrictions(value);
+    if (0 == ret) {
+        d_value = value;
+    }
+
+    return ret;
+}
+
+inline
+void HexBinaryCustomizedType::reset()
+{
+    d_value.clear();
+}
+
+inline
+bsl::vector<char>& HexBinaryCustomizedType::array()
+{
+    return d_value;
+}
+
+// ACCESSORS
+bsl::ostream& HexBinaryCustomizedType::print(bsl::ostream& stream,
+                                             int           level,
+                                            int           spacesPerLevel) const
+{
+    if (d_value.empty()) {
+        stream << "";
+    }
+    else {
+        stream << 'x'
+               << '\''
+               << bdeu_PrintStringSingleLineHexDumper(&d_value[0], 
+                                                      d_value.size())
+               << '\'';
+    }
+    return stream;
+}
+
+inline
+const bsl::vector<char>& HexBinaryCustomizedType::array() const
+{
+    return d_value;
+}
+
+// FREE FUNCTIONS
+inline
+bool operator==(const HexBinaryCustomizedType& lhs,
+                const HexBinaryCustomizedType& rhs)
+{
+    const vector<char>& lhsArray = lhs.array();
+    const vector<char>& rhsArray = rhs.array();
+
+    if (lhsArray.size() != rhsArray.size()) {
+        return false;
+    }
+
+    for (int i = 0; i < lhsArray.size(); ++i) {
+        if (lhsArray[i] != rhsArray[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+inline
+bool operator!=(const HexBinaryCustomizedType& lhs,
+                const HexBinaryCustomizedType& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream,
+                         const HexBinaryCustomizedType& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+// CONSTANTS
+
+const char HexBinaryCustomizedType::CLASS_NAME[] = "HexBinaryCT";
+
+
+                             // ==================                             
+                             // class HexBinarySequence
+                             // ==================                             
+
+class HexBinarySequence {
+
+    // INSTANCE DATA
+    HexBinaryCustomizedType d_element1;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ELEMENT1 = 0
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 1
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ELEMENT1 = 0
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit HexBinarySequence(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'HexBinarySequence' having the default
+        // value.
+
+    HexBinarySequence(const HexBinarySequence& original,
+                      bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'HexBinarySequence' having the value of the
+        // specified 'original' object.
+
+    ~HexBinarySequence();
+        // Destroy this object.
+
+    // MANIPULATORS
+    HexBinarySequence& operator=(const HexBinarySequence& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+
+    HexBinaryCustomizedType& element1();
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const HexBinaryCustomizedType& element1() const;
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const HexBinarySequence& lhs, const HexBinarySequence& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const HexBinarySequence& lhs, const HexBinarySequence& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const HexBinarySequence& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace test
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(test::HexBinarySequence)
+
+namespace test {
+
+                             // ------------------                             
+                             // class HexBinarySequence  
+                             // ------------------                             
+
+// MANIPULATORS
+template <class MANIPULATOR>
+int HexBinarySequence::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int HexBinarySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int HexBinarySequence::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+HexBinaryCustomizedType& HexBinarySequence::element1()
+{
+    return d_element1;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int HexBinarySequence::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int HexBinarySequence::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int HexBinarySequence::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const HexBinaryCustomizedType& HexBinarySequence::element1() const
+{
+    return d_element1;
+}
+
+// FREE FUNCTIONS
+
+inline
+bool operator==(const HexBinarySequence& lhs,
+                const HexBinarySequence& rhs)
+{
+    return lhs.element1() == rhs.element1();
+}
+
+inline
+bool operator!=(
+        const HexBinarySequence& lhs,
+        const HexBinarySequence& rhs)
+{
+    return !(lhs == rhs);
+}
+
+
+
+                             // ------------------                             
+                             // class HexBinarySequence
+                             // ------------------                             
+
+// CONSTANTS
+
+const char HexBinarySequence::CLASS_NAME[] = "HexBinarySequence";
+
+const bdeat_AttributeInfo HexBinarySequence::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ELEMENT1,
+        "element1",
+        sizeof("element1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    if (name[0]=='e'
+     && name[1]=='l'
+     && name[2]=='e'
+     && name[3]=='m'
+     && name[4]=='e'
+     && name[5]=='n'
+     && name[6]=='t'
+     && name[7]=='1') {
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+HexBinarySequence::HexBinarySequence(bslma::Allocator *basicAllocator)
+: d_element1(basicAllocator)
+{
+}
+
+HexBinarySequence::HexBinarySequence(const HexBinarySequence& original,
+                           bslma::Allocator *basicAllocator)
+: d_element1(original.d_element1, basicAllocator)
+{
+}
+
+HexBinarySequence::~HexBinarySequence()
+{
+}
+
+// MANIPULATORS
+
+HexBinarySequence&
+HexBinarySequence::operator=(const HexBinarySequence& rhs)
+{
+    if (this != &rhs) {
+        d_element1 = rhs.d_element1;
+    }
+    return *this;
+}
+
+void HexBinarySequence::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_element1);
+}
+
+// ACCESSORS
+
+bsl::ostream& HexBinarySequence::print(
+    bsl::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << bsl::flush;
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream,
+                         const HexBinarySequence& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close namespace test
+}  // close namespace BloombergLP
 
 
 // ============================================================================
@@ -35186,7 +35865,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -35364,6 +36043,117 @@ int main(int argc, char *argv[])
     ASSERT(21              == employee["age"].asInt());
 //..
     }
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE
+        //
+        // Concerns:
+        //: 1 Decoding of a customized type of type 'hexBinary' works as
+        //:   expected.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a table with JSON text
+        //:   that contains a 'hexBinary' customized type element.
+        //:
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Construct a 'HexBinarySequence' object.
+        //:
+        //:   2 Create a 'baejsn_Decoder' object.
+        //:
+        //:   3 Create a 'bsl::istringstream' object with the JSON text.
+        //:
+        //:   4 Decode that JSON into a 'HexBinarySequence' object.
+        //:
+        //:   5 Verify that the return code from 'decode' is as expected.
+        //
+        // Testing:
+        //   DRQS 43702912
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+               << "TESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE" << endl
+               << "===============================================" << endl;
+
+        static const struct {
+            int         d_line;      // source line number
+            const char *d_input_p;   // input
+            const char *d_output_p;  // output
+            int         d_outputLen; // output length
+            bool        d_isValid;   // isValid flag
+            } DATA[] = {
+          {  L_,  "\"\"",            "",                   0, true  },
+
+          {  L_,  "\"Ug==\"",        "R",                  1, true  },
+          {  L_,  "\"QVY=\"",        "AV",                 2, true  },
+
+          {  L_,  "\"AA==\"",        "\x00",               1, true  },
+          {  L_,  "\"AQ==\"",        "\x01",               1, true  },
+          {  L_,  "\"\\/w==\"",      "\xFF",               1, true  },
+
+          {  L_,  "\"UVE=\"",        "QQ",                 2, true  },
+
+          {  L_,  "\"YQ==\"",        "a",                  1, true  },
+          {  L_,  "\"YWI=\"",        "ab",                 2, true  },
+          {  L_,  "\"YWJj\"",        "abc",                3, true  },
+          {  L_,  "\"YWJjZA==\"",    "abcd",               4, true  },
+
+          {  L_,  "\"Qmxvb21iZXJnTFA=\"", "BloombergLP",  11, true  },
+
+          {  L_,     "",               "",                   0, false },
+          {  L_,     "\"Q\"",          "",                   0, false },
+          {  L_,     "\"QV\"",         "",                   0, false },
+          {  L_,     "\"QVE\"",        "",                   0, false },
+          {  L_,     "\"QVE==\"",      "",                   0, false },
+            };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int         LINE        = DATA[i].d_line;
+            const char       *INPUT       = DATA[i].d_input_p;
+            const char       *OUTPUT      = DATA[i].d_output_p;
+            const int         LEN         = DATA[i].d_outputLen;
+            const bool        IS_VALID    = DATA[i].d_isValid;
+
+            vector<char> vc(OUTPUT, OUTPUT + LEN);
+            const vector<char>& VC = vc;
+
+            test::HexBinarySequence exp;
+            const test::HexBinarySequence& EXP = exp;
+            exp.element1().array() = VC;
+
+            test::HexBinarySequence value;
+
+            ostringstream os;
+            os << "{ \"element1\" : " << INPUT << '}';
+
+            istringstream is(os.str());
+
+            baejsn_DecoderOptions options;
+            baejsn_Decoder        decoder;
+            const int rc = decoder.decode(is, &value, options);
+            if (veryVerbose) {
+                P(decoder.loggedMessages())
+            }
+
+            if (IS_VALID) {
+                LOOP2_ASSERT(LINE, rc, 0 == rc);
+
+                bool result = EXP == value;
+                LOOP3_ASSERT(LINE, EXP, value, result);
+                if (!result) {
+                    cout << "EXP: ";
+                    bdeu_PrintMethods::print(cout, EXP, 0, -1);
+                    cout << endl << "VALUE: ";
+                    bdeu_PrintMethods::print(cout, value, 0, -1);
+                    cout << endl;
+                }
+            }
+            else {
+                LOOP2_ASSERT(LINE, rc, rc);
+            }
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
