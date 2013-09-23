@@ -55,8 +55,8 @@ BDES_IDENT("$Id: $")
     // Provide the minor version number of the current (latest) BDE release.
 
 #ifndef BDE_VERSION_RELEASETYPE
-#define BDE_VERSION_RELEASETYPE        "_BETA"
-#define BDE_VERSION_RELEASETYPE_SYMBOL  _BETA
+#define BDE_VERSION_RELEASETYPE        "_PROD"
+#define BDE_VERSION_RELEASETYPE_SYMBOL  _PROD
 #endif
     // Provide the "type" of the release, indicating whether the libs were
     // built for development, a particular beta, or for release.  A release
