@@ -169,6 +169,10 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
+#ifndef INCLUDED_BDEU_CSTRINGLESS
+#include <bdeu_cstringless.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -209,21 +213,9 @@ class baetzo_ZoneinfoCache {
     //: o is *fully* *thread-safe*
     // For terminology see 'bsldoc_glossary'.
 
-    // PRIVATE TYPES
-    struct CStringLess {
-        // This 'struct' implements an invocable function object that defines
-        // an ordering on C-string values, allowing them to be included in
-        // sorted containers such as 'bsl::map'.
-
-        // ACCESSORS
-        bool operator()(const char *lhs, const char *rhs) const;
-            // Return 'true' if the value of the specified 'lhs' string is
-            // less than (i.e., ordered before) the value of the specified
-            // 'rhs' one, and 'false' otherwise.  The behavior is undefined
-            // unless both 'lhs' and 'rhs' are null-terminated.
-    };
-
-    typedef bsl::map<const char *, baetzo_Zoneinfo *, CStringLess> ZoneinfoMap;
+    typedef bsl::map<const char      *,
+                     baetzo_Zoneinfo *,
+                     bdeu_CStringLess> ZoneinfoMap;
 
     // DATA
     ZoneinfoMap            d_cache;        // cached time-zone info, indexed by
@@ -294,18 +286,6 @@ class baetzo_ZoneinfoCache {
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-                   // ---------------------------------------
-                   // class baetzo_ZoneinfoCache::CStringLess
-                   // ---------------------------------------
-
-// ACCESSORS
-inline
-bool baetzo_ZoneinfoCache::CStringLess::operator()(const char *lhs,
-                                                   const char *rhs) const
-{
-    return bsl::strcmp(lhs, rhs) < 0;
-}
 
                         // --------------------------
                         // class baetzo_ZoneinfoCache
