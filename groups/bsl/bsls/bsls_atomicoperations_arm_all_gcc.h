@@ -28,7 +28,11 @@ BSLS_IDENT("$Id: $")
 //
 // For more details on ARM atomic pritives see the Linux kernel source code
 // (arch/arm/include/asm/atomic.h) and the "C/C++11 mappings to processors"
-// (http://www.cl.cam.ac.uk/~pes20/cpp/cpp0xmappings.html)
+// (http://www.cl.cam.ac.uk/~pes20/cpp/cpp0xmappings.html), and the
+// "ARM1156T2F-S Technical Reference Manual"
+// (http://infocenter.arm.com/help/index.jsp?
+// topic=/com.arm.doc.ddi0290g/Babebdcb.html), which contains documentation on
+// the p15 coprocessor opcodes used in this component).
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
