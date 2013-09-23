@@ -1,3 +1,19 @@
+bde-core (2.19.0.000.1000) unstable; urgency=low
+
+  * Bump changelog
+  * 1783c53 [APPROVAL] master to releases/2.19.x
+  * 8e7d4c1 [APPROVAL] pending/master/zoneinfo-cache-undefined-drqs44625092 to master
+  * 5e34839 [APPROVAL] pending/master/drqs-43702912-baejsn_decoder-printing-vector-error to master
+  * 81d5aba [APPROVAL] pending/master/concise-iso8601-format-drqs32610960 to master
+  * ac8a6bd [APPROVAL] pending/master/bcemt-mutex-locked-component-drqs-34158704 to master
+  * 6b3103b [APPROVAL] pending/master/pipecontrolchannel-errno-drqs-42730045 to master
+  * 3b14305 [APPROVAL] complete-bdet-calendar-types-drqs-43876556 to master
+  * 3bfd1a0 [APPROVAL] pending/master/drqs-42705714-baejsn_decoder-trailing-invalid-json to master
+  * d636a03 [APPROVAL] version-2.19.0 to master
+  * 506efb9 Bump version to 2.19
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 Sep 2013 17:47:49 -0400
+
 bde-core (2.19.0.000.0000) unstable; urgency=low
 
   * Bump changelog
