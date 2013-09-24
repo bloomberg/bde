@@ -29,10 +29,10 @@ BDES_IDENT("$Id: $")
 // defined by 'BSLS_ASSERT':
 //
 //: o 'BCEMT_MUTEXASSERT_IS_LOCKED': active when 'BSLS_ASSERT' is active
-//
+//:
 //: o 'BCEMT_MUTEXASSERT_IS_LOCKED_SAFE': active when 'BSLS_ASSERT_SAFE' is
 //:   active
-//
+//:
 //: o 'BCEMT_MUTEXASSERT_IS_LOCKED_OPT': active when 'BSLS_ASSERT_OPT' is
 //:   active
 //
@@ -291,11 +291,15 @@ namespace BloombergLP {
 
 class bcemt_Mutex;
 
-                       // =======================
-                       // class bcemt_MutexAssert
-                       // =======================
+                       // ===========================
+                       // class bcemt_MutexAssert_Imp
+                       // ===========================
 
 struct bcemt_MutexAssert_Imp {
+    // This 'struct' provides a (component private) namespace for
+    // implementation functions of the assert macros defined in this
+    // component.  This class should *not* be used directly in client code.
+
     // CLASS METHODS
     static
     void assertIsLockedImpl(bcemt_Mutex *mutex,
