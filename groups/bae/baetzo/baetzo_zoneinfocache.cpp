@@ -90,7 +90,7 @@ const baetzo_Zoneinfo *baetzo_ZoneinfoCache::getZoneinfo(
         if (0 != *rc) {
             if (baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID != *rc) {
                 BAEL_LOG_ERROR << "Unexpected error code loading time zone "
-                               << timeZoneId
+                               << timeZoneId << ": " << *rc
                                << BAEL_LOG_END;
             }
             return 0;                                                 // RETURN
