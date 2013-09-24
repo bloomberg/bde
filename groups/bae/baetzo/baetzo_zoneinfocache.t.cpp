@@ -332,16 +332,16 @@ void TestDriverTestLoader::addTimeZone(const char *timeZone,
     baetzo_Zoneinfo zoneinfo;
     zoneinfo.setIdentifier(timeZone);
 
-    if (0 == name) {
-        d_timeZones[timeZone] = zoneinfo;
-        return;                                                       // RETURN
+    if (0 != name) {
+        baetzo_LocalTimeDescriptor type(utcOffset,
+                                        dstFlag,
+                                        name,
+                                        d_allocator_p);
+        bdet_Datetime firstTime(1, 1, 1);
+        bsls::Types::Int64 firstTimeT =
+                                      bdetu_Epoch::convertToTimeT64(firstTime);
+        zoneinfo.addTransition(firstTimeT, type);
     }
-
-    baetzo_LocalTimeDescriptor type(utcOffset, dstFlag, name, d_allocator_p);
-    bdet_Datetime firstTime(1, 1, 1);
-    bsls::Types::Int64 firstTimeT = bdetu_Epoch::convertToTimeT64(firstTime);
-
-    zoneinfo.addTransition(firstTimeT, type);
     d_timeZones[timeZone] = zoneinfo;
 }
 
