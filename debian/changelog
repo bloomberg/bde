@@ -1,3 +1,10 @@
+bde-core (2.19.0.000.1002) unstable; urgency=low
+
+  * Bump changelog
+  * e0805bc [APPROVAL] origin/review/bcema_sharedptr_bugfix_drqs_44868895 to releases/2.19.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 26 Sep 2013 14:35:23 -0400
+
 bde-core (2.19.0.000.1001) unstable; urgency=low
 
   * Bump changelog
