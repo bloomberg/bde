@@ -13,6 +13,13 @@ btemt_SessionFactory::~btemt_SessionFactory()
 {
 }
 
+void btemt_SessionFactory::allocate(
+        bdema_ManagedPtr<btemt_AsyncChannel>& channel,
+        const btemt_SessionFactory::Callback& callback)
+{
+    allocate(channel.ptr(), callback);
+}
+
 } // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------

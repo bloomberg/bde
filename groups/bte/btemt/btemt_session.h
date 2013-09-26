@@ -29,9 +29,12 @@ BDES_IDENT("$Id: $")
 #include <btescm_version.h>
 #endif
 
-
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
+#endif
+
+#ifndef INCLUDED_BDEMA_MANAGEDPTR
+#include <bdema_managedptr.h>
 #endif
 
 namespace BloombergLP {
@@ -86,6 +89,14 @@ class btemt_SessionFactory {
        // Destroy this factory
 
     // MANIPULATORS
+    virtual void allocate(bdema_ManagedPtr<btemt_AsyncChannel>& channel,
+                          const btemt_SessionFactory::Callback& callback);
+       // Asynchronously allocate a 'btemt_Session' object for the specified
+       // 'channel', and invoke the specified 'callback' with this session.
+       //
+       // Note that the default implementation of this (non-pure virtual)
+       // method is to call 'allocate' with the raw channel pointer.
+
     virtual void allocate(btemt_AsyncChannel                   *channel,
                           const btemt_SessionFactory::Callback& callback) = 0;
        // Asynchronously allocate a 'btemt_Session' object for the specified
