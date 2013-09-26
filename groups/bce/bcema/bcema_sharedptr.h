@@ -2366,7 +2366,9 @@ bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(const bcema_SharedPtr& original)
 template <class ELEMENT_TYPE>
 inline
 bcema_SharedPtr<ELEMENT_TYPE>::bcema_SharedPtr(bcema_SharedPtrRep *rep)
-: bsl::shared_ptr<ELEMENT_TYPE>(rep)
+: bsl::shared_ptr<ELEMENT_TYPE>(
+    rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0,
+    rep)
 {
 }
 
