@@ -1,3 +1,14 @@
+bsl-internal (2.19.0.1) unstable; urgency=low
+
+  * Bump changelog
+  * ba098e7 [APPROVAL] master to releases/2.19.x
+  * af28e69 [APPROVAL] OSS fix_bslma_managedptr_pairproxy_usage_drqs_44868895 to master
+  * 3aba9d9 [APPROVAL] fix_bslma_managedptr_pairproxy_usage_drqs_44868895 to master
+  * 6ac9c52 [APPROVAL] OSS pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
+  * a4dea43 [APPROVAL] pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 26 Sep 2013 14:31:51 -0400
+
 bsl-internal (2.19.0.0) unstable; urgency=low
 
   * Bump changelog
