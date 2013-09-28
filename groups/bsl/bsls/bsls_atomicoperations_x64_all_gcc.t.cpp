@@ -38,7 +38,11 @@ struct thread_args
 };
 
 bsls::Types::Int64 getTimerMs() {
-    
+    // It'd be nice to use TimeUtil here, but that would be a dependency
+    // cycle.  Duplicating all the portable support for high-resolution 
+    // timing is more complication than is needed here.  We'll run enough 
+    // iterations that the basic portable lower-resolution timers will give
+    // good results. 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     timeval native;
     gettimeofday(&native, 0);
@@ -49,10 +53,9 @@ bsls::Types::Int64 getTimerMs() {
     ::ftime(&t);
     return = static_cast<bsls::Types::Int64>(t.time) * 1000 + t.millitm;
 #else
-#error "Don't know how to get nanosecond time for this platform"
+#error "Don't know how to get timer for this platform"
 #endif
 }
-
 
 thread_t createThread(thread_func func, void *arg)
 {
@@ -143,7 +146,7 @@ struct atomic_set_xchg
     void operator()(atomic_int * obj, int value)
     {
         asm volatile (
-            "       xchg %[obj], %[val]     \n\t"
+            "       xchgl %[obj], %[val]     \n\t"
 
             : [obj] "=m" (*obj)
             : [val] "r"  (value)
@@ -248,7 +251,7 @@ int main(int argc, char *argv[])
           // the setter has stopped.
           ///////////////////////////////////////////
           enum {
-              NUM_ITER = 20 * 1000 * 1000
+              NUM_ITER = 30 * 1000 * 1000
           };
           cout << "get mfence / set mfence: ";
           test_atomics<atomic_get_mfence, atomic_set_mfence>(NUM_ITER);
