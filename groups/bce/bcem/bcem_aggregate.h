@@ -863,7 +863,7 @@ class bcem_Aggregate {
         // DEPRECATED: Use 'bcem_ErrorCode' instead.
 
         BCEM_ERR_UNKNOWN_ERROR  = bcem_ErrorCode::BCEM_UNKNOWN_ERROR,
-        BCEM_ERR_NOT_A_RECORD   = bcem_ErrorCode::BCEM_NOT_A_RECORD,Code,
+        BCEM_ERR_NOT_A_RECORD   = bcem_ErrorCode::BCEM_NOT_A_RECORD,
         BCEM_ERR_NOT_A_SEQUENCE = bcem_ErrorCode::BCEM_NOT_A_SEQUENCE,
         BCEM_ERR_NOT_A_CHOICE   = bcem_ErrorCode::BCEM_NOT_A_CHOICE,
         BCEM_ERR_NOT_AN_ARRAY   = bcem_ErrorCode::BCEM_NOT_AN_ARRAY,
