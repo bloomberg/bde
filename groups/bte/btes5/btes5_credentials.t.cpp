@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
 
         }
 #else
-        if (verbose) " not enabled in non-exception builds" << endl;
+        if (verbose) cout << " not enabled in non-exception builds" << endl;
 #endif
 
         if (verbose) cout << " operator<<" << endl;
