@@ -29,9 +29,9 @@ using namespace bsl;
 //:   was thrown.
 //-----------------------------------------------------------------------------
 // MACROS
-//: o BCEMT_ASSERTMUTEX_IS_LOCKED
-//: o BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE
-//: o BCEMT_ASSERTMUTEX_IS_LOCKED_OPT
+//: o BCEMT_MUTEXASSERT_IS_LOCKED
+//: o BCEMT_MUTEXASSERT_IS_LOCKED_SAFE
+//: o BCEMT_MUTEXASSERT_IS_LOCKED_OPT
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
@@ -91,12 +91,12 @@ int veryVerbose;
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a mutex.  The
-// 'BCEMT_ASSERTMUTEX_IS_LOCKED*' family of assertions allows the programmers
+// 'BCEMT_MUTEXASSERT_IS_LOCKED*' family of assertions allows the programmers
 // to verify, using defensive programming techniques, that the mutex in
 // question is indeed locked.
 //
 // Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal mutex.  We can use 'BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE'
+// guarded by an internal mutex.  We can use 'BCEMT_MUTEXASSERT_IS_LOCKED_SAFE'
 // to ensure (in appropriate build modes) that proper internal locking of the
 // mutex is taking place.
 //
@@ -159,7 +159,7 @@ int veryVerbose;
     // PRIVATE MANIPULATOR
     int MyThreadSafeQueue::popImp(int *result)
     {
-        BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&d_mutex);
+        BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex);
 
         if (d_deque.empty()) {
             return -1;                                                // RETURN
@@ -173,7 +173,7 @@ int veryVerbose;
 //..
 // Notice that, on the very first line, the private manipulator verifies, as a
 // precondition check, that the mutex has been acquired, using one of the
-// 'BCEMT_ASSERTMUTEX_IS_LOCKED*' macros.  We use the '...ISLOCKED_SAFE...'
+// 'BCEMT_MUTEXASSERT_IS_LOCKED*' macros.  We use the '...ISLOCKED_SAFE...'
 // version of the macro so that the check, which on some platforms is as
 // expensive as locking the mutex, is performed in only the safe build mode.
 //
@@ -268,10 +268,10 @@ int veryVerbose;
 //
 // Now, we build in safe mode (which enables our check), run the program (which
 // calls 'example2Function'), and observe that, when we call 'popAll', the
-// 'BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
+// 'BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
 // and aborts:
 //..
-//  Assertion failed: BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&d_mutex), file /bb/big
+//  Assertion failed: BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex), file /bb/big
 //  storn/dev_framework/bchapman/git/bde-core/groups/bce/bcemt/unix-Linux-x86_6
 //  4-2.6.18-gcc-4.6.1/bcemt_mutexassertislocked.t.cpp, line 137
 //  Aborted (core dumped)
@@ -318,13 +318,13 @@ void myHandler(const char *text, const char *file, int line)
 {
     switch (mode) {
       case SAFE_MODE: {
-        ASSERT(!bsl::strcmp("BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&mutex)", text));
+        ASSERT(!bsl::strcmp("BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex)", text));
       } break;
       case NORMAL_MODE: {
-        ASSERT(!bsl::strcmp("BCEMT_ASSERTMUTEX_IS_LOCKED(&mutex)",      text));
+        ASSERT(!bsl::strcmp("BCEMT_MUTEXASSERT_IS_LOCKED(&mutex)",      text));
       } break;
       case OPT_MODE: {
-        ASSERT(!bsl::strcmp("BCEMT_ASSERTMUTEX_IS_LOCKED_OPT(&mutex)",  text));
+        ASSERT(!bsl::strcmp("BCEMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex)",  text));
       } break;
       default: {
         ASSERT(0);
@@ -342,7 +342,7 @@ void myHandler(const char *text, const char *file, int line)
     // fails.
 
     ASSERT(0 &&
-              "BCEMT_ASSERTMUTEX_IS_LOCKED* failed wtih exceptions disabled");
+              "BCEMT_MUTEXASSERT_IS_LOCKED* failed wtih exceptions disabled");
     abort();
 #endif
 }
@@ -432,9 +432,9 @@ int main(int argc, char *argv[])
         // The subthread has locked the mutex.  Now observe that none of these
         // macros blow up.
 
-        BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&mutexToAssertOn);
-        BCEMT_ASSERTMUTEX_IS_LOCKED(     &mutexToAssertOn);
-        BCEMT_ASSERTMUTEX_IS_LOCKED_OPT( &mutexToAssertOn);
+        BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutexToAssertOn);
+        BCEMT_MUTEXASSERT_IS_LOCKED(     &mutexToAssertOn);
+        BCEMT_MUTEXASSERT_IS_LOCKED_OPT( &mutexToAssertOn);
 
         // The subthread is blocked waiting for us to unlock
         // 'mutexThatMainThreadWillUnlock'.  Unlock it so the subthread can
@@ -452,10 +452,10 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'BCEMT_ASSERTMUTEX_IS_LOCKED*'
+        // TESTING 'BCEMT_MUTEXASSERT_IS_LOCKED*'
         //
         // Concerns:
-        //: 1 That 'BCEMT_ASSERTMUTEX_IS_LOCKED*' is never calling
+        //: 1 That 'BCEMT_MUTEXASSERT_IS_LOCKED*' is never calling
         //:   'bsls::Assert::invokeHandler' if the mutex is locked.
         //: 2 That, in appropriate build modes, 'invokeHandler' is in fact
         //:   called.  This test is only run when exceptions are enabled.
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
         //:   build mode.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'BCEMT_ASSERTMUTEX_IS_LOCKED*'\n"
+        if (verbose) cout << "TESTING 'BCEMT_MUTEXASSERT_IS_LOCKED*'\n"
                              "=====================================\n";
 
         bcemt_Mutex mutex;
@@ -479,9 +479,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Plan 1: testing with mutex locked\n";
         {
 
-            BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&mutex);
-            BCEMT_ASSERTMUTEX_IS_LOCKED(     &mutex);
-            BCEMT_ASSERTMUTEX_IS_LOCKED_OPT( &mutex);
+            BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex);
+            BCEMT_MUTEXASSERT_IS_LOCKED(     &mutex);
+            BCEMT_MUTEXASSERT_IS_LOCKED_OPT( &mutex);
         }
 
         if (veryVerbose) cout << "Plan 2: testing with mutex unlocked\n";
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
             try {
                 TEST_CASE_2::mode = TEST_CASE_2::SAFE_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
-                BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&mutex);
+                BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex);
                 ASSERT(!expectThrow);
 
                 if (veryVerbose) cout << "Didn't throw SAFE\n";
@@ -523,7 +523,7 @@ int main(int argc, char *argv[])
             try {
                 TEST_CASE_2::mode = TEST_CASE_2::NORMAL_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
-                BCEMT_ASSERTMUTEX_IS_LOCKED(&mutex);
+                BCEMT_MUTEXASSERT_IS_LOCKED(&mutex);
                 ASSERT(!expectThrow);
 
                 if (veryVerbose) cout << "Didn't throw\n";
@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
             try {
                 TEST_CASE_2::mode = TEST_CASE_2::OPT_MODE;
                 TEST_CASE_2::expectedLine = __LINE__ + 1;
-                BCEMT_ASSERTMUTEX_IS_LOCKED_OPT(&mutex);
+                BCEMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex);
                 ASSERT(!expectThrow);
 
                 if (veryVerbose) cout << "Didn't throw OPT\n";
@@ -574,15 +574,15 @@ int main(int argc, char *argv[])
 
         // All of these asserts should pass.
 
-        BCEMT_ASSERTMUTEX_IS_LOCKED_SAFE(&mutex);
-        BCEMT_ASSERTMUTEX_IS_LOCKED(     &mutex);
-        BCEMT_ASSERTMUTEX_IS_LOCKED_OPT( &mutex);
+        BCEMT_MUTEXASSERT_IS_LOCKED_SAFE(&mutex);
+        BCEMT_MUTEXASSERT_IS_LOCKED(     &mutex);
+        BCEMT_MUTEXASSERT_IS_LOCKED_OPT( &mutex);
 
         mutex.unlock();
       } break;
       case -1: {
         // ------------------------------------------------------------------
-        // TESTING 'BCEMT_ASSERTMUTEX_IS_LOCKED_OPT'
+        // TESTING 'BCEMT_MUTEXASSERT_IS_LOCKED_OPT'
         // ------------------------------------------------------------------
 
         if (verbose) cout << "WATCH ASSERT BLOW UP\n"
@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
         cout << "Expect opt assert fail now, line number is: " <<
                                                           __LINE__ + 2 << endl;
 
-        BCEMT_ASSERTMUTEX_IS_LOCKED_OPT(&mutex);
+        BCEMT_MUTEXASSERT_IS_LOCKED_OPT(&mutex);
 
         BSLS_ASSERT_OPT(0);
       } break;
