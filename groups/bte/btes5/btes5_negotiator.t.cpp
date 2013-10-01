@@ -280,6 +280,9 @@ int main(int argc, char *argv[]) {
         : verbose     ? btes5_TestServerArgs::e_ERROR
         :               btes5_TestServerArgs::e_NONE;
 
+    ASSERT(0 == bteso_SocketImpUtil::startup());  // needed on Windows,
+                                                  // harmless on UNIX
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
