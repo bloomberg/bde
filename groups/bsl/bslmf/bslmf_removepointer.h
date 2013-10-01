@@ -159,6 +159,34 @@ struct RemovePointer_Aix<TYPE, true> {
 };
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+template <class TYPE, bool isFunctionPtr = IsFunctionPointer<TYPE>::VALUE>
+struct RemovePointer_Msvc : RemovePointer_Imp<TYPE> {
+    // The implementation of the 'RemovePointer_Imp' for the Microsoft Visual
+    // C++ compiler which has a bug matching a 'T * const' template parameter
+    // with a cv-qualified function pointer type.  To workaround the bug, we
+    // provide additional partial specializations predicated on 'TYPE' being a
+    // function pointer type to first strip the cv-qualifier, and then delegate
+    // to the regular 'RemovePointer_Imp'.  This yields the correct result
+    // withough accidentally stripping the cv-qualifier from non-pointer types.
+};
+
+template <class TYPE>
+struct RemovePointer_Msvc<TYPE const, true>
+     : RemovePointer_Imp<TYPE> {
+};
+
+template <class TYPE>
+struct RemovePointer_Msvc<TYPE volatile, true>
+     : RemovePointer_Imp<TYPE> {
+};
+
+template <class TYPE>
+struct RemovePointer_Msvc<TYPE const volatile, true>
+     : RemovePointer_Imp<TYPE> {
+};
+#endif
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -179,6 +207,8 @@ struct remove_pointer {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     typedef typename BloombergLP::bslmf::RemovePointer_Aix<TYPE,
                 BloombergLP::bslmf::IsFunctionPointer<TYPE>::VALUE>::Type type;
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+    typedef typename BloombergLP::bslmf::RemovePointer_Msvc<TYPE>::Type type;
 #else
     typedef typename BloombergLP::bslmf::RemovePointer_Imp<TYPE>::Type type;
         // This 'typedef' is an alias to the type pointed to by the (template
