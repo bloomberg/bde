@@ -134,7 +134,7 @@ namespace {
 //..
 // Then, we define the 'acquireCredentials' method, which simply returns
 // hard-coded user credentials; note that in a typical application credentials
-// may be obtained from secure storage of by prompting the user:
+// may be obtained from secure storage or by prompting the user:
 //..
     void MyCredentialsProvider::acquireCredentials(
         const bteso_Endpoint&       proxy,
