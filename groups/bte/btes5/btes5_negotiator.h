@@ -100,18 +100,18 @@
 //  class MyCredentialsProvider : public btes5_CredentialsProvider {
 //    public:
 //      virtual void acquireCredentials(
-//          const bteso_Endpoint&               proxy,
-//          btes5_CredentialsProvider::Callback callback);
+//          const bteso_Endpoint&                                  proxy,
+//          btes5_CredentialsProvider::SuppliedCredentialsCallback callback);
 //      virtual void cancelAcquiringCredentials();
 //  //
 //  };
 //  void MyCredentialsProvider::acquireCredentials(
-//          const bteso_Endpoint&               proxy,
-//          btes5_CredentialsProvider::Callback callback)
+//          const bteso_Endpoint&                                  proxy,
+//          btes5_CredentialsProvider::SuppliedCredentialsCallback callback)
 //  {
 //      // normally we might prompt the user for username and password, but
 //      // here we use hard-coded values.
-//      callback(0, "jane.doe", "PassWord456");
+//      callback(0, "User", "Password");
 //  }
 //  void MyCredentialsProvider::cancelAcquiringCredentials()
 //  {

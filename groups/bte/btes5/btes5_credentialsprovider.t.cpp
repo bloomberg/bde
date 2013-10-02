@@ -95,7 +95,9 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 struct ProviderImp : bsls::ProtocolTestImp<btes5_CredentialsProvider> {
-    virtual void acquireCredentials(const bteso_Endpoint&, Callback) {
+    virtual void acquireCredentials(const bteso_Endpoint&,
+                                    SuppliedCredentialsCallback)
+    {
         markDone();
     };
     virtual void cancelAcquiringCredentials()                   { markDone(); }
@@ -106,12 +108,12 @@ struct ProviderImp : bsls::ProtocolTestImp<btes5_CredentialsProvider> {
 // ----------------------------------------------------------------------------
 namespace {
 
-///Example 1: Acquire Username and Passowrd
+///Example 1: Acquire Username and Password
 /// - - - - - - - - - - - - - - - - - - - -
 // During the process of SOCKS5 negotiation, a proxy host may require the
 // username and password to authenticate the SOCKS5 client.  In this example we
-// acquire the credentials from secure storage and pass them to the client code
-// through a client-supplied callback.
+// use hard-coded credentials and pass them to the client code through a
+// client-supplied callback.
 //
 // First, we define a class that implements the 'btes5_CredentialsProvider'
 // protocol.
@@ -120,23 +122,23 @@ namespace {
       public:
         // Construction and destruction elided.
 
-    virtual void acquireCredentials(const bteso_Endpoint& proxy,
-                                    Callback              callback);
-        // Acquire credentials and invoke the specified 'callback' with
-        // username and password to authenticate the SOCKS5 client with the
-        // specified 'proxy'.
+        virtual void acquireCredentials(const bteso_Endpoint&       proxy,
+                                        SuppliedCredentialsCallback callback);
+            // Acquire credentials and invoke the specified 'callback' with
+            // username and password to authenticate the SOCKS5 client with the
+            // specified 'proxy'.
 
-    virtual void cancelAcquiringCredentials();
-        // Cancel acquiring credentials.
+        virtual void cancelAcquiringCredentials();
+            // Cancel acquiring credentials.
     };
 //..
-// Then, we define the 'acquireCredentials' method.  Since here we look up the
-// credentials in secure storage which is a non-blocking operation, we can
-// invoke the callback directly.
+// Then, we define the 'acquireCredentials' method, which simply returns
+// hard-coded user credentials; note that in a typical application credentials
+// may be obtained from secure storage of by prompting the user:
 //..
     void MyCredentialsProvider::acquireCredentials(
-        const bteso_Endpoint& proxy,
-        Callback              callback)
+        const bteso_Endpoint&       proxy,
+        SuppliedCredentialsCallback callback)
     {
         bsl::string username("Defaultuser");
         bsl::string password("Defaultpassword");
@@ -145,7 +147,10 @@ namespace {
     }
 //..
 // Now, we define the callback function which would make use of the acquired
-// credentials by sending them to the SOCKS5 server.
+// credentials by sending them to the SOCKS5 server.  Note that typically this
+// callback is *not* defined by clients of the 'btes5' package (e.g.,
+// 'btes5_negotiator' defines such a callback which is passed to
+// credential-provider implementations during the negotiation process).
 //..
     void credentialsCb(int                      status,
                        const bslstl::StringRef& username,
@@ -253,14 +258,13 @@ int main(int argc, char *argv[])
         //:   2 publicly accessible. (C-5)
         //
         // Testing:
-        //   virtual ~btes5_CredentialsProvider();
-        //   virtual void acquireCredentials(const bteso_Endpoint& proxy,
-        //                                   Callback callback) = 0;
-        //   virtual void cancelAcquiringCredentials() = 0;
+        //   PROTOCOL TEST
         // ------------------------------------------------------------------------
 
-        if (verbose) printf("\nPROTOCOL TEST"
-                            "\n=============\n");
+        if (verbose) cout << endl
+                          << "PROTOCOL TEST" << endl
+                          << "=============" << endl;
+
         bsls::ProtocolTest<ProviderImp> testObj(veryVerbose);
         if (verbose) printf("\nVerify that the protocol is abstract.\n");
 
@@ -275,7 +279,7 @@ int main(int argc, char *argv[])
           ASSERT(testObj.testVirtualDestructor());
         if (verbose) printf("\nVerify that methods are public and virtual.\n");
 
-          btes5_CredentialsProvider::Callback cb;
+          btes5_CredentialsProvider::SuppliedCredentialsCallback cb;
           bteso_Endpoint proxy("localhost", 8194);
           BSLS_PROTOCOLTEST_ASSERT(testObj, acquireCredentials(proxy, cb));
           BSLS_PROTOCOLTEST_ASSERT(testObj, cancelAcquiringCredentials());

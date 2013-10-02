@@ -206,14 +206,14 @@ namespace {
     class MyCredentialsProvider : public btes5_CredentialsProvider {
       public:
         virtual void acquireCredentials(
-            const bteso_Endpoint&               proxy,
-            btes5_CredentialsProvider::Callback callback);
+            const bteso_Endpoint&                                  proxy,
+            btes5_CredentialsProvider::SuppliedCredentialsCallback callback);
         virtual void cancelAcquiringCredentials();
     //
     };
     void MyCredentialsProvider::acquireCredentials(
-            const bteso_Endpoint&               proxy,
-            btes5_CredentialsProvider::Callback callback)
+            const bteso_Endpoint&                                  proxy,
+            btes5_CredentialsProvider::SuppliedCredentialsCallback callback)
     {
         // normally we might prompt the user for username and password, but
         // here we use hard-coded values.
