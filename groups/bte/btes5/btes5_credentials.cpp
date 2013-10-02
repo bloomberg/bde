@@ -1,43 +1,19 @@
-// btes5_credentials.cpp                                          -*-C++-*-
+// btes5_credentials.cpp                                              -*-C++-*-
 #include <btes5_credentials.h>
 
-#include <bsl_ostream.h>
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(btes5_credentials_cpp, "$Id$ $CSID$")
+
+#include <bslim_printer.h>
 #include <bsls_assert.h>
 
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(btes5_credentials, "$Id$ $CSID$")
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
-                         // ---------------------------
+                         // -----------------------
                          // class btes5_Credentials
-                         // ---------------------------
-
-// CREATORS
-btes5_Credentials::btes5_Credentials(bslma::Allocator *allocator)
-: d_username(allocator)
-, d_password(allocator)
-{
-    // 'd_username.length() > 0' is the internal indicator for 'this->isSet()'.
-}
-
-btes5_Credentials::btes5_Credentials(
-    const btes5_Credentials&  original,
-    bslma::Allocator         *allocator)
-: d_username(original.d_username, allocator)
-, d_password(original.d_password, allocator)
-{
-}
-
-btes5_Credentials::btes5_Credentials(
-    const bslstl::StringRef&  username,
-    const bslstl::StringRef&  password,
-    bslma::Allocator         *allocator)
-: d_username(allocator)
-, d_password(allocator)
-{
-    set(username, password);
-}
+                         // -----------------------
 
 // MANIPULATORS
 void btes5_Credentials::set(const bslstl::StringRef& username,
@@ -45,52 +21,39 @@ void btes5_Credentials::set(const bslstl::StringRef& username,
 {
     BSLS_ASSERT(0 < username.length() && username.length() <= 255);
     BSLS_ASSERT(0 < password.length() && password.length() <= 255);
+
     d_username.assign(username.begin(), username.end());
     d_password.assign(password.begin(), password.end());
 }
 
-void btes5_Credentials::reset()
-{
-    d_username.clear();
-    d_password.clear();
-}
-
 // ACCESSORS
-bool btes5_Credentials::isSet() const
-{
-    return d_username.length() > 0;
-}
 
-const bsl::string& btes5_Credentials::username() const
-{
-    return d_username;
-}
+                                  // Aspects
 
-const bsl::string& btes5_Credentials::password() const
+bsl::ostream& btes5_Credentials::print(bsl::ostream& stream,
+                                       int           level,
+                                       int           spacesPerLevel) const
 {
-    return d_password;
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("username", d_username);
+    printer.printAttribute("password", d_password);
+    printer.end();
+
+    return stream;
 }
 
 // FREE OPERATORS
-bool operator==(const btes5_Credentials& lhs,
-                const btes5_Credentials& rhs)
-{
-    return lhs.username() == rhs.username()
-        && lhs.password() == rhs.password();
-}
-
-bool operator!=(const btes5_Credentials& lhs,
-                const btes5_Credentials& rhs)
-{
-    return lhs.username() != rhs.username()
-        || lhs.password() != rhs.password();
-}
-
-bsl::ostream& operator<<(bsl::ostream&                output,
+bsl::ostream& operator<<(bsl::ostream&            stream,
                          const btes5_Credentials& object)
 {
-    output << object.username() << ':' << object.password();
-    return output;
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    printer.printValue(object.username());
+    printer.printValue(object.password());
+    printer.end();
+
+    return stream;
 }
 
 }  // close enterprise namespace

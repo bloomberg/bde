@@ -1,5 +1,4 @@
 // btes5_credentialsprovider.h                                        -*-C++-*-
-
 #ifndef INCLUDED_BTES5_CREDENTIALSPROVIDER
 #define INCLUDED_BTES5_CREDENTIALSPROVIDER
 

@@ -21,6 +21,10 @@ BDES_IDENT("$Id: $")
 // with status reported to client-supplied callback. Each connection attempt is
 // identifed by a 'AttempAttempt', which can be used to cancel the attempt.
 //
+// Note that on MS Windows, 'bteso_SocketImpUtil::startup' must be called to
+// initialize the socket environment before calling
+// 'btes5_NetworkConnector::startAttempt'.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -298,6 +302,8 @@ public:
         // 'allocator' is not 0 use it to allocate memory, otherwise, use the
         // default allocator. The behavior is undefined unless 'socks5Servers'
         // has at least one level of proxies, and each level is non-empty.
+        // Note that 'eventManager' must be enabled before 'startAttempt' is
+        // called.
 
     ~btes5_NetworkConnector();
         // Destroy this object. Established connections are not closed.
@@ -318,7 +324,8 @@ public:
         // and cancel the attempt by calling 'cancelAttempt'.
 
     void startAttempt(AttemptHandle& connectionAttempt);
-        // Start the specified 'connectionAttempt'.
+        // Start the specified 'connectionAttempt'.  The behavior is undefined
+        // unless 'eventManager' supplied at construction is enabled.
 
     void cancelAttempt(AttemptHandle& connectionAttempt);
         // Cancel the specified 'connectionAttempt'. Further invocation of the

@@ -3,16 +3,16 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 
-#include <btes5_networkconnector.h>
 #include <btes5_negotiator.h>
+#include <btes5_networkconnector.h>
 #include <btes5_testserver.h> // for testing only
 
 #include <bcema_sharedptr.h>
 #include <bdef_bind.h>
 #include <bdetu_systemtime.h>
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
-#include <bsl_sstream.h>
 #include <btemt_sessionpool.h> // for testing only
 #include <btemt_tcptimereventmanager.h>
 #include <bteso_inetstreamsocketfactory.h>
@@ -20,6 +20,8 @@ BDES_IDENT_RCSID(btemt_socks5connector_cpp, "$Id$ $CSID$")
 #include <bteso_resolveutil.h>
 #include <bteso_socketimputil.h>
 #include <bteso_socketoptutil.h>
+
+#include <bsl_sstream.h>
 
 // 'btes5_NetworkConnector' implements asynchronous connection establishments.
 // Because of that, callbacks related to IO and timeout events can be invoked
@@ -767,6 +769,8 @@ btes5_NetworkConnector::makeAttemptHandle(
 
 void btes5_NetworkConnector::startAttempt(AttemptHandle& connectionAttempt)
 {
+    BSLS_ASSERT(d_connector->d_eventManager_p->isEnabled());
+
     if (bdet_TimeInterval() != connectionAttempt->d_totalTimeout) {
         bdet_TimeInterval expiration
             = bdetu_SystemTime::now() + connectionAttempt->d_totalTimeout;
