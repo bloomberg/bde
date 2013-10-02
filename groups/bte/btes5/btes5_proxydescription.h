@@ -19,6 +19,8 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a value-semantic attribute class,
 // 'bteso_ProxyDecsription', describing a SOCKS5 proxy.
 //
+// [!WARNING!] This component should only be used by API at this time.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

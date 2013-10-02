@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an test SOCSK5 proxy server.
+//@PURPOSE: Provide a test SOCSK5 proxy server.
 //
 //@CLASSES:
 //  btes5::btes5_TestServer: a SOCKS5 proxy server
@@ -21,6 +21,8 @@ BDES_IDENT("$Id: $")
 // controlled by a 'btes5_testServerArgs' passed during construction; the
 // server can validate the protocol messages it receives, and either work
 // normally (as a proxy) or simulate several failure conditions.
+//
+// [!WARNING!] This component should only be used by API at this time.
 //
 ///Usage
 ///-----

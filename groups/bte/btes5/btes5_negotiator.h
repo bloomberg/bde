@@ -12,6 +12,8 @@
 //@DESCRIPTION: This component defines a mechanism for negotiating a
 // SOCKS5 client-side handshake.
 //
+// [!WARNING!] This component should only be used by API at this time.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

@@ -27,6 +27,8 @@ BDES_IDENT("$Id: $")
 // threads; callbacks provided by client code must not depend on being executed
 // in any particular thread.
 //
+// [!WARNING!] This component should only be used by API at this time.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

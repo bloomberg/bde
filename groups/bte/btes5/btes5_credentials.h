@@ -22,6 +22,8 @@ BDES_IDENT("$Id: $")
 // Currently, the only authentication method supported is "Username/Password"
 // as defined in RFC 1929.
 //
+// [!WARNING!] This component should only be used by API at this time.
+//
 ///Attributes
 ///----------
 //..

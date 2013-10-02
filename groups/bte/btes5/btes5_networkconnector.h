@@ -25,6 +25,8 @@ BDES_IDENT("$Id: $")
 // initialize the socket environment before calling
 // 'btes5_NetworkConnector::startAttempt'.
 //
+// [!WARNING!] This component should only be used by API at this time.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

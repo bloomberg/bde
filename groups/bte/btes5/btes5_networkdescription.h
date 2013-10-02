@@ -22,6 +22,8 @@ BDES_IDENT("$Id: $")
 // btes5_NetworkConnector, see the btes5_networkconnector component for more
 // complete usage examples.
 //
+// [!WARNING!] This component should only be used by API at this time.
+//
 ///Usage
 ///-----
 ///Example 1: Describe a Two-level Proxy Network
