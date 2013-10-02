@@ -7,16 +7,16 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a protocol for providing SOCKS5 credentials during
-// negotiation.
+//@PURPOSE: Provide a protocol for providing SOCKS5 credentials.
 //
 //@CLASSES:
-//   bteso_CredentialsProvider
+//  bteso_CredentialsProvider: SOCKS5 credentials provider protocol
 //
-//@SEE ALSO:
+//@SEE ALSO: btes5_networkconnector, btes5_negotiator
 //
-//@DESCRIPTION: This component provides an abstract protocol for acquiring
-// credentials to authneticate a SOCKS5 connection.
+//@DESCRIPTION: This component provides a protocol,
+// 'btes5_CredentialsProvider', for asynchronously providing credentials to
+// authenticate a SOCKS5 connection.
 //
 ///Usage
 ///-----
