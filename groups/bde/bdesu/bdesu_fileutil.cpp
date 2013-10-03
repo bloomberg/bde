@@ -766,7 +766,7 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
 
          struct dirent& entry = entryHolder.d_entry;
          struct dirent *entry_p;
-         struct stat dummy;
+         struct stat64 dummy;
          int rc;
          do {
             rc = readdir_r(dir, &entry, &entry_p);
