@@ -1,3 +1,10 @@
+bsl-internal (2.19.0.2) unstable; urgency=low
+
+  * Bump changelog
+  * a21ebc8 Revert to assembly for x86, gcc < 4.3
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 04 Oct 2013 17:48:05 -0400
+
 bsl-internal (2.19.0.1) unstable; urgency=low
 
   * Bump changelog
