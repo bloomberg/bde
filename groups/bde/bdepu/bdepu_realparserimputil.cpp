@@ -213,7 +213,7 @@ int bdepu_RealParserImpUtil::convertBinaryToDouble(double *value,
 
     // Assumes standard (IEEE-754) 'double' format.
 
-    if (binExp > 1024) {  // overflow
+    if (binExp > 1023) {  // overflow
         return BDEPU_FAILURE;                                         // RETURN
     }
 
