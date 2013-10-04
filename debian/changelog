@@ -1,3 +1,11 @@
+bde-core (2.19.1.000.1000) unstable; urgency=low
+
+  * Bump changelog
+  * ccfffd9 [APPROVAL] pending/master/drqs-39472839-add-socks5-to-bte to releases/2.19.x
+  * 75f4563 [APPROVAL] pending/master/bcemt-mutex-locked-component-drqs-34158704 to releases/2.19.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 4 Oct 2013 15:58:20 -0400
+
 bde-core (2.19.0.000.1002) unstable; urgency=low
 
   * Bump changelog

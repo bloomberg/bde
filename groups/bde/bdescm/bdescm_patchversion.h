@@ -33,7 +33,7 @@ BDES_IDENT("$Id: $")
 //  #endif
 //..
 
-#define BDESCM_PATCHVERSION_PATCH 0
+#define BDESCM_PATCHVERSION_PATCH 1
     // Provide the patch version number of the current (latest) BDE release.
 
 #endif
