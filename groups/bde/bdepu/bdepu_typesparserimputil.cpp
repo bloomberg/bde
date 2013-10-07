@@ -741,7 +741,7 @@ int bdepu_TypesParserImpUtil::parseFloat(const char **endPos,
                                                         decExp)) {
         return BDEPU_FAILURE;
     }
-    if (binExp > 127) {        // overflow
+    if (binExp > 128) {        // overflow
         return BDEPU_FAILURE;
     }
     else if (binExp < -126) {  // underflow
