@@ -68,26 +68,6 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
     return bsl::shared_ptr<char>((char *)rep->ptr(), rep);
 }
 
-
-                        // -------------------------------
-                        // class bslstl::SharedPtr_ImpUtil
-                        // -------------------------------
-
-void SharedPtr_ImpUtil::checkAllocatorIsNewDelete(bslma::Allocator *allocator)
-{
-    static bool firstBadCall = false;
-    if (!firstBadCall) {
-        bslma::Allocator *expected = &bslma::NewDeleteAllocator::singleton();
-        if (allocator != expected) {
-            firstBadCall = true;
-            fprintf(stderr,
-                  "WARNING: Constructing a shared pointer without an "
-                  "allocator when the default is not the NewDelete allocator; "
-                  "see {TEAM BDEI:SMART POINTER CONSTRUCTORS<GO>}\n");
-        }
-    }
-}
-
 }  // close namespace bslstl
 }  // close namespace BloombergLP
 

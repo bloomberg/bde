@@ -2581,7 +2581,6 @@ shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source);
     // compiler diagnostic will be emitted indicating the error.
 
 // STANDARD FREE FUNCTIONS
-#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
 template<class DELETER, class ELEMENT_TYPE>
 DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
 
@@ -2590,7 +2589,6 @@ DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
 //
 // template<class ELEMENT_TYPE, class ALLOC, class... Args>
 // shared_ptr<ELEMENT_TYPE> allocate_shared(const ALLOC& a, Args&&... args);
-#endif
 
                         // ==============
                         // class weak_ptr
@@ -2977,22 +2975,6 @@ struct SharedPtr_DefaultDeleter {
         // Calls 'delete(ptr)'.
 };
 
-                           // ================================
-                           // private struct SharedPtr_ImpUtil
-                           // ================================
-
-struct SharedPtr_ImpUtil {
-    // This 'struct' provides a namespace for non-generic implementation
-    // utilities shared by all instantiations of the 'bsl::shared_ptr'
-    // template.
-
-    static void checkAllocatorIsNewDelete(bslma::Allocator *allocator);
-        // If the specified 'allocator' is not the NewDelete allocator
-        // singleton then, if this is the first such occurence since the
-        // current task was started, write a message to the console warning
-        // about a pending change of behavior in the next BDE release.
-};
-
                            // =================================
                            // private struct SharedPtr_SwapUtil
                            // =================================
@@ -3051,13 +3033,7 @@ shared_ptr<ELEMENT_TYPE>::makeInternalRep(COMPATIBLE_TYPE *ptr,
     typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
                                                        DELETER *>     RepMaker;
 
-#if defined(BCEMA_SUPPORT_NAKED_NEW_DRQS27411521)
     return RepMaker::makeOutofplaceRep(ptr, deleter, 0);
-#else
-    BloombergLP::bslma::Allocator *defaultAllocator =
-                               BloombergLP::bslma::Default::defaultAllocator();
-    return RepMaker::makeOutofplaceRep(ptr, deleter, defaultAllocator);
-#endif
 }
 
 template <class ELEMENT_TYPE>
@@ -3096,33 +3072,12 @@ inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
 : d_ptr_p(ptr)
 {
-#if defined(BCEMA_SUPPORT_NAKED_NEW_DRQS27411521)
     typedef BloombergLP::bslstl::SharedPtr_DefaultDeleter<COMPATIBLE_TYPE>
                                                                        Deleter;
     typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
                                                        Deleter>       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
-#else
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<
-                                              COMPATIBLE_TYPE,
-                                              BloombergLP::bslma::Allocator *>
-                                                                      RepMaker;
-
-    BloombergLP::bslma::Allocator *defaultAllocator =
-                               BloombergLP::bslma::Default::defaultAllocator();
-
-    // The following test is to alert users of a coming change of behavior in
-    // BDE 3.0, when 'bsl::shared_ptr' will have semantics specified by the
-    // C++11 standard.
-
-    BloombergLP::bslstl::SharedPtr_ImpUtil::checkAllocatorIsNewDelete(
-                                                             defaultAllocator);
-
-    d_rep_p = RepMaker::makeOutofplaceRep(ptr,
-                                          defaultAllocator,
-                                          defaultAllocator);
-#endif
 }
 
 template <class ELEMENT_TYPE>
@@ -3369,15 +3324,7 @@ template <class COMPATIBLE_TYPE>
 inline
 void shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE *ptr)
 {
-#if 0
-#if defined(BCEMA_SUPPORT_NAKED_NEW_DRQS27411521)
     SelfType(ptr).swap(*this);
-#else
-    SelfType(ptr, 0).swap(*this);
-#endif
-#else
-    SelfType(ptr).swap(*this);
-#endif
 }
 
 template <class ELEMENT_TYPE>
@@ -4256,37 +4203,6 @@ size_t hash<shared_ptr<ELEMENT_TYPE> >::operator()(
 
 }  // close namespace bsl
 
-// STANDARD CAST FUNCTIONS
-template<class TO_TYPE, class FROM_TYPE>
-bsl::shared_ptr<TO_TYPE>
-bsl::const_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-{
-    return shared_ptr<TO_TYPE>(source, const_cast<TO_TYPE *>(source.ptr()));
-}
-
-template<class TO_TYPE, class FROM_TYPE>
-bsl::shared_ptr<TO_TYPE>
-bsl::dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-{
-    return shared_ptr<TO_TYPE>(source, dynamic_cast<TO_TYPE *>(source.ptr()));
-}
-
-template<class TO_TYPE, class FROM_TYPE>
-bsl::shared_ptr<TO_TYPE>
-bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-{
-    return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.ptr()));
-}
-
-#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
-// STANDARD FREE FUNCTIONS
-template<class DELETER, class ELEMENT_TYPE>
-DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
-{
-    BloombergLP::bslma::SharedPtrRep *rep = p.rep();
-    return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
-}
-#endif
 
 namespace BloombergLP {
 namespace bslstl {
@@ -4538,6 +4454,36 @@ inline
 void bsl::swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b)
 {
     a.swap(b);
+}
+
+// STANDARD CAST FUNCTIONS
+template<class TO_TYPE, class FROM_TYPE>
+bsl::shared_ptr<TO_TYPE>
+bsl::const_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+{
+    return shared_ptr<TO_TYPE>(source, const_cast<TO_TYPE *>(source.ptr()));
+}
+
+template<class TO_TYPE, class FROM_TYPE>
+bsl::shared_ptr<TO_TYPE>
+bsl::dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+{
+    return shared_ptr<TO_TYPE>(source, dynamic_cast<TO_TYPE *>(source.ptr()));
+}
+
+template<class TO_TYPE, class FROM_TYPE>
+bsl::shared_ptr<TO_TYPE>
+bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+{
+    return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.ptr()));
+}
+
+// STANDARD FREE FUNCTIONS
+template<class DELETER, class ELEMENT_TYPE>
+DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
+{
+    BloombergLP::bslma::SharedPtrRep *rep = p.rep();
+    return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
 }
 
 #endif
