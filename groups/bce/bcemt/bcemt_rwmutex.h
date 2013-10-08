@@ -171,13 +171,19 @@ class bcemt_RWMutex {
 inline
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::bcemt_RWMutexImpl()
 {
-    pthread_rwlock_init(&d_lock, NULL);
+    const int rc = pthread_rwlock_init(&d_lock, NULL);
+
+    BSLS_ASSERT(0 == rc);
+    (void) rc;    // suppress 'unused variable' warnings
 }
 
 inline
 bcemt_RWMutexImpl<bces_Platform::PosixThreads>::~bcemt_RWMutexImpl()
 {
-    pthread_rwlock_destroy(&d_lock);
+    const int rc = pthread_rwlock_destroy(&d_lock);
+
+    BSLS_ASSERT(0 == rc);
+    (void) rc;    // suppress 'unused variable' warnings
 }
 
 // MANIPULATORS
