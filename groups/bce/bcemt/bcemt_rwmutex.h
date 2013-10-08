@@ -173,7 +173,9 @@ bcemt_RWMutexImpl<bces_Platform::PosixThreads>::bcemt_RWMutexImpl()
 {
     const int rc = pthread_rwlock_init(&d_lock, NULL);
 
-    BSLS_ASSERT_OPT(0 == rc);
+    // pthread_rwlock_init should not return a failure code.
+
+    BSLS_ASSERT_SAFE(0 == rc);
     (void) rc;    // suppress 'unused variable' warnings
 }
 
@@ -182,7 +184,9 @@ bcemt_RWMutexImpl<bces_Platform::PosixThreads>::~bcemt_RWMutexImpl()
 {
     const int rc = pthread_rwlock_destroy(&d_lock);
 
-    BSLS_ASSERT_OPT(0 == rc);
+    // pthread_rwlock_destroy should not return a failure code.
+
+    BSLS_ASSERT_SAFE(0 == rc);
     (void) rc;    // suppress 'unused variable' warnings
 }
 
@@ -193,7 +197,9 @@ bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockRead()
 {
     const int rc = pthread_rwlock_rdlock(&d_lock);
 
-    BSLS_ASSERT_OPT(0 == rc);
+    // pthread_rwlock_rdlock should not return a failure code.
+
+    BSLS_ASSERT_SAFE(0 == rc);
     (void) rc;    // suppress 'unused variable' warnings
 }
 
@@ -203,7 +209,9 @@ bcemt_RWMutexImpl<bces_Platform::PosixThreads>::lockWrite()
 {
     const int rc = pthread_rwlock_wrlock(&d_lock);
 
-    BSLS_ASSERT_OPT(0 == rc);
+    // pthread_rwlock_wrlock should not return a failure code.
+
+    BSLS_ASSERT_SAFE(0 == rc);
     (void) rc;    // suppress 'unused variable' warnings
 }
 
