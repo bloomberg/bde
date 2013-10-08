@@ -229,7 +229,9 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(parallelCount, 1 == parallelCount);
         }
 
-#if 0
+#if 0   // This is the intended use-case, but cannot be tested directly due to
+        // cyclic dependencies.
+
         if (verbose) printf("\tConfirm the deleter can be registered with "
                              "a managed pointer\n");
 
