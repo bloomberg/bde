@@ -34,7 +34,6 @@ namespace bsl
     //  using native_std::allocator;
     //..
 
-    using native_std::advance;
     using native_std::auto_ptr;
     using native_std::get_temporary_buffer;
     using native_std::raw_storage_iterator;
@@ -44,6 +43,13 @@ namespace bsl
     using native_std::uninitialized_fill_n;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+    // Import additional names expected by existing code, but not mandated by
+    // the standard header.  This may get tricky if some standard library
+    // happens to not require any of these names for its native implementation
+    // of the <memory> header.
+
+    using native_std::advance;
     using native_std::bad_alloc;
     using native_std::bidirectional_iterator_tag;
     using native_std::forward_iterator_tag;
@@ -53,6 +59,7 @@ namespace bsl
     using native_std::nothrow;
     using native_std::nothrow_t;
     using native_std::output_iterator_tag;
+    using native_std::new_handler;
     using native_std::random_access_iterator_tag;
     using native_std::set_new_handler;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
