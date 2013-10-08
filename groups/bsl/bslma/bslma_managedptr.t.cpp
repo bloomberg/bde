@@ -181,24 +181,11 @@ void aSsErT(bool b, const char *s, int i)
 // Note that the macros defined in this section are entirely transitional, to
 // support testing code that may or may not be adjusted to handle the new BDE
 // smart pointer semantics.
-//
-// If the macro BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521
-// is defined, then the original smenatics for constucting a mmanaged pointer
-// with a single pointer argument are in force, which assume that the passed
-// pointer was constructed dynamically using the default allocator.  By default
-// we now assume the C++11 shared_ptr semantic, which is that a naked 'new'
-// call was used.
 
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-#   define BSLMA_IMPLICIT_ALLOCATOR (da)
-#else
-#   define BSLMA_IMPLICIT_ALLOCATOR
-#endif
-    // The 'BSLMA_IMPLICIT_ALLOCATOR' macro can be used in a 'new' expression
-    // to get default semantic for dynamically allocating an object whose
-    // address will be passed to a managed pointer constructor or 'load' method
-    // without explicitly passing an allocator.  This assumes that the
-    // default allocator is aliased as 'da'
+# define BSLMA_IMPLICIT_ALLOCATOR
+    // The 'BSLMA_IMPLICIT_ALLOCATOR' macro was a compatibility shim that now
+    // expands to nothing, and should be remove (reformatting test) before
+    // releasing this test driver
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -1474,22 +1461,6 @@ void doConstructObject(int callLine, int testLine, int index,
         validateManagedState(L_, testObject, 0, del);
     }
     else {
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-        bslma::Allocator& da = *bslma::Default::defaultAllocator();
-        pO = new(da) ObjectType(&deleteCount);
-        args->d_useDefault = true;
-
-        bslma::ManagedPtr<POINTER_TYPE> testObject(pO);
-
-        typedef bslma::ManagedPtr_FactoryDeleter<ObjectType,bslma::Allocator>
-                                                                  DeleterClass;
-        const bslma::ManagedPtrDeleter del(TestUtil::stripPointerType(pO),
-                                          &da,
-                                          &DeleterClass::deleter);
-
-        POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
-        validateManagedState(L_, testObject, pTarget, del);
-#else
         pO = new ObjectType(&deleteCount);
         args->d_useDefault = false;
 
@@ -1502,7 +1473,6 @@ void doConstructObject(int callLine, int testLine, int index,
 
         POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
         validateManagedState(L_, testObject, pTarget, del);
-#endif
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
@@ -6086,11 +6056,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
             a_mp1 = b_mp1;      // conversion assignment of nil ptr to nil
             ASSERT(!a_mp1 && !b_mp1);
 
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-            B *b_p2 = new (localDefaultTa) B(&numdels);
-#else
             B *b_p2 = new B(&numdels);
-#endif
             bslma::ManagedPtr<B> b_mp2(b_p2);    // default allocator
             ASSERT(!a_mp1 && b_mp2);
 
@@ -6529,11 +6495,7 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == numDeletes);
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-            da.deleteObject(p);
-#else
             delete p;
-#endif
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
@@ -6555,11 +6517,7 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 == numDeletes);
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-            da.deleteObject(p);
-#else
             delete p;
-#endif
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
@@ -7147,45 +7105,6 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-        int numDeletes = 0;
-        {
-            SS *p = new (da) SS(&numDeletes);
-            strcpy(p->d_buf, "Woof meow");
-
-            SSObj s(p);
-            ChObj c(s, &p->d_buf[5]);
-
-            ASSERT(!s); // should not be testing operator! until test 13
-
-            ASSERT(!strcmp(c.ptr(), "meow"));
-
-            ASSERT(0 == numDeletes);
-        }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-
-        bsls::Types::Int64 numDeallocations = da.numDeallocations();
-        numDeletes = 0;
-        {
-            SS *p = new (da) SS(&numDeletes);
-            strcpy(p->d_buf, "Woof meow");
-            char *pc = (char *) da.allocate(5);
-            strcpy(pc, "Werf");
-
-            SSObj s(p);
-            ChObj c(pc);
-
-            ASSERT(da.numDeallocations() == numDeallocations);
-            c.loadAlias(s, &p->d_buf[5]);
-            ASSERT(da.numDeallocations() == numDeallocations + 1);
-
-            ASSERT(!s); // should not be testing operator! until test 13
-
-            ASSERT(!strcmp(c.ptr(), "meow"));
-        }
-        ASSERT(da.numDeallocations() == numDeallocations + 2);
-#else
         int numDeletes = 0;
         {
             SS *p = new SS(&numDeletes);
@@ -7223,7 +7142,6 @@ int main(int argc, char *argv[])
             ASSERT(!strcmp(c.ptr(), "meow"));
         }
         ASSERT(da.numDeallocations() == numDeallocations + 1);
-#endif
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -7678,19 +7596,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\tconst-qualified int\n");
 
             bslma::TestAllocatorMonitor dam(&da);
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-            {
-                const int *p = new (da) const int(0);
-
-                bslma::TestAllocatorMonitor dam2(&da);
-                bslma::ManagedPtr<const int> o(p);
-
-                ASSERT(o.ptr() == p);
-                ASSERT(dam2.isInUseSame());
-            }
-            ASSERT(dam.isTotalUp());
-            ASSERT(dam.isInUseSame());
-#else
             {
                 bslma::TestAllocatorMonitor dam2(&da);
 
@@ -7702,7 +7607,6 @@ int main(int argc, char *argv[])
             }
             ASSERT(!dam.isTotalUp());
             ASSERT(dam.isInUseSame());
-#endif
         }
         ASSERT(0 == numDeletes);
 
@@ -7711,19 +7615,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\t\tint -> const int conversion\n");
 
             bslma::TestAllocatorMonitor dam(&da);
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-            {
-                int *p = new (da) int;
-
-                bslma::TestAllocatorMonitor dam2(&da);
-                bslma::ManagedPtr<const int> o(p);
-
-                ASSERT(o.ptr() == p);
-                ASSERT(dam2.isInUseSame());
-            }
-            ASSERT(dam.isTotalUp());
-            ASSERT(dam.isInUseSame());
-#else
             {
                 bslma::TestAllocatorMonitor dam2(&da);
 
@@ -7735,7 +7626,6 @@ int main(int argc, char *argv[])
             }
             ASSERT(!dam.isTotalUp());
             ASSERT(dam.isInUseSame());
-#endif
         }
         ASSERT(0 == numDeletes);
 

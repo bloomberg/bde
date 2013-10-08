@@ -714,10 +714,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_unspecifiedbool.h>
 #endif
 
-
-#define BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521
-
-
 namespace BloombergLP {
 
 namespace bslma {
@@ -1462,21 +1458,6 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *)
 {
 }
 
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-template <class TARGET_TYPE>
-template <class MANAGED_TYPE>
-inline
-ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
-: d_members(stripCompletePointerType(ptr),
-            Default::allocator(),
-            &ManagedPtr_FactoryDeleter<MANAGED_TYPE, Allocator>::deleter,
-            stripBasePointerType(ptr))
-{
-    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
-
-    ManagedPtr_ImpUtil::checkDefaultAllocatorIsNewDeleteAllocator();
-}
-#else
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
@@ -1488,7 +1469,6 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
 }
-#endif
 
 template <class TARGET_TYPE>
 inline
