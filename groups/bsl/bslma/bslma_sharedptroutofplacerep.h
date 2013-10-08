@@ -386,12 +386,10 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // shared references reaches zero and should not be explicitly invoked
         // otherwise.
 
-#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
     virtual void *getDeleter(const std::type_info& type);
         // Return a pointer to the deleter stored by the derived representation
         // (if any) if the deleter has the same type as that described by the
         // specified 'type', and a null pointer otherwise.
-#endif
 
     // ACCESSORS
     virtual void *originalPtr() const;
@@ -666,18 +664,12 @@ SharedPtrOutofplaceRep<TYPE, DELETER> *
 
     SharedPtrOutofplaceRep<TYPE, DELETER> *rep = 0;
 
-#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
-    if (ptr) {  // For C++11, we reference count null pointers
-#endif
-        basicAllocator = Default::allocator(basicAllocator);
-        rep = new (*basicAllocator) SharedPtrOutofplaceRep(
+    basicAllocator = Default::allocator(basicAllocator);
+    rep = new (*basicAllocator) SharedPtrOutofplaceRep(
                                          ptr,
                                          deleter,
                                          basicAllocator,
                                          bslmf::MetaInt<BSLMA_DELETER_TYPE>());
-#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
-    }
-#endif
 
     guard.release();
 
@@ -709,7 +701,6 @@ void SharedPtrOutofplaceRep<TYPE, DELETER>::disposeObject()
     d_ptr_p = 0;
 }
 
-#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
 template <class TYPE, class DELETER>
 inline
 void *
@@ -719,7 +710,6 @@ SharedPtrOutofplaceRep<TYPE, DELETER>::getDeleter(const std::type_info& type)
          ? bsls::Util::addressOf(d_deleter)
          : 0;
 }
-#endif
 
 // ACCESSORS
 template <class TYPE, class DELETER>
