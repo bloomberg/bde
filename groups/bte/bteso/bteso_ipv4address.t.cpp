@@ -232,7 +232,6 @@ int main(int argc, char *argv[])
                     { L_,  "030753124424"      },
                     { L_,  "0xc7acA914"        },
                     // Invalid address
-                    { L_,  "0xffffffff"        },
                     { L_,  "325.3.5.7"         },
                     { L_,  "5.7.0x10000"       },
                     { L_,  "5.0x1000000"       },
@@ -241,7 +240,7 @@ int main(int argc, char *argv[])
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-                for (int i = 0; i < NUM_VALUES - 5; ++i) {
+                for (int i = 0; i < NUM_VALUES - 4; ++i) {
                     const int          LINE = VALUES[i].d_lineNum;
                     const char        *IPS  = VALUES[i].d_ips;
 
@@ -253,7 +252,7 @@ int main(int argc, char *argv[])
                                  0 == bteso_IPv4Address::isValid(IPS));
                 }
 
-                for (int i = NUM_VALUES - 5; i < NUM_VALUES; ++i) {
+                for (int i = NUM_VALUES - 4; i < NUM_VALUES; ++i) {
                     const int          LINE = VALUES[i].d_lineNum;
                     const char        *IPS  = VALUES[i].d_ips;
 
@@ -1270,7 +1269,6 @@ int main(int argc, char *argv[])
                     //line         ips
                     //----  ------------------
                     // Invalid address
-                    { L_,  "0xffffffff"        },
                     { L_,  "325.3.5.7"         },
                     { L_,  "5.7.0x10000"       },
                     { L_,  "5.0x1000000"       },
