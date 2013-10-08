@@ -29,19 +29,25 @@ namespace bsl
 {
     // Import selected symbols into bsl namespace
     using native_std::new_handler;
-    using native_std::terminate_handler;
-    using native_std::unexpected_handler;
     using native_std::bad_alloc;
-    using native_std::bad_exception;
-    using native_std::exception;
     using native_std::nothrow;
     using native_std::nothrow_t;
     using native_std::set_new_handler;
+
+
+    // Import additional names expected by existing code, but not mandated by
+    // the standard header.  This may get tricky if some standard library
+    // happens to not require any of these names for its native implementation
+    // of the <memory> header.
+    using native_std::bad_exception;
+    using native_std::exception;
+    using native_std::terminate_handler;
     using native_std::set_terminate;
     using native_std::set_unexpected;
     using native_std::terminate;
     using native_std::uncaught_exception;
     using native_std::unexpected;
+    using native_std::unexpected_handler;
 }
 
 #endif
