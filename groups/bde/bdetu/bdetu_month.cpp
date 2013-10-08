@@ -14,8 +14,8 @@ namespace BloombergLP {
 static int min(int a, int b) { return a < b ? a : b; }
 
 int bdetu_Month::numMonthsInRange(bdet_MonthOfYear::Month month,
-                                  const bdet_Date&  date1,
-                                  const bdet_Date&  date2)
+                                  const bdet_Date&        date1,
+                                  const bdet_Date&        date2)
 {
     if (date1 > date2) {
         return 0;
@@ -44,7 +44,7 @@ int bdetu_Month::numMonthsInRange(bdet_MonthOfYear::Month month,
 }
 
 bdet_Date bdetu_Month::nextMonth(bdet_MonthOfYear::Month month,
-                                 const bdet_Date&  date)
+                                 const bdet_Date&        date)
 {
     int y, m, d;
 
@@ -60,7 +60,7 @@ bdet_Date bdetu_Month::nextMonth(bdet_MonthOfYear::Month month,
 }
 
 bdet_Date bdetu_Month::previousMonth(bdet_MonthOfYear::Month month,
-                                     const bdet_Date&  date)
+                                     const bdet_Date&        date)
 {
     int y, m, d;
 
@@ -76,8 +76,8 @@ bdet_Date bdetu_Month::previousMonth(bdet_MonthOfYear::Month month,
 }
 
 bdet_Date bdetu_Month::adjustMonth(bdet_MonthOfYear::Month month,
-                                   const bdet_Date&  date,
-                                   int               count)
+                                   const bdet_Date&        date,
+                                   int                     count)
 {
     BSLS_ASSERT(count != 0);
 
@@ -98,8 +98,8 @@ bdet_Date bdetu_Month::adjustMonth(bdet_MonthOfYear::Month month,
 }
 
 bdet_Date bdetu_Month::ceilAdjustMonth(bdet_MonthOfYear::Month month,
-                                       const bdet_Date&  date,
-                                       int               count)
+                                       const bdet_Date&        date,
+                                       int                     count)
 {
     bdet_Date ceilDate = ceilMonth(month, date);
 
@@ -115,8 +115,8 @@ bdet_Date bdetu_Month::ceilAdjustMonth(bdet_MonthOfYear::Month month,
 }
 
 bdet_Date bdetu_Month::floorAdjustMonth(bdet_MonthOfYear::Month month,
-                                        const bdet_Date&  date,
-                                        int               count)
+                                        const bdet_Date&        date,
+                                        int                     count)
 {
     bdet_Date floorDate = floorMonth(month, date);
 
