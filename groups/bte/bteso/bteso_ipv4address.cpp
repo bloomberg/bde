@@ -45,7 +45,7 @@ bteso_IPv4Address::bteso_IPv4Address(const char *address,
 : d_portNumber(portNumber)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 == isValid(address));
+    BSLS_ASSERT_SAFE(0 == isValid(address));
     BSLS_ASSERT(0 <= portNumber && portNumber <= 65535);
 
     in_addr addr;
