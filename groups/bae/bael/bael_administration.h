@@ -30,8 +30,8 @@ BDES_IDENT("$Id: $")
 // utilities that are used to create categories, and to set and access their
 // threshold levels.
 //
-// First we initializate the logger manager, which, for the purposes of this
-// example, we use a minimal configuration:
+// First we initializate the logger manager (for the purposes of this example,
+// we use a minimal configuration):
 //..
 //     bael_DefaultObserver observer(cout);
 //     bael_LoggerManagerConfiguration configuration;
