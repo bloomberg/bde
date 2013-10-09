@@ -4,8 +4,10 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_ipv4address_cpp,"$Id$ $CSID$")
 
-#include <bsl_ostream.h>
+#include <bsls_assert.h>
+
 #include <bsl_cstdio.h>
+#include <bsl_ostream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <Winsock2.h>
@@ -26,8 +28,12 @@ namespace BloombergLP {
 int bteso_IPv4Address::isValid(const char *address)
 {
     in_addr addr;
-    if (!inet_aton(address, &addr)) return -1;
-    else                            return 0;
+    if (!inet_aton(address, &addr)) {
+        return -1;                                                    // RETURN
+    }
+    else {
+        return 0;                                                     // RETURN
+    }
 }
 
                             // --------
@@ -38,6 +44,9 @@ bteso_IPv4Address::bteso_IPv4Address(const char *address,
                                      int         portNumber)
 : d_portNumber(portNumber)
 {
+    BSLS_ASSERT(0 == isValid(address));
+    BSLS_ASSERT(0 <= portNumber && portNumber <= 65535);
+
     in_addr addr;
     inet_aton(address, &addr);
     d_address = addr.s_addr;
@@ -53,10 +62,12 @@ int bteso_IPv4Address::setIpAddress(const char *address)
     if (!inet_aton(address, &addr))
     {
         d_address = 0;
-        return -1;
+        return -1;                                                    // RETURN
     }
-    d_address = addr.s_addr;
-    return 0;
+    else {
+        d_address = addr.s_addr;
+        return 0;                                                     // RETURN
+    }
 }
 
                             // ---------
