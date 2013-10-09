@@ -27,6 +27,8 @@ namespace BloombergLP {
 
 int bteso_IPv4Address::isValid(const char *address)
 {
+    BSLS_ASSERT(address);
+
     in_addr addr;
     if (!inet_aton(address, &addr)) {
         return -1;                                                    // RETURN
@@ -59,6 +61,8 @@ bteso_IPv4Address::bteso_IPv4Address(const char *address,
 
 int bteso_IPv4Address::setIpAddress(const char *address)
 {
+    BSLS_ASSERT(address);
+
     in_addr addr;
     if (!inet_aton(address, &addr))
     {
@@ -77,6 +81,8 @@ int bteso_IPv4Address::setIpAddress(const char *address)
 
 int bteso_IPv4Address::loadIpAddress(char *result) const
 {
+    BSLS_ASSERT(result);
+
     const unsigned char *ip = (const unsigned char *) &d_address;
     return bsl::sprintf(result,
                  "%d.%d.%d.%d",
@@ -88,6 +94,8 @@ int bteso_IPv4Address::loadIpAddress(char *result) const
 
 int bteso_IPv4Address::formatIpAddress(char *result) const
 {
+    BSLS_ASSERT(result);
+
     const unsigned char *ip = (const unsigned char *) &d_address;
     return bsl::sprintf(result,
                  "%d.%d.%d.%d:%d",
