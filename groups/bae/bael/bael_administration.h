@@ -7,8 +7,6 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
-
 //@PURPOSE: Provide a suite of utility functions for logging administration.
 //
 //@CLASSES:
@@ -32,10 +30,14 @@ BDES_IDENT("$Id: $")
 // utilities that are used to create categories, and to set and access their
 // threshold levels.
 //
-// First the logger manager must be initialized.  It is sufficient for this
-// example to have a null 'bael_Observer':
+// First we initializate the logger manager, which, for the purposes of this
+// example, we use a minimal configuration:
 //..
-//     bael_LoggerManager::initSingleton(0, 0, 0);
+//     bael_DefaultObserver observer(bsl::cout);
+//     bael_LoggerManagerConfiguration configuration;
+//     bael_LoggerManager::initSingleton(&configuration,
+//                                       configuration,
+//                                       bslma::Default::globalAllocator(0));
 //..
 // Next define some hypothetical category names:
 //..
@@ -78,7 +80,7 @@ BDES_IDENT("$Id: $")
 //         int triggerLevel    = bael_Administration::triggerLevel(name);
 //         int triggerAllLevel = bael_Administration::triggerAllLevel(name);
 //
-//         using namespace std;
+//         using namespace bsl;
 //         cout << "Category name: "       << name            << endl;
 //         cout << "\tRecord level:      " << recordLevel     << endl;
 //         cout << "\tPass level:        " << passLevel       << endl;
