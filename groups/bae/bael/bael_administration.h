@@ -33,9 +33,9 @@ BDES_IDENT("$Id: $")
 // First we initializate the logger manager, which, for the purposes of this
 // example, we use a minimal configuration:
 //..
-//     bael_DefaultObserver observer(bsl::cout);
+//     bael_DefaultObserver observer(cout);
 //     bael_LoggerManagerConfiguration configuration;
-//     bael_LoggerManager::initSingleton(&configuration,
+//     bael_LoggerManager::initSingleton(&observer,
 //                                       configuration,
 //                                       bslma::Default::globalAllocator(0));
 //..

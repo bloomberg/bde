@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 // First we initializate the logger manager, which, for the purposes of this
 // example, we use a minimal configuration:
 //..
-     bael_DefaultObserver observer(&cout);  
+     bael_DefaultObserver observer(cout);  
      bael_LoggerManagerConfiguration configuration;
      bael_LoggerManager::initSingleton(&observer, 
                                        configuration, 
