@@ -64,6 +64,21 @@ int bteso_IPv4Address::setIpAddress(const char *address)
     BSLS_ASSERT(address);
 
     in_addr addr;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+    if (inet_pton(AF_INET, address, &addr) < 1)
+    {
+        d_address = 0;
+        return -1;                                                    // RETURN
+    }
+    else {
+        d_address = addr.s_addr;
+        return 0;                                                     // RETURN
+    }
+
+#else
+
     if (!inet_aton(address, &addr))
     {
         d_address = 0;
@@ -73,6 +88,9 @@ int bteso_IPv4Address::setIpAddress(const char *address)
         d_address = addr.s_addr;
         return 0;                                                     // RETURN
     }
+
+#endif
+
 }
 
                             // ---------
