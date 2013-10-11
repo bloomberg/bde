@@ -90,6 +90,11 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <Winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
 
 namespace BloombergLP {
 
@@ -154,6 +159,25 @@ class bteso_IPv4Address {
         //..
         // a, b, c, and d can each be represented in decimal, octal, or (upper
         // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
+
+    static int machineIndependentInetPtonIPv4(const char *address,
+                                              in_addr *addr);
+        // Convert the Internet host 'address' from the IPv4 numbers-and-dots
+        // notation into binary form (in network byte order) and store it in
+        // the structure that addr points to.  Returns non-zero if the address
+        // is valid, 0 if not.  The IP 'address' is not valid if it does not
+        // have one of the following four formats:
+        //..
+        //   a.b.c.d,  where a, b, c, and d are each 8-bit ints;
+        //   a.b.c,    where a and b are both 8-bit ints and c is a 16-bit int;
+        //   a.b,      where a is an 8-bit int and b is a 24-bit int;
+        //   a,        where a is a 32-bit int.
+        //..
+        // a, b, c, and d can each be represented in decimal, octal, or (upper
+        // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
+        //..
+        // This function is intended as a wrapper for the similar functions
+        // used in different platforms.
 
     // CREATORS
     bteso_IPv4Address();
