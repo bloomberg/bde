@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 // fixed-size queue of values.  This class is ideal for synchronization and
 // communication between threads in a producer-consumer model.  Its API is
 // largely identical to 'bcec_FixedQueue'.  In comparison with that type, it
-// may occupy somewhat more space in memory, but performs faster in
+// has a less strict exception safety guarantee, but performs faster in 
 // benchmarks.  
 //
 ///Template Requirements
