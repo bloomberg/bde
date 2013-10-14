@@ -7,24 +7,6 @@ BDES_IDENT_RCSID(bcec_atomicringbuffer_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace {
-
-inline
-unsigned int incrementIndex(unsigned int opCount, unsigned int currIndex)
-{
-    enum {
-        MAX_OP_INDEX = (1 << (8 * sizeof(int) - 2)) - 1
-    };
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(MAX_OP_INDEX == opCount)) {
-        return currIndex + 1;
-    }
-
-    return opCount + 1;
-}
-
-}
-
 // CREATORS
 bcec_AtomicRingBuffer_Impl::bcec_AtomicRingBuffer_Impl(
                                           bsl::size_t       capacity,
@@ -39,6 +21,17 @@ bcec_AtomicRingBuffer_Impl::bcec_AtomicRingBuffer_Impl(
 , d_states(capacity, INDEX_STATE_OLD, basicAllocator)
 {
     BSLS_ASSERT_OPT(capacity > 0 && MAX_OP_INDEX > capacity);
+}
+
+unsigned int 
+bcec_AtomicRingBuffer_Impl::incrementIndex(unsigned int opCount, 
+                                           unsigned int currIndex)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(MAX_OP_INDEX == opCount)) {
+        return currIndex + 1;
+    }
+
+    return opCount + 1;
 }
 
 bool bcec_AtomicRingBuffer_Impl::isEnabled() const {

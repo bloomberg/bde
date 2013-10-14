@@ -251,6 +251,10 @@ public:
     }
 
     ExceptionTester& operator=(const ExceptionTester& rhs) {
+        if (s_throwFrom &&
+            bcemt_ThreadUtil::selfIdAsInt() == s_throwFrom) {
+            throw 1;
+        }
     }
 };
 bces_AtomicInt ExceptionTester::s_throwFrom = 1;
@@ -258,7 +262,7 @@ bces_AtomicInt ExceptionTester::s_throwFrom = 1;
 void exceptionProducer(bcec_AtomicRingBuffer<ExceptionTester> *tester,
                        bcemt_TimedSemaphore                   *sema, 
                        bces_AtomicInt                         *numCaught) {
-    enum { NUM_ITERATIONS = 2 };
+    enum { NUM_ITERATIONS = 3 };
 
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
         try {
@@ -969,14 +973,18 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // Exception safety test
         //
-        // Test that the queue provides the Strong exception safety
-        // guarantee.
+        // Test that the queue provides the Basic exception safety
+        // guarantee. After an exception on pushBack, the queue is emptied.
+        // After an exception on popFront, the object is removed and the 
+        // queue behaves normally.
         // ---------------------------------------------------------
+        if (verbose) cout << endl
+                          << "Basic exception guarantee test" << endl
+                          << "==============================" << endl;
         
         bcema_TestAllocator ta(veryVeryVerbose);
         {        
-            // a.  popping from a full queue with exception leaves a non-full
-            //     queue and unblocks a pusher
+            // b.  poppint from a queue with exception operates normally.
             enum {QUEUE_LENGTH = 3};
             bcec_AtomicRingBuffer<ExceptionTester> queue(QUEUE_LENGTH, 
                                                          &ta);
@@ -997,20 +1005,54 @@ int main(int argc, char *argv[])
             BSLS_ASSERT_OPT(0 == rc); // test invariant
             
             ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsInt();
+
+            if (veryVerbose) {
+                cout << endl
+                     << "Exception during assignment" << endl;
+            }
+
             bool caught = false;
+            try {
+                ExceptionTester test;
+                queue.popFront(&test);
+            } catch (...) {
+                caught = true;
+            }
+            ASSERT(caught);
+
+            // Now the queue should become non-full and the pusher should
+            // be woken up and able to push into it
+            ASSERT(0 == 
+                   sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
+
+            ASSERT(QUEUE_LENGTH == queue.length());
+
+            if (veryVerbose) {
+                cout << endl
+                     << "Exception during copy constructor (pop)" << endl;
+            }
+
+            caught = false;
             try {
                 ExceptionTester test = queue.popFront();
             } catch (...) {
                 caught = true;
             }
             ASSERT(caught);
+
+            // Now the queue should become non-full and the pusher should
+            // be woken up and able to push into it
             ASSERT(0 == 
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
 
             ASSERT(QUEUE_LENGTH == queue.length());
+            
+            if (veryVerbose) {
+                cout << endl
+                     << "Exception during copy constructor (push)" << endl;
+            }
 
-            // b.  pushing into a queue with exception does not increase the
-            // length of the queue
+            // b.  pushing into a queue with exception empties the queue.
             ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsInt(
                                     bcemt_ThreadUtil::handleToId(producer));
             
@@ -1020,12 +1062,27 @@ int main(int argc, char *argv[])
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
             ASSERT(1 == numCaught);
 
-            ASSERT(QUEUE_LENGTH - 1 == queue.length());
+            LOOP_ASSERT(queue.length(), 0 == queue.length());
             ASSERT(!queue.isFull());
-            ASSERT(0 == queue.tryPushBack(ExceptionTester()));
 
-            queue.disable();
-            queue.removeAll();
+            // c.  after a push exception, the queue is still functional.
+            // run two generations through it.
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 != queue.tryPushBack(ExceptionTester()));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 != queue.tryPushBack(ExceptionTester()));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(queue.isEmpty());
+
             bcemt_ThreadUtil::join(producer);
         }
         ASSERT(0 < ta.numAllocations());

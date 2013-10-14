@@ -21,7 +21,7 @@ BDES_IDENT("$Id: $")
 // may occupy somewhat more space in memory, but performs faster in
 // benchmarks.  
 //
-///TEMPLATE REQUIREMENTS
+///Template Requirements
 ///---------------------
 // 'bcec_AtomicRingBuffer' is a template which stores items of a parameterized
 // 'TYPE'.  'TYPE' must supply default and copy constructors and the assignment
@@ -29,6 +29,12 @@ BDES_IDENT("$Id: $")
 // 'TYPE' must declare the Uses Allocator trait (see 'bslalg_TypeTraits') so
 //  that the allocator of the queue is propagated to the elements.
 //
+///Exception safety
+///----------------
+// AtomicRingBuffer provides a basic exception safety guarantee. It is 
+// generally exception neutral; however, if an exception is thrown by the 
+// copy constructor of the contained type during the invocation of 'pushBack'
+// or 'tryPushBack', the queue is left in a valid but unspecified state. 
 
 #ifndef INCLUDED_BCESCM_VERSION
 #include <bcescm_version.h>
@@ -112,12 +118,21 @@ class bcec_AtomicRingBuffer_Impl {
     const unsigned int                d_alignmentMod;
     bsl::vector<bces_AtomicInt>       d_states;    // index states
 
+    // CREATORS
     bcec_AtomicRingBuffer_Impl(bsl::size_t       capacity,
                                bslma::Allocator *basicAllocator);
        // Create a new type-independent representation of a thread-safe queue
        // with the specified maximum 'capacity' using the specified
        // 'basicAllocator' to supply memory. 
 
+    // CLASS METHODS
+    static unsigned int incrementIndex(unsigned int opCount, 
+                                       unsigned int currentIndex);
+        // If the specified 'opCount' is less than the maximum allowed value,
+        // return 'opCount + 1'; otherwise, i.e., the opCount has rolled over
+        // the maximum value, return 'currentIndex + 1'. 
+
+    // MANIPULATORS
     void releaseElement(unsigned int currGeneration, 
                         unsigned int index);
        // Mark the specified 'index' as available in the generation following
@@ -132,10 +147,11 @@ class bcec_AtomicRingBuffer_Impl {
 
     int  acquirePopIndex(unsigned int *generation, 
                          unsigned int *index);
-       // Mark the next occupied index as "reading" and load that index 
-       // into the specified 'index'.  Load the current generation count into
-       // the specified 'generation'.  Return 0 on success, and a nonzero
-       // value if the queue is empty.  
+       // Mark the next occupied index (one having the specified
+       // 'currentState' in the current generation) as "reading" and load
+       // that index  into the specified 'index'.  Load the current 
+       // generation count into the specified 'generation'.  Return 0 on 
+       // success, and a nonzero value if the queue is empty.  
 
     void disable();
        // Mark the queue as disabled.  Future attempts to push into the queue
@@ -148,7 +164,9 @@ class bcec_AtomicRingBuffer_Impl {
        // Return 'true' if the queue is enabled, and 'false' if it is disabled.
     int length() const;
        // Return the number of items in the queue.  
-    
+    int capacity() const; 
+       // Return the maximum number of items that may be stored in the queue.
+
     template <typename TYPE>
     friend class bcec_AtomicRingBuffer;
 };
@@ -158,6 +176,92 @@ class bcec_AtomicRingBuffer {
     // This class provides a thread-enabled, lock-free, fixed-size queue of
     // values.      
 private:
+
+    // PRIVATE TYPES
+    class PopGuard {
+        bcec_AtomicRingBuffer *d_parent_p;
+        int                    d_generation;
+        int                    d_index;
+        
+    public:
+        PopGuard(bcec_AtomicRingBuffer *parent, int generation, int index) 
+        : d_parent_p(parent), d_generation(generation), d_index(index)
+        {}
+
+        ~PopGuard() {
+            d_parent_p->d_elements[d_index].~TYPE();
+            d_parent_p->d_impl.releaseElement(d_generation, d_index);
+            //notify pusher of available element
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                          d_parent_p->d_numWaitingPushers)) {
+                d_parent_p->d_pushControlSema.post();
+            }
+        }
+    };
+
+    class PushGuard {
+        bcec_AtomicRingBuffer *d_parent_p;
+        int                    d_index;
+        
+    public:
+        PushGuard(bcec_AtomicRingBuffer *parent, int index) 
+        : d_parent_p(parent), d_index(index)
+        {}
+
+        void release() {
+            d_parent_p = 0;
+        }
+
+        ~PushGuard() {
+            if (d_parent_p) {
+                // This pushing thread currently has the cell at 'index'
+                // reserved as WRITING. Pop and discard as many elements
+                // as we can until the pop index points at that cell, then
+                // mark the cell as OLD; this will leave the queue empty.
+                
+                unsigned generation, index;
+                unsigned stopIndex = d_index == 0 
+                    ? d_parent_p->d_impl.capacity()
+                    : d_index - 1;
+                int poppedItems = 1; // always at least 1 for the current cell
+                do {
+                    if (0 != d_parent_p->d_impl.acquirePopIndex(&generation, 
+                                                                &index)) {
+                        break;
+                    }
+                    d_parent_p->d_elements[index].~TYPE();
+                    d_parent_p->d_impl.releaseElement(generation, index);
+                    poppedItems++;
+                } while (index != stopIndex);
+                if (index == stopIndex) {
+                    // we couldn't invoke acquirePopIndex to advance the
+                    // index to this position, since the cell is reserved in
+                    // the WRITING state, so we have to advance the index
+                    // as if acquirePopIndex had been invoked.
+                    unsigned n = d_parent_p->d_impl.d_popIndex.relaxedLoad();
+                    generation = n / d_parent_p->d_impl.capacity();
+                    unsigned nextIndex = n - 
+                        d_parent_p->d_impl.capacity() * generation;
+                    if (nextIndex == d_index) {
+                        unsigned x = 
+                            bcec_AtomicRingBuffer_Impl::incrementIndex(
+                                                                n, nextIndex);
+                        d_parent_p->d_impl.d_popIndex.testAndSwap(n, x);
+                    }
+                }
+                    
+                d_parent_p->d_impl.releaseElement(generation, d_index);
+                int numWakeUps = bsl::min(
+                                       poppedItems, 
+                                       (int)d_parent_p->d_numWaitingPushers);
+                while (numWakeUps--) {
+                    // Wake up waiting pushers.
+                    d_parent_p->d_pushControlSema.post();
+                }
+            }
+        }
+    };
+
 
     enum {
         INDEX_STATE_OLD      = bcec_AtomicRingBuffer_Impl::INDEX_STATE_OLD,
@@ -260,6 +364,16 @@ public:
         // that the queue is created in the "enabled" state.
 };
 
+                        // ===========================
+                        // class AtomicRingBuffer_Impl
+                        // ===========================
+
+// ACCESSORS
+inline
+int bcec_AtomicRingBuffer_Impl::capacity() const {
+    return d_capacity;
+}
+
                            // ======================
                            // class AtomicRingBuffer
                            // ======================
@@ -297,12 +411,19 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
     
     if (0 != retval) {
         return retval;
-    }
-    
+    } 
+   
     // save data, mark as new
+    // If an exception is thrown by the copy constructor, PushGuard will
+    // pop and discard items until reaching this cell, then mark this cell
+    // empty (without regard to its current state, which is WRITING (i.e., 
+    // reserved). That will leave the queue in a valid empty state.
+    PushGuard guard(this, index);
     bslalg::ScalarPrimitives::copyConstruct(&d_elements[index], 
                                             data, 
                                             d_allocator_p);
+    guard.release();
+
     d_impl.d_states[index] = 
         INDEX_STATE_NEW | (generation << INDEX_STATE_SHIFT);
     
@@ -311,7 +432,7 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
         d_popControlSema.post();
     }
     
-  return 0;
+    return 0;
 }
 
 template <typename TYPE>
@@ -325,18 +446,11 @@ int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE *data)
         return retval;
     }
     
-    // copy data
+    // copy data. PopGuard will destroy original object, update the queue, and
+    // release a waiting pusher, even if the assignment operator throws.
+    PopGuard guard(this, generation, index);
     *data = d_elements[index];
-    d_elements[index].~TYPE();
-    
-    d_impl.releaseElement(generation, index);
-    
-    // notify pusher of available element
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
-        d_pushControlSema.post();
-    }
-    
-  return 0;
+    return 0;
 }
     
 // MANIPULATORS
@@ -372,7 +486,7 @@ void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
         }
 
         d_numWaitingPoppers.relaxedAdd(-1);
-}
+    }
 }
 
 template <typename TYPE>
@@ -391,17 +505,10 @@ TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
         d_numWaitingPoppers.relaxedAdd(-1);
     }
     
-    TYPE result(d_elements[index]);
-    d_elements[index].~TYPE();
-    
-    d_impl.releaseElement(generation, index);
-    
-    // notify pusher of available element
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPushers)) {
-        d_pushControlSema.post();
-    }
-    
-    return result;
+    // copy data. PopGuard will destroy original object, update the queue, and
+    // release a waiting pusher, even if the copy constructor throws.
+    PopGuard guard(this, generation, index);
+    return TYPE(d_elements[index]);
 }           
     
 template <typename TYPE>
@@ -438,8 +545,8 @@ void bcec_AtomicRingBuffer<TYPE>::disable()
     for (int i = 0; i < numWaitingPushers; ++i) {
         d_pushControlSema.post();
     }
-}
- 
+} 
+
 template <typename TYPE>
 inline
 void bcec_AtomicRingBuffer<TYPE>::enable() {
