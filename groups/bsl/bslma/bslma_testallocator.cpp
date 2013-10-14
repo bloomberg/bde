@@ -455,7 +455,7 @@ TestAllocator::~TestAllocator()
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_list_p);
 
-    if (d_verboseFlag) {
+    if (isVerbose()) {
         print();
     }
 
@@ -469,17 +469,17 @@ TestAllocator::~TestAllocator()
     d_list_p->d_tail_p = 0;
     d_allocator_p->deallocate(d_list_p);
 
-    if (!d_quietFlag) {
-        if (d_numBytesInUse || d_numBlocksInUse) {
+    if (!isQuiet()) {
+        if (numBytesInUse() || numBlocksInUse()) {
             std::printf("MEMORY_LEAK");
             if (d_name_p) {
                 std::printf(" from %s", d_name_p);
             }
             std::printf(":\n  Number of blocks in use = %lld\n"
                         "   Number of bytes in use = %lld\n",
-                        d_numBlocksInUse.load(), d_numBytesInUse.load());
+                        numBlocksInUse(), numBytesInUse());
 
-            if (!d_noAbortFlag) {
+            if (!isNoAbort()) {
                 std::abort();                                         // ABORT
             }
         }
@@ -491,19 +491,18 @@ void *TestAllocator::allocate(size_type size)
 {
     bsls::BslLockGuard guard(&d_lock);
 
-    bsls::Types::Int64 allocationIndex = d_numAllocations++;  // Note: Postfix
-                                                              // is important!
+    bsls::Types::Int64 allocationIndex = d_numAllocations.addRelaxed(1) - 1;
 
-    d_lastAllocatedNumBytes = static_cast<bsls::Types::Int64>(size);
+    d_lastAllocatedNumBytes.storeRelaxed(
+                                        static_cast<bsls::Types::Int64>(size));
 
-    // Set to zero in case of premature returns.
+    // Set to 0 in case of premature returns.
 
-    d_lastAllocatedAddress_p = 0;
+    d_lastAllocatedAddress_p.storeRelaxed(0);
 
 #ifdef BDE_BUILD_TARGET_EXC
-    if (0 <= d_allocationLimit) {
-        --d_allocationLimit;
-        if (0 > d_allocationLimit) {
+    if (0 <= allocationLimit()) {
+        if (0 > d_allocationLimit.addRelaxed(-1)) {
             throw TestAllocatorException(static_cast<int>(size));
         }
     }
@@ -538,17 +537,17 @@ void *TestAllocator::allocate(size_type size)
     align->d_object.d_magicNumber = ALLOCATED_MEMORY;
     align->d_object.d_index       = allocationIndex;
 
-    ++d_numBlocksInUse;
-    if (d_numBlocksMax < d_numBlocksInUse) {
-        d_numBlocksMax = d_numBlocksInUse.load();
+    d_numBlocksInUse.addRelaxed(1);
+    if (numBlocksMax() < numBlocksInUse()) {
+        d_numBlocksMax.storeRelaxed(numBlocksInUse());
     }
-    ++d_numBlocksTotal;
+    d_numBlocksTotal.addRelaxed(1);
 
-    d_numBytesInUse += size;
-    if (d_numBytesMax < d_numBytesInUse) {
-        d_numBytesMax = d_numBytesInUse.load();
+    d_numBytesInUse.addRelaxed(static_cast<bsls::Types::Int64>(size));
+    if (numBytesMax() < numBytesInUse()) {
+        d_numBytesMax.storeRelaxed(numBytesInUse());
     }
-    d_numBytesTotal += size;
+    d_numBytesTotal.addRelaxed(static_cast<bsls::Types::Int64>(size));
 
     Link *link = addLink(d_list_p, allocationIndex, d_allocator_p);
     align->d_object.d_address_p = link;
@@ -556,7 +555,7 @@ void *TestAllocator::allocate(size_type size)
 
     void *address = ++align;
 
-    if (d_verboseFlag) {
+    if (isVerbose()) {
 
         // In verbose mode, print a message to 'stdout' -- e.g.,
         //..
@@ -585,7 +584,7 @@ void *TestAllocator::allocate(size_type size)
         std::fflush(stdout);
     }
 
-    d_lastAllocatedAddress_p = reinterpret_cast<int *>(address);
+    d_lastAllocatedAddress_p.storeRelaxed(reinterpret_cast<int *>(address));
     BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                      address,
                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
@@ -596,12 +595,12 @@ void TestAllocator::deallocate(void *address)
 {
     bsls::BslLockGuard guard(&d_lock);
 
-    ++d_numDeallocations;
-    d_lastDeallocatedAddress_p = reinterpret_cast<int *>(address);
+    d_numDeallocations.addRelaxed(1);
+    d_lastDeallocatedAddress_p.storeRelaxed(reinterpret_cast<int *>(address));
 
-    // Set to zero in case of premature returns.
+    // Set to 0 in case of premature returns.
 
-    d_lastDeallocatedNumBytes  = 0;
+    d_lastDeallocatedNumBytes.storeRelaxed(0);
 
     if (0 == address) {
         return;                                                       // RETURN
@@ -680,18 +679,18 @@ void TestAllocator::deallocate(void *address)
     }
     else {
         if (miscError) {
-            ++d_numMismatches;
+            d_numMismatches.addRelaxed(1);
         }
         else {
-            ++d_numBoundsErrors;
+            d_numBoundsErrors.addRelaxed(1);
         }
 
-        if (d_quietFlag) {
+        if (isQuiet()) {
             return;                                                   // RETURN
         }
         else {
             formatInvalidMemoryBlock(align, this, underrunBy, overrunBy);
-            if (d_noAbortFlag) {
+            if (isNoAbort()) {
                 return;                                               // RETURN
             }
             else {
@@ -707,21 +706,24 @@ void TestAllocator::deallocate(void *address)
     // construction.  In verbose mode, we also report the deallocation event to
     // 'stdout'.
 
-    d_lastDeallocatedNumBytes = static_cast<bsls::Types::Int64>(size);
+    d_lastDeallocatedNumBytes.storeRelaxed(
+                                        static_cast<bsls::Types::Int64>(size));
 
-    --d_numBlocksInUse;
+    d_numBlocksInUse.addRelaxed(-1);
 
-    d_numBytesInUse -= size;
+    d_numBytesInUse.addRelaxed(-static_cast<bsls::Types::Int64>(size));
 
     align->d_object.d_magicNumber = DEALLOCATED_MEMORY;
 
-    if (d_verboseFlag) {
+    if (isVerbose()) {
+
         // In verbose mode, print a message to 'stdout' -- e.g.,
         //..
         //  TestAllocator local [245]: Deallocated 1 byte at 0x3c1b2740.
         //..
 
         std::printf("TestAllocator");
+
         if (d_name_p) {
             std::printf(" %s", d_name_p);
         }
@@ -791,12 +793,12 @@ int TestAllocator::status() const
 
     bsls::BslLockGuard guard(&d_lock);
 
-    const bsls::Types::Int64 numErrors = d_numMismatches + d_numBoundsErrors;
+    const bsls::Types::Int64 numErrors = numMismatches() + numBoundsErrors();
 
     if (numErrors > 0) {
         return static_cast<int>(numErrors);
     }
-    else if (d_numBlocksInUse || d_numBytesInUse) {
+    else if (numBlocksInUse() || numBytesInUse()) {
         return BSLMA_MEMORY_LEAK;
     }
     else {

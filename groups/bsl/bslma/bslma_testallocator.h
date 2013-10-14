@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 // increasing the allocation limit until the code being tested completes
 // successfully.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // The 'bslma::TestAllocator' class is fully thread-safe (see
 // 'bsldoc_glossary') provided that the allocator supplied at construction (if
@@ -813,74 +813,74 @@ namespace bslma {
 inline
 void TestAllocator::setAllocationLimit(bsls::Types::Int64 limit)
 {
-    d_allocationLimit = limit;
+    d_allocationLimit.storeRelaxed(limit);
 }
 
 inline
 void TestAllocator::setNoAbort(bool flagValue)
 {
-    d_noAbortFlag = flagValue;
+    d_noAbortFlag.storeRelaxed(flagValue);
 }
 
 inline
 void TestAllocator::setQuiet(bool flagValue)
 {
-    d_quietFlag = flagValue;
+    d_quietFlag.storeRelaxed(flagValue);
 }
 
 inline
 void TestAllocator::setVerbose(bool flagValue)
 {
-    d_verboseFlag = flagValue;
+    d_verboseFlag.storeRelaxed(flagValue);
 }
 
 // ACCESSORS
 inline
 bsls::Types::Int64 TestAllocator::allocationLimit() const
 {
-    return d_allocationLimit;
+    return d_allocationLimit.loadRelaxed();
 }
 
 inline
 bool TestAllocator::isNoAbort() const
 {
-    return d_noAbortFlag;
+    return d_noAbortFlag.loadRelaxed();
 }
 
 inline
 bool TestAllocator::isQuiet() const
 {
-    return d_quietFlag;
+    return d_quietFlag.loadRelaxed();
 }
 
 inline
 bool TestAllocator::isVerbose() const
 {
-    return d_verboseFlag;
+    return d_verboseFlag.loadRelaxed();
 }
 
 inline
 void *TestAllocator::lastAllocatedAddress() const
 {
-    return reinterpret_cast<void *>(d_lastAllocatedAddress_p.load());
+    return reinterpret_cast<void *>(d_lastAllocatedAddress_p.loadRelaxed());
 }
 
 inline
 Allocator::size_type TestAllocator::lastAllocatedNumBytes() const
 {
-    return static_cast<size_type>(d_lastAllocatedNumBytes.load());
+    return static_cast<size_type>(d_lastAllocatedNumBytes.loadRelaxed());
 }
 
 inline
 void *TestAllocator::lastDeallocatedAddress() const
 {
-    return reinterpret_cast<void *>(d_lastDeallocatedAddress_p.load());
+    return reinterpret_cast<void *>(d_lastDeallocatedAddress_p.loadRelaxed());
 }
 
 inline
 Allocator::size_type TestAllocator::lastDeallocatedNumBytes() const
 {
-    return static_cast<size_type>(d_lastDeallocatedNumBytes.load());
+    return static_cast<size_type>(d_lastDeallocatedNumBytes.loadRelaxed());
 }
 
 inline
@@ -892,61 +892,61 @@ const char *TestAllocator::name() const
 inline
 bsls::Types::Int64 TestAllocator::numAllocations() const
 {
-    return d_numAllocations;
+    return d_numAllocations.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numBoundsErrors() const
 {
-    return d_numBoundsErrors;
+    return d_numBoundsErrors.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numBlocksInUse() const
 {
-    return d_numBlocksInUse;
+    return d_numBlocksInUse.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numBlocksMax() const
 {
-    return d_numBlocksMax;
+    return d_numBlocksMax.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numBlocksTotal() const
 {
-    return d_numBlocksTotal;
+    return d_numBlocksTotal.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numBytesInUse() const
 {
-    return d_numBytesInUse;
+    return d_numBytesInUse.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numBytesMax() const
 {
-    return d_numBytesMax;
+    return d_numBytesMax.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numBytesTotal() const
 {
-    return d_numBytesTotal;
+    return d_numBytesTotal.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numDeallocations() const
 {
-    return d_numDeallocations;
+    return d_numDeallocations.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 TestAllocator::numMismatches() const
 {
-    return d_numMismatches;
+    return d_numMismatches.loadRelaxed();
 }
 
 }  // close package namespace
