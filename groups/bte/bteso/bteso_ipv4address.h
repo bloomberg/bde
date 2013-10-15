@@ -161,10 +161,10 @@ class bteso_IPv4Address {
         // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
 
     static int machineIndependentInetPtonIPv4(const char *address,
-                                              in_addr *addr);
+                                              in_addr    *addr);
         // Convert the specified Internet host 'address' from the IPv4
         // numbers-and-dots notation into binary form (in network byte order)
-        // and store it in the structure that the specified addr points to.
+        // and store it in the structure that the specified 'addr' points to.
         // Return non-zero if the specified address is valid, and 0 if not.
         // The IP 'address' is not valid if it does not have one of the
         // following four formats:

@@ -10,6 +10,7 @@ BDES_IDENT_RCSID(bteso_ipv4address_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <mstcpip.h>
 #include <Winsock2.h>
 #else
 #include <arpa/inet.h>
@@ -39,11 +40,12 @@ int bteso_IPv4Address::isValid(const char *address)
 }
 
 int bteso_IPv4Address::machineIndependentInetPtonIPv4(const char *address,
-                                                      in_addr *addr)
+                                                      in_addr    *addr)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-    return inet_pton(AF_INET, address, addr) == 1;
+    char *dummy;
+    return RtlIpv4StringToAddress(address, 0, dummy, addr) == NO_ERROR;
 
 #else
 
