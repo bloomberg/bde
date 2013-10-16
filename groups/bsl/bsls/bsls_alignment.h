@@ -162,6 +162,7 @@ BSLS_IDENT("$Id: $")
 // internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
 // component.
 
+#define BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES

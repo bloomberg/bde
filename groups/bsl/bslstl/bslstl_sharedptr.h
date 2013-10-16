@@ -21,6 +21,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //         Raymond Chiu (schiu49)
 //         Henry Verschell (hversche)
 //         Rohan Bhindwale (rbhindwa)
+//         Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO: bslma_managedptr
 //
@@ -1578,6 +1579,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -2214,6 +2219,48 @@ class shared_ptr {
         // 'ELEMENT_TYPE'.  To construct an in-place 'ELEMENT_TYPE' with an
         // allocator, use one of the other variants of 'createInplace' below.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class... ARGS>
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       ARGS&&...                      args);
+        // Create "in-place" in a large enough contiguous memory region, using
+        // the specified 'basicAllocator' to supply memory, both an internal
+        // representation for this shared pointer and an object of
+        // 'ELEMENT_TYPE' using the 'ELEMENT_TYPE' constructor that takes the
+        // specified arguments 'args...', and make this shared pointer refer to
+        // the newly-created 'ELEMENT_TYPE' object.  If an exception is thrown
+        // during the construction of the 'ELEMENT_TYPE' object, this shared
+        // pointer will be unchanged.  Otherwise, if this shared pointer is
+        // already managing a (possibly shared) object, then release the shared
+        // reference to that shared object, and destroy it using its associated
+        // deleter if this shared pointer held the last shared reference to
+        // that object.  Note that the allocator argument is *not* implicitly
+        // passed to the constructor for 'ELEMENT_TYPE'.  To construct an
+        // object of 'ELEMENT_TYPE' with an allocator, pass the allocator as
+        // one of the arguments (typically the last argument).
+# else
+    template <class... ARGS>
+    void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
+                       const ARGS&...                 args);
+        // Create "in-place" in a large enough contiguous memory region, using
+        // the specified 'basicAllocator' to supply memory, both an internal
+        // representation for this shared pointer and an object of
+        // 'ELEMENT_TYPE' using the 'ELEMENT_TYPE' constructor that takes the
+        // specified arguments 'args...', and make this shared pointer refer to
+        // the newly-created 'ELEMENT_TYPE' object.  If an exception is thrown
+        // during the construction of the 'ELEMENT_TYPE' object, this shared
+        // pointer will be unchanged.  Otherwise, if this shared pointer is
+        // already managing a (possibly shared) object, then release the shared
+        // reference to that shared object, and destroy it using its associated
+        // deleter if this shared pointer held the last shared reference to
+        // that object.  Note that the allocator argument is *not* implicitly
+        // passed to the constructor for 'ELEMENT_TYPE'.  To construct an
+        // object of 'ELEMENT_TYPE' with an allocator, pass the allocator as
+        // one of the arguments (typically the last argument).
+
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#else
     template <class A1>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
                        const A1& a1);
@@ -2301,6 +2348,8 @@ class shared_ptr {
         // is *not* implicitly passed to the constructor for 'ELEMENT_TYPE'.
         // To construct an object of 'ELEMENT_TYPE' with an allocator, pass the
         // allocator as one of the arguments (typically the last argument).
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
     pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> release();
         // Return the pair consisting of the addresses of the modifiable
@@ -2584,11 +2633,21 @@ shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source);
 template<class DELETER, class ELEMENT_TYPE>
 DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
 
-// template<class ELEMENT_TYPE, class... Args>
-// shared_ptr<ELEMENT_TYPE> make_shared(Args&&... args);
-//
-// template<class ELEMENT_TYPE, class ALLOC, class... Args>
-// shared_ptr<ELEMENT_TYPE> allocate_shared(const ALLOC& a, Args&&... args);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<class ELEMENT_TYPE, class... ARGS>
+shared_ptr<ELEMENT_TYPE> make_shared(ARGS&&... args);
+
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+shared_ptr<ELEMENT_TYPE> allocate_shared(const ALLOC& a, ARGS&&... args);
+# else
+template<class ELEMENT_TYPE, class... ARGS>
+shared_ptr<ELEMENT_TYPE> make_shared(const ARGS&... args);
+
+template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+shared_ptr<ELEMENT_TYPE> allocate_shared(const ALLOC& a, const ARGS&... args);
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
                         // ==============
                         // class weak_ptr
@@ -3181,13 +3240,13 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                               std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
+                               native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
                                BloombergLP::bslma::Allocator   *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<
-                                          std::auto_ptr<COMPATIBLE_TYPE> > Rep;
+                                   native_std::auto_ptr<COMPATIBLE_TYPE> > Rep;
 
     if (d_ptr_p) {
         basicAllocator =
@@ -3200,15 +3259,15 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                               std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
+                               native_std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
                                BloombergLP::bslma::Allocator   *basicAllocator)
 : d_ptr_p(0)
 , d_rep_p(0)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<
-                                             std::auto_ptr<ELEMENT_TYPE> > Rep;
+                                      native_std::auto_ptr<ELEMENT_TYPE> > Rep;
 
-    std::auto_ptr<ELEMENT_TYPE> aPtr(autoRef);
+    native_std::auto_ptr<ELEMENT_TYPE> aPtr(autoRef);
     if (aPtr.get()) {
         basicAllocator =
                         BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -3383,7 +3442,7 @@ void shared_ptr<ELEMENT_TYPE>::reset(COMPATIBLE_TYPE *ptr)
 {
     // Wrap 'ptr' in 'auto_ptr' to ensure standard delete behavior.
 
-    std::auto_ptr<COMPATIBLE_TYPE> ap(ptr);
+    native_std::auto_ptr<COMPATIBLE_TYPE> ap(ptr);
     SelfType(ap).swap(*this);
 }
 
@@ -3426,7 +3485,7 @@ shared_ptr<ELEMENT_TYPE>::loadAlias(const shared_ptr<ANY_TYPE>&  source,
     }
 }
 
-template <class ELEMENT_TYPE>
+template<class ELEMENT_TYPE>
 void
 shared_ptr<ELEMENT_TYPE>::createInplace(
                                  BloombergLP::bslma::Allocator *basicAllocator)
@@ -3437,6 +3496,38 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
     SelfType(rep->ptr(), rep).swap(*this);
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class ELEMENT_TYPE>
+template <class... ARGS>
+void
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 ARGS&&...                      args)
+{
+    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+
+    basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
+    Rep *rep = new (*basicAllocator) Rep(basicAllocator,
+                                         ::std::forward<ARGS>(args)...);
+    SelfType(rep->ptr(), rep).swap(*this);
+}
+# else
+template <class ELEMENT_TYPE>
+template <class... ARGS>
+void
+shared_ptr<ELEMENT_TYPE>::createInplace(
+                                 BloombergLP::bslma::Allocator *basicAllocator,
+                                 const ARGS&...                 args)
+{
+    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+
+    basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
+    Rep *rep = new (*basicAllocator) Rep(basicAllocator, args...);
+    SelfType(rep->ptr(), rep).swap(*this);
+}
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#else
 template <class ELEMENT_TYPE>
 template <class A1>
 void
@@ -3809,6 +3900,7 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
                                          a14);
     SelfType(rep->ptr(), rep).swap(*this);
 }
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 template <class ELEMENT_TYPE>
 pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *>
@@ -3901,7 +3993,8 @@ inline
 bool shared_ptr<ELEMENT_TYPE>::owner_before(
                                        const shared_ptr<ANY_TYPE>& other) const
 {
-    return std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(), other.rep());
+    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(),
+                                                                  other.rep());
 }
 
 template <class ELEMENT_TYPE>
@@ -3910,7 +4003,8 @@ inline
 bool
 shared_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 {
-    return std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(), other.rep());
+    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(),
+                                                                  other.rep());
 }
 
 template <class ELEMENT_TYPE>
@@ -4099,8 +4193,8 @@ inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const shared_ptr<ANY_TYPE>& other) const
 {
-    return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
-                                                           other.rep());
+    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
+                                                                  other.rep());
 }
 
 template <class ELEMENT_TYPE>
@@ -4109,8 +4203,9 @@ inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 {
-    return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
-                                                           other.d_rep_p);
+    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(
+                                                                d_rep_p,
+                                                                other.d_rep_p);
 }
 
 template <class ELEMENT_TYPE>
@@ -4321,7 +4416,7 @@ inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs,
                     const shared_ptr<RHS_TYPE>& rhs)
 {
-    return std::less<const void *>()(lhs.ptr(), rhs.ptr());
+    return native_std::less<const void *>()(lhs.ptr(), rhs.ptr());
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -4380,14 +4475,14 @@ template <class LHS_TYPE>
 inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 {
-    return std::less<LHS_TYPE *>()(lhs.ptr(), 0);
+    return native_std::less<LHS_TYPE *>()(lhs.ptr(), 0);
 }
 
 template <class RHS_TYPE>
 inline
 bool bsl::operator<(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 {
-    return std::less<RHS_TYPE *>()(0, rhs.ptr());
+    return native_std::less<RHS_TYPE *>()(0, rhs.ptr());
 }
 
 template <class LHS_TYPE>
@@ -4408,14 +4503,14 @@ template <class LHS_TYPE>
 inline
 bool bsl::operator>(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 {
-    return std::less<LHS_TYPE *>()(0, lhs.ptr());
+    return native_std::less<LHS_TYPE *>()(0, lhs.ptr());
 }
 
 template <class RHS_TYPE>
 inline
 bool bsl::operator>(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 {
-    return std::less<RHS_TYPE *>()(rhs.ptr(), 0);
+    return native_std::less<RHS_TYPE *>()(rhs.ptr(), 0);
 }
 
 template <class LHS_TYPE>
@@ -4485,6 +4580,40 @@ DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
     BloombergLP::bslma::SharedPtrRep *rep = p.rep();
     return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<class ELEMENT_TYPE, class... ARGS>
+shared_ptr<ELEMENT_TYPE> bsl::make_shared(ARGS&&... args)
+{
+    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
+    Rep *rep = new Rep(basicAllocator, ::std::forward<ARGS>(args)...);
+    return shared_ptr<ELEMENT_TYPE>(rep->ptr(), rep);
+}
+
+//template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+//shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(const ALLOC& a, ARGS&&... args)
+//{
+//}
+# else
+template<class ELEMENT_TYPE, class... ARGS>
+shared_ptr<ELEMENT_TYPE> bsl::make_shared(const ARGS&... args);
+{
+    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
+    Rep *rep = new Rep(basicAllocator, args...);
+    return shared_ptr<ELEMENT_TYPE>(rep->ptr(), rep);
+}
+
+//template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
+//shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(const ALLOC&   a,
+//                                              const ARGS&... args)
+//{
+//}
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+
 
 #endif
 
