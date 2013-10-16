@@ -349,10 +349,23 @@ class bcep_EventScheduler {
 
   public:
     // PUBLIC TYPES
-    struct Event {};
-    struct RecurringEvent {};
-        // Pointers to the opaque structures 'Event' and 'RecurringEvent' are
-        // populated by the "Raw" API of 'bcep_EventScheduler'.
+    class Event {
+        // Opaque type used to refer to 'EventQueue::Pair's.  The data member
+        // is private and is not to be accessed directly, it is there only to
+        // provide an alignment requiremnt.
+
+        // PRIVATE DATA
+        bsls::Types::Int64 d_dummy;    // Don't access this.
+    };
+
+    class RecurringEvent {
+        // Opaque type used to refer to 'RecurringEventQueue::Pair's.  The data
+        // member is private and is not to be accessed directly, it is there
+        // only to provide an alignment requiremnt.
+
+        // PRIVATE DATA
+        bsls::Types::Int64 d_dummy;    // Don't access this.
+    };
 
     typedef bcep_EventSchedulerEventHandle          EventHandle;
 
