@@ -1943,15 +1943,15 @@ void threadFunc(bcep_EventScheduler *scheduler,
 
     bsls::Stopwatch sw;
 
-    for(int i=0; i<numIterations; i++) {
-        if( verbose ) {
+    for (int i=0; i<numIterations; i++) {
+        if ( verbose ) {
             sw.start();
         }
 
         bdet_TimeInterval n = bdetu_SystemTime::now();
 
         // "send" messages
-        for(int snd=0; snd<sendCount; snd++) {
+        for (int snd=0; snd<sendCount; snd++) {
             bdet_TimeInterval d(delay, snd);
             scheduler->scheduleEventRaw(&timers[snd],
                 n + d, bdef_MemFnUtil::memFn(&TestClass1::callback,
@@ -1959,16 +1959,16 @@ void threadFunc(bcep_EventScheduler *scheduler,
         }
 
         // "receive" replies
-        for(int rcv=0; rcv<rcvCount; rcv++) {
+        for (int rcv=0; rcv<rcvCount; rcv++) {
             scheduler->cancelEvent(timers[rcv]);
         }
 
         // release handles
-        for(int j=0; j<sendCount; j++) {
+        for (int j=0; j<sendCount; j++) {
             scheduler->releaseEventRaw(timers[j]);
         }
 
-        if( verbose ) {
+        if ( verbose ) {
             sw.stop();
             int iteration = i;
             double elapsed = sw.elapsedTime();
