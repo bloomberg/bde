@@ -173,9 +173,18 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
 #define INCLUDED_TYPEINFO
+#endif
+
+#ifndef INCLUDED_UTILITY
+#include <utility>  // for 'std::forward'
+#define INCLUDED_UTILITY
 #endif
 
 namespace BloombergLP {
@@ -218,6 +227,28 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 
   public:
     // CREATORS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class... ARGS>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                                 ARGS&&...  args);
+        // Create a 'SharedPtrInplaceRep' object having an "in-place" instance
+        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
+        // the specified arguments, 'args...'.  Use the specified
+        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
+        // to destroy this representation (and the "in-place" shared object).
+# else
+    template <class... ARGS>
+    explicit SharedPtrInplaceRep(Allocator      *basicAllocator,
+                                 const ARGS&...  args);
+        // Create a 'SharedPtrInplaceRep' object having an "in-place" instance
+        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
+        // the specified arguments, 'args...'.  Use the specified
+        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
+        // to destroy this representation (and the "in-place" shared object).
+
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#else
     explicit SharedPtrInplaceRep(Allocator *basicAllocator);
         // Create a 'SharedPtrInplaceRep' object having an "in-place"
         // default-constructed instance of the parameterized 'TYPE'.  Use the
@@ -373,6 +404,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // the number of arguments passed to this method.  Use the specified
         // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
         // to destroy this representation (and the "in-place" shared object).
+#endif
 
     // MANIPULATORS
     TYPE *ptr();
@@ -416,6 +448,27 @@ class SharedPtrInplaceRep : public SharedPtrRep {
                       // -------------------------
 
 // CREATORS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE>
+template <class... ARGS>
+SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
+                                               ARGS&&...  args)
+: d_allocator_p(basicAllocator)
+, d_instance(::std::forward<ARGS>(args)...)
+{
+}
+# else
+template <class TYPE>
+template <class... ARGS>
+SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator      *basicAllocator,
+                                               const ARGS&...  args)
+: d_allocator_p(basicAllocator)
+, d_instance(args...)
+{
+}
+# endif  
+#else
 template <class TYPE>
 inline
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator)
@@ -649,6 +702,7 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
 , d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
 {
 }
+#endif
 
 template <class TYPE>
 SharedPtrInplaceRep<TYPE>::~SharedPtrInplaceRep()
