@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <html>
 <pre>
 // bslstl_vector.h                                                    -*-C++-*-
@@ -1988,9 +1988,7 @@ inline
 typename Vector_ImpBase&lt;VALUE_TYPE&gt;::reference
 Vector_ImpBase&lt;VALUE_TYPE&gt;::operator[](size_type position)
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    BSLS_ASSERT_SAFE(static_cast&lt;Uint&gt;(size()) &gt; static_cast&lt;Uint&gt;(position));
+    BSLS_ASSERT_SAFE(size() &gt; position);
 
     return d_dataBegin[position];
 }
@@ -1999,10 +1997,7 @@ template &lt;class VALUE_TYPE&gt;
 typename Vector_ImpBase&lt;VALUE_TYPE&gt;::reference
 Vector_ImpBase&lt;VALUE_TYPE&gt;::at(size_type position)
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                   static_cast&lt;Uint&gt;(position) &gt;= static_cast&lt;Uint&gt;(size()))) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position &gt;= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                 &quot;vector&lt;...&gt;::at(position): invalid position&quot;);
@@ -2135,9 +2130,7 @@ inline
 typename Vector_ImpBase&lt;VALUE_TYPE&gt;::const_reference
 Vector_ImpBase&lt;VALUE_TYPE&gt;::operator[](size_type position) const
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    BSLS_ASSERT_SAFE(static_cast&lt;Uint&gt;(size()) &gt; static_cast&lt;Uint&gt;(position));
+    BSLS_ASSERT_SAFE(size() &gt; position);
 
     return d_dataBegin[position];
 }
@@ -2146,10 +2139,7 @@ template &lt;class VALUE_TYPE&gt;
 typename Vector_ImpBase&lt;VALUE_TYPE&gt;::const_reference
 Vector_ImpBase&lt;VALUE_TYPE&gt;::at(size_type position) const
 {
-    typedef BloombergLP::bsls::Types::UintPtr Uint;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(static_cast&lt;Uint&gt;(position) &gt;=
-                                                  static_cast&lt;Uint&gt;(size()))) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position &gt;= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                           &quot;const vector&lt;...&gt;::at(position): invalid position&quot;);

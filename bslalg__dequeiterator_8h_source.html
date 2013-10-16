@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <html>
 <pre>
 // bslalg_dequeiterator.h                                             -*-C++-*-
@@ -407,7 +407,7 @@ DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::DequeIterator(BlockPtr   *blockPt
 , d_value_p(valuePtr)
 {
     BSLS_ASSERT_SAFE(blockPtrPtr[0]-&gt;d_data &lt;= valuePtr);
-    BSLS_ASSERT_SAFE(valuePtr &lt; blockPtrPtr[0]-&gt;d_data + BLOCK_LENGTH);
+    BSLS_ASSERT_SAFE(valuePtr - blockPtrPtr[0]-&gt;d_data &lt; BLOCK_LENGTH);
 }
 
 // MANIPULATORS

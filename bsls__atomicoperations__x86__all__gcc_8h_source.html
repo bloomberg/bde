@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <html>
 <pre>
 // bsls_atomicoperations_x86_all_gcc.h                                -*-C++-*-
@@ -235,11 +235,51 @@ inline
 Types::Int64 AtomicOperations_X86_ALL_GCC::
     getInt64(const AtomicTypes::Int64 *atomicInt)
 {
+#if BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300 // gcc &gt;= 4.3
     Types::Int64 value = atomicInt-&gt;d_value;
     return __sync_val_compare_and_swap(
                 const_cast&lt;Types::Int64 * volatile&gt;(&amp;atomicInt-&gt;d_value),
                 value,
                 value);
+#else
+    Types::Int64 result;
+    asm volatile (
+#ifdef __PIC__
+        &quot;       pushl %%ebx                 \n\t&quot;
+#endif
+        &quot;       movl %%ebx, %%eax           \n\t&quot;
+        &quot;       movl %%ecx, %%edx           \n\t&quot;
+#if __GNUC__ != 3
+        &quot;       lock cmpxchg8b %[obj]       \n\t&quot;
+#else
+        // gcc 3.4 seems to think that it can take edx as %1.
+        &quot;       lock cmpxchg8b (%[obj])     \n\t&quot;
+#endif
+#ifdef __PIC__
+        &quot;       popl %%ebx                  \n\t&quot;
+#endif
+                : [res] &quot;=&amp;A&quot; (result)
+                :
+#if __GNUC__ != 3
+                  [obj] &quot;m&quot; (*atomicInt),
+#else
+                  [obj] &quot;S&quot; (atomicInt),
+#endif
+                  &quot;0&quot; (0)
+                :
+#ifndef __PIC__
+                  &quot;ebx&quot;,
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) &amp;&amp; defined(__PIC__)
+                  &quot;ebx&quot;,    // Clang wants to reuse &#39;ebx&#39; even in PIC mode
+                            // and generates invalid code.
+                            // Mark &#39;ebx&#39; as clobbered to prevent that.
+#endif
+                  &quot;ecx&quot;, &quot;cc&quot;, &quot;memory&quot;);
+    return result;
+#endif
+
 }
 
 inline
@@ -254,6 +294,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
     swapInt64(AtomicTypes::Int64 *atomicInt,
               Types::Int64 swapValue)
 {
+#if BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300 // gcc &gt;= 4.3
     Types::Int64 oldValue;
 
     do
@@ -265,6 +306,39 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
              != oldValue);
 
     return oldValue;
+#else
+    Types::Int64 result;
+    asm volatile (
+#ifdef __PIC__
+        &quot;       pushl %%ebx             \n\t&quot;
+        &quot;       movl  %[val], %%ebx     \n\t&quot;
+#endif
+        &quot;1:                             \n\t&quot;
+        &quot;       lock cmpxchg8b %[obj]   \n\t&quot;
+        &quot;       jnz 1b                  \n\t&quot;
+#ifdef __PIC__
+        &quot;       popl %%ebx              \n\t&quot;
+#endif
+                : [res] &quot;=A&quot; (result),
+                  [obj] &quot;+m&quot; (*atomicInt)
+                :
+#ifdef __PIC__
+                  [val] &quot;g&quot; ((unsigned int) swapValue),
+#else
+                  [val] &quot;b&quot; ((unsigned int) swapValue),
+#endif
+                  &quot;c&quot; ((int) (swapValue &gt;&gt; 32)),
+                  &quot;A&quot; (*atomicInt)
+                :
+#if defined(BSLS_PLATFORM_CMP_CLANG) &amp;&amp; defined(__PIC__)
+                  &quot;ebx&quot;,    // Clang wants to reuse &#39;ebx&#39; even in PIC mode
+                            // and generates invalid code.
+                            // Mark &#39;ebx&#39; as clobbered to prevent that.
+#endif
+                  &quot;memory&quot;, &quot;cc&quot;);
+
+    return result;
+#endif
 }
 
 inline
@@ -273,9 +347,40 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
                      Types::Int64 compareValue,
                      Types::Int64 swapValue)
 {
+#if BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300 // gcc &gt;= 4.3
     return __sync_val_compare_and_swap(&amp;atomicInt-&gt;d_value,
                                        compareValue,
                                        swapValue);
+#else
+    asm volatile (
+#ifdef __PIC__
+        &quot;       pushl   %%ebx               \n\t&quot;
+        &quot;       movl    %[val], %%ebx       \n\t&quot;
+#endif
+        &quot;       lock cmpxchg8b %[obj]       \n\t&quot;
+#ifdef __PIC__
+        &quot;       popl    %%ebx               \n\t&quot;
+#endif
+                : [cmp] &quot;=A&quot; (compareValue),
+                  [obj] &quot;+m&quot; (*atomicInt)
+                :
+#ifdef __PIC__
+                  [val] &quot;g&quot; ((unsigned int) swapValue),
+#else
+                  [val] &quot;b&quot; ((unsigned int) swapValue),
+#endif
+                  &quot;c&quot; ((int) (swapValue &gt;&gt; 32)),
+                  &quot;0&quot; (compareValue)
+                :
+#if defined(BSLS_PLATFORM_CMP_CLANG) &amp;&amp; defined(__PIC__)
+                  &quot;ebx&quot;,    // Clang wants to reuse &#39;ebx&#39; even in PIC mode
+                            // and generates invalid code.
+                            // Mark &#39;ebx&#39; as clobbered to prevent that.
+#endif
+                  &quot;memory&quot;, &quot;cc&quot;);
+
+    return compareValue;
+#endif
 }
 
 inline

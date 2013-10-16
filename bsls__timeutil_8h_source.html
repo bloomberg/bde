@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <html>
 <pre>
 // bsls_timeutil.h                                                    -*-C++-*-
@@ -83,11 +83,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Precision on Windows
 /// - - - - - - - - - -
-// Providing that the underlying timer is capable of reporting the
-// &#39;QueryPerformanceCounter&#39; interface, the nanosecond values reported by
-// &#39;getTimer&#39; or &#39;convertRawTime&#39; will be in the range (t - 2, t], where t is
-// the real (infinitely precise floating point) number of nanoseconds expressed
-// by the current raw timer count.
+// Providing that the underlying timer is capable of supporting the
+// &#39;QueryPerformanceCounter&#39; interface, &#39;getTimer&#39; and &#39;convertRawTime&#39; will
+// perform their calculations to nanosecond precision based on the values
+// reported by &#39;QueryPerformanceCounter&#39;.  Because of overflow concerns, these
+// routines do not simply divide the result of &#39;QueryPerformanceCounter&#39; by the
+// result of &#39;QueryPerformanceFrequency&#39;.  In the course of calculating the
+// final nanosecond-precision time, there are two places where some precision
+// might be lost.  Therefore, the times reported by &#39;getTimer&#39; and
+// &#39;convertRawTime&#39; may be as much as two nanoseconds less than the actual time
+// expressed by the &#39;QueryPerformanceCounter&#39; interface.  Note that the times
+// will still be monotonically non-decreasing. 
 //
 ///Usage
 ///-----

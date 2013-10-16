@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -91,6 +91,7 @@
       <li><a href="functions_0x74.html#index_t"><span>t</span></a></li>
       <li class="current"><a href="functions_0x75.html#index_u"><span>u</span></a></li>
       <li><a href="functions_0x76.html#index_v"><span>v</span></a></li>
+      <li><a href="functions_0x77.html#index_w"><span>w</span></a></li>
       <li><a href="functions_0x78.html#index_x"><span>x</span></a></li>
       <li><a href="functions_0x79.html#index_y"><span>y</span></a></li>
       <li><a href="functions_0x7e.html#index_~"><span>~</span></a></li>
@@ -135,6 +136,10 @@ Here is a list of all class members with links to the classes they belong to:
 </li>
 <li>unique()
 : <a class="el" href="group__bslstl__list.html#ga82f5de958e913d73ced2ef6134de5572">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__sharedptr.html#ga71ce3c0494bfb53b944cfad471f458cc">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+</li>
+<li>unlock()
+: <a class="el" href="classbsls_1_1BslLock.html#a4b180aea6938edf86ed3b0f49767635b">bsls::BslLock</a>
 </li>
 <li>unordered_map()
 : <a class="el" href="group__bslstl__unorderedmap.html#gafd823b3cd8e9f0caf88773bf42d5fdfe">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
@@ -143,29 +148,32 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="group__bslstl__unorderedmultimap.html#ga5e73fddcb62e8b7272392ede87a74cef">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>unordered_multiset()
-: <a class="el" href="group__bslstl__unorderedmultiset.html#gaef00b87c7e436b0f465d8a0fa6de1812">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__unorderedmultiset.html#ga349f384ceb67ee28e6182c04b6da24b6">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>unordered_set()
-: <a class="el" href="group__bslstl__unorderedset.html#ga918b94472723a8d960e246fb235d1be3">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__unorderedset.html#ga8a933a3f955e4ef7a478e225797f93e4">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>upper_bound()
-: <a class="el" href="group__bslstl__set.html#gabdb10ced817bbdad3ed03106586af64c">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__map.html#ga1544266ea6dfeb59fcfc7c176b6c0126">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__set.html#gac940db389fc380b4fee44a7beae5df3b">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multimap.html#ga5ae39fe1fdb7c3a000378a51e5234d89">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multiset.html#ga4f0c023ebcb497d05d7dfbef02cc7d05">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__multiset.html#ga4f0c023ebcb497d05d7dfbef02cc7d05">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__multimap.html#gad841c0a375de8e6a63caced8d73e2cd2">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__multiset.html#gaa3b1b46aa718f5d35aa24284e72d5058">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__multimap.html#ga5ae39fe1fdb7c3a000378a51e5234d89">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__set.html#gabdb10ced817bbdad3ed03106586af64c">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__map.html#ga2d000943501e3eecd7476ce5b9cb93b8">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 </li>
 <li>upperBound()
-: <a class="el" href="structbslalg_1_1RbTreeUtil.html#a91fccf8c76c69d7855a03c0209842f06">bslalg::RbTreeUtil</a>
+: <a class="el" href="structbslalg_1_1RbTreeUtil.html#abf487873c2b9e07de80445deb0311461">bslalg::RbTreeUtil</a>
+</li>
+<li>use_count()
+: <a class="el" href="group__bslstl__sharedptr.html#ga577317da7b2aa99e58309cc7db1941de">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__sharedptr.html#ga99089c0e74da9d1aa08b8e273948953d">bsl::weak_ptr&lt; LHS_TYPE, RHS_TYPE &gt;</a>
 </li>
 <li>USES_BSLMA_ALLOCATOR_TRAITS
 : <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp</a>
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:02 for BSL Release 2.18 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:06 for BSL Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -91,6 +91,7 @@
       <li><a href="functions_0x74.html#index_t"><span>t</span></a></li>
       <li><a href="functions_0x75.html#index_u"><span>u</span></a></li>
       <li><a href="functions_0x76.html#index_v"><span>v</span></a></li>
+      <li><a href="functions_0x77.html#index_w"><span>w</span></a></li>
       <li><a href="functions_0x78.html#index_x"><span>x</span></a></li>
       <li><a href="functions_0x79.html#index_y"><span>y</span></a></li>
       <li><a href="functions_0x7e.html#index_~"><span>~</span></a></li>
@@ -123,6 +124,9 @@ Here is a list of all class members with links to the classes they belong to:
 <li>d_dataEnd
 : <a class="el" href="group__bslstl__vector.html#ga4270c95067ff340ec7469d1411e252ac">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
 </li>
+<li>d_deleter
+: <a class="el" href="structbslma_1_1SharedPtrOutofplaceRep__InitGuard.html#af651b6a1d18237bf812fe47b8dce987a">bslma::SharedPtrOutofplaceRep_InitGuard&lt; TYPE, DELETER &gt;</a>
+</li>
 <li>d_dependencies
 : <a class="el" href="structbslscm_1_1Version.html#a2747d168043fbd62f50b967dab8a4b44">bslscm::Version</a>
 </li>
@@ -153,6 +157,9 @@ Here is a list of all class members with links to the classes they belong to:
 <li>d_prev
 : <a class="el" href="group__bslstl__list.html#gade9b97ce7a3862897a9ea8ea6a0c0cad">bsl::List_Node&lt; VALUE &gt;</a>
 </li>
+<li>d_ptr_p
+: <a class="el" href="structbslma_1_1SharedPtrOutofplaceRep__InitGuard.html#ac887518a96b1081b493c9ecdcdb64798">bslma::SharedPtrOutofplaceRep_InitGuard&lt; TYPE, DELETER &gt;</a>
+</li>
 <li>d_short
 : <a class="el" href="classbsl_1_1String__Imp.html#ac60aef3548b24f52f27e21ef7d6d0d52">bsl::String_Imp&lt; CHAR_TYPE, SIZE_TYPE &gt;</a>
 </li>
@@ -181,7 +188,8 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="structbslscm_1_1Version.html#af99f5cb36bf5216a3f441cfa2f613d6c">bslscm::Version</a>
 </li>
 <li>data()
-: <a class="el" href="group__bslstl__vector.html#gae08c76cfbf01f80e7380a994157df568">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__vector.html#gad98d192f5ea0af3ec3c6b5dabca1faa3">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#gae08c76cfbf01f80e7380a994157df568">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#gae14419f8bfc1c405679399b295275811">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="classbsltf_1_1AllocBitwiseMoveableTestType.html#acd233f1cdae18a4aef8468ce2074544d">bsltf::AllocBitwiseMoveableTestType</a>
 , <a class="el" href="group__bsltf__alloctesttype.html#gab3e9f21e8b7ce2095c8e94f35a46e49b">BloombergLP::bsltf::AllocTestType</a>
@@ -196,7 +204,6 @@ Here is a list of all class members with links to the classes they belong to:
 , <a class="el" href="unionbsltf_1_1UnionTestType.html#a54f0cec8124a71460d1108802732be79">bsltf::UnionTestType</a>
 , <a class="el" href="group__bslstl__string.html#gaac917fd3a1a7498eef93bc91d8348c8d">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 , <a class="el" href="classbslstl_1_1StringRefImp.html#a33dc0645904e4e3512800f3839cfc1e3">bslstl::StringRefImp&lt; CHAR_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#gad98d192f5ea0af3ec3c6b5dabca1faa3">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
 </li>
 <li>dataPtr()
 : <a class="el" href="group__bslstl__string.html#gac7e983fc7ad932e4b6d80bea7c2611f0">bsl::String_Imp&lt; CHAR_TYPE, SIZE_TYPE &gt;</a>
@@ -258,7 +265,7 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="classbslalg_1_1RbTreeAnchor.html#a1fcd8a678be302f69990a50b144d8b6d">bslalg::RbTreeAnchor</a>
 </li>
 <li>DEFAULT_BLOCK_SIZE
-: <a class="el" href="structbsl_1_1Deque__BlockLengthCalcUtil.html#a6652d5357680d3e9a1c931292eefaadea8275a9d42328db2aea0f971ca35f2765">bsl::Deque_BlockLengthCalcUtil&lt; VALUE_TYPE &gt;</a>
+: <a class="el" href="structbsl_1_1Deque__BlockLengthCalcUtil.html#af432075de46f358687c033efdba2b3a5a8275a9d42328db2aea0f971ca35f2765">bsl::Deque_BlockLengthCalcUtil&lt; VALUE_TYPE &gt;</a>
 </li>
 <li>defaultAllocator()
 : <a class="el" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default</a>
@@ -281,6 +288,9 @@ Here is a list of all class members with links to the classes they belong to:
 <li>delegateAllocator()
 : <a class="el" href="structbsltf_1_1StdTestAllocatorConfiguration.html#ae01a36fb36ff151209a19b1dc28b2118">bsltf::StdTestAllocatorConfiguration</a>
 </li>
+<li>deleteManagedObject()
+: <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a119d04e7e7f0684d3fabc42466433988">bslma::ManagedPtrDeleter</a>
+</li>
 <li>deleteNode()
 : <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#abd045b73dae98b346bc5454ed3e31c4a">bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="classbslstl_1_1TreeNodePool.html#ac7258136268df964103b31952712cc1a">bslstl::TreeNodePool&lt; VALUE, ALLOCATOR &gt;</a>
@@ -288,31 +298,50 @@ Here is a list of all class members with links to the classes they belong to:
 <li>deleteObject()
 : <a class="el" href="classbslma_1_1Allocator.html#a0e51fc2d107684523cc66bf65293dc37">bslma::Allocator</a>
 , <a class="el" href="structbslma_1_1DeleterHelper.html#a73d13e65b0bdc0021e7b0d331e1b64fe">bslma::DeleterHelper</a>
+, <a class="el" href="structbslma_1_1SharedPtrOutofplaceRep__DeleterHelper.html#a23b32d112d6ac2e7a21d4babeb299d85">bslma::SharedPtrOutofplaceRep_DeleterHelper</a>
 </li>
 <li>deleteObjectRaw()
 : <a class="el" href="classbslma_1_1Allocator.html#abeccfe6cfd8205faf528a8e12f97aebe">bslma::Allocator</a>
 , <a class="el" href="structbslma_1_1DeleterHelper.html#ae8a572c80be3ec51cbe65721f3c3cc79">bslma::DeleterHelper</a>
 </li>
+<li>deleter()
+: <a class="el" href="structbslma_1_1ManagedPtr__FactoryDeleter.html#a84bc6d0026164484431b0d9cdd69a6b2">bslma::ManagedPtr_FactoryDeleter&lt; ELEMENT_TYPE, FACTORY &gt;</a>
+</li>
+<li>Deleter
+: <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ac9c21bcd64e4ea48c8b1c62d3059eddc">bslma::ManagedPtrDeleter</a>
+</li>
+<li>deleter()
+: <a class="el" href="classbslma_1_1ManagedPtr.html#a3d979e298134421c44100723dadc56fd">bslma::ManagedPtr&lt; TARGET_TYPE &gt;</a>
+, <a class="el" href="structbslma_1_1ManagedPtrNilDeleter.html#a5b400c181878f8ac35846ec5e42442b1">bslma::ManagedPtrNilDeleter&lt; TARGET_TYPE &gt;</a>
+, <a class="el" href="structbslma_1_1ManagedPtr__DefaultDeleter.html#aa4e9a93487e7c346a828884156c0362e">bslma::ManagedPtr_DefaultDeleter&lt; MANAGED_TYPE &gt;</a>
+, <a class="el" href="classbslma_1_1ManagedPtr__Members.html#aa7402e25d10c817f30a0d5b1f5957b99">bslma::ManagedPtr_Members</a>
+, <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a45b18490843eca19d8dab2e43ce9ac74">bslma::ManagedPtrDeleter</a>
+</li>
+<li>DeleterFunc
+: <a class="el" href="classbslma_1_1ManagedPtr.html#afda656bd737f271d5457db053d145f32">bslma::ManagedPtr&lt; TARGET_TYPE &gt;</a>
+</li>
+<li>DeleterType
+: <a class="el" href="structbslma_1_1SharedPtrOutofplaceRep__DeleterHelper.html#a68b5f7c63226bfcdbe11801d88837475">bslma::SharedPtrOutofplaceRep_DeleterHelper</a>
+</li>
 <li>deleteTree()
 : <a class="el" href="structbslalg_1_1RbTreeUtil.html#a1efeea62bb9ec2d910a11dda9be2899f">bslalg::RbTreeUtil</a>
 </li>
 <li>deque()
-: <a class="el" href="group__bslstl__deque.html#gabb24912ee47d4c0a1a7aec01fa7c3e99">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__deque.html#ga897d40bcba3966841abc6da1e70fddd3">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 </li>
-<li>Deque_BlockCreator()
-: <a class="el" href="group__bslstl__deque.html#ga13169625631277bad839ce3569cb9dad">bsl::Deque_BlockCreator&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#gae47866dd8a0cb6e661157d1d321921df">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+<li>Deque_BlockCreator
+: <a class="el" href="group__bslstl__deque.html#gae47866dd8a0cb6e661157d1d321921df">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__deque.html#ga13169625631277bad839ce3569cb9dad">bsl::Deque_BlockCreator&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 </li>
 <li>Deque_ClearGuard()
 : <a class="el" href="group__bslstl__deque.html#ga48ecfb10bda85a04b3828becc271c0e9">bsl::Deque_ClearGuard&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 </li>
-<li>Deque_Guard
-: <a class="el" href="group__bslstl__deque.html#gad5d657184b6a85ebf1ffe7d6cd255438">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#ga6551e88bbdc2120a65d2920632237b16">bsl::Deque_Guard&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+<li>Deque_Guard()
+: <a class="el" href="group__bslstl__deque.html#ga6551e88bbdc2120a65d2920632237b16">bsl::Deque_Guard&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__deque.html#gad5d657184b6a85ebf1ffe7d6cd255438">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 </li>
 <li>DequeIterator()
-: <a class="el" href="classbslalg_1_1DequeIterator_3_01VALUE__TYPE_00_011_01_4.html#acf18c4bf0fea02f591ef0855be18052c">bslalg::DequeIterator&lt; VALUE_TYPE, 1 &gt;</a>
-, <a class="el" href="classbslalg_1_1DequeIterator.html#accd989edd172d002edadc911a2a2ad29">bslalg::DequeIterator&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a>
+: <a class="el" href="classbslalg_1_1DequeIterator.html#accd989edd172d002edadc911a2a2ad29">bslalg::DequeIterator&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a>
 , <a class="el" href="classbslalg_1_1DequeIterator_3_01VALUE__TYPE_00_011_01_4.html#a77ee607d5748d416171cdd2ebbbedfe0">bslalg::DequeIterator&lt; VALUE_TYPE, 1 &gt;</a>
 </li>
 <li>DequePrimitives
@@ -331,28 +360,30 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="classbslalg_1_1AutoArrayMoveDestructor.html#a5242e6d3a543434099b7a2cdffb2cfe9">bslalg::AutoArrayMoveDestructor&lt; OBJECT_TYPE &gt;</a>
 </li>
 <li>destroy()
-: <a class="el" href="structbslalg_1_1ArrayDestructionPrimitives.html#a975b211962dbabd34242b637b7b86776">bslalg::ArrayDestructionPrimitives</a>
-, <a class="el" href="classbslalg_1_1ContainerBase.html#ada8cb29a7f7c9aff617388a601184f2f">bslalg::ContainerBase&lt; ALLOCATOR &gt;</a>
-, <a class="el" href="structbslalg_1_1ScalarDestructionPrimitives.html#a7859ec5f170c8afd158817abc70a883c">bslalg::ScalarDestructionPrimitives</a>
-, <a class="el" href="group__bslstl__allocatortraits.html#ga422a2643ebb2f18791165e52b6acb081">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__list.html#ga38a1556f33400b4b8de55200667de77d">bsl::List_Node&lt; VALUE &gt;</a>
+: <a class="el" href="structbslalg_1_1ScalarDestructionPrimitives.html#a7859ec5f170c8afd158817abc70a883c">bslalg::ScalarDestructionPrimitives</a>
 , <a class="el" href="structbslalg_1_1ArrayDestructionPrimitives.html#a93143dba41d3311410bc367b580fdd60">bslalg::ArrayDestructionPrimitives</a>
 , <a class="el" href="classbsltf_1_1StdTestAllocator.html#a256aebdbacad424d263653ab11eaaba3">bsltf::StdTestAllocator&lt; TYPE &gt;</a>
 , <a class="el" href="group__bslstl__allocator.html#gab95d1740230a070b3e40a3b2712985f1">bsl::allocator&lt; T &gt;</a>
+, <a class="el" href="group__bslstl__allocatortraits.html#ga422a2643ebb2f18791165e52b6acb081">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__list.html#ga38a1556f33400b4b8de55200667de77d">bsl::List_Node&lt; VALUE &gt;</a>
+, <a class="el" href="classbslalg_1_1ContainerBase.html#ada8cb29a7f7c9aff617388a601184f2f">bslalg::ContainerBase&lt; ALLOCATOR &gt;</a>
 , <a class="el" href="structbslalg_1_1ArrayDestructionPrimitives.html#ab23d98c54ba1e97ebb0442f32e68b8d6">bslalg::ArrayDestructionPrimitives</a>
 </li>
 <li>destroyBucketArray()
 : <a class="el" href="structbslstl_1_1HashTable__Util.html#ae6bd4b50b967d1cfb37422fc016b8ae9">bslstl::HashTable_Util</a>
 </li>
 <li>destruct()
-: <a class="el" href="structbslalg_1_1DequePrimitives.html#aaa0975d7851be9147beb8947b6da49fc">bslalg::DequePrimitives&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a>
+: <a class="el" href="structbslalg_1_1DequePrimitives.html#a5cdb0b82f33c06fdd698f461d534df86">bslalg::DequePrimitives&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a>
 , <a class="el" href="structbslalg_1_1DequePrimitives_3_01VALUE__TYPE_00_011_01_4.html#abb350fd2ede71b7ef9460b8d33ca1d6e">bslalg::DequePrimitives&lt; VALUE_TYPE, 1 &gt;</a>
+, <a class="el" href="structbslalg_1_1DequePrimitives.html#aa4fbe921f09be8bf1f71bb88b8858336">bslalg::DequePrimitives&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a>
 </li>
 <li>destructiveMove()
-: <a class="el" href="structbslalg_1_1ArrayPrimitives.html#a5c38c0261136270c2cad4021180e41b1">bslalg::ArrayPrimitives</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a114fa5626771c3b80fc560edbc92ebc0">bslalg::ScalarPrimitives_Imp</a>
-, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a3a88f9a4684191e407558e15282f79a3">bslalg::ArrayPrimitives_Imp</a>
+: <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a3a88f9a4684191e407558e15282f79a3">bslalg::ArrayPrimitives_Imp</a>
 , <a class="el" href="structbslalg_1_1ScalarPrimitives.html#acb2a5f5befc293245874e5caa8e53f1e">bslalg::ScalarPrimitives</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a393068242b4c917237d866dcc0d47578">bslalg::ScalarPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#a5c38c0261136270c2cad4021180e41b1">bslalg::ArrayPrimitives</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a114fa5626771c3b80fc560edbc92ebc0">bslalg::ScalarPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad1d4b0425a84bf9bd9834699c50f8d7f">bslalg::ArrayPrimitives_Imp</a>
 </li>
 <li>destructiveMoveAndInsert()
 : <a class="el" href="structbslalg_1_1ArrayPrimitives.html#a0d06d0b5cf691e771e8c0c6c1a3085a2">bslalg::ArrayPrimitives</a>
@@ -367,52 +398,65 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="classbslma_1_1DestructorProctor.html#aaab80c7cc966136d26f70e3868e4bacc">bslma::DestructorProctor&lt; TYPE &gt;</a>
 </li>
 <li>difference_type
-: <a class="el" href="classbsltf_1_1StdStatefulAllocator.html#a5ddb2927204019a51aff343ebb0a109a">bsltf::StdStatefulAllocator&lt; TYPE, PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION, PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT, PROPAGATE_ON_CONTAINER_SWAP, PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT &gt;</a>
+: <a class="el" href="group__bslstl__deque.html#gafd592361bbe235e45d91302b1a1378d2">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
+, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#ac756e623500f4007bf4aac5ab654f487">bslalg::ArrayPrimitives</a>
+, <a class="el" href="classbsltf_1_1StdTestAllocator_3_01void_01_4.html#abefa914e3b50f607c11bb51fc0d17dce">bsltf::StdTestAllocator&lt; void &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga999efeb5f3915fb3501aad640cad4849">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmap.html#gabc0dd2d5cb53e0fede397117d470fb24">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga4c92c0cd3a23f5ba0ec05e91675e58c1">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#gaaaaf7ca1bfdac673b4e38e75f87b9098">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="classbsltf_1_1StdStatefulAllocator.html#a5ddb2927204019a51aff343ebb0a109a">bsltf::StdStatefulAllocator&lt; TYPE, PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION, PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT, PROPAGATE_ON_CONTAINER_SWAP, PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga5308963c5edb86c346bc1f14576a71ad">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__allocator.html#ga2fa0d9a832532b3fae1e875e5b7824ea">bsl::allocator&lt; void &gt;</a>
+, <a class="el" href="classbslstl_1_1HashTableBucketIterator.html#af160fc14cd4f446d72a8a29bc88ecb35">bslstl::HashTableBucketIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__set.html#ga48550967a18557e281476d87fe3fd0e6">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="classbsltf_1_1StdTestAllocator.html#a59dd70e023201054e9b64e6297047979">bsltf::StdTestAllocator&lt; TYPE &gt;</a>
+, <a class="el" href="group__bslstl__multiset.html#gaaf6f4354fe4daaa2d8bd8f92218400b9">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedset.html#ga96e6b1fa2b9615600a1b02348fd5be7b">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__list.html#ga9f67192213bfdb95f22d7b1b610c5b7f">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__list.html#ga0f5e919b5e0b9f8cd55fa5a4e301fe82">bsl::List_Iterator&lt; VALUE, NODEPTR, DIFFTYPE &gt;</a>
+, <a class="el" href="classbslstl_1_1RandomAccessIterator.html#a0933ba110e295b881a3f666ae70804fe">bslstl::RandomAccessIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__allocator.html#ga11592900f659edf1527778145f94382d">bsl::allocator&lt; T &gt;</a>
+, <a class="el" href="group__bslstl__map.html#gadc9aed19ba7685ee42fdcc4579354915">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__deque.html#ga63686535cf116aa446384504aff31581">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bsltf__testvaluesarray.html#ga9aeba74a062347ae90d347f9cba4aeb0">BloombergLP::bsltf::TestValuesArrayIterator&lt; VALUE &gt;</a>
+, <a class="el" href="group__bslstl__multimap.html#ga12dc12efe15876e1a232ea3689dcd2cc">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga354535932a26dcc4a3021a0db40529ff">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__allocatortraits.html#ga2c043fb992583ad40d8d1c1a3e1ecff1">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#gafd592361bbe235e45d91302b1a1378d2">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="classbslalg_1_1ContainerBase.html#a9117abb1365fde8ac0cc13f096b67577">bslalg::ContainerBase&lt; ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultiset.html#ga2a83c53d80141e4bfd276fad15cd2c68">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="classbslstl_1_1TreeIterator.html#a0f3ceb6e6b6f1f74d6e75120a1c1d0a9">bslstl::TreeIterator&lt; VALUE, NODE, DIFFERENCE_TYPE &gt;</a>
 , <a class="el" href="classbslstl_1_1BidirectionalIterator.html#af0989359ad7e00eba8036a4a61130488">bslstl::BidirectionalIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#ga4c92c0cd3a23f5ba0ec05e91675e58c1">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
-, <a class="el" href="classbsltf_1_1StdTestAllocator_3_01void_01_4.html#abefa914e3b50f607c11bb51fc0d17dce">bsltf::StdTestAllocator&lt; void &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#ga5308963c5edb86c346bc1f14576a71ad">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmultiset.html#ga2a83c53d80141e4bfd276fad15cd2c68">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmultimap.html#gaca2d4c3d7a43743f32bb3ab4f4a94390">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__allocator.html#ga2fa0d9a832532b3fae1e875e5b7824ea">bsl::allocator&lt; void &gt;</a>
-, <a class="el" href="group__bslstl__multimap.html#ga12dc12efe15876e1a232ea3689dcd2cc">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8b51214119c3bc6ee5b5a7b89faf33e6">bslalg::ArrayPrimitives_Imp</a>
-, <a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableIterator.html#a426f4f62748b4597ad3def8bbb7d313b">BloombergLP::bslstl::HashTableIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__list.html#ga0f5e919b5e0b9f8cd55fa5a4e301fe82">bsl::List_Iterator&lt; VALUE, NODEPTR, DIFFTYPE &gt;</a>
-, <a class="el" href="group__bslstl__unorderedset.html#ga96e6b1fa2b9615600a1b02348fd5be7b">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multiset.html#gaaf6f4354fe4daaa2d8bd8f92218400b9">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="classbsltf_1_1StdTestAllocator.html#a59dd70e023201054e9b64e6297047979">bsltf::StdTestAllocator&lt; TYPE &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#ga63686535cf116aa446384504aff31581">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
-, <a class="el" href="classbslstl_1_1RandomAccessIterator.html#a0933ba110e295b881a3f666ae70804fe">bslstl::RandomAccessIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__list.html#ga9f67192213bfdb95f22d7b1b610c5b7f">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#ac756e623500f4007bf4aac5ab654f487">bslalg::ArrayPrimitives</a>
-, <a class="el" href="classbslalg_1_1AutoArrayDestructor.html#af0a057b8557a137271170722dc1de4c1">bslalg::AutoArrayDestructor&lt; OBJECT_TYPE &gt;</a>
-, <a class="el" href="classbslstl_1_1ForwardIterator.html#a0c5777c5c6e0b87ff98f398291bd32dc">bslstl::ForwardIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__string.html#gaaaaf7ca1bfdac673b4e38e75f87b9098">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__allocatortraits.html#ga2c043fb992583ad40d8d1c1a3e1ecff1">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;</a>
 , <a class="el" href="classbslstl_1_1StringRefImp.html#a5c8f5f117278e670b4f35224ea818c3b">bslstl::StringRefImp&lt; CHAR_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__allocator.html#ga11592900f659edf1527778145f94382d">bsl::allocator&lt; T &gt;</a>
-, <a class="el" href="classbslstl_1_1HashTableBucketIterator.html#af160fc14cd4f446d72a8a29bc88ecb35">bslstl::HashTableBucketIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__map.html#gadc9aed19ba7685ee42fdcc4579354915">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__set.html#ga48550967a18557e281476d87fe3fd0e6">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bsltf__testvaluesarray.html#ga9aeba74a062347ae90d347f9cba4aeb0">BloombergLP::bsltf::TestValuesArrayIterator&lt; VALUE &gt;</a>
+, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8b51214119c3bc6ee5b5a7b89faf33e6">bslalg::ArrayPrimitives_Imp</a>
+, <a class="el" href="classbslstl_1_1ForwardIterator.html#a0c5777c5c6e0b87ff98f398291bd32dc">bslstl::ForwardIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</a>
+, <a class="el" href="classbslalg_1_1ContainerBase.html#a9117abb1365fde8ac0cc13f096b67577">bslalg::ContainerBase&lt; ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultimap.html#gaca2d4c3d7a43743f32bb3ab4f4a94390">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmap.html#gabc0dd2d5cb53e0fede397117d470fb24">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="classbslalg_1_1AutoArrayDestructor.html#af0a057b8557a137271170722dc1de4c1">bslalg::AutoArrayDestructor&lt; OBJECT_TYPE &gt;</a>
+, <a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableIterator.html#a426f4f62748b4597ad3def8bbb7d313b">BloombergLP::bslstl::HashTableIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
+</li>
+<li>disposeObject()
+: <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#ac03bfbb61095d48b0f2b7941cf40d773">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>
+, <a class="el" href="classbslma_1_1SharedPtrRep.html#ac41472460d942cf114a59f24b3d5655f">bslma::SharedPtrRep</a>
+, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a646abcc16ee84c8d00aaf7f23726ee36">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>
+</li>
+<li>disposeRep()
+: <a class="el" href="classbslma_1_1SharedPtrRep.html#ad80928f0b7b63b0e1631428e561e610f">bslma::SharedPtrRep</a>
+, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#acb8c7ea7958c907ed62cf280e40e5b61">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>
+, <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a5c683c98e6fdae4d535817a485f32557">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>
 </li>
 <li>dummy
-: <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1IsPoly.html#acf40a6d5d07da8bb2d9e762a5915b430">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::IsPoly</a>
-, <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1NonConstMatch.html#a4e3d196420168908744610e8460160a3">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::NonConstMatch</a>
+: <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1NonConstMatch.html#a4e3d196420168908744610e8460160a3">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::NonConstMatch</a>
+, <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1IsPoly.html#acf40a6d5d07da8bb2d9e762a5915b430">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::IsPoly</a>
 , <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1ConstMatch.html#ab5944d40128162727f3cf5bdd2bd725e">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::ConstMatch</a>
 , <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1MaybePoly.html#ac61496648578ae3b1f7037fbbf89afbd">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::MaybePoly</a>
 , <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1ConversionMatch.html#aa972caedc54d07fbbd13f54178919049">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::ConversionMatch</a>
 </li>
+<li>dynamicCast()
+: <a class="el" href="group__bslstl__sharedptr.html#ga69f6feecf72eebbdb5154d80b313cea6">bslstl::SharedPtrUtil</a>
+</li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:02 for BSL Release 2.18 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:06 for BSL Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

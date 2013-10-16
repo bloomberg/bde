@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.18 OSS: bslstl_string Component</title>
+<title>BSL 2.19 OSS: bslstl_string Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -1499,6 +1499,8 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 
 <p>References <a class="el" href="group__bslstl__string.html#ga3b257d66c0c5074edfa0973939bb6179">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign()</a>, and <a class="el" href="group__bslstl__string.html#gaaedf4e0c4484a05f260fda8f45aa6887">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::begin()</a>.</p>
 
+<p>Referenced by <a class="el" href="group__bslstl__string.html#ga141714d133832d9980540c42a0cd3276">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="ga66be81efef3b9a52a338d0fbc5f6e43d"></a><!-- doxytag: member="bsl::basic_string::basic_string" ref="ga66be81efef3b9a52a338d0fbc5f6e43d" args="(const basic_string &amp;original)" -->
@@ -1835,7 +1837,7 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 <div class="memdoc">
 <p>Destroy this string object. </p>
 
-<p>References <a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_length</a>, and <a class="el" href="group__bslstl__string.html#ga700a29a04787c42a48ec3d0f1eea57ba">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::npos</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>, <a class="el" href="group__bslstl__string.html#gacdde3b4bec7a70408f92732ca3a62d23">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::capacity()</a>, <a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_length</a>, <a class="el" href="group__bslstl__string.html#ga78edaba5c76c2e2f09067f478be101d2">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::length()</a>, and <a class="el" href="group__bslstl__string.html#ga700a29a04787c42a48ec3d0f1eea57ba">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::npos</a>.</p>
 
 </div>
 </div>
@@ -2551,7 +2553,7 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 <div class="memdoc">
 <p>Assign to this string the value of the substring of the specified <code>numChars</code> length or <code>string.length() - position</code>, whichever is smaller, starting at the specified <code>position</code> in the specified <code>string</code>, and return a reference providing modifiable access to this string. Throw <code>out_of_range</code> if <code>position &gt; string.length()</code>. </p>
 
-<p>References <a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>, <a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_length</a>, <a class="el" href="group__bslstl__string.html#gaac917fd3a1a7498eef93bc91d8348c8d">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::data()</a>, <a class="el" href="group__bslstl__string.html#ga78edaba5c76c2e2f09067f478be101d2">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::length()</a>, and <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>.</p>
+<p>References <a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>, <a class="el" href="group__bslstl__string.html#gaac917fd3a1a7498eef93bc91d8348c8d">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::data()</a>, <a class="el" href="group__bslstl__string.html#ga78edaba5c76c2e2f09067f478be101d2">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::length()</a>, and <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>.</p>
 
 </div>
 </div>
@@ -2606,7 +2608,7 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 <div class="memdoc">
 <p>Assign to this string the value of the string constructed from the specified <code>numChars</code> characters in the array starting at the specified <code>characterString</code> address, and return a reference providing modifiable access to this string. </p>
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>, <a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_length</a>, and <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>, and <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>.</p>
 
 </div>
 </div>
@@ -2638,7 +2640,7 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 <div class="memdoc">
 <p>Assign to this string the value of a string of the specified <code>numChars</code> length whose every characters equal the specified <code>character</code>, and return a reference providing modifiable access to this string. </p>
 
-<p>References <a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>, <a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_length</a>, and <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>.</p>
+<p>References <a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>, and <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>.</p>
 
 </div>
 </div>
@@ -2672,7 +2674,7 @@ template&lt;typename INPUT_ITER &gt; </div>
 <div class="memdoc">
 <p>Assign to this string the value of a string built from the characters in the range starting at the specified <code>first</code> and ending before the specified <code>last</code> iterators of the <code>iterator</code>, <code>const_iterator</code> or parameterized <code>INPUT_ITER</code> type, respectively. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>[first, last)</code> is a valid iterator range. </p>
 
-<p>References <a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_length</a>.</p>
+<p>References <a class="el" href="group__bslstl__string.html#ga343e1760f5cc0f569f29383ba12ec447">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string()</a>, and <a class="el" href="group__bslstl__string.html#ga21e221082c6b08eaa6f3f8b4a003666e">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::get_allocator()</a>.</p>
 
 </div>
 </div>
@@ -3728,7 +3730,7 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 
 <p>References <a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_length</a>.</p>
 
-<p>Referenced by <a class="el" href="group__bslstl__string.html#ga2877072ce0e85eeccf15a256ff2e0f8a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append()</a>, <a class="el" href="group__bslstl__string.html#ga45ddf77dd0fed965fca1d3eb7fdf2fbd">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign()</a>, <a class="el" href="group__bslstl__string.html#gaa1d2382eeb4b366a2368b43272a8d6e5">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::at()</a>, <a class="el" href="group__bslstl__string.html#ga692652ff0c2a02fef66d07686d9cdb4c">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::back()</a>, <a class="el" href="group__bslstl__string.html#ga525e68250a8bd6aa966f41bc4a087439">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare()</a>, <a class="el" href="group__bslstl__string.html#gaeb2d4cf4d56a290b3091777b6cb66fc8">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::copy()</a>, <a class="el" href="group__bslstl__string.html#gafc5850be8c60d15b6a8d46efa5db876f">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::erase()</a>, <a class="el" href="group__bslstl__string.html#ga7fe8ba1674bd8c0d454432836e58827a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find()</a>, <a class="el" href="group__bslstl__string.html#gacdf727ecef642d9ae15340a3bbd22ed3">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_not_of()</a>, <a class="el" href="group__bslstl__string.html#ga484c8d8ec7792356c9b119cbbf6f9a33">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_of()</a>, <a class="el" href="group__bslstl__string.html#gacab02499b7e85d3cf0193f95e32c6c6a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_not_of()</a>, <a class="el" href="group__bslstl__string.html#gaaa66e07dac22a503d66e7bbb927b25df">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_of()</a>, <a class="el" href="group__bslstl__string.html#gaae3683b45fb349560b817c5c0e7fbb90">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert()</a>, <a class="el" href="group__bslstl__string.html#gad9c0939db2b84b4f3d7cbe8d8cd0cd3b">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator native_std::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOC2 &gt;()</a>, <a class="el" href="group__bslstl__string.html#ga7002308bb0f4bda8f778835534b42c77">bsl::operator+()</a>, <a class="el" href="group__bslstl__string.html#ga53520ad4579b0e7ebe3a330ea3aef1a6">bsl::operator&lt;()</a>, <a class="el" href="group__bslstl__string.html#ga1a5d4f6852a29ce65d258aca6d4e51e1">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator[]()</a>, <a class="el" href="group__bslstl__string.html#gab7139f8e4a967c1865e0e1f76397351a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::pop_back()</a>, <a class="el" href="group__bslstl__string.html#ga6cf77eba8e1c6889f82179256b876446">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::push_back()</a>, <a class="el" href="group__bslstl__string.html#gaad28d25eb7340fc1e001ca844ad38d2a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace()</a>, and <a class="el" href="group__bslstl__string.html#gab516a89e7e0625d7f7aeab02fa1711b4">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rfind()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__string.html#ga2877072ce0e85eeccf15a256ff2e0f8a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append()</a>, <a class="el" href="group__bslstl__string.html#ga45ddf77dd0fed965fca1d3eb7fdf2fbd">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign()</a>, <a class="el" href="group__bslstl__string.html#gaa1d2382eeb4b366a2368b43272a8d6e5">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::at()</a>, <a class="el" href="group__bslstl__string.html#ga692652ff0c2a02fef66d07686d9cdb4c">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::back()</a>, <a class="el" href="group__bslstl__string.html#ga525e68250a8bd6aa966f41bc4a087439">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare()</a>, <a class="el" href="group__bslstl__string.html#gaeb2d4cf4d56a290b3091777b6cb66fc8">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::copy()</a>, <a class="el" href="group__bslstl__string.html#gafc5850be8c60d15b6a8d46efa5db876f">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::erase()</a>, <a class="el" href="group__bslstl__string.html#ga7fe8ba1674bd8c0d454432836e58827a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find()</a>, <a class="el" href="group__bslstl__string.html#gacdf727ecef642d9ae15340a3bbd22ed3">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_not_of()</a>, <a class="el" href="group__bslstl__string.html#ga484c8d8ec7792356c9b119cbbf6f9a33">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_of()</a>, <a class="el" href="group__bslstl__string.html#gacab02499b7e85d3cf0193f95e32c6c6a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_not_of()</a>, <a class="el" href="group__bslstl__string.html#gaaa66e07dac22a503d66e7bbb927b25df">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_of()</a>, <a class="el" href="group__bslstl__string.html#gaae3683b45fb349560b817c5c0e7fbb90">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert()</a>, <a class="el" href="group__bslstl__string.html#gad9c0939db2b84b4f3d7cbe8d8cd0cd3b">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator native_std::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOC2 &gt;()</a>, <a class="el" href="group__bslstl__string.html#ga7002308bb0f4bda8f778835534b42c77">bsl::operator+()</a>, <a class="el" href="group__bslstl__string.html#ga53520ad4579b0e7ebe3a330ea3aef1a6">bsl::operator&lt;()</a>, <a class="el" href="group__bslstl__string.html#ga1a5d4f6852a29ce65d258aca6d4e51e1">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator[]()</a>, <a class="el" href="group__bslstl__string.html#gab7139f8e4a967c1865e0e1f76397351a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::pop_back()</a>, <a class="el" href="group__bslstl__string.html#ga6cf77eba8e1c6889f82179256b876446">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::push_back()</a>, <a class="el" href="group__bslstl__string.html#gaad28d25eb7340fc1e001ca844ad38d2a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace()</a>, <a class="el" href="group__bslstl__string.html#gab516a89e7e0625d7f7aeab02fa1711b4">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rfind()</a>, and <a class="el" href="group__bslstl__string.html#gaf8d5e8dde4a2ba49ab5975c2390370f2">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::~basic_string()</a>.</p>
 
 </div>
 </div>
@@ -3800,7 +3802,7 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 
 <p>References <a class="el" href="group__bslstl__string.html#gaaae930e07f058fc30aa7bc8af3cf9f81">bsl::String_Imp&lt; CHAR_TYPE, ALLOCATOR::size_type &gt;::d_capacity</a>.</p>
 
-<p>Referenced by <a class="el" href="group__bslstl__string.html#ga6cf77eba8e1c6889f82179256b876446">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::push_back()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__string.html#ga6cf77eba8e1c6889f82179256b876446">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::push_back()</a>, and <a class="el" href="group__bslstl__string.html#gaf8d5e8dde4a2ba49ab5975c2390370f2">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::~basic_string()</a>.</p>
 
 </div>
 </div>
@@ -4020,7 +4022,7 @@ template&lt;typename CHAR_TYPE , typename CHAR_TRAITS , typename ALLOCATOR &gt; 
 <div class="memdoc">
 <p>Return the allocator used by this string to supply memory. </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>, <a class="el" href="group__bslstl__string.html#gaa85645c85b7e6553fc597a2fa2ddf31d">bsl::swap()</a>, and <a class="el" href="group__bslstl__string.html#ga50ed91781391463b48216ff581aed48e">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::swap()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__string.html#ga141714d133832d9980540c42a0cd3276">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign()</a>, <a class="el" href="group__bslstl__string.html#ga64856cc5871a51db0b635a817b289767">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size()</a>, <a class="el" href="group__bslstl__string.html#gaa85645c85b7e6553fc597a2fa2ddf31d">bsl::swap()</a>, and <a class="el" href="group__bslstl__string.html#ga50ed91781391463b48216ff581aed48e">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::swap()</a>.</p>
 
 </div>
 </div>
@@ -6506,7 +6508,7 @@ template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ga48296322e52e0491b9ef1b59305ea130"></a><!-- doxytag: member="bsl::String_Imp::@113::d_start_p" ref="ga48296322e52e0491b9ef1b59305ea130" args="" -->
+<a class="anchor" id="ga3c1b296161780842e8f1ce16f1571c14"></a><!-- doxytag: member="bsl::String_Imp::@118::d_start_p" ref="ga3c1b296161780842e8f1ce16f1571c14" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -6520,7 +6522,7 @@ template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gac6c8701bd5980c5978111bbdadd201bf"></a><!-- doxytag: member="bsl::String_Imp::@114" ref="gac6c8701bd5980c5978111bbdadd201bf" args="" -->
+<a class="anchor" id="gacbf4fcb16658c3fe67769b65f24dd7ad"></a><!-- doxytag: member="bsl::String_Imp::@119" ref="gacbf4fcb16658c3fe67769b65f24dd7ad" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -6534,7 +6536,7 @@ template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gaa1f7fc9b106eff564daf20f30d5ec4b6"></a><!-- doxytag: member="bsl::String_Imp::@113::d_short" ref="gaa1f7fc9b106eff564daf20f30d5ec4b6" args="" -->
+<a class="anchor" id="ga442911ee00d50c7f0fccb6d0851e0804"></a><!-- doxytag: member="bsl::String_Imp::@118::d_short" ref="ga442911ee00d50c7f0fccb6d0851e0804" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -6603,7 +6605,7 @@ template&lt;typename CHAR_TYPE, typename CHAR_TRAITS = char_traits&lt;CHAR_TYPE&
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:01 for BSL Release 2.18 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:05 for BSL Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

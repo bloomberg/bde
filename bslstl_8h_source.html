@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <html>
 <pre>
  bslstl.txt
@@ -22,12 +22,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslstl&#39; package currently has 47 components having 7 levels of physical
+ The &#39;bslstl&#39; package currently has 50 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   7. bslstl_queue
+     bslstl_sharedptr
      bslstl_stack
 
   6. bslstl_deque
@@ -59,7 +60,8 @@
      bslstl_stringref
      bslstl_treenode
 
-  3. bslstl_bidirectionalnodepool
+  3. bslstl_algorithmworkaround
+     bslstl_bidirectionalnodepool
      bslstl_forwarditerator
      bslstl_iteratorutil
      bslstl_list
@@ -72,6 +74,7 @@
 
   1. bslstl_allocator
      bslstl_allocatortraits
+     bslstl_badweakptr
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
@@ -84,11 +87,17 @@
 
 /Component Synopsis
 /------------------
+: &#39;bslstl_algorithmworkaround&#39;:
+:      Provide a namespace for work arounds for the standard algorithms
+:
 : &#39;bslstl_allocator&#39;:
 :      Provide an STL-compatible proxy for &#39;bslma::Allocator&#39; objects.
 :
 : &#39;bslstl_allocatortraits&#39;:
 :      Provide a uniform interface to standard allocator types.
+:
+: &#39;bslstl_badweakptr&#39;:
+:      Provide an exception class to indicate a weak_ptr has expired.
 :
 : &#39;bslstl_bidirectionaliterator&#39;:
 :      Provide a template to create STL-compliant bidirectional iterators.
@@ -167,6 +176,9 @@
 :
 : &#39;bslstl_setcomparator&#39;:
 :      Provide a comparator for &#39;TreeNode&#39; objects and a lookup key.
+:
+: &#39;bslstl_sharedptr&#39;:
+:      Provide a generic reference-counted shared pointer wrapper.
 :
 : &#39;bslstl_simplepool&#39;:
 :      Provide efficient allocation of memory blocks for a specific type.

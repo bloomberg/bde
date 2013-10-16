@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.18 OSS: Class bsl::pair</title>
+<title>BSL 2.19 OSS: Class bsl::pair</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -100,8 +100,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga24269c516271f2fc71a5b18762e2e18a">pair</a> (BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga55fdbe09c1a7c9f645f17ff1a18ff076">pair</a> (const T1 &amp;a, const T2 &amp;b)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gaf0cca61d59ac936dedc4b1c55d4d42c7">pair</a> (const T1 &amp;a, const T2 &amp;b, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga1a4e57de9e4d9481c2dfa1d8add1863e">pair</a> (const <a class="el" href="classbsl_1_1pair.html">pair</a> &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gadef1dec3aa02c01bd4194a0314855481">pair</a> (const <a class="el" href="classbsl_1_1pair.html">pair</a> &amp;rhs, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga033025e5309b8b159067c362fd7fe0b4">pair</a> (const <a class="el" href="classbsl_1_1pair.html">pair</a> &amp;original)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gab77db000ada527cd0172711ea2d4049a">pair</a> (const <a class="el" href="classbsl_1_1pair.html">pair</a> &amp;original, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga12dbd21daf216c3d387989376c666ca9">pair</a> (const <a class="el" href="classbsl_1_1pair.html">pair</a>&lt; U1, U2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
@@ -110,6 +110,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga38becfe3678b948fd16dbcd8d179e631">pair</a> (const native_std::pair&lt; U1, U2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gaaae3e1fd5890f19d557cfb085d7bd173">pair</a> (const native_std::pair&lt; U1, U2 &gt; &amp;rhs, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga33a6e94511fafbb8ba6aa937f8b61f97">pair</a> (const BloombergLP::bslma::ManagedPtr_PairProxy&lt; U1, U2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga6c0c09e954cdb153267cf6a35a3b2607">~pair</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1pair.html">pair</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga6545f413b6b7e1ea2c759b02310213bb">operator=</a> (const <a class="el" href="classbsl_1_1pair.html">pair</a> &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
@@ -156,7 +158,7 @@ Public Attributes</h2></td></tr>
 <li><a class="el" href="bslstl__pair_8h_source.html">bslstl_pair.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:06 for BSL Release 2.18 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:10 for BSL Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <html>
 <pre>
 // bslalg_hashtableanchor.h                                           -*-C++-*-
@@ -468,8 +468,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslalg_scalarprimitives.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include &lt;bslalg_typetraits.h&gt;
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -524,7 +528,8 @@ class HashTableAnchor {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(HashTableAnchor, TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(HashTableAnchor,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     HashTableAnchor(HashTableBucket    *bucketArrayAddress,

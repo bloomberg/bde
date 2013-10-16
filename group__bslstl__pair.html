@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.18 OSS: bslstl_pair Component</title>
+<title>BSL 2.19 OSS: bslstl_pair Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -105,8 +105,8 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga24269c516271f2fc71a5b18762e2e18a">bsl::pair::pair</a> (BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga55fdbe09c1a7c9f645f17ff1a18ff076">bsl::pair::pair</a> (const T1 &amp;a, const T2 &amp;b)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gaf0cca61d59ac936dedc4b1c55d4d42c7">bsl::pair::pair</a> (const T1 &amp;a, const T2 &amp;b, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga1a4e57de9e4d9481c2dfa1d8add1863e">bsl::pair::pair</a> (const pair &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gadef1dec3aa02c01bd4194a0314855481">bsl::pair::pair</a> (const pair &amp;rhs, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga033025e5309b8b159067c362fd7fe0b4">bsl::pair::pair</a> (const pair &amp;original)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gab77db000ada527cd0172711ea2d4049a">bsl::pair::pair</a> (const pair &amp;original, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga12dbd21daf216c3d387989376c666ca9">bsl::pair::pair</a> (const pair&lt; U1, U2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
@@ -115,6 +115,8 @@ Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga38becfe3678b948fd16dbcd8d179e631">bsl::pair::pair</a> (const native_std::pair&lt; U1, U2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gaaae3e1fd5890f19d557cfb085d7bd173">bsl::pair::pair</a> (const native_std::pair&lt; U1, U2 &gt; &amp;rhs, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga33a6e94511fafbb8ba6aa937f8b61f97">bsl::pair::pair</a> (const BloombergLP::bslma::ManagedPtr_PairProxy&lt; U1, U2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga6c0c09e954cdb153267cf6a35a3b2607">bsl::pair::~pair</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">pair &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga6545f413b6b7e1ea2c759b02310213bb">bsl::pair::operator=</a> (const pair &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename U1 , typename U2 &gt; </td></tr>
@@ -504,7 +506,7 @@ template&lt;typename T1 , typename T2 &gt; </div>
           <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
           <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td>
           <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
+          <td><code> [explicit, inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -618,7 +620,7 @@ template&lt;typename T1 , typename T2 &gt; </div>
           <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
           <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td>
           <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
+          <td><code> [explicit, inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -732,7 +734,7 @@ template&lt;typename T1 , typename T2 &gt; </div>
           <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
           <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td>
           <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
+          <td><code> [explicit, inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -939,7 +941,7 @@ template&lt;typename T1, typename T2&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ga1a4e57de9e4d9481c2dfa1d8add1863e"></a><!-- doxytag: member="bsl::pair::pair" ref="ga1a4e57de9e4d9481c2dfa1d8add1863e" args="(const pair &amp;rhs)" -->
+<a class="anchor" id="ga033025e5309b8b159067c362fd7fe0b4"></a><!-- doxytag: member="bsl::pair::pair" ref="ga033025e5309b8b159067c362fd7fe0b4" args="(const pair &amp;original)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -949,7 +951,7 @@ template&lt;typename T1, typename T2&gt; </div>
           <td class="memname"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; T1, T2 &gt;::pair </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classbsl_1_1pair.html">pair</a>&lt; T1, T2 &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em></td>
+          <td class="paramname"> <em>original</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
         </tr>
@@ -959,7 +961,7 @@ template&lt;typename T1, typename T2&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gadef1dec3aa02c01bd4194a0314855481"></a><!-- doxytag: member="bsl::pair::pair" ref="gadef1dec3aa02c01bd4194a0314855481" args="(const pair &amp;rhs, BloombergLP::bslma::Allocator *basicAllocator)" -->
+<a class="anchor" id="gab77db000ada527cd0172711ea2d4049a"></a><!-- doxytag: member="bsl::pair::pair" ref="gab77db000ada527cd0172711ea2d4049a" args="(const pair &amp;original, BloombergLP::bslma::Allocator *basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -969,7 +971,7 @@ template&lt;typename T1, typename T2&gt; </div>
           <td class="memname"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; T1, T2 &gt;::pair </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classbsl_1_1pair.html">pair</a>&lt; T1, T2 &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em>, </td>
+          <td class="paramname"> <em>original</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -985,7 +987,7 @@ template&lt;typename T1, typename T2&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a pair from the specified <code>rhs</code> value. Copy-construct <code>first</code> from <code>rhs.first</code> and <code>second</code> from <code>rhs.second</code>. Optionally specify a <code>basicAllocator</code> used to supply memory for the constructor(s) of which ever data member(s) accept an allocator. Attempted use of of either version of this constructor will not compile unless <code>T1</code> and <code>T2</code> both supply copy constructors. Attempted use of the allocator version will not compile unless one or both of <code>T1</code> and <code>T2</code> accept an allocator. </p>
+<p>Construct a pair from the specified <code>original</code> value. Copy-construct <code>first</code> from <code>rhs.first</code> and <code>second</code> from <code>rhs.second</code>. Optionally specify a <code>basicAllocator</code> used to supply memory for the constructor(s) of which ever data member(s) accept an allocator. Attempted use of of either version of this constructor will not compile unless <code>T1</code> and <code>T2</code> both supply copy constructors. Attempted use of the allocator version will not compile unless one or both of <code>T1</code> and <code>T2</code> accept an allocator. </p>
 
 </div>
 </div>
@@ -1062,6 +1064,7 @@ template&lt;typename U1 , typename U2 &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>IMPLICIT: </p>
 
 </div>
 </div>
@@ -1094,6 +1097,29 @@ template&lt;typename U1 , typename U2 &gt; </div>
 </div>
 <div class="memdoc">
 <p>Create a pair that has the same value as the specified <code>rhs</code> pair, where the type <code>rhs</code> is the pair type native to the compiler's library, holding the parameterized types <code>U1</code> and <code>U2</code>. Uses the default allocator to provide memory. Optionally specify a <code>basicAllocator</code> used to supply memory for the constructor(s) of which ever data member(s) accept an allocator. The behavior is undefined unless <code>T1</code> is constructible from <code>U1</code> and <code>T2</code> is constructible from from <code>U2</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga33a6e94511fafbb8ba6aa937f8b61f97"></a><!-- doxytag: member="bsl::pair::pair" ref="ga33a6e94511fafbb8ba6aa937f8b61f97" args="(const BloombergLP::bslma::ManagedPtr_PairProxy&lt; U1, U2 &gt; &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T1, typename T2&gt; </div>
+<div class="memtemplate">
+template&lt;typename U1 , typename U2 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; T1, T2 &gt;::pair </td>
+          <td>(</td>
+          <td class="paramtype">const BloombergLP::bslma::ManagedPtr_PairProxy&lt; U1, U2 &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>IMPLICIT: Create a pair that has the same value as the specified <code>rhs</code> pair proxy. The behavior is undefined unless <code>T1</code> is constructible from <code>U1</code> and <code>T2</code> is constructible from from <code>U2</code>. </p>
 
 </div>
 </div>
@@ -1484,7 +1510,7 @@ template&lt;typename T1 , typename T2 &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:01 for BSL Release 2.18 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:05 for BSL Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

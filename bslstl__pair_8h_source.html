@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.18 OSS</title>
+<title>BSL 2.19 OSS</title>
 <html>
 <pre>
 // bslstl_pair.h                                                      -*-C++-*-
@@ -259,6 +259,12 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslma_allocator.h&gt;
 #endif
 
+#if !defined(BDE_OMIT_DEPRECATED_INTERNAL_ONLY)
+#ifndef INCLUDED_BSLMA_MANAGEDPTR_PAIRPROXY
+#include &lt;bslma_managedptr_pairproxy.h&gt;
+#endif
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include &lt;bslma_usesbslmaallocator.h&gt;
 #endif
@@ -349,7 +355,7 @@ struct Pair_Imp&lt;T1, T2, 1, 0&gt; {
     T2 second;
 
     // CREATORS
-    Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
+    explicit Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a &#39;Pair_Imp&#39; object.  Optionally specify a
         // &#39;basicAllocator&#39; used to supply memory for &#39;first&#39;.  Note that this
         // specialization of &#39;Pair_Imp&#39; guarantees that &#39;second&#39; does not need
@@ -385,7 +391,7 @@ struct Pair_Imp&lt;T1, T2, 0, 1&gt; {
     T2 second;
 
     // CREATORS
-    Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
+    explicit Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a &#39;Pair_Imp&#39; object.  Optionally specify a
         // &#39;basicAllocator&#39; used to supply memory for &#39;second&#39;.  Note that this
         // specialization of &#39;Pair_Imp&#39; guarantees that &#39;first&#39; does not need
@@ -421,7 +427,7 @@ struct Pair_Imp&lt;T1, T2, 1, 1&gt; {
     T2 second;
 
     // CREATORS
-    Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
+    explicit Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a &#39;Pair_Imp&#39; object.  Optionally specify a
         // &#39;basicAllocator&#39; used to supply memory for both &#39;first&#39; and
         // &#39;second&#39;.
@@ -493,9 +499,9 @@ class pair : public Pair_Imp&lt;T1, T2,
         // Attempted use of the allocator version will not compile unless one
         // or both of &#39;T1&#39; and &#39;T2&#39; accept an allocator.
 
-    pair(const pair&amp; rhs);
-    pair(const pair&amp; rhs, BloombergLP::bslma::Allocator *basicAllocator);
-        // Construct a pair from the specified &#39;rhs&#39; value.  Copy-construct
+    pair(const pair&amp; original);
+    pair(const pair&amp; original, BloombergLP::bslma::Allocator *basicAllocator);
+        // Construct a pair from the specified &#39;original&#39; value.  Copy-construct
         // &#39;first&#39; from &#39;rhs.first&#39; and &#39;second&#39; from &#39;rhs.second&#39;.  Optionally
         // specify a &#39;basicAllocator&#39; used to supply memory for the
         // constructor(s) of which ever data member(s) accept an allocator.
@@ -520,10 +526,10 @@ class pair : public Pair_Imp&lt;T1, T2,
         // allocator.
 
     template &lt;typename U1, typename U2&gt;
-    pair(const native_std::pair&lt;U1, U2&gt;&amp;  rhs);
+    pair(const native_std::pair&lt;U1, U2&gt;&amp;  rhs);                     // IMPLICIT
     template &lt;typename U1, typename U2&gt;
     pair(const native_std::pair&lt;U1, U2&gt;&amp;  rhs,
-         BloombergLP::bslma::Allocator    *basicAllocator);
+         BloombergLP::bslma::Allocator   *basicAllocator);
         // Create a pair that has the same value as the specified &#39;rhs&#39; pair,
         // where the type &#39;rhs&#39; is the pair type native to the compiler&#39;s
         // library, holding the parameterized types &#39;U1&#39; and &#39;U2&#39;.  Uses the
@@ -532,6 +538,15 @@ class pair : public Pair_Imp&lt;T1, T2,
         // which ever data member(s) accept an allocator.  The behavior is
         // undefined unless &#39;T1&#39; is constructible from &#39;U1&#39; and &#39;T2&#39; is
         // constructible from from &#39;U2&#39;.
+
+#if !defined(BDE_OMIT_DEPRECATED_INTERNAL_ONLY)
+    template &lt;typename U1, typename U2&gt;
+    pair(const BloombergLP::bslma::ManagedPtr_PairProxy&lt;U1, U2&gt;&amp;
+                                                              rhs); // IMPLICIT
+        // Create a pair that has the same value as the specified &#39;rhs&#39; pair
+        // proxy.  The behavior is undefined unless &#39;T1&#39; is constructible from
+        // &#39;U1&#39; and &#39;T2&#39; is constructible from from &#39;U2&#39;.
+#endif
 
     ~pair();
         // Destroy this object.  Call destructors on &#39;first&#39; and &#39;second&#39;.
@@ -562,7 +577,7 @@ class pair : public Pair_Imp&lt;T1, T2,
         // field is no-throw.
 };
 
-}  // namespace bsl
+}  // close namespace bsl
 
 namespace bsl {
 
@@ -812,8 +827,8 @@ pair&lt;T1, T2&gt;::pair(const T1&amp; a, const T2&amp; b)
 
 template &lt;typename T1, typename T2&gt;
 inline
-pair&lt;T1, T2&gt;::pair(const T1&amp;                     a,
-                   const T2&amp;                     b,
+pair&lt;T1, T2&gt;::pair(const T1&amp;                      a,
+                   const T2&amp;                      b,
                    BloombergLP::bslma::Allocator *basicAllocator)
 : Base(a, b, basicAllocator)
 {
@@ -821,16 +836,16 @@ pair&lt;T1, T2&gt;::pair(const T1&amp;                     a,
 
 template &lt;typename T1, typename T2&gt;
 inline
-pair&lt;T1, T2&gt;::pair(const pair&lt;T1, T2&gt;&amp; rhs)
-: Base(rhs.first, rhs.second)
+pair&lt;T1, T2&gt;::pair(const pair&lt;T1, T2&gt;&amp; original)
+: Base(original.first, original.second)
 {
 }
 
 template &lt;typename T1, typename T2&gt;
 inline
-pair&lt;T1, T2&gt;::pair(const pair&lt;T1, T2&gt;&amp;           rhs,
+pair&lt;T1, T2&gt;::pair(const pair&lt;T1, T2&gt;&amp;            original,
                    BloombergLP::bslma::Allocator *basicAllocator)
-: Base(rhs.first, rhs.second, basicAllocator)
+: Base(original.first, original.second, basicAllocator)
 {
 }
 
@@ -845,7 +860,7 @@ pair&lt;T1, T2&gt;::pair(const pair&lt;U1, U2&gt;&amp; rhs)
 template &lt;typename T1, typename T2&gt;
 template &lt;typename U1, typename U2&gt;
 inline
-pair&lt;T1, T2&gt;::pair(const pair&lt;U1, U2&gt;&amp;           rhs,
+pair&lt;T1, T2&gt;::pair(const pair&lt;U1, U2&gt;&amp;            rhs,
                    BloombergLP::bslma::Allocator *basicAllocator)
 : Base(rhs.first, rhs.second, basicAllocator)
 {
@@ -861,10 +876,19 @@ pair&lt;T1, T2&gt;::pair(const native_std::pair&lt;U1, U2&gt;&amp; rhs)
 template &lt;typename T1, typename T2&gt;
 template &lt;typename U1, typename U2&gt;
 pair&lt;T1, T2&gt;::pair(const native_std::pair&lt;U1, U2&gt;&amp;  rhs,
-                   BloombergLP::bslma::Allocator    *basicAllocator)
+                   BloombergLP::bslma::Allocator   *basicAllocator)
 : Base(rhs.first, rhs.second, basicAllocator)
 {
 }
+
+#if !defined(BDE_OMIT_DEPRECATED_INTERNAL_ONLY)
+template &lt;typename T1, typename T2&gt;
+template &lt;typename U1, typename U2&gt;
+pair&lt;T1, T2&gt;::pair(const BloombergLP::bslma::ManagedPtr_PairProxy&lt;U1, U2&gt;&amp; rhs)
+: Base(rhs.first, rhs.second)
+{
+}
+#endif
 
 template &lt;typename T1, typename T2&gt;
 inline
@@ -980,7 +1004,7 @@ struct is_trivially_default_constructible&lt;bsl::pair&lt;T1, T2&gt; &gt;
                             &amp;&amp; is_trivially_default_constructible&lt;T2&gt;::value&gt;
 {};
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
@@ -1006,7 +1030,7 @@ struct IsBitwiseEqualityComparable&lt;bsl::pair&lt;T1, T2&gt; &gt;
                                            sizeof(bsl::Pair_Imp&lt;T1, T2, 0, 0&gt;)&gt;
 {};
 
-}  // bslmf
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -1016,9 +1040,9 @@ struct UsesBslmaAllocator&lt;bsl::pair&lt;T1, T2&gt; &gt;
                                    || UsesBslmaAllocator&lt;T2&gt;::value&gt;
 {};
 
-}  // bslma
+}  // close namespace bslma
 
-}  // BloombergLP
+}  // close namespace BloombergLP
 
 #endif
 

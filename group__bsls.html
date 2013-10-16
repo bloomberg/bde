@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.18 OSS: bsls Package</title>
+<title>BSL 2.19 OSS: bsls Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -195,6 +195,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__blockgrowth.html">Component bsls_blockgrowth</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide a namespace for memory block growth strategies. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__bsllock.html">Component bsls_bsllock</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide a platform-independent mutex for use below <code>bslmt</code>. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__bsltestutil.html">Component bsls_bsltestutil</a></td></tr>
@@ -400,28 +405,45 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bsls</code> package currently has 30 components having 11 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bsls</code> package currently has 45 components having 13 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  11. bsls_alignedbuffer
+<div class="fragment"><pre class="fragment">  13. bsls_alignedbuffer
 
-  10. bsls_alignmentutil
+  12. bsls_alignmentutil
+      bsls_bsllock
 
-   9. bsls_asserttest
+  11. bsls_asserttest
       bsls_exceptionutil
 
-   8. bsls_assert
+  10. bsls_assert
 
-   7. bsls_performancehint
+   9. bsls_performancehint
 
-   6. bsls_objectbuffer
-      bsls_stopwatch
+   8. bsls_stopwatch
 
-   5. bsls_alignmentfromtype
-      bsls_atomic
+   7. bsls_atomic
       bsls_timeutil
 
-   4. bsls_alignmenttotype
-      bsls_atomicoperations
+   6. bsls_atomicoperations
+      bsls_objectbuffer
+
+   5. bsls_alignmentfromtype
+      bsls_atomicoperations_powerpc32_aix_xlc
+      bsls_atomicoperations_powerpc64_aix_xlc
+      bsls_atomicoperations_sparc32_sun_cc
+      bsls_atomicoperations_sparc64_sun_cc
+
+   4. bsls_alignment
+      bsls_alignmenttotype
+      bsls_atomicoperations_ia64_hp_acc
+      bsls_atomicoperations_powerpc_aix_gcc
+      bsls_atomicoperations_powerpc_aix_xlc_default
+      bsls_atomicoperations_sparc_sun_cc_default
+      bsls_atomicoperations_x64_all_gcc
+      bsls_atomicoperations_x64_win_msvc
+      bsls_atomicoperations_x86_all_gcc
+      bsls_atomicoperations_x86_win_msvc
+      bsls_buildtarget
       bsls_byteorder
       bsls_nullptr
       bsls_unspecifiedbool
@@ -434,14 +456,14 @@ A timer component, and access to system time facilities.  </li>
       bsls_nativestd
       bsls_types
 
-   2. bsls_alignment
-      bsls_asserttestexception
+   2. bsls_asserttestexception
       bsls_blockgrowth
       bsls_macroincrement
       bsls_platform
       bsls_protocoltest
 
-   1. bsls_ident
+   1. bsls_atomicoperations_default
+      bsls_ident
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -473,10 +495,38 @@ A timer component, and access to system time facilities.  </li>
  Provide types with atomic operations.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations</code>: <br/>
  Provide platform-independent atomic operations.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_ia64_hp_acc</code>: <br/>
+ Provide implementations of atomic operations for HPUX/IA64.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_powerpc32_aix_xlc</code>: <br/>
+ Provide implementations of atomic operations for PowerPC/AIX-32bit.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_powerpc64_aix_xlc</code>: <br/>
+ Provide implementations of atomic operations for PowerPC/AIX-64bit.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_powerpc_aix_gcc</code>: <br/>
+ Provide implementations of atomic operations for PowerPC/AIX/GCC.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_powerpc_aix_xlc_default</code>: <br/>
+ Provide default base implementations of atomics for PowerPC/AIX.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_sparc32_sun_cc</code>: <br/>
+ Provide implementations of atomic operations for Sparc/Sun (32bit).</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_sparc64_sun_cc</code>: <br/>
+ Provide implementations of atomic operations for Sparc/Sun (64bit).</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_sparc_sun_cc_default</code>: <br/>
+ Provide default base implementations of atomics for Sparc/Sun.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_x64_all_gcc</code>: <br/>
+ Provide implementations of atomic operations for X86_64/GCC.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_x64_win_msvc</code>: <br/>
+ Provide implementations of atomic operations for X86_64/MSVC/Win64.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_x86_all_gcc</code>: <br/>
+ Provide implementations of atomic operations for X86/GCC.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_atomicoperations_x86_win_msvc</code>: <br/>
+ Provide implementations of atomic operations for X86/MSVC/Windows.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_blockgrowth</code>: <br/>
  Provide a namespace for memory block growth strategies.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_bsllock</code>: <br/>
+ Provide a platform-independent mutex for use below <code>bslmt</code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_bsltestutil</code>: <br/>
  Provide test utilities for <code>bsl</code> that do not use &lt;iostream&gt;.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_buildtarget</code>: <br/>
+ Provide build-target information in the object file.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_byteorder</code>: <br/>
  Provide byte-order manipulation macros.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_compilerfeatures</code>: <br/>
@@ -639,7 +689,7 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b>bsls_util: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__util.html" class="el"><code>bsls_util</code></a> component provides pure functions that supply essential low-level support for implementing portable generic facilities such as might be found the the C++ standard library. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 28 2013 18:42:00 for BSL Release 2.18 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:03 for BSL Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
