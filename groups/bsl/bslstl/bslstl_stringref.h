@@ -388,6 +388,20 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // object.  The external representation must remain valid as long as it
         // is bound to this string reference.
 
+    StringRefImp(const StringRefImp& original,
+                 int                 startIndex,
+                 int                 numCharacters);
+        // Create a string-reference object having a valid 'std::string' value,
+        // whose external representation begins at the specified 'startIndex'
+        // in the specified 'original' string reference, and extends either
+        // the specified 'numCharacters' or until the end of the 'original'
+        // string reference, whichever comes first.  The external
+        // representation must remain valid as long as it is bound to this
+        // string reference.  The behavior is undefined unless
+        // '0 <= startIndex <= original.length()' and '0 <= numCharacters'.
+        // Note that if 'startIndex' is 'original.length()' an empty string
+        // reference is returned.
+
     // ~StringRefImp() = default;
         // Destroy this object.
 
@@ -767,6 +781,24 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const StringRefImp<CHAR_TYPE>& original)
 : Base(original.begin(), original.end())
 {
 }
+
+template <typename CHAR_TYPE>
+inline
+StringRefImp<CHAR_TYPE>::StringRefImp(
+                                  const StringRefImp<CHAR_TYPE>& original,
+                                  int                            startIndex,
+                                  int                            numCharacters)
+: Base(original.begin() + startIndex,
+       original.begin() + startIndex +
+           native_std::min(static_cast<unsigned int>(numCharacters),
+                           original.length() - startIndex))
+{
+    BSLS_ASSERT_SAFE(0 <= startIndex);
+    BSLS_ASSERT_SAFE(0 <= numCharacters);
+    BSLS_ASSERT_SAFE(static_cast<unsigned int>(startIndex)
+                                                        <= original.length());
+}
+
 
 // MANIPULATORS
 template <typename CHAR_TYPE>
