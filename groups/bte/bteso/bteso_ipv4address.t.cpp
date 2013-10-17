@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 
     switch (test) {
         case 0:
-        case 13: {
+        case 14: {
             // ----------------------------------------------------------------
             // TESTING USAGE EXAMPLE
             //   The usage example provided in the component header file must
@@ -182,6 +182,80 @@ int main(int argc, char *argv[])
                 ASSERT( ip2.ipAddress() == ip1.ipAddress() );
 
                 if (verbose) cout << ip2 << endl;
+            }
+
+        } break;
+        case 13: {
+            // ----------------------------------------------------------------
+            // TESTING STATIC windowsCheckMinusOneAddr FUNCTION:
+            //   'windowsCheckMinusOneAddr' returns nonzero if the input IP
+            //   address in dotted decimal notation refers to the address -1,
+            //   and 0 otherwise.
+            // Plan:
+            //   For a sequence of various IP addresses in various format,
+            //   for both -1 addresses and other addresses.
+            //
+            // Testing
+            //   static int windowsCheckMinusOneAddr(const char *address);
+            // ----------------------------------------------------------------
+
+            if (verbose) cout << "\nTesting STATIC windowsCheckMinusOneAddr "
+                              << "FUNCTION"
+                              << "\n=========================================="
+                              << "======"
+                              << endl;
+            {
+                static const struct {
+                    int          d_lineNum;    // line number
+                    const char*  d_ips;        // IP string
+                } VALUES[] = {
+                    //line         ips
+                    //----  ------------------
+                    // format a.b.c.d
+                    { L_,  "255.255.255.255"   },
+                    { L_,  "0xFF.255.0377.-1"  },
+                    // format a.b.c
+                    { L_,  "255.255.65535"     },
+                    { L_,  "255.-1.0xFFFF"     },
+                    // format a.b
+                    { L_,  "255.16777215"      },
+                    // format a
+                    { L_,  "-1"                },
+                    // Invalid address
+                    { L_,  "325.3.5.7"         },
+                    { L_,  "5.7.0x10000"       },
+                    { L_,  "5.0x1000000"       },
+                    { L_,  "akjfa;kdfjask"     },
+                    // Not -1
+                    { L_,  "0.0.0.0"           },
+                    { L_,  "255.255.0.255"     }
+                };
+
+                const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+                for (int i = 0; i < NUM_VALUES - 6; ++i) {
+                    const int          LINE = VALUES[i].d_lineNum;
+                    const char        *IPS  = VALUES[i].d_ips;
+
+                    if (veryVerbose) {
+                        T_(); P(IPS);
+                    }
+
+                    LOOP2_ASSERT(i, LINE,
+                        0 != bteso_IPv4Address::windowsCheckMinusOneAddr(IPS));
+                }
+
+                for (int i = NUM_VALUES - 6; i < NUM_VALUES; ++i) {
+                    const int          LINE = VALUES[i].d_lineNum;
+                    const char        *IPS  = VALUES[i].d_ips;
+
+                    if (veryVerbose) {
+                        T_(); P(IPS);
+                    }
+
+                    LOOP2_ASSERT(i, LINE,
+                       0 == bteso_IPv4Address::windowsCheckMinusOneAddr(IPS));
+                }
             }
 
         } break;

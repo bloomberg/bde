@@ -160,14 +160,23 @@ class bteso_IPv4Address {
         // a, b, c, and d can each be represented in decimal, octal, or (upper
         // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
 
+    static int windowsCheckMinusOneAddr(const char *address);
+        // Windows XP currently does not support the inet_aton function as
+        // specified by the contract above (inet_pton does not handle
+        // hexadecimal or octal numerals.) In DRQS 44521942 it is noted that
+        // 255.255.255.255, while being a valid address, is not parsed
+        // correctly by inet_addr because -1 is used as an error code. This
+        // function checks if the specified 'address' is an IP representation
+        // of a address with an integer value of -1.
+
     static int machineIndependentInetPtonIPv4(const char *address,
-                                              in_addr    *addr);
+                                              int        *addr);
         // Convert the specified Internet host 'address' from the IPv4
         // numbers-and-dots notation into binary form (in network byte order)
-        // and store it in the structure that the specified 'addr' points to.
-        // Return non-zero if the specified address is valid, and 0 if not.
-        // The IP 'address' is not valid if it does not have one of the
-        // following four formats:
+        // and store it in the location the specified 'addr' points to. Return
+        // non-zero if the specified address is valid, and 0 if not. The IP
+        // 'address' is not valid if it does not have one of the following
+        // four formats:
         //..
         //   a.b.c.d,  where a, b, c, and d are each 8-bit ints;
         //   a.b.c,    where a and b are both 8-bit ints and c is a 16-bit int;
