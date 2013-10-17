@@ -236,27 +236,25 @@ char const * NON_EMPTY_STRING = TestData<char>::nonEmptyString;
 //                     GLOBAL TEST DRIVER
 // ----------------------------------------------------------------------------
 
-template <class CHAR_TYPE>
-void stringValue(CHAR_TYPE *result, const char *asciiInput);
+void copyStringValue(char    *result, const char *asciiInput);
+void copyStringValue(wchar_t *result, const char *asciiInput);
     // Load 'result' with the specified 'asciiInput', where each input
     // character value is converted to the (template parameter) type
-    // CHAR_TYPE'.  The behavior is undefined unless 'asciiInput' is a valid
+    // 'CHAR_TYPE'.  The behavior is undefined unless 'asciiInput' is a valid
     // null terminated ascii string.
 
-template <>
-void stringValue(char *result, const char *input)
+void copyStringValue(char *result, const char *asciiInput)
 {
-    strcpy(result, input);
+    strcpy(result, asciiInput);
 }
 
-template <>
-void stringValue(wchar_t *result, const char *input)
+void copyStringValue(wchar_t *result, const char *asciiInput)
 {
     do {
-        *result = *input;
+        *result = *asciiInput;
         ++result;
-        ++input;
-    } while (*input);
+        ++asciiInput;
+    } while (*asciiInput);
 }
 
 
@@ -319,30 +317,31 @@ void TestDriver<CHAR_TYPE>::testCase9()
 
     if (verbose) printf("\tTest empty string\n");
     {
-        Obj x;          const Obj& X = x;
-        Obj y(X, 0, 0); const Obj& Y = y;
+        Obj x;              const Obj& X = x;
+        Obj y(X, 0, 0);     const Obj& Y = y;
+        Obj z(X, 0, 32768); const Obj& Z = z;
 
         ASSERT(Y.isEmpty());
+        ASSERT(Z.isEmpty());
     }
 
     if (verbose) printf("\tTest various values for 'startIndex'\n");
     {
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
-        stringValue(input, value);
+        copyStringValue(input, value);
 
-        const unsigned int LENGTH = sizeof(value);
+        const native_std::size_t LENGTH = sizeof(value);
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
-        for (unsigned int i = 0; i <= LENGTH; ++i) {
+        for (native_std::size_t i = 0; i <= LENGTH; ++i) {
             Obj x(ORIGINAL, i, INT_MAX); const Obj& X = x;
 
             ASSERT(ORIGINAL.begin() + i == X.begin());
             ASSERT(ORIGINAL.end()       == X.end());
 
             if (veryVerbose && i!= LENGTH) {
-                P_(i);
-                P_(ORIGINAL[i]); P(*X.begin());
+                P_(i); P_(ORIGINAL[i]); P(*X.begin());
             }
             else if (veryVerbose) {
                 P(i);
@@ -354,12 +353,12 @@ void TestDriver<CHAR_TYPE>::testCase9()
     {
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
-        stringValue(input, value);
+        copyStringValue(input, value);
 
-        const unsigned int LENGTH = sizeof(value);
+        const native_std::size_t LENGTH = sizeof(value);
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
-        for (unsigned int i = 0; i < LENGTH; ++i) {
+        for (native_std::size_t i = 0; i < LENGTH; ++i) {
             Obj x(ORIGINAL, 0, i); const Obj& X = x;
 
             ASSERT(ORIGINAL.begin() == X.begin());
@@ -369,7 +368,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
                 P_(i); P_(ORIGINAL.length()); P(X.length())
             }
         }
-        for (unsigned int i = LENGTH; i < LENGTH + 10; ++i) {
+        for (native_std::size_t i = LENGTH; i < LENGTH + 10; ++i) {
             Obj x(ORIGINAL, 0, i); const Obj& X = x;
 
             ASSERT(ORIGINAL.begin() == X.begin());
@@ -380,19 +379,31 @@ void TestDriver<CHAR_TYPE>::testCase9()
             }
 
         }
+        {
+            // Test INT_MAX
+            Obj x(ORIGINAL, 0, INT_MAX); const Obj& X = x;
+
+            ASSERT(ORIGINAL.begin() == X.begin());
+            ASSERT(ORIGINAL.end()   == X.end());
+
+            if (veryVerbose) {
+                P_(ORIGINAL.length()); P(X.length())
+            }
+
+        }
     }
 
     if (verbose) printf("\tTest both 'startIndex' and 'numCharacters'\n");
     {
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
-        stringValue(input, value);
+        copyStringValue(input, value);
 
-        const unsigned int LENGTH = sizeof(value);
+        const native_std::size_t LENGTH = sizeof(value);
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
 
-        for (unsigned int startIdx = 0; startIdx <= LENGTH; ++startIdx) {
-            for (unsigned int length = 0; length < LENGTH + 1; ++length) {
+        for (native_std::size_t startIdx = 0; startIdx <= LENGTH; ++startIdx) {
+            for (native_std::size_t length = 0; length < LENGTH + 1; ++length){
 
                 Obj x(ORIGINAL, startIdx, length); const Obj& X = x;
 
@@ -423,8 +434,8 @@ void TestDriver<CHAR_TYPE>::testCase9()
 
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
-        stringValue(input, value);
-        const unsigned int LENGTH = sizeof(value);
+        copyStringValue(input, value);
+        const native_std::size_t LENGTH = sizeof(value);
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
 
@@ -432,6 +443,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
         {
             ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
             ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, -1, 0));
+            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, INT_MIN, 0));
         }
 
         if (verbose) printf("\tNegative testing 'startIndex <= or.length'.\n");
@@ -444,6 +456,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
         {
             ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
             ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, -1));
+            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, INT_MIN));
         }
     }
 }
