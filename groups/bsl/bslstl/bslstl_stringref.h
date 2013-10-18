@@ -790,8 +790,8 @@ StringRefImp<CHAR_TYPE>::StringRefImp(
                                   int                            numCharacters)
 : Base(original.begin() + startIndex,
        original.begin() + startIndex +
-            native_std::min(static_cast<native_std::size_t>(numCharacters),
-                            original.length() - startIndex))
+         native_std::min<native_std::size_t>(numCharacters,
+                                             original.length() - startIndex))
 {
     BSLS_ASSERT_SAFE(0 <= startIndex);
     BSLS_ASSERT_SAFE(0 <= numCharacters);
