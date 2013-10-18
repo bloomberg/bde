@@ -92,7 +92,7 @@ using bsl::flush;
 //        each size.  Calculate alignment
 //        via 'bsls::AlignmentUtil::calculateAlignmentFromSize', and verify
 //        that the block return always satisfies the alignment requirement.
-//        Write over the full length of the block. Use 'bslma::TestAllocator'
+//        Write over the full length of the block.  Use 'bslma::TestAllocator'
 //        as the underlying allocator as it will detect overruns if the any of
 //        the blocks were smaller than requested.
 //      o fill blocks with random byte, verify they still contain this byte
@@ -167,8 +167,8 @@ using bsl::flush;
 //      o repeat all tests with and without abort flag (no abort is expected
 //        in this case
 //      o call 'ASSERT(oss.str().empty());' before d'tor is called
-//      o call one instance of object, destroy it with no memory outstanding,
-//        verify no report written by d'tor
+//      o create one object, destroy it with no memory outstanding, verify no
+//        report written by d'tor
 //      o verify allocator name in report
 //      o verify operation of release with & without memory allocated.
 // [ 1] Breathing test
@@ -183,10 +183,10 @@ using bsl::flush;
 // 'longjmp's would provide a flexible, portable testing mechanism that would
 // work even when exceptions were disabled.  This turned out to work very well
 // on Unix, but on Windows 'longjmp' turned out to be very flaky and caused
-// unpredictable crashes, so we had to go through the test driver and
-// disable the many places 'longjmp' was called on Windows.  Fortunately,
-// 'setjmp' by itself turned out to be reasonably benign and we did not have
-// to circumvent the 'setjmp' calls on Windows.
+// unpredictable crashes, so we had to go through the test driver and disable
+// the many places 'longjmp' was called on Windows.  Fortunately, 'setjmp' by
+// itself turned out to be reasonably benign and we did not have to circumvent
+// the 'setjmp' calls on Windows.
 //
 // It is inadvisable to use 'setjmp' / 'longjmp' in future test drivers.
 //
@@ -487,7 +487,7 @@ ShipsCrew::~ShipsCrew()
     }
 }
 //..
-// Then, we implment the public accessors:
+// Then, we implement the public accessors:
 //..
 // ACCESSORS
 const char *ShipsCrew::captain()
@@ -566,7 +566,7 @@ jmp_buf my_setJmpBuf;    // Note 'jmp_buf' is an array type
 
 void my_assertHandlerLongJmp(const char *,  // text
                              const char *,  // fail
-                             int         )  // lineo
+                             int         )  // line number
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // setjmp / longjmp is flaky on Windows
@@ -612,12 +612,12 @@ typedef void (*VoidFuncPtr)();
 // fixed on a separate branch as this is being written.
 
 VoidFuncPtr voidFuncs[10];
-unsigned voidFuncsSize = 0;
+unsigned int voidFuncsSize = 0;
 
-unsigned idxVoidFuncRecurser;
-unsigned idxVoidFuncLeakTwiceA;
-unsigned idxVoidFuncLeakTwiceB;
-unsigned idxVoidFuncLeakTwiceC;
+unsigned int idxVoidFuncRecurser;
+unsigned int idxVoidFuncLeakTwiceA;
+unsigned int idxVoidFuncLeakTwiceB;
+unsigned int idxVoidFuncLeakTwiceC;
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
 static
@@ -751,7 +751,7 @@ class TouchyAllocator : public bslma::Allocator {
 };
 
 struct Functor {
-    // Multithreaded opeartor.
+    // Multithreaded operator.
 
     enum { NUM_THREADS = 10 };
 
@@ -759,13 +759,13 @@ struct Functor {
     typedef void (Functor::*FuncPtr)();
 
     // DATA
-    static FuncPtr          s_funcPtrs[10];
-    static const unsigned   s_nest1Idx    = 1;
-    static const unsigned   s_nest2Idx    = 2;
-    static const unsigned   s_nest3Idx    = 3;
-    static const unsigned   s_nest4Idx    = 4;
-    static const unsigned   s_allocOneIdx = 5;
-    static const unsigned   s_freeSomeIdx = 6;
+    static FuncPtr             s_funcPtrs[10];
+    static const unsigned int  s_nest1Idx    = 1;
+    static const unsigned int  s_nest2Idx    = 2;
+    static const unsigned int  s_nest3Idx    = 3;
+    static const unsigned int  s_nest4Idx    = 4;
+    static const unsigned int  s_allocOneIdx = 5;
+    static const unsigned int  s_freeSomeIdx = 6;
 
     static bsls::AtomicInt  s_threadRand;
     static bcemt_Barrier    s_startBarrier;
@@ -816,7 +816,7 @@ struct Functor {
     // MANIPULATORS
     void freeOne(int index)
     {
-        ASSERT((unsigned) index < d_alloced.size());
+        ASSERT((unsigned int) index < d_alloced.size());
         int *block = d_alloced[index];
         d_allocator_p->deallocate(block);
         d_alloced[index] = d_alloced.back();
@@ -1114,7 +1114,7 @@ int main(int argc, char *argv[])
         {
             baesu_StackTraceTestAllocator stta;
             stta.setName("stta");
-            stta.setFailureHandler(&stta.failNoop);
+            stta.setFailureHandler(&Obj::failNoop);
 
             bslma::TestAllocator ta("Bslma Test Allocator", &stta);
             ta.setNoAbort(true);
@@ -1144,6 +1144,9 @@ int main(int argc, char *argv[])
                 cout << bytesLeaked << " bytes of memory were leaked!\n";
             }
         }
+
+        cout << "Note msg 'Error: memory leaked' deliberately generated"
+                                                         " in usage example\n";
 //..
 // Now, this generates the following report:
 //..
@@ -1260,7 +1263,7 @@ int main(int argc, char *argv[])
         }
 
 #if defined(BSLS_ASSERT_IS_ACTIVE) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-        bsls::Assert::setFailureHandler(my_assertHandlerLongJmp);
+        bsls::Assert::setFailureHandler(&my_assertHandlerLongJmp);
 
         bool caught = false;
         if (setjmp(my_setJmpBuf)) {
@@ -1676,7 +1679,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Underruns are detected via a magic number that is flush against
         //   the client's area of the block.  All of the underruns detected
-        //   are detected by this magic number being perterbed.  The data
+        //   are detected by this magic number being perturbed.  The data
         //   before this magic number consists of pointers, so we cannot
         //   guarantee that corruption of these pointers will be detectable.
         //
@@ -1716,7 +1719,7 @@ int main(int argc, char *argv[])
         bsl::stringstream ss(&sta);
 
         // The most likely garbage chars are 0, 1, and 0xff, so it is important
-        // our magic numbers are chosen so as to detect stray occurrances of
+        // our magic numbers are chosen so as to detect stray occurrences of
         // those chars.
 
         const unsigned char fillChars[] = { 0, 1, 0xff };
@@ -1730,7 +1733,7 @@ int main(int argc, char *argv[])
             for (int a = 0; a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
-                for (unsigned u = 1; u <= 4 * sizeof(void *); ++u) {
+                for (unsigned int u = 1; u <= 4 * sizeof(void *); ++u) {
                     for (const unsigned char *pu = fillChars; pu < end; ++pu) {
                         if (veryVerbose) {
                             cout << "Continuous:   ";
@@ -1741,7 +1744,7 @@ int main(int argc, char *argv[])
 
                         unsigned char *ptr =(unsigned char *) ta.allocate(100);
 
-                        const unsigned numBlocks = (unsigned)
+                        const unsigned int numBlocks = (unsigned int)
                                                            ta.numBlocksInUse();
 
                         char saveBuffer[4 * sizeof(void *)];
@@ -1858,7 +1861,7 @@ int main(int argc, char *argv[])
         //: 5 Freeing a 'new' allocated block by an STTA
         //: 6 Freeing a 'bslma::TestAllocator' allocated block by an STTA
         //: 7 Freeing a 'bcema_TestAllocator' allocated block by an STTA
-        //: 8 Freeing a misaligned semgent
+        //: 8 Freeing a misaligned segment
         //
         // Plan:
         //: 1 Iterate through both values of the boolean ABORT
@@ -1933,7 +1936,7 @@ int main(int argc, char *argv[])
                 tba.setName("beta");
                 tba.setOstream(&oss);
 
-                unsigned tbaBlocks;
+                unsigned int tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating same block twice);
 
@@ -1949,7 +1952,7 @@ int main(int argc, char *argv[])
 
                     tba.deallocate(ptr);
 
-                    tbaBlocks = (unsigned) tba.numBlocksInUse();
+                    tbaBlocks = (unsigned int) tba.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     tba.deallocate(ptr);
@@ -1960,7 +1963,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                tba.setFailureHandler(Obj::failAbort);
+                tba.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 // Make sure nothing was freed before the failure handler
@@ -1980,7 +1983,7 @@ int main(int argc, char *argv[])
             if (verbose) Q(Check freeing by wrong allocator of right type)
             {
                 void *ptr;
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating by wrong alloc);
 
@@ -1995,7 +1998,7 @@ int main(int argc, char *argv[])
 
                     ptr = ta2.allocate(100);
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
 
                     my_failureHandlerFlag = false;
 
@@ -2007,7 +2010,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 // Make sure nothing was freed before the failure handler
@@ -2033,7 +2036,7 @@ int main(int argc, char *argv[])
             {
                 void *ptr;
 
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing malloced);
 
@@ -2047,7 +2050,7 @@ int main(int argc, char *argv[])
 
                     ptr = bsl::malloc(100);
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2058,7 +2061,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(taBlocks  == ta.numBlocksInUse());
@@ -2076,7 +2079,7 @@ int main(int argc, char *argv[])
             {
                 char *ptr;
 
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing newed);
 
@@ -2090,7 +2093,7 @@ int main(int argc, char *argv[])
 
                     ptr = new char[100];
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2101,7 +2104,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
@@ -2119,7 +2122,7 @@ int main(int argc, char *argv[])
             {
                 int *ptr;
 
-                unsigned taBlocks;
+                unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing newed);
 
@@ -2133,7 +2136,7 @@ int main(int argc, char *argv[])
 
                     ptr = new int;
 
-                    taBlocks = (unsigned) ta.numBlocksInUse();
+                    taBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2144,9 +2147,9 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ASSERT((unsigned) ta.numBlocksInUse() == taBlocks);
+                ASSERT((unsigned int) ta.numBlocksInUse() == taBlocks);
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 LOOP_ASSERT(oss.str(), npos != oss.str().find(
@@ -2162,7 +2165,7 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator taBsl;
                 void *ptr;
-                unsigned numBlocks;
+                unsigned int numBlocks;
 
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing bslma TAed);
@@ -2177,7 +2180,7 @@ int main(int argc, char *argv[])
 
                     ptr = taBsl.allocate(100);
 
-                    numBlocks = (unsigned) ta.numBlocksInUse();
+                    numBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2188,7 +2191,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2206,7 +2209,7 @@ int main(int argc, char *argv[])
             {
                 bcema_TestAllocator taBce;
                 void *ptr;
-                unsigned numBlocks;
+                unsigned int numBlocks;
 
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: freeing bcema TAed);
@@ -2221,7 +2224,7 @@ int main(int argc, char *argv[])
 
                     ptr = taBce.allocate(100);
 
-                    numBlocks = (unsigned) ta.numBlocksInUse();
+                    numBlocks = (unsigned int) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
 
                     ta.deallocate(ptr);
@@ -2232,7 +2235,7 @@ int main(int argc, char *argv[])
                     ASSERT(my_failureHandlerFlag);
                 }
 
-                ta.setFailureHandler(Obj::failAbort);
+                ta.setFailureHandler(&Obj::failAbort);
                 memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                 ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2249,9 +2252,10 @@ int main(int argc, char *argv[])
             if (verbose) Q(Check freeing of misaligned block);
             {
                 char *cPtr = (char *) ta.allocate(100);
-                unsigned numBlocks;
+                unsigned int numBlocks;
 
-                for (unsigned offset = 1; offset < sizeof(void *); ++offset) {
+                for (unsigned int offset = 1; offset < sizeof(void *);
+                                                                    ++offset) {
                     ASSERT(oss.str().empty());
 
                     if (setjmp(my_setJmpBuf)) {
@@ -2265,7 +2269,7 @@ int main(int argc, char *argv[])
 
                         ASSERT(oss.str().empty());
 
-                        numBlocks = (unsigned) ta.numBlocksInUse();
+                        numBlocks = (unsigned int) ta.numBlocksInUse();
                         my_failureHandlerFlag = false;
 
                         ta.deallocate(cPtr + offset);
@@ -2276,7 +2280,7 @@ int main(int argc, char *argv[])
                         ASSERT(my_failureHandlerFlag);
                     }
 
-                    ta.setFailureHandler(Obj::failAbort);
+                    ta.setFailureHandler(&Obj::failAbort);
                     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                     ASSERT(ta.numBlocksInUse() == numBlocks);
@@ -2437,11 +2441,11 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(numAllocs == (int) pta->numBlocksInUse());
 
-                unsigned staBlocks = (unsigned) sta.numBlocksInUse();
+                unsigned int staBlocks = (unsigned int) sta.numBlocksInUse();
 
                 ASSERT(ss.str().empty());
                 if (setjmp(my_setJmpBuf)) {
-                    pta->setFailureHandler(Obj::failAbort);
+                    pta->setFailureHandler(&Obj::failAbort);
                     memset(my_setJmpBuf, 0, sizeof(my_setJmpBuf));
 
                     // Make sure a report was written.
@@ -2455,7 +2459,7 @@ int main(int argc, char *argv[])
                     // was called.
 
                     ASSERT(staBlocks == sta.numBlocksInUse());
-                    ASSERT(pta->numBlocksInUse() == (unsigned) numAllocs);
+                    ASSERT(pta->numBlocksInUse() == (unsigned int) numAllocs);
                 }
                 else {
                     pta->setFailureHandler(&my_failureHandlerLongJmp);
@@ -2788,7 +2792,7 @@ int main(int argc, char *argv[])
         //:   o Freeing one of the 4 blocks in random order
         //:   o After every allocate or free, verify that the 'numBlocksInUse'
         //:     accessor accurately tracks the number of unfreed blocks in
-        //:     existance.
+        //:     existence.
         //: 7 After the loop, 3 blocks should remain allocated.  Verify this.
         //: 8 Call 'reportBlocksInUse' twice.
         //:   o The first time, call it with output redirected to 'oss'.
@@ -2820,11 +2824,7 @@ int main(int argc, char *argv[])
                 FREE_INC           = 7
             };
 
-            ASSERT(ta.failureHandler() == &Obj::failAbort);
-            ta.setFailureHandler(&Obj::failNoop);
-            ASSERT(ta.failureHandler() == &Obj::failNoop);
-            ta.setFailureHandler(Obj::failAbort);
-            ASSERT(ta.failureHandler() == &Obj::failAbort);
+            ta.setFailureHandler(&Obj::failAbort);
 
             bsl::ostringstream oss;
             ta.reportBlocksInUse(&oss);
@@ -2836,14 +2836,14 @@ int main(int argc, char *argv[])
 
             int randNum;
             bdeu_Random::generate15(&randNum, 987654321);
-            unsigned numBlocks = 0;
+            unsigned int numBlocks = 0;
 
             // do a lot of allocating and freeing, not just freeing the block
             // most recently allocated, but rather choosing the block to free
             // in a somewhat random fashion.
 
             for (int i = 0; i < 100; ++i) {
-                unsigned allocIdx = bdeu_Random::generate15(&randNum) %
+                unsigned int allocIdx = bdeu_Random::generate15(&randNum) %
                                                           BLOCK_ARRAY_LENGTH;
                 while (blocks[allocIdx]) {
                     allocIdx = (allocIdx + ALLOC_INC) % BLOCK_ARRAY_LENGTH;
@@ -2856,7 +2856,7 @@ int main(int argc, char *argv[])
                                            ta.numBlocksInUse() == numBlocks);
 
                 if (numBlocks >= 4) {
-                    unsigned freeIdx = bdeu_Random::generate15(&randNum) %
+                    unsigned int freeIdx = bdeu_Random::generate15(&randNum) %
                                                           BLOCK_ARRAY_LENGTH;
                     while (! blocks[freeIdx]) {
                         freeIdx = (freeIdx+ FREE_INC) % BLOCK_ARRAY_LENGTH;
@@ -2924,7 +2924,7 @@ int main(int argc, char *argv[])
         // Concern: Need to test creators and all manipulators
         //
         // Plan:
-        //: 1 Monitor use of the default alloctor throughout this example,
+        //: 1 Monitor use of the default allocator throughout this example,
         //:   updating 'expectedDefaultAllocations' every time we deliberately
         //:   use it (only for getting the string value of a 'stringstream'
         //:   object), to verify that the object under test never uses the
@@ -3054,11 +3054,9 @@ int main(int argc, char *argv[])
                 ta.setName("my_allocator");
                 ta.setOstream(&oss);
 
-                ASSERT(TA.failureHandler() == &Obj::failAbort);
+                const Obj::FailureHandler saveFail = ta.failureHandler();
                 ta.setFailureHandler(&Obj::failNoop);
-                ASSERT(TA.failureHandler() == &Obj::failNoop);
-                ta.setFailureHandler(Obj::failAbort);
-                ASSERT(TA.failureHandler() == &Obj::failAbort);
+                ta.setFailureHandler(saveFail);
 
                 // No blocks are allocated.  Verify 'release' has no effect.
 
@@ -3110,7 +3108,7 @@ int main(int argc, char *argv[])
 
                 if (setjmp(my_setJmpBuf)) {
                     LOOP_ASSERT(c, !CLEAN_DESTROY && FAILURE_LONGJMP);
-                    ta.setFailureHandler(Obj::failAbort);
+                    ta.setFailureHandler(&Obj::failAbort);
 
                     ASSERT(1 == ta.numBlocksInUse());
                 }

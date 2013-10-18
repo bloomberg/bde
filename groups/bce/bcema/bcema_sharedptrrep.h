@@ -275,6 +275,8 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
+#if 0
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -283,13 +285,25 @@ BDES_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
+#else
+
+#ifndef INCLUDED_BSLMA_SHAREDPTRREP
+#include <bslma_sharedptrrep.h>
+#endif
+
+#endif
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BCES_ATOMICTYPES
 #include <bces_atomictypes.h>
 #endif
+
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
+
+#if 0
                         // ========================
                         // class bcema_SharedPtrRep
                         // ========================
@@ -521,7 +535,11 @@ bool bcema_SharedPtrRep::hasUniqueOwner() const
         || (3 == sharedCount
          && 1 == d_adjustedWeakCount);          // release consistency: acquire
 }
+#else
 
+typedef bslma::SharedPtrRep bcema_SharedPtrRep;
+
+#endif
 }  // close namespace BloombergLP
 
 #endif

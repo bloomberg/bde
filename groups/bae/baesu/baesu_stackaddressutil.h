@@ -28,8 +28,8 @@ BDES_IDENT("$Id: $")
 //
 ///Example 1: Obtaining Return Addresses and Verifying Their Validity
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we demonstrate how to obtain a collection of
-// function return addresses using 'getStackAddresses'.
+// In the following example we demonstrate how to obtain the sequence of
+// function return addresses from the stack using 'getStackAddresses'.
 //
 // First, we define 'AddressEntry', which will contain a pointer to the
 // beginning of a function and an index corresponding to the function.  The '<'
@@ -46,9 +46,15 @@ BDES_IDENT("$Id: $")
 //      AddressEntry(void *funcAddress, int index)
 //      : d_funcAddress(funcAddress)
 //      , d_index(index)
+//          // Create an 'AddressEntry' object and initialize it with the
+//          // specified 'funcAddress' and 'index'.
 //      {}
 //
-//      bool operator<(const AddressEntry rhs) const
+//      bool operator<(const AddressEntry& rhs) const
+//          // Return 'true' if the address stored in the object is lower than
+//          // the address stored in 'rhs' and 'false' otherwise.  Note that
+//          // this is a member function for brevity, it only exists to
+//          // facilitate sorting 'AddressEntry' objects in a vector.
 //      {
 //          return d_funcAddress < rhs.d_funcAddress;
 //      }
@@ -63,11 +69,12 @@ BDES_IDENT("$Id: $")
 // Next, we define 'findIndex':
 //..
 //  static int findIndex(const void *retAddress)
-//      // Given the specfied 'retAddress' which should point to code within
-//      // one of the functions described by the sorted vector 'entries',
-//      // identify the index of the function containing that return address.
+//      // Return the index of the address entry whose function uses an
+//      // instruction located at specified 'retAddress'.  The behavior is
+//      // undefined unless 'retAddress' is the address of an instruction in
+//      // use by a function referred to by an address entry in 'entries'.
 //  {
-//      unsigned u = 0;
+//      unsigned int u = 0;
 //      while (u < entries.size()-1 &&
 //                                  retAddress >= entries[u+1].d_funcAddress) {
 //          ++u;
@@ -77,45 +84,78 @@ BDES_IDENT("$Id: $")
 //
 //      int ret = entries[u].d_index;
 //
+//      if (veryVerbose) {
+//          P_(retAddress) P_(entries[u].d_funcAddress) P(ret);
+//      }
+//
 //      return ret;
 //  }
 //..
-// Have a volatile global in calculations to discourange optimizers from
-// inlining.
+// Then, we define a volatile global variable that we will use in calculation
+// to discourage compiler optimizers from inlining:
 //..
-//  volatile int volatileGlobal = 2;
+//  volatile unsigned int volatileGlobal = 1;
 //..
-// Then, we define a chain of functions that will call each other and do some
-// random calculation to generate some code, and eventually call 'func1' which
-// will call 'getAddresses' and verify that the addresses returned correspond
-// to the functions we expect them to.
+// Next, we define a set of functions that will be called in a nested fashion
+// -- 'func5' calls 'func4' who calls 'fun3' and so on.  In each function, we
+// will perform some inconsequential instructions to prevent the compiler from
+// inlining the functions.
+//
+// Note that we know the 'if' conditions in these 5 subroutines never evaluate
+// to 'true', however, the optimizer cannot figure that out, and that will
+// prevent it from inlining here.
 //..
-//  static int func1();
-//  static int func2()
+//  static unsigned int func1();
+//  static unsigned int func2()
 //  {
-//      return volatileGlobal * 2 * func1();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func2();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 2 * func1();                      // RETURN
+//      }
 //  }
-//  static int func3()
+//  static unsigned int func3()
 //  {
-//      return volatileGlobal * 3 * func2();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func3();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 3 * func2();                      // RETURN
+//      }
 //  }
-//  static int func4()
+//  static unsigned int func4()
 //  {
-//      return volatileGlobal * 4 * func3();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func4();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 4 * func3();                      // RETURN
+//      }
 //  }
-//  static int func5()
+//  static unsigned int func5()
 //  {
-//      return volatileGlobal * 5 * func4();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func5();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 5 * func4();                      // RETURN
+//      }
 //  }
-//  static int func6()
+//  static unsigned int func6()
 //  {
-//      return volatileGlobal * 6 * func5();
+//      if (volatileGlobal > 10) {
+//          return (volatileGlobal -= 100) * 2 * func6();             // RETURN
+//      }
+//      else {
+//          return volatileGlobal * 6 * func5();                      // RETURN
+//      }
 //  }
 //..
-// Next, we define the macro FUNC_ADDRESS, which will take as an arg a
+// Next, we define the macro FUNC_ADDRESS, which will take a parameter of
 // '&<function name>' and return a pointer to the actual beginning of the
 // function's code, which is a non-trivial and platform-dependent exercise.
-// (Note: this doesn't work on Windows for global routines).
+// Note: this doesn't work on Windows for global routines.
 //..
 //  #if   defined(BSLS_PLATFORM_OS_HPUX)
 //  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
@@ -125,10 +165,13 @@ BDES_IDENT("$Id: $")
 //  # define FUNC_ADDRESS(p) ((void *) (p))
 //  #endif
 //..
-// Then, we define 'func1', which is the last of the chain of our functions
-// that is called, which will do most of our work.
+// Then, we define 'func1', the last function to be called in the chain of
+// nested function calls.  'func1' uses
+// 'baesu_StackAddressUtil::getStackAddresses' to get an ordered sequence of
+// return addresses from the current thread's function call stack and uses the
+// previously defined 'findIndex' function to verify those address are correct.
 //..
-//  int func1()
+//  unsigned int func1()
 //      // Call 'getAddresses' and verify that the returned set of addresses
 //      // matches our expectations.
 //  {
@@ -176,12 +219,20 @@ BDES_IDENT("$Id: $")
 //          assert(funcIdx == findIndex(buffer[stackIdx]));
 //      }
 //
-//      return 3;    // random value
-//  }
+//      if (testStatus || veryVerbose) {
+//          Q(Entries:);
+//          for (unsigned int u = 0; u < entries.size(); ++u) {
+//              P_(u); P_((void *) entries[u].d_funcAddress);
+//              P(entries[u].d_index);
+//          }
 //
-//  int main()
-//  {
-//      func6();
+//          Q(Stack:);
+//          for (int i = 0; i < numAddresses; ++i) {
+//              P_(i); P(buffer[i]);
+//          }
+//      }
+//
+//      return volatileGlobal;
 //  }
 //..
 
@@ -218,22 +269,22 @@ struct baesu_StackAddressUtil {
     static
     int getStackAddresses(void   **buffer,
                           int      maxFrames);
-        // Get an ordered sequence of return addresses from the current
-        // thread's function call stack and load them into the specified array
-        // 'buffer', which is at least the specified 'maxFrames' in length.  A
-        // return address is an address stored on the stack that points to the
-        // first instruction that will be executed after the called subroutine
-        // returns.  If there are more than 'maxFrames' frames on the stack,
-        // only the return addresses for the 'maxFrames' most recent routine
-        // calls are stored.  When this routine completes, 'buffer' will
-        // contain an ordered sequence of return addresses, sorted such that
-        // recent calls occur in the array before calls which took place before
-        // them.  Return the number of stack frames stored into 'buffer' on
-        // success, and a negative value otherwise.  The behavior is undefined
-        // unless 'maxFrames >= 0' and 'buffer' has room for at least
-        // 'maxFrames' addresses.  Note that this routine may fill 'buffer'
-        // with garbage if the stack is corrupt, or on Windows if some stack
-        // frames represent optimized routines.
+        // Get an sequence of return addresses from the current thread's
+        // function call stack, ordered from most recent call to least recent,
+        // and load them into the specified array '*buffer', which is at least
+        // the specified 'maxFrames' in length.  A return address is an address
+        // stored on the stack that points to the first instruction that will
+        // be executed after the called subroutine returns.  If there are more
+        // than 'maxFrames' frames on the stack, only the return addresses for
+        // the 'maxFrames' most recent routine calls are stored.  When this
+        // routine completes, 'buffer' will contain an ordered sequence of
+        // return addresses, sorted such that recent calls occur in the array
+        // before calls which took place before them.  Return the number of
+        // stack frames stored into 'buffer' on success, and a negative value
+        // otherwise.  The behavior is undefined unless 'maxFrames >= 0' and
+        // 'buffer' has room for at least 'maxFrames' addresses.  Note that
+        // this routine may fill 'buffer' with garbage if the stack is corrupt,
+        // or on Windows if some stack frames represent optimized routines.
 };
 
 }  // close namespace BloombergLP

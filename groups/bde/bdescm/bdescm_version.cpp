@@ -18,14 +18,14 @@ namespace BloombergLP {
                                              "." STRINGIFY(BDE_VERSION_PATCH) \
                                              BDE_VERSION_RELEASETYPE
 
-const char *bdescm_Version::d_ident = "$Id: " BDESCM_VERSION_STRING " $";
-const char *bdescm_Version::d_what  = "@(#)" BDESCM_VERSION_STRING;
+const char *bdescm_Version::s_ident = "$Id: " BDESCM_VERSION_STRING " $";
+const char *bdescm_Version::s_what  = "@(#)" BDESCM_VERSION_STRING;
 
-const char *bdescm_Version::BDESCM_D_VERSION    = BDESCM_VERSION_STRING;
-const char *bdescm_Version::d_dependencies      = "";
-const char *bdescm_Version::d_buildInfo         = "";
-const char *bdescm_Version::d_timestamp         = "";
-const char *bdescm_Version::d_sourceControlInfo = "";
+const char *bdescm_Version::BDESCM_S_VERSION    = BDESCM_VERSION_STRING;
+const char *bdescm_Version::s_dependencies      = "";
+const char *bdescm_Version::s_buildInfo         = "";
+const char *bdescm_Version::s_timestamp         = "";
+const char *bdescm_Version::s_sourceControlInfo = "";
 
 }  // close namespace BloombergLP
 

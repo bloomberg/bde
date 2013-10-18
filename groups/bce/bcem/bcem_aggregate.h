@@ -509,7 +509,7 @@ BDES_IDENT("$Id: $")
 // class methods:
 //..
 //  addr2 = addr1.clone();
-//  assert(addr1 != addr2);                               // Not equal...
+//  assert(!bcem_Aggregate::areIdentical(addr1, addr2));  // Not identical...
 //  assert(bcem_Aggregate::areEquivalent(addr1, addr2));  // but equivalent
 //  assert(&addr1.recordDef() != &addr2.recordDef()); // Different schema addr
 //..
@@ -863,7 +863,7 @@ class bcem_Aggregate {
         // DEPRECATED: Use 'bcem_ErrorCode' instead.
 
         BCEM_ERR_UNKNOWN_ERROR  = bcem_ErrorCode::BCEM_UNKNOWN_ERROR,
-        BCEM_ERR_NOT_A_RECORD   = bcem_ErrorCode::BCEM_NOT_A_RECORD,Code,
+        BCEM_ERR_NOT_A_RECORD   = bcem_ErrorCode::BCEM_NOT_A_RECORD,
         BCEM_ERR_NOT_A_SEQUENCE = bcem_ErrorCode::BCEM_NOT_A_SEQUENCE,
         BCEM_ERR_NOT_A_CHOICE   = bcem_ErrorCode::BCEM_NOT_A_CHOICE,
         BCEM_ERR_NOT_AN_ARRAY   = bcem_ErrorCode::BCEM_NOT_AN_ARRAY,

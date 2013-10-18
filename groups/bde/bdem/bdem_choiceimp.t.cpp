@@ -208,8 +208,8 @@ template <int FOOTPRINT, bool ALLOC_TRAIT = false>
 class FixedString {
 
     // Count constructor and destructor calls
-    static int d_constructorCount;
-    static int d_destructorCount;
+    static int s_constructorCount;
+    static int s_destructorCount;
 
     // Calculate buffer size so that total size equals desired footprint.
     enum { BUFSIZE = FOOTPRINT - sizeof(bslma::Allocator*) };
@@ -266,27 +266,27 @@ bsl::ostream& operator<<(bsl::ostream&                              os,
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
-int FixedString<FOOTPRINT, ALLOC_TRAIT>::d_constructorCount = 0;
+int FixedString<FOOTPRINT, ALLOC_TRAIT>::s_constructorCount = 0;
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
-int FixedString<FOOTPRINT, ALLOC_TRAIT>::d_destructorCount = 0;
+int FixedString<FOOTPRINT, ALLOC_TRAIT>::s_destructorCount = 0;
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::constructorCount() {
-    return d_constructorCount;
+    return s_constructorCount;
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::destructorCount() {
-    return d_destructorCount;
+    return s_destructorCount;
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::instanceCount() {
-    return d_constructorCount - d_destructorCount;
+    return s_constructorCount - s_destructorCount;
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
@@ -305,7 +305,7 @@ template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma::Allocator *alloc)
     : d_alloc(alloc) {
     bsl::memset(d_buffer, 0, BUFSIZE);
-    ++d_constructorCount;
+    ++s_constructorCount;
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
@@ -314,7 +314,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char       *s,
     : d_alloc(alloc) {
     bsl::strncpy(d_buffer, s, BUFSIZE - 1);
     d_buffer[BUFSIZE - 1] = '\0';
-    ++d_constructorCount;
+    ++s_constructorCount;
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
@@ -322,12 +322,12 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const FixedString&  original,
                                                  bslma::Allocator   *alloc)
     : d_alloc(alloc) {
     bsl::memcpy(d_buffer, original.d_buffer, BUFSIZE);
-    ++d_constructorCount;
+    ++s_constructorCount;
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::~FixedString() {
-    ++d_destructorCount;
+    ++s_destructorCount;
 }
 
 template <int FOOTPRINT, bool ALLOC_TRAIT>
@@ -741,42 +741,42 @@ const int NUM_STREAM_VERSIONS = sizeof STREAM_VERSIONS
 const bdem_Descriptor *const MY_DESCRIPTORS[] = {
 
     // Element attribute structures for fundamental and basic types:
-    &bdem_Properties::d_charAttr,
-    &bdem_Properties::d_shortAttr,
-    &bdem_Properties::d_intAttr,
-    &bdem_Properties::d_int64Attr,
-    &bdem_Properties::d_floatAttr,
-    &bdem_Properties::d_doubleAttr,
-    &bdem_Properties::d_stringAttr,
-    &bdem_Properties::d_datetimeAttr,
-    &bdem_Properties::d_dateAttr,
-    &bdem_Properties::d_timeAttr,
+    &bdem_Properties::s_charAttr,
+    &bdem_Properties::s_shortAttr,
+    &bdem_Properties::s_intAttr,
+    &bdem_Properties::s_int64Attr,
+    &bdem_Properties::s_floatAttr,
+    &bdem_Properties::s_doubleAttr,
+    &bdem_Properties::s_stringAttr,
+    &bdem_Properties::s_datetimeAttr,
+    &bdem_Properties::s_dateAttr,
+    &bdem_Properties::s_timeAttr,
 
     // Element attribute structures for array types:
-    &bdem_Properties::d_charArrayAttr,
-    &bdem_Properties::d_shortArrayAttr,
-    &bdem_Properties::d_intArrayAttr,
-    &bdem_Properties::d_int64ArrayAttr,
-    &bdem_Properties::d_floatArrayAttr,
-    &bdem_Properties::d_doubleArrayAttr,
-    &bdem_Properties::d_stringArrayAttr,
-    &bdem_Properties::d_datetimeArrayAttr,
-    &bdem_Properties::d_dateArrayAttr,
-    &bdem_Properties::d_timeArrayAttr,
+    &bdem_Properties::s_charArrayAttr,
+    &bdem_Properties::s_shortArrayAttr,
+    &bdem_Properties::s_intArrayAttr,
+    &bdem_Properties::s_int64ArrayAttr,
+    &bdem_Properties::s_floatArrayAttr,
+    &bdem_Properties::s_doubleArrayAttr,
+    &bdem_Properties::s_stringArrayAttr,
+    &bdem_Properties::s_datetimeArrayAttr,
+    &bdem_Properties::s_dateArrayAttr,
+    &bdem_Properties::s_timeArrayAttr,
 
     // Element attribute structures for list and table types
     (const bdem_Descriptor *) 0,
     (const bdem_Descriptor *) 0,
 
     // New bdem data types
-    &bdem_Properties::d_boolAttr,
-    &bdem_Properties::d_datetimeTzAttr,
-    &bdem_Properties::d_dateTzAttr,
-    &bdem_Properties::d_timeTzAttr,
-    &bdem_Properties::d_boolArrayAttr,
-    &bdem_Properties::d_datetimeTzArrayAttr,
-    &bdem_Properties::d_dateTzArrayAttr,
-    &bdem_Properties::d_timeTzArrayAttr,
+    &bdem_Properties::s_boolAttr,
+    &bdem_Properties::s_datetimeTzAttr,
+    &bdem_Properties::s_dateTzAttr,
+    &bdem_Properties::s_timeTzAttr,
+    &bdem_Properties::s_boolArrayAttr,
+    &bdem_Properties::s_datetimeTzArrayAttr,
+    &bdem_Properties::s_dateTzArrayAttr,
+    &bdem_Properties::s_timeTzArrayAttr,
 
     (const bdem_Descriptor *) 0,
     (const bdem_Descriptor *) 0

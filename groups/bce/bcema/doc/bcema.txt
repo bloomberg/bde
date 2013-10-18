@@ -25,50 +25,118 @@
  through use of atomic operations (from package 'bces') and the 'bcemt_Mutex'
  (from package 'bcemt').
 
-/Hierarchical Synoposis
-/----------------------
- 'bcema' currently has 9 components forming 2 levels of physical dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('bcema_') are omitted from the full component
- names for layout efficiency.  Note that the three 'allocator' components are
- deprecated.
+/Hierarchical Synopsis
+/---------------------
+ The 'bcema' package currently has 23 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-   Level 2:  defaultdeleter    factorydeleter     pooledbufferchain
+  5. bcema_blobutil
+     bcema_pooledblobbufferfactory
 
-   Level 1:  deleter           countedhandle      pool
-             allocator(*)      testallocator(*)   newdeleteallocator(*)
+  4. bcema_blob
+     bcema_defaultdeleter
+     bcema_pooledbufferchain
+     bcema_protectablemultipoolallocator
+     bcema_weakptr
 
-   ----------
-   (*) Deprecated -- use equivalent 'bdema' components.
+  3. bcema_multipoolallocator
+     bcema_protectablemultipool
+     bcema_sharedptr
+
+  2. bcema_factory
+     bcema_multipool
+     bcema_poolallocator
+     bcema_protectablesequentialallocator
+     bcema_sharedptrinplacerep
+     bcema_sharedptroutofplacerep
+
+  1. bcema_deleter
+     bcema_fixedpool
+     bcema_pool
+     bcema_protectableblockdispenseradapter
+     bcema_sharedptrrep
+     bcema_testallocator
+     bcema_threadenabledallocatoradapter
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bcema'.  Note that
- deprecated components are not included in this synopsis.
-..
-  bcema_countedhandle      thread-safe, templatized, reference-counted handle
-                           (envelope) that manages shared ownership of an
-                           object (letter)
-  bcema_defaultdeleter     standard implementation of the 'bcema_Deleter'
-                           protocol, using a 'bcema_Allocator' to deallocate
-                           and delete the object belonging to a
-                           'bcema_CountedHandle'
-  bcema_deleter            templatized protocol used by 'bcema_CountedHandle'
-                           to manage object deletion
-  bcema_factorydeleter     implementation of the 'bcema_Deleter' protocol that
-                           supports an explicit templatized "factory" that
-                           provides a similar interface to 'bcema_Allocator',
-                           but need not be derived from it
-  bcema_pool               thread-safe allocation of uniform sized memory
-                           blocks
-  bcema_pooledbufferchain  variable-length chain of fixed-size buffers,
-                           allocated from a 'bcema_Pool'
-..
+: 'bcema_blob':
+:      Provide an indexed set of buffers from multiple sources.
+:
+: 'bcema_blobutil':
+:      Provide a suite of utilities for I/O operations on 'bcema_Blob'.
+:
+: 'bcema_defaultdeleter':
+:      Provide a concrete default deleter w/optionally-supplied allocator.
+:
+: 'bcema_deleter':
+:      Provide a protocol for deleting objects of parameterized type.
+:
+: 'bcema_factory':
+:      Provide a protocol for creator/deleter of parameterized objects.
+:
+: 'bcema_fixedpool':
+:      Provide thread-safe pool of limited # of blocks of uniform size.
+:
+: 'bcema_multipool':
+:      Provide a memory manager to manage pools of varying block sizes.
+:
+: 'bcema_multipoolallocator':
+:      Provide an allocator to manage pools of varying object sizes.
+:
+: 'bcema_pool':
+:      Provide thread-safe allocation of memory blocks of uniform size.
+:
+: 'bcema_poolallocator':
+:      Provide thread-safe memory-pooling allocator of fixed-size blocks.
+:
+: 'bcema_pooledblobbufferfactory':
+:      Provide a concrete implementation of 'bcema_BlobBufferFactory'.
+:
+: 'bcema_pooledbufferchain':
+:      Provide a pooled sequence of fixed-size buffers.
+:
+: 'bcema_protectableblockdispenseradapter':
+:      Provide thread-safe adapter for 'bdema_ProtectableBlockDispenser'.
+:
+: 'bcema_protectablemultipool':
+:      Provide a manager of pools of memory that can be write-protected.
+:
+: 'bcema_protectablemultipoolallocator':
+:      Provide an allocator from write-protectable pools of memory.
+:
+: 'bcema_protectablesequentialallocator':
+:      Provide fast allocation of memory that can be write-protected.
+:
+: 'bcema_sharedptr':
+:      Provide a generic reference-counted shared pointer wrapper.
+:
+: 'bcema_sharedptrinplacerep':
+:      Provide an in-place implementation of 'bcema_SharedPtrRep'.
+:
+: 'bcema_sharedptroutofplacerep':
+:      Provide an out-of-place implementation of 'bcema_SharedPtrRep'.
+:
+: 'bcema_sharedptrrep':
+:      Provide an abstract class for a shared object manager.
+:
+: 'bcema_testallocator':
+:      Provide concrete test allocator that maintains blocks and bytes.
+:
+: 'bcema_threadenabledallocatoradapter':
+:      Provide a thread-enabled adapter for the allocator protocol.
+:
+: 'bcema_weakptr':
+:      Provide a weak pointer to a reference-counted shared object.
 
-@DEPRECATED: Components 'bcema_allocator', 'bcema_testallocator', and
- 'bcema_newdeleteallocator' are no longer needed.  Analogous components
- are available in the 'bde' package group and should be used instead.
+/Deprecated Components
+/---------------------
+ Components 'bcema_allocator', 'bcema_testallocator', and
+ 'bcema_newdeleteallocator' are no longer needed.  Analogous components are
+ available in the 'bde' package group and should be used instead.
 
 /Deleters and Factories
 /----------------------
@@ -95,8 +163,8 @@
  deleted or deallocated, 'bcema_Deleter::deleteObject()' is called and deletion
  happens appropriately.
 
- 'bcema_Deleter's are used in conjunction with 'bcema_CountedHandles'; see the
- section "Reference-Counted Shared Handles", below, for a discussion.
+ 'bcema_Deleter's are used in conjunction with 'bcema_CountedHandles'; see
+ {Reference-Counted Shared Handles}, below, for a discussion.
 
 /Default Deleters: Support for 'bcema_Allocator's
 /- - - - - - - - - - - - - - - - - - - - - - - -
@@ -180,7 +248,7 @@
 
  When using other 'bce' and 'bde' components, the most common choices for
  'FACTORY' will be implementations of the 'bcema_Deleter' protocol.  See the
- previous section, "Deleters and Factories", for details.  The 'bcema_Deleter'
+ previous section, {Deleters and Factories}, for details.  The 'bcema_Deleter'
  protocol is designed to work with 'bcema_Allocator's; Clients would use it as
  follows.  First, we create a client object to be shared.  Next, we create a
  'bcema_Deleter' that knows about the specific 'bcema_Allocator' used to create
@@ -210,7 +278,6 @@
 
 /Pools and Buffers
 /-----------------
-
 /Pools: 'bcema_pool'
 /- - - - - - - - - -
  Component 'bcema_pool' provides a single templatized class, 'bcema_Pool<T>',
@@ -245,7 +312,7 @@
 
  Class 'bcema_Pool<T>' is both thread safe and thread enabled.  Calls to
  'allocate()' and 'deallocate()' are protected by a 'bcemt_Mutex' object.  See
- component 'bcemt_thread' for details.
+ component {'bcemt_thread'} for details.
 
 /Buffer Chains: 'bcema_pooledbufferchain'
 /- - - - - - - - - - - - - - - - - - - -

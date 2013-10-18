@@ -80,7 +80,7 @@ namespace {
 }  // close unnamed namespace
 
 // Initialization of descriptor for 'VOID'.
-const bdem_Descriptor bdem_Properties::d_voidAttr = {
+const bdem_Descriptor bdem_Properties::s_voidAttr = {
     bdem_ElemType::BDEM_VOID,                           // type
     0,                                                  // size
     1,                                                  // alignment
@@ -126,131 +126,145 @@ const bdem_Descriptor bdem_Properties::d_voidAttr = {
     &bdem_FunctionTemplates::areEqual<T >,              \
     &bdem_FunctionTemplates::printArray<T >
 
-const bdem_Descriptor bdem_Properties::d_boolAttr = {
+const bdem_Descriptor bdem_Properties::s_boolAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bool, bdem_ElemType::BDEM_BOOL)
 };
 
-const bdem_Descriptor bdem_Properties::d_charAttr = {
+const bdem_Descriptor bdem_Properties::s_charAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(char, bdem_ElemType::BDEM_CHAR)
 };
 
-const bdem_Descriptor bdem_Properties::d_shortAttr = {
+const bdem_Descriptor bdem_Properties::s_shortAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(short, bdem_ElemType::BDEM_SHORT)
 };
 
-const bdem_Descriptor bdem_Properties::d_intAttr = {
+const bdem_Descriptor bdem_Properties::s_intAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(int, bdem_ElemType::BDEM_INT)
 };
 
-const bdem_Descriptor bdem_Properties::d_int64Attr = {
+const bdem_Descriptor bdem_Properties::s_int64Attr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bsls::Types::Int64, bdem_ElemType::BDEM_INT64)
 };
 
-const bdem_Descriptor bdem_Properties::d_floatAttr = {
+const bdem_Descriptor bdem_Properties::s_floatAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(float, bdem_ElemType::BDEM_FLOAT)
 };
 
-const bdem_Descriptor bdem_Properties::d_doubleAttr = {
+const bdem_Descriptor bdem_Properties::s_doubleAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(double, bdem_ElemType::BDEM_DOUBLE)
 };
 
-const bdem_Descriptor bdem_Properties::d_stringAttr = {
+const bdem_Descriptor bdem_Properties::s_stringAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bsl::string, bdem_ElemType::BDEM_STRING)
 };
 
-const bdem_Descriptor bdem_Properties::d_datetimeAttr = {
+const bdem_Descriptor bdem_Properties::s_datetimeAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bdet_Datetime, bdem_ElemType::BDEM_DATETIME)
 };
 
-const bdem_Descriptor bdem_Properties::d_datetimeTzAttr = {
+const bdem_Descriptor bdem_Properties::s_datetimeTzAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bdet_DatetimeTz,
                                 bdem_ElemType::BDEM_DATETIMETZ)
 };
 
-const bdem_Descriptor bdem_Properties::d_dateAttr = {
+const bdem_Descriptor bdem_Properties::s_dateAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bdet_Date, bdem_ElemType::BDEM_DATE)
 };
 
-const bdem_Descriptor bdem_Properties::d_dateTzAttr = {
+const bdem_Descriptor bdem_Properties::s_dateTzAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bdet_DateTz, bdem_ElemType::BDEM_DATETZ)
 };
 
-const bdem_Descriptor bdem_Properties::d_timeAttr = {
+const bdem_Descriptor bdem_Properties::s_timeAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bdet_Time, bdem_ElemType::BDEM_TIME)
 };
 
-const bdem_Descriptor bdem_Properties::d_timeTzAttr = {
+const bdem_Descriptor bdem_Properties::s_timeTzAttr = {
     BDEM_SCALAR_DESCRIPTOR_INIT(bdet_TimeTz, bdem_ElemType::BDEM_TIMETZ)
 };
 
-const bdem_Descriptor bdem_Properties::d_boolArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_boolArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bool>,
                                bdem_ElemType::BDEM_BOOL_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_charArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_charArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<char>,
                                bdem_ElemType::BDEM_CHAR_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_shortArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_shortArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<short>,
                                bdem_ElemType::BDEM_SHORT_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_intArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_intArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<int>, bdem_ElemType::BDEM_INT_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_int64ArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_int64ArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bsls::Types::Int64>,
                                bdem_ElemType::BDEM_INT64_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_floatArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_floatArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<float>,
                                bdem_ElemType::BDEM_FLOAT_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_doubleArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_doubleArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<double>,
                                bdem_ElemType::BDEM_DOUBLE_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_stringArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_stringArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bsl::string>,
                                bdem_ElemType::BDEM_STRING_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_datetimeArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_datetimeArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bdet_Datetime>,
                                bdem_ElemType::BDEM_DATETIME_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_datetimeTzArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_datetimeTzArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bdet_DatetimeTz>,
                                bdem_ElemType::BDEM_DATETIMETZ_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_dateArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_dateArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bdet_Date>,
                                bdem_ElemType::BDEM_DATE_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_dateTzArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_dateTzArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bdet_DateTz>,
                                bdem_ElemType::BDEM_DATETZ_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_timeArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_timeArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bdet_Time>,
                                bdem_ElemType::BDEM_TIME_ARRAY)
 };
 
-const bdem_Descriptor bdem_Properties::d_timeTzArrayAttr = {
+const bdem_Descriptor bdem_Properties::s_timeTzArrayAttr = {
     BDEM_ARRAY_DESCRIPTOR_INIT(bsl::vector<bdet_TimeTz>,
                                bdem_ElemType::BDEM_TIMETZ_ARRAY)
 };
+
+// The identifiers below are DEPRECATED and are only provided for backward
+// compatibility.  Each 'd_*' identifier is just a reference to the
+// corresponding non-deprecated 's_*' identifier.  These identifiers will be
+// eliminated at a future date.
+
+const bdem_Descriptor& bdem_Properties::d_intAttr = bdem_Properties::s_intAttr;
+const bdem_Descriptor& bdem_Properties::d_doubleAttr =
+                                                 bdem_Properties::s_doubleAttr;
+const bdem_Descriptor& bdem_Properties::d_stringAttr =
+                                                 bdem_Properties::s_stringAttr;
+
+const bdem_Descriptor& bdem_Properties::d_charArrayAttr =
+                                              bdem_Properties::s_charArrayAttr;
 
 }  // close namespace BloombergLP
 

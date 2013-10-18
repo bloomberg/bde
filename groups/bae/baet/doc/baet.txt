@@ -14,15 +14,12 @@
 
 /Hierarchical Synopsis
 /---------------------
- The single component of this package, 'baet_localdatetime', defines only one
- level of dependency (of course).
+ The 'baet' package currently has 1 component.
 ..
-  Level 1: baet_localdatetime
+  1. baet_localdatetime
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the component in 'baet'.
-..
-  'baet_localdatetime' - datetime value qualified by time-zone identifier
-..
+: 'baet_localdatetime':
+:      Provide an attribute class for time-zone-aware datetime values.

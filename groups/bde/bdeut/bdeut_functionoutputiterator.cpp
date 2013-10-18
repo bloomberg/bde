@@ -1,15 +1,16 @@
-// bdema_managedptr_factorydeleter.cpp                                -*-C++-*-
-#include <bdema_managedptr_factorydeleter.h>
+// bdeut_functionoutputiterator.cpp                                   -*-C++-*-
+#include <bdeut_functionoutputiterator.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdema_managedptr_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bdeut_functionoutputiterator_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
-}  // close namespace BloombergLP
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -243,6 +243,10 @@ BDES_IDENT("$Id: $")
 #include <bdeat_valuetypefunctions.h>
 #endif
 
+#ifndef INCLUDED_BDEU_PRINTMETHODS
+#include <bdeu_printmethods.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -297,11 +301,6 @@ class baejsn_Decoder {
     friend struct baejsn_Decoder_ElementVisitor;
 
     // PRIVATE MANIPULATORS
-    int decodeBinaryArray(bsl::vector<char> *value);
-        // Decode into the specified 'value' vector the JSON data currently
-        // referred to by the parser owned by this object.  Return 0 on success
-        // and a non-zero value otherwise.
-
     template <typename TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::DynamicType);
     template <typename TYPE>
@@ -354,7 +353,10 @@ class baejsn_Decoder {
         // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
         // choice, or array type, or a 'bdeat'-compatible dynamic type
         // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // non-zero value otherwise.  Note that this operation internally
+        // buffers input from 'streambuf', and if decoding is successful, will
+        // attempt to update the input position of 'streambuf' to the last
+        // unprocessed byte.
 
     template <typename TYPE>
     int decode(bsl::istream&                 stream,
@@ -365,7 +367,10 @@ class baejsn_Decoder {
         // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
         // choice, or array type, or a 'bdeat'-compatible dynamic type
         // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // non-zero value otherwise.  Note that this operation internally
+        // buffers input from 'stream', and if decoding is successful, will
+        // attempt to update the input position of 'stream' to the last
+        // unprocessed byte.
 
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
@@ -804,7 +809,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
     rc = baejsn_ParserUtil::getValue(&valueBaseType, dataValue);
     if (rc) {
         d_logStream << "Could not decode Enum Customized, "
-                    << "value not allowed \"" << valueBaseType << "\"\n";
+                    << "value not allowed \"" << dataValue << "\"\n";
         return -1;                                                    // RETURN
     }
 
@@ -812,7 +817,9 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                                                             valueBaseType);
     if (rc) {
         d_logStream << "Could not convert base type to customized type, "
-                    << "base value disallowed: \"" << valueBaseType << "\"\n";
+                    << "base value disallowed: \"";
+        bdeu_PrintMethods::print(d_logStream, valueBaseType, 0, -1);
+        d_logStream << "\"\n";
     }
     return rc;
 }
@@ -842,7 +849,21 @@ int baejsn_Decoder::decodeImp(bsl::vector<char> *value,
                               int,
                               bdeat_TypeCategory::Array)
 {
-    return decodeBinaryArray(value);
+    if (baejsn_Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
+        d_logStream << "Could not decode vector<char> "
+                    << "expected as an element value\n";
+        return -1;                                                    // RETURN
+    }
+
+    bslstl::StringRef dataValue;
+    int rc = d_tokenizer.value(&dataValue);
+
+    if (rc) {
+        d_logStream << "Error reading customized type element value\n";
+        return -1;                                                    // RETURN
+    }
+
+    return baejsn_ParserUtil::getValue(value, dataValue);
 }
 
 template <typename TYPE>
@@ -855,7 +876,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    const int rc = d_tokenizer.advanceToNextToken();
+    int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         return rc;                                                    // RETURN
     }
@@ -877,7 +898,7 @@ int baejsn_Decoder::decodeImp(TYPE *value,
                 return -1;                                            // RETURN
             }
 
-            const int rc = d_tokenizer.advanceToNextToken();
+            rc = d_tokenizer.advanceToNextToken();
             if (rc) {
                 d_logStream << "Error reading token after value of element '"
                             << i - 1 << "'\n";
@@ -972,7 +993,7 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
 
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    const int rc = d_tokenizer.advanceToNextToken();
+    int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
         d_logStream << "Error advancing to the first token. "
                     << "Expecting a '{' or '[' as the first character\n";
@@ -987,7 +1008,11 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
     d_maxDepth            = options.maxDepth();
     d_skipUnknownElements = options.skipUnknownElements();
 
-    return decodeImp(value, 0, TypeCategory());
+    rc = decodeImp(value, 0, TypeCategory());
+
+    d_tokenizer.resetStreamBufGetPointer();
+
+    return rc;
 }
 
 template <typename TYPE>

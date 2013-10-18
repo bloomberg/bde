@@ -55,41 +55,53 @@ struct bdem_Properties {
 
     // *** attribute structure for 'VOID' ***
 
-    static const bdem_Descriptor d_voidAttr;
+    static const bdem_Descriptor s_voidAttr;
 
     // *** attribute structures for scalar types ***
 
-    static const bdem_Descriptor d_boolAttr;
-    static const bdem_Descriptor d_charAttr;
-    static const bdem_Descriptor d_shortAttr;
-    static const bdem_Descriptor d_intAttr;
-    static const bdem_Descriptor d_int64Attr;
-    static const bdem_Descriptor d_floatAttr;
-    static const bdem_Descriptor d_doubleAttr;
-    static const bdem_Descriptor d_stringAttr;
-    static const bdem_Descriptor d_datetimeAttr;
-    static const bdem_Descriptor d_datetimeTzAttr;
-    static const bdem_Descriptor d_dateAttr;
-    static const bdem_Descriptor d_dateTzAttr;
-    static const bdem_Descriptor d_timeAttr;
-    static const bdem_Descriptor d_timeTzAttr;
+    static const bdem_Descriptor s_boolAttr;
+    static const bdem_Descriptor s_charAttr;
+    static const bdem_Descriptor s_shortAttr;
+    static const bdem_Descriptor s_intAttr;
+    static const bdem_Descriptor s_int64Attr;
+    static const bdem_Descriptor s_floatAttr;
+    static const bdem_Descriptor s_doubleAttr;
+    static const bdem_Descriptor s_stringAttr;
+    static const bdem_Descriptor s_datetimeAttr;
+    static const bdem_Descriptor s_datetimeTzAttr;
+    static const bdem_Descriptor s_dateAttr;
+    static const bdem_Descriptor s_dateTzAttr;
+    static const bdem_Descriptor s_timeAttr;
+    static const bdem_Descriptor s_timeTzAttr;
 
     // *** attribute structures for array types ***
 
-    static const bdem_Descriptor d_boolArrayAttr;
-    static const bdem_Descriptor d_charArrayAttr;
-    static const bdem_Descriptor d_shortArrayAttr;
-    static const bdem_Descriptor d_intArrayAttr;
-    static const bdem_Descriptor d_int64ArrayAttr;
-    static const bdem_Descriptor d_floatArrayAttr;
-    static const bdem_Descriptor d_doubleArrayAttr;
-    static const bdem_Descriptor d_stringArrayAttr;
-    static const bdem_Descriptor d_datetimeArrayAttr;
-    static const bdem_Descriptor d_datetimeTzArrayAttr;
-    static const bdem_Descriptor d_dateArrayAttr;
-    static const bdem_Descriptor d_dateTzArrayAttr;
-    static const bdem_Descriptor d_timeArrayAttr;
-    static const bdem_Descriptor d_timeTzArrayAttr;
+    static const bdem_Descriptor s_boolArrayAttr;
+    static const bdem_Descriptor s_charArrayAttr;
+    static const bdem_Descriptor s_shortArrayAttr;
+    static const bdem_Descriptor s_intArrayAttr;
+    static const bdem_Descriptor s_int64ArrayAttr;
+    static const bdem_Descriptor s_floatArrayAttr;
+    static const bdem_Descriptor s_doubleArrayAttr;
+    static const bdem_Descriptor s_stringArrayAttr;
+    static const bdem_Descriptor s_datetimeArrayAttr;
+    static const bdem_Descriptor s_datetimeTzArrayAttr;
+    static const bdem_Descriptor s_dateArrayAttr;
+    static const bdem_Descriptor s_dateTzArrayAttr;
+    static const bdem_Descriptor s_timeArrayAttr;
+    static const bdem_Descriptor s_timeTzArrayAttr;
+
+    // The following names are provided for backward compatibility, they are
+    // DEPRECATED as static variable names should begin with 's_' rather than
+    // 'd_'.  They will be eliminated in a future release.
+
+    // *** attribute structures for scalar types ***
+
+    static const bdem_Descriptor& d_intAttr;
+    static const bdem_Descriptor& d_doubleAttr;
+    static const bdem_Descriptor& d_stringAttr;
+
+    static const bdem_Descriptor& d_charArrayAttr;
 };
 
 }  // close namespace BloombergLP

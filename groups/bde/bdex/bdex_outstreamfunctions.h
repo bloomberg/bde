@@ -515,6 +515,15 @@ namespace bdex_OutStreamFunctions {
     // types, 'bsl::string' and 'bsl::vector'.
 
     // CLASS METHODS
+    bool outStreamFunctionsDeprecatedFunctionIsInUse();
+        // !DEPRECATED!: Temporary facility for debugging only.
+        //
+        // Return true.  This method exists only to provide a non-inline symbol
+        // that can be found in object files, allowing us to detect if they
+        // call the deprecated 'streamOutVersionAndObject' family of functions
+        // that underlie 'operator>>'.  The deprecated functions are inline and
+        // cannot always be found in object files.
+
     template <typename STREAM, typename TYPE>
     inline
     STREAM& streamOut_Imp(STREAM&                                   stream,
@@ -925,11 +934,16 @@ namespace bdex_OutStreamFunctions {
     template <typename STREAM, typename TYPE>
     inline
     STREAM& streamOutVersionAndObject(STREAM& stream, const TYPE& value)
+        // !DEPRECATED!: Use ’streamOut’ instead.
+        //
         // Write the specified 'value' to the specified output 'stream'
         // and return a reference to the modifiable 'stream'.  Note that the
         // version number is output only if the version number corresponding to
         // the specified 'TYPE' is positive.
     {
+        // Refer to non-inline symbol to help detect the use of this function.
+        outStreamFunctionsDeprecatedFunctionIsInUse();
+
         int version = bdex_VersionFunctions::maxSupportedVersion(value);
 
         if (version > 0) {

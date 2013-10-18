@@ -19,40 +19,62 @@
  days).  'bbedc' supports many of the standard day-count conventions, with each
  in its own component.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bbedc' package currently has 12 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bbedc_daycount
+     bbedc_daycountadapter
+
+  1. bbedc_actual360
+     bbedc_actual365fixed
+     bbedc_daycountconvention
+     bbedc_daycountinterface
+     bbedc_icmaactualactual
+     bbedc_isdaactualactual
+     bbedc_isma30360
+     bbedc_psa30360eom
+     bbedc_sia30360eom
+     bbedc_sia30360neom
+..
+
 /Component Synopsis
 /------------------
-..
-  'bbedc_actual360'          - procedures relating to Actual/360 day-count
-                               convention
-
-  'bbedc_actual365fixed'     - provide support for the Actual/365 (fixed)
-                               day-count convention
-
-  'bbedc_daycount'           - procedures for 'enum' specified day count
-                               conventions
-
-  'bbedc_daycountadapter'    - provide a parametrized day-count convention
-                               implementation
-
-  'bbedc_daycountconvention' - namespace for enumerating day-count conventions
-
-  'bbedc_daycountinterface'  - provide an interface for day-count calculations
-
-  'bbedc_icmaactualactual'   - provide support for the ICMA Actual/Actual
-                               day-count convention
-
-  'bbedc_isdaactualactual'   - provide support for the ISDA Actual/Actual
-                               day-count convention
-
-  'bbedc_isma30360'          - procedures relating to the ISMA 30/360 day-count
-                               convention
-
-  'bbedc_psa30360eom'        - provide support for PSA 30/360 end-of-month
-                               day-count convention
-
-  'bbedc_sia30360eom'        - provide support for SIA 30/360 end-of-month
-                               day-count convention
-
-  'bbedc_sia30360neom'       - provide support for SIA 30/360 no-end-of-month
-                               day-count convention
-..
+: 'bbedc_actual360':
+:      Provide support for the Actual/360 day-count convention.
+:
+: 'bbedc_actual365fixed':
+:      Provide support for the Actual/365 (fixed) day-count convention.
+:
+: 'bbedc_daycount':
+:      Support for day-count calculations of 'enum'-specified conventions.
+:
+: 'bbedc_daycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbedc_daycountconvention':
+:      Enumerate the set of day-count conventions.
+:
+: 'bbedc_daycountinterface':
+:      Provide an interface for day-count calculations.
+:
+: 'bbedc_icmaactualactual':
+:      Provide support for the ICMA Actual/Actual day-count convention.
+:
+: 'bbedc_isdaactualactual':
+:      Provide support for the ISDA Actual/Actual day-count convention.
+:
+: 'bbedc_isma30360':
+:      Provide support for the ISMA 30/360 day-count convention.
+:
+: 'bbedc_psa30360eom':
+:      Provide support for PSA 30/360 end-of-month day-count convention.
+:
+: 'bbedc_sia30360eom':
+:      Provide support for SIA 30/360 end-of-month day-count convention.
+:
+: 'bbedc_sia30360neom':
+:      Provide support for the SIA-30/360-neom day-count convention.

@@ -463,28 +463,28 @@ void bdem_List::appendInt(int value)
 {
     d_listImp.insertElement(d_listImp.length(),
                             &value,
-                            &Prop::d_intAttr);
+                            &Prop::s_intAttr);
 }
 
 void bdem_List::appendDouble(double value)
 {
     d_listImp.insertElement(d_listImp.length(),
                             &value,
-                            &Prop::d_doubleAttr);
+                            &Prop::s_doubleAttr);
 }
 
 void bdem_List::appendString(const bsl::string& value)
 {
     d_listImp.insertElement(d_listImp.length(),
                             &value,
-                            &Prop::d_stringAttr);
+                            &Prop::s_stringAttr);
 }
 
 void bdem_List::appendStringArray(const bsl::vector<bsl::string>& value)
 {
     d_listImp.insertElement(d_listImp.length(),
                             &value,
-                            &Prop::d_stringArrayAttr);
+                            &Prop::s_stringArrayAttr);
 }
 
 bool operator==(const bdem_List& lhs, const bdem_List& rhs)
@@ -754,7 +754,7 @@ static bdem_List                            fB20() {
                                  t.appendString(B06);
                                  t.appendStringArray(B16); return t; }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -801,7 +801,7 @@ static bdem_Table                            fB21() {
                           t[0][3].theModifiableStringArray() = B16; return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -844,7 +844,7 @@ static bdem_Choice                            fB30() {
                           return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -893,7 +893,7 @@ static bdem_ChoiceArray                            fB31() {
                       return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -922,39 +922,39 @@ static const Desc *DESCRIPTORS_RAW[] =
     // This array stores the descriptors corresponding to each element
     // type specified in the spec string.
 {
-    &Prop::d_voidAttr,
-    &Prop::d_charAttr,
-    &Prop::d_shortAttr,
-    &Prop::d_intAttr,
-    &Prop::d_int64Attr,
-    &Prop::d_floatAttr,
-    &Prop::d_doubleAttr,
-    &Prop::d_stringAttr,
-    &Prop::d_datetimeAttr,
-    &Prop::d_dateAttr,
-    &Prop::d_timeAttr,
-    &Prop::d_charArrayAttr,
-    &Prop::d_shortArrayAttr,
-    &Prop::d_intArrayAttr,
-    &Prop::d_int64ArrayAttr,
-    &Prop::d_floatArrayAttr,
-    &Prop::d_doubleArrayAttr,
-    &Prop::d_stringArrayAttr,
-    &Prop::d_datetimeArrayAttr,
-    &Prop::d_dateArrayAttr,
-    &Prop::d_timeArrayAttr,
-    &bdem_ListImp::d_listAttr,
-    &bdem_TableImp::d_tableAttr,
-    &Prop::d_boolAttr,
-    &Prop::d_datetimeTzAttr,
-    &Prop::d_dateTzAttr,
-    &Prop::d_timeTzAttr,
-    &Prop::d_boolArrayAttr,
-    &Prop::d_datetimeTzArrayAttr,
-    &Prop::d_dateTzArrayAttr,
-    &Prop::d_timeTzArrayAttr,
-    &bdem_ChoiceImp::d_choiceAttr,
-    &bdem_ChoiceArrayImp::d_choiceArrayAttr,
+    &Prop::s_voidAttr,
+    &Prop::s_charAttr,
+    &Prop::s_shortAttr,
+    &Prop::s_intAttr,
+    &Prop::s_int64Attr,
+    &Prop::s_floatAttr,
+    &Prop::s_doubleAttr,
+    &Prop::s_stringAttr,
+    &Prop::s_datetimeAttr,
+    &Prop::s_dateAttr,
+    &Prop::s_timeAttr,
+    &Prop::s_charArrayAttr,
+    &Prop::s_shortArrayAttr,
+    &Prop::s_intArrayAttr,
+    &Prop::s_int64ArrayAttr,
+    &Prop::s_floatArrayAttr,
+    &Prop::s_doubleArrayAttr,
+    &Prop::s_stringArrayAttr,
+    &Prop::s_datetimeArrayAttr,
+    &Prop::s_dateArrayAttr,
+    &Prop::s_timeArrayAttr,
+    &bdem_ListImp::s_listAttr,
+    &bdem_TableImp::s_tableAttr,
+    &Prop::s_boolAttr,
+    &Prop::s_datetimeTzAttr,
+    &Prop::s_dateTzAttr,
+    &Prop::s_timeTzAttr,
+    &Prop::s_boolArrayAttr,
+    &Prop::s_datetimeTzArrayAttr,
+    &Prop::s_dateTzArrayAttr,
+    &Prop::s_timeTzArrayAttr,
+    &bdem_ChoiceImp::s_choiceAttr,
+    &bdem_ChoiceArrayImp::s_choiceArrayAttr,
 };
 
 static const Desc **const DESCRIPTORS = &DESCRIPTORS_RAW[1];
@@ -1398,7 +1398,7 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -1546,8 +1546,8 @@ int main(int argc, char *argv[])
 //  int main() {
 
         static const bdem_Descriptor *DESCRIPTORS[] = {
-            &Prop::d_stringAttr,
-            &Prop::d_doubleAttr
+            &bdem_Properties::s_stringAttr,
+            &bdem_Properties::s_doubleAttr
         };
 
         my_ChoiceArray theArray(DESCRIPTORS, 2);
@@ -1764,7 +1764,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator alloc(veryVeryVerbose);                \
                                                                         \
             DescCatalog catalog(&alloc);                                \
-            catalog.push_back(&Prop::d_ ## LTYPE ## Attr);              \
+            catalog.push_back(&Prop::s_ ## LTYPE ## Attr);              \
             CHead mXCH(&catalog);                                       \
             Obj &mX = reinterpret_cast<Obj&>(mXCH);                     \
             const Obj& X = mX;                                          \
@@ -1847,11 +1847,11 @@ int main(int argc, char *argv[])
             ASSERT(!X.selection().isNull());                            \
         }
 
-        TEST_THEMODIFIABLE2(List, &bdem_ListImp::d_listAttr, 20);
-        TEST_THEMODIFIABLE2(Table, &bdem_TableImp::d_tableAttr, 21);
-        TEST_THEMODIFIABLE2(Choice, &bdem_ChoiceImp::d_choiceAttr, 30);
+        TEST_THEMODIFIABLE2(List, &bdem_ListImp::s_listAttr, 20);
+        TEST_THEMODIFIABLE2(Table, &bdem_TableImp::s_tableAttr, 21);
+        TEST_THEMODIFIABLE2(Choice, &bdem_ChoiceImp::s_choiceAttr, 30);
         TEST_THEMODIFIABLE2(ChoiceArray,
-                                  &bdem_ChoiceArrayImp::d_choiceArrayAttr, 31);
+                                  &bdem_ChoiceArrayImp::s_choiceArrayAttr, 31);
 
 #       undef TEST_THEMODIFIABLE2
 
@@ -2040,7 +2040,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator alloc(veryVeryVerbose);                \
                                                                         \
             DescCatalog catalog(&alloc);                                \
-            catalog.push_back(&Prop::d_ ## LTYPE ## Attr);              \
+            catalog.push_back(&Prop::s_ ## LTYPE ## Attr);              \
             CHead mXCH(&catalog);                                       \
             Obj &mX = reinterpret_cast<Obj&>(mXCH);                     \
             const Obj& X = mX;                                          \
@@ -2107,11 +2107,11 @@ int main(int argc, char *argv[])
             ASSERT(N ## NR == X.the ## TYPE());                         \
         }
 
-        TEST_THEMODIFIABLE4(List, &bdem_ListImp::d_listAttr, 20);
-        TEST_THEMODIFIABLE4(Table, &bdem_TableImp::d_tableAttr, 21);
-        TEST_THEMODIFIABLE4(Choice, &bdem_ChoiceImp::d_choiceAttr, 30);
+        TEST_THEMODIFIABLE4(List, &bdem_ListImp::s_listAttr, 20);
+        TEST_THEMODIFIABLE4(Table, &bdem_TableImp::s_tableAttr, 21);
+        TEST_THEMODIFIABLE4(Choice, &bdem_ChoiceImp::s_choiceAttr, 30);
         TEST_THEMODIFIABLE4(ChoiceArray,
-                                  &bdem_ChoiceArrayImp::d_choiceArrayAttr, 31);
+                                  &bdem_ChoiceArrayImp::s_choiceArrayAttr, 31);
 
 #       undef TEST_THEMODIFIABLE4
 
@@ -5179,11 +5179,11 @@ int main(int argc, char *argv[])
 
         DescCatalog catalog(&t1);
         const int INT_IDX = catalog.size();
-        catalog.push_back(&Prop::d_intAttr);
+        catalog.push_back(&Prop::s_intAttr);
         const int STR_IDX = catalog.size();
-        catalog.push_back(&Prop::d_stringAttr);
+        catalog.push_back(&Prop::s_stringAttr);
         const int DBL_IDX = catalog.size();
-        catalog.push_back(&Prop::d_doubleAttr);
+        catalog.push_back(&Prop::s_doubleAttr);
 
         const int baseBlocks = t1.numBlocksInUse();
 
@@ -5203,7 +5203,7 @@ int main(int argc, char *argv[])
         ASSERT(EType::BDEM_VOID == X.selectionType());
         ASSERT(EType::BDEM_VOID == X.selectionType(-1));
         ASSERT(EType::BDEM_VOID == X.selection().type());
-        ASSERT(&Prop::d_voidAttr == X.selection().descriptor());
+        ASSERT(&Prop::s_voidAttr == X.selection().descriptor());
         for (int i = 0; i < X.numSelections(); ++i) {
           ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
         }
@@ -5225,7 +5225,7 @@ int main(int argc, char *argv[])
         ASSERT(EType::BDEM_INT == X.selection().type());
         ASSERT(false      == X.selection().isNull());
         ASSERT(iv == X.theInt());
-        ASSERT(&Prop::d_intAttr == X.selection().descriptor());
+        ASSERT(&Prop::s_intAttr == X.selection().descriptor());
         ASSERT(baseBlocks == t1.numBlocksInUse());
         for (int i = 0; i < X.numSelections(); ++i) {
           ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
@@ -5241,7 +5241,7 @@ int main(int argc, char *argv[])
         ASSERT(EType::BDEM_STRING == X.selectionType(STR_IDX));
         ASSERT(EType::BDEM_STRING == X.selection().type());
         ASSERT(true               == X.selection().isNull());
-        ASSERT(&Prop::d_stringAttr == X.selection().descriptor());
+        ASSERT(&Prop::s_stringAttr == X.selection().descriptor());
         for (int i = 0; i < X.numSelections(); ++i) {
           ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
         }
@@ -5259,7 +5259,7 @@ int main(int argc, char *argv[])
         ASSERT(EType::BDEM_STRING == X.selectionType(STR_IDX));
         ASSERT(EType::BDEM_STRING == X.selection().type());
         ASSERT(false         == X.selection().isNull());
-        ASSERT(&Prop::d_stringAttr == X.selection().descriptor());
+        ASSERT(&Prop::s_stringAttr == X.selection().descriptor());
         for (int i = 0; i < X.numSelections(); ++i) {
           ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
         }
@@ -5277,7 +5277,7 @@ int main(int argc, char *argv[])
         ASSERT(EType::BDEM_STRING == X.selectionType(STR_IDX));
         ASSERT(EType::BDEM_STRING == X.selection().type());
         ASSERT(false         == X.selection().isNull());
-        ASSERT(&Prop::d_stringAttr == X.selection().descriptor());
+        ASSERT(&Prop::s_stringAttr == X.selection().descriptor());
         for (int i = 0; i < X.numSelections(); ++i) {
           ASSERT(catalog[i]->d_elemEnum == X.selectionType(i));
         }
@@ -5299,7 +5299,7 @@ int main(int argc, char *argv[])
         ASSERT(EType::BDEM_DOUBLE == X.selectionType(DBL_IDX));
         ASSERT(EType::BDEM_DOUBLE == X.selection().type());
         ASSERT(false         == X.selection().isNull());
-        ASSERT(&Prop::d_doubleAttr == X.selection().descriptor());
+        ASSERT(&Prop::s_doubleAttr == X.selection().descriptor());
         ASSERT(dv == X.theDouble());
         ASSERT(baseBlocks == t1.numBlocksInUse());
         for (int i = 0; i < X.numSelections(); ++i) {
@@ -5312,7 +5312,7 @@ int main(int argc, char *argv[])
         ASSERT(EType::BDEM_DOUBLE == X.selectionType(DBL_IDX));
         ASSERT(EType::BDEM_DOUBLE == X.selection().type());
         ASSERT(true          == X.selection().isNull());
-        ASSERT(&Prop::d_doubleAttr == X.selection().descriptor());
+        ASSERT(&Prop::s_doubleAttr == X.selection().descriptor());
         ASSERT(dv != X.theDouble());
         ASSERT(baseBlocks == t1.numBlocksInUse());
         for (int i = 0; i < X.numSelections(); ++i) {

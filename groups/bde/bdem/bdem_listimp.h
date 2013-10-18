@@ -205,7 +205,7 @@ class bdem_ListImp {
     };
 
     // PUBLIC CLASS DATA
-    static const bdem_Descriptor d_listAttr;
+    static const bdem_Descriptor  s_listAttr;
         // Attributes of the 'bdem_ListImp' class.  Contains pointers to
         // functions for construction, destruction, assignment, equality test,
         // etc.

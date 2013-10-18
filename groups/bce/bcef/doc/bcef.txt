@@ -41,6 +41,49 @@
  'bcef' functors, but 'bcef' cannot guarantee the thread safety of the client
  function.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bcef' package currently has 8 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bcef_bindutil
+     bcef_vfunc0
+     bcef_vfunc1
+     bcef_vfunc2
+     bcef_vfunc3
+     bcef_vfunc4
+     bcef_vfunc5
+     bcef_vfunc6
+..
+
+/Component Synopsis
+/------------------
+: 'bcef_bindutil':
+:      Provide a signature-specific function object (functor).
+:
+: 'bcef_vfunc0':
+:      Provide a signature-specific function object (functor).
+:
+: 'bcef_vfunc1':
+:      Provide a signature-specific function object (functor).
+:
+: 'bcef_vfunc2':
+:      Provide a signature-specific function object (functor).
+:
+: 'bcef_vfunc3':
+:      Provide a signature-specific function object (functor).
+:
+: 'bcef_vfunc4':
+:      Provide a signature-specific function object (functor).
+:
+: 'bcef_vfunc5':
+:      Provide a signature-specific function object (functor).
+:
+: 'bcef_vfunc6':
+:      Provide a signature-specific function object (functor).
+
 /Related Packages in Package Group 'bce'
 /---------------------------------------
  Package 'bcef' is designed to use three other packages in 'bce'.  'bcef'
@@ -48,23 +91,24 @@
  play supporting roles.
 
  The packages are:
-..
-   bcef   Provides functors to clients in a canonical form
 
-   bcefr  This package is *DEPRECATED*.  A common reference-counted base class,
-          used by bcefi.  These classes provide reference counting and object
-          deletion for derived classes.
+: 'bcef':
+:   Provides functors to clients in a canonical form
+:
+: 'bcefr': This package is *DEPRECATED*.
+:   A common reference-counted base class, used by 'bcefi'.  These classes
+:   provide reference counting and object deletion for derived classes.
+:
+: 'bcefi': This package is *DEPRECATED*.
+:   Concrete reference-counted function objects, held and managed by a 'bcef'
+:   object; classes in 'bcefi' implement behavior declared in 'bcefr'.
+:
+: 'bcefu': This package is *DEPRECATED*.
+:   Utility functions to load a 'bcef' functor with a pointer to a
+:   user-supplied function; 'bcefu' does this by instantiating an object of a
+:   type defined in 'bcefi'.  Subsequent invocations of the 'bcef' functor will
+:   be delegated to the 'bcefi' object.
 
-   bcefi  This package is *DEPRECATED*.  Concrete reference-counted function
-          objects, held and managed by a 'bcef' object; classes in 'bcefi'
-          implement behavior declared in 'bcefr'.
-
-   bcefu  This package is *DEPRECATED*.  Utility functions to load a 'bcef'
-          functor with a pointer to a user-supplied function; 'bcefu' does this
-          by instantiating an object of a type defined in 'bcefi'.  Subsequent
-          invocations of the bcef functor will be delegated to the 'bcefi'
-          object.
-..
  These four 'bce' packages work together to support generic functors.  Typical
  client usage involves two steps.  First, a client program creates a specific
  'bcef' functor, with template parameters that match the application callback
@@ -449,13 +493,16 @@
  is a part of the 'MyGuiButton' interface, and hence will never change.
 
  The following code shows how we
-..
-  (1) Create the functor representation-(letter).
-  (2) Create the functor initialized with the representation.
-  (3) Register the functor as a callback with an instance of the
-      'MyGuiButton' class.
-  (4) Invoke the functor.
-..
+
+: 1 Create the functor representation-(letter).
+:
+: 2 Create the functor initialized with the representation.
+:
+: 3 Register the functor as a callback with an instance of the 'MyGuiButton'
+:   class.
+:
+: 4 Invoke the functor.
+
 ..
    // (1) Create the representation.
 

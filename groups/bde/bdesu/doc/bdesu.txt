@@ -9,22 +9,40 @@
 @DESCRIPTION: The 'bdesu' package consists of utilities for providing
  platform-independent access to low-level system functionality.
 
+/Hierarchical Synopsis
+/---------------------
+ The 'bdesu' package currently has 6 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. bdesu_processutil
+
+  3. bdesu_fdstreambuf
+     bdesu_pipeutil
+
+  2. bdesu_fileutil
+
+  1. bdesu_memoryutil
+     bdesu_pathutil
+..
+
 /Component Synopsis
 /------------------
-..
- 'bdesu_fdstreambuf' - Provide a stream buffer initialized with a file
-                       descriptor.
-
- 'bdesu_fileutil'    - Provide a set of portable utilities for file system
-                       access.
-
- 'bdesu_memoryutil'  - Provide a set of portable utilities for memory
-                       manipulation.
-
- 'bdesu_pathutil'    - Provide portable file-path manipulation utilities.
-
- 'bdesu_pipeutil'    - Provide basic portable named-pipe utilities.
-
- 'bdesu_processutil' - Provide basic platform-independent utilities related to
-                       processes.
-..
+: 'bdesu_fdstreambuf':
+:      Provide a stream buffer initialized with a file descriptor.
+:
+: 'bdesu_fileutil':
+:      Provide a set of portable utilities for file system access.
+:
+: 'bdesu_memoryutil':
+:      Provide a set of portable utilities for memory manipulation
+:
+: 'bdesu_pathutil':
+:      Provide portable file path manipulation.
+:
+: 'bdesu_pipeutil':
+:      Provide basic portable named-pipe utilities.
+:
+: 'bdesu_processutil':
+:      Provide basic platform-independent utilities related to processes.

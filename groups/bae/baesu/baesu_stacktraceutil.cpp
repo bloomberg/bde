@@ -87,17 +87,20 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dummy>
 
 bsl::ostream& baesu_StackTraceUtil::hexStackTrace(bsl::ostream &stream)
 {
-    // It is too hard to predict when the routine that calls this one will be
-    // inline and when it won't.  On 32 bit Linux debug, for example, it is
-    // clearly an inline template function but in a debug build it is not
-    // inlined.  On 64 bit Linux debug, it is inlined!  On 32 bit
-    // Solaris & AIX, the definition is virtually identical and it is inlined,
-    // Who knows what will happen if built optimized on Linux, or on some
-    // future platform.  Let's play it safe, assume it's inlined, and allow
-    // potentially an extra pointer to be printed out, by passing '1' to
-    // 'additionalIgnoreFrames'.
+    // This routine is just calling 'printHexStackTrace' with two additional
+    // function calls on top of that -- the '<<' that this function pointer is
+    // is passed to, and this function itself.  However, even in a
+    // non-optimized build, the '<<' call may be inlined.  Furthermore, in
+    // Solaris optimized builds, the call to 'printHexStackTrace' is called
+    // through chaining.  It is better to err on the side of printing too many
+    // than too few stack fraces.  So in optimized builds we will pass 0 to
+    // 'additionalIgnoreFrames', and in debug builds we will pass 1.
 
+#if defined(BDE_BUILD_TARGET_OPT)
+    return printHexStackTrace(stream, ' ', -1, 0);
+#else
     return printHexStackTrace(stream, ' ', -1, 1);
+#endif
 }
 
 int baesu_StackTraceUtil::loadStackTraceFromAddressArray(

@@ -316,16 +316,16 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
-#ifndef INCLUDED_BCES_ATOMICTYPES
-#include <bces_atomictypes.h>
-#endif
-
 #ifndef INCLUDED_BDET_DATETIMEINTERVAL
 #include <bdet_datetimeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -349,8 +349,8 @@ class bael_AsyncFileObserver : public bael_Observer {
     // DATA
     struct AsyncRecord
     {
-        bcema_SharedPtr<const bael_Record>  d_record;
-        bael_Context d_context;
+        bcema_SharedPtr<const bael_Record> d_record;
+        bael_Context                       d_context;
     };
 
     bael_FileObserver             d_fileObserver;    // forward most public
@@ -364,22 +364,30 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // records to the
                                                      // publication thread
 
-    bool                          d_clearing;        // flag that indicates
-                                                     // queue in clearance
+    bsls::AtomicInt               d_shuttingDownFlag;
+                                                     // flag that indicates
+                                                     // the publication thread
+                                                     // is being shutdown
 
     bael_Severity::Level          d_dropRecordsOnFullQueueThreshold;
                                                      // severity threshold that
                                                      // indicates if the queue
                                                      // drops records when full
 
-    bces_AtomicInt                d_dropCount;       // counter that keeps
-                                                     // tracking dropped
-                                                     // records
+    bsls::AtomicInt               d_dropCount;       // number of dropped
+                                                     // records, reset when
+                                                     // published
 
     bdef_Function<void (*)()>     d_publishThreadEntryPoint;
                                                      // functor that contains
                                                      // publication thread
                                                      // function
+
+    bael_Record                   d_droppedRecordWarning;
+                                                     // cached record object
+                                                     // used to publish the
+                                                     // count of dropped log
+                                                     // records
 
     mutable bcemt_Mutex           d_mutex;           // serialize operations
 
@@ -392,23 +400,48 @@ class bael_AsyncFileObserver : public bael_Observer {
     bael_AsyncFileObserver& operator=(const bael_AsyncFileObserver&);
 
     // PRIVATE MANIPULATORS
+    void construct();
+        // Initialize members of this object that do not vary between
+        // constructor overloads.  Note that this method should be
+        // removed when C++11 constructor chaining is available.
+
+    void logDroppedMessageWarning(int numDropped);
+        // Synchronously write an entry into the underlying file observer
+        // indicating that the specified 'numDropped' number of records
+        // have been dropped.  The behavior is undefined if this method
+        // is invoked concurrently from multiple threads (i.e., it is *not*
+        // *threadsafe*).
+
     void publishThreadEntryPoint();
         // Thread function of the publication thread.  The publication thread
         // pops record shared pointers and contexts from queue and writes the
         // records referred by these shared pointers to files or 'stdout'.
+        // The behavior is undefined if this method is invoked concurrently
+        // from multiple threads (i.e., it is *not* *threadsafe*).
+        // Publish records from the record queue until signaled to stop.
+        // This is the entry point function for the publication thread.
+
+    int shutdownThread();
+        // Stop the publication thread without waiting for remaining log
+        // records in the record queue to be published.  Discard currently
+        // queued log records.  Return 0 on success, and a non-zero value if
+        // there is an error joining the publication thread.  The behavior is
+        // undefined unless the calling thread holds a lock on 'd_mutex'.
 
     int startThread();
-        // Create publication thread using the thread function
-        // 'publishThreadEntryPoint'.  Return 0 on success or if the
-        // publication thread has already started, and a non-zero value
-        // otherwise.  This method is not thread-safe.  The behavior is
-        // undefined if more than two calls of this method occur concurrently.
+        // Create a publication thread to publish records from the record
+        // queue.  If a publication thread is already active, this operation
+        // has no effect.  Return 0 on success, and a non-zero value if there
+        // is an error creating the publication thread.  The behavior is
+        // undefined unless the calling thread holds a lock on 'd_mutex'.
 
     int stopThread();
-        // Stop publication thread by pushing a record shared pointer referring
-        // a special 'bael_Record' object with the cause of its context set to
-        // 'BAEL_END'.  This method is not thread-safe.  The behavior is
-        // undefined if more than two calls of this method occur concurrently.
+        // Stop the publication thread after all the remaining records in the
+        // record queue have been published.  If there is no publication thread
+        // this operation has no effect.  Return 0 on success, and a non-zero
+        // value if there is an error joining the publication thread.  The
+        // behavior is undefined unless the calling thread holds a lock on
+        // 'd_mutex'.
 
   public:
     // CREATORS
@@ -611,20 +644,23 @@ class bael_AsyncFileObserver : public bael_Observer {
         // @DESCRIPTION for details of formatting syntax.
 
     int shutdownPublicationThread();
-        // Immediately shutdown the publication thread and return to the
-        // caller.  Currently queue'd records will be discarded, and will not
-        // be written to the log file or 'stdout'.
+        // Stop the publication thread without waiting for remaining log
+        // records in the record queue to be published.  Discard currently
+        // queued log records.  Return 0 on success, and a non-zero value if
+        // there is an error joining the publication thread.
 
     int startPublicationThread();
-        // Start the publication thread of this async file observer.  Return 0
-        // on success or if the publication thread has already started, and a
-        // non-zero value otherwise.  This method has no effect if the
-        // publication thread has already started.
+        // Start a publication thread to asynchronously publish logged records
+        // from the record queue.  If a publication thread is already active,
+        // this operation has no effect.  Return 0 on success, and a non-zero
+        // value if there is an error creating the publication thread.
 
     int stopPublicationThread();
-        // Disable queuing of published records and wait until all currently
-        // enqueued records are published, then shut down the publication
-        // thread and return to the caller.
+        // Stop the publication thread after all the remaining records in the
+        // record queue have been published.  If there is no publication thread
+        // this operation has no effect.  Return 0 on success, and a non-zero
+        // value if there is an error joining the publication thread.
+
 
     // ACCESSORS
     int recordQueueLength() const;

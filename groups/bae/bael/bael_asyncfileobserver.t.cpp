@@ -13,6 +13,7 @@
 #include <bcema_testallocator.h>
 #include <bcema_sharedptr.h>
 
+#include <bdepcre_regex.h>
 #include <bdesu_fileutil.h>
 #include <bdesu_processutil.h>
 #include <bdet_date.h>
@@ -28,6 +29,7 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_cmath.h>
 
 #include <bsl_c_stdio.h>     // 'tempname'
 #include <bsl_c_stdlib.h>    // 'unsetenv'
@@ -128,29 +130,48 @@ static void aSsErT2(int c, const char *s, int i)
 
 #define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
+
+//=============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT(I,X) {                                                    \
+    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP0_ASSERT ASSERT
+#define LOOP1_ASSERT LOOP_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP2_ASSERT(I,J,X) {                                                 \
+    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
+              << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP3_ASSERT(I,J,K,X) {                                               \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
+              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
+       #M << ": " << M << "\n";                                               \
+       aSsErT(1, #X, __LINE__); } }
+
+
+//=============================================================================
+//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
+//-----------------------------------------------------------------------------
+
+#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
+#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
+
+#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
+#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+
+#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 //=============================================================================
 //                       SEMI-STANDARD TEST OUTPUT MACROS
@@ -272,8 +293,14 @@ bsl::string tempFileName(bool verboseFlag)
     result = tempnam(tmpPathBuf, "bael");
 #else
     char *fn = tempnam(0, "bael");
-    result = fn;
-    bsl::free(fn);
+    if (0 == fn) {
+        ASSERTV("Unable to generate temporary file name", false);
+        return "bael.faketempfile";
+    }
+    else {
+        result = fn;
+        bsl::free(fn);
+    }
 #endif
 
     if (veryVeryVerbose) {
@@ -325,8 +352,68 @@ int countLoggedRecords(const bsl::string& fileName)
     // formatter typically used in this test driver).
 
     return numLines / 2;
-
 }
+
+int countMatchingRecords(const bsl::string&  fileName,
+                         const char         *pattern,
+                         bool                isNegativePattern = false)
+    // Return the number of lines in the specified 'fileName' matching
+    // the specified regex 'pattern'.  If the optionally specified
+    // 'isNegativePattern' flag is 'true', return instead the number of lines
+    // *not* matching 'pattern'.
+{
+    bsl::string line;
+    int numLines = 0;
+    bsl::ifstream fs;
+    fs.open(fileName.c_str(), bsl::ifstream::in);
+
+    ASSERT(fs.is_open());
+    bdepcre_RegEx regex;
+    int rc = regex.prepare(0, 0, pattern);
+    BSLS_ASSERT_OPT(0 == rc); // test invariant
+
+    while (getline(fs, line)) {
+        bool matches = 0 == regex.match(line.c_str(), line.length());
+        if (!isNegativePattern == matches) {
+            ++numLines;
+        }
+    }
+    fs.close();
+    return numLines;
+}
+
+int accumulateMatchingRecords(const bsl::string&  fileName,
+                              const char         *pattern)
+    // Apply the specified regex 'pattern', which must contain one
+    // integer-matching subpattern, to each line in the specified 'fileName',
+    // and return the sum of all the values of the subpattern for matching
+    // lines.
+{
+    bsl::string line;
+    int sum = 0;
+    bsl::ifstream fs;
+    fs.open(fileName.c_str(), bsl::ifstream::in);
+
+    ASSERT(fs.is_open());
+    bdepcre_RegEx regex;
+    int rc = regex.prepare(0, 0, pattern);
+    BSLS_ASSERT_OPT(0 == rc); // test invariant
+    BSLS_ASSERT_OPT(1 == regex.numSubpatterns()); //test invariant
+
+    while (getline(fs, line)) {
+        bsl::vector<bsl::pair<int, int> > result;
+        if(0 == regex.match(&result, line.c_str(), line.length())) {
+            bsl::istringstream iss(line.substr(result[1].first,
+                                               result[1].second));
+            int value = 0;
+            iss >> value;
+            sum += value;
+        }
+    }
+    fs.close();
+    return sum;
+}
+
 
 class LogRotationCallbackTester {
     // This class can be used as a functor matching the signature of
@@ -584,7 +671,7 @@ int main(int argc, char *argv[])
         //:    queue reflects the number of records that have been published
         //:    to the log file (and removed from the queue). (C-1)
         //:
-        //:  2 Create a async-file obsererver, start asynchronous publication,
+        //:  2 Create a async-file observer, start asynchronous publication,
         //:    and, for a number of iterations, publish a series of records,
         //:    and then repeatedly call 'recordQueueLength' and sanity test
         //:    the returned value (it should be decreasing) until the record
@@ -634,26 +721,31 @@ int main(int argc, char *argv[])
 
             mX.startPublicationThread();
 
-            
+
             bsls::Stopwatch timer;
             timer.start();
-            while (MAX_QUEUE_LENGTH == X.recordQueueLength() &&
-                   timer.elapsedTime() < 5) {
-                bcemt_ThreadUtil::microSleep(10, 0);
+            while (MAX_QUEUE_LENGTH - X.recordQueueLength() <= 5) {
+                bcemt_ThreadUtil::microSleep(100, 0);
+                if (timer.elapsedTime() > 5) {
+                    ASSERTV("Failed to write any log records",
+                            timer.elapsedTime(),
+                            false);
+                }
+
             }
 
             // Note that stopping the publication thread clears the record
             // queue, so we capture a snapshot of the queue length, and then
             // disable publication so we can determine the number of logged
-            // records in the file.  As records may be logged between
-            // accessing the queue length, and disabling publication, we
-            // 'ASSERT' that:
-            // 'MAX_QUEUE_LENGTH - X.recordQueueLength() <= # Logged Records'
+            // records in the file.
 
             const int queueLength = X.recordQueueLength();
+
             mX.disableFileLogging();
 
-            const int numLoggedRecords = countLoggedRecords(fileName);
+            const int numLoggedRecords =
+                countMatchingRecords(fileName,
+                                     "Dropped \\d+ log records", true);
 
             mX.shutdownPublicationThread();
 
@@ -661,8 +753,18 @@ int main(int argc, char *argv[])
                 P_(numLoggedRecords); P_(queueLength);
                 P(MAX_QUEUE_LENGTH - queueLength);
             }
-            ASSERT(MAX_QUEUE_LENGTH > queueLength);
-            ASSERT(numLoggedRecords >= MAX_QUEUE_LENGTH - queueLength);
+
+            // Records may have been logged between assigning 'queueLength'
+            // and disabling publication.  In addition, its possible that 1
+            // record may be discarded (without being logged) as part of
+            // shutting down the publication of logged records.  Therefore:
+            // 'MAX_QUEUE_LENGTH - X.recordQueueLength() - 1 <=
+            //                                             numLoggedRecords
+
+            ASSERTV(MAX_QUEUE_LENGTH, queueLength,
+                    MAX_QUEUE_LENGTH > queueLength);
+            ASSERTV(numLoggedRecords, MAX_QUEUE_LENGTH, queueLength, fileName,
+                    MAX_QUEUE_LENGTH - queueLength - 1 <= numLoggedRecords);
 
             // After shutting down the publication thread, the queue should be
             // cleared.
@@ -1110,7 +1212,7 @@ int main(int argc, char *argv[])
 
                 bsls::Stopwatch timer;
                 timer.start();
-              
+
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
@@ -1299,7 +1401,7 @@ int main(int argc, char *argv[])
 
                 // Wait up to 3 seconds for the async logging to complete
                 bsls::Stopwatch timer;
-                timer.start();                
+                timer.start();
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
@@ -1345,7 +1447,7 @@ int main(int argc, char *argv[])
                 do {
                     bcemt_ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
-                
+
                 {
                     ASSERT(2 == countLoggedRecords(globbuf.gl_pathv[0]));
                     globfree(&globbuf);
@@ -1382,19 +1484,25 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
+      case -3: // FALL THROUGH
       case 3: {
         // --------------------------------------------------------------------
         // TESTING NON-BLOCKING AND BLOCKING CALLER THREAD
         //
         // Concerns:
         //   - Asynchronous observer is configured to drop records when the
-        //     fixed queue is full by default.  An alert should be triggered to
-        //     print to stderr every N dropped records, where N is a
-        //     pre-configured parameter set in constructor.
+        //     fixed queue is full by default.  An alert should be printed
+        //     to the logfile for all dropped records.  This alert should
+        //     not be printed excessively.  (Specifically, it should be
+        //     printed when the queue is half empty or the count has reached
+        //     a threshold).
         //
         //   - Asynchronous observer can be configured to block the caller of
         //     'publish'  when the fixed queue is full instead of dropping
         //     records.  In that case no record should be dropped.
+        //
+        //   - Note, this test can be run as a negative test case.  Doing so
+        //     will preserve the logfiles.
         //
         // Plan:
         //   To test non-blocking caller thread, we will first create an async
@@ -1403,13 +1511,9 @@ int main(int argc, char *argv[])
         //
         //   To test blocking caller thread, we will first create an async file
         //   observer by passing 'true' in the 'blocking' parameter.  Then
-        //   publish a fair large amount of records.  We verify all the records
-        //   published are actually written to file and nothing gets dropped.
-        //
-        //   We test the blocking caller thread first, then the non-blocking
-        //   caller thread because the latter needs to redirect 'stderr' to
-        //   verify the dropped records alerts being correctly raised.  Once
-        //   'stderr' is redirected, it can not be restored.
+        //   publish a fairly large amount of records.  We verify all the
+        //   records published are actually written to file and nothing gets
+        //   dropped.
         //
         // Testing:
         //   This test is for testing non-blocking and blocking caller thread,
@@ -1432,8 +1536,8 @@ int main(int argc, char *argv[])
         {
             bsl::string fileName = tempFileName(veryVerbose);
 
-            int fixedQueueSize     = 8192;
-            Obj mX(bael_Severity::BAEL_WARN,
+            int fixedQueueSize     = 1000;
+            Obj mX(bael_Severity::BAEL_ERROR,
                    false,
                    fixedQueueSize,
                    bael_Severity::BAEL_TRACE,
@@ -1446,7 +1550,6 @@ int main(int argc, char *argv[])
             mX.startPublicationThread();
             ASSERT(X.isPublicationThreadRunning());
             bcemt_ThreadUtil::microSleep(0, 1);
-
 
             multiplexObserver.registerObserver(&mX);
             mX.enableFileLogging(fileName.c_str());
@@ -1472,17 +1575,8 @@ int main(int argc, char *argv[])
         {
             bsl::string fileName = tempFileName(veryVerbose);
 
-            // Redirect stderr to catch dropped records alerts
-
-            bsl::string fileErr = tempFileName(veryVerbose);
-            {
-                const FILE *out = stderr;
-                ASSERT(out == freopen(fileErr.c_str(), "w", stderr));
-                fflush(stderr);
-            }
-
-            int fixedQueueSize     = 8192;
-            Obj mX(bael_Severity::BAEL_WARN,
+            int fixedQueueSize     = 1000;
+            Obj mX(bael_Severity::BAEL_ERROR,
                    false,
                    fixedQueueSize,
                    &ta);
@@ -1499,10 +1593,6 @@ int main(int argc, char *argv[])
             mX.enableFileLogging(fileName.c_str());
             BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
-            int beginFileOffset = bdesu_FileUtil::getFileSize(fileErr);
-            if (verbose)
-                cout << "Begin file offset: " << beginFileOffset << endl;
-
             bael_Context context;
             for (int i = 0;i < numTestRecords; ++i)
                 BAEL_LOG_TRACE << "This will be dropped." << BAEL_LOG_END;
@@ -1512,16 +1602,31 @@ int main(int argc, char *argv[])
             multiplexObserver.deregisterObserver(&mX);
 
             // We should have got the warning
+            int numRecords = countMatchingRecords(fileName, "will be dropped");
+            int numDroppedRecords = accumulateMatchingRecords(
+                                       fileName,
+                                       "Dropped (\\d+) log records");
+            int numDroppedRecordMessages = countMatchingRecords(
+                                       fileName,
+                                       "Dropped \\d+ log records");
 
-            int endFileOffset = bdesu_FileUtil::getFileSize(fileErr);
-            if (verbose)
-                cout << "End file offset: " << endFileOffset << endl;
+            LOOP2_ASSERT(numRecords, numDroppedRecords,
+                         numTestRecords == numRecords + numDroppedRecords);
 
-            ASSERT(endFileOffset > beginFileOffset);
+            // The dropped records messages are printed only when the queue
+            // is half empty or when there are 5000.  The way we've set up
+            // this test, there should be one printed for every 5000 dropped
+            // messages plus an additional one, with any remainder, printed
+            // while the queue is draining.
+            int expectDroppedRecordMessages = (int)bsl::ceil(
+                                                  numDroppedRecords / 5000.0);
+            LOOP2_ASSERT(
+                     numDroppedRecordMessages, expectDroppedRecordMessages,
+                     numDroppedRecordMessages == expectDroppedRecordMessages);
 
-            fclose(stderr);
-            removeFilesByPrefix(fileErr.c_str());
-            removeFilesByPrefix(fileName.c_str());
+            if (0 < test) {
+                removeFilesByPrefix(fileName.c_str());
+            }
         }
       } break;
       case 2: {

@@ -193,7 +193,7 @@ bool bdem_ChoiceArrayImp_AttrFuncs::isEmpty(const void *obj)
                         // -------------------------
 
 // CLASS DATA
-const bdem_Descriptor bdem_ChoiceArrayImp::d_choiceArrayAttr =
+const bdem_Descriptor bdem_ChoiceArrayImp::s_choiceArrayAttr =
 {
     bdem_ElemType::BDEM_CHOICE_ARRAY,
     sizeof(bdem_ChoiceArrayImp),
@@ -419,7 +419,7 @@ bdem_ElemRef bdem_ChoiceArrayImp::itemElemRef(int itemIndex)
     const int offset   = itemIndex % BDEM_BITS_PER_INT;
 
     return bdem_ElemRef(&d_headers[itemIndex],
-                        &bdem_ChoiceHeader::d_choiceItemAttr,
+                        &bdem_ChoiceHeader::s_choiceItemAttr,
                         &d_nullBits[arrayIdx],
                         offset);
 }
@@ -489,7 +489,7 @@ bdem_ConstElemRef bdem_ChoiceArrayImp::itemElemRef(int itemIndex) const
     const int offset   = itemIndex % BDEM_BITS_PER_INT;
 
     return bdem_ConstElemRef(&d_headers[itemIndex],
-                             &bdem_ChoiceHeader::d_choiceItemAttr,
+                             &bdem_ChoiceHeader::s_choiceItemAttr,
                              &d_nullBits[arrayIdx],
                              offset);
 }

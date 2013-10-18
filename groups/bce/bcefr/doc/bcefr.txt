@@ -48,7 +48,46 @@
  appropriate function in the 'bcefu' package.  See that package for additional
  information.
 
-/USAGE
+/Hierarchical Synopsis
+/---------------------
+ The 'bcefr' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bcefr_vfunc0
+     bcefr_vfunc1
+     bcefr_vfunc2
+     bcefr_vfunc3
+     bcefr_vfunc4
+     bcefr_vfunc5
+     bcefr_vfunc6
+..
+
+/Component Synopsis
+/------------------
+: 'bcefr_vfunc0':
+:      Provide a common reference-counted base class representation.
+:
+: 'bcefr_vfunc1':
+:      Provide a common reference-counted base class representation.
+:
+: 'bcefr_vfunc2':
+:      Provide a common reference-counted base class representation.
+:
+: 'bcefr_vfunc3':
+:      Provide a common reference-counted base class representation.
+:
+: 'bcefr_vfunc4':
+:      Provide a common reference-counted base class representation.
+:
+: 'bcefr_vfunc5':
+:      Provide a common reference-counted base class representation.
+:
+: 'bcefr_vfunc6':
+:      Provide a common reference-counted base class representation.
+
+/Usage
 /-----
  Most clients will not use 'bcefr' or 'bcefi' classes directly; rather, they
  will create 'bcef' functors, and populate them with utility functions from the
@@ -56,4 +95,4 @@
  examples that illustrate this usage.
 
  In order to understand in detail how the 'bcefr' components and classes work,
- refer to the usage example in Component 'bcefr_vfunc2'.
+ refer {'bcefr_vfunc2'|USAGE}.

@@ -1,4 +1,4 @@
-// bteso_streamsocketfactory.h       -*-C++-*-
+// bteso_streamsocketfactory.h                                        -*-C++-*-
 #ifndef INCLUDED_BTESO_STREAMSOCKETFACTORY
 #define INCLUDED_BTESO_STREAMSOCKETFACTORY
 
@@ -6,8 +6,6 @@
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
-
-
 
 //@PURPOSE: Provide protocol for a factory producing stream sockets.
 //
@@ -27,6 +25,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+// Example 1: Allocating Stream Sockets using a Stream Socket Factory
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code demonstrate how to use a socket factory for
 // allocating sockets of IPv4 address type.  We assume that there is a
 // function 'f' that needs to use IPv4 sockets.  This function will get an
@@ -54,7 +56,29 @@ BDES_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-// See 'bteso_streamsocket' for in-depth usage examples.
+// Example 2: Binding a Stream Socket to a 'bdema_ManagedPtr'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// It is occasionally necessary to create smart pointers to manage a
+// 'bteso_StreamSocket' object.  The example below shows the syntax for
+// constructing managed pointer object for a stream socket using
+// 'bteso_StreamSocketFactoryDeleter'.  This example assumes that a concrete
+// 'bteso_StreamSocketFactory' named 'factory' is available and can be used to
+// allocate stream socket objects. 
+//
+// First, we allocate a stream socket:
+//..
+//  bteso_StreamSocket<bteso_IPv4Address> *sa  = factory->allocate();
+//..
+// Then, we construct a managed pointer to a stream socket:
+//..
+//  typedef bteso_StreamSocketFactoryDeleter Deleter;
+//
+//  bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
+//                     saManagedPtr(sa,
+//                                  factory,
+//                                  &Deleter::deleteObject<bteso_IPv4Address>);
+//..
+// See 'bteso_streamsocket' for more in-depth usage examples.
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>
@@ -139,6 +163,27 @@ class bteso_StreamSocketFactoryAutoDeallocateGuard {
         // Release the proctored socket from management by this proctor.
 };
 
+             // ======================================
+             // class bteso_StreamSocketFactoryDeleter
+             // ======================================
+
+struct bteso_StreamSocketFactoryDeleter {
+    // This 'struct' implements a 'deleter' function, 'deleteObject', for
+    // destroying stream socket objects using a specified 'factory'.  The
+    // method 'deleteObject' matches the signature of a factory function that
+    // can be supplied to 'bdema_ManagedPtr'.
+
+    // CLASS METHODS
+    template <typename ADDRESS>
+    static void deleteObject(void *socket, void *factory);
+        // Deallocate the specified 'socket' using the specified 'factory'.
+        // The behavior is undefined unless 'socket' was allocated using
+        // 'factory'.  Note that this function matches the signature of a
+        // factory function that can be supplied to 'bdema_ManagedPtr', and is
+        // intended to simplify the creation of managed-pointers to
+        // 'bteso_StreamSocket' objects.
+};
+
 // ===========================================================================
 //                         INLINE FUNCTIONS DEFINITIONS
 // ===========================================================================
@@ -153,8 +198,8 @@ inline
 bteso_StreamSocketFactory<ADDRESS>::~bteso_StreamSocketFactory()
 {
 }
-
 // Implementation note: destructor is inlined to avoid template repository.
+
 
              // --------------------------------------------------
              // class bteso_StreamSocketFactoryAutoDeallocateGuard
@@ -218,6 +263,24 @@ void bteso_StreamSocketFactoryAutoDeallocateGuard<ADDRESS>::release()
 {
     d_arena.d_socket_p = 0;
     d_resetFlag = false;
+}
+
+                        // --------------------------------------
+                        // class bteso_StreamSocketFactoryDeleter
+                        // --------------------------------------
+
+template <typename ADDRESS>
+void bteso_StreamSocketFactoryDeleter::deleteObject(void *socket,
+                                                    void *factory)
+{
+    typedef bteso_StreamSocket<ADDRESS>        StreamSocket;
+    typedef bteso_StreamSocketFactory<ADDRESS> StreamSocketFactory;
+
+    StreamSocket        *streamSocketPtr = static_cast<StreamSocket *>(socket);
+    StreamSocketFactory *socketFactoryPtr =
+                                   static_cast<StreamSocketFactory *>(factory);
+
+    socketFactoryPtr->deallocate(streamSocketPtr);
 }
 
 }  // close namespace BloombergLP

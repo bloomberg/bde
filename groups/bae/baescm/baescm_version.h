@@ -91,14 +91,14 @@ struct baescm_Version {
     // (versioning) information that is embedded in binary executable files,
     // and (2) a facility to query that information at runtime.
 
-    static const char *d_ident;              // RCS-style version string
-    static const char *d_what;               // SCCS-style version string
+    static const char *s_ident;              // RCS-style version string
+    static const char *s_what;               // SCCS-style version string
 
-    static const char *d_version;            // BDE-style version string
-    static const char *d_dependencies;       // available for future use
-    static const char *d_buildInfo;          // available for future use
-    static const char *d_timestamp;          // available for future use
-    static const char *d_sourceControlInfo;  // available for future use
+    static const char *s_version;            // BDE-style version string
+    static const char *s_dependencies;       // available for future use
+    static const char *s_buildInfo;          // available for future use
+    static const char *s_timestamp;          // available for future use
+    static const char *s_sourceControlInfo;  // available for future use
 
     // CLASS METHODS
     static const char *version();
@@ -114,17 +114,17 @@ struct baescm_Version {
 inline
 const char *baescm_Version::version()
 {
-    return d_version;
+    return s_version;
 }
 
 // Force linker to pull in this component's object file.
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-static const char **baescm_version_assertion = &baescm_Version::d_version;
+static const char **baescm_version_assertion = &baescm_Version::s_version;
 #else
 namespace {
     extern const char **const baescm_version_assertion =
-                                                    &baescm_Version::d_version;
+                                                    &baescm_Version::s_version;
 }
 #endif
 

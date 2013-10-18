@@ -925,7 +925,7 @@ static bdem_List                            fB20() {
                                  t.appendString(B06);
                                  t.appendStringArray(B16); return t; }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr are
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr are
 // 0x00000000 before entering main().  Consequently, the calls in fA20() and
 // fB20() to t.appendInt() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -975,7 +975,7 @@ static bdem_Table                               fB21() {
                                     return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -1019,7 +1019,7 @@ static bdem_Choice                              fB30() {
                           return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -1069,7 +1069,7 @@ static bdem_ChoiceArray                         fB31() {
                       return t;
 }
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
@@ -11884,7 +11884,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-// Note: on Windows, the function pointers in bdem_Properties::d_intAttr
+// Note: on Windows, the function pointers in bdem_Properties::s_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.

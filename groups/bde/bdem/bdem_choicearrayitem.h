@@ -236,8 +236,8 @@ BDES_IDENT("$Id: $")
 //  int main() {
 //
 //      static const bdem_Descriptor *DESCRIPTORS[] = {
-//          &bdem_Properties::d_stringAttr,
-//          &bdem_Properties::d_doubleAttr
+//          &bdem_Properties::s_stringAttr,
+//          &bdem_Properties::s_doubleAttr
 //      };
 //
 //      my_ChoiceArray theArray(DESCRIPTORS, 2);

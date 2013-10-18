@@ -5222,7 +5222,7 @@ void testCase22() {
 
         newManipulator.reset();
         int selector = 0;
-        const CERef  RefSelector(&selector, &bdem_Properties::d_intAttr);
+        const CERef  RefSelector(&selector, &bdem_Properties::s_intAttr);
         values.push_back(RefSelector);
         const CERef& RefH = getCERef(ET::BDEM_CHAR, 1);
         values.push_back(RefH);
@@ -5235,7 +5235,7 @@ void testCase22() {
 
         newManipulator.reset();
         int numItems = 1;
-        const CERef  RefNI(&numItems, &bdem_Properties::d_intAttr);
+        const CERef  RefNI(&numItems, &bdem_Properties::s_intAttr);
         const CERef& RefI = getCERef(ET::BDEM_INT, 1);
         values.push_back(RefNI);
         values.push_back(RefI);
@@ -5273,8 +5273,8 @@ void testCase22() {
 
         newManipulator.reset();
         int s1 = 0, s2 = 1;
-        const CERef  RefS1(&s1, &bdem_Properties::d_intAttr);
-        const CERef  RefS2(&s2, &bdem_Properties::d_intAttr);
+        const CERef  RefS1(&s1, &bdem_Properties::s_intAttr);
+        const CERef  RefS2(&s2, &bdem_Properties::s_intAttr);
         const CERef& RefKA = getCERef(ET::BDEM_CHAR, 1);
         const CERef& RefKB = getCERef(ET::BDEM_SHORT, 1);
         values.push_back(RefNI);
@@ -5302,7 +5302,7 @@ void testCase22() {
 
         newManipulator.reset();
         int enumId = 1;
-        const CERef enumRef1(&enumId, &bdem_Properties::d_intAttr);
+        const CERef enumRef1(&enumId, &bdem_Properties::s_intAttr);
         values.push_back(enumRef1);
         SF::manipulateAttribute(&mB, newManipulator, "m", 1);
         B.getField(&mX, &err, false, "m");
@@ -5318,7 +5318,7 @@ void testCase22() {
         newManipulator.reset();
         enumId = 1;
         bsl::string enumString = "1";
-        const CERef enumRef2(&enumString, &bdem_Properties::d_stringAttr);
+        const CERef enumRef2(&enumString, &bdem_Properties::s_stringAttr);
         values.push_back(enumRef2);
         SF::manipulateAttribute(&mB, newManipulator, "m", 1);
         B.getField(&mX, &err, false, "m");
@@ -9661,8 +9661,8 @@ void testCase9() {
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
-                    const CERef CL(&list, &bdem_ListImp::d_listAttr);
-                    const CERef CT(&table, &bdem_TableImp::d_tableAttr);
+                    const CERef CL(&list, &bdem_ListImp::s_listAttr);
+                    const CERef CT(&table, &bdem_TableImp::s_tableAttr);
 
                     bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
                     bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
@@ -9736,9 +9736,9 @@ void testCase9() {
 
                     if (veryVerbose) { T_ P(X) P(Y) };
 
-                    const CERef CC(&choice, &bdem_ChoiceImp::d_choiceAttr);
+                    const CERef CC(&choice, &bdem_ChoiceImp::s_choiceAttr);
                     const CERef CCA(&choiceArray,
-                                    &bdem_ChoiceArrayImp::d_choiceArrayAttr);
+                                    &bdem_ChoiceArrayImp::s_choiceArrayAttr);
 
                     bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
                     bsl::ostringstream exp6, exp7, exp8, exp9, exp10;

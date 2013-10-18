@@ -6,6 +6,7 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bdex_byteoutstreamformatter.h>
+#include <bdex_testoutstream.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
@@ -26,9 +27,11 @@ using namespace bsl;  // automatically added by script
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -138,9 +141,9 @@ class BlobBufferFactory : public bcema_BlobBufferFactory {
 
 typedef bcema_BlobUtil Util;
 
-static int verbose;
-static int veryVerbose;
-static int veryVeryVerbose;
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
 
 //=============================================================================
 //              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
@@ -169,7 +172,7 @@ int ggg(bsl::string *result, int length)
         result->append(DATA, nbytes);
         capacity -= nbytes;
     } while (capacity > 0);
-    ASSERT(result->length() == length);
+    ASSERT(result->length() == size_t(length));
     return 0;
 }
 
@@ -298,6 +301,8 @@ bsl::string expectedOutCase3[] = {
     "   240:   61626364 65203331 61626364 65203332     |abcde 31abcde 32|\n"
     "   256:   61626364 65203333                       |abcde 33        |"
 };
+
+}  // close anonymous namespace
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -896,8 +901,41 @@ int main(int argc, char *argv[]) {
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'append' Function"
-                          << "\n=========================" << endl;
+        if (verbose) cout << "\nTesting 'write' special cases"
+                          << "\n=============================" << endl;
+
+        // writing zero bytes from an empty blob
+        {
+            bcema_Blob emptyBlob;
+            bdex_TestOutStream blobStream;
+            ASSERT(bcema_BlobUtil::write(blobStream, emptyBlob, 0, 0) == 0);
+            ASSERT(blobStream.length() == 0);
+        }
+
+        // writing non-zero bytes from an empty blob
+        {
+            bcema_Blob emptyBlob;
+            bdex_TestOutStream blobStream;
+            ASSERT(bcema_BlobUtil::write(blobStream, emptyBlob, 0, 1) != 0);
+            ASSERT(blobStream.length() == 0);
+        }
+
+        // writing zero bytes from a non-empty blob
+        {
+            // create a non-empty blob
+            size_t size = 10;
+            BlobBufferFactory blobFactory(size);
+            bcema_Blob nonemptyBlob(&blobFactory);
+            nonemptyBlob.setLength(size);
+
+            // write blob
+            bdex_TestOutStream blobStream;
+            ASSERT(bcema_BlobUtil::write(blobStream, nonemptyBlob, 0, 0) == 0);
+            ASSERT(blobStream.length() == 0);
+        }
+
+        if (verbose) cout << "\nTesting 'append and write' functions"
+                          << "\n====================================" << endl;
 
         static const struct {
             int         d_lineNum;

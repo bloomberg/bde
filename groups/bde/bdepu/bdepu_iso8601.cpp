@@ -21,7 +21,6 @@ BDES_IDENT_RCSID(bdepu_iso8601_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // STATIC HELPER FUNCTIONS
-
 static
 int parseUint(const char **nextPos,
               int         *result,
@@ -378,6 +377,39 @@ char *generateInt(char *buffer, int val, int len, char separator)
 }
 
 static
+char *generateTimeZoneOffset(char *buffer,
+                             int   tzOffset,
+                             bool  useZAbbreviationForUtc)
+    // Write into the specified 'buffer', the formatted time zone offset
+    // indicated by 'tzOffset', which is the character 'Z' if 'tzOffset' is 0
+    // and the specified 'useZAbbreviationForUtc' is 'true', and a numeric
+    // offset otherwise.
+{
+    if (0 == tzOffset && useZAbbreviationForUtc) {
+        *buffer++ = 'Z';
+    }
+    else {
+        char timezoneSign;
+
+        if (0 > tzOffset) {
+            tzOffset     = -tzOffset;
+            timezoneSign = '-';
+        }
+        else {
+            timezoneSign = '+';
+        }
+
+        // TZ offset cannot be more than 24 hours.
+
+        BSLS_ASSERT(tzOffset <= 24 * 60);
+        *buffer++ = timezoneSign;
+        buffer = generateInt(buffer, tzOffset / 60        , 2, ':');
+        buffer = generateInt(buffer, tzOffset % 60        , 2     );
+    }
+    return buffer;
+}
+
+static
 int copyBuf(char *dest, int destLen, const char *src, int srcLen)
     // Copy the contents of the specified 'src' string having the specified
     // 'srcLen' into the specified 'dest' buffer having the specified
@@ -407,6 +439,7 @@ int copyBuf(char *dest, int destLen, const char *src, int srcLen)
 
                            // *** GENERATING FUNCTIONS
 
+// CLASS METHODS
 int bdepu_Iso8601::generate(char             *buffer,
                             const bdet_Date&  object,
                             int               bufLen)
@@ -416,47 +449,10 @@ int bdepu_Iso8601::generate(char             *buffer,
 
     char outBuf[BDEPU_DATE_STRLEN];
     int  outLen = generateRaw(outBuf, object);
-    BSLS_ASSERT(outLen == sizeof(outBuf));
-    return copyBuf(buffer, bufLen, outBuf, sizeof(outBuf));
-}
 
-int bdepu_Iso8601::generate(char                 *buffer,
-                            const bdet_Datetime&  object,
-                            int                   bufLen)
-{
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
+    BSLS_ASSERT(outLen = sizeof(outBuf));
 
-    char outBuf[BDEPU_DATETIME_STRLEN];
-    int  outLen = generateRaw(outBuf, object);
-    BSLS_ASSERT(outLen == sizeof(outBuf));
-    return copyBuf(buffer, bufLen, outBuf, sizeof(outBuf));
-}
-
-int bdepu_Iso8601::generate(char                   *buffer,
-                            const bdet_DatetimeTz&  object,
-                            int                     bufLen)
-{
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
-
-    char outBuf[BDEPU_DATETIMETZ_STRLEN];
-    int  outLen = generateRaw(outBuf, object);
-    BSLS_ASSERT(outLen == sizeof(outBuf));
-    return copyBuf(buffer, bufLen, outBuf, sizeof(outBuf));
-}
-
-int bdepu_Iso8601::generate(char               *buffer,
-                            const bdet_DateTz&  object,
-                            int                 bufLen)
-{
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
-
-    char outBuf[BDEPU_DATETZ_STRLEN];
-    int  outLen = generateRaw(outBuf, object);
-    BSLS_ASSERT(outLen == sizeof(outBuf));
-    return copyBuf(buffer, bufLen, outBuf, sizeof(outBuf));
+    return copyBuf(buffer, bufLen, outBuf, outLen);
 }
 
 int bdepu_Iso8601::generate(char             *buffer,
@@ -469,21 +465,79 @@ int bdepu_Iso8601::generate(char             *buffer,
     char outBuf[BDEPU_TIME_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
-    return copyBuf(buffer, bufLen, outBuf, sizeof(outBuf));
+    return copyBuf(buffer, bufLen, outBuf, outLen);
+}
+
+int bdepu_Iso8601::generate(char                 *buffer,
+                            const bdet_Datetime&  object,
+                            int                   bufLen)
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
+    char outBuf[BDEPU_DATETIME_STRLEN];
+    int  outLen = generateRaw(outBuf, object);
+
+    BSLS_ASSERT(outLen == sizeof(outBuf));
+
+    return copyBuf(buffer, bufLen, outBuf, outLen);
+}
+
+
+int bdepu_Iso8601::generate(char               *buffer,
+                            const bdet_DateTz&  object,
+                            int                 bufLen,
+                            bool                useZAbbreviationForUtc)
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
+    char outBuf[BDEPU_DATETZ_STRLEN];
+    int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
+
+    BSLS_ASSERT(outLen == sizeof(outBuf) ||
+                (0 == object.offset() && useZAbbreviationForUtc &&
+                 outLen <= static_cast<int>(sizeof(outBuf))));
+
+    return copyBuf(buffer, bufLen, outBuf, outLen);
 }
 
 int bdepu_Iso8601::generate(char               *buffer,
                             const bdet_TimeTz&  object,
-                            int                 bufLen)
+                            int                 bufLen,
+                            bool                useZAbbreviationForUtc)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufLen);
 
     char outBuf[BDEPU_TIMETZ_STRLEN];
-    int  outLen = generateRaw(outBuf, object);
-    BSLS_ASSERT(outLen == sizeof(outBuf));
-    return copyBuf(buffer, bufLen, outBuf, sizeof(outBuf));
+    int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
+
+    BSLS_ASSERT(outLen == sizeof(outBuf) ||
+                (0 == object.offset() && useZAbbreviationForUtc &&
+                 outLen <= static_cast<int>(sizeof(outBuf))));
+
+    return copyBuf(buffer, bufLen, outBuf, outLen);
 }
+
+int bdepu_Iso8601::generate(char                   *buffer,
+                            const bdet_DatetimeTz&  object,
+                            int                     bufLen,
+                            bool                    useZAbbreviationForUtc)
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufLen);
+
+    char outBuf[BDEPU_DATETIMETZ_STRLEN];
+    int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
+
+    BSLS_ASSERT(outLen == sizeof(outBuf) ||
+                (0 == object.offset() && useZAbbreviationForUtc &&
+                 outLen <= static_cast<int>(sizeof(outBuf))));
+
+    return copyBuf(buffer, bufLen, outBuf, outLen);
+}
+
 
 int bdepu_Iso8601::generateRaw(char             *buffer,
                                const bdet_Date&  object)
@@ -494,6 +548,20 @@ int bdepu_Iso8601::generateRaw(char             *buffer,
     outp = generateInt(outp, object.year() , 4, '-');
     outp = generateInt(outp, object.month(), 2, '-');
     outp = generateInt(outp, object.day()  , 2     );
+
+    return outp - buffer;
+}
+
+int bdepu_Iso8601::generateRaw(char             *buffer,
+                               const bdet_Time&  object)
+{
+    BSLS_ASSERT(buffer);
+
+    char *outp = buffer;
+    outp = generateInt(outp, object.hour()       , 2, ':');
+    outp = generateInt(outp, object.minute()     , 2, ':');
+    outp = generateInt(outp, object.second()     , 2, '.');
+    outp = generateInt(outp, object.millisecond(), 3     );
 
     return outp - buffer;
 }
@@ -515,25 +583,53 @@ int bdepu_Iso8601::generateRaw(char                 *buffer,
     return outp - buffer;
 }
 
-int bdepu_Iso8601::generateRaw(char                   *buffer,
-                               const bdet_DatetimeTz&  object)
+int bdepu_Iso8601::generateRaw(char               *buffer,
+                               const bdet_DateTz&  object,
+                               bool                useZAbbreviationForUtc)
 {
     BSLS_ASSERT(buffer);
 
-    int  timezoneOffset = object.offset();
-    char timezoneSign;
+    bdet_Date localDate = object.localDate();
 
-    if (0 > timezoneOffset) {
-        timezoneOffset = -timezoneOffset;
-        timezoneSign   = '-';
-    }
-    else {
-        timezoneSign = '+';
-    }
+    char *outp = buffer;
+    outp = generateInt(outp, localDate.year()   , 4, '-');
+    outp = generateInt(outp, localDate.month()  , 2, '-');
+    outp = generateInt(outp, localDate.day()    , 2);
+    outp = generateTimeZoneOffset(outp,
+                                  object.offset(),
+                                  useZAbbreviationForUtc);
 
-    // TZ offset cannot be more than 24 hours.
+    return outp - buffer;
+}
 
-    BSLS_ASSERT(timezoneOffset <= 24 * 60);
+
+int bdepu_Iso8601::generateRaw(char               *buffer,
+                               const bdet_TimeTz&  object,
+                               bool                useZAbbreviationForUtc)
+{
+    BSLS_ASSERT(buffer);
+
+    char *outp = buffer;
+
+    bdet_Time localTime = object.localTime();
+
+    outp = generateInt(outp, localTime.hour()        , 2, ':');
+    outp = generateInt(outp, localTime.minute()      , 2, ':');
+    outp = generateInt(outp, localTime.second()      , 2, '.');
+    outp = generateInt(outp, localTime.millisecond() , 3);
+    outp = generateTimeZoneOffset(outp,
+                                  object.offset(),
+                                  useZAbbreviationForUtc);
+
+    return outp - buffer;
+}
+
+int bdepu_Iso8601::generateRaw(char                   *buffer,
+                               const bdet_DatetimeTz&  object,
+                               bool                    useZAbbreviationForUtc)
+{
+
+    BSLS_ASSERT(buffer);
 
     bdet_Datetime localDatetime = object.localDatetime();
 
@@ -544,91 +640,15 @@ int bdepu_Iso8601::generateRaw(char                   *buffer,
     outp = generateInt(outp, localDatetime.hour()       , 2, ':');
     outp = generateInt(outp, localDatetime.minute()     , 2, ':');
     outp = generateInt(outp, localDatetime.second()     , 2, '.');
-    outp = generateInt(outp, localDatetime.millisecond(), 3, timezoneSign);
-    outp = generateInt(outp, timezoneOffset / 60        , 2, ':');
-    outp = generateInt(outp, timezoneOffset % 60        , 2     );
+    outp = generateInt(outp, localDatetime.millisecond(), 3);
+    outp = generateTimeZoneOffset(outp,
+                                  object.offset(),
+                                  useZAbbreviationForUtc);
 
     return outp - buffer;
 }
 
-int bdepu_Iso8601::generateRaw(char               *buffer,
-                               const bdet_DateTz&  object)
-{
-    BSLS_ASSERT(buffer);
 
-    int  timezoneOffset = object.offset();
-    char timezoneSign;
-
-    if (0 > timezoneOffset) {
-        timezoneOffset = -timezoneOffset;
-        timezoneSign   = '-';
-    }
-    else {
-        timezoneSign = '+';
-    }
-
-    // TZ offset cannot be more than 24 hours.
-
-    BSLS_ASSERT(timezoneOffset <= 24 * 60);
-
-    bdet_Date localDate = object.localDate();
-
-    char *outp = buffer;
-    outp = generateInt(outp, localDate.year()   , 4, '-');
-    outp = generateInt(outp, localDate.month()  , 2, '-');
-    outp = generateInt(outp, localDate.day()    , 2, timezoneSign);
-    outp = generateInt(outp, timezoneOffset / 60, 2, ':');
-    outp = generateInt(outp, timezoneOffset % 60, 2     );
-
-    return outp - buffer;
-}
-
-int bdepu_Iso8601::generateRaw(char             *buffer,
-                               const bdet_Time&  object)
-{
-    BSLS_ASSERT(buffer);
-
-    char *outp = buffer;
-    outp = generateInt(outp, object.hour()       , 2, ':');
-    outp = generateInt(outp, object.minute()     , 2, ':');
-    outp = generateInt(outp, object.second()     , 2, '.');
-    outp = generateInt(outp, object.millisecond(), 3     );
-
-    return outp - buffer;
-}
-
-int bdepu_Iso8601::generateRaw(char               *buffer,
-                               const bdet_TimeTz&  object)
-{
-    BSLS_ASSERT(buffer);
-
-    char *outp = buffer;
-    int  timezoneOffset = object.offset();
-    char timezoneSign;
-
-    if (0 > timezoneOffset) {
-        timezoneOffset = -timezoneOffset;
-        timezoneSign   = '-';
-    }
-    else {
-        timezoneSign = '+';
-    }
-
-    // TZ offset cannot be more than 24 hours.
-
-    BSLS_ASSERT(timezoneOffset <= 24 * 60);
-
-    bdet_Time localTime = object.localTime();
-
-    outp = generateInt(outp, localTime.hour()        , 2, ':');
-    outp = generateInt(outp, localTime.minute()      , 2, ':');
-    outp = generateInt(outp, localTime.second()      , 2, '.');
-    outp = generateInt(outp, localTime.millisecond() , 3, timezoneSign);
-    outp = generateInt(outp, timezoneOffset / 60     , 2, ':');
-    outp = generateInt(outp, timezoneOffset % 60     , 2     );
-
-    return outp - buffer;
-}
 
                            // *** PARSING FUNCTIONS
 
@@ -753,7 +773,7 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
     // of 19.  Timezone may be optionally specified:
     // "2005-01-31T08:59:59.999-04:00".  Also, there might be more than 3
     // decimal places for the fraction of a second.  But when storing in
-    // bdet_Datetime, we only take the 4 most significant digits.h rouneded to
+    // bdet_Datetime, we only take the 4 most significant digits rounded to
     // 3 digits.
 
     enum { MINIMUM_LENGTH = 19 };
@@ -1011,6 +1031,26 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
     result->setDatetimeTz(localDatetime, timezoneOffset);
     return 0;
 }
+
+                        // ---------------------------------
+                        // struct bdepu_Iso8601Configuration
+                        // ---------------------------------
+
+// GLOBAL CONFIGURATION
+bool bdepu_Iso8601Configuration::s_useZAbbreviationForUtc = false;
+
+// CLASS METHODS
+void bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(
+                                               bool useZAbbreviationForUtcFlag)
+{
+    s_useZAbbreviationForUtc = useZAbbreviationForUtcFlag;
+}
+
+bool bdepu_Iso8601Configuration::useZAbbreviationForUtc()
+{
+    return s_useZAbbreviationForUtc;
+}
+
 
 }  // close namespace BloombergLP
 

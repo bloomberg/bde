@@ -210,7 +210,7 @@ class bdem_TableImp {
     BSLMF_NESTED_TRAIT_DECLARATION(bdem_TableImp, bslma::UsesBslmaAllocator);
 
     // CLASS DATA
-    static const bdem_Descriptor d_tableAttr;
+    static const bdem_Descriptor  s_tableAttr;
         // Attributes of the 'bdem_TableImp' class.  Contains pointers to
         // functions for construction, destruction, assignment, equality test,
         // etc.

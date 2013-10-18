@@ -18,6 +18,10 @@
 #include <bdesb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdesb_fixedmeminstreambuf.h>        // for testing only
 
+#include <bcema_blob.h>                       // for testing only
+#include <bcema_pooledblobbufferfactory.h>    // for testing only
+#include <bcesb_blobstreambuf.h>              // for testing only
+
 #include <bcem_aggregate.h>
 
 using namespace BloombergLP;
@@ -45,6 +49,7 @@ using bsl::endl;
 //
 // MANIPULATORS
 // [ 9] void reset(bsl::streambuf &streamBuf);
+// [12] void resetStreamBufGetPointer();
 // [ 3] int advanceToNextToken();
 //
 // ACCESSORS
@@ -162,6 +167,46 @@ bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
 #undef CASE
 }
 
+void confirmStreamBufReset(bsl::streambuf     *sb,
+                           int                 LINE,
+                           int                 NADV,
+                           int                 NAVAIL,
+                           const bsl::string&  EXPECTED,
+                           bool                sbEmptyInitially,
+                           bool                checkNumAvailAfterReset = true)
+{
+    Obj mX;  const Obj& X = mX;
+    ASSERTV(LINE, X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+
+    mX.reset(sb);
+
+    for (int i = 0; i < NADV; ++i) {
+        ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
+    }
+
+    int numAvail = sb->in_avail();
+    if (sbEmptyInitially) {
+        ASSERTV(LINE, numAvail, 0 == numAvail || -1 == numAvail);
+    }
+
+    int rc = mX.resetStreamBufGetPointer();
+    ASSERTV(LINE, rc, 0 == rc);
+
+    if (NAVAIL > 0) {
+        if (checkNumAvailAfterReset) {
+            numAvail = sb->in_avail();
+            ASSERTV(LINE, numAvail, NAVAIL, NAVAIL == numAvail);
+        }
+
+        bsl::string actual;
+        actual.resize(NAVAIL);
+
+        rc = sb->sgetn(&actual[0], NAVAIL);
+        ASSERTV(LINE, NAVAIL, rc, NAVAIL == rc);
+        ASSERTV(LINE, EXPECTED, actual, EXPECTED == actual);
+    }
+}
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -183,7 +228,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -314,6 +359,331 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == address["state"].asString());
     ASSERT(10022           == address["zipcode"].asInt());
 //..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'resetStreamBufGetPointer'
+        //
+        // Concerns:
+        //: 1 'resetStreamBufGetPointer' correctly resets the offset of the
+        //:   underlying 'streambuf' to the next character after a token.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text with an 'X' at the expected final
+        //:   location, the number of 'advanceToNextToken' calls to be made,
+        //:   and the number of available characters in the 'streambuf' after
+        //:   the function call.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
+        //:
+        //:   2 Create a 'baejsn_Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'iss' with 'mX'.
+        //:
+        //:   3 Confirm that no characters are available in the 'streambuf'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the specified number of
+        //:     times.
+        //:
+        //:   4 Confirm that the value of that token is as expected.
+        //
+        // Testing:
+        //   int resetStreamBufGetPointer();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING that strings with escaped quotes "
+                          << "are handled correctly" << endl;
+
+// Define data block of 1400 bytes
+
+#define DATA_TEXT                                                             \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+        const struct {
+            int             d_line;
+            const char     *d_text_p;
+            int             d_numAdvances;
+            int             d_numAvail;
+        } DATA[] = {
+        // line   value            nAdv      nAvail
+        // ----   -----            ----      ------
+
+        { L_,   "",                  0,           0   },
+        { L_,   "{}",                2,           0   },
+
+        { L_,   "{} ",               2,           1   },
+        { L_,   "{}\n",              2,           1   },
+        { L_,   "{}X",               2,           1   },
+
+        { L_,   "{}\n ",             2,           2   },
+        { L_,   "{}X ",              2,           2   },
+        { L_,   "{} X",              2,           2   },
+
+        { L_,   "{}          ",      2,          10   },
+        { L_,   "{}      1234",      2,          10   },
+        { L_,   "{}1234567890",      2,          10   },
+
+        {
+          L_,
+          "{ \"x\" : \"" DATA_TEXT "X\"}",
+          4,
+          0
+        },
+        {
+          L_,
+          "{ \"x\" : \"" DATA_TEXT " X\"} ",
+          4,
+          1
+        },
+        {
+          L_,
+          "{ \"x\" : \"X\"}   " DATA_TEXT "\"} ",
+          4,
+          1406
+        },
+        {
+          L_,
+          "{ \"x\" : \"" DATA_TEXT "X\"} X",
+          4,
+          2
+        },
+        {
+          L_,
+          "{ \"x\" : \"" DATA_TEXT "X\"}X\n",
+          4,
+          2
+        },
+        {
+          L_,
+          "{ \"x\" : \" X\" }  \n" DATA_TEXT "X\"}X\n",
+          4,
+          1408
+        },
+        {
+          L_,
+          "{ \"x\" : \"" DATA_TEXT "X\"}1234567890",
+          4,
+          10
+        },
+        {
+          L_,
+          "{ \"x\" : \"" DATA_TEXT DATA_TEXT "X\"}1234567890",
+          4,
+          10
+        },
+        {
+          L_,
+          "{ \"x\" : \"X\" }   " DATA_TEXT DATA_TEXT DATA_TEXT "\"}1234567890",
+          4,
+          4215
+        },
+
+        // Total data just less than 8K
+
+        {
+          L_,
+          "{ \"x\" : \"X\" }   "
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\"}1234",
+          4,
+          8177
+        },
+
+        // Total data equal to 8K
+
+        {
+          L_,
+          "{ \"x\" : \"X\" }   "
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\"}12345",
+          4,
+          8178
+        },
+
+        // Total data one greater than 8K
+
+        {
+          L_,
+          "{ \"x\" : \"X\" }   "
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\"}123456",
+          4,
+          8178
+        },
+
+        // Total data a lot greater than 8K
+
+        {
+          L_,
+          "{ \"x\" : \"X\" }   "
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\"}123456",
+          4,
+          8178
+        },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        const int BUFSIZE = 8192;
+
+        for (int ti = 0; ti < NUM_DATA; ++ ti) {
+            const int            LINE   = DATA[ti].d_line;
+            const string         TEXT   = DATA[ti].d_text_p;
+            const int            NADV   = DATA[ti].d_numAdvances;
+            const int            NAVAIL = DATA[ti].d_numAvail;
+            const bsl::string    EXPECTED(TEXT.end() - NAVAIL, TEXT.end());
+            const bool           EMPTY = TEXT.size() < BUFSIZE;
+
+            if (veryVerbose) {
+                P_(LINE) P_(TEXT)  P_(TEXT.size())  P_(NADV) P(NAVAIL)
+            }
+
+            // Try different 'streambuf' types
+
+            // default 'bsl::streambuf' implementation
+            {
+                bsl::ostringstream os;
+                os << TEXT;
+
+                bsl::istringstream iss(os.str());
+
+                bsl::streambuf *sb = iss.rdbuf();
+
+                confirmStreamBufReset(sb,
+                                      LINE,
+                                      NADV,
+                                      NAVAIL,
+                                      EXPECTED,
+                                      EMPTY);
+            }
+
+            // 'bdesb_FixedMemInStreamBuf'
+            {
+                bdesb_MemOutStreamBuf osb;
+                bsl::ostream os(&osb);
+
+                os << TEXT;
+
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+
+                confirmStreamBufReset(&isb,
+                                      LINE,
+                                      NADV,
+                                      NAVAIL,
+                                      EXPECTED,
+                                      EMPTY);
+            }
+
+            // 'bcesb_InBlobStreamBuf'
+            {
+                bcema_PooledBlobBufferFactory factory(5);
+                bcema_Blob                    blob(&factory);
+                bcesb_OutBlobStreamBuf        osb(&blob);
+                bsl::ostream                  os(&osb);
+
+                os << TEXT;
+
+                osb.pubsync();
+
+                bcesb_InBlobStreamBuf isb(osb.data());
+                
+                confirmStreamBufReset(&isb,
+                                      LINE,
+                                      NADV,
+                                      NAVAIL,
+                                      EXPECTED,
+                                      EMPTY,
+                                      false);
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -735,7 +1105,7 @@ int main(int argc, char *argv[])
             "trueelement31.51.5element4element5-980123-980123element62010000ds"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
             "2012-08-18T132500.000+0000element7element6LONDONLONDONelemsdfent2"
-            "2012-08-18T132500.000+0000element7element6LOND";
+            "2012-08-18T132500.000+0000element7element6LOND12345678";
 
         const struct {
             int               d_line;
@@ -753,6 +1123,7 @@ int main(int argc, char *argv[])
         {   L_,  "12345678ABC\"",                         false              },
         {   L_,  "12345678ABCD\"",                        false              },
         {   L_,  "12345678ABCDE\"",                       true               },
+        {   L_,  "12345678ABCDEF\"",                      true               },
         {   L_,  "12345678ABCDE12345678901234567890\"",   true               },
 
 #else
@@ -781,7 +1152,7 @@ int main(int argc, char *argv[])
             const string TEXT   = LARGE_STRING + SUFFIX;
 
             if (veryVerbose) {
-                P(LINE) P(TEXT) P(ALLOC)
+                P(LINE) P(TEXT) P(TEXT.size()) P(ALLOC)
             }
 
             bsl::ostringstream os;
@@ -812,6 +1183,10 @@ int main(int argc, char *argv[])
             }
             else {
                 ASSERTV(LINE, 0 == ta.numBlocksTotal());
+            }
+
+            if (veryVerbose) {
+                P(ta.numBlocksTotal()) P(ta.numBytesInUse())
             }
         }
 

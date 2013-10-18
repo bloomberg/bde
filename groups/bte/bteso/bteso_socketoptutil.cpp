@@ -161,6 +161,16 @@ int bteso_SocketOptUtil::setSocketOptions(bteso_SocketHandle::Handle handle,
         }
     }
 
+    if (!options.tcpNoDelay().isNull()) {
+        const int rc = setOption(handle,
+                                 bteso_SocketOptUtil::BTESO_TCPLEVEL,
+                                 bteso_SocketOptUtil::BTESO_TCPNODELAY,
+                                 (int) options.tcpNoDelay().value());
+        if (rc) {
+            return rc;                                                // RETURN
+        }
+    }
+
     return 0;
 }
 

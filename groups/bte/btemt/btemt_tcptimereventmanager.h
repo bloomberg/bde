@@ -576,6 +576,9 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // Execute the specified 'functor' in the internal thread, if it is
         // started.
 
+    void clearExecuteQueue();
+        // Clear the functors enqueued to the execute queue.
+
     virtual int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
                                     bteso_EventType::Type               event,
                                     const bteso_EventManager::Callback& cb);

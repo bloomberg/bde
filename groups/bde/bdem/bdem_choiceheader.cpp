@@ -73,7 +73,7 @@ bsl::ostream& printChoiceItem(const void    *obj,
                         // -----------------------
 
 // CLASS DATA
-const bdem_Descriptor bdem_ChoiceHeader::d_choiceItemAttr =
+const bdem_Descriptor bdem_ChoiceHeader::s_choiceItemAttr =
 {
     bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM,              // element enumeration
     sizeof(bdem_ChoiceHeader),                          // size
@@ -306,7 +306,7 @@ const bdem_Descriptor *bdem_ChoiceHeader::selectionDescriptor(int index) const
     BSLS_ASSERT(-1 <= index);
     BSLS_ASSERT(      index < numSelections());
 
-    return -1 == index ? &bdem_Properties::d_voidAttr : (*d_catalog_p)[index];
+    return -1 == index ? &bdem_Properties::s_voidAttr : (*d_catalog_p)[index];
 }
 
 bsl::ostream& bdem_ChoiceHeader::print(bsl::ostream& stream,

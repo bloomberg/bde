@@ -1,4 +1,4 @@
-// bdes_platformutil.h             -*-C++-*-
+// bdes_platformutil.h                                                -*-C++-*-
 #ifndef INCLUDED_BDES_PLATFORMUTIL
 #define INCLUDED_BDES_PLATFORMUTIL
 
@@ -36,21 +36,7 @@ BDES_IDENT("$Id: $")
 //   int bdes_PlatformUtil::isBigEndian();
 //..
 // encapsulate the capability of determining whether a machine is big- or
-// little-endian across all supported platforms.  In addition, certain
-// compile-time constants are also provided as preprocessor macros to
-// facilitate conditional compilation.
-//..
-//   BDES_PLATFORMUTIL_IS_BIG_ENDIAN
-//   BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
-//..
-// Another set of macros define macros replacing the standard 'htonl', 'htons',
-// 'ntohs', 'ntohl' which does not require including any system header:
-//..
-//   BDES_PLATFORMUTIL_HTONL(x)
-//   BDES_PLATFORMUTIL_HTONS(x)
-//   BDES_PLATFORMUTIL_NTOHL(x)
-//   BDES_PLATFORMUTIL_NTOHS(x)
-//..
+// little-endian across all supported platforms.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>  // required by 'bdes'
@@ -158,30 +144,8 @@ bool bdes_PlatformUtil::isLittleEndian()
 //                 COMPILE-TIME CONSTANT PRE-PROCESSOR MACROS
 // ============================================================================
 
-#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
-#ifndef BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
-#define BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN   BSLS_PLATFORM_IS_LITTLE_ENDIAN
-#endif
-#endif
-
-#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
-#ifndef BDES_PLATFORMUTIL_IS_BIG_ENDIAN
-#define BDES_PLATFORMUTIL_IS_BIG_ENDIAN      BSLS_PLATFORM_IS_BIG_ENDIAN
-#endif
-#endif
-
-#ifndef BDES_PLATFORMUTIL_HTONL
-#define BDES_PLATFORMUTIL_HTONL(X)           BSLS_BYTEORDER_HTONL(X)
-#endif
-
-#ifndef BDES_PLATFORMUTIL_HTONS
-#define BDES_PLATFORMUTIL_HTONS(X)           BSLS_BYTEORDER_HTONS(X)
-#endif
-
-#ifndef BDES_PLATFORMUTIL_NTOHL
-#define BDES_PLATFORMUTIL_NTOHL(X)           BSLS_BYTEORDER_NTOHL(X)
-#endif
-
+// single consumer of 'BDES_PLATFORMUTIL_NTOHS' remains in:
+//   .../pc_controls/controls/blpmonsvc/apire/apire_nethost.h 
 #ifndef BDES_PLATFORMUTIL_NTOHS
 #define BDES_PLATFORMUTIL_NTOHS(X)           BSLS_BYTEORDER_NTOHS(X)
 #endif

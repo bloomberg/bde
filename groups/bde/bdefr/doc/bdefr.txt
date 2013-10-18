@@ -48,7 +48,46 @@
  appropriate function in the 'bdefu' package.  See that package for additional
  information.
 
-/USAGE
+/Hierarchical Synopsis
+/---------------------
+ The 'bdefr' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bdefr_vfunc0
+     bdefr_vfunc1
+     bdefr_vfunc2
+     bdefr_vfunc3
+     bdefr_vfunc4
+     bdefr_vfunc5
+     bdefr_vfunc6
+..
+
+/Component Synopsis
+/------------------
+: 'bdefr_vfunc0':
+:      Provide a common reference-counted base class representation.
+:
+: 'bdefr_vfunc1':
+:      Provide a common reference-counted base class representation.
+:
+: 'bdefr_vfunc2':
+:      Provide a common reference-counted base class representation.
+:
+: 'bdefr_vfunc3':
+:      Provide a common reference-counted base class representation.
+:
+: 'bdefr_vfunc4':
+:      Provide a common reference-counted base class representation.
+:
+: 'bdefr_vfunc5':
+:      Provide a common reference-counted base class representation.
+:
+: 'bdefr_vfunc6':
+:      Provide a common reference-counted base class representation.
+
+/Usage
 /-----
  Most clients will not use 'bdefr' or 'bdefi' classes directly; rather, they
  will create 'bdef' functors, and populate them with utility functions from the
@@ -56,4 +95,4 @@
  examples that illustrate this usage.
 
  In order to understand in detail how the 'bdefr' components and classes work,
- refer to the usage example in Component 'bdefr_vfunc2'.
+ refer {'bdefr_vfunc2'|USAGE}.

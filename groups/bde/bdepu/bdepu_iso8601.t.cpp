@@ -11,6 +11,7 @@
 
 #include <bsls_stopwatch.h>
 
+#include <bsl_vector.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -22,6 +23,10 @@
 #include <stdlib.h>
 
 using namespace BloombergLP;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
@@ -32,50 +37,37 @@ using namespace BloombergLP;
 // of input values for each function and comparing the result with an expected
 // result.
 //-----------------------------------------------------------------------------
-// [2]   static int generate(char             *buffer,
-//                           const bdet_Date&  object,
-//                           int               bufferLength);
-// [2]   static int generate(char                 *buffer,
-//                           const bdet_Datetime&  object,
-//                           int                   bufferLength);
-// [2]   static int generate(char                   *buffer,
-//                           const bdet_DatetimeTz&  object,
-//                           int                     bufferLength);
-// [2]   static int generate(char               *buffer,
-//                           const bdet_DateTz&  object,
-//                           int                 bufferLength);
-// [2]   static int generate(char             *buffer,
-//                           const bdet_Time&  object,
-//                           int               bufferLength);
-// [2]   static int generate(char               *buffer,
-//                           const bdet_TimeTz&  object,
-//                           int                 bufferLength);
-//
-// [2] template <typename DATE_TYPE>
-//     static bsl::ostream& generate(bsl::ostream&    stream,
-//                                   const DATE_TYPE& object);
-//
-// [3] static int parse(bdet_Date  *result,
-//                      const char *input,
-//                      int         inputLength);
-// [3] static int parse(bdet_Datetime *result,
-//                      const char    *input,
-//                      int            inputLength);
-// [3] static int parse(bdet_DatetimeTz *result,
-//                      const char      *input,
-//                      int              inputLength);
-// [3] static int parse(bdet_DateTz *result,
-//                      const char  *input,
-//                      int          inputLength);
-// [3] static int parse(bdet_Time  *result,
-//                      const char *input,
-//                      int         inputLength);
-// [3] static int parse(bdet_TimeTz *result,
-//                      const char  *input,
-//                      int          inputLength);
+// [ 2] int generate(char *, const bdet_Date&, int);
+// [ 2] int generate(char *, const bdet_Time&, int);
+// [ 2] int generate(char *, const bdet_Datetime&, int);
+// [ 2] int generate(char *, const bdet_DateTz&, int);
+// [ 2] int generate(char *, const bdet_DateTz&, int, bool);
+// [ 2] int generate(char *, const bdet_TimeTz&, int);
+// [ 2] int generate(char *, const bdet_TimeTz&, int, bool);
+// [ 2] int generate(char *, const bdet_DatetimeTz&, int);
+// [ 2] int generate(char *, const bdet_DatetimeTz&, int, bool);
+// [ 2] int generate(bsl::ostream &, const bdet_Date&, int);
+// [ 2] int generate(bsl::ostream &, const bdet_Time&, int);
+// [ 2] int generate(bsl::ostream &, const bdet_Datetime&, int);
+// [ 2] int generate(bsl::ostream &, const bdet_DateTz&, int);
+// [ 2] int generate(bsl::ostream &, const bdet_DateTz&, int, bool);
+// [ 2] int generate(bsl::ostream &, const bdet_TimeTz&, int);
+// [ 2] int generate(bsl::ostream &, const bdet_TimeTz&, int, bool);
+// [ 2] int generate(bsl::ostream &, const bdet_DatetimeTz&, int);
+// [ 2] int generate(bsl::ostream &, const bdet_DatetimeTz&, int, bool);
+// [ 3] static int parse(bdet_Date  *, const char *, int);
+// [ 3] static int parse(bdet_Time  *, const char *, int);
+// [ 3] static int parse(bdet_Datetime  *, const char *, int);
+// [ 3] static int parse(bdet_DateTz *, const char *, int);
+// [ 3] static int parse(bdet_TimeTz *, const char *, int);
+// [ 3] static int parse(bdet_DatetimeTz *, const char *, int);
+// [ 7] void bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(bool)
+// [ 7] bool bdepu_Iso8601Configuration::useZAbbreviationForUtc()
 //-----------------------------------------------------------------------------
-// [1] BREATHING TEST
-// [4] USAGE EXAMPLE
+// [ 1] BREATHING TEST
+// [ 8] USAGE EXAMPLE
+// [ 5] CONCERN: Unusual time zone offsets
+// [ 6] CONCERN: parsing leap-seconds
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -94,65 +86,64 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) {                 \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\n"; \
-               aSsErT(1, #X, __LINE__); }}
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) {              \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT(I,X) {                                                    \
+    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP3_ASSERT(I,J,K,X) {            \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP1_ASSERT LOOP_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) {          \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\t"  \
-               << #L << ": " << L << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP2_ASSERT(I,J,X) {                                                 \
+    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
+              << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) {        \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\t"  \
-               << #L << ": " << L << "\t"  \
-               << #M << ": " << M << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP3_ASSERT(I,J,K,X) {                                               \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
+              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) {      \
-   if (!(X)) { bsl::cout                   \
-               << #I << ": " << I << "\t"  \
-               << #J << ": " << J << "\t"  \
-               << #K << ": " << K << "\t"  \
-               << #L << ": " << L << "\t"  \
-               << #M << ": " << M << "\t"  \
-               << #N << ": " << N << "\n"; \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
+       aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
+       #M << ": " << M << "\n";                                               \
+       aSsErT(1, #X, __LINE__); } }
+
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-    // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-    // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", "<< bsl::flush;
-    // P(X) without '\n'
-#define T_    bsl::cout << "\t" << bsl::flush;  // print Tab without '\n'
-#define L_ __LINE__                             // current Line number
+// ----------------------------------------------------------------------------
+
+#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
+#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
+#define L_ __LINE__                           // current Line number
+
+// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
+// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
+// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
+#define EXPAND(X)                                            \
+    X
+
+#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
+    N
+
+#define NUM_ARGS(...)                                        \
+    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
+
+#define LOOPN_ASSERT_IMPL(N, ...)                            \
+    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
+
+#define LOOPN_ASSERT(N, ...)                                 \
+    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+
+#define ASSERTV(...)                                         \
+    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 //=============================================================================
 //                  GLOBALS, TYPEDEFS, CONSTANTS FOR TESTING
@@ -213,16 +204,16 @@ void testTimezone(const char *tzStr,
                   const bool  valid,
                   const int   offset)
 {
-    static const bsl::string dateStr = "2000-01-02";
-    static const bsl::string timeStr = "12:34:56";
-    static const bsl::string datetimeStr = "2001-02-03T14:21:34";
+    const bsl::string dateStr = "2000-01-02";
+    const bsl::string timeStr = "12:34:56";
+    const bsl::string datetimeStr = "2001-02-03T14:21:34";
 
-    static const bdet_Date       initDate( 3,  3,  3);
-    static const bdet_DateTz     initDateTz(initDate,-120);
-    static const bdet_Time       initTime(11, 11, 11);
-    static const bdet_TimeTz     initTimeTz(initTime, 120);
-    static const bdet_Datetime   initDatetime(  initDate, initTime);
-    static const bdet_DatetimeTz initDatetimeTz(initDatetime, 180);
+    const bdet_Date       initDate( 3,  3,  3);
+    const bdet_DateTz     initDateTz(initDate,-120);
+    const bdet_Time       initTime(11, 11, 11);
+    const bdet_TimeTz     initTimeTz(initTime, 120);
+    const bdet_Datetime   initDatetime(  initDate, initTime);
+    const bdet_DatetimeTz initDatetimeTz(initDatetime, 180);
 
     int ret;
     bdet_Date date(initDate);
@@ -272,6 +263,13 @@ void testTimezone(const char *tzStr,
     LOOP3_ASSERT(datetimeTzStr, offset,datetimeTz.offset(),
                   !valid || offset == datetimeTz.offset());
 }
+
+//=============================================================================
+//                      TEST CASE 4
+//-----------------------------------------------------------------------------
+
+// Note that the following test case is factored into function to avoid
+// internal compiler errors building optimized versions of the test driver.
 
 void testCase4TestingParse()
 {
@@ -727,6 +725,13 @@ void testCase4TestingParse()
         }
     }
 }
+
+//=============================================================================
+//                      TEST CASE 3
+//-----------------------------------------------------------------------------
+
+// Note that the following test case is factored into function to avoid
+// internal compiler errors building optimized versions of the test driver.
 
 void testCase3TestingParse()
 {
@@ -1231,6 +1236,679 @@ void testCase3TestingParse()
 }
 
 //=============================================================================
+//                      TEST CASE 2
+//-----------------------------------------------------------------------------
+
+// Note that the following test case is factored into function to avoid
+// internal compiler errors building optimized versions of the test driver.
+
+void testCase2TestingGenerate()
+{
+    if (verbose) bsl::cout << "\nTESTING GENERATE"
+                           << "\n================" << bsl::endl;
+
+
+    const struct {
+            int         d_line;
+            int         d_year;
+            int         d_month;
+            int         d_day;
+            int         d_hour;
+            int         d_minute;
+            int         d_second;
+            int         d_millisecond;
+    } DATA[] = {
+        //Line Year   Mon  Day  Hour  Min  Sec     ms
+        //==== ====   ===  ===  ====  ===  ===     ==
+
+        // Valid dates and times
+        { L_,  0001,   1,   1,    0,   0,   0,     0 },
+        { L_,  2005,   1,   1,    0,   0,   0,     0 },
+        { L_,  0123,   6,  15,   13,  40,  59,     0 },
+        { L_,  1999,  10,  12,   23,   0,   1,     0 },
+
+        // Vary milliseconds
+        { L_,  1999,  10,  12,   23,   0,   1,     0 },
+        { L_,  1999,  10,  12,   23,   0,   1,     1 },
+        { L_,  1999,  10,  12,   23,   0,   1,     2 },
+        { L_,  1999,  10,  12,   23,   0,   1,     3 },
+        { L_,  1999,  10,  12,   23,   0,   1,    30 },
+        { L_,  1999,  10,  12,   23,   0,   1,    34 },
+        { L_,  1999,  10,  12,   23,   0,   1,    35 },
+        { L_,  1999,  10,  12,   23,   0,   1,   200 },
+        { L_,  1999,  10,  12,   23,   0,   1,   456 },
+        { L_,  1999,  10,  12,   23,   0,   1,   457 },
+        { L_,  1999,  10,  12,   23,   0,   1,   999 },
+        { L_,  1999,  12,  31,   23,  59,  59,   999 },
+    };
+
+    static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    static const int UTC_OFFSETS[] = {
+        0, -90, -240, -720, 90, 240, 720
+    };
+    static const int NUM_UTC_OFFSETS =
+        sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS;
+
+    if (verbose) cout << "\tLoop based test of test-data.\n";
+
+    for (int i = 0; i < NUM_DATA; ++i) {
+        const int         LINE        = DATA[i].d_line;
+        const int         YEAR        = DATA[i].d_year;
+        const int         MONTH       = DATA[i].d_month;
+        const int         DAY         = DATA[i].d_day;
+        const int         HOUR        = DATA[i].d_hour;
+        const int         MINUTE      = DATA[i].d_minute;
+        const int         SECOND      = DATA[i].d_second;
+        const int         MILLISECOND = DATA[i].d_millisecond;
+
+        bdet_Date theDate(YEAR, MONTH, DAY);
+        bdet_Time theTime(HOUR, MINUTE, SECOND, MILLISECOND);
+        bdet_Datetime theDatetime(YEAR, MONTH, DAY,
+                                  HOUR, MINUTE, SECOND, MILLISECOND);
+
+        bsl::stringstream output;
+        char outbuf[Util::BDEPU_MAX_DATETIME_STRLEN + 3];
+        int  rc;
+
+        for (int j = 0; j < NUM_UTC_OFFSETS; ++j) {
+
+            const int UTC_OFFSET = UTC_OFFSETS[j];
+
+            bdet_DateTz     theDateTz(theDate, UTC_OFFSET);
+            bdet_TimeTz     theTimeTz(theTime, UTC_OFFSET);
+            bdet_DatetimeTz theDatetimeTz(theDatetime, UTC_OFFSET);
+
+            char dateStr[25], timeStr[25], offsetStr[10];
+            bsl::sprintf(dateStr, "%04d-%02d-%02d", YEAR, MONTH, DAY);
+            bsl::sprintf(timeStr, "%02d:%02d:%02d.%03d",
+                         HOUR, MINUTE, SECOND, MILLISECOND);
+            bsl::sprintf(offsetStr, "%+03d:%02d",
+                         UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
+
+            char expected[100];
+
+            // Testing bdet_DatetimeTz
+            {
+                output.str("");
+
+                bsl::strcpy(expected, dateStr);
+                bsl::strcat(expected, "T");
+                bsl::strcat(expected, timeStr);
+                bsl::strcat(expected, offsetStr);
+
+                int TEST_LENGTH = Util::BDEPU_DATETIMETZ_STRLEN;
+                int k;
+                // test short output buffers
+                for (k=0; k < TEST_LENGTH + 1; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDatetimeTz, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    // check that "outbuf" bytes started from "k"
+                    // have not been changed
+                    for (int m = k; m <  TEST_LENGTH + 2; ++m) {
+                        LOOP3_ASSERT(LINE,
+                                     expected,
+                                     outbuf,
+                                     outbuf[m] == '*');
+                    }
+                }
+
+                // test long enough output buffers
+                for (; k < TEST_LENGTH + 5; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDatetimeTz, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH] == 0);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH + 1] == '*');
+                }
+
+                Util::generate(output, theDatetimeTz);
+                LOOP3_ASSERT(LINE, expected, output.str(),
+                             output.str() == expected);
+                if (veryVerbose) { P_(expected); P(output.str()); }
+            }
+
+            // Testing bdet_Datetime
+            {
+                output.str("");
+
+                bsl::strcpy(expected, dateStr);
+                bsl::strcat(expected, "T");
+                bsl::strcat(expected, timeStr);
+
+                int TEST_LENGTH = Util::BDEPU_DATETIME_STRLEN;
+                int k;
+                // test short output buffers
+                for (k=0; k < TEST_LENGTH + 1; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDatetime, k);
+                    LOOP3_ASSERT(LINE,
+                                 expected,
+                                 outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    // check that "outbuf" bytes started from "k"
+                    // have not been changed
+                    for (int m = k; m <  TEST_LENGTH + 2; ++m) {
+
+                        LOOP3_ASSERT(LINE,
+                                     expected,
+                                     outbuf,
+                                     outbuf[m] == '*');
+                    }
+                }
+
+                // test long enough output buffers
+                for (; k < TEST_LENGTH + 5; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDatetime, k);
+                    LOOP3_ASSERT(LINE,
+                                 expected,
+                                 outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH] == 0);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH + 1] == '*');
+                }
+
+                Util::generate(output, theDatetime);
+                LOOP3_ASSERT(LINE, expected, output.str(),
+                             output.str() == expected);
+                if (veryVerbose) { P_(expected); P(output.str()); }
+            }
+
+            // Testing bdet_DateTz
+            {
+                output.str("");
+
+                bsl::strcpy(expected, dateStr);
+                bsl::strcat(expected, offsetStr);
+                int TEST_LENGTH = Util::BDEPU_DATETZ_STRLEN;
+                int k;
+                // test short output buffers
+                for (k=0; k < TEST_LENGTH + 1; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDateTz, k);
+                    LOOP3_ASSERT(LINE,
+                                 expected,
+                                 outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    // check that "outbuf" bytes started from "k"
+                    // have not been changed
+                    for (int m = k; m <  TEST_LENGTH + 2; ++m) {
+
+                        LOOP3_ASSERT(LINE,
+                                     expected,
+                                     outbuf,
+                                     outbuf[m] == '*');
+                    }
+                }
+
+                // test long enough output buffers
+                for (; k < TEST_LENGTH + 5; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDateTz, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH] == 0);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH + 1] == '*');
+                }
+
+                Util::generate(output, theDateTz);
+                LOOP3_ASSERT(LINE, expected, output.str(),
+                             output.str() == expected);
+                if (veryVerbose) { P_(expected); P(output.str()); }
+            }
+
+            // Testing bdet_Date
+            {
+                output.str("");
+
+                bsl::strcpy(expected, dateStr);
+
+                int TEST_LENGTH = Util::BDEPU_DATE_STRLEN;
+                int k;
+                // test short output buffers
+                for (k=0; k < TEST_LENGTH + 1; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDate, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    // check that "outbuf" bytes started from "k"
+                    // have not been changed
+                    for (int m = k; m <  TEST_LENGTH + 2; ++m) {
+
+                        LOOP3_ASSERT(LINE,
+                                     expected,
+                                     outbuf,
+                                     outbuf[m] == '*');
+                    }
+                }
+
+                // test long enough output buffers
+                for (; k < TEST_LENGTH + 5; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theDate, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH] == 0);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH + 1] == '*');
+                }
+
+                Util::generate(output, theDate);
+                LOOP3_ASSERT(LINE, expected, output.str(),
+                             output.str() == expected);
+                if (veryVerbose) { P_(expected); P(output.str()); }
+            }
+
+            // Testing bdet_TimeTz
+            {
+                output.str("");
+
+                bsl::strcpy(expected, timeStr);
+                bsl::strcat(expected, offsetStr);
+                int TEST_LENGTH = Util::BDEPU_TIMETZ_STRLEN;
+                int k;
+                // test short output buffers
+                for (k=0; k < TEST_LENGTH + 1; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theTimeTz, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    // check that "outbuf" bytes started from "k"
+                    // have not been changed
+                    for (int m = k; m <  TEST_LENGTH + 2; ++m) {
+
+                        LOOP3_ASSERT(LINE,
+                                     expected,
+                                     outbuf,
+                                     outbuf[m] == '*');
+                    }
+                }
+
+                // test long enough output buffers
+                for (; k < TEST_LENGTH + 5; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theTimeTz, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH] == 0);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH + 1] == '*');
+                }
+
+                Util::generate(output, theTimeTz);
+                LOOP3_ASSERT(LINE, expected, output.str(),
+                             output.str() == expected);
+                if (veryVerbose) { P_(expected); P(output.str()); }
+            }
+
+            // Testing bdet_Time
+            {
+                output.str("");
+
+                bsl::strcpy(expected, timeStr);
+                int TEST_LENGTH = Util::BDEPU_TIME_STRLEN;
+                int k;
+                // test short output buffers
+                for (k=0; k < TEST_LENGTH + 1; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theTime, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    // check that "outbuf" bytes started from "k"
+                    // have not been changed
+                    rc = bsl::memcmp(outbuf, expected, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    for (int m = k; m <  TEST_LENGTH + 2; ++m) {
+
+                        LOOP3_ASSERT(LINE,
+                                     expected,
+                                     outbuf,
+                                     outbuf[m] == '*');
+                    }
+                }
+
+                // test long enough output buffers
+                for (; k < TEST_LENGTH + 5; ++k) {
+
+                    bsl::memset(outbuf, '*', sizeof(outbuf));
+                    outbuf[sizeof(outbuf)-1] = 0;
+
+                    rc = Util::generate(outbuf, theTime, k);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 rc == TEST_LENGTH);
+
+                    rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
+                    LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
+
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH] == 0);
+                    LOOP3_ASSERT(LINE, expected, outbuf,
+                                 outbuf[TEST_LENGTH + 1] == '*');
+                }
+
+                Util::generate(output, theTime);
+                LOOP3_ASSERT(LINE, expected, output.str(),
+                             output.str() == expected);
+                if (veryVerbose) { P_(expected); P(output.str()); }
+            }
+
+        }
+    }
+
+    if (verbose)
+        cout << "\tTest 'useZAbbreviationForUtc' optional argument.\n";
+
+    {
+        bdet_Datetime datetime(2013, 8, 23, 11, 30, 5, 1);
+        bsl::string dateStr("2013-08-23");
+        bsl::string timeStr("11:30:05.001");
+        bsl::string datetimeStr("2013-08-23T11:30:05.001");
+
+        for (int i = 0; i < NUM_UTC_OFFSETS; ++i ) {
+            const int UTC_OFFSET = UTC_OFFSETS[i];
+            bdet_DateTz dateTz(datetime.date(), UTC_OFFSET);
+            bdet_TimeTz timeTz(datetime.time(), UTC_OFFSET);
+            bdet_DatetimeTz datetimeTz(datetime, UTC_OFFSET);
+
+            char offsetBuffer[10];
+            bsl::sprintf(offsetBuffer, "%+03d:%02d",
+                         UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
+            bsl::string offsetStr(offsetBuffer);
+            for (int useZ = 0; useZ <= 1; ++useZ) {
+                bsl::string expectedDate(dateStr);
+                bsl::string expectedTime(timeStr);
+                bsl::string expectedDatetime(datetimeStr);
+
+                if (useZ && 0 == UTC_OFFSET) {
+                    expectedDate     += "Z";
+                    expectedTime     += "Z";
+                    expectedDatetime += "Z";
+                }
+                else {
+                    expectedDate     += offsetStr;
+                    expectedTime     += offsetStr;
+                    expectedDatetime += offsetStr;
+                }
+
+                bsl::vector<char> dateOutput(100, '*');
+                bsl::vector<char> timeOutput(100, '*');
+                bsl::vector<char> datetimeOutput(100, '*');
+
+                bsl::ostringstream dateStream;
+                bsl::ostringstream timeStream;
+                bsl::ostringstream datetimeStream;
+
+                unsigned int dateLen =
+                    Util::generate(dateOutput.data(), dateTz, 100, useZ);
+                unsigned int timeLen =
+                    Util::generate(timeOutput.data(), timeTz, 100, useZ);
+                unsigned int datetimeLen =
+                    Util::generate(
+                        datetimeOutput.data(), datetimeTz, 100, useZ);
+
+                Util::generate(dateStream, dateTz, useZ);
+                Util::generate(timeStream, timeTz, useZ);
+                Util::generate(datetimeStream, datetimeTz, useZ);
+
+                ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
+                        dateLen == bsl::strlen(dateOutput.data()));
+                ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
+                        timeLen == bsl::strlen(timeOutput.data()));
+                ASSERTV(datetimeLen, bsl::strlen(datetimeOutput.data()),
+                        datetimeLen == bsl::strlen(datetimeOutput.data()));
+                if (veryVeryVerbose) {
+                    P_(dateOutput.data());
+                    P_(timeOutput.data());
+                    P(datetimeOutput.data());
+                }
+                ASSERTV(expectedDate, dateOutput.data(),
+                        expectedDate == dateOutput.data());
+                ASSERTV(expectedTime, timeOutput.data(),
+                        expectedTime == timeOutput.data());
+                ASSERTV(expectedDatetime, datetimeOutput.data(),
+                        expectedDatetime == datetimeOutput.data());
+
+                ASSERTV(expectedDate, dateStream.str(),
+                        expectedDate == dateStream.str());
+                ASSERTV(expectedTime, timeStream.str(),
+                        expectedTime == timeStream.str());
+                ASSERTV(expectedDatetime, datetimeStream.str(),
+                        expectedDatetime == datetimeStream.str());
+
+            }
+        }
+    }
+
+    if (verbose)
+        cout << "\tTest 'setUseZAbbreviationForUtc' configuration.\n";
+
+    for (int i = 0; i < NUM_UTC_OFFSETS; ++i ) {
+        const int UTC_OFFSET = UTC_OFFSETS[i];
+
+        bdet_Date date(2013, 8, 23);
+        bdet_Time time(11, 30, 5, 1);
+        bdet_Datetime datetime(date, time);
+
+        bdet_DateTz dateTz(date, UTC_OFFSET);
+        bdet_TimeTz timeTz(time, UTC_OFFSET);
+        bdet_DatetimeTz datetimeTz(datetime, UTC_OFFSET);
+
+        char offsetBuffer[10];
+        bsl::sprintf(offsetBuffer, "%+03d:%02d",
+                     UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
+
+        bsl::string dateStr("2013-08-23");
+        bsl::string timeStr("11:30:05.001");
+        bsl::string datetimeStr("2013-08-23T11:30:05.001");
+        bsl::string offsetStr(offsetBuffer);
+
+        bsl::string expectedDateNoZ(dateStr + offsetStr);
+        bsl::string expectedTimeNoZ(timeStr + offsetStr);
+        bsl::string expectedDatetimeNoZ(datetimeStr + offsetStr);
+
+        bsl::string expectedDateWithZ(dateStr);
+        bsl::string expectedTimeWithZ(timeStr);
+        bsl::string expectedDatetimeWithZ(datetimeStr);
+
+        if (0 != UTC_OFFSET) {
+            expectedDateWithZ     += offsetStr;
+            expectedTimeWithZ     += offsetStr;
+            expectedDatetimeWithZ += offsetStr;
+        }
+        else {
+            expectedDateWithZ     += "Z";
+            expectedTimeWithZ     += "Z";
+            expectedDatetimeWithZ += "Z";
+        }
+
+        // Test generated vs expected values with Z enabled.
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(true);
+        {
+            bsl::vector<char> dateOutput(100, '*');
+            bsl::vector<char> timeOutput(100, '*');
+            bsl::vector<char> datetimeOutput(100, '*');
+            bsl::ostringstream dateStream;
+            bsl::ostringstream timeStream;
+            bsl::ostringstream datetimeStream;
+
+
+            unsigned int dateLen =
+                Util::generate(dateOutput.data(), dateTz, 100);
+            unsigned int timeLen =
+                Util::generate(timeOutput.data(), timeTz, 100);
+            unsigned int datetimeLen =
+                Util::generate(datetimeOutput.data(), datetimeTz, 100);
+
+            Util::generate(dateStream, dateTz);
+            Util::generate(timeStream, timeTz);
+            Util::generate(datetimeStream, datetimeTz);
+
+
+            ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
+                    dateLen == bsl::strlen(dateOutput.data()));
+            ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
+                    timeLen == bsl::strlen(timeOutput.data()));
+            ASSERTV(datetimeLen, bsl::strlen(datetimeOutput.data()),
+                    datetimeLen == bsl::strlen(datetimeOutput.data()));
+
+            if (veryVeryVerbose) {
+                P_(dateOutput.data());
+                P_(timeOutput.data());
+                P(datetimeOutput.data());
+            }
+            ASSERTV(expectedDateWithZ, dateOutput.data(),
+                    expectedDateWithZ == dateOutput.data());
+            ASSERTV(expectedTimeWithZ, timeOutput.data(),
+                    expectedTimeWithZ == timeOutput.data());
+            ASSERTV(expectedDatetimeWithZ, datetimeOutput.data(),
+                    expectedDatetimeWithZ == datetimeOutput.data());
+
+            ASSERTV(expectedDateWithZ, dateStream.str(),
+                    expectedDateWithZ == dateStream.str());
+            ASSERTV(expectedTimeWithZ, timeStream.str(),
+                    expectedTimeWithZ == timeStream.str());
+            ASSERTV(expectedDatetimeWithZ, datetimeStream.str(),
+                    expectedDatetimeWithZ == datetimeStream.str());
+        }
+        // Test generated vs expected values with Z disabled.
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(false);
+        {
+            bsl::vector<char> dateOutput(100, '*');
+            bsl::vector<char> timeOutput(100, '*');
+            bsl::vector<char> datetimeOutput(100, '*');
+            bsl::ostringstream dateStream;
+            bsl::ostringstream timeStream;
+            bsl::ostringstream datetimeStream;
+
+            unsigned int dateLen =
+                Util::generate(dateOutput.data(), dateTz, 100);
+            unsigned int timeLen =
+                Util::generate(timeOutput.data(), timeTz, 100);
+            unsigned int datetimeLen =
+                Util::generate(datetimeOutput.data(), datetimeTz, 100);
+
+            Util::generate(dateStream, dateTz);
+            Util::generate(timeStream, timeTz);
+            Util::generate(datetimeStream, datetimeTz);
+
+            ASSERTV(dateLen, bsl::strlen(dateOutput.data()),
+                    dateLen == bsl::strlen(dateOutput.data()));
+            ASSERTV(timeLen, bsl::strlen(timeOutput.data()),
+                    timeLen == bsl::strlen(timeOutput.data()));
+            ASSERTV(datetimeLen, bsl::strlen(datetimeOutput.data()),
+                    datetimeLen == bsl::strlen(datetimeOutput.data()));
+
+            if (veryVeryVerbose) {
+                P_(dateOutput.data());
+                P_(timeOutput.data());
+                P(datetimeOutput.data());
+            }
+
+            ASSERTV(expectedDateNoZ, dateOutput.data(),
+                    expectedDateNoZ == dateOutput.data());
+            ASSERTV(expectedTimeNoZ, timeOutput.data(),
+                    expectedTimeNoZ == timeOutput.data());
+            ASSERTV(expectedDatetimeNoZ, datetimeOutput.data(),
+                    expectedDatetimeNoZ == datetimeOutput.data());
+
+
+            ASSERTV(expectedDateNoZ, dateStream.str(),
+                    expectedDateNoZ == dateStream.str());
+            ASSERTV(expectedTimeNoZ, timeStream.str(),
+                    expectedTimeNoZ == timeStream.str());
+            ASSERTV(expectedDatetimeNoZ, datetimeStream.str(),
+                    expectedDatetimeNoZ == datetimeStream.str());
+        }
+    }
+}
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -1246,7 +1924,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1293,11 +1971,49 @@ int main(int argc, char *argv[])
 // the offset from UTC was converted to minutes.
 
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING: bdepu_Iso8601Configuration
+        //
+        // Concerns:
+        //: 1 The default value for 'useZAbbreviationForUtc' is 'false'.
+        //:
+        //: 2 Calling 'setUseZAbbreviationForUtc' sets
+        //:   'useZAbbreviationForUtc'  to the indicated status.
+        //
+        // Plan:
+        //: 1 Verify that if 'setUseZAbbreviationForUtc' is not called,
+        //:   'useZAbbreviationForUtc' returns 'false'. (C-1)
+        //:
+        //: 2 Call 'setUseZAbbreviationForUtc' with both 'true' and 'false'
+        //:   and verify that 'useZAbbreviationForUtc' returns the
+        //:   corresponding state. (C-2)
+        //
+        // Testing:
+        //  void setUseZAbbreviationForUtc(bool);
+        //  bool useZAbbreviationForUtc();
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING: bdepu_Iso8601Configuration"
+                               << "\n==================================="
+                               << bsl::endl;
+
+        ASSERT(false == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
+
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(false);
+        ASSERT(false == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
+
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(true);
+        ASSERT(true == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
+
+        bdepu_Iso8601Configuration::setUseZAbbreviationForUtc(false);
+        ASSERT(false == bdepu_Iso8601Configuration::useZAbbreviationForUtc());
+      }
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING LEAP SECONDS
+        // CONCERN: parsing leap-seconds
         //
-        // Concers:
+        // Concerns:
         //   That leap seconds are correctly parsed.
         //
         // Plan:
@@ -1435,7 +2151,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING TIME ZONES
+        // CONCERN: Unusual time zone offsets
         //
         // Concern:
         //   Test that time zones accept all valid inputs and reject
@@ -1551,6 +2267,7 @@ int main(int argc, char *argv[])
                                     "=============\n";
 
         testCase4TestingParse();
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1624,481 +2341,69 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING GENERATE
+        // TESTING: generate
         //
         // Concerns:
-        //     - All six types generate correct strings for a variety of
-        //       values.
-        //     - The Tz types add an offset from UTC to the end of the
-        //       generated string; the other types do not.
-        //     - The Tz value can be positive, negative, or zero.
-        //     - All time and datetime classes generate a 3-digits for
-        //       fractions of a second.
-        //     - Correct behavior in case of short output buffers
+        //: 1 All six types generate correct strings for a variety of
+        //:   values.
+        //:
+        //: 2 The Tz types add an offset from UTC to the end of the
+        //:   generated string; the other types do not.
+        //:
+        //: 3 The Tz value can be positive, negative, or zero.
+        //:
+        //: 4 All time and datetime classes generate a 3-digits for
+        //:   fractions of a second.
+        //:
+        //: 5 Correct behavior in case of short output buffers
+        //:
+        //: 6 If the optional argument 'useZAbbreviationForUtc' is 'true' the
+        //:   output for the TZ offset of a UTC value is 'Z', and '00:00'
+        //:   otherwise.
+        //:
+        //: 7 If the optional argument 'useZAbbreviationForUtc' is not supplied
+        //:   the default configuration value is used.
         //
-        //   - Prepare a set of test vectors with the following values:
-        //     + Valid dates and times
-        //     + Fractional seconds from 0 to 999 requiring 0, 1, 2, or 3
-        //       digits to represent, with and without trailing zeros.
-        //   - Apply the following orthogonal perturbation:
-        //     + A set of timezone offsets, including zero, positive, and
-        //       negative offsets.
-        //   - Compose expected date, time, and datetime strings from each
-        //     test vector.
-        //   - Construct each of the six date, time, and datetime types from
-        //     the test vector and stream them to an output string.
-        //   - Compare the generated strings against expected strings.
+        // Plan:
+        //: 1 User a loop-based test over a range of valid date & time values
+        //:   selected to test various formatting properties: (C1-5)
+        //:   1 For each value, perform an orthogonal perturbation for timezone
+        //:     offsets
+        //:
+        //:   2 For each value, perform an orthogonal perturbation for the
+        //:     output buffer length, testing buffers to short for the
+        //:     resulting formatted value.
+        //:
+        //: 2 For a UTC value generate a formatted value of each of the 3 'Tz"
+        //:   types with the optional 'useZAbbreviationForUtc' as both 'true'
+        //:   and 'false' (C-6)
+        //:
+        //: 3 For a UTC value generate a formatted value of each of the 3 'Tz"
+        //:   types both with, and without, the default useZAbbreviationForUtc
+        //:   option enabled. (C-7)
         //
         // Testing:
-        //      static int generate(char             *buffer,
-        //                          const bdet_Date&  object,
-        //                          int               bufferLength);
-        //      static int generate(char                 *buffer,
-        //                          const bdet_Datetime&  object,
-        //                          int                   bufferLength);
-        //      static int generate(char                   *buffer,
-        //                          const bdet_DatetimeTz&  object,
-        //                          int                     bufferLength);
-        //      static int generate(char               *buffer,
-        //                          const bdet_DateTz&  object,
-        //                          int                 bufferLength);
-        //      static int generate(char             *buffer,
-        //                          const bdet_Time&  object,
-        //                          int               bufferLength);
-        //      static int generate(char               *buffer,
-        //                          const bdet_TimeTz&  object,
-        //                          int                 bufferLength);
+        //  int generate(char *, const bdet_Date&, int);
+        //  int generate(char *, const bdet_Time&, int);
+        //  int generate(char *, const bdet_Datetime&, int);
+        //  int generate(char *, const bdet_DateTz&, int);
+        //  int generate(char *, const bdet_DateTz&, int, bool);
+        //  int generate(char *, const bdet_TimeTz&, int);
+        //  int generate(char *, const bdet_TimeTz&, int, bool);
+        //  int generate(char *, const bdet_DatetimeTz&, int);
+        //  int generate(char *, const bdet_DatetimeTz&, int, bool);
+        //  int generate(bsl::ostream &, const bdet_Date&, int);
+        //  int generate(bsl::ostream &, const bdet_Time&, int);
+        //  int generate(bsl::ostream &, const bdet_Datetime&, int);
+        //  int generate(bsl::ostream &, const bdet_DateTz&, int);
+        //  int generate(bsl::ostream &, const bdet_DateTz&, int, bool);
+        //  int generate(bsl::ostream &, const bdet_TimeTz&, int);
+        //  int generate(bsl::ostream &, const bdet_TimeTz&, int, bool);
+        //  int generate(bsl::ostream &, const bdet_DatetimeTz&, int);
+        //  int generate(bsl::ostream &, const bdet_DatetimeTz&, int, bool);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING GENERATE"
-                               << "\n================" << bsl::endl;
-
-        const struct {
-            int         d_line;
-            int         d_year;
-            int         d_month;
-            int         d_day;
-            int         d_hour;
-            int         d_minute;
-            int         d_second;
-            int         d_millisecond;
-        } DATA[] = {
-            //Line Year   Mon  Day  Hour  Min  Sec     ms
-            //==== ====   ===  ===  ====  ===  ===     ==
-
-            // Valid dates and times
-            { L_,  0001,   1,   1,    0,   0,   0,     0 },
-            { L_,  2005,   1,   1,    0,   0,   0,     0 },
-            { L_,  0123,   6,  15,   13,  40,  59,     0 },
-            { L_,  1999,  10,  12,   23,   0,   1,     0 },
-
-            // Vary milliseconds
-            { L_,  1999,  10,  12,   23,   0,   1,     0 },
-            { L_,  1999,  10,  12,   23,   0,   1,     1 },
-            { L_,  1999,  10,  12,   23,   0,   1,     2 },
-            { L_,  1999,  10,  12,   23,   0,   1,     3 },
-            { L_,  1999,  10,  12,   23,   0,   1,    30 },
-            { L_,  1999,  10,  12,   23,   0,   1,    34 },
-            { L_,  1999,  10,  12,   23,   0,   1,    35 },
-            { L_,  1999,  10,  12,   23,   0,   1,   200 },
-            { L_,  1999,  10,  12,   23,   0,   1,   456 },
-            { L_,  1999,  10,  12,   23,   0,   1,   457 },
-            { L_,  1999,  10,  12,   23,   0,   1,   999 },
-            { L_,  1999,  12,  31,   23,  59,  59,   999 },
-        };
-
-        static const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        static const int UTC_OFFSETS[] = {
-            0, -90, -240, -720, 90, 240, 720
-        };
-        static const int NUM_UTC_OFFSETS =
-            sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS;
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int         LINE        = DATA[i].d_line;
-            const int         YEAR        = DATA[i].d_year;
-            const int         MONTH       = DATA[i].d_month;
-            const int         DAY         = DATA[i].d_day;
-            const int         HOUR        = DATA[i].d_hour;
-            const int         MINUTE      = DATA[i].d_minute;
-            const int         SECOND      = DATA[i].d_second;
-            const int         MILLISECOND = DATA[i].d_millisecond;
-
-            bdet_Date theDate(YEAR, MONTH, DAY);
-            bdet_Time theTime(HOUR, MINUTE, SECOND, MILLISECOND);
-            bdet_Datetime theDatetime(YEAR, MONTH, DAY,
-                                      HOUR, MINUTE, SECOND, MILLISECOND);
-
-            bsl::stringstream output;
-            char outbuf[Util::BDEPU_MAX_DATETIME_STRLEN + 3];
-            int  rc;
-
-            for (int j = 0; j < NUM_UTC_OFFSETS; ++j) {
-
-                const int UTC_OFFSET = UTC_OFFSETS[j];
-
-                bdet_DateTz     theDateTz(theDate, UTC_OFFSET);
-                bdet_TimeTz     theTimeTz(theTime, UTC_OFFSET);
-                bdet_DatetimeTz theDatetimeTz(theDatetime, UTC_OFFSET);
-
-                char dateStr[25], timeStr[25], offsetStr[10];
-                bsl::sprintf(dateStr, "%04d-%02d-%02d", YEAR, MONTH, DAY);
-                bsl::sprintf(timeStr, "%02d:%02d:%02d.%03d",
-                             HOUR, MINUTE, SECOND, MILLISECOND);
-                bsl::sprintf(offsetStr, "%+03d:%02d",
-                             UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
-
-                char expected[100];
-
-                {
-                    output.str("");
-
-                    bsl::strcpy(expected, dateStr);
-                    bsl::strcat(expected, "T");
-                    bsl::strcat(expected, timeStr);
-                    bsl::strcat(expected, offsetStr);
-
-                    int TEST_LENGTH = Util::BDEPU_DATETIMETZ_STRLEN;
-                    int k;
-                    // test short output buffers
-                    for (k=0; k < TEST_LENGTH + 1; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDatetimeTz, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        // check that "outbuf" bytes started from "k"
-                        // have not been changed
-                        for (int m = k; m <  TEST_LENGTH + 2; ++m) {
-                            LOOP3_ASSERT(LINE,
-                                         expected,
-                                         outbuf,
-                                         outbuf[m] == '*');
-                        }
-                    }
-
-                    // test long enough output buffers
-                    for (; k < TEST_LENGTH + 5; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDatetimeTz, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH] == 0);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH + 1] == '*');
-                    }
-
-                    Util::generate(output, theDatetimeTz);
-                    LOOP3_ASSERT(LINE, expected, output.str(),
-                                 output.str() == expected);
-                    if (veryVerbose) { P_(expected); P(output.str()); }
-                }
-
-                {
-                    output.str("");
-
-                    bsl::strcpy(expected, dateStr);
-                    bsl::strcat(expected, "T");
-                    bsl::strcat(expected, timeStr);
-
-                    int TEST_LENGTH = Util::BDEPU_DATETIME_STRLEN;
-                    int k;
-                    // test short output buffers
-                    for (k=0; k < TEST_LENGTH + 1; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDatetime, k);
-                        LOOP3_ASSERT(LINE,
-                                     expected,
-                                     outbuf,
-                                     rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        // check that "outbuf" bytes started from "k"
-                        // have not been changed
-                        for (int m = k; m <  TEST_LENGTH + 2; ++m) {
-
-                            LOOP3_ASSERT(LINE,
-                                         expected,
-                                         outbuf,
-                                         outbuf[m] == '*');
-                        }
-                    }
-
-                    // test long enough output buffers
-                    for (; k < TEST_LENGTH + 5; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDatetime, k);
-                        LOOP3_ASSERT(LINE,
-                                     expected,
-                                     outbuf,
-                                     rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH] == 0);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH + 1] == '*');
-                    }
-
-                    Util::generate(output, theDatetime);
-                    LOOP3_ASSERT(LINE, expected, output.str(),
-                                 output.str() == expected);
-                    if (veryVerbose) { P_(expected); P(output.str()); }
-                }
-
-                {
-                    output.str("");
-
-                    bsl::strcpy(expected, dateStr);
-                    bsl::strcat(expected, offsetStr);
-                    int TEST_LENGTH = Util::BDEPU_DATETZ_STRLEN;
-                    int k;
-                    // test short output buffers
-                    for (k=0; k < TEST_LENGTH + 1; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDateTz, k);
-                        LOOP3_ASSERT(LINE,
-                                    expected,
-                                    outbuf,
-                                    rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        // check that "outbuf" bytes started from "k"
-                        // have not been changed
-                        for (int m = k; m <  TEST_LENGTH + 2; ++m) {
-
-                            LOOP3_ASSERT(LINE,
-                                         expected,
-                                         outbuf,
-                                         outbuf[m] == '*');
-                        }
-                    }
-
-                    // test long enough output buffers
-                    for (; k < TEST_LENGTH + 5; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDateTz, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH] == 0);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH + 1] == '*');
-                    }
-
-                    Util::generate(output, theDateTz);
-                    LOOP3_ASSERT(LINE, expected, output.str(),
-                                 output.str() == expected);
-                    if (veryVerbose) { P_(expected); P(output.str()); }
-                }
-
-                {
-                    output.str("");
-
-                    bsl::strcpy(expected, dateStr);
-
-                    int TEST_LENGTH = Util::BDEPU_DATE_STRLEN;
-                    int k;
-                    // test short output buffers
-                    for (k=0; k < TEST_LENGTH + 1; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDate, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        // check that "outbuf" bytes started from "k"
-                        // have not been changed
-                        for (int m = k; m <  TEST_LENGTH + 2; ++m) {
-
-                            LOOP3_ASSERT(LINE,
-                                         expected,
-                                         outbuf,
-                                         outbuf[m] == '*');
-                        }
-                    }
-
-                    // test long enough output buffers
-                    for (; k < TEST_LENGTH + 5; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theDate, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH] == 0);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH + 1] == '*');
-                    }
-
-                    Util::generate(output, theDate);
-                    LOOP3_ASSERT(LINE, expected, output.str(),
-                                 output.str() == expected);
-                    if (veryVerbose) { P_(expected); P(output.str()); }
-                }
-
-                {
-                    output.str("");
-
-                    bsl::strcpy(expected, timeStr);
-                    bsl::strcat(expected, offsetStr);
-                    int TEST_LENGTH = Util::BDEPU_TIMETZ_STRLEN;
-                    int k;
-                    // test short output buffers
-                    for (k=0; k < TEST_LENGTH + 1; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theTimeTz, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        // check that "outbuf" bytes started from "k"
-                        // have not been changed
-                        for (int m = k; m <  TEST_LENGTH + 2; ++m) {
-
-                            LOOP3_ASSERT(LINE,
-                                         expected,
-                                         outbuf,
-                                         outbuf[m] == '*');
-                         }
-                    }
-
-                    // test long enough output buffers
-                    for (; k < TEST_LENGTH + 5; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theTimeTz, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH] == 0);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH + 1] == '*');
-                    }
-
-                    Util::generate(output, theTimeTz);
-                    LOOP3_ASSERT(LINE, expected, output.str(),
-                                 output.str() == expected);
-                    if (veryVerbose) { P_(expected); P(output.str()); }
-                }
-
-                {
-                    output.str("");
-
-                    bsl::strcpy(expected, timeStr);
-                    int TEST_LENGTH = Util::BDEPU_TIME_STRLEN;
-                    int k;
-                    // test short output buffers
-                    for (k=0; k < TEST_LENGTH + 1; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theTime, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        // check that "outbuf" bytes started from "k"
-                        // have not been changed
-                        rc = bsl::memcmp(outbuf, expected, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        for (int m = k; m <  TEST_LENGTH + 2; ++m) {
-
-                            LOOP3_ASSERT(LINE,
-                                         expected,
-                                         outbuf,
-                                         outbuf[m] == '*');
-                        }
-                    }
-
-                    // test long enough output buffers
-                    for (; k < TEST_LENGTH + 5; ++k) {
-
-                        bsl::memset(outbuf, '*', sizeof(outbuf));
-                        outbuf[sizeof(outbuf)-1] = 0;
-
-                        rc = Util::generate(outbuf, theTime, k);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        rc == TEST_LENGTH);
-
-                        rc = bsl::memcmp(outbuf, expected, TEST_LENGTH);
-                        LOOP3_ASSERT(LINE, expected, outbuf, rc == 0);
-
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH] == 0);
-                        LOOP3_ASSERT(LINE, expected, outbuf,
-                        outbuf[TEST_LENGTH + 1] == '*');
-                    }
-
-                    Util::generate(output, theTime);
-                    LOOP3_ASSERT(LINE, expected, output.str(),
-                                 output.str() == expected);
-                    if (veryVerbose) { P_(expected); P(output.str()); }
-                }
-
-            }
-        }
-
+        testCase2TestingGenerate();
       } break;
 
       case 1: {

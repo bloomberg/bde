@@ -855,7 +855,7 @@ bool bdem_ConstElemRef::isBound() const
 inline
 bdem_ConstElemRef bdem_ConstElemRef::unboundElemRef()
 {
-    return bdem_ConstElemRef(0, &bdem_Properties::d_voidAttr);
+    return bdem_ConstElemRef(0, &bdem_Properties::s_voidAttr);
 }
 
 // CREATORS
@@ -1313,7 +1313,7 @@ void bdem_ElemRef::clearNullnessBit() const
 inline
 bdem_ElemRef bdem_ElemRef::unboundElemRef()
 {
-    return bdem_ElemRef(0, &bdem_Properties::d_voidAttr);
+    return bdem_ElemRef(0, &bdem_Properties::s_voidAttr);
 }
 
 // CREATORS

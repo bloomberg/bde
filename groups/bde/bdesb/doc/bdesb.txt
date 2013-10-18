@@ -17,24 +17,39 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bdesb' currently has three components having one level of dependency.
- The table below shows the hierarchical ordering of the components.  The
- package prefix and underscore ('bdesb_') are omitted from the full component
- names for layout efficiency.
+ The 'bdesb' package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  Level 1: memoutstreambuf  fixedmemoutstreambuf  fixedmeminstreambuf
+  1. bdesb_fixedmeminput
+     bdesb_fixedmeminstreambuf
+     bdesb_fixedmemoutput
+     bdesb_fixedmemoutstreambuf
+     bdesb_memoutstreambuf
+     bdesb_overflowmemoutput
+     bdesb_overflowmemoutstreambuf
 ..
- 
+
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bdesb'.
-..
-  bdesb_fixedmeminstreambuf  - input streambuf using a client-supplied fixed
-                               buffer
-  bdesb_fixedmemoutstreambuf - output streambuf using a client-supplied fixed
-                               buffer
-  bdesb_memoutstreambuf      - output streambuf managing a dynamic buffer
-..
- Each component implements a portion of the 'std::streambuf' interface, either
- for input or for output.
-
+: 'bdesb_fixedmeminput':
+:      Provide a basic input stream buffer using a client buffer.
+:
+: 'bdesb_fixedmeminstreambuf':
+:      Provide an input 'basic_streambuf' using a client buffer.
+:
+: 'bdesb_fixedmemoutput':
+:      Provide a basic output stream buffer using a client buffer.
+:
+: 'bdesb_fixedmemoutstreambuf':
+:      Provide an output 'basic_streambuf' using a client buffer.
+:
+: 'bdesb_memoutstreambuf':
+:      Provide an output 'basic_streambuf' using managed memory.
+:
+: 'bdesb_overflowmemoutput':
+:      Provide an overflowable output 'streambuf' using a client buffer.
+:
+: 'bdesb_overflowmemoutstreambuf':
+:      Provide an overflowable output 'streambuf' using a client buffer.

@@ -87,9 +87,11 @@ using bsl::flush;
 // STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -97,6 +99,8 @@ static void aSsErT(int c, const char *s, int i)
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
+
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -235,27 +239,39 @@ bool problem()
 //=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 
-UintPtr foilOptimizer(const UintPtr u)
-    // The function just returns 'u', but only after putting it through a
+template <typename TYPE>
+TYPE foilOptimizer(const TYPE funcPtr)
+    // The function just returns 'funcPtr', but only after putting it through a
     // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.
+    // with its original value.  'TYPE' is expected to be a function pointer
+    // type.
+    //
+    // Note that it's still necessary to put a lot of the routines through
+    // contortions to avoid the optimizer optimizing tail calls as jumps.
 {
-    const int loopGuard  = 0x8edf0000;    // garbage with a lot of trailing
+    TYPE ret, ret2 = funcPtr;
+
+    UintPtr u = (UintPtr) funcPtr;
+
+    const int loopGuard  = 0x8edf1000;    // garbage with a lot of trailing
                                           // 0's.
     const int toggleMask = 0xa72c3dca;    // pure garbage
 
     UintPtr u2 = u;
     for (int i = 0; !(i & loopGuard); ++i) {
-        u2 ^= (i & toggleMask);
+        u ^= (i & toggleMask);
     }
 
-    // That previous loop toggled all the bits in 'u2' that it touched an even
-    // number of times, so 'u2 == u', but I'm pretty sure the optimizer can't
-    // figure that out.
+    ret = (TYPE) u;
 
-    ASSERT(u == u2);
+    // That previous loop toggled all the bits in 'u' that it touched an even
+    // number of times, so 'ret == ret2', but I'm pretty sure the optimizer
+    // can't figure that out.
 
-    return u2;
+    ASSERT(  u2 ==   u);
+    ASSERT(ret2 == ret);
+
+    return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -330,7 +346,7 @@ void testStackTrace(const baesu_StackTrace& st)
             LOOP_ASSERT(i, frame.isOffsetFromSymbolKnown());
 
             UintPtr offset = frame.offsetFromSymbol();
-            const unsigned maxOffset = PLAT_HP ? 2048 : 1024;
+            const unsigned int maxOffset = PLAT_HP ? 2048 : 1024;
             LOOP2_ASSERT(i, offset, offset > 0);
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
@@ -381,7 +397,7 @@ void stackTop()
     int numDelims = 0;
     char delim = straightTrace ? ' ' : '\n';
     const bsl::string& str = ss.str();
-    for (unsigned u = 0; u < str.length(); ++u) {
+    for (unsigned int u = 0; u < str.length(); ++u) {
         numDelims += delim == str[u];
     }
     LOOP_ASSERT(numDelims, numDelims >= 6);
@@ -914,13 +930,20 @@ void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
                                 // case 4
                                 // ------
 
-bool case_4_top_called = false;
+bool case_4_top_called_demangle = false;
+bool case_4_top_called_mangle   = false;
 
 static
 void case_4_top(bool demangle)
 {
-    if (case_4_top_called) return;
-    case_4_top_called = true;
+    if (demangle) {
+        ASSERT(!case_4_top_called_demangle);
+        case_4_top_called_demangle = true;
+    }
+    else {
+        ASSERT(!case_4_top_called_mangle);
+        case_4_top_called_mangle = true;
+    }
 
     ST st;
     int rc = Util::loadStackTraceFromStack(&st, 100, demangle);
@@ -949,49 +972,33 @@ void case_4_top(bool demangle)
     }
 }
 
-// Take a global ptr to 'case_4_top' to discourage optimizer from inlining it.
-
-void (*case_4_top_ptr)(bool) = &case_4_top;
-
 namespace CASE_4 {
-
-bool middleCalled = false;
 
 void middle(bool demangle)
 {
-    if (middleCalled) return;
-    middleCalled = true;
-
-    case_4_top_called = false;
-
     for (int i = 0; i < 1024; ++i) {
-        if (i & 0xabcd) {
-            case_4_top(demangle);
+        if (i & 0xabc4) {
+            (*foilOptimizer(case_4_top))(demangle);
             i += 1024 << 4;
         }
+        else if (i > 4) {
+            ASSERT(0);
+        }
     }
-
-    ASSERT(case_4_top_called);
 }
-
-bool bottomCalled = false;
 
 void bottom(bool demangle, double x)
 {
-    if (bottomCalled) return;
-    bottomCalled = true;
-
-    middleCalled = false;
-
     for (int i = 0; i < (1 << 15); ++i) {
         x *= x;
         if (i & 0x1234) {
-            middle(demangle);
-            i += 1 << 12;
+            (*foilOptimizer(middle))(demangle);
+            i += 1 << 15;
+        }
+        else if (i > 4) {
+            ASSERT(0);
         }
     }
-
-    ASSERT(middleCalled);
 }
 
 }  // close namespace CASE_4
@@ -1000,13 +1007,20 @@ void bottom(bool demangle, double x)
                                 // case 3
                                 // ------
 
-static bool calledCase5Top = false;
+static bool calledCase5TopDemangle = false;
+static bool calledCase5TopMangle   = false;
 
 static
 void case_3_Top(bool demangle)
 {
-    if (calledCase5Top) return;
-    calledCase5Top = true;
+    if (demangle) {
+        ASSERT(!calledCase5TopDemangle);
+        calledCase5TopDemangle = true;
+    }
+    else {
+        ASSERT(!calledCase5TopMangle);
+        calledCase5TopMangle = true;
+    }
 
     enum { MAX_FRAMES = 100 };
     void *addresses[MAX_FRAMES];
@@ -1044,70 +1058,47 @@ void case_3_Top(bool demangle)
     }
 }
 
-// Take a global ptr to 'case_3_top' to prevent optimizer inlining it.
-
-void (*case_3_Top_Ptr)(bool) = &case_3_Top;
-
 namespace CASE_3 {
 
-bool calledUpperMiddle = false;
-
-void upperMiddle(bool demangle, int i)
+void upperMiddle(bool demangle)
 {
-    if (calledUpperMiddle) return;
-    calledUpperMiddle = true;
-
-    calledCase5Top = false;
-
     for (int j = 0; j < 100; ++j) {
         if (j & 16) {
-            i *= i;
-            case_3_Top(demangle);
+            j *= j * j;
+            (*foilOptimizer(case_3_Top))(demangle);
+        }
+        else if (j > 16) {
+            ASSERT(0);
         }
     }
-
-    ASSERT(calledCase5Top);
 }
-
-bool calledLowerMiddle = false;
 
 int lowerMiddle(bool demangle)
 {
-    if (calledLowerMiddle) return 97;
-    calledLowerMiddle = true;
-
-    calledUpperMiddle = false;
-
     for (int j = 0; j < 100; ++j) {
         if (j & 16) {
-            upperMiddle(demangle, 10);
+            j *= j;
+            (*foilOptimizer(upperMiddle))(demangle);
+        } else if (j > 16) {
+            ASSERT(0);
         }
     }
-
-    ASSERT(calledUpperMiddle);
 
     return 7;
 }
 
-bool calledBottom = false;
-
 double bottom(bool demangle)
 {
-    if (calledBottom) return 0.89;
-    calledBottom = true;
-
-    calledLowerMiddle = false;
-
     double x = 0;
 
     for (int i = 0; i < 100; ++i) {
         if (i & 4) {
             i *= 50;
-            x = 3.7 * lowerMiddle(demangle);
+            x = 3.7 * (*foilOptimizer(lowerMiddle))(demangle);
+        } else if (i > 4) {
+            ASSERT(0);
         }
     }
-
-    ASSERT(calledLowerMiddle);
 
     return x;
 }
@@ -1120,13 +1111,13 @@ double bottom(bool demangle)
 
 namespace CASE_2 {
 
-bool called = false;
+bool topCalled = false;
 
 void top(bslma::Allocator *alloc)
     // Note that we don't get
 {
-    if (called) return;
-    called = true;
+    ASSERT(!topCalled);
+    topCalled = true;
 
     bsl::vector<const char *> matches(alloc);
     matches.push_back("top");
@@ -1174,18 +1165,15 @@ void top(bslma::Allocator *alloc)
 
 void bottom(bslma::Allocator *alloc)
 {
-    // still attempting to thwart optimizer -- all this does is call 'top'
-    // a bunch of times.
-
-    called = false;
-
     for (int i = 0; i < 0x20; ++i) {
         if ((i & 2) && (i & 4)) {
-            top(alloc);
+            (*foilOptimizer(top))(alloc);
+            i += 0x1f;
+        }
+        else if (7 == i) {
+            ASSERT(0);
         }
     }
-
-    ASSERT(called);
 }
 
 }  // close namespace CASE_2
@@ -1196,12 +1184,12 @@ void bottom(bslma::Allocator *alloc)
 
 namespace CASE_1 {
 
-bool called = false;
+bool topCalled = false;
 
 void top(bslma::Allocator *alloc)
 {
-    if (called) return;
-    called = true;
+    ASSERT(!topCalled);
+    topCalled = true;
 
     bsl::vector<const char *> matches(alloc);
     matches.push_back("top");
@@ -1265,21 +1253,16 @@ void top(bslma::Allocator *alloc)
 
 void bottom(bslma::Allocator *alloc)
 {
-    // still attempting to thwart optimizer -- all this does is call 'top'
-    // a bunch of times.
-
-    called = false;
-
-    for (int i = 0; i < 0x20; ++i) {
-        if ((i & 2) && (i & 4)) {
-            top(alloc);
+    for (int i = 0; i < 20; ++i) {
+        if ((i & 1) && (i & 2)) {
+            (*foilOptimizer(&top))(alloc);
+            i += 100;
         }
-        else if ((i & 1) && (i & 8)) {
-            top(alloc);
+        else if (i & 8) {
+            ASSERT(0);
+            (*foilOptimizer(&top))(alloc);
         }
     }
-
-    ASSERT(called);
 }
 
 }  // close namespace CASE_1
@@ -1875,13 +1858,11 @@ int main(int argc, char *argv[])
         case_5_bottom(true,  false, &depth);    // demangle
         ASSERT(startDepth  == depth);
 
-        CASE_4::bottomCalled = false;
-        CASE_4::bottom(false, 3.7);    // no demangling
-        ASSERT(CASE_4::bottomCalled);
+        (*foilOptimizer(CASE_4::bottom))(false, 3.7);    // no demangling
+        ASSERT(case_4_top_called_mangle);
 
-        CASE_4::bottomCalled = false;
-        CASE_4::bottom(true,  3.7);    // demangling
-        ASSERT(CASE_4::bottomCalled);
+        (*foilOptimizer(CASE_4::bottom))(true,  3.7);    // demangling
+        ASSERT(case_4_top_called_demangle);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1911,7 +1892,8 @@ int main(int argc, char *argv[])
         }
         int depth = startDepth;
 
-        case_5_bottom(false, false, &depth);    // no demangle, hbpa
+        // no demangle, hbpa
+        (*foilOptimizer(case_5_bottom))(false, false, &depth);
         ASSERT(startDepth == depth);
 
         case_5_bottom(true,  false, &depth);    // demangle, hbpa
@@ -1947,13 +1929,11 @@ int main(int argc, char *argv[])
 
         namespace TC = CASE_4;
 
-        TC::bottomCalled = false;
-        TC::bottom(false, 3.7);    // no demangling
-        ASSERT(TC::bottomCalled);
+        (*foilOptimizer(TC::bottom))(false, 3.7);    // no demangling
+        ASSERT(case_4_top_called_mangle);
 
-        TC::bottomCalled = false;
-        TC::bottom(true,  3.7);    // demangling
-        ASSERT(TC::bottomCalled);
+        (*foilOptimizer(TC::bottom))(true,  3.7);    // demangling
+        ASSERT(case_4_top_called_demangle);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1981,13 +1961,11 @@ int main(int argc, char *argv[])
 
         namespace TC = CASE_3;
 
-        TC::calledBottom = false;
-        (void) TC::bottom(false);    // no demangling
-        ASSERT(TC::calledBottom);
+        (void) (*foilOptimizer(TC::bottom))(false);    // no demangling
+        ASSERT(calledCase5TopMangle);
 
-        TC::calledBottom = false;
-        (void) TC::bottom(true);     // demangling
-        ASSERT(TC::calledBottom);
+        (void) (*foilOptimizer(TC::bottom))(true);     // demangling
+        ASSERT(calledCase5TopDemangle);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2020,7 +1998,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Print and Streamout Test\n"
                              "========================\n";
 
-        TC::bottom(&ta);
+        (*foilOptimizer(TC::bottom))(&ta);
+        ASSERT(TC::topCalled);
 
         ASSERT(0 == defaultAllocator.numAllocations());
       } break;
@@ -2058,7 +2037,8 @@ int main(int argc, char *argv[])
             ASSERT(st.allocator() != &defaultAllocator);
         }
 
-        TC::bottom(&ta);
+        (*foilOptimizer(&TC::bottom))(&ta);
+        ASSERT(TC::topCalled);
 
         ASSERT(0 == defaultAllocator.numAllocations());
       } break;

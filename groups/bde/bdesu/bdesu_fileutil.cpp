@@ -175,8 +175,12 @@ int makeDirectory(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    // 755 octal = RWX by user, RX by group, RX by all
-    return mkdir(path, 0755);
+    // Permissions of created dir will by 'drwxrwxrwx', anded with '~umask'.
+
+    enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
+                   S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
+                   S_IROTH | S_IWOTH | S_IXOTH };   // others rwx
+    return mkdir(path, PERMS);
 }
 
 static inline
@@ -377,7 +381,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
                      bdesu_MemoryUtil::pageSize());
 
 
@@ -853,7 +857,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
                      bdesu_MemoryUtil::pageSize());
 
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);

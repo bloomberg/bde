@@ -96,8 +96,8 @@ typedef bsls::Types::UintPtr UintPtr;
 enum { FIRST_LINE = __LINE__ };
 
 void *testFunction()
-    // The function just returns a pointer into itself, cast to an unsigned but
-    // only after putting it through a transform that the optimizer can't
+    // The function just returns a pointer into itself, cast to an unsigned int
+    // but only after putting it through a transform that the optimizer can't
     // possibly understand that leaves it with its original value.
 {
     const UintPtr u = ((UintPtr) &testFunction) + 4;

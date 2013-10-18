@@ -1813,7 +1813,7 @@ int main(int argc, char *argv[]) {
 
         // Test bind() with bad port number < 1024 (we are not root)
         // On windows, this is allowed.
-#ifdef BSLS_PLATFORM_OS_UNIX
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         if (verbose)
             cout << "\tBinding to a bad port number." << endl;
         {
