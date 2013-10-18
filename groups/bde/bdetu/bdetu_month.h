@@ -265,7 +265,7 @@ struct bdetu_Month {
         // characterized as "Modified Following."
 
     static bdet_Date floorOrNextMonthInYear(
-                                          bdet_MonthOfYear::Month month
+                                          bdet_MonthOfYear::Month month,
                                           const bdet_Date&        initialDate);
         // Return the first date less than OR EQUAL TO the specified
         // 'initialDate' in the same year that falls in the specified 'month'
