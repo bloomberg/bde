@@ -82,8 +82,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef BDE_DONT_ALOLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BDET_MONTH
 #include <bdet_month.h>
+#endif
+
 #endif
 
 #ifndef INCLUDED_BDET_DATE
@@ -146,7 +150,7 @@ struct bdetu_Month {
 
     static bdet_Date adjustMonth(bdet_MonthOfYear::Month month,
                                  const bdet_Date&        initialDate,
-                                 int               count);
+                                 int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count > 0') or before ('count < 0')
         // the specified 'initialDate' with the largest valid day-of-month less
@@ -158,7 +162,7 @@ struct bdetu_Month {
 
     static bdet_Date ceilAdjustMonth(bdet_MonthOfYear::Month month,
                                      const bdet_Date&        initialDate,
-                                     int               count);
+                                     int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count >= 0') or before ('count < 0')
         // the first month greater than OR EQUAL TO that of the specified
@@ -238,9 +242,9 @@ struct bdetu_Month {
         //      2000FEB28 <- floorAdjustMonth2(FEB, 2002MAR31, -2)
         //..
 
-    static bdet_Date ceilOrPreviousMonthInYear(bdet_MonthOfYear::Month
-                                                                 month,
-                                               const bdet_Date& initialDate);
+    static bdet_Date ceilOrPreviousMonthInYear(
+                                          bdet_MonthOfYear::Month month,
+                                          const bdet_Date&        initialDate);
         // Return the first date greater than OR EQUAL TO the specified
         // 'initialDate' in the same year that falls in the specified 'month'
         // with the largest valid day-of-month less than or equal to that of
@@ -260,9 +264,9 @@ struct bdetu_Month {
         // This kind of dual operation within a single year is sometimes
         // characterized as "Modified Following."
 
-    static bdet_Date floorOrNextMonthInYear(bdet_MonthOfYear::Month
-                                                             month,
-                                            const bdet_Date& initialDate);
+    static bdet_Date floorOrNextMonthInYear(
+                                          bdet_MonthOfYear::Month month
+                                          const bdet_Date&        initialDate);
         // Return the first date less than OR EQUAL TO the specified
         // 'initialDate' in the same year that falls in the specified 'month'
         // with the largest valid day-of-month less than or equal to that of
