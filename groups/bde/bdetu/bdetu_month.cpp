@@ -1,6 +1,5 @@
 // bdetu_month.cpp   -*-C++-*-
 #include <bdetu_month.h>
-#include <bdet_monthofyear.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdetu_month_cpp,"$Id$ $CSID$")

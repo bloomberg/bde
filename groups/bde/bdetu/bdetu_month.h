@@ -2,6 +2,8 @@
 #ifndef INCLUDED_BDETU_MONTH
 #define INCLUDED_BDETU_MONTH
 
+#include <bdet_monthofyear.h>
+
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
@@ -179,7 +181,7 @@ struct bdetu_Month {
 
     static bdet_Date ceilAdjustMonth2(bdet_MonthOfYear::Month month,
                                       const bdet_Date&        initialDate,
-                                      int               count);
+                                      int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count >= 0') or before ('count < 0')
         // the first month greater than OR EQUAL TO that of the specified
@@ -203,7 +205,7 @@ struct bdetu_Month {
 
     static bdet_Date floorAdjustMonth(bdet_MonthOfYear::Month month,
                                       const bdet_Date&        initialDate,
-                                      int               count);
+                                      int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count >= 0') or before ('count < 0')
         // the first month less than OR EQUAL TO that of the specified
