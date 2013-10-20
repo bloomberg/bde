@@ -260,9 +260,9 @@ struct SharedPtrOutofplaceRep_DeleterType;
 template <class DELETER>
 class SharedPtrOutofplaceRep_DeleterDiscriminator;
 
-              // ========================================
+              // =========================================
               // struct SharedPtrOutofplaceRep_DeleterType
-              // ========================================
+              // =========================================
 
 struct SharedPtrOutofplaceRep_DeleterType {
     // This 'struct' enumerates four kinds of deleters, the first two are
@@ -492,9 +492,9 @@ class SharedPtrOutofplaceRep_DeleterDiscriminator {
         // object.
 };
 
-             // ==========================================
+             // ===========================================
              // struct SharedPtrOutofplaceRep_DeleterHelper
-             // ==========================================
+             // ===========================================
 
 struct SharedPtrOutofplaceRep_DeleterHelper {
     // This 'struct' provides utility functions to apply a deleter to a shared
@@ -548,9 +548,9 @@ struct SharedPtrOutofplaceRep_DeleterHelper {
         // Delete the specified 'ptr' using the specified 'deleter'.
 };
 
-               // ======================================
+               // =======================================
                // struct SharedPtrOutofplaceRep_InitGuard
-               // ======================================
+               // =======================================
 
 template <class TYPE, class DELETER>
 struct SharedPtrOutofplaceRep_InitGuard {
@@ -591,9 +591,9 @@ struct SharedPtrOutofplaceRep_InitGuard {
 //                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
-                     // ---------------------------
+                     // ----------------------------
                      // class SharedPtrOutofplaceRep
-                     // ---------------------------
+                     // ----------------------------
 
 // CREATORS
 template <class TYPE, class DELETER>
