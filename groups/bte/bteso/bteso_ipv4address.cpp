@@ -125,7 +125,7 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *address)
         // Should not get here, but added to suppress warnings.
 
         return 0;                                                     // RETURN
-  }
+    }
 }
 
 int bteso_IPv4Address::machineIndependentInetPtonIPv4(const char *address,
