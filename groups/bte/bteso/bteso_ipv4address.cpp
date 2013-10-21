@@ -79,9 +79,11 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *address)
 
     switch(numDotChars)
     {
+
       // format a
 
       case 0:
+
         // The last number should represent 4294967295.
 
         return (!strcmp    (address,           "-1"          )) ||
@@ -92,6 +94,7 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *address)
       // format a.b
 
       case 1:
+
         // The last number should represent 16777215.
 
         return (!strcmp    (dotCharPtr[0] + 1, "-1"          )) ||
