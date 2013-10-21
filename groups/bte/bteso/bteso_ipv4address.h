@@ -349,7 +349,7 @@ bool operator==(const bteso_IPv4Address& lhs, const bteso_IPv4Address& rhs);
     // port number, each have the same value.
 
 inline
-bool operator!=(const bteso_IPv4Address& lhr, const bteso_IPv4Address& rhs);
+bool operator!=(const bteso_IPv4Address& lhs, const bteso_IPv4Address& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'bteso_IPv4Address' objects do
     // not have the same value if their respective fields for IP address or
