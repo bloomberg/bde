@@ -161,13 +161,41 @@ class bteso_IPv4Address {
         // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
 
     static int isLocalBroadcastAddress(const char *address);
+        // Return 0 if the IP 'address' is invalid or does not represent
+        // 255.255.255.255, and non-zero otherwise.  The IP 'address' is not
+        // valid if it does not have one of the following four formats:
+        //..
+        //   a.b.c.d,  where a, b, c, and d are each 8-bit ints;
+        //   a.b.c,    where a and b are both 8-bit ints and c is a 16-bit int;
+        //   a.b,      where a is an 8-bit int and b is a 24-bit int;
+        //   a,        where a is a 32-bit int.
+        //..
+        // a, b, c, and d can each be represented in decimal, octal, or (upper
+        // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
+        //
+        // The IP 'address' represents 255.255.255.255 if it has one of the
+        // following four formats:
+        //..
+        //   a.b.c.d,  where a, b, c, and d are each 8-bit ints representing
+        //             -1 or 255.
+        //   a.b.c,    where a and b are both 8-bit ints representing -1 or
+        //             255 and c is a 16-bit int representing -1 or 65536.
+        //   a.b,      where a is an 8-bit int representing -1 or 255 and b is
+        //             a 24-bit int representing -1 or 16777215.
+        //   a,        where a is a 32-bit int representing -1 or 4294967295.
+        //..
+        // a, b, c, and d can each be represented in decimal, octal, or (upper
+        // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
+        //..
         // Windows XP currently does not support the inet_aton function as
         // specified by the contract above (inet_pton does not handle
         // hexadecimal or octal numerals.) In DRQS 44521942 it is noted that
         // 255.255.255.255, while being a valid address, is not parsed
         // correctly by inet_addr because -1 is used as an error code. This
         // function checks if the specified 'address' is an IP representation
-        // of a address with an integer value of -1.
+        // of a address with an integer value of -1. This function is intended
+        // to detect all cases in which a valid address of 255.255.255.255 is
+        // wrongfully detected as an invalid address by inet_addr.
 
     static int machineIndependentInetPtonIPv4(const char *address,
                                               int        *addr);
