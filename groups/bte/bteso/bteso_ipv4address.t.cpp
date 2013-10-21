@@ -187,8 +187,8 @@ int main(int argc, char *argv[])
         } break;
         case 13: {
             // ----------------------------------------------------------------
-            // TESTING STATIC windowsCheckMinusOneAddr FUNCTION:
-            //   'windowsCheckMinusOneAddr' returns nonzero if the input IP
+            // TESTING STATIC isLocalBroadcastAddress FUNCTION:
+            //   'isLocalBroadcastAddress' returns nonzero if the input IP
             //   address in dotted decimal notation refers to the address -1,
             //   and 0 otherwise.
             // Plan:
@@ -196,10 +196,10 @@ int main(int argc, char *argv[])
             //   for both -1 addresses and other addresses.
             //
             // Testing
-            //   static int windowsCheckMinusOneAddr(const char *address);
+            //   static int isLocalBroadcastAddress(const char *address);
             // ----------------------------------------------------------------
 
-            if (verbose) cout << "\nTesting STATIC windowsCheckMinusOneAddr "
+            if (verbose) cout << "\nTesting STATIC isLocalBraodcastAddress "
                               << "FUNCTION"
                               << "\n=========================================="
                               << "======"
@@ -212,28 +212,40 @@ int main(int argc, char *argv[])
                     //line         ips
                     //----  ------------------
                     // format a.b.c.d
-                    { L_,  "255.255.255.255"   },
-                    { L_,  "0xFF.255.0377.-1"  },
+                    { L_,  "255.255.255.255"     },
+                    { L_,  "0xFF.255.0377.-1"    },
                     // format a.b.c
-                    { L_,  "255.255.65535"     },
-                    { L_,  "255.-1.0xFFFF"     },
+                    { L_,  "255.255.65535"       },
+                    { L_,  "255.-1.0xFFFF"       },
                     // format a.b
-                    { L_,  "255.16777215"      },
+                    { L_,  "255.16777215"        },
                     // format a
-                    { L_,  "-1"                },
+                    { L_,  "-1"                  },
+                    { L_,  "4294967295"          },
+                    { L_,  "0xFFFFFFFF"          },
+                    { L_,  "037777777777"        },
                     // Invalid address
-                    { L_,  "325.3.5.7"         },
-                    { L_,  "5.7.0x10000"       },
-                    { L_,  "5.0x1000000"       },
-                    { L_,  "akjfa;kdfjask"     },
+                    { L_,  "325.3.5.7"           },
+                    { L_,  "5.7.0x10000"         },
+                    { L_,  "5.0x1000000"         },
+                    { L_,  "akjfa;kdfjask"       },
+                    { L_,  ""                    },
+                    { L_,  "."                   },
+                    { L_,  "..."                 },
+                    { L_,  "..........."         },
+                    { L_,  "1.1.1.1.1.1"         },
+                    { L_,  "11111.1.1.1"         },
+                    { L_,  "255.255.255.255.255" },
                     // Not -1
-                    { L_,  "0.0.0.0"           },
-                    { L_,  "255.255.0.255"     }
+                    { L_,  "0.0.0.0"             },
+                    { L_,  "255.5127776"         },
+                    { L_,  "255.255.0.255"       }
                 };
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+                const int NUM_BAD = 14;
 
-                for (int i = 0; i < NUM_VALUES - 6; ++i) {
+                for (int i = 0; i < NUM_VALUES - NUM_BAD; ++i) {
                     const int          LINE = VALUES[i].d_lineNum;
                     const char        *IPS  = VALUES[i].d_ips;
 
@@ -242,10 +254,10 @@ int main(int argc, char *argv[])
                     }
 
                     LOOP2_ASSERT(i, LINE,
-                        0 != bteso_IPv4Address::windowsCheckMinusOneAddr(IPS));
+                        0 != bteso_IPv4Address::isLocalBroadcastAddress(IPS));
                 }
 
-                for (int i = NUM_VALUES - 6; i < NUM_VALUES; ++i) {
+                for (int i = NUM_VALUES - NUM_BAD; i < NUM_VALUES; ++i) {
                     const int          LINE = VALUES[i].d_lineNum;
                     const char        *IPS  = VALUES[i].d_ips;
 
@@ -254,7 +266,7 @@ int main(int argc, char *argv[])
                     }
 
                     LOOP2_ASSERT(i, LINE,
-                       0 == bteso_IPv4Address::windowsCheckMinusOneAddr(IPS));
+                       0 == bteso_IPv4Address::isLocalBroadcastAddress(IPS));
                 }
             }
 

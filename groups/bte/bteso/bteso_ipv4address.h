@@ -160,7 +160,7 @@ class bteso_IPv4Address {
         // a, b, c, and d can each be represented in decimal, octal, or (upper
         // or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
 
-    static int windowsCheckMinusOneAddr(const char *address);
+    static int isLocalBroadcastAddress(const char *address);
         // Windows XP currently does not support the inet_aton function as
         // specified by the contract above (inet_pton does not handle
         // hexadecimal or octal numerals.) In DRQS 44521942 it is noted that

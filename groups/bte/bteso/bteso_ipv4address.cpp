@@ -16,6 +16,7 @@ BDES_IDENT_RCSID(bteso_ipv4address_cpp,"$Id$ $CSID$")
 #include <arpa/inet.h>
 #endif
 
+
                        // =======================
                        // class bteso_IPv4Address
                        // =======================
@@ -39,94 +40,92 @@ int bteso_IPv4Address::isValid(const char *address)
     }
 }
 
-int bteso_IPv4Address::windowsCheckMinusOneAddr(const char *address) {
-    int num_dot_char = 0;
-    int dot_char[3];
+int bteso_IPv4Address::isLocalBroadcastAddress(const char *address)
+{
+    int numDotChars = 0;
+    const char *dotCharPtr[3];
 
     for (int i = 0; address[i] != 0; i++)
     {
         if (address[i] == '.')
         {
-            if (num_dot_char == 3)
+            if (numDotChars == 3)
             {
-                return 0;  // Can't have more than three dots.
+                // Can't have more than three dots.
+
+                return 0;                                             // RETURN
             }
             else {
-                dot_char[num_dot_char++] = i;
+                dotCharPtr[numDotChars++] = address + i;
             }
         }
     }
 
-    // Compute the position and length of each numeral in the IP address.
-    const char *pos[4];
-    int length[4];
-    for (int i = 0; i <= num_dot_char; i++) {
-        if (i == 0)
-        {
-            pos[i]    = address;
-            length[i] = dot_char[0];
-        } else if (i == num_dot_char)
-        {
-            pos[i]    = address + dot_char[i - 1] + 1;
-            length[i] = strlen(address) - dot_char[i - 1];
-        } else
-        {
-            pos[i]    = address + dot_char[i - 1] + 1;
-            length[i] = dot_char[i] - dot_char[i - 1] - 1;
+    // Check that all but the last number represents 255.
+
+    for (int i = 0; i < numDotChars; i++)
+    {
+        const char *start = (i == 0 ? address : (dotCharPtr[i - 1] + 1));
+
+        // Should be 255 in some format.
+
+        if (strncmp    (start, "-1.",   3) &&
+            strncmp    (start, "255.",  4) &&
+            strncasecmp(start, "0xFF.", 5) &&
+            strncmp    (start, "0377.", 5)) {
+            return 0;                                                 // RETURN
         }
     }
 
-    switch (num_dot_char)
+    switch(numDotChars)
     {
-        // format a
-        case 0:
-            return (!strcmp     (address, "-1")) ||
-                   (!strcmp     (address, "4294967295")) ||
-                   (!strcasecmp (address, "0xFFFFFFFF")) ||
-                   (!strcmp     (address, "037777777777"));
-        // format a.b
-        case 1:
-            return ((!strncmp    (pos[0], "-1",        length[0])) ||
-                    (!strncmp    (pos[0], "255",       length[0])) ||
-                    (!strncasecmp(pos[0], "0xFF",      length[0])) ||
-                    (!strncmp    (pos[0], "0377",      length[0]))) &&
-                   ((!strncmp    (pos[1], "-1",        length[1])) ||
-                    (!strncmp    (pos[1], "16777215",  length[1])) ||
-                    (!strncasecmp(pos[1], "0xFFFFFF",  length[1])) ||
-                    (!strncmp    (pos[1], "077777777", length[1])));
-        // format a.b.c
-        case 2:
-            return ((!strncmp    (pos[0], "-1",        length[0])) ||
-                    (!strncmp    (pos[0], "255",       length[0])) ||
-                    (!strncasecmp(pos[0], "0xFF",      length[0])) ||
-                    (!strncmp    (pos[0], "0377",      length[0]))) &&
-                   ((!strncmp    (pos[1], "-1",        length[1])) ||
-                    (!strncmp    (pos[1], "255",       length[1])) ||
-                    (!strncasecmp(pos[1], "0xFF",      length[1])) ||
-                    (!strncmp    (pos[1], "0377",      length[1]))) &&
-                   ((!strncmp    (pos[2], "-1",        length[2])) ||
-                    (!strncmp    (pos[2], "65535",     length[2])) ||
-                    (!strncasecmp(pos[2], "0xFFFF",    length[2])) ||
-                    (!strncmp    (pos[2], "0177777",   length[2])));
-        // format a.b.c.d
-        case 3:
-            return ((!strncmp    (pos[0], "-1",        length[0])) ||
-                    (!strncmp    (pos[0], "255",       length[0])) ||
-                    (!strncasecmp(pos[0], "0xFF",      length[0])) ||
-                    (!strncmp    (pos[0], "0377",      length[0]))) &&
-                   ((!strncmp    (pos[1], "-1",        length[1])) ||
-                    (!strncmp    (pos[1], "255",       length[1])) ||
-                    (!strncasecmp(pos[1], "0xFF",      length[1])) ||
-                    (!strncmp    (pos[1], "0377",      length[1]))) &&
-                   ((!strncmp    (pos[2], "-1",        length[2])) ||
-                    (!strncmp    (pos[2], "255",       length[2])) ||
-                    (!strncasecmp(pos[2], "0xFF",      length[2])) ||
-                    (!strncmp    (pos[2], "0377",      length[2]))) &&
-                   ((!strncmp    (pos[3], "-1",        length[3])) ||
-                    (!strncmp    (pos[3], "255",       length[3])) ||
-                    (!strncasecmp(pos[3], "0xFF",      length[3])) ||
-                    (!strncmp    (pos[3], "0377",      length[3])));
-    }
+      // format a
+
+      case 0:
+        // The last number should represent 4294967295.
+
+        return (!strcmp    (address,           "-1"          )) ||
+               (!strcmp    (address,           "4294967295"  )) ||
+               (!strcasecmp(address,           "0xFFFFFFFF"  )) ||
+               (!strcmp    (address,           "037777777777"));      // RETURN
+
+      // format a.b
+
+      case 1:
+        // The last number should represent 16777215.
+
+        return (!strcmp    (dotCharPtr[0] + 1, "-1"          )) ||
+               (!strcmp    (dotCharPtr[0] + 1, "16777215"    )) ||
+               (!strcasecmp(dotCharPtr[0] + 1, "0xFFFFFF"    )) ||
+               (!strcmp    (dotCharPtr[0] + 1, "077777777"   ));      // RETURN
+
+      // format a.b.c
+
+      case 2:
+
+        // The last number should represent 65535.
+
+        return (!strcmp    (dotCharPtr[1] + 1, "-1"          )) ||
+               (!strcmp    (dotCharPtr[1] + 1, "65535"       )) ||
+               (!strcasecmp(dotCharPtr[1] + 1, "0xFFFF"      )) ||
+               (!strcmp    (dotCharPtr[1] + 1, "0177777"     ));      // RETURN
+
+      // format a.b.c.d
+
+      case 3:
+
+        // The last number should represent 255.
+
+        return (!strcmp    (dotCharPtr[2] + 1, "-1"          )) ||
+               (!strcmp    (dotCharPtr[2] + 1, "255"         )) ||
+               (!strcasecmp(dotCharPtr[2] + 1, "0xFF"        )) ||
+               (!strcmp    (dotCharPtr[2] + 1, "0377"        ));      // RETURN
+      default:
+
+        // Should not get here, but added to suppress warnings.
+
+        return 0;                                                     // RETURN
+  }
 }
 
 int bteso_IPv4Address::machineIndependentInetPtonIPv4(const char *address,
@@ -136,14 +135,14 @@ int bteso_IPv4Address::machineIndependentInetPtonIPv4(const char *address,
 
     *addr = inet_addr(address);
     if (addr != -1) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     else {
-        if (windowsCheckMinusOneAddr(address)) {
+        if (isLocalBroadcastAddress(address)) {
             *addr = -1;
-            return 1;
+            return 1;                                                 // RETURN
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
 
 #else
@@ -184,11 +183,11 @@ int bteso_IPv4Address::setIpAddress(const char *address)
     if (!machineIndependentInetPtonIPv4(address, &addr))
     {
         d_address = 0;
-        return -1;
+        return -1;                                                    // RETURN
     }
     else {
         d_address = addr;
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
