@@ -35,100 +35,36 @@ int bteso_IPv4Address::isValid(const char *address)
     if (!machineIndependentInetPtonIPv4(address, &addr)) {
         return -1;                                                    // RETURN
     }
-    else {
-        return 0;                                                     // RETURN
-    }
+    return 0;
 }
 
-int bteso_IPv4Address::isLocalBroadcastAddress(const char *address)
+int bteso_IPv4Address::isLocalBroadcastAddress(const char *addr)
+    // Windows XP currently does not support the inet_aton function as
+    // specified by the contract above (inet_pton does not handle
+    // hexadecimal or octal numerals.) In DRQS 44521942 it is noted that
+    // 255.255.255.255, while being a valid address, is not parsed
+    // correctly by inet_addr because -1 is used as an error code. This
+    // function checks if the specified 'address' is an IP representation
+    // of a address with an integer value of -1. This function is intended
+    // to detect all cases in which a valid address of 255.255.255.255 is
+    // wrongfully detected as an invalid address by inet_addr.
 {
-    int numDotChars = 0;
-    const char *dotCharPtr[3];
-
-    for (int i = 0; address[i] != 0; i++)
-    {
-        if (address[i] == '.')
-        {
-            if (numDotChars == 3)
-            {
-                // Can't have more than three dots.
-
-                return 0;                                             // RETURN
-            }
-            else {
-                dotCharPtr[numDotChars++] = address + i;
-            }
-        }
+    unsigned long segs[4] = { 0, 0, 0, 0 };
+    int numSeg = 0;
+    for (int i = 0; i < 4; ++i) {
+        if (!isdigit(*addr))     { return false; }                    // RETURN
+        // Consume one numerical token.
+        segs[numSeg++] = strtoul(addr, const_cast<char **>(&addr), 0);
+        if (*addr == 0)          { break; }
+        if (*addr++ != "..."[i]) { return false; }                    // RETURN
     }
-
-    // Check that all but the last number represents 255.
-
-    for (int i = 0; i < numDotChars; i++)
-    {
-        const char *start = (i == 0 ? address : (dotCharPtr[i - 1] + 1));
-
-        // Should be 255 in some format.
-
-        if (strncmp    (start, "-1.",   3) &&
-            strncmp    (start, "255.",  4) &&
-            strncasecmp(start, "0xFF.", 5) &&
-            strncmp    (start, "0377.", 5)) {
-            return 0;                                                 // RETURN
-        }
-    }
-
-    switch(numDotChars)
-    {
-
-      // format a
-
-      case 0:
-
-        // The last number should represent 4294967295.
-
-        return (!strcmp    (address,           "-1"          )) ||
-               (!strcmp    (address,           "4294967295"  )) ||
-               (!strcasecmp(address,           "0xFFFFFFFF"  )) ||
-               (!strcmp    (address,           "037777777777"));      // RETURN
-
-      // format a.b
-
-      case 1:
-
-        // The last number should represent 16777215.
-
-        return (!strcmp    (dotCharPtr[0] + 1, "-1"          )) ||
-               (!strcmp    (dotCharPtr[0] + 1, "16777215"    )) ||
-               (!strcasecmp(dotCharPtr[0] + 1, "0xFFFFFF"    )) ||
-               (!strcmp    (dotCharPtr[0] + 1, "077777777"   ));      // RETURN
-
-      // format a.b.c
-
-      case 2:
-
-        // The last number should represent 65535.
-
-        return (!strcmp    (dotCharPtr[1] + 1, "-1"          )) ||
-               (!strcmp    (dotCharPtr[1] + 1, "65535"       )) ||
-               (!strcasecmp(dotCharPtr[1] + 1, "0xFFFF"      )) ||
-               (!strcmp    (dotCharPtr[1] + 1, "0177777"     ));      // RETURN
-
-      // format a.b.c.d
-
-      case 3:
-
-        // The last number should represent 255.
-
-        return (!strcmp    (dotCharPtr[2] + 1, "-1"          )) ||
-               (!strcmp    (dotCharPtr[2] + 1, "255"         )) ||
-               (!strcasecmp(dotCharPtr[2] + 1, "0xFF"        )) ||
-               (!strcmp    (dotCharPtr[2] + 1, "0377"        ));      // RETURN
-      default:
-
-        // Should not get here, but added to suppress warnings.
-
-        return 0;                                                     // RETURN
-    }
+    static const unsigned long minusOne[4][4] = {
+        {0xFFFFFFFFul, 0,          0,        0     },
+        {0xFFul,       0xFFFFFFul, 0,        0     },
+        {0xFFul,       0xFFul,     0xFFFFul, 0     },
+        {0xFFul,       0xFFul,     0xFFul,   0xFFul},
+    };
+    return memcmp(segs, minusOne[numSeg - 1], sizeof segs) == 0;
 }
 
 int bteso_IPv4Address::machineIndependentInetPtonIPv4(const char *address,
@@ -183,15 +119,12 @@ int bteso_IPv4Address::setIpAddress(const char *address)
 
     int addr;
 
-    if (!machineIndependentInetPtonIPv4(address, &addr))
-    {
+    if (!machineIndependentInetPtonIPv4(address, &addr)) {
         d_address = 0;
         return -1;                                                    // RETURN
     }
-    else {
-        d_address = addr;
-        return 0;                                                     // RETURN
-    }
+    d_address = addr;
+    return 0;
 }
 
                             // ---------
