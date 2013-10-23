@@ -55,9 +55,11 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *addr)
         if (!isdigit(*addr))     { return false; }                    // RETURN
         // Consume one numerical token.
         segs[numSeg++] = strtoul(addr, const_cast<char **>(&addr), 0);
-        if (*addr == 0)          { break; }
+        if (*addr == 0)          { break; }  // Reached end.
         if (*addr++ != "..."[i]) { return false; }                    // RETURN
     }
+
+    // The four binary representations of -1.
     static const unsigned long minusOne[4][4] = {
         {0xFFFFFFFFul, 0,          0,        0     },
         {0xFFul,       0xFFFFFFul, 0,        0     },

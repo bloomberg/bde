@@ -216,8 +216,10 @@ int main(int argc, char *argv[])
                     { L_,  "255.255.255.255",       true  },
                     // format a.b.c
                     { L_,  "255.255.65535",         true  },
+                    { L_,  "0xff.0377.65535",       true  },
                     // format a.b
                     { L_,  "255.16777215",          true  },
+                    { L_,  "0377.077777777",        true  },
                     // format a
                     { L_,  "4294967295",            true  },
                     { L_,  "0xFFFFFFFF",            true  },
@@ -235,6 +237,9 @@ int main(int argc, char *argv[])
                     { L_,  "11111.1.1.1",          false  },
                     { L_,  "255.255.255.255.255",  false  },
                     // Not -1
+                    { L_,  "255.255.255.255.",     false  },
+                    { L_,  "0xff.377.65535",       false  },
+                    { L_,  "0377..077777777",      false  },
                     { L_,  "0.0.0.0",              false  },
                     { L_,  "255.5127776",          false  },
                     { L_,  "-1",                   false  },
