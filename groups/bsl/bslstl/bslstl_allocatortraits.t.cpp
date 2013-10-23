@@ -524,7 +524,7 @@ class AttribClass5bslma
     // allocator model.
 
     AttribClass5      d_attrib;
-    bslma::Allocator* d_allocator;
+    bslma::Allocator* d_allocator_p;
 
   public:
     BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5bslma,
@@ -533,26 +533,27 @@ class AttribClass5bslma
     typedef bslma::Allocator* AllocatorType;
 
     explicit AttribClass5bslma(bslma::Allocator *alloc = 0)
-        : d_attrib(), d_allocator(bslma::Default::allocator(alloc)) { }
+        : d_attrib(), d_allocator_p(bslma::Default::allocator(alloc)) { }
 
     explicit AttribClass5bslma(char a, bslma::Allocator *alloc = 0)
-        : d_attrib(a), d_allocator(bslma::Default::allocator(alloc)) { }
+        : d_attrib(a), d_allocator_p(bslma::Default::allocator(alloc)) { }
     AttribClass5bslma(char a, int b, bslma::Allocator *alloc = 0)
-        : d_attrib(a, b), d_allocator(bslma::Default::allocator(alloc)) { }
+        : d_attrib(a, b), d_allocator_p(bslma::Default::allocator(alloc)) { }
     AttribClass5bslma(char a, int b, double c, bslma::Allocator *alloc = 0)
-        : d_attrib(a, b, c), d_allocator(bslma::Default::allocator(alloc)) { }
+        : d_attrib(a, b, c)
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
     AttribClass5bslma(char a, int b, double c, const char *d,
                       bslma::Allocator *alloc = 0)
         : d_attrib(a, b, c, d)
-        , d_allocator(bslma::Default::allocator(alloc)) { }
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
     AttribClass5bslma(char a, int b, double c, const char *d, Uniq *e,
                       bslma::Allocator *alloc = 0)
         : d_attrib(a, b, c, d, e)
-        , d_allocator(bslma::Default::allocator(alloc)) { }
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
     AttribClass5bslma(const AttribClass5bslma& other,
                       bslma::Allocator *alloc = 0)
         : d_attrib(other.d_attrib)
-        , d_allocator(bslma::Default::allocator(alloc)) { }
+        , d_allocator_p(bslma::Default::allocator(alloc)) { }
 
     char        a() const { return d_attrib.a(); }
     int         b() const { return d_attrib.b(); }
@@ -560,7 +561,7 @@ class AttribClass5bslma
     const char *d() const { return d_attrib.d(); }
     Uniq       *e() const { return d_attrib.e(); }
 
-    bslma::Allocator *allocator() const { return d_allocator; }
+    bslma::Allocator *allocator() const { return d_allocator_p; }
 };
 
 template <class T>

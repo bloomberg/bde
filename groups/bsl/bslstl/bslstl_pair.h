@@ -85,8 +85,8 @@ BSLS_IDENT("$Id: $")
 //  class my_String {
 //      // Simple string class that uses a 'bslma::Allocator' allocator.
 //
-//      bslma::Allocator *d_allocator;
-//      char            *d_data;
+//      bslma::Allocator *d_allocator_p;
+//      char             *d_data;
 //
 //    public:
 //      BSLMF_NESTED_TRAIT_DECLARATION(my_String, bslma::UsesBslmaAllocator);
@@ -154,34 +154,34 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  my_String::my_String(bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup("", d_allocator);
+//      d_data = myStrDup("", d_allocator_p);
 //  }
 //
 //  my_String::my_String(const char *s, bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup(s, d_allocator);
+//      d_data = myStrDup(s, d_allocator_p);
 //  }
 //
 //  my_String::my_String(const my_String&  rhs,
 //                       bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup(rhs.d_data, d_allocator);
+//      d_data = myStrDup(rhs.d_data, d_allocator_p);
 //  }
 //
 //  my_String::~my_String()
 //  {
-//      d_allocator->deallocate(d_data);
+//      d_allocator_p->deallocate(d_data);
 //  }
 //
 //  my_String& my_String::operator=(const my_String& rhs)
 //  {
 //      if (this != &rhs) {
-//          d_allocator->deallocate(d_data);
-//          d_data = myStrDup(rhs.d_data, d_allocator);
+//          d_allocator_p->deallocate(d_data);
+//          d_data = myStrDup(rhs.d_data, d_allocator_p);
 //      }
 //      return *this;
 //  }
@@ -193,7 +193,7 @@ BSLS_IDENT("$Id: $")
 //
 //  bslma::Allocator *my_String::allocator() const
 //  {
-//      return d_allocator;
+//      return d_allocator_p;
 //  }
 //..
 // Our main program creates a mapping from strings to integers.  Each node of
@@ -496,12 +496,12 @@ class pair : public Pair_Imp<T1, T2,
 
     pair(const pair& original);
     pair(const pair& original, BloombergLP::bslma::Allocator *basicAllocator);
-        // Construct a pair from the specified 'original' value.  Copy-construct
-        // 'first' from 'rhs.first' and 'second' from 'rhs.second'.  Optionally
-        // specify a 'basicAllocator' used to supply memory for the
-        // constructor(s) of which ever data member(s) accept an allocator.
-        // Attempted use of of either version of this constructor will not
-        // compile unless 'T1' and 'T2' both supply copy constructors.
+        // Construct a pair from the specified 'original' value.
+        // Copy-construct 'first' from 'rhs.first' and 'second' from
+        // 'rhs.second'.  Optionally specify a 'basicAllocator' used to supply
+        // memory for the constructor(s) of which ever data member(s) accept an
+        // allocator.  Attempted use of of either version of this constructor
+        // will not compile unless 'T1' and 'T2' both supply copy constructors.
         // Attempted use of the allocator version will not compile unless one
         // or both of 'T1' and 'T2' accept an allocator.
 
