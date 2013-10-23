@@ -682,13 +682,13 @@ class TestAllocator_Proxy: public TestAllocator_ProxyBase {
     // interface as 'TestAllocator'.
 
     // DATA
-    BSLMA_ALLOC_TYPE *d_allocator;  // allocator used in '*_BEGIN' and '*_END'
-                                    // macros (held, not owned)
+    BSLMA_ALLOC_TYPE *d_allocator_p;  // allocator used in '*_BEGIN' and
+                                      // '*_END' macros (held, not owned)
 
   public:
     // CREATORS
     TestAllocator_Proxy(BSLMA_ALLOC_TYPE *allocator)
-    : d_allocator(allocator)
+    : d_allocator_p(allocator)
     {
     }
 
@@ -699,7 +699,7 @@ class TestAllocator_Proxy: public TestAllocator_ProxyBase {
     // ACCESSORS
     virtual void setAllocationLimit(bsls::Types::Int64 limit) const
     {
-        d_allocator->setAllocationLimit(limit);
+        d_allocator_p->setAllocationLimit(limit);
     }
 };
 
