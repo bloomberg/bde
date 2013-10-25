@@ -58,8 +58,8 @@ namespace BloombergLP {
 namespace bslscm {
 
 struct Version {
-    static const char *d_ident;
-    static const char *d_what;
+    static const char *s_ident;
+    static const char *s_what;
 
 #define BSLSCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
 #define BSLSCM_CONCAT(a,b,c,d,e,f)  BSLSCM_CONCAT2(a,b,c,d,e,f)
@@ -69,17 +69,17 @@ struct Version {
 // present in this version coercion symbol.  Tools may look for this pattern to
 // warn users of mismatches.
 
-#define BSLSCM_D_VERSION BSLSCM_CONCAT(d_version_BSL_,       \
+#define BSLSCM_D_VERSION BSLSCM_CONCAT(s_version_BSL_,       \
                                        BSL_VERSION_MAJOR, _, \
                                        BSL_VERSION_MINOR, _, \
                                        compiled_this_object)
 
     static const char *BSLSCM_D_VERSION;
 
-    static const char *d_dependencies;
-    static const char *d_buildInfo;
-    static const char *d_timestamp;
-    static const char *d_sourceControlInfo;
+    static const char *s_dependencies;
+    static const char *s_buildInfo;
+    static const char *s_timestamp;
+    static const char *s_sourceControlInfo;
 
     static const char *version();
 };

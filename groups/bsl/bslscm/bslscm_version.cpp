@@ -15,14 +15,14 @@ namespace BloombergLP {
                                              "." STRINGIFY(BSL_VERSION_MINOR) \
                                              "." STRINGIFY(BSL_VERSION_PATCH)
 
-const char *bslscm::Version::d_ident = "$Id: " BSLSCM_VERSION_STRING " $";
-const char *bslscm::Version::d_what  = "@(#)"  BSLSCM_VERSION_STRING;
+const char *bslscm::Version::s_ident = "$Id: " BSLSCM_VERSION_STRING " $";
+const char *bslscm::Version::s_what  = "@(#)"  BSLSCM_VERSION_STRING;
 
 const char *bslscm::Version::BSLSCM_D_VERSION    = BSLSCM_VERSION_STRING;
-const char *bslscm::Version::d_dependencies      = "";
-const char *bslscm::Version::d_buildInfo         = "";
-const char *bslscm::Version::d_timestamp         = "";
-const char *bslscm::Version::d_sourceControlInfo = "";
+const char *bslscm::Version::s_dependencies      = "";
+const char *bslscm::Version::s_buildInfo         = "";
+const char *bslscm::Version::s_timestamp         = "";
+const char *bslscm::Version::s_sourceControlInfo = "";
 
 }  // close enterprise namespace
 
