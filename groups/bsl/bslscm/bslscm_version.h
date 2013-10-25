@@ -69,12 +69,12 @@ struct Version {
 // present in this version coercion symbol.  Tools may look for this pattern to
 // warn users of mismatches.
 
-#define BSLSCM_D_VERSION BSLSCM_CONCAT(s_version_BSL_,       \
+#define BSLSCM_S_VERSION BSLSCM_CONCAT(s_version_BSL_,       \
                                        BSL_VERSION_MAJOR, _, \
                                        BSL_VERSION_MINOR, _, \
                                        compiled_this_object)
 
-    static const char *BSLSCM_D_VERSION;
+    static const char *BSLSCM_S_VERSION;
 
     static const char *s_dependencies;
     static const char *s_buildInfo;
@@ -87,7 +87,7 @@ struct Version {
 inline
 const char *Version::version()
 {
-    return BSLSCM_D_VERSION;
+    return BSLSCM_S_VERSION;
 }
 
 }  // close package namespace
@@ -96,14 +96,14 @@ const char *Version::version()
 
 #if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
 static const char **bslscm_version_assertion __attribute__((used)) =
-                                            &bslscm::Version::BSLSCM_D_VERSION;
+                                            &bslscm::Version::BSLSCM_S_VERSION;
 #elif defined(BSLS_PLATFORM_CMP_IBM)
 static const char **bslscm_version_assertion =
-                                            &bslscm::Version::BSLSCM_D_VERSION;
+                                            &bslscm::Version::BSLSCM_S_VERSION;
 #else
 namespace {
     extern const char **const bslscm_version_assertion =
-                                            &bslscm::Version::BSLSCM_D_VERSION;
+                                            &bslscm::Version::BSLSCM_S_VERSION;
 }
 #endif
 
