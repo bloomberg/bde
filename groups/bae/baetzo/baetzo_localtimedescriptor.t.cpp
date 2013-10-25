@@ -2832,8 +2832,6 @@ int main(int argc, char *argv[])
 
             // Corroborate attribute independence.
             {
-                bslma::TestAllocatorMonitor tam(&oa);
-
                 // Set all attributes to their 'A' values.
 
                 mX.setUtcOffsetInSeconds(A1);
@@ -2860,15 +2858,12 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(CONFIG, B1 == X.utcOffsetInSeconds());
                 LOOP_ASSERT(CONFIG, B2 == X.dstInEffectFlag());
                 LOOP_ASSERT(CONFIG, B3 == X.description());
-
-                LOOP_ASSERT(CONFIG, tam.isTotalSame());
             }
 
             // Verify no temporary memory is allocated from the object
             // allocator.
 
-            LOOP3_ASSERT(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
-                         oa.numBlocksTotal() == oa.numBlocksInUse());
+            LOOP2_ASSERT(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
 
             // Reclaim dynamically allocated object under test.
 
