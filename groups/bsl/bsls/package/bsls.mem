@@ -31,6 +31,7 @@ bsls_byteorder
 bsls_compilerfeatures
 bsls_exceptionutil
 bsls_ident
+bsls_linkcoercion
 bsls_macroincrement
 bsls_nativestd
 bsls_nullptr
