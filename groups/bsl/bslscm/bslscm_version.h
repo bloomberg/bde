@@ -44,6 +44,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LINKCOERCION
+#include <bsls_linkcoercion.h>
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
 #endif
@@ -94,19 +98,8 @@ const char *Version::version()
 
 // Force linker to pull in this component's object file.
 
-#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
-static const char **bslscm_version_assertion __attribute__((used)) =
-                                            &bslscm::Version::BSLSCM_S_VERSION;
-#elif defined(BSLS_PLATFORM_CMP_IBM)
-static const char **bslscm_version_assertion =
-                                            &bslscm::Version::BSLSCM_S_VERSION;
-#else
-namespace {
-    extern const char **const bslscm_version_assertion =
-                                            &bslscm::Version::BSLSCM_S_VERSION;
-}
-#endif
-
+BSLS_LINKCOERCION_INCLUDE_REF(bslscm_version_assertion,
+                              bslscm::Version::BSLSCM_S_VERSION);
 
 }  // close enterprise namespace
 
