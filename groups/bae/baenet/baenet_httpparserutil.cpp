@@ -1427,6 +1427,27 @@ int parseInt(Int *object, const char **begin, const char *end)
     return BAENET_SUCCESS;
 }
 
+template<class Int>
+int parseIntValue(Int *object, const bdeut_StringRef& str)
+{
+    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
+
+    const char *begin = str.begin();
+    const char *end   = str.end();
+
+    if (0 != parseInt(object, &begin, end)) {
+        return BAENET_FAILURE;
+    }
+
+    skipWhitespace(&begin, end);
+
+    if (begin != end) {
+        return BAENET_FAILURE;
+    }
+
+    return BAENET_SUCCESS;
+}
+
 void parseAtom(bdeut_StringRef  *result,
                const char      **begin,
                const char       *end)
@@ -2206,43 +2227,13 @@ int baenet_HttpParserUtil::parseStartLine(baenet_HttpStatusLine  *result,
 int baenet_HttpParserUtil::parseFieldValue(int                    *object,
                                            const bdeut_StringRef&  str)
 {
-    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
-
-    const char *begin = str.begin();
-    const char *end   = str.end();
-
-    if (0 != parseInt(object, &begin, end)) {
-        return BAENET_FAILURE;
-    }
-
-    skipWhitespace(&begin, end);
-
-    if (begin != end) {
-        return BAENET_FAILURE;
-    }
-
-    return BAENET_SUCCESS;
+    return parseIntValue(object, str);
 }
 
 int baenet_HttpParserUtil::parseFieldValue(bsls_Types::Int64      *object,
                                            const bdeut_StringRef&  str)
 {
-    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
-
-    const char *begin = str.begin();
-    const char *end   = str.end();
-
-    if (0 != parseInt(object, &begin, end)) {
-        return BAENET_FAILURE;
-    }
-
-    skipWhitespace(&begin, end);
-
-    if (begin != end) {
-        return BAENET_FAILURE;
-    }
-
-    return BAENET_SUCCESS;
+    return parseIntValue(object, str);
 }
 
 int baenet_HttpParserUtil::parseFieldValue(bsl::string            *result,

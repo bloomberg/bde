@@ -220,7 +220,7 @@ struct baenet_HttpParserUtil {
                                const bdeut_StringRef&  str);
     static int parseFieldValue(int                    *result,
                                const bdeut_StringRef&  str);
-    static int parseFieldValue(bsls_Types::Int64                    *result,
+    static int parseFieldValue(bsls_Types::Int64       *result,
                                const bdeut_StringRef&  str);
     static int parseFieldValue(bsl::string            *result,
                                const bdeut_StringRef&  str);
