@@ -69,13 +69,12 @@ BDES_IDENT("$Id: $")
 //..
 // Then, we write the buggy code which will cause the problem.
 //..
-//    std::string bogus()
+//    void bogus()
 //        // "Try to remember a time in ..."
 //    {
 //        struct tm date = { 0, 0, 0, 11, 8, 113, 3, 0, 1 };
 //        bsl::string datef(22, ' ');  // Surely this string is long enough...
 //        ascdate(const_cast<char *>(datef.c_str()), &date);
-//        return datef;
 //    }
 //..
 // Next, we embed this code deep in the heart of a large system, compile it
@@ -119,22 +118,46 @@ namespace BloombergLP {
                           // ========================
 
 class baesu_AssertTrace {
+  public:
+    // PUBLIC TYPES
+    typedef bael_Severity::Level (*LevelCB)(
+                             void       *closure,
+                             const char *text,
+                             const char *file,
+                             int         line);  // Severity callback type.
+
+  private:
     // CLASS DATA
-    static bael_Severity::Level s_severity;
+    static LevelCB                 s_callback;   // Severity callback.
+    static void                   *s_closure;    // Closure for callback.
+    static bael_Severity::Level    s_severity;   // Logging severity level.
 
   public:
     // CLASS METHODS
     static void failTrace(const char *text, const char *file, int line);
         // Report the assertion failure and a stack trace via BAEL logging and
-        // return.  Note that this violates the usual policy that assertion
+        // return.  If a severity callback has been set, it is invoked with the
+        // closure and the specified 'text', 'file', and 'line' to get the
+        // severity level, otherwise the static severity level is used.  Note
+        // that this assertion handler violates the usual policy that assertion
         // handlers should not return to their callers.
 
-    static bael_Severity::Level severity();
-        // Get the severity level at which assertion tracing is logged.
+    static void getLevelCB(LevelCB *callback, void **closure);
+        // Store the previously specified 'callback' and 'closure' (or null)
+        // into the parameters.
+
+    static void setLevelCB(LevelCB callback, void *closure);
+        // Set the specified 'callback' and 'closure' to be invoked when an
+        // assertion trace needs to be reported.  The 'closure' is passed back
+        // as the first argument to the 'callback', followed by the assertion
+        // text, file, and line.
 
     static void setSeverity(bael_Severity::Level severity);
         // Set the severity level at which assertion tracing is logged to the
-        // specified 'severity'.
+        // specified 'severity'.  This level is used when no callback is set.
+
+    static bael_Severity::Level severity();
+        // Get the severity level at which assertion tracing is logged.
 };
 
 }  // close enterprise namespace

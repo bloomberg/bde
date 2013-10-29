@@ -13,32 +13,32 @@ namespace BloombergLP {
 namespace {
 
 struct StackTrace
+    // This 'struct' acts as a tag for the output operator below.
 {
 };
 
-bsl::ostream& operator<<(bsl::ostream& o, const StackTrace&)
+bsl::ostream& operator<<(bsl::ostream& stream, const StackTrace&)
+    // Print a statck trace to the specified 'stream'.
 {
-    return baesu_StackTracePrintUtil::printStackTrace(o);
+    return baesu_StackTracePrintUtil::printStackTrace(stream);
 }
 
 }  // close unnamed namespace
 
-bael_Severity::Level baesu_AssertTrace::s_severity = bael_Severity::BAEL_FATAL;
+// CLASS DATA
+baesu_AssertTrace::LevelCB  baesu_AssertTrace::s_callback;
+void                       *baesu_AssertTrace::s_closure;
+bael_Severity::Level        baesu_AssertTrace::s_severity =
+                                                     bael_Severity::BAEL_FATAL;
 
-void baesu_AssertTrace::setSeverity(bael_Severity::Level severity)
-{
-    s_severity = severity;
-}
-
-bael_Severity::Level baesu_AssertTrace::severity()
-{
-    return s_severity;
-}
-
+// CLASS METHODS
 void baesu_AssertTrace::failTrace(const char *text, const char *file, int line)
 {
+    bael_Severity::Level severity =
+             s_callback ? s_callback(s_closure, text, file, line) : s_severity;
+
     BAEL_LOG_SET_CATEGORY("Assertion.Failure");
-    BAEL_LOG_STREAM(s_severity)
+    BAEL_LOG_STREAM(severity)
         << "Assertion failed: "
         << (! text ? "(* Unspecified Expression Text *)" :
             !*text ? "(* Empty Expression Text *)"       :
@@ -52,6 +52,31 @@ void baesu_AssertTrace::failTrace(const char *text, const char *file, int line)
         << "\n"
         << StackTrace()
     << BAEL_LOG_END
+}
+
+void baesu_AssertTrace::getLevelCB(LevelCB *callback, void **closure)
+{
+    BSLS_ASSERT(callback);
+    BSLS_ASSERT(closure);
+
+    *callback = s_callback;
+    *closure  = s_closure;
+}
+
+void baesu_AssertTrace::setLevelCB(LevelCB callback, void *closure)
+{
+    s_callback = callback;
+    s_closure  = closure;
+}
+
+void baesu_AssertTrace::setSeverity(bael_Severity::Level severity)
+{
+    s_severity = severity;
+}
+
+bael_Severity::Level baesu_AssertTrace::severity()
+{
+    return s_severity;
 }
 
 }  // close enterprise namespace

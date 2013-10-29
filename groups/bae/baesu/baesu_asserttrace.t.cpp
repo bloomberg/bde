@@ -2,8 +2,8 @@
 #include <baesu_asserttrace.h>
 
 #include <bael_loggermanager.h>
-#include <bael_defaultobserver.h>
 #include <bael_testobserver.h>
+#include <bsl_string.h>
 #include <bsls_assert.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -20,6 +20,14 @@ using namespace bsl;
 // We will use a 'baesu_TestObserver' to see whether the 'baesu_AssertTrace'
 // system reports assertion failures at various severity levels.
 //--------------------------------------------------------------------------
+//CLASS METHODS
+// [ 1] void failTrace(const char *text, const char *file, int line);
+// [ 1] void getLevelCB(LevelCB *callback, void **closure);
+// [ 1] void setLevelCB(LevelCB callback, void *closure);
+// [ 1] void setSeverity(bael_Severity::Level severity);
+// [ 1] bael_Severity::Level severity();
+//--------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -74,6 +82,43 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef baesu_AssertTrace Obj;
 
+// ============================================================================
+//                            GLOBAL HELPER CLASSES
+// ----------------------------------------------------------------------------
+
+class SeverityCB
+    // Simple callback class to test severity callback.
+{
+    // PRIVATE ACCESSORS
+    bael_Severity::Level level() const
+        // Return BAEL_FATAL.
+    {
+        return bael_Severity::BAEL_FATAL;
+    }
+
+  public:
+    // CLASS METHODS
+    static bael_Severity::Level callback(void *severityCB,
+                                         const char *,
+                                         const char *,
+                                         int)
+        // Indirect to the specified 'severityCB' class object, ignoring the
+        // available text, file, and line information.
+    {
+        return static_cast<SeverityCB *>(severityCB)->level();
+    }
+};
+
+struct AlwaysAssert
+    // A class whose destructor deliberately fails an assertion.
+{
+    ~AlwaysAssert()
+        // Complain!
+    {
+        BSLS_ASSERT_OPT(false);
+    }
+};
+
 //=============================================================================
 //                    HELPER FUNCTIONS FOR USAGE EXAMPLE
 //=============================================================================
@@ -120,13 +165,12 @@ typedef baesu_AssertTrace Obj;
 //..
 // Then, we write the buggy code which will cause the problem.
 //..
-    std::string bogus()
+    void bogus()
         // "Try to remember a time in ..."
     {
         struct tm date = { 0, 0, 0, 11, 8, 113, 3, 0, 1 };
         bsl::string datef(22, ' ');  // Surely this string is long enough...
         ascdate(const_cast<char *>(datef.c_str()), &date);
-        return datef;
     }
 //..
 // Next, we embed this code deep in the heart of a large system, compile it
@@ -171,7 +215,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -179,18 +223,11 @@ int main(int argc, char *argv[])
         //: 1 The usage example provided in the component header file compiles,
         //:   links, and runs as shown.
         //:
-        //: 2 Verify that 'baesu_AssertTrace' respects the severity level at
-        //:   which it is asked to report assertions.
         //
         // Plan:
         //: 1 Incorporate usage example from header into test driver, remove
         //:   leading comment characters, and replace 'assert' with 'ASSERT'.
         //:   (C-1)
-        //:
-        //: 2 Set the severity level for reporting to various levels, some
-        //:   which report by default and some which are silenced.  Verify that
-        //:   when assertions are triggered, they are reported or not as the
-        //:   severity specifies.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -200,34 +237,107 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        bsl::ostringstream o;
-        bael_TestObserver to(o);
-        to.setVerbose(true);
+        ostringstream                   o;
+        bael_TestObserver               to(o);
         bael_LoggerManagerConfiguration c;
-        bael_LoggerManagerScopedGuard lmsg(&to, c);
+        bael_LoggerManagerScopedGuard   lmsg(&to, c);
 
-        ASSERT(to.numPublishedRecords() == 0);
+        protect_the_subsystem();
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // ASSERT TRACING
+        //
+        // Concerns:
+        //: 1 Verify that 'baesu_AssertTrace' respects the severity level at
+        //:   which it is asked to report assertions.
+        //:
+        //: 2 Verify that the log message contains a stack trace.
+        //:
+        //: 3 Verify that an established severity callback is used to obtain
+        //:   the severity level to be used.
+        //
+        // Plan:
+        //: 1 Set the severity level for reporting to various levels, some
+        //:   which report by default and some which are silenced.  Verify that
+        //:   when assertions are triggered, they are reported or not as the
+        //:   severity specifies. (C-1)
+        //:
+        //: 2 When a log record is produced, examine it to verify that it
+        //:   contains a method name expected to be in the stack trace. (C-2)
+        //:
+        //: 3 When a severity callback is established, verify that the severity
+        //:   level it returns is used.  (C-3)
+        //
+        // Testing:
+        // [ 1] void failTrace(const char *text, const char *file, int line);
+        // [ 1] void getLevelCB(LevelCB *callback, void **closure);
+        // [ 1] void setLevelCB(LevelCB callback, void *closure);
+        // [ 1] void setSeverity(bael_Severity::Level severity);
+        // [ 1] bael_Severity::Level severity();
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "ASSERT TRACING" << endl
+                          << "==============" << endl;
+
+        ostringstream                   o;
+        bael_TestObserver               to(o);
+        bael_LoggerManagerConfiguration c;
+        bael_LoggerManagerScopedGuard   lmsg(&to, c);
+        bsls::AssertFailureHandlerGuard guard(baesu_AssertTrace::failTrace);
+
+        LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
+
+        if (veryVerbose) { T_ cout << "Severity FATAL" << endl; }
         baesu_AssertTrace::setSeverity(bael_Severity::BAEL_FATAL);
-        protect_the_subsystem();
+        { AlwaysAssert(); }
         ASSERT(baesu_AssertTrace::severity() == bael_Severity::BAEL_FATAL);
-        ASSERT(to.numPublishedRecords() == 1);
+        LOOP_ASSERT(to.numPublishedRecords(), 1 == to.numPublishedRecords());
+        o << to.lastPublishedRecord();
+        ASSERT(string::npos != o.str().find("failTrace"));
+        o.str(string());
+        ASSERT(string::npos == o.str().find("failTrace"));
 
+        if (veryVerbose) { T_ cout << "Severity ERROR" << endl; }
         baesu_AssertTrace::setSeverity(bael_Severity::BAEL_ERROR);
-        protect_the_subsystem();
+        { AlwaysAssert(); }
         ASSERT(baesu_AssertTrace::severity() == bael_Severity::BAEL_ERROR);
-        ASSERT(to.numPublishedRecords() == 2);
+        LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
+        o << to.lastPublishedRecord();
+        ASSERT(string::npos != o.str().find("failTrace"));
+        o.str(string());
+        ASSERT(string::npos == o.str().find("failTrace"));
 
+        if (veryVerbose) { T_ cout << "Severity WARN" << endl; }
         baesu_AssertTrace::setSeverity(bael_Severity::BAEL_WARN);
-        protect_the_subsystem();
+        { AlwaysAssert(); }
         ASSERT(baesu_AssertTrace::severity() == bael_Severity::BAEL_WARN);
-        ASSERT(to.numPublishedRecords() == 2);
+        LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
+        if (veryVerbose) { T_ cout << "Severity TRACE" << endl; }
         baesu_AssertTrace::setSeverity(bael_Severity::BAEL_TRACE);
-        protect_the_subsystem();
+        { AlwaysAssert(); }
         ASSERT(baesu_AssertTrace::severity() == bael_Severity::BAEL_TRACE);
-        ASSERT(to.numPublishedRecords() == 2);
-      }  break;
+        LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
+
+        SeverityCB                  scb;
+        baesu_AssertTrace::LevelCB  cb;
+        void                       *cl;
+
+        if (veryVerbose) { T_ cout << "Using severity callback" << endl; }
+        baesu_AssertTrace::setLevelCB(SeverityCB::callback, &scb);
+        baesu_AssertTrace::getLevelCB(&cb, &cl);
+        ASSERT(SeverityCB::callback == cb);
+        ASSERT(&scb                 == cl);
+        { AlwaysAssert(); }
+        ASSERT(baesu_AssertTrace::severity() == bael_Severity::BAEL_TRACE);
+        LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
+        o << to.lastPublishedRecord();
+        ASSERT(string::npos != o.str().find("failTrace"));
+        o.str(string());
+        ASSERT(string::npos == o.str().find("failTrace"));
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
