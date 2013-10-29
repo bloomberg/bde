@@ -112,6 +112,10 @@ BDES_IDENT("$Id: $")
 #include <bael_severity.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 namespace BloombergLP {
                           // ========================
                           // struct baesu_AssertTrace
@@ -128,9 +132,12 @@ class baesu_AssertTrace {
 
   private:
     // CLASS DATA
-    static LevelCB                 s_callback;   // Severity callback.
-    static void                   *s_closure;    // Closure for callback.
-    static bael_Severity::Level    s_severity;   // Logging severity level.
+    static bsls::AtomicOperations::AtomicTypes::Pointer
+                        s_callback;  // Severity callback.
+    static bsls::AtomicOperations::AtomicTypes::Pointer
+                        s_closure;   // Closure for callback.
+    static bsls::AtomicOperations::AtomicTypes::Int
+                        s_severity;  // Logging severity level.
 
   public:
     // CLASS METHODS
