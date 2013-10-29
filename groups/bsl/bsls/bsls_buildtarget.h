@@ -109,20 +109,12 @@ typedef BuildTargetMtNo BuildTargetMt;
 
 // Force linker to pull in this component's object file.
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-static const int *bsls_buildtarget_assertion1 =
-                                     &bsls::BuildTargetExc::s_isBuildTargetExc;
-static const int *bsls_buildtarget_assertion2 =
-                                       &bsls::BuildTargetMt::s_isBuildTargetMt;
-#else
-namespace {
-    extern const int *const bsls_buildtarget_assertion1 =
-                                     &bsls::BuildTargetExc::s_isBuildTargetExc;
-    extern const int *const bsls_buildtarget_assertion2 =
-                                       &bsls::BuildTargetMt::s_isBuildTargetMt;
-}
-#endif
-
+BSLS_LINKCOERCION_INCLUDE_REF(const int *,
+                              bsls_buildtarget_assertion1,
+                              bsls::BuildTargetExc::s_isBuildTargetExc)
+BSLS_LINKCOERCION_INCLUDE_REF(const int *,
+                              bsls_buildtarget_assertion2,
+                              bsls::BuildTargetExc::s_isBuildTargetMt)
 
 }  // close enterprise namespace
 

@@ -41,15 +41,15 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 #if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
-#define BSLS_LINKCOERCION_INCLUDE_REF(refName, referredSymbol)   \
-    static const char **refName __attribute__((used)) = &referredSymbol;
+#define BSLS_LINKCOERCION_INCLUDE_REF(type, refName, referredSymbol)   \
+    static type *refName __attribute__((used)) = &referredSymbol;
 #elif defined(BSLS_PLATFORM_CMP_IBM)
-#define BSLS_LINKCOERCION_INCLUDE_REF(refName, referredSymbol) \
-    static const char **refName = &referredSymbol;
+#define BSLS_LINKCOERCION_INCLUDE_REF(type, refName, referredSymbol) \
+    static type *refName = &referredSymbol;
 #else
-#define BSLS_LINKCOERCION_INCLUDE_REF(refName, referredSymbol) \
+#define BSLS_LINKCOERCION_INCLUDE_REF(type, refName, referredSymbol) \
     namespace {                                                \
-        extern const char **const refName = &referredSymbol;   \
+        extern type *const refName = &referredSymbol;   \
     }
 #endif
 

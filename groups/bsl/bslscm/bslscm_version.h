@@ -98,7 +98,8 @@ const char *Version::version()
 
 // Force linker to pull in this component's object file.
 
-BSLS_LINKCOERCION_INCLUDE_REF(bslscm_version_assertion,
+BSLS_LINKCOERCION_INCLUDE_REF(const char *,
+                              bslscm_version_assertion,
                               bslscm::Version::BSLSCM_S_VERSION);
 
 }  // close enterprise namespace
