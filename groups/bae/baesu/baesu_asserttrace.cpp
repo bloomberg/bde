@@ -43,21 +43,23 @@ void baesu_AssertTrace::failTrace(const char *text, const char *file, int line)
     bael_Severity::Level level =
                    callback ? callback(closure, text, file, line) : severity();
 
-    BAEL_LOG_SET_CATEGORY("Assertion.Failure");
-    BAEL_LOG_STREAM(level)
-        << "Assertion failed: "
-        << (! text ? "(* Unspecified Expression Text *)" :
-            !*text ? "(* Empty Expression Text *)"       :
-              text)
-        << ", file "
-        << (! file ? "(* Unspecified File Name *)" :
-            !*file ? "(* Empty File Name *)"       :
-              file)
-        << ", line "
-        << line
-        << "\n"
-        << StackTrace()
-    << BAEL_LOG_END
+    if (level > bael_Severity::BAEL_OFF) {
+        BAEL_LOG_SET_CATEGORY("Assertion.Failure");
+        BAEL_LOG_STREAM(level)
+            << "Assertion failed: "
+            << (! text ? "(* Unspecified Expression Text *)" :
+                !*text ? "(* Empty Expression Text *)"       :
+                  text)
+            << ", file "
+            << (! file ? "(* Unspecified File Name *)" :
+                !*file ? "(* Empty File Name *)"       :
+                  file)
+            << ", line "
+            << line
+            << "\n"
+            << StackTrace()
+        << BAEL_LOG_END
+    }
 }
 
 void baesu_AssertTrace::getLevelCB(LevelCB *callback, void **closure)

@@ -145,9 +145,10 @@ class baesu_AssertTrace {
         // Report the assertion failure and a stack trace via BAEL logging and
         // return.  If a severity callback has been set, it is invoked with the
         // closure and the specified 'text', 'file', and 'line' to get the
-        // severity level, otherwise the static severity level is used.  Note
-        // that this assertion handler violates the usual policy that assertion
-        // handlers should not return to their callers.
+        // severity level, otherwise the static severity level is used.  If the
+        // severity level is 0 ('BAEL_OFF') then the assertion is not logged at
+        // all.  Note that this assertion handler violates the usual policy
+        // that assertion handlers should not return to their callers.
 
     static void getLevelCB(LevelCB *callback, void **closure);
         // Store the previously specified 'callback' and 'closure' (or null)

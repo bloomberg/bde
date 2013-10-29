@@ -9,11 +9,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'baesu' package currently has 10 components having 5 levels of physical
+ The 'baesu' package currently has 11 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  6. baesu_assertrace
+
   5. baesu_stacktraceprintutil
 
   4. baesu_stacktraceutil
@@ -32,6 +34,9 @@
 
 /Component Synopsis
 /------------------
+: 'baesu_asserttrace':
+:      Provide controllable logging handler for assertion failures.
+
 : 'baesu_objectfileformat':
 :      Provide platform-dependent object file format trait definitions.
 :

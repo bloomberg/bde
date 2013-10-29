@@ -289,6 +289,12 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
 
+        if (veryVerbose) { T_ cout << "Severity OFF" << endl; }
+        baesu_AssertTrace::setSeverity(bael_Severity::BAEL_OFF);
+        { AlwaysAssert(); }
+        ASSERT(baesu_AssertTrace::severity() == bael_Severity::BAEL_OFF);
+        LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
+
         if (veryVerbose) { T_ cout << "Severity FATAL" << endl; }
         baesu_AssertTrace::setSeverity(bael_Severity::BAEL_FATAL);
         { AlwaysAssert(); }
