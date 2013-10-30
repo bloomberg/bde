@@ -188,7 +188,9 @@ using namespace std;
 // [16] const_reverse_iterator rbegin();
 // [16] const_reverse_iterator rend();
 // [  ] const C *c_str() const;
+// [30] const C *c_str_safe() const;
 // [  ] const C *data() const;
+// [29] const C *data_safe() const;
 // [22] size_type find(const string& str, pos = 0) const;
 // [22] size_type find(const C *s, pos, n) const;
 // [22] size_type find(const C *s, pos = 0) const;
@@ -1168,6 +1170,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
 
     int rlen = std::min(X.length(), Y.length());
     int ret = TRAITS::compare(X.data(), Y.data(), rlen);
+    int ret2 = TRAITS::compare(X.data_safe(), Y.data(), rlen);
+    int ret3 = TRAITS::compare(X.data(), Y.data_safe(), rlen);
+
+    ASSERT(ret2 == ret);
+    ASSERT(ret3 == ret);
+
     if (ret) {
         ASSERT(ret == result);
         return;
@@ -1294,6 +1302,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase28()
             // check that the string is terminated properly with TYPE()
             // value rather than just '\0'
             ASSERT(*(str.c_str() + str.size()) == TYPE());
+            ASSERT(*(str.c_str_safe() + str.size()) == TYPE());
         }
     }
 }
@@ -1371,9 +1380,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
             const NativeObjAlt V2(U);   // implicit Conversion
             const NativeObjAlt V3 = U;  // implicit Conversion
             ASSERT(Obj(V.c_str()) == Obj(U.c_str()));
+            ASSERT(Obj(V.c_str()) == Obj(U.c_str_safe()));
 
             const Obj U2(V);  // Explicit conversion construction
             ASSERT(Obj(V.c_str()) == Obj(U2.c_str()));
+            ASSERT(Obj(V.c_str()) == Obj(U2.c_str_safe()));
             ASSERT(U2 == U);
 
             // 'operator=='
@@ -1436,9 +1447,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
             bslString = V;  // Assignment requires implicit conversion
 
             ASSERT(Obj(bslString.c_str()) == Obj(V.c_str()));
+            ASSERT(Obj(bslString.c_str_safe()) == Obj(V.c_str()));
 
             const Obj U2(V);  // Explicit conversion construction
             ASSERT(Obj(V.c_str()) == Obj(U2.c_str()));
+            ASSERT(Obj(V.c_str()) == Obj(U2.c_str_safe()));
             ASSERT(U2 == U);
 
             // 'operator=='
@@ -2568,6 +2581,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
 
                 checkCompare(U, V, U.compare(V));
                 checkCompare(U, V, U.compare(V.c_str()));
+                checkCompare(U, V, U.compare(V.c_str_safe()));
 
                 for (size_t i = 0; i <= U_LEN; ++i) {
                     for (size_t j = 0; j <= V_LEN; ++j) {
@@ -2647,6 +2661,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     {
         ASSERT_SAFE_FAIL(X.compare(nullStr));
         ASSERT_SAFE_PASS(X.compare(X.c_str()));
+        ASSERT_SAFE_PASS(X.compare(X.c_str_safe()));
     }
 
     if (veryVerbose) printf("\tcompare(pos1, n1, s)\n");
@@ -2654,6 +2669,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     {
         ASSERT_SAFE_FAIL(X.compare(0, X.size(), nullStr));
         ASSERT_SAFE_PASS(X.compare(0, X.size(), X.c_str()));
+        ASSERT_SAFE_PASS(X.compare(0, X.size(), X.c_str_safe()));
     }
 
     if (veryVerbose) printf("\tcompare(pos1, n1, s, n2)\n");
@@ -2661,6 +2677,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     {
         ASSERT_SAFE_FAIL(X.compare(0, X.size(), nullStr, X.size()));
         ASSERT_SAFE_PASS(X.compare(0, X.size(), X.c_str(), X.size()));
+        ASSERT_SAFE_PASS(X.compare(0, X.size(), X.c_str_safe(), X.size()));
     }
 
     if (veryVerbose) printf("\toperator<\n");
@@ -3044,34 +3061,56 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             LOOP2_ASSERT(LINE, SPEC, 0 == X.find(Z));
             LOOP2_ASSERT(LINE, SPEC, 0 == X.find(Z.c_str()));
+            LOOP2_ASSERT(LINE, SPEC, 0 == X.find(Z.c_str_safe()));
 
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z));
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str()));
+            LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str_safe()));
 
             for (size_t j = 0; j <= LENGTH; ++j) {
                 LOOP3_ASSERT(LINE, SPEC, j, j == X.find(Z, j));
                 LOOP3_ASSERT(LINE, SPEC, j, j == X.find(Z.c_str(), j));
+                LOOP3_ASSERT(LINE, SPEC, j, j == X.find(Z.c_str_safe(), j));
                 LOOP3_ASSERT(LINE, SPEC, j, j == X.find(Z.c_str(), j, 0));
+                LOOP3_ASSERT(LINE, SPEC, j, j == X.find(Z.c_str_safe(), j, 0));
 
                 LOOP3_ASSERT(LINE, SPEC, j, j == X.rfind(Z, j));
                 LOOP3_ASSERT(LINE, SPEC, j, j == X.rfind(Z.c_str(), j));
+                LOOP3_ASSERT(LINE, SPEC, j, j == X.rfind(Z.c_str_safe(), j));
                 LOOP3_ASSERT(LINE, SPEC, j, j == X.rfind(Z.c_str(), j, 0));
+                LOOP3_ASSERT(LINE, SPEC, j,
+                                         j == X.rfind(Z.c_str_safe(), j, 0));
             }
 
             LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z, LENGTH + 1));
             LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z, npos));
             LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str(), LENGTH + 1));
+            LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str_safe(),
+                                                    LENGTH + 1));
             LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str(), npos));
+            LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str_safe(), npos));
             LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str(), LENGTH + 1, 0));
+            LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str_safe(),
+                                                    LENGTH + 1,
+                                                    0));
             LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str(), npos, 0));
+            LOOP2_ASSERT(LINE, SPEC, npos == X.find(Z.c_str_safe(), npos, 0));
 
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z, LENGTH + 1));
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z, npos));
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str(), LENGTH + 1));
+            LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str_safe(),
+                                                       LENGTH + 1));
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str(), npos));
+            LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str_safe(), npos));
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str(), LENGTH + 1,
                                                        0));
+            LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str_safe(),
+                                                       LENGTH + 1,
+                                                       0));
             LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str(), npos, 0));
+            LOOP2_ASSERT(LINE, SPEC, LENGTH == X.rfind(Z.c_str_safe(),
+                                                       npos, 0));
 
             if (veryVerbose) {
                 printf("\tWith SPEC: \"%s\" of length " ZU
@@ -3144,10 +3183,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             LOOP4_ASSERT(LINE, SPEC, PATTERN, EXP,  EXP  == X.find(Y));
             LOOP4_ASSERT(LINE, SPEC, PATTERN, EXP,  EXP  == X.find(Y.c_str()));
+            LOOP4_ASSERT(LINE, SPEC, PATTERN, EXP,
+                                               EXP  == X.find(Y.c_str_safe()));
 
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP, REXP == X.rfind(Y));
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
                          REXP == X.rfind(Y.c_str()));
+            LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
+                         REXP == X.rfind(Y.c_str_safe()));
 
             if (EXP == npos) {
                 ASSERT(EXP == REXP);
@@ -3156,6 +3199,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                                  EXP == X.find(Y, j));
                     LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
                                  EXP == X.find(Y.c_str(), j, N));
+                    LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
+                                 EXP == X.find(Y.c_str_safe(), j, N));
                 }
                 continue;
             }
@@ -3166,14 +3211,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
                              EXP == X.find(Y.c_str(), j));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
+                             EXP == X.find(Y.c_str_safe(), j));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
                              EXP == X.find(Y.c_str(), j, N));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
+                             EXP == X.find(Y.c_str_safe(), j, N));
 
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              npos == X.rfind(Y, j));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              npos == X.rfind(Y.c_str(), j));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
+                             npos == X.rfind(Y.c_str_safe(), j));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              npos == X.rfind(Y.c_str(), j, N));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
+                             npos == X.rfind(Y.c_str_safe(), j, N));
             }
 
             LOOP4_ASSERT(LINE, SPEC, PATTERN, EXP,
@@ -3185,7 +3238,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              REXP == X.find(Y.c_str(), j));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
+                             REXP == X.find(Y.c_str_safe(), j));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              REXP == X.find(Y.c_str(), j, N));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
+                             REXP == X.find(Y.c_str_safe(), j, N));
             }
             for (size_t j = EXP; j < REXP; ++j) {
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
@@ -3193,7 +3250,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
                              EXP == X.rfind(Y.c_str(), j));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
+                             EXP == X.rfind(Y.c_str_safe(), j));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
                              EXP == X.rfind(Y.c_str(), j, N));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
+                             EXP == X.rfind(Y.c_str_safe(), j, N));
             }
 
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP, REXP == X.rfind(Y, REXP));
@@ -3204,28 +3265,44 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
                              npos == X.find(Y.c_str(), j));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
+                             npos == X.find(Y.c_str_safe(), j));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
                              npos == X.find(Y.c_str(), j, N));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, EXP,
+                             npos == X.find(Y.c_str_safe(), j, N));
 
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              REXP == X.rfind(Y));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              REXP == X.rfind(Y.c_str(), j));
                 LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
+                             REXP == X.rfind(Y.c_str_safe(), j));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
                              REXP == X.rfind(Y.c_str(), j, N));
+                LOOP5_ASSERT(LINE, SPEC, PATTERN, j, REXP,
+                             REXP == X.rfind(Y.c_str_safe(), j, N));
             }
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
                          npos == X.find(Y, npos));
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
                          npos == X.find(Y.c_str(), npos));
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
+                         npos == X.find(Y.c_str_safe(), npos));
+            LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
                          npos == X.find(Y.c_str(), npos, N));
+            LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
+                         npos == X.find(Y.c_str_safe(), npos, N));
 
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
                          REXP == X.rfind(Y, npos));
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
                          REXP == X.rfind(Y.c_str(), npos));
             LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
+                         REXP == X.rfind(Y.c_str_safe(), npos));
+            LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
                          REXP == X.rfind(Y.c_str(), npos, N));
+            LOOP4_ASSERT(LINE, SPEC, PATTERN, REXP,
+                         REXP == X.rfind(Y.c_str_safe(), npos, N));
 
         }
     }
@@ -3291,25 +3368,35 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_of(Z));
             LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_of(Z.c_str()));
+            LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_of(Z.c_str_safe()));
 
             LOOP2_ASSERT(LINE, SPEC, npos == X.find_last_of(Z));
             LOOP2_ASSERT(LINE, SPEC, npos == X.find_last_of(Z.c_str()));
+            LOOP2_ASSERT(LINE, SPEC, npos == X.find_last_of(Z.c_str_safe()));
 
             if (LENGTH) {
                 LOOP2_ASSERT(LINE, SPEC, 0 == X.find_first_not_of(Z));
                 LOOP2_ASSERT(LINE, SPEC, 0 == X.find_first_not_of(Z.c_str()));
+                LOOP2_ASSERT(LINE, SPEC,
+                                     0 == X.find_first_not_of(Z.c_str_safe()));
 
                 LOOP2_ASSERT(LINE, SPEC, LENGTH - 1 == X.find_last_not_of(Z));
                 LOOP2_ASSERT(LINE, SPEC, LENGTH - 1 == X.find_last_not_of(
                                                                    Z.c_str()));
+                LOOP2_ASSERT(LINE, SPEC, LENGTH - 1 == X.find_last_not_of(
+                                                              Z.c_str_safe()));
             } else {
                 LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_not_of(Z));
                 LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_not_of(
                                                                    Z.c_str()));
+                LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_not_of(
+                                                              Z.c_str_safe()));
 
                 LOOP2_ASSERT(LINE, SPEC, npos == X.find_last_not_of(Z));
                 LOOP2_ASSERT(LINE, SPEC, npos == X.find_last_not_of(
                                                                    Z.c_str()));
+                LOOP2_ASSERT(LINE, SPEC, npos == X.find_last_not_of(
+                                                              Z.c_str_safe()));
             }
 
             for (size_t j = 0; j < LENGTH; ++j) {
@@ -3318,48 +3405,73 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                     LOOP3_ASSERT(LINE, SPEC, j,
                                  npos == X.find_first_of(Z.c_str(), j));
                     LOOP3_ASSERT(LINE, SPEC, j,
+                                 npos == X.find_first_of(Z.c_str_safe(), j));
+                    LOOP3_ASSERT(LINE, SPEC, j,
                                  npos == X.find_first_of(Z.c_str(), j, 0));
+                    LOOP3_ASSERT(LINE, SPEC, j,
+                                npos == X.find_first_of(Z.c_str_safe(), j, 0));
 
                     LOOP3_ASSERT(LINE, SPEC, j,
                                  npos == X.find_last_of(Z, j));
                     LOOP3_ASSERT(LINE, SPEC, j,
                                  npos == X.find_last_of(Z.c_str(), j));
                     LOOP3_ASSERT(LINE, SPEC, j,
+                                 npos == X.find_last_of(Z.c_str_safe(), j));
+                    LOOP3_ASSERT(LINE, SPEC, j,
                                  npos == X.find_last_of(Z.c_str(), j, 0));
+                    LOOP3_ASSERT(LINE, SPEC, j,
+                                 npos == X.find_last_of(Z.c_str_safe(), j, 0));
                     LOOP3_ASSERT(LINE, SPEC, j,
                                  j == X.find_first_not_of(Z, j));
                     LOOP3_ASSERT(LINE, SPEC, j,
                                  j == X.find_first_not_of(Z.c_str(), j));
                     LOOP3_ASSERT(LINE, SPEC, j,
+                                 j == X.find_first_not_of(Z.c_str_safe(), j));
+                    LOOP3_ASSERT(LINE, SPEC, j,
                                  j == X.find_first_not_of(Z.c_str(), j, 0));
+                    LOOP3_ASSERT(LINE, SPEC, j,
+                               j == X.find_first_not_of(Z.c_str_safe(), j, 0));
 
                     LOOP3_ASSERT(LINE, SPEC, j,
                                  j == X.find_last_not_of(Z, j));
                     LOOP3_ASSERT(LINE, SPEC, j,
                                  j == X.find_last_not_of(Z.c_str(), j));
                     LOOP3_ASSERT(LINE, SPEC, j,
+                                 j == X.find_last_not_of(Z.c_str_safe(), j));
+                    LOOP3_ASSERT(LINE, SPEC, j,
                                  j == X.find_last_not_of(Z.c_str(), j, 0));
+                    LOOP3_ASSERT(LINE, SPEC, j,
+                                j == X.find_last_not_of(Z.c_str_safe(), j, 0));
             }
 
             LOOP2_ASSERT(LINE, SPEC,
                          npos == X.find_first_of(Z, npos));
             LOOP2_ASSERT(LINE, SPEC,
                          npos == X.find_first_of(Z.c_str(), npos, 0));
+            LOOP2_ASSERT(LINE, SPEC,
+                         npos == X.find_first_of(Z.c_str_safe(), npos, 0));
 
             LOOP2_ASSERT(LINE, SPEC,
                          npos == X.find_last_of(Z, npos));
             LOOP2_ASSERT(LINE, SPEC,
                          npos == X.find_last_of(Z.c_str(), npos, 0));
+            LOOP2_ASSERT(LINE, SPEC,
+                         npos == X.find_last_of(Z.c_str_safe(), npos, 0));
 
             LOOP2_ASSERT(LINE, SPEC,
                          npos == X.find_first_not_of(Z, npos));
             LOOP2_ASSERT(LINE, SPEC,
                          npos == X.find_first_not_of(Z.c_str(), npos, 0));
+            LOOP2_ASSERT(LINE, SPEC,
+                         npos == X.find_first_not_of(Z.c_str_safe(), npos, 0));
 
             LOOP2_ASSERT(LINE, SPEC,
                          LENGTH - 1 == X.find_last_not_of(Z, npos));
             LOOP2_ASSERT(LINE, SPEC,
                          LENGTH - 1 == X.find_last_not_of(Z.c_str(), npos, 0));
+            LOOP2_ASSERT(LINE, SPEC,
+                         LENGTH - 1 == X.find_last_not_of(Z.c_str_safe(),
+                                                          npos, 0));
 
             if (veryVerbose) {
                 printf("\t\tWith 'char' pattern.\n");
@@ -3478,11 +3590,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                              EXP[0]  == X.find_first_of(Y));
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, EXP[0],
                              EXP[0]  == X.find_first_of(Y.c_str()));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, EXP[0],
+                             EXP[0]  == X.find_first_of(Y.c_str_safe()));
 
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[0],
                              REXP[LENGTH] == X.find_last_of(Y));
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[0],
                              REXP[LENGTH] == X.find_last_of(Y.c_str()));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[0],
+                             REXP[LENGTH] == X.find_last_of(Y.c_str_safe()));
 
                 for (size_t j = 0; j <= LENGTH; ++j) {
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
@@ -3490,14 +3606,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
                                  EXP [j]== X.find_first_of(Y.c_str(), j));
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
+                                 EXP [j]== X.find_first_of(Y.c_str_safe(), j));
+                    LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
                                  EXP [j]== X.find_first_of(Y.c_str(), j, N));
+                    LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
+                                 EXP [j]== X.find_first_of(Y.c_str_safe(),
+                                                           j, N));
 
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
                                  REXP[j] == X.find_last_of(Y, j));
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
                                  REXP[j] == X.find_last_of(Y.c_str(), j));
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
+                                 REXP[j] == X.find_last_of(Y.c_str_safe(), j));
+                    LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
                                  REXP[j] == X.find_last_of(Y.c_str(), j, N));
+                    LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
+                                 REXP[j] == X.find_last_of(Y.c_str_safe(),
+                                                           j, N));
                 }
 
                 LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
@@ -3505,14 +3631,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
                              npos == X.find_first_of(Y.c_str(), npos));
                 LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
+                             npos == X.find_first_of(Y.c_str_safe(), npos));
+                LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
                              npos == X.find_first_of(Y.c_str(), npos, N));
+                LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
+                             npos == X.find_first_of(Y.c_str_safe(), npos, N));
 
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
                              REXP[LENGTH] == X.find_last_of(Y, npos));
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
                              REXP[LENGTH] == X.find_last_of(Y.c_str(), npos));
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
+                             REXP[LENGTH] == X.find_last_of(Y.c_str_safe(),
+                                                            npos));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
                              REXP[LENGTH] == X.find_last_of(Y.c_str(),
+                                                            npos,
+                                                            N));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
+                             REXP[LENGTH] == X.find_last_of(Y.c_str_safe(),
                                                             npos,
                                                             N));
 
@@ -3552,28 +3689,42 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                              EXP[0]  == X.find_first_not_of(Y));
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, EXP[0],
                              EXP[0]  == X.find_first_not_of(Y.c_str()));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, EXP[0],
+                             EXP[0]  == X.find_first_not_of(Y.c_str_safe()));
 
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[0],
                              REXP[LENGTH] == X.find_last_not_of(Y));
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[0],
                              REXP[LENGTH] == X.find_last_not_of(Y.c_str()));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[0],
+                           REXP[LENGTH] == X.find_last_not_of(Y.c_str_safe()));
 
                 for (size_t j = 0; j <= LENGTH; ++j) {
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
                                  EXP[j] == X.find_first_not_of(Y, j));
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
                                  EXP [j]== X.find_first_not_of(Y.c_str(), j));
+                    LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, EXP[j],
+                             EXP [j]== X.find_first_not_of(Y.c_str_safe(), j));
                     LOOP6_ASSERT(
                                LINE, PLINE, SPEC, PATTERN, j, EXP[j],
                                EXP [j]== X.find_first_not_of(Y.c_str(), j, N));
+                    LOOP6_ASSERT(
+                          LINE, PLINE, SPEC, PATTERN, j, EXP[j],
+                          EXP [j]== X.find_first_not_of(Y.c_str_safe(), j, N));
 
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
                                  REXP[j] == X.find_last_not_of(Y, j));
                     LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
                                  REXP[j] == X.find_last_not_of(Y.c_str(), j));
+                    LOOP6_ASSERT(LINE, PLINE, SPEC, PATTERN, j, REXP[j],
+                             REXP[j] == X.find_last_not_of(Y.c_str_safe(), j));
                     LOOP6_ASSERT(
                                LINE, PLINE, SPEC, PATTERN, j, REXP[j],
                                REXP[j] == X.find_last_not_of(Y.c_str(), j, N));
+                    LOOP6_ASSERT(
+                               LINE, PLINE, SPEC, PATTERN, j, REXP[j],
+                          REXP[j] == X.find_last_not_of(Y.c_str_safe(), j, N));
                 }
 
                 LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
@@ -3581,7 +3732,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
                              npos == X.find_first_not_of(Y.c_str(), npos));
                 LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
+                            npos == X.find_first_not_of(Y.c_str_safe(), npos));
+                LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
                              npos == X.find_first_not_of(Y.c_str(), npos, N));
+                LOOP4_ASSERT(LINE, PLINE, SPEC, PATTERN,
+                         npos == X.find_first_not_of(Y.c_str_safe(), npos, N));
 
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
                              REXP[LENGTH] == X.find_last_not_of(Y, npos));
@@ -3589,7 +3744,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                              REXP[LENGTH] == X.find_last_not_of(Y.c_str(),
                                                                 npos));
                 LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
+                             REXP[LENGTH] == X.find_last_not_of(Y.c_str_safe(),
+                                                                npos));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
                              REXP[LENGTH] == X.find_last_not_of(Y.c_str(),
+                                                                npos,
+                                                                N));
+                LOOP5_ASSERT(LINE, PLINE, SPEC, PATTERN, REXP[LENGTH],
+                             REXP[LENGTH] == X.find_last_not_of(Y.c_str_safe(),
                                                                 npos,
                                                                 N));
 
@@ -3647,6 +3809,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find(nullStr, 0, X.size()));
         ASSERT_SAFE_PASS(X.find(X.c_str(), 0, X.size()));
+        ASSERT_SAFE_PASS(X.find(X.c_str_safe(), 0, X.size()));
     }
 
     if (veryVerbose) printf("\tfind(s, pos)\n");
@@ -3654,6 +3817,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find(nullStr, 0));
         ASSERT_SAFE_PASS(X.find(X.c_str(), 0));
+        ASSERT_SAFE_PASS(X.find(X.c_str_safe(), 0));
     }
 
     if (veryVerbose) printf("\trfind(s, pos, n)\n");
@@ -3661,6 +3825,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.rfind(nullStr, 0, X.size()));
         ASSERT_SAFE_PASS(X.rfind(X.c_str(), 0, X.size()));
+        ASSERT_SAFE_PASS(X.rfind(X.c_str_safe(), 0, X.size()));
     }
 
     if (veryVerbose) printf("\trfind(s, pos)\n");
@@ -3668,6 +3833,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.rfind(nullStr, 0));
         ASSERT_SAFE_PASS(X.rfind(X.c_str(), 0));
+        ASSERT_SAFE_PASS(X.rfind(X.c_str_safe(), 0));
     }
 
     if (veryVerbose) printf("\tfind_first_of(s, pos, n)\n");
@@ -3675,6 +3841,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_first_of(nullStr, 0, X.size()));
         ASSERT_SAFE_PASS(X.find_first_of(X.c_str(), 0, X.size()));
+        ASSERT_SAFE_PASS(X.find_first_of(X.c_str_safe(), 0, X.size()));
     }
 
     if (veryVerbose) printf("\tfind_first_of(s, pos)\n");
@@ -3682,6 +3849,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_first_of(nullStr, 0));
         ASSERT_SAFE_PASS(X.find_first_of(X.c_str(), 0));
+        ASSERT_SAFE_PASS(X.find_first_of(X.c_str_safe(), 0));
     }
 
     if (veryVerbose) printf("\tfind_last_of(s, pos, n)\n");
@@ -3689,6 +3857,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_last_of(nullStr, 0, X.size()));
         ASSERT_SAFE_PASS(X.find_last_of(X.c_str(), 0, X.size()));
+        ASSERT_SAFE_PASS(X.find_last_of(X.c_str_safe(), 0, X.size()));
     }
 
     if (veryVerbose) printf("\tfind_last_of(s, pos)\n");
@@ -3696,6 +3865,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_last_of(nullStr, 0));
         ASSERT_SAFE_PASS(X.find_last_of(X.c_str(), 0));
+        ASSERT_SAFE_PASS(X.find_last_of(X.c_str_safe(), 0));
     }
 
     if (veryVerbose) printf("\tfind_first_not_of(s, pos, n)\n");
@@ -3703,6 +3873,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_first_not_of(nullStr, 0, X.size()));
         ASSERT_SAFE_PASS(X.find_first_not_of(X.c_str(), 0, X.size()));
+        ASSERT_SAFE_PASS(X.find_first_not_of(X.c_str_safe(), 0, X.size()));
     }
 
     if (veryVerbose) printf("\tfind_first_not_of(s, pos)\n");
@@ -3710,6 +3881,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_first_not_of(nullStr, 0));
         ASSERT_SAFE_PASS(X.find_first_not_of(X.c_str(), 0));
+        ASSERT_SAFE_PASS(X.find_first_not_of(X.c_str_safe(), 0));
     }
 
     if (veryVerbose) printf("\tfind_last_not_of(s, pos, n)\n");
@@ -3717,6 +3889,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_last_not_of(nullStr, 0, X.size()));
         ASSERT_SAFE_PASS(X.find_last_not_of(X.c_str(), 0, X.size()));
+        ASSERT_SAFE_PASS(X.find_last_not_of(X.c_str_safe(), 0, X.size()));
     }
 
     if (veryVerbose) printf("\tfind_last_not_of(s, pos)\n");
@@ -3724,6 +3897,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     {
         ASSERT_SAFE_FAIL(X.find_last_not_of(nullStr, 0));
         ASSERT_SAFE_PASS(X.find_last_not_of(X.c_str(), 0));
+        ASSERT_SAFE_PASS(X.find_last_not_of(X.c_str_safe(), 0));
     }
 }
 
@@ -4378,7 +4552,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                      SIZE,
                                                      Y.data(),
                                                      NUM_ELEMENTS);
-                            ASSERT(&result == &mX);
+                            ASSERT(&result  == &mX);
                           } break;
                           case REPLACE_CSTRING_AT_INDEX: {
                             // string& replace(pos1, n1, const C *s);
@@ -4391,7 +4565,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                      mX.begin() + END,
                                                      Y.data(),
                                                      NUM_ELEMENTS);
-                            ASSERT(&result == &mX);
+                            ASSERT(&result  == &mX);
                           } break;
                           case REPLACE_CSTRING_AT_ITERATOR: {
                             // string& replace(iterator p, q, const C *s);
@@ -4656,7 +4830,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                          SIZE,
                                                          Y.data(),
                                                          NUM_ELEMENTS);
-                                ASSERT(&result == &mX);
+                                ASSERT(&result  == &mX);
                               } break;
                               case REPLACE_CSTRING_AT_INDEX: {
                                 // string& replace(pos1, n1, const C *s);
@@ -4671,7 +4845,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                          mX.begin() + END,
                                                          Y.data(),
                                                          NUM_ELEMENTS);
-                                ASSERT(&result == &mX);
+                                ASSERT(&result  == &mX);
                               } break;
                               case REPLACE_CSTRING_AT_ITERATOR: {
                                 // replace(const_iterator p, q, const C *s);
@@ -5066,6 +5240,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         // pass
         ASSERT_SAFE_PASS(mX.replace(0, X.size(), X.c_str(), X.size()));
+        ASSERT_SAFE_PASS(mX.replace(0, X.size(), X.c_str_safe(), X.size()));
     }
 
     if (veryVerbose) printf("\treplace(first, last, s)\n");
@@ -5082,24 +5257,30 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         // first < begin()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(), X.c_str()));
+        ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(), X.c_str_safe()));
 
         // first > end()
         ASSERT_SAFE_FAIL(mX.replace(X.end() + 1, X.end(), X.c_str()));
+        ASSERT_SAFE_FAIL(mX.replace(X.end() + 1, X.end(), X.c_str_safe()));
 
         // last < begin()
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.begin() - 1, X.c_str()));
+        ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.begin() - 1, X.c_str_safe()));
 
         // last > end()
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end() + 1, X.c_str()));
+        ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end() + 1, X.c_str_safe()));
 
         // first > last
         ASSERT_SAFE_FAIL(mX.replace(X.begin() + 1, X.begin(), X.c_str()));
+        ASSERT_SAFE_FAIL(mX.replace(X.begin() + 1, X.begin(), X.c_str_safe()));
 
         // characterString == NULL
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(), nullStr));
 
         // pass
         ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(), X.c_str()));
+        ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(), X.c_str_safe()));
     }
 
     if (veryVerbose) printf("\treplace(first, last, s, n2)\n");
@@ -5117,28 +5298,40 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         // first < begin()
         ASSERT_SAFE_FAIL(
                       mX.replace(X.begin() - 1, X.end(), X.c_str(), X.size()));
+        ASSERT_SAFE_FAIL(
+                 mX.replace(X.begin() - 1, X.end(), X.c_str_safe(), X.size()));
 
         // first > end()
         ASSERT_SAFE_FAIL(
                         mX.replace(X.end() + 1, X.end(), X.c_str(), X.size()));
+        ASSERT_SAFE_FAIL(
+                   mX.replace(X.end() + 1, X.end(), X.c_str_safe(), X.size()));
 
         // last < begin()
         ASSERT_SAFE_FAIL(
                     mX.replace(X.begin(), X.begin() - 1, X.c_str(), X.size()));
+        ASSERT_SAFE_FAIL(
+               mX.replace(X.begin(), X.begin() - 1, X.c_str_safe(), X.size()));
 
         // last > end()
         ASSERT_SAFE_FAIL(
                       mX.replace(X.begin(), X.end() + 1, X.c_str(), X.size()));
+        ASSERT_SAFE_FAIL(
+                 mX.replace(X.begin(), X.end() + 1, X.c_str_safe(), X.size()));
 
         // first > last
         ASSERT_SAFE_FAIL(
                     mX.replace(X.begin() + 1, X.begin(), X.c_str(), X.size()));
+        ASSERT_SAFE_FAIL(
+               mX.replace(X.begin() + 1, X.begin(), X.c_str_safe(), X.size()));
 
         // characterString == NULL
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(), nullStr, X.size()));
 
         // pass
         ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(), X.c_str(), X.size()));
+        ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(),
+                                    X.c_str_safe(), X.size()));
     }
 }
 
@@ -6981,6 +7174,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr));
 
         ASSERT_SAFE_PASS(mX.insert(1, mX.c_str()));
+        ASSERT_SAFE_PASS(mX.insert(1, mX.c_str_safe()));
     }
 
     if (veryVerbose) printf("\tnegative testing insert(pos, s, n)\n");
@@ -6997,6 +7191,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr, 10));
 
         ASSERT_SAFE_PASS(mX.insert(1, mX.c_str(), mX.length()));
+        ASSERT_SAFE_PASS(mX.insert(1, mX.c_str_safe(), mX.length()));
     }
 
     if (veryVerbose) printf("\tnegative testing insert(p, c)\n");
@@ -7947,8 +8142,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
         Obj nonNull(g("ABCDE"));
 
         ASSERT_SAFE_PASS(mX.append(nonNull.c_str()));
+        ASSERT_SAFE_PASS(mX.append(nonNull.c_str_safe()));
         ASSERT_SAFE_PASS(mX.append(nonNull.c_str(), 0));
+        ASSERT_SAFE_PASS(mX.append(nonNull.c_str_safe(), 0));
         ASSERT_SAFE_PASS(mX.append(nonNull.c_str(), nonNull.length()));
+        ASSERT_SAFE_PASS(mX.append(nonNull.c_str_safe(), nonNull.length()));
         ASSERT_SAFE_PASS(mX += nonNull.c_str());
         ASSERT_SAFE_PASS(mX + nonNull.c_str());
         ASSERT_SAFE_PASS(nonNull.c_str() + mX);
@@ -8890,6 +9088,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             try
             {
                 dst.assign(src.c_str());
+                dst.assign(src.c_str_safe());
             }
             catch (bslma::TestAllocatorException &)
             {
@@ -8912,6 +9111,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             try
             {
                 dst.assign(src.c_str(), src.size());
+                dst.assign(src.c_str_safe(), src.size());
             }
             catch (bslma::TestAllocatorException &)
             {
@@ -9217,7 +9417,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Negative()
 
         Obj mY(g("ABCD"));
         ASSERT_SAFE_PASS(mX.assign(mY.c_str()));
+        ASSERT_SAFE_PASS(mX.assign(mY.c_str_safe()));
         ASSERT_SAFE_PASS(mX.assign(mY.c_str(), mY.length()));
+        ASSERT_SAFE_PASS(mX.assign(mY.c_str_safe(), mY.length()));
     }
 
     if (veryVerbose) {
@@ -10073,8 +10275,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
 
     Obj mX(g("ABCDE"));
     ASSERT_SAFE_PASS_RAW(Obj(mX.c_str()));
+    ASSERT_SAFE_PASS_RAW(Obj(mX.c_str_safe()));
     ASSERT_SAFE_PASS_RAW(Obj(mX.c_str(), 0));
+    ASSERT_SAFE_PASS_RAW(Obj(mX.c_str_safe(), 0));
     ASSERT_SAFE_PASS_RAW(Obj(mX.c_str(), mX.length()));
+    ASSERT_SAFE_PASS_RAW(Obj(mX.c_str_safe(), mX.length()));
     ASSERT_SAFE_PASS_RAW(Obj(mY.begin(), mY.end()));
 }
 
@@ -10561,6 +10766,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Negative()
     {
         Obj Y(g("ABC"));
         ASSERT_SAFE_PASS(X = Y.c_str());
+        ASSERT_SAFE_PASS(X = Y.c_str_safe());
     }
 }
 
@@ -13892,7 +14098,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 29: {
+      case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -14103,6 +14309,54 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, EXP == os.str());
             }
         }
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // C_STR_SAFE test:
+        // We have the following concern:
+        //   1) That c_str_safe does not assert on proper operations.
+        //   2) That c_str_safe does assert on buffer overruns.
+        //
+        // Plan:  We will call c_str_safe and operate both safely and unsafely
+        //   on the return value.
+        //
+        // Testing:
+        //   This "test" measures basic performance of c_str_safe.
+        // --------------------------------------------------------------------
+
+        Obj s1("Hello");
+        bsls::AssertFailureHandlerGuard guard(
+                                            &bsls::AssertTest::failTestDriver);
+
+        ASSERT_PASS(strcpy(s1.c_str_safe(), "Bye"));
+        ASSERT_FAIL(strcpy(s1.c_str_safe(), "Worlds"));
+        // Restore string to "correct" state so ~string doesn't assert.
+        s1[5] = '\0';
+
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // DATA_SAFE test:
+        // We have the following concern:
+        //   1) That data_safe does not assert on proper operations.
+        //   2) That data_safe does assert on buffer overruns.
+        //
+        // Plan:  We will call data_safe and operate both safely and unsafely
+        //   on the return value.
+        //
+        // Testing:
+        //   This "test" measures basic performance of data_safe.
+        // --------------------------------------------------------------------
+
+        Obj s1("Hello");
+        bsls::AssertFailureHandlerGuard guard(
+                                            &bsls::AssertTest::failTestDriver);
+
+        ASSERT_PASS(strcpy(s1.data_safe(), "Bye"));
+        ASSERT_FAIL(strcpy(s1.data_safe(), "Worlds"));
+        // Restore string to "correct" state so ~string doesn't assert.
+        s1[5] = '\0';
+
       } break;
       case 28: {
         // --------------------------------------------------------------------
@@ -15127,6 +15381,7 @@ int main(int argc, char *argv[])
         TestDriver<char>::testCaseM1(NITER, RANDOM_SEED);
 
       } break;
+
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
