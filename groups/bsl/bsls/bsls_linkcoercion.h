@@ -26,7 +26,9 @@ BSLS_IDENT("$Id: $")
 // Next, use BSLS_LINKCOERCION_INCLUDE_REF to force a reference to this symbol
 // into any object which includes the header:
 //..
-// BSLS_LINKCOERCION_INCLUDE_REF(bsls_coerceexample_coerce, s_coerce)
+// BSLS_LINKCOERCION_INCLUDE_REF(const char *,
+//                               bsls_coerceexample_coerce,
+//                               s_coerce)
 //..
 // Finally, in the corresponding '.cpp' file, the 's_coerce' symbol needs to be
 // defined:
