@@ -567,8 +567,6 @@ BSLS_IDENT("$Id: $")
 BSL_OVERRIDES_STD mode"
 #endif
 
-#include <stdio.h>
-
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
