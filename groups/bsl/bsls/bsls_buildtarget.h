@@ -34,6 +34,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LINKCOERCION
+#include <bsls_linkcoercion.h>
+#endif
+
 namespace BloombergLP {
 
 // Default to an exception-enabled build unless 'BDE_BUILD_TARGET_NO_EXC' is
@@ -109,12 +113,12 @@ typedef BuildTargetMtNo BuildTargetMt;
 
 // Force linker to pull in this component's object file.
 
-BSLS_LINKCOERCION_INCLUDE_REF(const int *,
+BSLS_LINKCOERCION_INCLUDE_REF(const int,
                               bsls_buildtarget_assertion1,
                               bsls::BuildTargetExc::s_isBuildTargetExc)
-BSLS_LINKCOERCION_INCLUDE_REF(const int *,
+BSLS_LINKCOERCION_INCLUDE_REF(const int,
                               bsls_buildtarget_assertion2,
-                              bsls::BuildTargetExc::s_isBuildTargetMt)
+                              bsls::BuildTargetMt::s_isBuildTargetMt)
 
 }  // close enterprise namespace
 
