@@ -2,8 +2,6 @@
 #ifndef INCLUDED_BDETU_MONTH
 #define INCLUDED_BDETU_MONTH
 
-#include <bdet_monthofyear.h>
-
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
@@ -16,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: John Lakos (jlakos)
 //
-//@DESCRIPTION: The 'bdet_month' component provides a namespace for a suite of
+//@DESCRIPTION: The 'bdetu_month' component provides a namespace for a suite of
 // pure procedures that operate directly on months of the year
 // ('bdet_MonthOfYear::Month').  For example,
 //..
@@ -84,18 +82,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef BDE_DONT_ALOLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDET_MONTH
-#include <bdet_month.h>
-#endif
-
-#endif
-
 #ifndef INCLUDED_BDET_DATE
 #include <bdet_date.h>
+#include <bdet_monthofyear.h>
 #endif
-
 
 namespace BloombergLP {
 
