@@ -1116,7 +1116,7 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 {
     // TBD
-    return (! d_invoker_p) && (! d_objbuf.d_func_p);
+    return d_invoker_p || d_objbuf.d_func_p;
 }
 
 template <class RET, class... ARGS>
@@ -1141,8 +1141,8 @@ const std::type_info&
 bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
 {
     const std::type_info *info_p =
-        static_cast<const std::type_info*>(d_manager(GET_TYPE_ID, this,
-                                                     nullptr));
+        static_cast<const std::type_info*>(d_funcManager_p(GET_TYPE_ID, this,
+                                                           nullptr));
     return *info_p;
 }
 
@@ -1150,17 +1150,19 @@ template <class RET, class... ARGS>
 template<class T>
 T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
 {
-    const function *constThis = this;
-    return const_cast<T*>(constThis->target());
+    if (*this && target_type() != typeid(T)) {
+        return nullptr;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, nullptr, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
 }
 
 template <class RET, class... ARGS>
 template<class T>
 const T* bsl::function<RET(ARGS...)>::target() const BSLS_NOTHROW_SPEC
 {
-    BDES_ASSERT(target_type() == typeid(T));
-    const void *target_p = d_manager(GET_TARGET, this, nullptr);
-    return static_cast<const T*>(target_p);
+    return const_cast<function*>(this)->target<T>();
 }
 
 // FREE FUNCTIONS
