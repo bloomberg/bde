@@ -183,13 +183,13 @@ int main(int argc, char *argv[])
         {
             typedef bsl::function<int()> Obj;
             Obj f(sum0);
-            ASSERT(0x2000 == f());
+            ASSERT(0x4000 == f());
         }
 
         {
             typedef bsl::function<int(int, int)> Obj;
             Obj f(sum2);
-            ASSERT(0x2003 == f(1, 2));
+            ASSERT(0x4003 == f(1, 2));
         }
 
       } break;

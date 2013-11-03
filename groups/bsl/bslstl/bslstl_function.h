@@ -264,7 +264,6 @@ class Function_Rep {
 
         MOVE_CONSTRUCT
       , COPY_CONSTRUCT
-      , CONSTRUCT
       , DESTROY
       , INPLACE_DETECTION
       , GET_TARGET
@@ -286,9 +285,9 @@ class Function_Rep {
       , ERASED_EMPTY_ALLOC
     };
 
-    typedef void *(*Manager)(ManagerOpCode        opCode,
-                             const Function_Rep  *rep,
-                             void                *target);
+    typedef const void *(*Manager)(ManagerOpCode  opCode,
+                                   const void    *source,
+                                   Function_Rep  *rep);
         // 'Manager' is an alias for a pointer to a function that manages a
         // specific object type (i.e., it copies, moves, or destroyes it).  It
         // implements a kind of hand-coded virtual-function dispatch.  The
@@ -363,29 +362,29 @@ class Function_Rep {
                  integral_constant<AllocType, ERASED_EMPTY_ALLOC>);
 
     template <class FUNC>
-    static Manager getFuncManager(true_type /* inplace */, const FUNC&);
+    static Manager getFuncManager(const FUNC&, true_type /* inplace */);
     template <class FUNC>
-    static Manager getFuncManager(false_type /* inplace */, const FUNC&);
+    static Manager getFuncManager(const FUNC&, false_type /* inplace */);
 
     template <class FUNC>
-    static void *inplaceFuncManager(ManagerOpCode       opCode,
-                                    const Function_Rep *rep,
-                                    void               *target);
+    static const void *inplaceFuncManager(ManagerOpCode  opCode,
+                                          const void    *source,
+                                          Function_Rep  *rep);
 
     template <class FUNC>
-    static void *outofplaceFuncManager(ManagerOpCode       opCode,
-                                       const Function_Rep *rep,
-                                       void               *target);
+    static const void *outofplaceFuncManager(ManagerOpCode  opCode,
+                                             const void    *source,
+                                             Function_Rep  *rep);
 
     template <class FUNC>
-    static void *pairedAllocManager(ManagerOpCode       opCode,
-                                    const Function_Rep *rep,
-                                    void               *target);
+    static const void *pairedAllocManager(ManagerOpCode  opCode,
+                                          const void    *source,
+                                          Function_Rep  *rep);
 
     template <class FUNC>
-    static void *separateAllocManager(ManagerOpCode       opCode,
-                                      const Function_Rep *rep,
-                                      void               *target);
+    static const void *separateAllocManager(ManagerOpCode  opCode,
+                                            const void    *source,
+                                            Function_Rep  *rep);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     __declspec(noreturn)
@@ -410,8 +409,8 @@ class Function_Rep {
                                      // pointer to manager function used to
                                      // operate on allocator instance (which
                                      // knows about the erased type 'ALLOC' of
-                                     // the allocator object), or null for if
-                                     // 'ALLOC' is a 'bslma::Allocator*'
+                                     // the allocator object), or null if
+                                     // 'ALLOC' is 'bslma::Allocator*'
 };
 
 
@@ -488,22 +487,26 @@ class function<RET(ARGS...)> :
     Invoker d_invoker_p;
 
     template <class FUNC>
-    static Invoker getInvoker(FUNC*,
+    static Invoker getInvoker(const FUNC&,
                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
         // Return the invoker for a pointer to (non-member) function.
 
     template <class FUNC>
-    static Invoker getInvoker(FUNC*,
+    static Invoker getInvoker(const FUNC&,
                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
         // Return the invoker for a pointer to member function.
 
     template <class FUNC>
-    static Invoker getInvoker(FUNC*, bslmf::SelectTraitCase<FitsInplace>);
+    static Invoker getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
         // Return the invoker for an in-place functor.
 
     template <class FUNC>
-    static Invoker getInvoker(FUNC*, bslmf::SelectTraitCase<>);
+    static Invoker getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
         // Return the invoker for an out-of-place functor.
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, ARGS... args);
 
 public:
     // PUBLIC TYPES
@@ -554,20 +557,20 @@ public:
 };
 
 // FREE FUNCTIONS
-template <class R, class... ARGS>
-bool operator==(const function<R(ARGS...)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+template <class RET, class... ARGS>
+bool operator==(const function<RET(ARGS...)>&, nullptr_t) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
-bool operator==(nullptr_t, const function<R(ARGS...)>&) BSLS_NOTHROW_SPEC;
+template <class RET, class... ARGS>
+bool operator==(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
-bool operator!=(const function<R(ARGS...)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+template <class RET, class... ARGS>
+bool operator!=(const function<RET(ARGS...)>&, nullptr_t) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
-bool operator!=(nullptr_t, const function<R(ARGS...)>&) BSLS_NOTHROW_SPEC;
+template <class RET, class... ARGS>
+bool operator!=(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
-void swap(function<R(ARGS...)>&, function<R(ARGS...)>&);
+template <class RET, class... ARGS>
+void swap(function<RET(ARGS...)>&, function<RET(ARGS...)>&);
 
 #endif
 
@@ -676,7 +679,7 @@ inline std::size_t bsl::Function_ObjPairBufferDesc::secondSize() const
 template <class FUNC>
 inline
 bsl::Function_Rep::Manager
-bsl::Function_Rep::getFuncManager(true_type /* inplace */, const FUNC&)
+bsl::Function_Rep::getFuncManager(const FUNC&, true_type /* inplace */)
 {
     return &inplaceFuncManager<FUNC>;
 }
@@ -684,66 +687,101 @@ bsl::Function_Rep::getFuncManager(true_type /* inplace */, const FUNC&)
 template <class FUNC>
 inline
 bsl::Function_Rep::Manager
-bsl::Function_Rep::getFuncManager(false_type /* inplace */, const FUNC&)
+bsl::Function_Rep::getFuncManager(const FUNC&, false_type /* inplace */)
 {
     return &outofplaceFuncManager<FUNC>;
 }
 
 template <class FUNC>
-void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode       opCode,
-                                            const Function_Rep *rep,
-                                            void               *target)
+const void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode  opCode,
+                                                  const void    *source,
+                                                  Function_Rep  *rep)
 {
-    switch (opcode) {
+    switch (opCode) {
       case MOVE_CONSTRUCT: {
+          // There is no point to optimizing this operation for bitwise
+          // moveable types.  If the type is trivially moveable, then the move
+          // operation below will do it trivially.
+          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+          ::new (&rep->d_objbuf) FUNC(std::move(srcFunc));
+#else
+          ::new (&rep->d_objbuf) FUNC(srcFunc);
+#endif
       } break;
 
       case COPY_CONSTRUCT: {
-      } break;
-
-      case CONSTRUCT: {
+          // There is no point to optimizing this operation for bitwise
+          // copyable types.  If the type is trivially moveable, then the copy
+          // operation below will do it trivially.
+          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
+          ::new (&rep->d_objbuf) FUNC(srcFunc);
       } break;
 
       case DESTROY: {
+          reinterpret_cast<FUNC&>(rep->d_objbuf).~FUNC();
       } break;
 
       case INPLACE_DETECTION: {
+          return rep;  // Evaluates true in a boolean context
       } break;
 
       case GET_TARGET: {
+          return &rep->d_objbuf;
       } break;
 
       case GET_TYPE_ID: {
+          return &typeid(FUNC);
       } break;
 
     } // end switch
+
+    return nullptr;
 }
 
 template <class FUNC>
-void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode       opCode,
-                                               const Function_Rep *rep,
-                                               void               *target)
+const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
+                                                     const void    *source,
+                                                     Function_Rep  *rep)
 {
-    switch (opcode) {
+    switch (opCode) {
+
       case MOVE_CONSTRUCT: {
+          // There is no point to optimizing this operation for bitwise
+          // moveable types.  If the type is trivially moveable, then the move
+          // operation below will do it trivially.
+          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+          ::new (rep->d_objbuf.d_object_p) FUNC(std::move(srcFunc));
+#else
+          ::new (rep.d_objbuf.d_object_p) FUNC(srcFunc);
+#endif
       } break;
 
       case COPY_CONSTRUCT: {
-      } break;
-
-      case CONSTRUCT: {
+          // There is no point to optimizing this operation for bitwise
+          // copyable types.  If the type is trivially moveable, then the copy
+          // operation below will do it trivially.
+          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
+          ::new (rep->d_objbuf.d_object_p) FUNC(srcFunc);
       } break;
 
       case DESTROY: {
+          reinterpret_cast<FUNC&>(rep->d_objbuf).~FUNC();
       } break;
 
       case INPLACE_DETECTION: {
+          return nullptr;  // Evaluates false in a boolean context
       } break;
 
       case GET_TARGET: {
+          return rep->d_objbuf.d_object_p;
       } break;
 
       case GET_TYPE_ID: {
+          return &typeid(FUNC);
       } break;
 
     } // end switch
@@ -771,7 +809,7 @@ void bsl::Function_Rep::initRep(FUNC& func, bslma::Allocator* alloc,
     ::new(function_p) FUNC(func);
 #endif
 
-    d_funcManager_p = getFuncManager(IsInplaceFunc(), func);
+    d_funcManager_p = getFuncManager(func, IsInplaceFunc());
 
     d_allocator_p = alloc;
     d_allocManager_p = nullptr;
@@ -850,7 +888,7 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
     ::new(function_p) FUNC(func);
 #endif
 
-    d_funcManager_p = getFuncManager(IsInplaceFunc(), func);
+    d_funcManager_p = getFuncManager(func, IsInplaceFunc());
 
     // Construct allocator adaptor in its correct location
     d_allocator_p = ::new(allocator_p) Adaptor(alloc);
@@ -874,9 +912,58 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
+// PRIVATE STATIC MEMBER FUNCTIONS
+template <class RET, class... ARGS>
+template <class FUNC>
+RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
+                                                    ARGS... args)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS...)>::Invoker
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    return functionPtrInvoker<FUNC>;
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+typename bsl::function<RET(ARGS...)>::Invoker
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    // TBD
+    return nullptr;
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+typename bsl::function<RET(ARGS...)>::Invoker
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    // TBD
+    return nullptr;
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+typename bsl::function<RET(ARGS...)>::Invoker
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    // TBD
+    return nullptr;
+}
+
 // CREATORS
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>::function() BSLS_NOTHROW_SPEC
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 {
     d_objbuf.d_func_p = nullptr;
     d_funcManager_p   = nullptr;
@@ -885,8 +972,8 @@ bsl::function<R(ARGS...)>::function() BSLS_NOTHROW_SPEC
     d_invoker_p       = nullptr;
 }
 
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
     d_objbuf.d_func_p = nullptr;
     d_funcManager_p   = nullptr;
@@ -895,15 +982,15 @@ bsl::function<R(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
     d_invoker_p       = nullptr;
 }
 
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>::function(const function&)
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function(const function&)
 {
     // TBD
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class FUNC>
-bsl::function<R(ARGS...)>::function(FUNC func)
+bsl::function<RET(ARGS...)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
             integral_constant<AllocType, BSLMA_ALLOC_PTR>());
@@ -913,106 +1000,67 @@ bsl::function<R(ARGS...)>::function(FUNC func)
                                        bslmf::IsMemberFunctionPointer,
                                        FitsInplace>::Type TraitSelection;
 
-    d_invoker_p = getInvoker(&func, TraitSelection());
+    d_invoker_p = getInvoker(func, TraitSelection());
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class ALLOC>
-bsl::function<R(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 {
-    R (*nullfunc_p)(ARGS...) = nullptr;
+    RET (*nullfunc_p)(ARGS...) = nullptr;
     initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
 
     d_invoker_p = nullptr;
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class ALLOC>
-bsl::function<R(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
                                     nullptr_t)
 {
-    R (*nullfunc_p)(ARGS...) = nullptr;
+    RET (*nullfunc_p)(ARGS...) = nullptr;
     initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
 
     d_invoker_p = nullptr;
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class ALLOC>
-bsl::function<R(ARGS...)>::function(allocator_arg_t, const ALLOC&,
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&,
                                     const function&)
 {
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class FUNC, class ALLOC>
-bsl::function<R(ARGS...)>::function(allocator_arg_t, const ALLOC&, FUNC)
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&, FUNC)
 {
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>::function(function&&)
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function(function&&)
 {
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class ALLOC>
-bsl::function<R(ARGS...)>::function(allocator_arg_t, const ALLOC&, function&&)
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&, function&&)
 {
 }
 
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>::~function()
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::~function()
 {
-}
-
-template <class R, class... ARGS>
-template <class FUNC>
-typename bsl::function<R(ARGS...)>::Invoker
-bsl::function<R(ARGS...)>::getInvoker(FUNC*,
-                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
-{
-    // TBD
-    return nullptr;
-}
-
-template <class R, class... ARGS>
-template <class FUNC>
-typename bsl::function<R(ARGS...)>::Invoker
-bsl::function<R(ARGS...)>::getInvoker(FUNC*,
-                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
-{
-    // TBD
-    return nullptr;
-}
-
-template <class R, class... ARGS>
-template <class FUNC>
-typename bsl::function<R(ARGS...)>::Invoker
-bsl::function<R(ARGS...)>::getInvoker(FUNC*,
-                                      bslmf::SelectTraitCase<FitsInplace>)
-{
-    // TBD
-    return nullptr;
-}
-
-template <class R, class... ARGS>
-template <class FUNC>
-typename bsl::function<R(ARGS...)>::Invoker
-bsl::function<R(ARGS...)>::getInvoker(FUNC*, bslmf::SelectTraitCase<>)
-{
-    // TBD
-    return nullptr;
 }
 
 // MANIPULATORS
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>&
-bsl::function<R(ARGS...)>::operator=(const function&)
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(const function&)
 {
     // TBD
     return *this;
@@ -1020,9 +1068,9 @@ bsl::function<R(ARGS...)>::operator=(const function&)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>&
-bsl::function<R(ARGS...)>::operator=(function&&)
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(function&&)
 {
     // TBD
     return *this;
@@ -1030,55 +1078,55 @@ bsl::function<R(ARGS...)>::operator=(function&&)
 
 #endif
 
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>&
-bsl::function<R(ARGS...)>::operator=(nullptr_t)
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 {
     // TBD
     return *this;
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class FUNC>
-bsl::function<R(ARGS...)>&
-bsl::function<R(ARGS...)>::operator=(FUNC&&)
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(FUNC&&)
 {
     // TBD
     return *this;
 }
 
 // TBD: Need to implement reference_wrapper.
-// template <class R, class... ARGS>
+// template <class RET, class... ARGS>
 // template<class FUNC>
-// function& bsl::function<R(ARGS...)>::operator=(reference_wrapper<FUNC>)
+// function& bsl::function<RET(ARGS...)>::operator=(reference_wrapper<FUNC>)
 //     BSLS_NOTHROW_SPEC
 
-template <class R, class... ARGS>
-void bsl::function<R(ARGS...)>::swap(function&) BSLS_NOTHROW_SPEC
+template <class RET, class... ARGS>
+void bsl::function<RET(ARGS...)>::swap(function&) BSLS_NOTHROW_SPEC
 {
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class FUNC, class ALLOC>
-void bsl::function<R(ARGS...)>::assign(FUNC&&, const ALLOC&)
+void bsl::function<RET(ARGS...)>::assign(FUNC&&, const ALLOC&)
 {
 }
 
-template <class R, class... ARGS>
-bsl::function<R(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 {
     // TBD
     return (! d_invoker_p) && (! d_objbuf.d_func_p);
 }
 
-template <class R, class... ARGS>
-R bsl::function<R(ARGS...)>::operator()(ARGS... args) const
+template <class RET, class... ARGS>
+RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
     if (d_invoker_p) {
         return d_invoker_p(this, args...);
     }
     else if (d_objbuf.d_func_p) {
-        typedef R prototype(ARGS...);
+        typedef RET prototype(ARGS...);
         prototype *f =
             reinterpret_cast<prototype*>(d_objbuf.d_func_p);
         return f(args...);
@@ -1088,9 +1136,9 @@ R bsl::function<R(ARGS...)>::operator()(ARGS... args) const
     }
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 const std::type_info&
-bsl::function<R(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
+bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
 {
     const std::type_info *info_p =
         static_cast<const std::type_info*>(d_manager(GET_TYPE_ID, this,
@@ -1098,17 +1146,17 @@ bsl::function<R(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
     return *info_p;
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class T>
-T* bsl::function<R(ARGS...)>::target() BSLS_NOTHROW_SPEC
+T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
 {
     const function *constThis = this;
     return const_cast<T*>(constThis->target());
 }
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 template<class T>
-const T* bsl::function<R(ARGS...)>::target() const BSLS_NOTHROW_SPEC
+const T* bsl::function<RET(ARGS...)>::target() const BSLS_NOTHROW_SPEC
 {
     BDES_ASSERT(target_type() == typeid(T));
     const void *target_p = d_manager(GET_TARGET, this, nullptr);
@@ -1116,25 +1164,25 @@ const T* bsl::function<R(ARGS...)>::target() const BSLS_NOTHROW_SPEC
 }
 
 // FREE FUNCTIONS
-template <class R, class... ARGS>
-bool operator==(const bsl::function<R(ARGS...)>&,
+template <class RET, class... ARGS>
+bool operator==(const bsl::function<RET(ARGS...)>&,
                 bsl::nullptr_t) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 bool operator==(bsl::nullptr_t,
-                const bsl::function<R(ARGS...)>&) BSLS_NOTHROW_SPEC;
+                const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
-bool operator!=(const bsl::function<R(ARGS...)>&,
+template <class RET, class... ARGS>
+bool operator!=(const bsl::function<RET(ARGS...)>&,
                 bsl::nullptr_t) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 bool operator!=(bsl::nullptr_t,
-                const bsl::function<R(ARGS...)>&) BSLS_NOTHROW_SPEC;
+                const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 
-template <class R, class... ARGS>
+template <class RET, class... ARGS>
 inline
-void swap(bsl::function<R(ARGS...)>& a, bsl::function<R(ARGS...)>& b)
+void swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
 {
     a.swap(b);
 }
