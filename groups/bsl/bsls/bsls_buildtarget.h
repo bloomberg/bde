@@ -113,12 +113,14 @@ typedef BuildTargetMtNo BuildTargetMt;
 
 // Force linker to pull in this component's object file.
 
-BSLS_LINKCOERCION_INCLUDE_REF(const int,
-                              bsls_buildtarget_assertion1,
-                              bsls::BuildTargetExc::s_isBuildTargetExc)
-BSLS_LINKCOERCION_INCLUDE_REF(const int,
-                              bsls_buildtarget_assertion2,
-                              bsls::BuildTargetMt::s_isBuildTargetMt)
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                                      const int,
+                                      bsls_buildtarget_assertion1,
+                                      bsls::BuildTargetExc::s_isBuildTargetExc)
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                                        const int,
+                                        bsls_buildtarget_assertion2,
+                                        bsls::BuildTargetMt::s_isBuildTargetMt)
 
 }  // close enterprise namespace
 

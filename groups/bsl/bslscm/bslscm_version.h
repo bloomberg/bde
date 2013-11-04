@@ -98,9 +98,9 @@ const char *Version::version()
 
 // Force linker to pull in this component's object file.
 
-BSLS_LINKCOERCION_INCLUDE_REF(const char *,
-                              bslscm_version_assertion,
-                              bslscm::Version::BSLSCM_S_VERSION);
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+                                          bslscm_version_assertion,
+                                          bslscm::Version::BSLSCM_S_VERSION);
 
 }  // close enterprise namespace
 

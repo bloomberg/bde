@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a way to force a link-time reference into an object.
 //
 //@MACROS:
-// BSLS_LINKCOERCION_INCLUDE_REF
+// BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY
 //
 //@DESCRIPTION: This component provides a way to force a link-time reference
 // to a symbol of type 'const char *' into the object being compiled.
@@ -23,12 +23,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  extern const char *s_coerce;
 //..
-// Next, use BSLS_LINKCOERCION_INCLUDE_REF to force a reference to this symbol
-// into any object which includes the header:
+// Next, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to force a reference
+// to this symbol into any object which includes the header:
 //..
-// BSLS_LINKCOERCION_INCLUDE_REF(const char *,
-//                               bsls_coerceexample_coerce,
-//                               s_coerce)
+// BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+//                                           bsls_coerceexample_coerce,
+//                                           s_coerce)
 //..
 // Finally, in the corresponding '.cpp' file, the 's_coerce' symbol needs to be
 // defined:
@@ -43,15 +43,21 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 #if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
-#define BSLS_LINKCOERCION_INCLUDE_REF(type, refName, referredSymbol)   \
+#define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
+                                                  refName,          \
+                                                  referredSymbol)   \
     static type *refName __attribute__((used)) = &referredSymbol;
 #elif defined(BSLS_PLATFORM_CMP_IBM)
-#define BSLS_LINKCOERCION_INCLUDE_REF(type, refName, referredSymbol) \
+#define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
+                                                  refName,          \
+                                                  referredSymbol)   \
     static type *refName = &referredSymbol;
 #else
-#define BSLS_LINKCOERCION_INCLUDE_REF(type, refName, referredSymbol) \
-    namespace {                                                \
-        extern type *const refName = &referredSymbol;   \
+#define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
+                                                  refName,          \
+                                                  referredSymbol)   \
+    namespace {                                                     \
+        extern type *const refName = &referredSymbol;               \
     }
 #endif
 
