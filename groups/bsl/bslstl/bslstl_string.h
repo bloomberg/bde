@@ -975,10 +975,12 @@ class String_Imp {
 template <typename STRING_TYPE>
 class basic_string_data_proxy
 {
-    // This class acts as a reference-semantic validating proxy for a
-    // 'STRING_TYPE' string, providing an
-    // 'operator const STRING_TYPE::CHAR_TYPE*' and checking the internal state
-    // of the associated 'STRING_TYPE' on all operations including destruction.
+    // This class acts as a pointer-semantic validating proxy for a
+    // 'STRING_TYPE' string, emulating the behavior of the
+    // 'const STRING_TYPE::CHAR_TYPE*' pointer returned by
+    // 'STRING_TYPE::c_str()' and 'STRING_TYPE::data()', and checking the
+    // internal state of the associated 'STRING_TYPE' on all operations
+    // including destruction.
 
   private:
     // DATA
@@ -1011,7 +1013,10 @@ class basic_string_data_proxy
     operator CHAR_TYPE*();
         // Return the same results as
         // 'static_cast<CHAR_TYPE*>(d_string.c_str())', after first validating
-        // the invariants of the associated 'STRING_TYPE' object.
+        // the invariants of the associated 'STRING_TYPE' object.  Note that
+        // although this is a non-const method, it is still an accessor rather
+        // than a manipulator, and exists only to match the conversions
+        // available for the emulated 'const CHAR_TYPE*' pointer type.
 };
 
                         // =======================
