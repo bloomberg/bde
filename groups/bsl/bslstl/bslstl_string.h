@@ -1005,18 +1005,10 @@ class basic_string_data_proxy
         // 'd_string'.
 
     // ACCESSORS
-    operator const CHAR_TYPE*() const;
-        // Return the same results as 'd_string.c_str()', after first
-        // validating the invariants of the associated 'STRING_TYPE' object.
-        //
-
-    operator CHAR_TYPE*();
+    operator CHAR_TYPE*() const;
         // Return the same results as
         // 'static_cast<CHAR_TYPE*>(d_string.c_str())', after first validating
-        // the invariants of the associated 'STRING_TYPE' object.  Note that
-        // although this is a non-const method, it is still an accessor rather
-        // than a manipulator, and exists only to match the conversions
-        // available for the emulated 'const CHAR_TYPE*' pointer type.
+        // the invariants of the associated 'STRING_TYPE' object.
 };
 
                         // =======================
@@ -2622,17 +2614,8 @@ basic_string_data_proxy<STRING_TYPE>::~basic_string_data_proxy()
 
 // ACCESSORS
 template <typename STRING_TYPE>
-basic_string_data_proxy<STRING_TYPE>::operator const typename
-                       basic_string_data_proxy<STRING_TYPE>::CHAR_TYPE*() const
-{
-    checkStringInvariants();
-
-    return d_string.c_str();
-}
-
-template <typename STRING_TYPE>
 basic_string_data_proxy<STRING_TYPE>::operator typename
-                             basic_string_data_proxy<STRING_TYPE>::CHAR_TYPE*()
+                       basic_string_data_proxy<STRING_TYPE>::CHAR_TYPE*() const
 {
     checkStringInvariants();
 
