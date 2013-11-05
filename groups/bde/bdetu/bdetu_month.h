@@ -82,12 +82,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDET_MONTHOFYEAR
-#include <bdet_monthofyear.h>
-#endif
-
 #ifndef INCLUDED_BDET_DATE
 #include <bdet_date.h>
+#endif
+
+#ifndef INCLUDED_BDET_MONTHOFYEAR
+#include <bdet_monthofyear.h>
 #endif
 
 namespace BloombergLP {
