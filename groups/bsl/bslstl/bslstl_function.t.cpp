@@ -184,19 +184,23 @@ int main(int argc, char *argv[])
             typedef bsl::function<int()> Obj;
             Obj n;
             ASSERT(! n);
+            ASSERT(typeid(void) == n.target_type());
+            ASSERT(NULL == n.target<int(*)()>());
 
             Obj f(sum0); const Obj& F = f;
             ASSERT(0x4000 == F());  // invoke
             ASSERT(typeid(&sum0) == F.target_type());
-            ASSERT(sum0 == *f.target<int(*)()>());
-            ASSERT(sum0 == *F.target<int(*)()>());
-            ASSERT(nullptr == F.target<int(*)(int)>());
+            ASSERT(&sum0 == *f.target<int(*)()>());
+            ASSERT(&sum0 == *F.target<int(*)()>());
+            ASSERT(NULL == F.target<int(*)(int)>());
         }
 
         {
             typedef bsl::function<int(int, int)> Obj;
             Obj f(sum2);
             ASSERT(0x4003 == f(1, 2));
+            ASSERT(typeid(&sum2) == f.target_type());
+            ASSERT(&sum2 == *f.target<int(*)(int, int)>());
         }
 
       } break;

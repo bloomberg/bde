@@ -99,6 +99,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_UTILITY
 #endif
 
+#ifndef INCLUDED_TYPEINFO
+#include <typeinfo>
+#define INCLUDED_TYPEINFO
+#endif
+
 // TBD: Remove this when BloombergLP is removed from bsl package group
 using namespace BloombergLP;
 
@@ -547,7 +552,10 @@ public:
     void swap(function&) BSLS_NOTHROW_SPEC;
     template<class FUNC, class ALLOC> void assign(FUNC&&, const ALLOC&);
 
-    explicit operator bool() const BSLS_NOTHROW_SPEC;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit  // Explicit conversion available only with C++11
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
 
     RET operator()(ARGS...) const;
 
@@ -737,7 +745,7 @@ const void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode  opCode,
 
     } // end switch
 
-    return nullptr;
+    return NULL;
 }
 
 template <class FUNC>
@@ -756,7 +764,7 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
           ::new (rep->d_objbuf.d_object_p) FUNC(std::move(srcFunc));
 #else
-          ::new (rep.d_objbuf.d_object_p) FUNC(srcFunc);
+          ::new (rep->d_objbuf.d_object_p) FUNC(srcFunc);
 #endif
       } break;
 
@@ -773,7 +781,7 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
       } break;
 
       case INPLACE_DETECTION: {
-          return nullptr;  // Evaluates false in a boolean context
+          return NULL;  // Evaluates false in a boolean context
       } break;
 
       case GET_TARGET: {
@@ -812,7 +820,7 @@ void bsl::Function_Rep::initRep(FUNC& func, bslma::Allocator* alloc,
     d_funcManager_p = getFuncManager(func, IsInplaceFunc());
 
     d_allocator_p = alloc;
-    d_allocManager_p = nullptr;
+    d_allocManager_p = NULL;
 }
 
 template <class FUNC, class T>
@@ -918,6 +926,8 @@ template <class FUNC>
 RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
                                                     ARGS... args)
 {
+    // Note that 'FUNC' might be different than 'RET(*)(ARGS...)'. All that is
+    // required is that it be Callable with 'ARGS...' and return 'RET'.
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
     return f(args...);
 }
@@ -926,10 +936,15 @@ template <class RET, class... ARGS>
 template <class FUNC>
 inline
 typename bsl::function<RET(ARGS...)>::Invoker
-bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
 {
-    return functionPtrInvoker<FUNC>;
+    if (f) {
+        return functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
 }
 
 template <class RET, class... ARGS>
@@ -939,7 +954,7 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
                         bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
 {
     // TBD
-    return nullptr;
+    return NULL;
 }
 
 template <class RET, class... ARGS>
@@ -949,7 +964,7 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
     // TBD
-    return nullptr;
+    return NULL;
 }
 
 template <class RET, class... ARGS>
@@ -958,28 +973,28 @@ typename bsl::function<RET(ARGS...)>::Invoker
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
     // TBD
-    return nullptr;
+    return NULL;
 }
 
 // CREATORS
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 {
-    d_objbuf.d_func_p = nullptr;
-    d_funcManager_p   = nullptr;
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
     d_allocator_p     = bslma::Default::defaultAllocator();
-    d_allocManager_p  = nullptr;
-    d_invoker_p       = nullptr;
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
 }
 
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
-    d_objbuf.d_func_p = nullptr;
-    d_funcManager_p   = nullptr;
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
     d_allocator_p     = bslma::Default::defaultAllocator();
-    d_allocManager_p  = nullptr;
-    d_invoker_p       = nullptr;
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
 }
 
 template <class RET, class... ARGS>
@@ -1007,21 +1022,21 @@ template <class RET, class... ARGS>
 template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 {
-    RET (*nullfunc_p)(ARGS...) = nullptr;
+    RET (*nullfunc_p)(ARGS...) = NULL;
     initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
 
-    d_invoker_p = nullptr;
+    d_invoker_p = NULL;
 }
 
 template <class RET, class... ARGS>
 template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
-                                    nullptr_t)
+                                      nullptr_t)
 {
-    RET (*nullfunc_p)(ARGS...) = nullptr;
+    RET (*nullfunc_p)(ARGS...) = NULL;
     initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
 
-    d_invoker_p = nullptr;
+    d_invoker_p = NULL;
 }
 
 template <class RET, class... ARGS>
@@ -1115,8 +1130,9 @@ void bsl::function<RET(ARGS...)>::assign(FUNC&&, const ALLOC&)
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 {
-    // TBD
-    return d_invoker_p || d_objbuf.d_func_p;
+    // If there is an invoker, then this function is non-empty (return true);
+    // otherwise it is empty (return false).
+    return d_invoker_p;
 }
 
 template <class RET, class... ARGS>
@@ -1124,12 +1140,6 @@ RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
     if (d_invoker_p) {
         return d_invoker_p(this, args...);
-    }
-    else if (d_objbuf.d_func_p) {
-        typedef RET prototype(ARGS...);
-        prototype *f =
-            reinterpret_cast<prototype*>(d_objbuf.d_func_p);
-        return f(args...);
     }
     else {
         BSLS_THROW(bad_function_call());
@@ -1140,21 +1150,23 @@ template <class RET, class... ARGS>
 const std::type_info&
 bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
 {
-    const std::type_info *info_p =
-        static_cast<const std::type_info*>(d_funcManager_p(GET_TYPE_ID, this,
-                                                           nullptr));
-    return *info_p;
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
 }
 
 template <class RET, class... ARGS>
 template<class T>
 T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
 {
-    if (*this && target_type() != typeid(T)) {
-        return nullptr;
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, nullptr, this);
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -1189,7 +1201,7 @@ void swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
     a.swap(b);
 }
 
-#endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif
 
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
 
