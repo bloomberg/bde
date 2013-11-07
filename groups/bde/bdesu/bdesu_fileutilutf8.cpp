@@ -1,8 +1,8 @@
-// bdesu_fileutil.cpp                                                 -*-C++-*-
-#include <bdesu_fileutil.h>
+// bdesu_fileutilutf8.cpp                                             -*-C++-*-
+#include <bdesu_fileutilutf8.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bdesu_fileutilutf8_cpp,"$Id$ $CSID$")
 
 #include <bdema_managedptr.h>
 #include <bdef_bind.h>
@@ -23,15 +23,10 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #include <io.h>
 #include <direct.h>
+#include <bdede_charconvertutf16.h>
 #undef MIN
-#define getcwd _getcwd
-#define chdir _chdir
 #define snprintf _snprintf
 #else
-
-#ifdef BSLS_PLATFORM_OS_HPUX
-#define _LARGEFILE64_SOURCE  // activates '64' variants of open() etc
-#endif
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -52,6 +47,10 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bsl_algorithm.h>
+
+namespace BloombergLP {
+
+namespace {
 
 // STATIC HELPER FUNCTIONS
 static
@@ -77,12 +76,40 @@ void invokeFindClose(HANDLE *handle, void *)
 }
 
 static inline
+bool WidePath(bsl::wstring* wide, const bsl::string& path)
+    // Copy the wide-string version of the specified 'path' to the specified
+    // 'wide' string and return true if successful, or false otherwise.
+{
+    BSLS_ASSERT_SAFE(wide);
+    BSLS_ASSERT_SAFE(path.isBound());
+
+    return bdede_CharConvertUtf16::utf8ToUtf16(wide, path.data()) == 0;
+}
+
+static inline
+bool NarrowPath(bsl::string* narrow, const bsl::wstring& path)
+    // Copy the string version of the specified 'path' to the specified
+    // 'narrow' string and return true if successful, or false otherwise.
+{
+    BSLS_ASSERT_SAFE(narrow);
+
+    return bdede_CharConvertUtf16::utf16ToUtf8(narrow, path.c_str()) == 0;
+}
+
+static inline
 int makeDirectory(const char *path)
-    // Create a directory
+    // Create a directory.  Return 0 on success and a non-zero value otherwise.
 {
     BSLS_ASSERT_SAFE(path);
 
-    return 0 == CreateDirectory(path, 0);
+    bsl::wstring wide;
+    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
+
+    if (WidePath(&wide, path)) {
+        winStatus = CreateDirectoryW(wide.c_str(), 0);
+    }
+
+    return winStatus ? 0 : -1;
 }
 
 static inline
@@ -92,7 +119,32 @@ int removeDirectory(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    return 0 == RemoveDirectory(path);
+    bsl::wstring wide;
+    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
+    bool         isWide;
+
+    isWide = WidePath(&wide, path);
+
+    // Occasionally, recursive directory deletes fail with a "not empty" error
+    // code, only to succeed a bit later.  Retry on such failures a few times.
+    // (Web search reveals a number of non-definitive theories on the cause.)
+
+    const int RMDIR_NOT_EMPTY_RETRIES = 5;
+    const int RMDIR_RETRY_SLEEP_MS    = 500;
+
+    if (isWide) {
+        for (int i = 0; i < RMDIR_NOT_EMPTY_RETRIES; ++i) {
+            winStatus = RemoveDirectoryW(wide.c_str());
+
+            if (winStatus || GetLastError() != ERROR_DIR_NOT_EMPTY) {
+                break;
+            }
+
+            Sleep(RMDIR_RETRY_SLEEP_MS);
+        }
+    }
+
+    return winStatus ? 0 : -1;
 }
 
 static inline
@@ -102,7 +154,14 @@ int removeFile(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    return 0 == DeleteFile(path);
+    bsl::wstring wide;
+    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
+
+    if (WidePath(&wide, path)) {
+        winStatus = DeleteFileW(wide.c_str());
+    }
+
+    return winStatus ? 0 : -1;
 }
 
 #else
@@ -117,7 +176,7 @@ extern "C" {
 }
 
 static
-int localFcntlLock(int fd, int cmd, int type)
+int localFcntlLock(int fd, int cmd, short int type)
 {
     int rc;
     do {
@@ -175,8 +234,12 @@ int makeDirectory(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    // 755 octal = RWX by user, RX by group, RX by all
-    return mkdir(path, 0755);
+    // Permissions of created dir will by 'drwxrwxrwx', anded with '~umask'.
+
+    enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
+                   S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
+                   S_IROTH | S_IWOTH | S_IXOTH };   // others rwx
+    return mkdir(path, PERMS);
 }
 
 static inline
@@ -199,52 +262,116 @@ int removeFile(const char *path)
 
 #endif
 
-namespace BloombergLP {
+}  // close unnamed namespace
 
-                              // ---------------------
-                              // struct bdesu_FileUtil
-                              // ---------------------
+                              // -------------------
+                              // struct FileUtilUtf8
+                              // -------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD =
+const bdesu::FileUtilUtf8::FileDescriptor bdesu::FileUtilUtf8::INVALID_FD =
                                                           INVALID_HANDLE_VALUE;
 
-bdesu_FileUtil::FileDescriptor
-bdesu_FileUtil::open(const char *pathName,
-                     bool        writableFlag,
-                     bool        existFlag,
-                     bool        appendFlag)
+bdesu::FileUtilUtf8::FileDescriptor
+bdesu::FileUtilUtf8::open(const char                *pathName,
+                          enum FileOpenPolicies      openPolicy,
+                          enum FileIOPolicies        ioPolicy,
+                          enum FileTruncatePolicies  truncatePolicy)
 {
     BSLS_ASSERT(pathName);
 
-    DWORD accessMode   = GENERIC_READ | (writableFlag
-                                         ? appendFlag
-                                           ? FILE_APPEND_DATA
-                                           : GENERIC_WRITE
-                                         : 0);
-    DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
+    if (   e_FILE_OPEN     == openPolicy
+        && e_INIT_TRUNCATE == truncatePolicy
+        && (   e_IO_READ_ONLY   == ioPolicy
+            || e_IO_APPEND_ONLY == ioPolicy
+            || e_IO_READ_APPEND == ioPolicy)) {
+        return INVALID_FD;
+    }
+
+    bool isTruncateMode = (truncatePolicy == e_INIT_TRUNCATE);
+
+    DWORD accessMode  = 0;
+    switch (ioPolicy) {
+      case e_IO_READ_ONLY:
+        accessMode = GENERIC_READ;
+        break;
+      case e_IO_READ_WRITE:
+        accessMode = GENERIC_READ | GENERIC_WRITE;
+        break;
+      case e_IO_READ_APPEND:
+        accessMode = GENERIC_READ | FILE_APPEND_DATA;
+        break;
+      case e_IO_WRITE_ONLY:
+        accessMode = GENERIC_WRITE;
+        break;
+      case e_IO_APPEND_ONLY:
+        accessMode = FILE_APPEND_DATA;
+        break;
+      default:
+        BSLS_ASSERT_OPT(false);
+        break;
+    }
+
+    DWORD creationInfo = 0;
+    switch (openPolicy) {
+      case e_FILE_OPEN:
+        // Both fail if file does not exist.
+
+        if (isTruncateMode) {
+            creationInfo = TRUNCATE_EXISTING;
+        }
+        else {
+            creationInfo = OPEN_EXISTING;
+        }
+        break;
+      case e_FILE_CREATE:
+        // Fails if file exists.
+
+        creationInfo = CREATE_NEW;
+        break;
+      case e_FILE_OPEN_OR_CREATE:
+        // Both succeed with error code if file exists.
+
+        if (isTruncateMode) {
+            creationInfo = CREATE_ALWAYS;
+        }
+        else {
+            creationInfo = OPEN_ALWAYS;
+        }
+        break;
+      default:
+        BSLS_ASSERT_OPT(false);
+        break;
+    }
 
     // The file locking behavior for the opened file
     // ('FILE_SHARE_READ | FILE_SHARE_WRITE') is chosen to match the posix
     // behavior for open (DRQS 30568749).
 
-    return CreateFile(pathName,
-                      accessMode,
-                      FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
-                      NULL,                               // default security
-                      creationInfo,                       // existing file only
-                      FILE_ATTRIBUTE_NORMAL,              // normal file
-                      NULL);                              // no attr
+    bsl::wstring                        wide;
+    bdesu::FileUtilUtf8::FileDescriptor fd = INVALID_FD;
 
+    if (WidePath(&wide, pathName)) {
+        fd = CreateFileW(
+                    wide.c_str(),
+                    accessMode,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
+                    NULL,                               // default security
+                    creationInfo,                       // existing file only
+                    FILE_ATTRIBUTE_NORMAL,              // normal file
+                    NULL);                              // no attr
+    }
+
+    return fd;
 }
 
-int bdesu_FileUtil::close(FileDescriptor fd)
+int bdesu::FileUtilUtf8::close(FileDescriptor fd)
 {
     return CloseHandle(fd) ? 0 : -1;
 }
 
-int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
+int bdesu::FileUtilUtf8::remove(const char *fileToRemove, bool recursive)
 {
     BSLS_ASSERT(fileToRemove);
 
@@ -269,15 +396,15 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
     }
 }
 
-bdesu_FileUtil::Offset
-bdesu_FileUtil::seek(FileDescriptor         fd,
-                     bdesu_FileUtil::Offset offset,
-                     int                    whence)
+bdesu::FileUtilUtf8::Offset
+bdesu::FileUtilUtf8::seek(FileDescriptor              fd,
+                          bdesu::FileUtilUtf8::Offset offset,
+                          int                         whence)
 {
     switch (whence) {
-      case BDESU_SEEK_FROM_BEGINNING: whence = FILE_BEGIN; break;
-      case BDESU_SEEK_FROM_CURRENT:   whence = FILE_CURRENT; break;
-      case BDESU_SEEK_FROM_END:       whence = FILE_END; break;
+      case e_SEEK_FROM_BEGINNING: whence = FILE_BEGIN; break;
+      case e_SEEK_FROM_CURRENT:   whence = FILE_CURRENT; break;
+      case e_SEEK_FROM_END:       whence = FILE_END; break;
       default: BSLS_ASSERT(0);  break;
     }
     LARGE_INTEGER li;
@@ -291,9 +418,9 @@ bdesu_FileUtil::seek(FileDescriptor         fd,
     return li.QuadPart;
 }
 
-int bdesu_FileUtil::read(FileDescriptor  fd,
-                         void           *buf,
-                         int             numBytesToRead)
+int bdesu::FileUtilUtf8::read(FileDescriptor  fd,
+                              void           *buf,
+                              int             numBytesToRead)
 {
     BSLS_ASSERT(buf);
     BSLS_ASSERT(0 <= numBytesToRead);
@@ -302,9 +429,9 @@ int bdesu_FileUtil::read(FileDescriptor  fd,
     return ReadFile(fd, buf, numBytesToRead, &n, 0) ? n : -1;
 }
 
-int bdesu_FileUtil::write(FileDescriptor  fd,
-                          const void     *buf,
-                          int             numBytesToWrite)
+int bdesu::FileUtilUtf8::write(FileDescriptor  fd,
+                               const void     *buf,
+                               int             numBytesToWrite)
 {
     BSLS_ASSERT(buf);
     BSLS_ASSERT(0 <= numBytesToWrite);
@@ -313,11 +440,11 @@ int bdesu_FileUtil::write(FileDescriptor  fd,
     return WriteFile(fd, buf, numBytesToWrite, &n, 0) ? n : -1;
 }
 
-int bdesu_FileUtil::map(FileDescriptor           fd,
-                        void                   **addr,
-                        bdesu_FileUtil::Offset   offset,
-                        int                      len,
-                        int                      mode)
+int bdesu::FileUtilUtf8::map(FileDescriptor                fd,
+                             void                        **addr,
+                             bdesu::FileUtilUtf8::Offset   offset,
+                             int                           len,
+                             int                           mode)
 {
     BSLS_ASSERT(addr);
     BSLS_ASSERT(0 <= len);
@@ -340,7 +467,7 @@ int bdesu_FileUtil::map(FileDescriptor           fd,
         { PAGE_EXECUTE_READWRITE, FILE_MAP_EXECUTE | FILE_MAP_WRITE }   // RWX
     };
 
-    bdesu_FileUtil::Offset maxLength = offset + len;
+    bdesu::FileUtilUtf8::Offset maxLength = offset + len;
     hMap = CreateFileMapping(fd,
                              NULL,
                              protectAccess[mode][0],
@@ -365,19 +492,20 @@ int bdesu_FileUtil::map(FileDescriptor           fd,
     return 0;
 }
 
-int bdesu_FileUtil::unmap(void *addr, int)
+int bdesu::FileUtilUtf8::unmap(void *addr, int)
 {
     BSLS_ASSERT(addr);
 
     return UnmapViewOfFile(addr) ? 0 : -1;
 }
 
-int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
+int bdesu::FileUtilUtf8::sync(char *addr, int numBytes, bool)
+                                                             // 3rd arg is sync
 {
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
                      bdesu_MemoryUtil::pageSize());
 
 
@@ -388,14 +516,14 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
     return FlushViewOfFile(addr, numBytes) ? 0 : -1;
 }
 
-int bdesu_FileUtil::lock(FileDescriptor fd, bool lockWrite)
+int bdesu::FileUtilUtf8::lock(FileDescriptor fd, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
     return !LockFileEx(fd, lockWrite ? LOCKFILE_EXCLUSIVE_LOCK
                                      : 0, 0, 1, 0, &overlapped);
 }
-int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
+int bdesu::FileUtilUtf8::tryLock(FileDescriptor fd, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
@@ -404,50 +532,87 @@ int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
                               0, 1, 0, &overlapped);
     return success ? 0
                    : ERROR_LOCK_VIOLATION == GetLastError()
-                     ? BDESU_ERROR_LOCKING_CONFLICT
+                     ? e_ERROR_LOCKING_CONFLICT
                      : -1;
 }
 
-int bdesu_FileUtil::unlock(FileDescriptor fd)
+int bdesu::FileUtilUtf8::unlock(FileDescriptor fd)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
     return !UnlockFileEx(fd, 0, 1, 0,  &overlapped);
 }
 
-int bdesu_FileUtil::move(const char *oldName, const char *newName)
+int bdesu::FileUtilUtf8::move(const char *oldName, const char *newName)
+    // Move the file at the specified 'oldName' path to the specified 'newName'
+    // path.  Return 0 on success and non-zero otherwise.
 {
     BSLS_ASSERT(oldName);
     BSLS_ASSERT(newName);
 
     if (exists(newName)) {
-        DeleteFile(newName);
+        removeFile(newName);
     }
-    return MoveFile(oldName, newName) ? 0 : -1;
+
+    bsl::wstring oldWide;
+    bsl::wstring newWide;
+    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
+
+    if (WidePath(&oldWide, oldName) && WidePath(&newWide, newName)) {
+        winStatus = MoveFileW(oldWide.c_str(), newWide.c_str());
+    }
+
+    return winStatus ? 0 : -1;
 }
 
-bool bdesu_FileUtil::exists(const char *pathName)
+bool bdesu::FileUtilUtf8::exists(const char *pathName)
+    // Return 'true' if a file exists at the specified 'pathName', and 'false'
+    // otherwise.
 {
     BSLS_ASSERT(pathName);
 
-    return GetFileAttributes(pathName) != INVALID_FILE_ATTRIBUTES;
+    bsl::wstring wide;
+    DWORD        attributes = INVALID_FILE_ATTRIBUTES;
+
+    if (WidePath(&wide, pathName)) {
+        attributes = GetFileAttributesW(wide.c_str());
+    }
+
+    return attributes != INVALID_FILE_ATTRIBUTES;
 }
 
-int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
-                                            const char    *path)
+int bdesu::FileUtilUtf8::getLastModificationTime(bdet_Datetime *time,
+                                                 const char    *path)
+    // Set the value of specified 'time' to the last modification time of the
+    // file at the specified 'path'.  Return 0 on success and non-zero
+    // otherwise.
 {
     BSLS_ASSERT(time);
     BSLS_ASSERT(path);
 
-    WIN32_FIND_DATA findData;
-    HANDLE handle = FindFirstFile(path, &findData);
+    FILETIME modified;
+    HANDLE   handle;
+
+    bsl::wstring wide;
+
+    if (!WidePath(&wide, path)) {
+        return -1;                                                    // RETURN
+    }
+
+    WIN32_FIND_DATAW findDataW;
+
+    handle = FindFirstFileW(wide.c_str(), &findDataW);
+    modified = findDataW.ftLastWriteTime;
+
     if (handle == INVALID_HANDLE_VALUE) {
         return -1;                                                    // RETURN
     }
+
     bdema_ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
 
     SYSTEMTIME stUTC;
-    if (0 == FileTimeToSystemTime(&findData.ftLastWriteTime, &stUTC)) {
+
+    if (0 == FileTimeToSystemTime(&modified, &stUTC)) {
         return -2;                                                    // RETURN
     }
 
@@ -464,7 +629,7 @@ int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
     return 0;
 }
 
-void bdesu_FileUtil::visitPaths(
+void bdesu::FileUtilUtf8::visitPaths(
                         const char                                 *patternStr,
                         const bdef_Function<void(*)(const char*)>&  visitor)
 {
@@ -493,6 +658,7 @@ void bdesu_FileUtil::visitPaths(
         while (bdesu_PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
             int rc = bdesu_PathUtil::getLeaf(&leaves.back(), pattern);
+            (void) rc;  // Used only in assert.
             BSLS_ASSERT(0 == rc);
             bdesu_PathUtil::popLeaf(&pattern);
         }
@@ -529,62 +695,107 @@ void bdesu_FileUtil::visitPaths(
         // No special characters except possibly in the leaf.  This is the BASE
         // CASE.
 
-        bsl::string dirNamePath = dirName.c_str();
+        bsl::string      dirNamePath = dirName;
+        WIN32_FIND_DATAW findDataW;
+        WIN32_FIND_DATAA findDataA;
+        HANDLE           handle;
+        bsl::wstring     widePattern;
+        bsl::string      narrowName;
 
-        WIN32_FIND_DATA findData;
-        HANDLE handle = FindFirstFile(patternStr, &findData);
+        if (!WidePath(&widePattern, patternStr)) {
+            return;                                                   // RETURN
+        }
+
+        handle = FindFirstFileW(widePattern.c_str(), &findDataW);
+
         if (INVALID_HANDLE_VALUE == handle) {
             return;                                                   // RETURN
         }
 
         bdema_ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
+
+        bool next;
+
         do {
-            if (0 == strcmp(".", findData.cFileName) ||
-                0 == strcmp("..", findData.cFileName)) {
+            static const bsl::string dot    = ".";
+            static const bsl::string dotdot = "..";
+
+            if (!NarrowPath(&narrowName, findDataW.cFileName)) {
+                narrowName = dot;  // skip "can't happen" case
+            }
+
+            if (dot == narrowName || dotdot == narrowName) {
                 // Do nothing
             }
             else if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath,
-                                                        findData.cFileName)) {
-                //TBD
+                                                                 narrowName)) {
+                // skip "can't happen" case
             }
             else {
                 visitor(dirNamePath.c_str());
                 bdesu_PathUtil::popLeaf(&dirNamePath);
             }
-        } while (0 != FindNextFile(handle, &findData));
+
+            next = FindNextFileW(handle, &findDataW);
+        } while (next);
     }
 }
 
-bool bdesu_FileUtil::isRegularFile(const char *path, bool)
+bool bdesu::FileUtilUtf8::isRegularFile(const char *path, bool)
 {
     BSLS_ASSERT(path);
 
-    DWORD stats = GetFileAttributes(path);
+    bsl::wstring wide;
+    DWORD        stats;
+
+    if (!WidePath(&wide, path)) {
+        return false;                                                 // RETURN
+    }
+
+    stats = GetFileAttributesW(wide.c_str());
+
     return (stats != INVALID_FILE_ATTRIBUTES &&
             0 == (stats & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-bool bdesu_FileUtil::isDirectory(const char *path, bool)
+bool bdesu::FileUtilUtf8::isDirectory(const char *path, bool)
 {
     BSLS_ASSERT(path);
 
-    DWORD stats = GetFileAttributes(path);
+    bsl::wstring wide;
+    DWORD        stats;
+
+    if (!WidePath(&wide, path)) {
+        return false;                                                 // RETURN
+    }
+
+    stats = GetFileAttributesW(wide.c_str());
+
     return stats != INVALID_FILE_ATTRIBUTES
         && (stats & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
+bdesu::FileUtilUtf8::Offset
+bdesu::FileUtilUtf8::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
 
-    __int64 avail;
-    if (!GetDiskFreeSpaceEx(path, (PULARGE_INTEGER)&avail, NULL, NULL)) {
+    ULARGE_INTEGER avail;
+    bsl::wstring   wide;
+
+    if (!WidePath(&wide, path)) {
         return -1;                                                    // RETURN
     }
-    return avail;
+
+    if (!GetDiskFreeSpaceExW(wide.c_str(), &avail, 0, 0)) {
+        return -1;                                                    // RETURN
+    }
+
+    return static_cast<bdesu::FileUtilUtf8::Offset>(avail.QuadPart);
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
+bdesu::FileUtilUtf8::Offset
+bdesu::FileUtilUtf8::getAvailableSpace(FileDescriptor fd)
 {
     typedef struct {
         union {
@@ -631,91 +842,178 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
         * sizeInfo.BytesPerSector;
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
+bdesu::FileUtilUtf8::Offset bdesu::FileUtilUtf8::getFileSize(const char *path)
 {
     BSLS_ASSERT(path);
 
+    bsl::wstring              wide;
     WIN32_FILE_ATTRIBUTE_DATA fileAttribute;
-    if (!GetFileAttributesEx(path, GetFileExInfoStandard,
+
+    if (!WidePath(&wide, path)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (!GetFileAttributesExW(wide.c_str(), GetFileExInfoStandard,
                                                      (void *)&fileAttribute)) {
         return -1;                                                    // RETURN
     }
-    return (((bdesu_FileUtil::Offset)fileAttribute.nFileSizeHigh) << 32)
+
+    return (((bdesu::FileUtilUtf8::Offset)fileAttribute.nFileSizeHigh) << 32)
            | fileAttribute.nFileSizeLow;
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
+bdesu::FileUtilUtf8::Offset bdesu::FileUtilUtf8::getFileSizeLimit()
 {
     // TBD
 
     return OFFSET_MAX;
 }
 
+int bdesu::FileUtilUtf8::getWorkingDirectory(bsl::string *path)
+{
+    BSLS_ASSERT(path);
+
+    enum {BUFFER_SIZE = 4096};
+    wchar_t buffer[BUFFER_SIZE];
+
+    wchar_t *retval = _wgetcwd(buffer, BUFFER_SIZE);
+    if (retval == buffer && NarrowPath(path, bsl::wstring(buffer))) {
+        //our contract requires an absolute path
+
+        return bdesu_PathUtil::isRelative(*path);                     // RETURN
+    }
+    return -1;
+}
+
+int bdesu::FileUtilUtf8::setWorkingDirectory(const char *path)
+{
+    BSLS_ASSERT(path);
+
+    bsl::wstring wide;
+    int          status;
+
+    if (WidePath(&wide, path)) {
+        status = _wchdir(wide.c_str());
+    }
+    else {
+        status = -1;
+    }
+
+    return status;
+}
+
 #else
 // unix specific implementation
 
-const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD = -1;
+const bdesu::FileUtilUtf8::FileDescriptor bdesu::FileUtilUtf8::INVALID_FD = -1;
 
-bdesu_FileUtil::FileDescriptor
-bdesu_FileUtil::open(const char *pathName,
-                     bool        writableFlag,
-                     bool        existFlag,
-                     bool        appendFlag)
+bdesu::FileUtilUtf8::FileDescriptor
+bdesu::FileUtilUtf8::open(const char               *pathName,
+                          enum FileOpenPolicies     openPolicy,
+                          enum FileIOPolicies       ioPolicy,
+                          enum FileTruncatePolicies truncatePolicy)
 {
-    BSLS_ASSERT(pathName);
-
-    const int oflag = (writableFlag ? O_RDWR : O_RDONLY)
-                      | (writableFlag && appendFlag ? O_APPEND : 0);
-
-    if (existFlag) {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
-        return ::open(  pathName, oflag);                             // RETURN
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-        // In 64-bit mode, HP-UX defines 'open64' to be 'open', which triggers
-        // a lookup failure here (since this class has members named 'open').
-        return ::open64(pathName, oflag);                             // RETURN
-#else
-        return open64(  pathName, oflag);                             // RETURN
-#endif
+    if (   e_FILE_OPEN     == openPolicy
+        && e_INIT_TRUNCATE == truncatePolicy
+        && (   e_IO_READ_ONLY   == ioPolicy
+            || e_IO_APPEND_ONLY == ioPolicy
+            || e_IO_READ_APPEND == ioPolicy)) {
+        return INVALID_FD;
     }
 
+    int oflag = 0;
+    int extendedFlags = 0;
+    bool useExtendedOpen = false;
+    bool isTruncateMode = (truncatePolicy == e_INIT_TRUNCATE);
+
+    switch (ioPolicy) {
+      case e_IO_READ_ONLY:
+        oflag = O_RDONLY;
+        break;
+      case e_IO_READ_WRITE:
+        oflag = O_RDWR;
+        break;
+      case e_IO_READ_APPEND:
+        oflag = O_RDWR | O_APPEND;
+        break;
+      case e_IO_WRITE_ONLY:
+        oflag = O_WRONLY;
+        break;
+      case e_IO_APPEND_ONLY:
+        oflag = O_WRONLY | O_APPEND;
+        break;
+      default:
+        BSLS_ASSERT_OPT(false);
+        break;
+    }
+
+    switch (openPolicy) {
+      case e_FILE_OPEN:
+        if (isTruncateMode) {
+            oflag |= O_TRUNC;
+        }
+        break;
+      case e_FILE_CREATE:
+        oflag |= O_CREAT | O_EXCL;
+        useExtendedOpen = true;
+        extendedFlags =
+                     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+        break;
+      case e_FILE_OPEN_OR_CREATE:
+        oflag |= O_CREAT;
+        if (isTruncateMode) {
+            oflag |= O_TRUNC;
+        }
+        useExtendedOpen = true;
+        extendedFlags =
+                     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+        break;
+      default:
+        BSLS_ASSERT_OPT(false);
+        break;
+    }
+
+    if (useExtendedOpen) {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
-    return ::open(  pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    return ::open64(pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+        return ::open(pathName, oflag, extendedFlags);                // RETURN
 #else
-    return open64(  pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+        return open64(pathName, oflag, extendedFlags);                // RETURN
 #endif
+    }
+    else {
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+        return ::open(pathName, oflag);                               // RETURN
+#else
+        return open64(pathName, oflag);                               // RETURN
+#endif
+    }
 }
 
-int bdesu_FileUtil::close(FileDescriptor fd)
+int bdesu::FileUtilUtf8::close(FileDescriptor fd)
 {
     return ::close(fd);
 }
 
-bdesu_FileUtil::Offset
-bdesu_FileUtil::seek(FileDescriptor fd, Offset offset, int whence)
+bdesu::FileUtilUtf8::Offset
+bdesu::FileUtilUtf8::seek(FileDescriptor fd, Offset offset, int whence)
 {
     switch (whence) {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
-      case BDESU_SEEK_FROM_BEGINNING:
+      case e_SEEK_FROM_BEGINNING:
         return lseek(fd, offset, SEEK_SET);                           // RETURN
-      case BDESU_SEEK_FROM_CURRENT:
+      case e_SEEK_FROM_CURRENT:
         return lseek(fd, offset, SEEK_CUR);                           // RETURN
-      case BDESU_SEEK_FROM_END:
+      case e_SEEK_FROM_END:
         return lseek(fd, offset, SEEK_END);                           // RETURN
 #else
-      case BDESU_SEEK_FROM_BEGINNING:
+      case e_SEEK_FROM_BEGINNING:
         return lseek64(fd, offset, SEEK_SET);                         // RETURN
-      case BDESU_SEEK_FROM_CURRENT:
+      case e_SEEK_FROM_CURRENT:
         return lseek64(fd, offset, SEEK_CUR);                         // RETURN
-      case BDESU_SEEK_FROM_END:
+      case e_SEEK_FROM_END:
         return lseek64(fd, offset, SEEK_END);                         // RETURN
 #endif
       default:
@@ -723,7 +1021,7 @@ bdesu_FileUtil::seek(FileDescriptor fd, Offset offset, int whence)
     }
 }
 
-int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
+int bdesu::FileUtilUtf8::remove(const char *fileToRemove, bool recursive)
 {
    BSLS_ASSERT(fileToRemove);
 
@@ -790,7 +1088,7 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
    }
 }
 
-int bdesu_FileUtil::read(FileDescriptor  fd,
+int bdesu::FileUtilUtf8::read(FileDescriptor  fd,
                          void           *buf,
                          int             numBytesToRead)
 {
@@ -800,7 +1098,7 @@ int bdesu_FileUtil::read(FileDescriptor  fd,
     return static_cast<int>(::read(fd, buf, numBytesToRead));
 }
 
-int bdesu_FileUtil::write(FileDescriptor  fd,
+int bdesu::FileUtilUtf8::write(FileDescriptor  fd,
                           const void     *buf,
                           int             numBytesToWrite)
 {
@@ -810,7 +1108,7 @@ int bdesu_FileUtil::write(FileDescriptor  fd,
     return static_cast<int>(::write(fd, buf, numBytesToWrite));
 }
 
-int bdesu_FileUtil::map(FileDescriptor   fd,
+int bdesu::FileUtilUtf8::map(FileDescriptor   fd,
                         void           **addr,
                         Offset           offset,
                         int              size,
@@ -834,12 +1132,13 @@ int bdesu_FileUtil::map(FileDescriptor   fd,
     if (*addr == MAP_FAILED) {
         *addr = NULL;
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         return 0;                                                     // RETURN
     }
 }
 
-int  bdesu_FileUtil::unmap(void *addr, int len)
+int  bdesu::FileUtilUtf8::unmap(void *addr, int len)
 {
     BSLS_ASSERT(addr);
     BSLS_ASSERT(0 <= len);
@@ -848,12 +1147,12 @@ int  bdesu_FileUtil::unmap(void *addr, int len)
     return rc;
 }
 
-int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
+int bdesu::FileUtilUtf8::sync(char *addr, int numBytes, bool sync)
 {
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
                      bdesu_MemoryUtil::pageSize());
 
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
@@ -865,28 +1164,28 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
     return 0 == rc ? 0 : errno;
 }
 
-int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
+int bdesu::FileUtilUtf8::tryLock(FileDescriptor fd, bool lockWrite)
 {
     int rc = localFcntlLock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK);
     return -1 != rc ? 0
                     : EAGAIN == errno || EACCES == errno
-                      ? BDESU_ERROR_LOCKING_CONFLICT
+                      ? e_ERROR_LOCKING_CONFLICT
                       : -1;
 }
 
-int bdesu_FileUtil::lock(FileDescriptor fd, bool lockWrite)
+int bdesu::FileUtilUtf8::lock(FileDescriptor fd, bool lockWrite)
 {
     return localFcntlLock(fd, F_SETLKW, lockWrite ? F_WRLCK : F_RDLCK) == -1
            ? -1
            : 0;
 }
 
-int bdesu_FileUtil::unlock(FileDescriptor fd)
+int bdesu::FileUtilUtf8::unlock(FileDescriptor fd)
 {
     return localFcntlLock(fd, F_SETLK, F_UNLCK) == -1 ? -1 : 0;
 }
 
-int bdesu_FileUtil::move(const char *oldName, const char *newName)
+int bdesu::FileUtilUtf8::move(const char *oldName, const char *newName)
 {
     BSLS_ASSERT(oldName);
     BSLS_ASSERT(newName);
@@ -894,14 +1193,14 @@ int bdesu_FileUtil::move(const char *oldName, const char *newName)
     return rename(oldName, newName);
 }
 
-bool bdesu_FileUtil::exists(const char *pathName)
+bool bdesu::FileUtilUtf8::exists(const char *pathName)
 {
     BSLS_ASSERT(pathName);
 
     return access(pathName, F_OK) == 0;
 }
 
-bool bdesu_FileUtil::isRegularFile(const char *path, bool followLinks)
+bool bdesu::FileUtilUtf8::isRegularFile(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
@@ -916,7 +1215,7 @@ bool bdesu_FileUtil::isRegularFile(const char *path, bool followLinks)
     return S_ISREG(fileStats.st_mode);
 }
 
-bool bdesu_FileUtil::isDirectory(const char *path, bool followLinks)
+bool bdesu::FileUtilUtf8::isDirectory(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
@@ -931,8 +1230,8 @@ bool bdesu_FileUtil::isDirectory(const char *path, bool followLinks)
     return S_ISDIR(fileStats.st_mode);
 }
 
-int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
-                                            const char    *path)
+int bdesu::FileUtilUtf8::getLastModificationTime(bdet_Datetime *time,
+                                                 const char    *path)
 {
     BSLS_ASSERT(time);
     BSLS_ASSERT(path);
@@ -948,7 +1247,7 @@ int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
     return 0;
 }
 
-void bdesu_FileUtil::visitPaths(
+void bdesu::FileUtilUtf8::visitPaths(
                           const char                                  *pattern,
                           const bdef_Function<void(*)(const char *)>&  visitor)
 {
@@ -973,7 +1272,8 @@ void bdesu_FileUtil::visitPaths(
     }
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
+bdesu::FileUtilUtf8::Offset
+bdesu::FileUtilUtf8::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -987,14 +1287,16 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 #endif
     if (rc) {
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields
         // can be 32-bits, leading to overflow on even small disks.
         return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
     }
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
+bdesu::FileUtilUtf8::Offset
+bdesu::FileUtilUtf8::getAvailableSpace(FileDescriptor fd)
 {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
@@ -1006,14 +1308,15 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
 #endif
     if (rc) {
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields
         // can be 32-bits, leading to overflow on even small disks.
         return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
     }
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
+bdesu::FileUtilUtf8::Offset bdesu::FileUtilUtf8::getFileSize(const char *path)
 {
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
     struct stat fileStats;
@@ -1030,10 +1333,10 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
     return fileStats.st_size;
 }
 
-bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
+bdesu::FileUtilUtf8::Offset bdesu::FileUtilUtf8::getFileSizeLimit()
 {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_HPUX)    || defined(BSLS_PLATFORM_OS_CYGWIN)
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     struct rlimit rl, rlMax, rlInf;
     int rc = getrlimit(RLIMIT_FSIZE, &rl);
 #else
@@ -1050,11 +1353,38 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 
     if (rc) {
         return -1;                                                    // RETURN
-    } else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
+    }
+    else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
         return OFFSET_MAX;                                            // RETURN
-    } else {
+    }
+    else {
         return rl.rlim_cur;                                           // RETURN
     }
+}
+
+int bdesu::FileUtilUtf8::getWorkingDirectory(bsl::string *path)
+{
+    BSLS_ASSERT(path);
+
+    enum {BUFFER_SIZE = 4096};
+    char buffer[BUFFER_SIZE];
+
+    char *retval = getcwd(buffer, BUFFER_SIZE);
+    if (retval == buffer) {
+        *path = buffer;
+
+        //our contract requires an absolute path
+
+        return bdesu_PathUtil::isRelative(*path);                     // RETURN
+    }
+    return -1;
+}
+
+int bdesu::FileUtilUtf8::setWorkingDirectory(const char *path)
+{
+    BSLS_ASSERT(path);
+
+    return chdir(path);
 }
 
 #endif  // non-Windows (POSIX)
@@ -1063,8 +1393,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 // NON-PLATFORM-SPECIFIC FUNCTIONS //
 /////////////////////////////////////
 
-int bdesu_FileUtil::createDirectories(const char *nativePath,
-                                      bool        leafIsDirectory)
+int bdesu::FileUtilUtf8::createDirectories(const char *nativePath,
+                                           bool        leafIsDirectory)
 {
     // Implementation note: some Unix platforms may have mkdirp, which does
     // what this function does.  But not all do, and hyper-fast performance is
@@ -1111,41 +1441,8 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
     return 0;
 }
 
-int bdesu_FileUtil::getWorkingDirectory(bsl::string *path)
-{
-    BSLS_ASSERT(path);
-
-    enum {BUFFER_SIZE = 4096};
-    char buffer[BUFFER_SIZE];
-
-    // Since we '#define'ed getcwd=_getcwd above on Windows, we
-    // can just implement this in terms of getcwd for either
-    // type of platform.
-
-    char *retval = getcwd(buffer, BUFFER_SIZE);
-    if (retval == buffer) {
-        (*path) = buffer;
-
-        //our contract requires an absolute path
-
-        return bdesu_PathUtil::isRelative(*path);                     // RETURN
-    }
-    return -1;
-}
-
-int bdesu_FileUtil::setWorkingDirectory(const char *path)
-{
-    BSLS_ASSERT(path);
-
-    // Since we '#define'ed chdir=_chdir above on Windows, we
-    // can just implement this in terms of chdir for either
-    // type of platform.
-
-    return chdir(path);
-}
-
-void bdesu_FileUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
-                                       const char               *pattern)
+void bdesu::FileUtilUtf8::findMatchingPaths(bsl::vector<bsl::string> *result,
+                                            const char               *pattern)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(pattern);
@@ -1156,13 +1453,13 @@ void bdesu_FileUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                                    result, bdef_PlaceHolders::_1));
 }
 
-int bdesu_FileUtil::grow(FileDescriptor         fd,
-                         bdesu_FileUtil::Offset size,
-                         bool                   reserve,
-                         bsl::size_t            bufferSize)
+int bdesu::FileUtilUtf8::grow(FileDescriptor               fd,
+                              bdesu::FileUtilUtf8::Offset  size,
+                              bool                         reserve,
+                              bsl::size_t                  bufferSize)
 {
     bslma::Allocator *allocator_p = bslma::Default::defaultAllocator();
-    Offset currentSize = seek(fd, 0, BDESU_SEEK_FROM_END);
+    Offset currentSize = seek(fd, 0, e_SEEK_FROM_END);
 
     if (currentSize == -1) {
         return -1;                                                    // RETURN
@@ -1187,7 +1484,7 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         allocator_p->deallocate(buf);
         return 0;                                                     // RETURN
     }
-    Offset res = seek(fd, size-1, BDESU_SEEK_FROM_BEGINNING);
+    Offset res = seek(fd, size-1, e_SEEK_FROM_BEGINNING);
     if (-1 == res || 1 != write(fd, (const void *)"", 1))
     {
         return -1;                                                    // RETURN
@@ -1195,7 +1492,7 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
     return 0;
 }
 
-int bdesu_FileUtil::rollFileChain(const char *path, int maxSuffix)
+int bdesu::FileUtilUtf8::rollFileChain(const char *path, int maxSuffix)
 {
     BSLS_ASSERT(path);
 
@@ -1228,11 +1525,11 @@ int bdesu_FileUtil::rollFileChain(const char *path, int maxSuffix)
     return maxSuffix;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
