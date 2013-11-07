@@ -262,7 +262,8 @@ BslLock::~BslLock()
     DeleteCriticalSection(&d_lock);
 #else
     const int status = pthread_mutex_destroy(&d_lock);
-    BSLS_ASSERT(0 == status);
+    (void)status;
+    BSLS_ASSERT_SAFE(0 == status);
 #endif
 }
 
