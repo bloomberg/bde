@@ -36,6 +36,10 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
+#ifndef INCLUDED_BCES_PLATFORM
+#include <bces_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -74,32 +78,22 @@ class bcec_AtomicRingBufferIndexManager {
                                // max index value given reserved bits
         e_DISABLED_STATE_MASK  = e_MAX_OP_INDEX + 1,
                                // bit that indicates queue is disabled
-
-        // We'll pad certain data members so they're stored on different
-        // cache lines to prevent false sharing.   See bcec_fixedqueue
-        // for a discussion of these constants.  This value affects 
-        // performance only and not correctness. 
-#ifdef BSLS_PLATFORM__CPU_POWERPC
-        e_BCEC_PAD = 124
-#else
-        e_BCEC_PAD = 60
-#endif
     };
 
     // DATA
-    bsls::AtomicInt                   d_pushIndex;
-    const char                        d_pushIndexPad[e_BCEC_PAD]; 
-    bsls::AtomicInt                   d_popIndex;
-    const char                        d_popIndexPad[e_BCEC_PAD];
+    bsls::AtomicInt                 d_pushIndex;
+    const char                      d_pushIndexPad[bces_Platform::e_BCEC_PAD]; 
+    bsls::AtomicInt                 d_popIndex;
+    const char                      d_popIndexPad[bces_Platform::e_BCEC_PAD];
 
-    const bsl::size_t                 d_capacity;  
-                                                // max elements in queue
-    const bsl::size_t                 d_maxGeneration; 
-                                                // highest possible generation
-    const bsl::size_t                 d_rolloverIndex; 
-                                                // if maxGeneration reached
-    bsls::AtomicInt                  *d_states; // array of state variables
-    bslma::Allocator                 *d_allocator_p;
+    const bsl::size_t               d_capacity;  
+                                              // max elements in queue
+    const bsl::size_t               d_maxGeneration; 
+                                              // highest possible generation
+    const bsl::size_t               d_rolloverIndex; 
+                                              // if maxGeneration reached
+    bsls::AtomicInt                *d_states; // array of state variables
+    bslma::Allocator               *d_allocator_p;
 
     // PRIVATE CLASS METHODS
     static bsl::size_t incrementIndex(bsl::size_t opCount, 
@@ -108,8 +102,15 @@ class bcec_AtomicRingBufferIndexManager {
         // return 'opCount + 1'; otherwise, i.e., the opCount has rolled over
         // the maximum value, return 'currentIndex + 1'. 
 
+    // NOT IMPLEMENTED
+    bcec_AtomicRingBufferIndexManager(
+                                  const bcec_AtomicRingBufferIndexManager&);
+    bcec_AtomicRingBufferIndexManager& operator=(
+                                  const bcec_AtomicRingBufferIndexManager&);
+    
  public:
     // CREATORS
+    explicit
     bcec_AtomicRingBufferIndexManager(bsl::size_t       capacity,
                                       bslma::Allocator *basicAllocator = 0);
        // Create a ring buffer of atomic state variables having the specified
@@ -142,6 +143,12 @@ class bcec_AtomicRingBufferIndexManager {
        // succeeds, the caller is obligated to call 'releaseElement' with the 
        // 'generation' and 'index' values; otherwise, other threads using
        // this data structure may "spin" indefinitely. 
+
+    void incrementPopIndexFrom(bsl::size_t index);
+       // If the current pop index is the specified 'index', increment it
+       // by one position. This may be used if it is necessary to force the
+       // pop index to move regardless of the state of the cell it is 
+       // referencing. 
 
     void releaseElement(bsl::size_t currGeneration, 
                         bsl::size_t index);

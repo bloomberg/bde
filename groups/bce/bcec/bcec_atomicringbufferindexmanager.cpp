@@ -31,8 +31,8 @@ bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
 
     // Can't invoke ArrayPrimitives::emplace here; AtomicInt doesn't have
     // a copy constructor. What we really want to do is just memset the whole
-    // region to 0, but that assumes an AtomicInt implementation. We have to
-    // loop over the array and initialize it ourselves.
+    // region to 0, but that assumes a certain AtomicInt implementation. We 
+    // have to loop over the array and initialize it ourselves.
     for (bsls::AtomicInt *state = d_states; 
          state < d_states + capacity; ++state) {
         bslalg::ScalarPrimitives::construct(
@@ -186,6 +186,8 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
     
     return 0;
 }
+
+
     
 int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
                                                 bsl::size_t *generation, 
@@ -245,6 +247,17 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
     d_popIndex.testAndSwap(opIndex, incrementIndex(opIndex, currIndex));
     
     return 0;
+}
+
+void bcec_AtomicRingBufferIndexManager::incrementPopIndexFrom(
+                                                       bsl::size_t index) {
+    bsl::size_t opIndex = d_popIndex.loadRelaxed();
+    bsl::size_t generation = opIndex / capacity();
+    bsl::size_t currentIndex = opIndex - capacity() * generation;
+    if (currentIndex == index) {
+        bsl::size_t nextIndex = incrementIndex(opIndex, currentIndex);
+        d_popIndex.testAndSwap(opIndex, nextIndex);
+    }
 }
 
 // ACCESSORS

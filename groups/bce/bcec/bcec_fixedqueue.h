@@ -249,47 +249,6 @@ class bcec_FixedQueue_IndexQueue {
     // the range from zero to a configurable upper limit.  It provides the
     // underlying implementation for 'bcec_FixedQueue'.
 
-    // PUBLIC CONSTANTS
-  public:
-    enum {
-        // We'll pad certain data members so they're stored on different
-        // cache lines to prevent false sharing.
-        //
-        // For POWER cpus:
-        // http://www.ibm.com/developerworks/power/library/pa-memory/index.html
-        // has a simple program to determine the cache line size of the CPU.
-        // Current Power cpus have 128-byte cache lines.
-        //
-        // On Solaris, to determine the cache line size on the local cpu, run:
-        // ..
-        //   prtconf -pv | grep -i l1-dcache-line-size | sort -u
-        // ..
-        // Older sparc cpus have 32-byte cache lines, newer 64-byte cache
-        // lines.  We'll assume 64-byte cache lines here.
-        //
-        // On Linux with 'sysfs' support,
-        //..
-        //  cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size
-        //..
-        // or
-        //..
-        //  cat /proc/cpuinfo | grep cache
-        //..
-        // Post SSE2 cpus have the clflush instruction which can be used to
-        // write a program similar to the one mentioned above for POWER cpus.
-        // Current x86/x86_64 have 64-byte cache lines.
-        //
-        // It is obviously suboptimal to determine this at compile time.  We
-        // might want to do this at runtime, but this would add at least one
-        // level of indirection.
-
-#ifdef BSLS_PLATFORM_CPU_POWERPC
-        BCEC_PAD = 128 - sizeof(bces_AtomicInt)
-#else
-        BCEC_PAD = 64 - sizeof(bces_AtomicInt)
-#endif
-    };
-
   private:
     // DATA
     const unsigned d_indexBits;      // Mask of the bits containing the
@@ -316,14 +275,16 @@ class bcec_FixedQueue_IndexQueue {
     bsl::vector<bces_AtomicInt>
                    d_data;
 
-    const char     d_dataPad[BCEC_PAD];  // keep 'd_data'  and 'd_back' on
+    const char     d_dataPad[bces_Platform::e_BCEC_PAD];  
+                                         // keep 'd_data'  and 'd_back' on
                                          // separate cache lines
                                          // (performance only)
 
     bces_AtomicInt d_back;               // index of the back of the queue
                                          // ORed with a generation count
 
-    const char     d_indexPad[BCEC_PAD]; // keep 'd_back'  and 'd_front' on
+    const char     d_indexPad[bces_Platform::e_BCEC_PAD]; 
+                                         // keep 'd_back'  and 'd_front' on
                                          // separate cache lines
                                          // (performance only)
 
@@ -425,7 +386,8 @@ class bcec_FixedQueue {
     // DATA
     IndexQ            d_queue;
 
-    const char        d_semaPad[IndexQ::BCEC_PAD];  // keep 'd_queue' separate
+    const char        d_semaPad[bces_Platform::e_BCEC_PAD];  
+                                                    // keep 'd_queue' separate
                                                     // from semaphores' cache
                                                     // line (performance only)
 

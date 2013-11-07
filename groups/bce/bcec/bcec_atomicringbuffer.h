@@ -17,9 +17,9 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component implements an efficient, thread-enabled 
 // fixed-size queue of values.  This class is ideal for synchronization and
 // communication between threads in a producer-consumer model.  Its API is
-// largely identical to 'bcec_FixedQueue'.  In comparison with that type, it
-// has a less strict exception safety guarantee, but performs faster in 
-// benchmarks.  
+// largely identical to that of 'bcec_FixedQueue'.  In comparison with that
+// type, it has a less strict exception safety guarantee, but performs faster
+// in benchmarks.  
 //
 ///Template Requirements
 ///---------------------
@@ -35,9 +35,113 @@ BDES_IDENT("$Id: $")
 // generally exception neutral; however, if an exception is thrown by the 
 // copy constructor of the contained type during the invocation of 'pushBack'
 // or 'tryPushBack', the queue is left in a valid but unspecified state. 
+//
+///Usage
+///-----
+///Example: Simple Thread Pool
+///- - - - - - - - - - - - - -
+// The following example demonstrates a typical usage of a 
+// 'bcec_AtomicRingBuffer'.
+//
+// This 'bcec_AtomicRingBuffer' is used to communicate between a single
+// "producer" thread and multiple "consumer" threads.  The "producer" will
+// push work requests onto the queue, and each "consumer" will iteratively 
+// take a work request from the queue and service the request.  This example
+// shows a partial, simplified implementation of the 'bcep_FixedThreadPool' 
+// class.  See component 'bcep_fixedthreadpool' for more information.
+//
+// We begin our example with some utility classes that define a simple "work
+// item":
+//..
+// struct my_WorkData {
+//     // Work data...
+// };
+//
+// struct my_WorkRequest {
+//     enum RequestType {
+//           WORK = 1
+//         , STOP = 2
+//     };
+//
+//     RequestType d_type;
+//     my_WorkData d_data;
+//     // Work data...
+// };
+//..
+// Next, we provide a simple function to service an individual work item.
+// The details are unimportant for this example:
+//..
+// void myDoWork(my_WorkData& data)
+// {
+//     // do some stuff...
+// }
+//..
+// The 'myConsumer' function will pop elements off the queue and process them.
+// As discussed above, note that the call to 'queue->popFront()' will block
+// until there is an element available on the queue.  This function will be
+// executed in multiple threads, so that each thread waits in
+// 'queue->popFront()', and 'bcec_AtomicRingBuffer' guarantees that each
+// thread gets a unique element from the queue:
+//..
+// void myConsumer(bcec_AtomicRingBuffer<my_WorkRequest> *queue)
+// {
+//     while (1) {
+//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
+//         my_WorkRequest item = queue->popFront();
+//         if (item.d_type == my_WorkRequest::STOP) { break; }
+//         myDoWork(item.d_data);
+//     }
+// }
+//..
+// In this simple example, the 'myProducer' function serves multiple roles: it
+// creates the 'bcec_AtoimcRingBuffer', starts the consumer threads, and then
+// produces and enqueues work items.  When work requests are exhausted, this
+// function enqueues one 'STOP' item for each consumer queue.
+//
+// When each consumer thread reads a 'STOP', it terminates its thread-handling
+// function.  Note that, although the producer cannot control which thread
+// 'pop's a particular work item, it can rely on the knowledge that each
+// consumer thread will read a single 'STOP' item and then terminate.
+//
+//..
+// void myProducer(int numThreads)
+// {
+//     enum {
+//       MAX_QUEUE_LENGTH = 100,
+//       NUM_WORK_ITEMS = 1000
+//     };
+//
+//     bcec_AtomicRingBuffer<my_WorkRequest> queue(MAX_QUEUE_LENGTH);
+//
+//     bcemt_ThreadGroup consumerThreads;
+//     consumerThreads.addThreads(bdef_BindUtil::bind(&myConsumer, &queue),
+//                                numThreads);
+//
+//     enum {
+//        NUM_WORK_ITEMS = 1000
+//     }
+//  
+//     for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::WORK;
+//         item.d_data = my_WorkData(); // some stuff to do
+//         queue.pushBack(item);
+//     }
+//
+//     for (int i = 0; i < numThreads; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::STOP;
+//         queue.pushBack(item);
+//     }
+// }
+//..
 
 #ifndef INCLUDED_BCESCM_VERSION
 #include <bcescm_version.h>
+#endif
+
+#ifndef INCLUDED_BCEC_ATOMICRINGBUFFERINDEXMANAGER
+#include <bcec_atomicringbufferindexmanager.h>
 #endif
 
 #ifndef INCLUDED_BCEMT_SEMAPHORE
@@ -81,95 +185,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-class bcec_AtomicRingBuffer_Impl {
-    // This component-private class holds type-independent data and methods
-    // used by bcec_AtomicRingBuffer. 
-    enum {
-        INDEX_STATE_OLD      = 0,
-        INDEX_STATE_WRITING  = 1,
-        INDEX_STATE_NEW      = 2,
-        INDEX_STATE_READING  = 3,
-        INDEX_STATE_MASK     = 0x3,
-                               // roundUpToBinaryPower(<max state value>) - 1
-        INDEX_STATE_SHIFT    = 0x2, 
-                               // base2Log(INDEX_STATE_MASK)
-        MAX_OP_INDEX = (1 << (8 * sizeof(int) - 2)) - 1,
-        DISABLED_STATE_MASK   = MAX_OP_INDEX + 1,
-
-        // We'll pad certain data members so they're stored on different
-        // cache lines to prevent false sharing.   See bcec_fixedqueue
-        // for a discussion of these constants.  This value affects 
-        // performance only and not correctness. 
-#ifdef BSLS_PLATFORM__CPU_POWERPC
-        BCEC_PAD = 124
-#else
-        BCEC_PAD = 60
-#endif
-    };
-
-    bces_AtomicInt                    d_pushIndex;
-    const char                        d_pushIndexPad[BCEC_PAD]; 
-    bces_AtomicInt                    d_popIndex;
-    const char                        d_popIndexPad[BCEC_PAD];
-
-    const unsigned int                d_capacity;
-    const unsigned int                d_maxGeneration;
-    const unsigned int                d_alignmentMod;
-    bsl::vector<bces_AtomicInt>       d_states;    // index states
-
-    // CREATORS
-    bcec_AtomicRingBuffer_Impl(bsl::size_t       capacity,
-                               bslma::Allocator *basicAllocator);
-       // Create a new type-independent representation of a thread-safe queue
-       // with the specified maximum 'capacity' using the specified
-       // 'basicAllocator' to supply memory. 
-
-    // CLASS METHODS
-    static unsigned int incrementIndex(unsigned int opCount, 
-                                       unsigned int currentIndex);
-        // If the specified 'opCount' is less than the maximum allowed value,
-        // return 'opCount + 1'; otherwise, i.e., the opCount has rolled over
-        // the maximum value, return 'currentIndex + 1'. 
-
-    // MANIPULATORS
-    void releaseElement(unsigned int currGeneration, 
-                        unsigned int index);
-       // Mark the specified 'index' as available in the generation following
-       // the specified 'currGeneration'.  
-    
-    int  acquirePushIndex(unsigned int *generation, 
-                          unsigned int *index);
-       // Mark the next available index as "writing" and load that index 
-       // into the specified 'index'.  Load the current generation count into
-       // the specified 'generation'.  Return 0 on success, and a nonzero
-       // value if the queue is disabled or full.  
-
-    int  acquirePopIndex(unsigned int *generation, 
-                         unsigned int *index);
-       // Mark the next occupied index (one having the specified
-       // 'currentState' in the current generation) as "reading" and load
-       // that index  into the specified 'index'.  Load the current 
-       // generation count into the specified 'generation'.  Return 0 on 
-       // success, and a nonzero value if the queue is empty.  
-
-    void disable();
-       // Mark the queue as disabled.  Future attempts to push into the queue
-       // will fail.
-    void enable();
-       // Mark the queue as enabled.
-
-    // ACCESSORS
-    bool isEnabled() const;        
-       // Return 'true' if the queue is enabled, and 'false' if it is disabled.
-    int length() const;
-       // Return the number of items in the queue.  
-    int capacity() const; 
-       // Return the maximum number of items that may be stored in the queue.
-
-    template <typename TYPE>
-    friend class bcec_AtomicRingBuffer;
-};
     
 template <typename TYPE>
 class bcec_AtomicRingBuffer {
@@ -233,21 +248,13 @@ private:
                     d_parent_p->d_impl.releaseElement(generation, index);
                     poppedItems++;
                 } while (index != stopIndex);
+                
                 if (index == stopIndex) {
-                    // we couldn't invoke acquirePopIndex to advance the
-                    // index to this position, since the cell is reserved in
-                    // the WRITING state, so we have to advance the index
-                    // as if acquirePopIndex had been invoked.
-                    unsigned n = d_parent_p->d_impl.d_popIndex.relaxedLoad();
-                    generation = n / d_parent_p->d_impl.capacity();
-                    unsigned nextIndex = n - 
-                        d_parent_p->d_impl.capacity() * generation;
-                    if (nextIndex == d_index) {
-                        unsigned x = 
-                            bcec_AtomicRingBuffer_Impl::incrementIndex(
-                                                                n, nextIndex);
-                        d_parent_p->d_impl.d_popIndex.testAndSwap(n, x);
-                    }
+                    // We incremented the pop index up to d_index, the 
+                    // cell that is currently in the WRITING state, but we
+                    // cannot advance past it using acquirePopIndex due to 
+                    // its state. 
+                    d_parent_p->d_impl.incrementPopIndexFrom(d_index);
                 }
                     
                 d_parent_p->d_impl.releaseElement(generation, d_index);
@@ -262,26 +269,20 @@ private:
         }
     };
 
-
-    enum {
-        INDEX_STATE_OLD      = bcec_AtomicRingBuffer_Impl::INDEX_STATE_OLD,
-        INDEX_STATE_WRITING  = bcec_AtomicRingBuffer_Impl::INDEX_STATE_WRITING,
-        INDEX_STATE_NEW      = bcec_AtomicRingBuffer_Impl::INDEX_STATE_NEW,
-        INDEX_STATE_MASK     = bcec_AtomicRingBuffer_Impl::INDEX_STATE_MASK,
-        INDEX_STATE_SHIFT    = bcec_AtomicRingBuffer_Impl::INDEX_STATE_SHIFT,
-        BCEC_PAD             = bcec_AtomicRingBuffer_Impl::BCEC_PAD
-    };
-
     // DATA
     TYPE                             *d_elements;   
-    const char                        d_elementsPad[BCEC_PAD]; 
-    bcec_AtomicRingBuffer_Impl        d_impl;
+    const char                        d_elementsPad[
+                                                  bces_Platform::e_BCEC_PAD]; 
+    bcec_AtomicRingBufferIndexManager d_impl;
     
     bcemt_Semaphore                   d_popControlSema;
-    const char                        d_popControlSemaPad[BCEC_PAD];
-    bces_AtomicInt                    d_numWaitingPushers; 
+    const char                        d_popControlSemaPad[
+                                                  bces_Platform::e_BCEC_PAD];
+    bsls::AtomicInt                   d_numWaitingPushers; 
     bcemt_Semaphore                   d_pushControlSema;
-    bces_AtomicInt                    d_numWaitingPoppers;
+    const char                        d_pushControlSemaPad[
+                                                  bces_Platform::e_BCEC_PAD];
+    bsls::AtomicInt                   d_numWaitingPoppers;
     bslma::Allocator                 *d_allocator_p;
 
     // NOT IMPLEMENTED
@@ -364,19 +365,13 @@ public:
         // that the queue is created in the "enabled" state.
 };
 
-                        // ===========================
-                        // class AtomicRingBuffer_Impl
-                        // ===========================
+// =====================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// =====================================================================
 
-// ACCESSORS
-inline
-int bcec_AtomicRingBuffer_Impl::capacity() const {
-    return d_capacity;
-}
-
-                           // ======================
+                           // ----------------------
                            // class AtomicRingBuffer
-                           // ======================
+                           // ----------------------
 // CREATORS
 template <typename TYPE>
 bcec_AtomicRingBuffer<TYPE>::bcec_AtomicRingBuffer(
@@ -389,6 +384,7 @@ bcec_AtomicRingBuffer<TYPE>::bcec_AtomicRingBuffer(
 , d_popControlSemaPad()
 , d_numWaitingPushers(0)
 , d_pushControlSema(0)
+, d_pushControlSemaPad()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_elements = (TYPE*)d_allocator_p->allocate(capacity * sizeof(TYPE));
@@ -404,8 +400,8 @@ bcec_AtomicRingBuffer<TYPE>::~bcec_AtomicRingBuffer()
 template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
 {
-    unsigned int generation;
-    unsigned int index;
+    bsl::size_t generation;
+    bsl::size_t index;
     
     int retval = d_impl.acquirePushIndex(&generation, &index);
     
@@ -423,9 +419,7 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
                                             data, 
                                             d_allocator_p);
     guard.release();
-
-    d_impl.d_states[index] = 
-        INDEX_STATE_NEW | (generation << INDEX_STATE_SHIFT);
+    d_impl.stopWriting(generation, index);
     
     // notify poppers of available data
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPoppers)) {
@@ -463,13 +457,13 @@ int bcec_AtomicRingBuffer<TYPE>::pushBack(const TYPE &data)
             return -2;
         }
         
-        d_numWaitingPushers.relaxedAdd(1);
+        d_numWaitingPushers.addRelaxed(1);
         
         if (isFull() && isEnabled()) {
             d_pushControlSema.wait();
         }
         
-        d_numWaitingPushers.relaxedAdd(-1);
+        d_numWaitingPushers.addRelaxed(-1);
     }
     
     return 0;
@@ -479,13 +473,13 @@ template <typename TYPE>
 void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
 {
     while(0 != tryPopFront(data)) {
-        d_numWaitingPoppers.relaxedAdd(1);
+        d_numWaitingPoppers.addRelaxed(1);
 
         if (isEmpty()) {
             d_popControlSema.wait();
         }
 
-        d_numWaitingPoppers.relaxedAdd(-1);
+        d_numWaitingPoppers.addRelaxed(-1);
     }
 }
 
@@ -496,13 +490,13 @@ TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
     unsigned int index;
     
     while(0 != d_impl.acquirePopIndex(&generation, &index)) {
-        d_numWaitingPoppers.relaxedAdd(1);
+        d_numWaitingPoppers.addRelaxed(1);
         
         if (isEmpty()) {
             d_popControlSema.wait();
         }
         
-        d_numWaitingPoppers.relaxedAdd(-1);
+        d_numWaitingPoppers.addRelaxed(-1);
     }
     
     // copy data. PopGuard will destroy original object, update the queue, and
@@ -557,7 +551,7 @@ void bcec_AtomicRingBuffer<TYPE>::enable() {
 template <typename TYPE>
 inline
 int bcec_AtomicRingBuffer<TYPE>::size() const {
-    return d_impl.d_capacity;
+    return d_impl.capacity();
 }
 
 template <typename TYPE>

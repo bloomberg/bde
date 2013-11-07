@@ -952,6 +952,64 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
+
+struct my_WorkData {
+    // Work data...
+};
+
+struct my_WorkRequest {
+    enum RequestType {
+        WORK = 1
+        , STOP = 2
+    };
+    
+    RequestType d_type;
+    my_WorkData d_data;
+    // Work data...
+};
+
+void myDoWork(my_WorkData& data)
+{
+    // do some stuff...
+}
+
+void myConsumer(bcec_AtomicRingBuffer<my_WorkRequest> *queue)
+{
+    while (1) {
+        // 'popFront()' will wait for a 'my_WorkRequest' until available.
+        my_WorkRequest item = queue->popFront();
+        if (item.d_type == my_WorkRequest::STOP) { break; }
+        myDoWork(item.d_data);
+    }
+}
+
+void myProducer(int numThreads)
+{
+    enum {
+       MAX_QUEUE_LENGTH = 100,
+       NUM_WORK_ITEMS = 1000
+    };
+
+    bcec_AtomicRingBuffer<my_WorkRequest> queue(MAX_QUEUE_LENGTH);
+
+    bcemt_ThreadGroup consumerThreads;
+    consumerThreads.addThreads(bdef_BindUtil::bind(&myConsumer, &queue),
+                               numThreads);
+
+    for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
+        my_WorkRequest item;
+        item.d_type = my_WorkRequest::WORK;
+        item.d_data = my_WorkData(); // some stuff to do
+        queue.pushBack(item);
+    }
+
+    for (int i = 0; i < numThreads; ++i) {
+        my_WorkRequest item;
+        item.d_type = my_WorkRequest::STOP;
+        queue.pushBack(item);
+    }
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -969,6 +1027,22 @@ int main(int argc, char *argv[])
                      bcemt_Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 18: {
+        // ---------------------------------------------------------
+        // Usage example test
+        // 
+        // Test that the usage example compiles and runs as provided.
+        // ---------------------------------------------------------
+          
+        if (verbose) cout << endl
+                          << "Usage example test" << endl
+                          << "==================" << endl;
+
+        enum { NUM_THREADS = 4 };
+        myProducer(NUM_THREADS);
+        break;
+      }
+          
       case 17: {
         // ---------------------------------------------------------
         // Exception safety test
@@ -984,7 +1058,7 @@ int main(int argc, char *argv[])
         
         bcema_TestAllocator ta(veryVeryVerbose);
         {        
-            // b.  poppint from a queue with exception operates normally.
+            // b.  popping from a queue with exception operates normally.
             enum {QUEUE_LENGTH = 3};
             bcec_AtomicRingBuffer<ExceptionTester> queue(QUEUE_LENGTH, 
                                                          &ta);
