@@ -128,6 +128,23 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 SUMMING_FUNC(0)
 BSLS_MACROREPEAT(10, SUMMING_FUNC)
 
+struct RunningSum {
+    int d_value;
+
+public:
+    RunningSum(int v = 0) : d_value(v) { }
+
+#define ADDMORE_FUNC(n)                                            \
+    void addmore ## n (BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) {      \
+        d_value += BSLS_MACROREPEAT_SEP(n, ARGN, +);               \
+    }
+
+    void addmore0() { }
+    BSLS_MACROREPEAT(9, ADDMORE_FUNC)
+
+    int value() const { return d_value; }
+};
+
 //=============================================================================
 //                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -201,6 +218,29 @@ int main(int argc, char *argv[])
             ASSERT(0x4003 == f(1, 2));
             ASSERT(typeid(&sum2) == f.target_type());
             ASSERT(&sum2 == *f.target<int(*)(int, int)>());
+        }
+
+        {
+            RunningSum rs(0x4000), *rsp = &rs; const RunningSum& RS = rs;
+
+            void (RunningSum::*nullMember_p)(int) = NULL;
+            bsl::function<void(RunningSum&, int)> nullf(nullMember_p);
+            ASSERT(! nullf);
+
+            bsl::function<void(RunningSum&)> f0(&RunningSum::addmore0);
+            ASSERT(f0);
+            f0(rs);
+            ASSERT(0x4000 == rs.value());
+
+            bsl::function<void(RunningSum*, int, int, int)>
+                f3(&RunningSum::addmore3);
+            ASSERT(f3);
+            f3(rsp, 1, 2, 4);
+            ASSERT(0x4007 == rsp->value());
+
+            bsl::function<int(const RunningSum&)> fv(&RunningSum::value);
+            ASSERT(fv);
+            ASSERT(0x4007 == fv(RS));
         }
 
       } break;

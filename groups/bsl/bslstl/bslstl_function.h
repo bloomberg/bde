@@ -86,12 +86,24 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_memberfunctionpointertraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NTHPARAMETER
+#include <bslmf_nthparameter.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISEMPTY
 #include <bslmf_isempty.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_SELECTTRAIT
 #include <bslmf_selecttrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
+#include <bslmf_removereference.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_FORWARDINGTYPE
+#include <bslmf_forwardingtype.h>
 #endif
 
 #ifndef INCLUDED_UTILITY
@@ -116,6 +128,9 @@ namespace bsl {
 
 template <class FUNC>
 class function;  // Primary template declared but not defined.
+
+template <class MEM_FUNC_PTR, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke; // Primary template declared but not defined.
 
                         // =======================
                         // class bad_function_call
@@ -331,7 +346,7 @@ class Function_Rep {
 
         void               (*d_func_p)();               // pointer to function
 
-        void (Function_Rep::*d_memfnPtr_p)();           // pointer to member
+        void (Function_Rep::*d_memFunc_p)();            // pointer to member
                                                         // function
 
         MaxAlignedType       d_align;                   // force align
@@ -418,12 +433,75 @@ class Function_Rep {
                                      // 'ALLOC' is 'bslma::Allocator*'
 };
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
+                    // =====================================
+                    // class template Function_MemFuncInvoke
+                    // =====================================
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE,
+          class RET, class... ARGS>
+struct Function_MemFuncInvokeImp {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args)
+        { return (obj.*f)(args...); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args)
+        { return ((*obj).*f)(args...); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS>::Type... args)
+        { return invoke_imp(DirectInvoke(), f, obj, args...); }
+
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
 
                     // =======================
                     // class template function
                     // =======================
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 template <class RET, class... ARGS>
 class function<RET(ARGS...)> :
@@ -486,32 +564,39 @@ class function<RET(ARGS...)> :
     //     Clone lhs allocator (into new block)
     //
 
-    typedef RET (*Invoker)(const Function_Rep* rep, ARGS...);
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS>::Type... args);
+
     typedef Function_Rep::FuncType FuncType;
 
-    Invoker d_invoker_p;
+    Invoker *d_invoker_p;
 
     template <class FUNC>
-    static Invoker getInvoker(const FUNC&,
+    static Invoker *getInvoker(const FUNC&,
                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
         // Return the invoker for a pointer to (non-member) function.
 
     template <class FUNC>
-    static Invoker getInvoker(const FUNC&,
+    static Invoker *getInvoker(const FUNC&,
                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
         // Return the invoker for a pointer to member function.
 
     template <class FUNC>
-    static Invoker getInvoker(const FUNC&,
+    static Invoker *getInvoker(const FUNC&,
                               bslmf::SelectTraitCase<FitsInplace>);
         // Return the invoker for an in-place functor.
 
     template <class FUNC>
-    static Invoker getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
         // Return the invoker for an out-of-place functor.
 
     template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep, ARGS... args);
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
 
 public:
     // PUBLIC TYPES
@@ -924,7 +1009,7 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
 template <class RET, class... ARGS>
 template <class FUNC>
 RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
-                                                    ARGS... args)
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
 {
     // Note that 'FUNC' might be different than 'RET(*)(ARGS...)'. All that is
     // required is that it be Callable with 'ARGS...' and return 'RET'.
@@ -934,13 +1019,23 @@ RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
 inline
-typename bsl::function<RET(ARGS...)>::Invoker
+typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
 {
     if (f) {
-        return functionPtrInvoker<FUNC>;
+        return &functionPtrInvoker<FUNC>;
     }
     else {
         return NULL;
@@ -949,17 +1044,21 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
 
 template <class RET, class... ARGS>
 template <class FUNC>
-typename bsl::function<RET(ARGS...)>::Invoker
-bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
+typename bsl::function<RET(ARGS...)>::Invoker *
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
                         bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
 {
-    // TBD
-    return NULL;
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
 }
 
 template <class RET, class... ARGS>
 template <class FUNC>
-typename bsl::function<RET(ARGS...)>::Invoker
+typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
@@ -969,7 +1068,7 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
 
 template <class RET, class... ARGS>
 template <class FUNC>
-typename bsl::function<RET(ARGS...)>::Invoker
+typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
     // TBD
