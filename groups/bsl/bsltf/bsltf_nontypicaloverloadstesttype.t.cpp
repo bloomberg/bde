@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
 // assertion:
 //..
           NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete BSLS_UTIL_ADDRESSOF(obj));
 //..
 
       } break;
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
 
           NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete BSLS_UTIL_ADDRESSOF(obj));
 
 
           bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -351,9 +351,9 @@ int main(int argc, char *argv[]) {
 
                 Obj mX(DATA2);
 
-                Obj *mR = bsls::Util::addressOf(mX = Z);
-                ASSERTV(ti, tj, mR, bsls::Util::addressOf(mX),
-                        mR == bsls::Util::addressOf(mX));
+                Obj *mR = BSLS_UTIL_ADDRESSOF(mX = Z);
+                ASSERTV(ti, tj, mR, BSLS_UTIL_ADDRESSOF(mX),
+                        mR == BSLS_UTIL_ADDRESSOF(mX));
 
                 ASSERTV(ti, tj, Z.data(), mX.data(), Z == mX);
                 ASSERTV(ti, tj, Z.data(), ZZ.data(), Z == ZZ);
@@ -370,9 +370,9 @@ int main(int argc, char *argv[]) {
             const Obj ZZ(DATA);
 
             const Obj& Z = mX;
-            Obj *mR = bsls::Util::addressOf(mX = Z);
-            ASSERTV(ti, mR, bsls::Util::addressOf(mX),
-                    mR == bsls::Util::addressOf(mX));
+            Obj *mR = BSLS_UTIL_ADDRESSOF(mX = Z);
+            ASSERTV(ti, mR, BSLS_UTIL_ADDRESSOF(mX),
+                    mR == BSLS_UTIL_ADDRESSOF(mX));
 
             ASSERTV(ti, Z.data(), mX.data(), Z == mX);
             ASSERTV(ti, Z.data(), ZZ.data(), Z == ZZ);

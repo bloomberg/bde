@@ -431,7 +431,7 @@ operator->() const
 {
     BSLS_ASSERT_SAFE(this->d_node_p);
 
-    return bsls::Util::addressOf(
+    return BSLS_UTIL_ADDRESSOF(
             static_cast<bslalg::BidirectionalNode<VALUE_TYPE> *>(
                                                            d_node_p)->value());
 }

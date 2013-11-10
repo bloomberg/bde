@@ -636,7 +636,7 @@ void TestHelper<TYPE>::test6Helper()
     bsls::ObjectBuffer<TYPE> buffer;
     TYPE &mX = buffer.object();
     const TYPE &X = mX;
-    TYPE *address = bsls::Util::addressOf(mX);
+    TYPE *address = BSLS_UTIL_ADDRESSOF(mX);
 
     for (int ti = 0; ti <= 127; ++ti) {
         TemplateTestFacility::emplace(address, ti, &objectAllocator);

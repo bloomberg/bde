@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      TreeNode<VALUE> *result = AllocatorTraits::allocate(d_allocator, 1);
 //      AllocatorTraits::construct(d_allocator,
-//                                 bsls::Util::addressOf(result->value()),
+//                                 BSLS_UTIL_ADDRESSOF(result->value()),
 //                                 value);
 //      return result;
 //  }
@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      TreeNode<VALUE> *treeNode = static_cast<TreeNode<VALUE> *>(node);
 //      AllocatorTraits::destroy(d_allocator,
-//                               bsls::Util::addressOf(treeNode->value()));
+//                               BSLS_UTIL_ADDRESSOF(treeNode->value()));
 //      AllocatorTraits::deallocate(d_allocator, treeNode, 1);
 //  }
 //..

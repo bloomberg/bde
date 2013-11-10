@@ -711,7 +711,7 @@ void *
 SharedPtrOutofplaceRep<TYPE, DELETER>::getDeleter(const std::type_info& type)
 {
     return (typeid(d_deleter) == type)
-         ? bsls::Util::addressOf(d_deleter)
+         ? BSLS_UTIL_ADDRESSOF(d_deleter)
          : 0;
 }
 #endif

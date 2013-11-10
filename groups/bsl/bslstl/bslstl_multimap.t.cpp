@@ -793,13 +793,13 @@ struct CharToPairConverter {
         
         bsls::ObjectBuffer<KEY> tempKey;
         bsltf::TemplateTestFacility::emplace(
-                                       bsls::Util::addressOf(tempKey.object()),
+                                       BSLS_UTIL_ADDRESSOF(tempKey.object()),
                                        value,
                                        privateAllocator);
 
         bsls::ObjectBuffer<VALUE> tempValue;
         bsltf::TemplateTestFacility::emplace(
-                                     bsls::Util::addressOf(tempValue.object()),
+                                     BSLS_UTIL_ADDRESSOF(tempValue.object()),
                                      value - 'A' + '0',
                                      privateAllocator);
 

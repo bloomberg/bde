@@ -967,7 +967,7 @@ inline
 TYPE TemplateTestFacility::create(int identifier)
 {
     bsls::ObjectBuffer<TYPE> obj;
-    emplace(bsls::Util::addressOf(obj.object()),
+    emplace(BSLS_UTIL_ADDRESSOF(obj.object()),
             identifier,
             &bslma::MallocFreeAllocator::singleton());
     return obj.object();

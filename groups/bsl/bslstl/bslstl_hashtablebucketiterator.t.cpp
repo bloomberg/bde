@@ -1099,7 +1099,7 @@ void TestDriver<VALUE>::testCase4()
             ASSERT(BUCKET == X.bucket());
             ASSERT(NODE == X.node());
             ASSERT(NODE->value() == *X);
-            ASSERT(bsls::Util::addressOf(NODE->value()) == X.operator->());
+            ASSERT(BSLS_UTIL_ADDRESSOF(NODE->value()) == X.operator->());
         }
     }
 }

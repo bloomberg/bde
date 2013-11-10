@@ -206,7 +206,7 @@ bool TestType1::s_constructedFlag = false;
     {
         TreeNode<VALUE> *result = AllocatorTraits::allocate(d_allocator, 1);
         AllocatorTraits::construct(d_allocator,
-                                   bsls::Util::addressOf(result->value()),
+                                   BSLS_UTIL_ADDRESSOF(result->value()),
                                    value);
         return result;
     }
@@ -223,7 +223,7 @@ bool TestType1::s_constructedFlag = false;
     {
         TreeNode<VALUE> *treeNode = static_cast<TreeNode<VALUE> *>(node);
         AllocatorTraits::destroy(d_allocator,
-                                 bsls::Util::addressOf(treeNode->value()));
+                                 BSLS_UTIL_ADDRESSOF(treeNode->value()));
         AllocatorTraits::deallocate(d_allocator, treeNode, 1);
     }
 //..
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
             (void) X;
 
             AllocTraits::construct(allocator,
-                                   bsls::Util::addressOf(mX.value()));
+                                   BSLS_UTIL_ADDRESSOF(mX.value()));
             ASSERTV(Type::isConstructed());
             ASSERTV(0 == da.numBlocksInUse());
             ASSERTV(1 == oa.numBlocksInUse());
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
             Obj& mX = *xPtr; const Obj& X = mX;
 
             AllocTraits::construct(allocator,
-                                   bsls::Util::addressOf(mX.value()));
+                                   BSLS_UTIL_ADDRESSOF(mX.value()));
 
             const char D[] = "";
             const char A[] = "a_" SUFFICIENTLY_LONG_STRING;

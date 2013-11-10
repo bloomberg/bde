@@ -509,7 +509,7 @@ void TestDriver<TYPE>::test3()
         Node *n1Ptr = AllocTraits::allocate(allocator, 1);
 
         Node& mN1 = *n1Ptr; const Node& N1 = mN1;
-        AllocTraits::construct(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::construct(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
 
         mN1.value() = bsltf::TemplateTestFacility::create<Key>(1);
 
@@ -527,7 +527,7 @@ void TestDriver<TYPE>::test3()
         ASSERTV(ncComp.keyComparator().numCalls(),
                 2 == ncComp.keyComparator().numCalls());
 
-        AllocTraits::destroy(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::destroy(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
         AllocTraits::deallocate(allocator, n1Ptr, 1);
     }
 
@@ -543,7 +543,7 @@ void TestDriver<TYPE>::test3()
         Node *n1Ptr = AllocTraits::allocate(allocator, 1);
 
         Node& mN1 = *n1Ptr; const Node& N1 = mN1;
-        AllocTraits::construct(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::construct(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
 
         mN1.value() = bsltf::TemplateTestFacility::create<Key>(1);
 
@@ -578,7 +578,7 @@ void TestDriver<TYPE>::test3()
                 2 == ncComp.keyComparator().numCalls());
         ASSERTV(0 == ncFunctor.numCalls());
 
-        AllocTraits::destroy(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::destroy(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
         AllocTraits::deallocate(allocator, n1Ptr, 1);
     }
 
@@ -600,7 +600,7 @@ void TestDriver<TYPE>::test3()
         Node *n1Ptr = AllocTraits::allocate(allocator, 1);
 
         Node& mN1 = *n1Ptr; const Node& N1 = mN1;
-        AllocTraits::construct(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::construct(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
 
         mN1.value() = bsltf::TemplateTestFacility::create<Key>(1);
 
@@ -611,7 +611,7 @@ void TestDriver<TYPE>::test3()
         ASSERTV(comp.keyComparator().numCalls(),
                 2 == comp.keyComparator().numCalls());
 
-        AllocTraits::destroy(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::destroy(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
         AllocTraits::deallocate(allocator, n1Ptr, 1);
     }
 
@@ -633,7 +633,7 @@ void TestDriver<TYPE>::test3()
         Node *n1Ptr = AllocTraits::allocate(allocator, 1);
 
         Node& mN1 = *n1Ptr; const Node& N1 = mN1;
-        AllocTraits::construct(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::construct(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
 
         mN1.value() = bsltf::TemplateTestFacility::create<Key>(1);
 
@@ -643,7 +643,7 @@ void TestDriver<TYPE>::test3()
         ASSERTV(K0, N1.value(), !comp(N1, K0));
         ASSERTV(numFunctionComp, 2 == numFunctionComp);
 
-        AllocTraits::destroy(allocator, bsls::Util::addressOf(mN1.value()));
+        AllocTraits::destroy(allocator, BSLS_UTIL_ADDRESSOF(mN1.value()));
         AllocTraits::deallocate(allocator, n1Ptr, 1);
     }
 }
@@ -771,12 +771,12 @@ void TestDriver<TYPE>::test1()
 
         Node *nPtr = AllocTraits::allocate(allocator, 1);
         Node& mN = *nPtr; const Node& N = mN;
-        AllocTraits::construct(allocator, bsls::Util::addressOf(mN.value()));
+        AllocTraits::construct(allocator, BSLS_UTIL_ADDRESSOF(mN.value()));
 
         mN.value() = K0;
         ASSERTV(N.value(), K0, comp(N, K1));
 
-        AllocTraits::destroy(allocator, bsls::Util::addressOf(mN.value()));
+        AllocTraits::destroy(allocator, BSLS_UTIL_ADDRESSOF(mN.value()));
 
         AllocTraits::deallocate(allocator, nPtr, 1);
     }
@@ -795,12 +795,12 @@ void TestDriver<TYPE>::test1()
 
         Node *nPtr = AllocTraits::allocate(allocator, 1);
         Node& mN = *nPtr; const Node& N = mN;
-        AllocTraits::construct(allocator, bsls::Util::addressOf(mN.value()));
+        AllocTraits::construct(allocator, BSLS_UTIL_ADDRESSOF(mN.value()));
 
         mN.value() = K0;
         ASSERTV(N.value(), K0, comp(N, K1));
 
-        AllocTraits::destroy(allocator, bsls::Util::addressOf(mN.value()));
+        AllocTraits::destroy(allocator, BSLS_UTIL_ADDRESSOF(mN.value()));
 
         AllocTraits::deallocate(allocator, nPtr, 1);
     }
