@@ -3,6 +3,12 @@
 
 #include <bsls_bsltestutil.h>
 
+// bsls_bsltestutil.h use of __builtin_expect() fails w/ bsltf_evilbooleantype
+#undef  __builtin_expect
+#define __builtin_expect(cond, expect)  (cond)
+#undef  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY
+#define BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(expr)  (expr)
+
 #include <stdio.h>
 #include <stdlib.h>
 
