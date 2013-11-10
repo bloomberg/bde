@@ -1692,10 +1692,8 @@ void bsl::List_Node<VALUE>::init()
     // will be responsible for constructing 'd_prev' and 'd_next', rather
     // than just setting them to null:
     //
-    //    new ((void*) BloombergLP::bsls::Util::addressOf(d_prev))
-    //                                                        NodePtr(nullptr);
-    //    new ((void*) BloombergLP::bsls::Util::addressOf(d_next))
-    //                                                        NodePtr(nullptr);
+    //    new ((void*) BSLS_UTIL_ADDRESSOF(d_prev)) NodePtr(nullptr);
+    //    new ((void*) BSLS_UTIL_ADDRESSOF(d_next)) NodePtr(nullptr);
 
     d_prev = d_next = 0;
 }
@@ -1751,7 +1749,7 @@ inline
 typename bsl::List_Iterator<VALUE, NODEPTR, DIFFTYPE>::pointer
 bsl::List_Iterator<VALUE, NODEPTR, DIFFTYPE>::operator->() const
 {
-    return BloombergLP::bsls::Util::addressOf(this->d_nodeptr->d_value);
+    return BSLS_UTIL_ADDRESSOF(this->d_nodeptr->d_value);
 }
 
 template <class VALUE, class NODEPTR, class DIFFTYPE>
@@ -2580,7 +2578,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position, ARGS&&... args)
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_UTIL_ADDRESSOF(p->d_value),
                            std::forward<ARGS>(args)...);
     proctor.release();
     return insert_node(position, p);
@@ -2596,7 +2594,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position)
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value));
+                           BSLS_UTIL_ADDRESSOF(p->d_value));
     proctor.release();
     return insert_node(position, p);
 }
@@ -2610,7 +2608,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position,
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_UTIL_ADDRESSOF(p->d_value),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
     proctor.release();
     return insert_node(position, p);
@@ -2627,7 +2625,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position,
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_UTIL_ADDRESSOF(p->d_value),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
     proctor.release();
@@ -2647,7 +2645,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position,
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_UTIL_ADDRESSOF(p->d_value),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
@@ -2670,7 +2668,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position,
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_UTIL_ADDRESSOF(p->d_value),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
@@ -2696,7 +2694,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position,
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_UTIL_ADDRESSOF(p->d_value),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
@@ -2716,7 +2714,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position,
     NodePtr p = allocate_node();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
-                           BloombergLP::bsls::Util::addressOf(p->d_value),
+                           BSLS_UTIL_ADDRESSOF(p->d_value),
                            BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
     return insert_node(position, p);
@@ -2771,7 +2769,7 @@ list<VALUE, ALLOCATOR>::erase(const_iterator position)
 
     link_nodes(p->d_prev, p->d_next);
     AllocTraits::destroy(allocator(),
-                         BloombergLP::bsls::Util::addressOf(p->d_value));
+                         BSLS_UTIL_ADDRESSOF(p->d_value));
     free_node(p);
     --size_ref();
     return ret;

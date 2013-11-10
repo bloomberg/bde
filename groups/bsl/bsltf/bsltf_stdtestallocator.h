@@ -480,7 +480,7 @@ inline
 typename StdTestAllocator<TYPE>::pointer
 StdTestAllocator<TYPE>::address(reference object) const
 {
-    return bsls::Util::addressOf(object);
+    return BSLS_UTIL_ADDRESSOF(object);
 }
 
 template <class TYPE>
@@ -488,7 +488,7 @@ inline
 typename StdTestAllocator<TYPE>::const_pointer
 StdTestAllocator<TYPE>::address(const_reference object) const
 {
-    return bsls::Util::addressOf(object);
+    return BSLS_UTIL_ADDRESSOF(object);
 }
 
 template <class TYPE>

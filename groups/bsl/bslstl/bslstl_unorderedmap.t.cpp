@@ -5781,13 +5781,13 @@ struct CharToPairConverter {
         
         bsls::ObjectBuffer<KEY> tempKey;
         bsltf::TemplateTestFacility::emplace(
-                                       bsls::Util::addressOf(tempKey.object()),
+                                       BSLS_UTIL_ADDRESSOF(tempKey.object()),
                                        value,
                                        privateAllocator);
 
         bsls::ObjectBuffer<VALUE> tempValue;
         bsltf::TemplateTestFacility::emplace(
-                                     bsls::Util::addressOf(tempValue.object()),
+                                     BSLS_UTIL_ADDRESSOF(tempValue.object()),
                                      value - 'A' + '0',
                                      privateAllocator);
 
@@ -8887,7 +8887,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                 int numPasses = 0;
                 EXCEPTION_TEST_BEGIN(mX) {
                     ++numPasses;
-                    pv = bsls::Util::addressOf(mX[VALUES[tj].first]);
+                    pv = BSLS_UTIL_ADDRESSOF(mX[VALUES[tj].first]);
                 } EXCEPTION_TEST_END
                 ASSERTV(1 == numPasses);
                 ASSERTV(LENGTH == X.size());
