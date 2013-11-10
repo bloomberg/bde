@@ -18,6 +18,11 @@
 #include <signal.h>
 #endif
 
+// If defined as macros, true and false will be expanded by preprocessor and
+// and will not match 0 == std::strcmp(text, globalText), so some tests fail
+#undef true
+#undef false
+
 // Note that a portable syntax for 'noreturn' will be available once we have
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
