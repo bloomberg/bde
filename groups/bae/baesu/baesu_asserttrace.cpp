@@ -23,15 +23,20 @@ bsl::ostream& operator<<(bsl::ostream& stream, const StackTrace&)
     return baesu_StackTracePrintUtil::printStackTrace(stream);
 }
 
+// STATIC DATA
+bsls::AtomicOperations::AtomicTypes::Pointer s_callback = { };
+    // Callback function invoked on assertion failure.
+
+bsls::AtomicOperations::AtomicTypes::Pointer s_closure  = { };
+    // Closure value passed back to callback function.
+
+bsls::AtomicOperations::AtomicTypes::Int s_severity = {
+    bael_Severity::BAEL_FATAL
+};
+    // Severity level used when no callback is installed.
+
 }  // close unnamed namespace
 
-// CLASS DATA
-bsls::AtomicOperations::AtomicTypes::Pointer
-    baesu_AssertTrace::s_callback = { };
-bsls::AtomicOperations::AtomicTypes::Pointer
-    baesu_AssertTrace::s_closure  = { };
-bsls::AtomicOperations::AtomicTypes::Int
-    baesu_AssertTrace::s_severity = { bael_Severity::BAEL_FATAL };
 
 // CLASS METHODS
 void baesu_AssertTrace::failTrace(const char *text, const char *file, int line)

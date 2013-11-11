@@ -10,10 +10,9 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide controllable logging handler for assertion failures.
 //
 //@CLASSES:
-//   baesu_AssertTrace: mechanism class for logging assertion failures
+//  baesu_AssertTrace: mechanism class for logging assertion failures
 //
-//@SEE_ALSO:
-//   bsls_assert
+//@SEE_ALSO: bsls_assert
 //
 //@AUTHOR: Hyman Rosen (hrosen4)
 //
@@ -122,24 +121,28 @@ namespace BloombergLP {
                           // ========================
 
 class baesu_AssertTrace {
+    // This mechanism class implements an assertion failure handler that logs a
+    // stack trace when triggered, and unlike other such handlers, returns to
+    // its caller.  The class provides the option of setting the severity level
+    // at which (BAEL) logging occurs, as well as the ability to obtain the
+    // severity via a callback function invoked on each failure.  The class
+    // acts as a "static singleton," keeping a single state in atomic static
+    // variables.
+
   public:
     // PUBLIC TYPES
-    typedef bael_Severity::Level (*LevelCB)(
-                             void       *closure,
-                             const char *text,
-                             const char *file,
-                             int         line);  // Severity callback type.
+    typedef bael_Severity::Level (*LevelCB)(void       *closure,
+                                            const char *text,
+                                            const char *file,
+                                            int         line);
+        // Severity callback type.  If a callback function is set, it is
+        // invoked on each assertion failure and passed the closure which was
+        // set along with the callback, the text of the assertion failure, and
+        // the source file and line number where the assertion was triggered.
+        // The function should return a severity level at which the assertion
+        // failure is to be logged.  If it returns 0 ('BAEL_OFF') no logging
+        // at all will be done.
 
-  private:
-    // CLASS DATA
-    static bsls::AtomicOperations::AtomicTypes::Pointer
-                        s_callback;  // Severity callback.
-    static bsls::AtomicOperations::AtomicTypes::Pointer
-                        s_closure;   // Closure for callback.
-    static bsls::AtomicOperations::AtomicTypes::Int
-                        s_severity;  // Logging severity level.
-
-  public:
     // CLASS METHODS
     static void failTrace(const char *text, const char *file, int line);
         // Report the assertion failure and a stack trace via BAEL logging and
