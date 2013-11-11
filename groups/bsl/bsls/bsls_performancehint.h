@@ -405,6 +405,23 @@ namespace BloombergLP {
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
+                             __fence()
+    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE                          \
+                             BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+    #include <intrin.h>
+    #pragma intrinsic(_ReadWriteBarrier)
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
+                             _ReadWriteBarrier()
+    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE
+#else
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
+                             asm volatile ("":::"memory")
+    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE
+#endif
+
 namespace bsls {
 
                         // ======================

@@ -137,6 +137,7 @@ double usageExample(double startValue)
     else {
         new (&myVec) std::vector<double>();
     }
+    BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE;
 
     //***********************************************************
     // Note the use of the destructor guard on 'myVec' (below). *
