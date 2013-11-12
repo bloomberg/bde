@@ -198,7 +198,7 @@ void big_important_highly_visible_subsystem()
     // If this crashes, you're fired!
 {
     // lots of code...
-    bsl:;string s;
+    bsl::string s;
     getLateSummerDate(&s);
     // lots more code...
 }
