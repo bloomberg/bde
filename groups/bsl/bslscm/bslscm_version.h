@@ -51,8 +51,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // Solely for IC builds, this will force all dependencies of this file to be
-// built in "safe" mode.
+// built in "safe" mode (enabling SAFE asserts in all build modes).
+#ifndef BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_SAFE
+#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // This macro controls whether we allow features which we must continue to
