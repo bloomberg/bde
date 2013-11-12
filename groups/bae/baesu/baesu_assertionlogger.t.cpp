@@ -1,5 +1,5 @@
-// baesu_asserttrace.t.cpp                                            -*-C++-*-
-#include <baesu_asserttrace.h>
+// baesu_AssertionLogger.t.cpp                                        -*-C++-*-
+#include <baesu_assertionlogger.h>
 
 #include <bael_loggermanager.h>
 #include <bael_testobserver.h>
@@ -17,8 +17,9 @@ using namespace bsl;
 //--------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// We will use a 'baesu_TestObserver' to see whether the 'baesu_AssertTrace'
-// system reports assertion failures at various severity levels.
+// We will use a 'baesu_TestObserver' to see whether the
+// 'baesu_AssertionLogger' system reports assertion failures at various
+// severity levels.
 //--------------------------------------------------------------------------
 //CLASS METHODS
 // [ 1] void assertionFailureHandler(*text, *file, int line);
@@ -80,7 +81,7 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baesu_AssertTrace Obj;
+typedef baesu_AssertionLogger Obj;
 
 // ============================================================================
 //                            GLOBAL HELPER CLASSES
@@ -150,7 +151,7 @@ AlwaysAssert::~AlwaysAssert()
 // want to avoid causing crashes in production applications, since we expect
 // that frequently the overflow in "working" legacy code is only overwriting
 // the null terminating byte and is otherwise harmless.  We can use the
-// 'bdesu_AssertTrace::failTrace' assertion-failure callback to replace the
+// 'bdesu_AssertionLogger::failTrace' assertion-failure callback to replace the
 // default callback, which aborts the task, with one that will log the failure
 // and the call-stack at which it occurred.
 //
@@ -211,7 +212,7 @@ void protect_the_subsystem()
     // Protect your job, too!
 {
     bsls::AssertFailureHandlerGuard guard(
-                                 baesu_AssertTrace::assertionFailureHandler);
+                               baesu_AssertionLogger::assertionFailureHandler);
     big_important_highly_visible_subsystem();
 }
 //..
@@ -220,7 +221,7 @@ void protect_the_subsystem()
 //..
 // Assertion failed: (*this)[this->d_length] == CHAR_TYPE()...
 // (0): BloombergLP::baesu_StackTracePrintUtil::printStackTrace...
-// (1): BloombergLP::baesu_AssertTrace::failTrace...
+// (1): BloombergLP::baesu_AssertionLogger::failTrace...
 // (2): bsl::basic_string<...>::~basic_string...
 // (3): big_important_highly_visible_subsystem()...
 // (4): protect_the_subsystem()...
@@ -280,8 +281,8 @@ int main(int argc, char *argv[])
         // ASSERT TRACING
         //
         // Concerns:
-        //: 1 Verify that 'baesu_AssertTrace' respects the severity level at
-        //:   which it is asked to report assertions.
+        //: 1 Verify that 'baesu_AssertionLogger' respects the severity level
+        //:   at which it is asked to report assertions.
         //:
         //: 2 Verify that the log message contains a stack trace.
         //:
@@ -325,24 +326,25 @@ int main(int argc, char *argv[])
         bael_LoggerManagerConfiguration c;
         bael_LoggerManagerScopedGuard   lmsg(&to, c);
         bsls::AssertFailureHandlerGuard guard(
-                                   baesu_AssertTrace::assertionFailureHandler);
+                               baesu_AssertionLogger::assertionFailureHandler);
 
         LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity OFF" << endl; }
-        baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::BAEL_OFF);
+        baesu_AssertionLogger::setDefaultLogSeverity(bael_Severity::BAEL_OFF);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_OFF ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_OFF ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity FATAL" << endl; }
-        baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::BAEL_FATAL);
+        baesu_AssertionLogger::setDefaultLogSeverity(
+                                                    bael_Severity::BAEL_FATAL);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_FATAL ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_FATAL ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 1 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         ASSERT(string::npos != o.str().find("AlwaysAssert"));
@@ -350,11 +352,12 @@ int main(int argc, char *argv[])
         ASSERT(string::npos == o.str().find("AlwaysAssert"));
 
         if (veryVerbose) { T_ cout << "Severity ERROR" << endl; }
-        baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::BAEL_ERROR);
+        baesu_AssertionLogger::setDefaultLogSeverity(
+                                                    bael_Severity::BAEL_ERROR);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_ERROR ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_ERROR ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         ASSERT(string::npos != o.str().find("AlwaysAssert"));
@@ -362,64 +365,65 @@ int main(int argc, char *argv[])
         ASSERT(string::npos == o.str().find("AlwaysAssert"));
 
         if (veryVerbose) { T_ cout << "Severity WARN" << endl; }
-        baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::BAEL_WARN);
+        baesu_AssertionLogger::setDefaultLogSeverity(bael_Severity::BAEL_WARN);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_WARN ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_WARN ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity TRACE" << endl; }
-        baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::BAEL_TRACE);
+        baesu_AssertionLogger::setDefaultLogSeverity(
+                                                    bael_Severity::BAEL_TRACE);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_TRACE ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_TRACE ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
         SeverityCB<bael_Severity::BAEL_FATAL> fatalCb;
         SeverityCB<bael_Severity::BAEL_WARN>  warnCb;
-        baesu_AssertTrace::LogSeverityCallback  cb;
+        baesu_AssertionLogger::LogSeverityCallback  cb;
         void                                   *cl;
 
         if (veryVerbose) { T_ cout << "Using severity callback" << endl; }
-        baesu_AssertTrace::setLogSeverityCallback(fatalCb.callback, &cb);
-        baesu_AssertTrace::getLogSeverityCallback(&cb, &cl);
+        baesu_AssertionLogger::setLogSeverityCallback(fatalCb.callback, &cb);
+        baesu_AssertionLogger::getLogSeverityCallback(&cb, &cl);
         ASSERT(fatalCb.callback == cb);
         ASSERT(&cb              == cl);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_TRACE ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_TRACE ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         ASSERT(string::npos != o.str().find("AlwaysAssert"));
         o.str(string());
         ASSERT(string::npos == o.str().find("AlwaysAssert"));
 
-        baesu_AssertTrace::setLogSeverityCallback(warnCb.callback, &cb);
-        baesu_AssertTrace::getLogSeverityCallback(&cb, &cl);
+        baesu_AssertionLogger::setLogSeverityCallback(warnCb.callback, &cb);
+        baesu_AssertionLogger::getLogSeverityCallback(&cb, &cl);
         ASSERT(warnCb.callback == cb);
         ASSERT(&cb             == cl);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_TRACE ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_TRACE ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
 
-        baesu_AssertTrace::setLogSeverityCallback(0, 0);
-        baesu_AssertTrace::getLogSeverityCallback(&cb, &cl);
+        baesu_AssertionLogger::setLogSeverityCallback(0, 0);
+        baesu_AssertionLogger::getLogSeverityCallback(&cb, &cl);
         ASSERT(0 == cb);
         ASSERT(0 == cl);
 
         if (veryVerbose) { T_ cout << "BAEL_OFF disables tracing" << endl; }
         bael_LoggerManager::singleton().setDefaultThresholdLevels(
                                                                  0, 255, 0, 0);
-        baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::BAEL_OFF);
+        baesu_AssertionLogger::setDefaultLogSeverity(bael_Severity::BAEL_OFF);
         { AlwaysAssert(); }
-        LOOP_ASSERT(baesu_AssertTrace::defaultLogSeverity(),
-                                      bael_Severity::BAEL_OFF ==
-                                      baesu_AssertTrace::defaultLogSeverity());
+        LOOP_ASSERT(baesu_AssertionLogger::defaultLogSeverity(),
+                                  bael_Severity::BAEL_OFF ==
+                                  baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
       } break;
       default: {

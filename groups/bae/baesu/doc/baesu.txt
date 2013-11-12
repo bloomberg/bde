@@ -34,7 +34,7 @@
 
 /Component Synopsis
 /------------------
-: 'baesu_asserttrace':
+: 'baesu_assertionlogger':
 :      Provide controllable logging handler for assertion failures.
 
 : 'baesu_objectfileformat':

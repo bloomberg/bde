@@ -1,4 +1,4 @@
-baesu_asserttrace
+baesu_assertionlogger
 baesu_dbghelpdllimpl_windows
 baesu_objectfileformat
 baesu_stackaddressutil

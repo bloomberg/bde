@@ -1,8 +1,8 @@
-// baesu_asserttrace.cpp                                              -*-C++-*-
-#include <baesu_asserttrace.h>
+// baesu_assertionlogger.cpp                                          -*-C++-*-
+#include <baesu_assertionlogger.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(baesu_asserttrace_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_assertionlogger_cpp,"$Id$ $CSID$")
 
 #include <bael_log.h>
 #include <baesu_stacktraceprintutil.h>
@@ -18,7 +18,7 @@ struct StackTrace
 };
 
 bsl::ostream& operator<<(bsl::ostream& stream, const StackTrace&)
-    // Print a statck trace to the specified 'stream'.
+    // Print a stack trace to the specified 'stream'.
 {
     return baesu_StackTracePrintUtil::printStackTrace(stream);
 }
@@ -37,9 +37,8 @@ bsls::AtomicOperations::AtomicTypes::Int s_severity = {
 
 }  // close unnamed namespace
 
-
 // CLASS METHODS
-void baesu_AssertTrace::assertionFailureHandler(const char *text,
+void baesu_AssertionLogger::assertionFailureHandler(const char *text,
                                                 const char *file,
                                                 int         line)
 {
@@ -69,8 +68,9 @@ void baesu_AssertTrace::assertionFailureHandler(const char *text,
     }
 }
 
-void baesu_AssertTrace::getLogSeverityCallback(LogSeverityCallback  *callback,
-                                               void                **closure)
+void
+baesu_AssertionLogger::getLogSeverityCallback(LogSeverityCallback  *callback,
+                                              void                **closure)
 {
     BSLS_ASSERT(callback);
     BSLS_ASSERT(closure);
@@ -88,8 +88,9 @@ void baesu_AssertTrace::getLogSeverityCallback(LogSeverityCallback  *callback,
            sizeof *callback);
 }
 
-void baesu_AssertTrace::setLogSeverityCallback(LogSeverityCallback  callback,
-                                               void                *closure)
+void
+baesu_AssertionLogger::setLogSeverityCallback(LogSeverityCallback  callback,
+                                              void                *closure)
 {
     bsls::AtomicOperations::setPtrRelease(&s_closure, closure);
 
@@ -105,15 +106,16 @@ void baesu_AssertTrace::setLogSeverityCallback(LogSeverityCallback  callback,
     bsls::AtomicOperations::setPtrRelease(&s_callback, cb);
 }
 
-void baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::Level severity)
+void
+baesu_AssertionLogger::setDefaultLogSeverity(bael_Severity::Level severity)
 {
-    bsls::AtomicOperations::setIntRelease(&s_severity, severity);
+    bsls::AtomicOperations::setIntRelaxed(&s_severity, severity);
 }
 
-bael_Severity::Level baesu_AssertTrace::defaultLogSeverity()
+bael_Severity::Level baesu_AssertionLogger::defaultLogSeverity()
 {
     return static_cast<bael_Severity::Level>(
-                           bsls::AtomicOperations::getIntAcquire(&s_severity));
+                           bsls::AtomicOperations::getIntRelaxed(&s_severity));
 }
 
 }  // close enterprise namespace

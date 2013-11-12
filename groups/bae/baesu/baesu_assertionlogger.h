@@ -1,6 +1,6 @@
 // baesu_asserttrace.h                                                -*-C++-*-
-#ifndef INCLUDED_BAESU_ASSERTTRACE
-#define INCLUDED_BAESU_ASSERTTRACE
+#ifndef INCLUDED_BAESU_ASSERTIONLOGGER
+#define INCLUDED_BAESU_ASSERTIONLOGGER
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide configurable logging handler for assertion failures.
 //
 //@CLASSES:
-//  baesu_AssertTrace: mechanism class for logging assertion failures
+//  baesu_AssertionLogger: mechanism class for logging assertion failures
 //
 //@SEE_ALSO: bsls_assert
 //
@@ -46,7 +46,7 @@ BDES_IDENT("$Id: $")
 // want to avoid causing crashes in production applications, since we expect
 // that frequently the overflow in "working" legacy code is only overwriting
 // the null terminating byte and is otherwise harmless.  We can use the
-// 'bdesu_AssertTrace::failTrace' assertion-failure callback to replace the
+// 'bdesu_AssertionLogger::failTrace' assertion-failure callback to replace the
 // default callback, which aborts the task, with one that will log the failure
 // and the call-stack at which it occurred.
 //
@@ -107,7 +107,7 @@ BDES_IDENT("$Id: $")
 //      // Protect your job, too!
 //  {
 //      bsls::AssertFailureHandlerGuard guard(
-//                                 baesu_AssertTrace::assertionFailureHandler);
+//                             baesu_AssertionLogger::assertionFailureHandler);
 //      big_important_highly_visible_subsystem();
 //  }
 //..
@@ -116,7 +116,7 @@ BDES_IDENT("$Id: $")
 //..
 //  // Assertion failed: (*this)[this->d_length] == CHAR_TYPE()...
 //  // (0): BloombergLP::baesu_StackTracePrintUtil::printStackTrace...
-//  // (1): BloombergLP::baesu_AssertTrace::failTrace...
+//  // (1): BloombergLP::baesu_AssertionLogger::failTrace...
 //  // (2): bsl::basic_string<...>::~basic_string...
 //  // (3): big_important_highly_visible_subsystem()...
 //  // (4): protect_the_subsystem()...
@@ -136,11 +136,11 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-                          // ========================
-                          // struct baesu_AssertTrace
-                          // ========================
+                        // ============================
+                        // struct baesu_AssertionLogger
+                        // ============================
 
-class baesu_AssertTrace {
+class baesu_AssertionLogger {
     // This mechanism class implements an assertion failure handler that logs a
     // stack trace when triggered, and unlike other such handlers, returns to
     // its caller.  The class provides the option of setting the severity level
