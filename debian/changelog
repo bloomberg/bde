@@ -1,3 +1,11 @@
+bsl-internal (2.19.0.4) unstable; urgency=low
+
+  * Bump changelog
+  * 0711700 force SAFE mode build by adding #define to bslscm_version.h
+  * fd9a038 [APPROVAL] apply-safe-c_str-patch to releases-2.19.x-with-c_str
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Nov 2013 09:47:11 -0500
+
 bsl-internal (2.19.0.3) unstable; urgency=low
 
   * Bump changelog
