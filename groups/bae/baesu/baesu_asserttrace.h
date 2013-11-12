@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide controllable logging handler for assertion failures.
+//@PURPOSE: Provide configurable logging handler for assertion failures.
 //
 //@CLASSES:
 //  baesu_AssertTrace: mechanism class for logging assertion failures
@@ -16,15 +16,20 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Hyman Rosen (hrosen4)
 //
-//@DESCRIPTION: This component defines an assert handler which will log stack
-// traces of failed assertions via BAEL logging and then return to the caller,
-// allowing program execution to continue.  This logging may by turned on or
-// off throughout the execution of the program (and not just at initialization
-// time).  The intent is to allow previously disabled assertions to be enabled
-// and to allow new ones to be added without causing immediate crashes in
-// programs that have failures, on the premise that "legacy" problems that
-// "work anyway" should not be "penalized", and so that they can be fixed in a
-// leisurely fashion.
+//@DESCRIPTION: This component defines an assert handling mechanism that logs
+// the function call stack at the point of the assertion (using the BAEL
+// logging framework), and then returns to the caller allowing program
+// execution to continue.  This component provides methods to enable or disable
+// logging, which can be called throughout the execution of the program.  These
+// methods allow running tasks to adjust the run-time cost of generating
+// assertion failure information in a production environment.  The intent of
+// providing a non-terminating assertion handler is to allow previously
+// disabled assertions to be enabled (and new assertions to be added) without
+// causing crashes in production applications that have such failures.  The
+// premise is that the bugs uncovered in "legacy" code by newly enabled
+// assertions may be benign, and more damage may be done by terminating the
+// task in a production environment than by allowing execution to continue and
+// the bug to be addressed in a more orderly fashion.
 //
 // Usage
 ///-----
@@ -32,75 +37,90 @@ BDES_IDENT("$Id: $")
 //
 ///Example 1: String Buffer Overflow
 ///- - - - - - - - - - - - - - - - -
-// There exists a good deal of legacy code which passes the internal buffers of
-// string objects to methods which fill them with data.  Occasionally, those
-// methods overrun the buffers, causing the program to abort with a fatal error
-// when the string destructor detects that this has happened.  Suppose we would
-// like to avoid these crashes, because we believe that the overflow is only of
-// the null terminating byte and is otherwise harmless.  We would also,
-// however, like to know that this is happening, and where.  We can use
-// 'baesu_AssertTrace' for this purpose.
+// Suppose we are responsible for maintaining a large amount of legacy code
+// that frequently passes internal buffers of string objects to methods that
+// manipulate those buffers's contents.  We expect that these methods
+// occasionally overrun their supplied buffer, so we introduce an assertion to
+// the destructor of string that will alert us to such a buffer overrun.
+// Unfortunately, our legacy code does not have effective unit tests, and we
+// want to avoid causing crashes in production applications, since we expect
+// that frequently the overflow in "working" legacy code is only overwriting
+// the null terminating byte and is otherwise harmless.  We can use the
+// 'bdesu_AssertTrace::failTrace' assertion-failure callback to replace the
+// default callback, which aborts the task, with one that will log the failure
+// and the call-stack at which it occurred.
 //
-// First, we write a dubious date routine:
+// First, we write a dubious legacy date routine:
 //..
-//    void ascdate(char *buf, const struct tm *date)
-//        // Format the specified 'date' into the specified 'buf' as
-//        // "Weekday, Month N", e.g., "Monday, May 6".
-//    {
-//        static const char *const months[] =
-//        {   "January", "February", "March", "April", "May", "June", "July",
-//            "August", "September", "October", "November", "December"       };
-//        static const char *const days[] =
-//        {   "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
-//            "Saturday"                                                     };
-//        static const char *const digits[] =
-//        {   "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"               };
-//        *buf = 0;
-//        strcat(buf, days[date->tm_wday]);
-//        strcat(buf, ", ");
-//        strcat(buf, months[date->tm_mon]);
-//        strcat(buf, " ");
-//        if (date->tm_mday >= 10) {
-//            strcat(buf, digits[date->tm_mday / 10]);
-//        }
-//        strcat(buf, digits[date->tm_mday % 10]);
-//    }
+//  void getDayAndDate(char *buf, const struct tm *datetime)
+//      // Format the specified 'datetime' into the specified 'buf' as
+//      // "Weekday, Month N", e.g., "Monday, May 6".
+//  {
+//      static const char *const months[] = {
+//          "January", "February", "March", "April", "May", "June", "July",
+//          "August", "September", "October", "November", "December"       };
+//      static const char *const days[] = {
+//          "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+//          "Saturday"                                                     };
+//      static const char *const digits[] = {
+//          "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"               };
+//      *buf = 0;
+//      strcat(buf, days[datetime->tm_wday]);
+//      strcat(buf, ", ");
+//      strcat(buf, months[datetime->tm_mon]);
+//      strcat(buf, " ");
+//      if (datetime->tm_mday >= 10) {
+//          strcat(buf, digits[datetime->tm_mday / 10]);
+//      }
+//      strcat(buf, digits[datetime->tm_mday % 10]);
+//  }
 //..
-// Then, we write the buggy code which will cause the problem.
+// Then, we write a buggy function that will inadvertently over-write the null
+// terminator in a 'bsl::string':
 //..
-//    void bogus()
-//        // "Try to remember a time in ..."
-//    {
-//        struct tm date = { 0, 0, 0, 11, 8, 113, 3, 0, 1 };
-//        bsl::string datef(22, ' ');  // Surely this string is long enough...
-//        ascdate(const_cast<char *>(datef.c_str()), &date);
-//    }
+//  void getLateSummerDate(bsl::string *date)
+//      // "Try to remember a time in ..."
+//  {
+//      struct tm datetime = { 0, 0, 0, 11, 8, 113, 3, 0, 1 };
+//      date->resize(22);  // Surely this is long enough...
+//      getDayAndDate(const_cast<char *>(date->c_str()), &datetime);
+//  }
 //..
 // Next, we embed this code deep in the heart of a large system, compile it
 // with optimization, and have it run, apparently successfully, for several
 // years.
 //..
-//    void big_important_highly_visible_subsystem()
-//        // If this crashes, you're fired!
-//    {
-//        // lots of code...
-//        bogus();
-//        // lots more code...
-//    }
+//  void big_important_highly_visible_subsystem()
+//      // If this crashes, you're fired!
+//  {
+//      // lots of code...
+//      bsl:;string s;
+//      getLateSummerDate(&s);
+//      // lots more code...
+//  }
 //..
 // Now, someone comes along and insists that all assertions must be turned on
 // due to heightened auditing requirements.  He is prevailed upon to agree that
-// logging the assertions is preferable to crashing.
-//
-// Finally, we activate this logging handler and upon checking the logs, one
-// day we see the error of our ways.
+// logging the assertions is preferable to crashing.  We do so:
 //..
-//    void protect_the_subsystem()
-//        // Protect your job, too!
-//    {
-//        bsls::AssertFailureHandlerGuard guard(baesu_AssertTrace::failTrace);
-//        big_important_highly_visible_subsystem();
-//    }
+//  void protect_the_subsystem()
+//      // Protect your job, too!
+//  {
+//      bsls::AssertFailureHandlerGuard guard(
+//                                 baesu_AssertTrace::assertionFailureHandler);
+//      big_important_highly_visible_subsystem();
+//  }
+//..
+// Finally, we activate the logging handler and find logged errors similar to
+// the following, indicating bugs that must be fixed:
+//..
+//  // Assertion failed: (*this)[this->d_length] == CHAR_TYPE()...
+//  // (0): BloombergLP::baesu_StackTracePrintUtil::printStackTrace...
+//  // (1): BloombergLP::baesu_AssertTrace::failTrace...
+//  // (2): bsl::basic_string<...>::~basic_string...
+//  // (3): big_important_highly_visible_subsystem()...
+//  // (4): protect_the_subsystem()...
+//  // (5): main...
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -131,12 +151,12 @@ class baesu_AssertTrace {
 
   public:
     // PUBLIC TYPES
-    typedef bael_Severity::Level (*LevelCB)(void       *closure,
-                                            const char *text,
-                                            const char *file,
-                                            int         line);
+    typedef bael_Severity::Level (*LogSeverityCallback)(void       *closure,
+                                                        const char *text,
+                                                        const char *file,
+                                                        int         line);
         // Severity callback type.  If a callback function is set, it is
-        // invoked on each assertion failure and passed the closure which was
+        // invoked on each assertion failure and passed the closure that was
         // set along with the callback, the text of the assertion failure, and
         // the source file and line number where the assertion was triggered.
         // The function should return a severity level at which the assertion
@@ -144,31 +164,51 @@ class baesu_AssertTrace {
         // at all will be done.
 
     // CLASS METHODS
-    static void failTrace(const char *text, const char *file, int line);
-        // Report the assertion failure and a stack trace via BAEL logging and
-        // return.  If a severity callback has been set, it is invoked with the
-        // closure and the specified 'text', 'file', and 'line' to get the
-        // severity level, otherwise the static severity level is used.  If the
-        // severity level is 0 ('BAEL_OFF') then the assertion is not logged at
-        // all.  Note that this assertion handler violates the usual policy
-        // that assertion handlers should not return to their callers.
+    static void assertionFailureHandler(const char *text,
+                                        const char *file,
+                                        int         line);
+        // Report the sepcified 'text', 'file', and 'line' of an assertion
+        // failure, and a stack trace pinpointing where the failure occurred,
+        // via BAEL logging and return.  If a severity callback has been set,
+        // it is invoked with the closure and 'text', 'file', and 'line' to get
+        // the severity level, otherwise the static severity level is used.  If
+        // the severity level is 0 ('BAEL_OFF') then the assertion is not
+        // logged at all.  Note that this assertion handler violates the usual
+        // policy that assertion handlers should not return to their callers.
 
-    static void getLevelCB(LevelCB *callback, void **closure);
-        // Store the previously specified 'callback' and 'closure' (or null)
-        // into the parameters.
+    static void getLogSeverityCallback(LogSeverityCallback *callback,
+                                       void **closure);
+        // Load the specified 'callback' with a pointer to the function that
+        // will be invoked to determine the severity level at which to report
+        // an assertion failure (when an assertion failure occurs), and load
+        // the specified 'closure' with the closure pointer which will be
+        // passed to the callback function.  Note that these values are the
+        // ones set by the most recent call to 'setLogSeverityCallback', and
+        // will be null if there has been no such call.
 
-    static void setLevelCB(LevelCB callback, void *closure);
-        // Set the specified 'callback' and 'closure' to be invoked when an
-        // assertion trace needs to be reported.  The 'closure' is passed back
-        // as the first argument to the 'callback', followed by the assertion
-        // text, file, and line.
+    static void setLogSeverityCallback(LogSeverityCallback callback,
+                                       void *closure);
+        // Set, to the specified 'callback', the function that will be invoked
+        // to determine the severity at which to log assertion failures, and
+        // set the specified 'closure' to be the first argument passed to that
+        // function when it is invoked (when an assertion failure occurs).  If
+        // 'callback' is null, the value of 'severity()' is used instead.  Note
+        // that a typical pattern for 'callback' and 'closure' is to pass a
+        // static class method as the 'callback' and a pointer to a particular
+        // object as the 'closure'.
 
-    static void setSeverity(bael_Severity::Level severity);
-        // Set the severity level at which assertion tracing is logged to the
-        // specified 'severity'.  This level is used when no callback is set.
+    static void setDefaultLogSeverity(bael_Severity::Level level);
+        // Set, to the specified 'level', the default severity level at which
+        // assertion failures are logged.  This value is used if a log severity
+        // callback has not been supplied (by calling
+        // 'setLogSeverityCallback').  The default severity level is initially
+        // 'bael_Severity::BAEL_FATAL'.
 
-    static bael_Severity::Level severity();
-        // Get the severity level at which assertion tracing is logged.
+    static bael_Severity::Level defaultLogSeverity();
+        // Get the default severity level at which assertion tracing is logged.
+        // This value is used if a log severity callback has not been supplied
+        // (by calling 'setLogSeverityCallback').  The default severity level
+        // is initially 'bael_Severity::BAEL_FATAL'.
 };
 
 }  // close enterprise namespace

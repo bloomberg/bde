@@ -39,14 +39,16 @@ bsls::AtomicOperations::AtomicTypes::Int s_severity = {
 
 
 // CLASS METHODS
-void baesu_AssertTrace::failTrace(const char *text, const char *file, int line)
+void baesu_AssertTrace::assertionFailureHandler(const char *text,
+                                                const char *file,
+                                                int         line)
 {
-    LevelCB  callback;
-    void    *closure;
+    LogSeverityCallback  callback;
+    void                *closure;
 
-    getLevelCB(&callback, &closure);
+    getLogSeverityCallback(&callback, &closure);
     bael_Severity::Level level =
-                   callback ? callback(closure, text, file, line) : severity();
+         callback ? callback(closure, text, file, line) : defaultLogSeverity();
 
     if (level > bael_Severity::BAEL_OFF) {
         BAEL_LOG_SET_CATEGORY("Assertion.Failure");
@@ -67,7 +69,8 @@ void baesu_AssertTrace::failTrace(const char *text, const char *file, int line)
     }
 }
 
-void baesu_AssertTrace::getLevelCB(LevelCB *callback, void **closure)
+void baesu_AssertTrace::getLogSeverityCallback(LogSeverityCallback  *callback,
+                                               void                **closure)
 {
     BSLS_ASSERT(callback);
     BSLS_ASSERT(closure);
@@ -78,14 +81,15 @@ void baesu_AssertTrace::getLevelCB(LevelCB *callback, void **closure)
 
     void *cb = bsls::AtomicOperations::getPtrAcquire(&s_callback);
 
-    BSLS_ASSERT(sizeof(LevelCB) == sizeof cb);
+    BSLS_ASSERT(sizeof(LogSeverityCallback) == sizeof cb);
 
     memcpy(reinterpret_cast<unsigned char *>(callback),
            reinterpret_cast<unsigned char *>(&cb),
            sizeof *callback);
 }
 
-void baesu_AssertTrace::setLevelCB(LevelCB callback, void *closure)
+void baesu_AssertTrace::setLogSeverityCallback(LogSeverityCallback  callback,
+                                               void                *closure)
 {
     bsls::AtomicOperations::setPtrRelease(&s_closure, closure);
 
@@ -93,7 +97,7 @@ void baesu_AssertTrace::setLevelCB(LevelCB callback, void *closure)
 
     void *cb;
 
-    BSLS_ASSERT(sizeof(LevelCB) == sizeof cb);
+    BSLS_ASSERT(sizeof(LogSeverityCallback) == sizeof cb);
 
     memcpy(reinterpret_cast<unsigned char *>(&cb),
            reinterpret_cast<unsigned char *>(&callback),
@@ -101,12 +105,12 @@ void baesu_AssertTrace::setLevelCB(LevelCB callback, void *closure)
     bsls::AtomicOperations::setPtrRelease(&s_callback, cb);
 }
 
-void baesu_AssertTrace::setSeverity(bael_Severity::Level severity)
+void baesu_AssertTrace::setDefaultLogSeverity(bael_Severity::Level severity)
 {
     bsls::AtomicOperations::setIntRelease(&s_severity, severity);
 }
 
-bael_Severity::Level baesu_AssertTrace::severity()
+bael_Severity::Level baesu_AssertTrace::defaultLogSeverity()
 {
     return static_cast<bael_Severity::Level>(
                            bsls::AtomicOperations::getIntAcquire(&s_severity));
