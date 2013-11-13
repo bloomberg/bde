@@ -14,17 +14,22 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Eric Winseman (ewinseman), Dave Schumann (dschuman)
 //
-//@DESCRIPTION: This component implements a thread-enabled fixed-size ring
-// buffer containing state variables. This class is intended to provide 
-// synchronization for some other data structure representing a queue of
-// values for multithreaded communication in a producer-consumer model.
+//@DESCRIPTION: This component implements a lock-free mechanism for
+// managing the indices of a circular buffer of elements to facilitate
+// the implementation of a fixed-size thread-enabled single-ended queue.
+// A 'bcec_AtomicRingBufferIndexManager' is supplied the size of an 
+// circular buffer on construction, and provides the methods to reserve
+// indices for enqueing and dequeing elements in that buffer.  The actual
+// buffer is held in some other (external) data structure managed by the user
+// of this component.  
 // 
-// This is not a general-purpose queue data structure. For example, no user
-// data of any kind is stored in this data structure (it is not a queue of
-// integers), and successful invocation of certain methods ('acquirePopIndex', 
-// 'acquirePushIndex') obligates the caller to invoke a corresponding method
-// ('releaseElement', 'stopWriting' respectively); otherwise, other threads
-// may "spin" indefinitely with severe performance consequences.  
+// This component is not *itself* a general-purpose queue data structure. For 
+// example, no user data of any kind is stored in this data structure (it is 
+// not a queue of integers), and successful invocation of certain methods
+// ('acquirePopIndex', 'acquirePushIndex') obligates the caller to invoke a
+// corresponding method ('releasePopReservation', 'releasePushReservation' 
+// respectively); otherwise, other threads may "spin" indefinitely with 
+// severe performance consequences.  
 // 
 ///Exception safety
 ///----------------
@@ -123,26 +128,40 @@ class bcec_AtomicRingBufferIndexManager {
        // Destroy this object.
 
     // MANIPULATORS
-    int  acquirePushIndex(bsl::size_t *generation, 
-                          bsl::size_t *index);
-       // Mark the next available index as "writing" and load that index 
-       // into the specified 'index'.  Load the current generation count into
-       // the specified 'generation'.  Return 0 on success, and a nonzero
-       // value if the queue is disabled or full.  If this method succeeds, 
-       // the caller is obligated to call 'stopWriting' with the 
-       // 'generation' and 'index' values; otherwise, other threads using
-       // this data structure may "spin" indefinitely. 
-
-    int  acquirePopIndex(bsl::size_t *generation, 
+    int acquirePushIndex(bsl::size_t *generationCount, 
                          bsl::size_t *index);
-       // Mark the next occupied index (one having the specified
-       // 'currentState' in the current generation) as "reading" and load
-       // that index  into the specified 'index'.  Load the current 
-       // generation count into the specified 'generation'.  Return 0 on 
-       // success, and a nonzero value if the queue is empty.  If this method
-       // succeeds, the caller is obligated to call 'releaseElement' with the 
-       // 'generation' and 'index' values; otherwise, other threads using
-       // this data structure may "spin" indefinitely. 
+       // Reserve the next available index at which to enqueue an element
+       // in an (externally managed) circular buffer; load the specified
+       // 'index' with the reserved index and load the specified
+       // 'generationCount' with the current generation of the circular 
+       // buffer.  Return 0 on success, a negative value if the queue is
+       // disabled, and a positive value if the queue is full.  If this method
+       // succeeds, other threads using this object may spin on the 
+       // corresponding index state until 'releasePushReservation' is called 
+       // using the returned 'index' and 'generationCount' values; clients
+       // should call 'releasePushReservation' quickly after this method 
+       // returns, without performing any blocking operations.
+       // 'generationCount' indicates the number of times the circular buffer
+       // has looped around; it is necessary for invoking 
+       // 'releasePushReservation' but should not otherwise be used by the
+       // caller. 
+
+    int acquirePopIndex(bsl::size_t *generation, 
+                        bsl::size_t *index);
+       // Reserve the next available index from which to dequeue an element
+       // from an (externally managed) circular buffer; load the specified
+       // 'index' with the reserved index and load the specified
+       // 'generationCount' with the current generation of the circular 
+       // buffer.  Return 0 on success, and a non-zero value if the queue
+       // is  empty.  If this method succeeds, other threads using this 
+       // object may spin on the corresponding index state until 
+       // 'releasePopReservation' is called using the returned 'index' 
+       // and 'generationCount' values; clients should call
+       // 'releasePopReservation' quickly after this method returns, without
+       // performing any blocking operations.  'generationCount' indicates
+       // the number of times the circular buffer has looped around; it is
+       // necessary for invoking 'releasePopReservation' but should not 
+       // otherwise be used by the caller. 
 
     void incrementPopIndexFrom(bsl::size_t index);
        // If the current pop index is the specified 'index', increment it
@@ -150,14 +169,17 @@ class bcec_AtomicRingBufferIndexManager {
        // pop index to move regardless of the state of the cell it is 
        // referencing. 
 
-    void releaseElement(bsl::size_t currGeneration, 
-                        bsl::size_t index);
-       // Mark the specified 'index' as available (empty) in the generation 
-       // following the specified 'currGeneration'. 
-
-    void stopWriting(bsl::size_t generation, bsl::size_t index);
+    void releasePushReservation(bsl::size_t generation, bsl::size_t index);
        // Mark the specified 'index' as occupied (full) in the specified 
-       // 'generation'.
+       // 'generation'.  The behavior is undefined unless 'generation' and 
+       // 'index' were populated by a previous call to 'acquirePushIndex'.
+
+    void releasePopReservation(bsl::size_t currGeneration, 
+                               bsl::size_t index);
+       // Mark the specified 'index' as available (empty) in the generation 
+       // following the specified 'currGeneration'.  The behavior is undefined
+       // unless 'generation' and  'index' were populated by a previous call
+       // to 'acquirePushIndex'.
     
     void disable();
        // Mark the queue as disabled.  Future calls to 'acquirePushIndex' will
@@ -208,7 +230,8 @@ bool bcec_AtomicRingBufferIndexManager::isEnabled() const {
 }
 
 inline
-void bcec_AtomicRingBufferIndexManager::stopWriting(bsl::size_t generation,
+void bcec_AtomicRingBufferIndexManager::releasePushReservation(
+                                                    bsl::size_t generation,
                                                     bsl::size_t index) {
     d_states[index] = e_INDEX_STATE_FULL | 
         (generation << e_INDEX_STATE_SHIFT);

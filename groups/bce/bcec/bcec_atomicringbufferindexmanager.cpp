@@ -80,7 +80,8 @@ void bcec_AtomicRingBufferIndexManager::disable() {
 }
 
 void
-bcec_AtomicRingBufferIndexManager::releaseElement(bsl::size_t currGeneration, 
+bcec_AtomicRingBufferIndexManager::releasePopReservation(
+                                                  bsl::size_t currGeneration, 
                                                   bsl::size_t index)
 {
     bsl::size_t generation = currGeneration + 1;
@@ -111,7 +112,7 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
 
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pushIndex & 
                                                   e_DISABLED_STATE_MASK)) {
-            return -2;
+            return -1;
         }
         
         opIndex = pushIndex & e_MAX_OP_INDEX;
@@ -149,7 +150,7 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
                     continue;
                 }
                 else {
-                    return -1;
+                    return 1;
                 }
             }
         }
@@ -161,7 +162,7 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pushIndex & 
                                                   e_DISABLED_STATE_MASK)) {
             
-            return -2;
+            return -1;
         }
     }
     
@@ -180,7 +181,7 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
             d_states[currIndex] = 
                 e_INDEX_STATE_EMPTY | (currGeneration << e_INDEX_STATE_SHIFT);
         
-            return -2;
+            return -1;
         }
     }
     
@@ -215,7 +216,7 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
         const int markedGeneration = was >> e_INDEX_STATE_SHIFT;
         
         if (currGeneration != markedGeneration) {
-            return -1; 
+            return 1; 
         }
         
         int state = was & e_INDEX_STATE_MASK;
@@ -229,7 +230,7 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
                 continue;
             }
             else {
-                return -1;
+                return 1;
             }
         case e_INDEX_STATE_WRITING:
             bcemt_ThreadUtil::yield();

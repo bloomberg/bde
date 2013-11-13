@@ -21,6 +21,73 @@ BDES_IDENT("$Id: $")
 // type, it has a less strict exception safety guarantee, but performs faster
 // in benchmarks.  
 //
+// A ring buffer is a a fixed size buffer that logically wraps around itself.
+// It is the ideal container for a fixed sized queue, since this structure
+// imposes a strict upper bound on it’s internal capacity.
+//
+// Here is an illustration representing a ring buffer that can hold at most
+// twenty items at any instant.
+//
+// +---------------------------------------------------------------------+
+// | 0| 1| 2| 3| 4| 5| 6| 7| 8| 9| 10| 11| 12| 13| 14| 15| 16| 17| 18| 19|
+// +---------------------------------------------------------------------+
+//                                 |
+//                                 |
+//                                 V
+//                            +-------+
+//                        +---|  9| 10|---+
+//                    +---|  8|---+---| 11|---+
+//                    |  7|---+       +---| 12|
+//                   +----                +------+
+//                   |  6|                   | 13|
+//                  +----+                   +----+
+//                  |  5|                     | 14|
+//                  +---+                     +---+
+//                  |  4|                     | 15|
+//                  +----+                    ----+
+//                   |  3|                   | 16|
+//	                 +-----               +------+ 
+//                    |  2|---+       +---| 17|
+//                    +---|  1|---+---| 18|---+
+//                        +---|  0| 19|---+
+//                            +-------+
+//
+// ****************************************************************************
+// The Atomic Ring Buffer (ARB) is an implementation of a ring buffer that
+// allows concurrent access from multiple reader and writer threads.  The
+// component was designed to minimize contention between threads.
+//
+// Conceptually, the ARB could be thought of as two concentric ring buffers.
+// Cells of the outer ring hold an atomic integer which facilitates a state 
+// machine (sn) whose purpose is to protect access to a value (vn) contained
+// at the homogeneous inner cell.
+//
+//                            +-------+ 
+//                        +---| s9|s10|---+   
+//                     ---| s8+-------+s11|---
+//                  ------|---| v9|v10|---|-------
+//                +-------| v8|--- ---|v11|-------+
+//                | s7| v7|---+       +---|v12|s12|
+//              +---------+               +---------+
+//              | s6| v6|                   |v13|s13|
+//             +--------+                   +--------+
+//             | s5| s5|                     |v14|s14|
+//             +-------+                     +-------+
+//             | s4| v4|                     |v15|s15|
+//             +--------+                    +-------+
+//              | s3| v3|                   |v16|s16|
+//              +---------                +---------+ 
+//                | s2| v2|---        +---|v17|s17|
+//                +--- ---| v1|---+---|v18|-------+
+//                  ------|---| v0|v19|---|------
+//                     ---| s1|-------|s18|---
+//                        +---| s0|s19|---+
+//                            +-------+
+//
+// The outer ring implemented in the class bcec_AtomicRingBufferIndexManager.
+// The inner ring is implemented in the class bcec_AtomicRingBuffer. Objects
+// of this class have an instance of bcec_AtomicRinBufferIndexManager.
+//
 ///Template Requirements
 ///---------------------
 // 'bcec_AtomicRingBuffer' is a template which stores items of a parameterized
@@ -195,17 +262,24 @@ private:
     // PRIVATE TYPES
     class PopGuard {
         bcec_AtomicRingBuffer *d_parent_p;
-        int                    d_generation;
+        int                    d_generation; 
+                                 // of cell being popped when exception thrown
         int                    d_index;
-        
+                                 // of cell being popped when exception thrown
+       
     public:
         PopGuard(bcec_AtomicRingBuffer *parent, int generation, int index) 
         : d_parent_p(parent), d_generation(generation), d_index(index)
         {}
 
         ~PopGuard() {
-            d_parent_p->d_elements[d_index].~TYPE();
-            d_parent_p->d_impl.releaseElement(d_generation, d_index);
+            // This popping thread currently has the cell at 'd_index'
+            // (in 'd_generation') reserved for popping.  Destroy the
+            // element at that position and then release the reservation.
+            // Wake up to 1 waiting pusher thread.
+            bslalg::ScalarDestructionPrimitives::destroy(
+                                            d_parent_p->d_elements + d_index);
+            d_parent_p->d_impl.releasePopReservation(d_generation, d_index);
             //notify pusher of available element
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                           d_parent_p->d_numWaitingPushers)) {
@@ -217,6 +291,8 @@ private:
     class PushGuard {
         bcec_AtomicRingBuffer *d_parent_p;
         int                    d_index;
+                                 // of cell being popped when exception thrown
+
         
     public:
         PushGuard(bcec_AtomicRingBuffer *parent, int index) 
@@ -229,13 +305,13 @@ private:
 
         ~PushGuard() {
             if (d_parent_p) {
-                // This pushing thread currently has the cell at 'index'
+                // This pushing thread currently has the cell at 'd_index'
                 // reserved as WRITING. Pop and discard as many elements
                 // as we can until the pop index points at that cell, then
                 // mark the cell as OLD; this will leave the queue empty.
                 
-                unsigned generation, index;
-                unsigned stopIndex = d_index == 0 
+                bsl::size_t generation, index;
+                bsl::size_t stopIndex = d_index == 0 
                     ? d_parent_p->d_impl.capacity()
                     : d_index - 1;
                 int poppedItems = 1; // always at least 1 for the current cell
@@ -244,8 +320,10 @@ private:
                                                                 &index)) {
                         break;
                     }
-                    d_parent_p->d_elements[index].~TYPE();
-                    d_parent_p->d_impl.releaseElement(generation, index);
+                    bslalg::ScalarDestructionPrimitives::destroy(
+                                              d_parent_p->d_elements + index);
+                    d_parent_p->d_impl.releasePopReservation(generation, 
+                                                             index);
                     poppedItems++;
                 } while (index != stopIndex);
                 
@@ -257,7 +335,7 @@ private:
                     d_parent_p->d_impl.incrementPopIndexFrom(d_index);
                 }
                     
-                d_parent_p->d_impl.releaseElement(generation, d_index);
+                d_parent_p->d_impl.releasePopReservation(generation, d_index);
                 int numWakeUps = bsl::min(
                                        poppedItems, 
                                        (int)d_parent_p->d_numWaitingPushers);
@@ -270,19 +348,22 @@ private:
     };
 
     // DATA
-    TYPE                             *d_elements;   
+    TYPE                             *d_elements;  // element storage
     const char                        d_elementsPad[
                                                   bces_Platform::e_BCEC_PAD]; 
-    bcec_AtomicRingBufferIndexManager d_impl;
+    bcec_AtomicRingBufferIndexManager d_impl;      // state variables
     
-    bcemt_Semaphore                   d_popControlSema;
+    bsls::AtomicInt                   d_numWaitingPoppers;
+    bcemt_Semaphore                   d_popControlSema;  
+                                                   // pop threads wait on this
+                                                   // when the queue is empty
     const char                        d_popControlSemaPad[
                                                   bces_Platform::e_BCEC_PAD];
-    bsls::AtomicInt                   d_numWaitingPushers; 
+    bsls::AtomicInt                   d_numWaitingPushers;
+                  
     bcemt_Semaphore                   d_pushControlSema;
     const char                        d_pushControlSemaPad[
                                                   bces_Platform::e_BCEC_PAD];
-    bsls::AtomicInt                   d_numWaitingPoppers;
     bslma::Allocator                 *d_allocator_p;
 
     // NOT IMPLEMENTED
@@ -332,7 +413,7 @@ public:
     void removeAll();
        // Remove all items from this queue. Note that this operation is not 
        // atomic; if other threads are concurrently pushing items into the 
-       // queue the result of length() after this function returns is not 
+       // queue the result of numElements() after this function returns is not 
        // guaranteed to be 0. 
 
     void disable();
@@ -345,16 +426,9 @@ public:
        // effect.  
 
     // ACCESSORS
-    int size() const;
+    int capacity() const;
        // Return the maximum number of elements that may be stored 
-       // in this queue.  
-
-    int length() const;
-       // Return the number of elements currently in this queue.  
-
-    bool isFull() const;
-       // Return 'true' if this queue is full (when the number of elements 
-       // currently in this queue equals its capacity), or 'false' otherwise.  
+       // in this queue.
 
     bool isEmpty() const;
        // Return 'true' if this queue is empty (has no elements), or 'false' 
@@ -363,6 +437,20 @@ public:
     bool isEnabled() const;
         // Return 'true' if this queue is enabled, and 'false' otherwise.  Note
         // that the queue is created in the "enabled" state.
+
+    bool isFull() const;
+       // Return 'true' if this queue is full (when the number of elements 
+       // currently in this queue equals its capacity), or 'false' otherwise.  
+
+    int length() const;
+       // *DEPRECATED*.  Invoke 'numElements'. 
+
+    int numElements() const;
+       // Returns the number of elements currently in this queue.
+
+    int size() const;
+       // *DEPRECATED*.  Invoke 'capacity'.  
+
 };
 
 // =====================================================================
@@ -380,6 +468,7 @@ bcec_AtomicRingBuffer<TYPE>::bcec_AtomicRingBuffer(
 : d_elements()  
 , d_elementsPad()
 , d_impl(capacity, basicAllocator)
+, d_numWaitingPoppers(0)
 , d_popControlSema(0)
 , d_popControlSemaPad()
 , d_numWaitingPushers(0)
@@ -419,7 +508,7 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
                                             data, 
                                             d_allocator_p);
     guard.release();
-    d_impl.stopWriting(generation, index);
+    d_impl.releasePushReservation(generation, index);
     
     // notify poppers of available data
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPoppers)) {
@@ -432,8 +521,8 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
 template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE *data)
 {
-    unsigned int generation;
-    unsigned int index;
+    bsl::size_t generation;
+    bsl::size_t index;
     int retval = d_impl.acquirePopIndex(&generation, &index);
     
     if (0 != retval) {
@@ -453,8 +542,8 @@ int bcec_AtomicRingBuffer<TYPE>::pushBack(const TYPE &data)
 {
     int retval;
     while (0 != (retval = tryPushBack(data))) {
-        if (-2 == retval) {
-            return -2;
+        if (retval < 0) {
+            return retval; // disabled
         }
         
         d_numWaitingPushers.addRelaxed(1);
@@ -486,8 +575,8 @@ void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
 template <typename TYPE>
 TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
 {
-    unsigned int generation;
-    unsigned int index;
+    bsl::size_t generation;
+    bsl::size_t index;
     
     while(0 != d_impl.acquirePopIndex(&generation, &index)) {
         d_numWaitingPoppers.addRelaxed(1);
@@ -508,18 +597,18 @@ TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
 template <typename TYPE>
 void bcec_AtomicRingBuffer<TYPE>::removeAll()
 {
-    const int numItems = length();
+    const int numItems = numElements();
     int poppedItems = 0;    
     while (poppedItems++ < numItems) {
-        unsigned int index;
-        unsigned int generation;
-        unsigned int n;
+        bsl::size_t index;
+        bsl::size_t generation;
 
         if (0 != d_impl.acquirePopIndex(&generation, &index)) {
             break;
         }
-        d_elements[index].~TYPE();
-        d_impl.releaseElement(generation, index);
+        
+        bslalg::ScalarDestructionPrimitives::destroy(d_elements + index);
+        d_impl.releasePopReservation(generation, index);
     }
   
     int numWakeUps = bsl::min(poppedItems, (int) d_numWaitingPushers);
@@ -551,25 +640,37 @@ void bcec_AtomicRingBuffer<TYPE>::enable() {
 template <typename TYPE>
 inline
 int bcec_AtomicRingBuffer<TYPE>::size() const {
+    return capacity();
+}
+
+template <typename TYPE>
+inline
+int bcec_AtomicRingBuffer<TYPE>::capacity() const {
     return d_impl.capacity();
 }
 
 template <typename TYPE>
 inline
 int bcec_AtomicRingBuffer<TYPE>::length() const {
+    return numElements();
+}
+
+template <typename TYPE>
+inline
+int bcec_AtomicRingBuffer<TYPE>::numElements() const {
     return d_impl.length();
 }
 
 template <typename TYPE>
 inline
 bool bcec_AtomicRingBuffer<TYPE>::isFull() const {
-    return (size() <= length());
+    return (capacity() <= numElements());
 }
     
 template <typename TYPE>
 inline
 bool bcec_AtomicRingBuffer<TYPE>::isEmpty() const {
-    return (0 >= length());
+    return (0 >= numElements());
 }
 
 template <typename TYPE>
