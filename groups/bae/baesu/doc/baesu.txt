@@ -14,7 +14,7 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  6. baesu_assertrace
+  6. baesu_assertionlogger
 
   5. baesu_stacktraceprintutil
 

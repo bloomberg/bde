@@ -1,4 +1,4 @@
-// baesu_asserttrace.h                                                -*-C++-*-
+// baesu_assertionlogger.h                                            -*-C++-*-
 #ifndef INCLUDED_BAESU_ASSERTIONLOGGER
 #define INCLUDED_BAESU_ASSERTIONLOGGER
 
