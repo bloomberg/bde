@@ -146,11 +146,11 @@ void AtomicOperations_X64_ALL_GCC::
 {
     asm volatile (
         "       movl %[val], %[obj]     \n\t"
-        "       lock addq $0, 0(%%rsp)  \n\t"
+        "       mfence                  \n\t"
 
                 : [obj] "=m" (*atomicInt)
                 : [val] "r"  (value)
-                : "memory", "cc");
+                : "memory");
 }
 
 inline
@@ -220,11 +220,11 @@ void AtomicOperations_X64_ALL_GCC::
 {
     asm volatile (
         "       movq %[val], %[obj]         \n\t"
-        "       lock addq $0, 0(%%rsp)      \n\t"
+        "       mfence                      \n\t"
 
                 : [obj] "=m" (*atomicInt)
                 : [val] "r"  (value)
-                : "memory", "cc");
+                : "memory");
 }
 
 inline

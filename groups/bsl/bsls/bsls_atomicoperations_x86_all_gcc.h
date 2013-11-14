@@ -133,6 +133,15 @@ inline
 void AtomicOperations_X86_ALL_GCC::
     setInt(AtomicTypes::Int *atomicInt, int value)
 {
+#ifdef __SSE2__
+    asm volatile (
+        "       movl %[val], %[obj]     \n\t"
+        "       mfence                  \n\t"
+
+                : [obj] "=m" (*atomicInt)
+                : [val] "r"  (value)
+                : "memory");
+#else
     asm volatile (
         "       movl %[val], %[obj]     \n\t"
         "       lock addl $0, 0(%%esp)  \n\t"
@@ -140,6 +149,7 @@ void AtomicOperations_X86_ALL_GCC::
                 : [obj] "=m" (*atomicInt)
                 : [val] "r"  (value)
                 : "memory", "cc");
+#endif
 }
 
 inline
