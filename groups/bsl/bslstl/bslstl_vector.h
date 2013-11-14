@@ -1985,7 +1985,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position)
 {
-    BSLS_ASSERT_SAFE(size() > position);
+    BSLS_ASSERT_OPT(size() > position);
 
     return d_dataBegin[position];
 }
@@ -2007,7 +2007,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::front()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *d_dataBegin;
 }
@@ -2017,7 +2017,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::back()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *(d_dataEnd - 1);
 }
@@ -2127,7 +2127,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position) const
 {
-    BSLS_ASSERT_SAFE(size() > position);
+    BSLS_ASSERT_OPT(size() > position);
 
     return d_dataBegin[position];
 }
@@ -2149,7 +2149,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::front() const
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *d_dataBegin;
 }
@@ -2159,7 +2159,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::back() const
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *(d_dataEnd - 1);
 }
@@ -2236,7 +2236,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                                           BloombergLP::bslmf::MatchAnyType )
 {
     // Dispatch based on iterator category.
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT(!Vector_RangeCheck::isInvalidRange(first, last));
 
     typedef typename bsl::iterator_traits<INPUT_ITER>::iterator_category Tag;
     this->privateInsert(position, first, last, Tag());
@@ -2260,7 +2260,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
     // size in advance (as with 'forward_iterator_tag') because input
     // iterators can only be traversed once.
 
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT(!Vector_RangeCheck::isInvalidRange(first, last));
 
     if (first == last) {
         // Avoid creating a 'temp' vector in that case.
@@ -2302,7 +2302,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
 {
     // Specialization for all iterators except input iterators.
     // Size can be computed in advance.
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT(!Vector_RangeCheck::isInvalidRange(first, last));
 
     const iterator& pos = const_cast<iterator>(position);
 
@@ -2404,8 +2404,8 @@ inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(
                                                          size_type numElements)
 {
-    BSLS_ASSERT_SAFE(this->empty());
-    BSLS_ASSERT_SAFE(0 == this->capacity());
+    BSLS_ASSERT_OPT(this->empty());
+    BSLS_ASSERT_OPT(0 == this->capacity());
 
     this->d_dataBegin = this->d_dataEnd = this->allocateN(
                                                 (VALUE_TYPE *) 0, numElements);
@@ -2573,7 +2573,7 @@ inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::assign(INPUT_ITER first,
                                                INPUT_ITER last)
 {
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT(!Vector_RangeCheck::isInvalidRange(first, last));
 
     if (!this->empty()) {
         erase(this->begin(), this->end());
@@ -2928,7 +2928,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::pop_back()
 {
-    BSLS_ASSERT_SAFE(!this->empty());
+    BSLS_ASSERT_OPT(!this->empty());
 
     BloombergLP::bslalg::ScalarDestructionPrimitives
                                                   ::destroy(--this->d_dataEnd);
@@ -2941,8 +2941,8 @@ inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                        Args&&...      args)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3021,8 +3021,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3094,8 +3094,8 @@ inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3173,8 +3173,8 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3258,8 +3258,8 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3349,8 +3349,8 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3446,8 +3446,8 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3540,8 +3540,8 @@ inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
 
@@ -3619,8 +3619,8 @@ typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                                           const VALUE_TYPE& value)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const size_type index = position - this->begin();
     insert(position, size_type(1), value);
@@ -3632,8 +3632,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                                                size_type         numElements,
                                                const VALUE_TYPE& value)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
 
     const iterator& pos = const_cast<const iterator&>(position);
 
@@ -3684,9 +3684,9 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
                                                INPUT_ITER     first,
                                                INPUT_ITER     last)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <= this->end());
-    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <= this->end());
+    BSLS_ASSERT_OPT(!Vector_RangeCheck::isInvalidRange(first, last));
 
     // If 'first' and 'last' are integral, then they are not iterators and we
     // should call 'insert(position, first, last)', where 'first' is actually a
@@ -3711,8 +3711,8 @@ inline
 typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::erase(const_iterator position)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= position);
-    BSLS_ASSERT_SAFE(position      <  this->end());
+    BSLS_ASSERT_OPT(this->begin() <= position);
+    BSLS_ASSERT_OPT(position      <  this->end());
 
     return erase(position, position + 1);
 }
@@ -3723,10 +3723,10 @@ typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first,
                                          const_iterator last)
 {
-    BSLS_ASSERT_SAFE(this->begin() <= first);
-    BSLS_ASSERT_SAFE(first         <= this->end());
-    BSLS_ASSERT_SAFE(first         <= last);
-    BSLS_ASSERT_SAFE(last          <= this->end());
+    BSLS_ASSERT_OPT(this->begin() <= first);
+    BSLS_ASSERT_OPT(first         <= this->end());
+    BSLS_ASSERT_OPT(first         <= last);
+    BSLS_ASSERT_OPT(last          <= this->end());
 
     const size_type n = last - first;
     BloombergLP::bslalg::ArrayPrimitives::erase(

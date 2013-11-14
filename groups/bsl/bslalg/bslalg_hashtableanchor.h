@@ -279,7 +279,7 @@ BSLS_IDENT("$Id: $")
 //
 //  PtrHashSet::~PtrHashSet()
 //  {
-//      BSLS_ASSERT_SAFE(checkInvariants());
+//      BSLS_ASSERT_OPT(checkInvariants());
 //
 //      for (Node *node = (Node *) listRootAddress(); node; ) {
 //          Node *toDelete = node;
@@ -338,7 +338,7 @@ BSLS_IDENT("$Id: $")
 //      if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
 //          grow();
 //          bool found = find(&insertionPoint, &bucket, ptr);
-//          BSLS_ASSERT_SAFE(!found);
+//          BSLS_ASSERT_OPT(!found);
 //      }
 //
 //      ++d_numNodes;
@@ -347,17 +347,17 @@ BSLS_IDENT("$Id: $")
 //      Util::insertLinkBeforeTarget(node, insertionPoint);
 //      node->value() = ptr;
 //      if (listRootAddress() == insertionPoint) {
-//          BSLS_ASSERT_SAFE(0 == node->previousLink());
+//          BSLS_ASSERT_OPT(0 == node->previousLink());
 //          setListRootAddress(node);
 //      }
 //
 //      if (bucket->first()) {
-//          BSLS_ASSERT_SAFE(bucket->first() == insertionPoint);
+//          BSLS_ASSERT_OPT(bucket->first() == insertionPoint);
 //
 //          bucket->setFirst(node);
 //      }
 //      else {
-//          BSLS_ASSERT_SAFE(!bucket->last());
+//          BSLS_ASSERT_OPT(!bucket->last());
 //
 //          bucket->setFirstAndLast(node, node);
 //      }
@@ -622,9 +622,9 @@ HashTableAnchor::HashTableAnchor(bslalg::HashTableBucket   *bucketArrayAddress,
 , d_bucketArraySize(bucketArraySize)
 , d_listRootAddress_p(listRootAddress)
 {
-    BSLS_ASSERT_SAFE(   (!bucketArrayAddress && !bucketArraySize)
+    BSLS_ASSERT_OPT(   (!bucketArrayAddress && !bucketArraySize)
                      || (bucketArrayAddress && 0 < bucketArraySize));
-    BSLS_ASSERT_SAFE(!listRootAddress || !(listRootAddress->previousLink()));
+    BSLS_ASSERT_OPT(!listRootAddress || !(listRootAddress->previousLink()));
 }
 
 inline
@@ -650,7 +650,7 @@ void HashTableAnchor::setBucketArrayAddressAndSize(
                                         HashTableBucket    *bucketArrayAddress,
                                         native_std::size_t  bucketArraySize)
 {
-    BSLS_ASSERT_SAFE(( bucketArrayAddress && 0 < bucketArraySize)
+    BSLS_ASSERT_OPT(( bucketArrayAddress && 0 < bucketArraySize)
                   || (!bucketArrayAddress &&    !bucketArraySize));
 
     d_bucketArrayAddress_p = bucketArrayAddress;
@@ -660,7 +660,7 @@ void HashTableAnchor::setBucketArrayAddressAndSize(
 inline
 void HashTableAnchor::setListRootAddress(BidirectionalLink *value)
 {
-    BSLS_ASSERT_SAFE(!value || !value->previousLink());
+    BSLS_ASSERT_OPT(!value || !value->previousLink());
 
     d_listRootAddress_p = value;
 }

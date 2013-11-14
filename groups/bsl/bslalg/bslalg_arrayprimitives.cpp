@@ -128,7 +128,7 @@ void ArrayPrimitives_Imp::bitwiseFillN(char      *begin,
                                        size_type  numBytesInitialized,
                                        size_type  numBytes)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numBytes);
+    BSLS_ASSERT_OPT(begin || 0 == numBytes);
     BSLS_ASSERT(numBytesInitialized <= numBytes);
 
     // Copy the destination onto itself, doubling size at every iteration.
@@ -154,7 +154,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                      // RETURN
@@ -178,7 +178,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
      if (0 == numElements) {
         return;                                                      // RETURN
@@ -205,7 +205,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                      // RETURN
@@ -238,7 +238,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                      // RETURN
@@ -259,7 +259,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                      // RETURN
@@ -280,7 +280,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                      // RETURN
@@ -301,7 +301,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        void                                       *,
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                      // RETURN
@@ -322,7 +322,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        void                                       *,
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                      // RETURN
@@ -342,10 +342,10 @@ void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
                                             char *middle,
                                             char *end)
 {
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
+    BSLS_ASSERT_OPT(!begin  == !middle);
+    BSLS_ASSERT_OPT(!middle == !end);
+    BSLS_ASSERT_OPT(begin  <= middle);
+    BSLS_ASSERT_OPT(middle <= end);
 
     std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
     BSLS_ASSERT(numBytes == end - middle);
@@ -378,10 +378,10 @@ void ArrayPrimitives_Imp::bitwiseRotateBackward(char *begin,
                                                 char *middle,
                                                 char *end)
 {
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
+    BSLS_ASSERT_OPT(!begin  == !middle);
+    BSLS_ASSERT_OPT(!middle == !end);
+    BSLS_ASSERT_OPT(begin  <= middle);
+    BSLS_ASSERT_OPT(middle <= end);
 
      union {
         char                                d_buffer[INPLACE_BUFFER_SIZE];
@@ -404,10 +404,10 @@ void ArrayPrimitives_Imp::bitwiseRotateForward(char *begin,
                                                char *middle,
                                                char *end)
 {
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
+    BSLS_ASSERT_OPT(!begin  == !middle);
+    BSLS_ASSERT_OPT(!middle == !end);
+    BSLS_ASSERT_OPT(begin  <= middle);
+    BSLS_ASSERT_OPT(middle <= end);
 
     union {
         char                                d_buffer[INPLACE_BUFFER_SIZE];
@@ -430,10 +430,10 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
                                         char *middle,
                                         char *end)
 {
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
+    BSLS_ASSERT_OPT(!begin  == !middle);
+    BSLS_ASSERT_OPT(!middle == !end);
+    BSLS_ASSERT_OPT(begin  <= middle);
+    BSLS_ASSERT_OPT(middle <= end);
 
     // These cases are simple enough, they should be taken care of on their
     // own.

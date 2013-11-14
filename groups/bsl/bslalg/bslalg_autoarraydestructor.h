@@ -259,16 +259,16 @@ AutoArrayDestructor<OBJECT_TYPE>::AutoArrayDestructor(OBJECT_TYPE *begin,
 : d_begin_p(begin)
 , d_end_p(end)
 {
-    BSLS_ASSERT_SAFE(!begin == !end);
-    BSLS_ASSERT_SAFE(begin <= end);
+    BSLS_ASSERT_OPT(!begin == !end);
+    BSLS_ASSERT_OPT(begin <= end);
 }
 
 template <class OBJECT_TYPE>
 inline
 AutoArrayDestructor<OBJECT_TYPE>::~AutoArrayDestructor()
 {
-    BSLS_ASSERT_SAFE(!d_begin_p == !d_end_p);
-    BSLS_ASSERT_SAFE(d_begin_p <= d_end_p);
+    BSLS_ASSERT_OPT(!d_begin_p == !d_end_p);
+    BSLS_ASSERT_OPT(d_begin_p <= d_end_p);
 
     ArrayDestructionPrimitives::destroy(d_begin_p, d_end_p);
 }
@@ -279,8 +279,8 @@ inline
 OBJECT_TYPE *AutoArrayDestructor<OBJECT_TYPE>::moveBegin(
                                                         difference_type offset)
 {
-    BSLS_ASSERT_SAFE(d_begin_p || 0 == offset);
-    BSLS_ASSERT_SAFE(d_end_p - d_begin_p >= offset);
+    BSLS_ASSERT_OPT(d_begin_p || 0 == offset);
+    BSLS_ASSERT_OPT(d_end_p - d_begin_p >= offset);
 
     d_begin_p += offset;
     return d_begin_p;
@@ -290,8 +290,8 @@ template <class OBJECT_TYPE>
 inline
 OBJECT_TYPE *AutoArrayDestructor<OBJECT_TYPE>::moveEnd(difference_type offset)
 {
-    BSLS_ASSERT_SAFE(d_end_p || 0 == offset);
-    BSLS_ASSERT_SAFE(d_end_p - d_begin_p >= -offset);
+    BSLS_ASSERT_OPT(d_end_p || 0 == offset);
+    BSLS_ASSERT_OPT(d_end_p - d_begin_p >= -offset);
 
     d_end_p += offset;
     return d_end_p;

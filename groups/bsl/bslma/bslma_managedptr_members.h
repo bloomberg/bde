@@ -176,7 +176,7 @@ ManagedPtr_Members::ManagedPtr_Members(void        *object,
 : d_obj_p(object)
 , d_deleter(object, factory, deleter)
 {
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == object);
 }
 
 inline
@@ -187,7 +187,7 @@ ManagedPtr_Members::ManagedPtr_Members(void        *object,
 : d_obj_p(alias)
 , d_deleter(object, factory, deleter)
 {
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == object);
 }
 
 
@@ -195,7 +195,7 @@ ManagedPtr_Members::ManagedPtr_Members(void        *object,
 inline
 void ManagedPtr_Members::setAliasPtr(void *ptr)
 {
-    BSLS_ASSERT_SAFE(!ptr == !d_obj_p); // both are null, or neither is null
+    BSLS_ASSERT_OPT(!ptr == !d_obj_p); // both are null, or neither is null
 
     d_obj_p = ptr;
 }
@@ -217,7 +217,7 @@ void *ManagedPtr_Members::pointer() const
 inline
 const ManagedPtrDeleter& ManagedPtr_Members::deleter() const
 {
-    BSLS_ASSERT_SAFE(d_obj_p);
+    BSLS_ASSERT_OPT(d_obj_p);
 
     return d_deleter;
 }

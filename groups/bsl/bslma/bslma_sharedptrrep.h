@@ -463,7 +463,7 @@ SharedPtrRep::~SharedPtrRep()
 inline
 void SharedPtrRep::managedPtrDeleter(void *, void *rep)
 {
-    BSLS_ASSERT_SAFE(rep);
+    BSLS_ASSERT_OPT(rep);
 
     static_cast<SharedPtrRep *>(rep)->releaseRef();
 }
@@ -480,7 +480,7 @@ SharedPtrRep::SharedPtrRep()
 inline
 void SharedPtrRep::acquireRef()
 {
-    BSLS_ASSERT_SAFE(0 < numReferences());
+    BSLS_ASSERT_OPT(0 < numReferences());
 
     d_adjustedSharedCount.addRelaxed(2);        // minimum consistency: relaxed
 }
@@ -488,8 +488,8 @@ void SharedPtrRep::acquireRef()
 inline
 void SharedPtrRep::incrementRefs(int incrementAmount)
 {
-    BSLS_ASSERT_SAFE(0 < incrementAmount);
-    BSLS_ASSERT_SAFE(0 < numReferences());
+    BSLS_ASSERT_OPT(0 < incrementAmount);
+    BSLS_ASSERT_OPT(0 < numReferences());
 
     d_adjustedSharedCount.addRelaxed(incrementAmount * 2);
                                                 // minimum consistency: relaxed
@@ -498,7 +498,7 @@ void SharedPtrRep::incrementRefs(int incrementAmount)
 inline
 void SharedPtrRep::releaseWeakRef()
 {
-    BSLS_ASSERT_SAFE(0 < numWeakReferences());
+    BSLS_ASSERT_OPT(0 < numWeakReferences());
 
     const int weakCount = d_adjustedWeakCount.add(-2);
                                         // release consistency: acquire/release

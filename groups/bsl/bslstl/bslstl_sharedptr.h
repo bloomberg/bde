@@ -3326,7 +3326,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::~shared_ptr()
 {
-    BSLS_ASSERT_SAFE(!d_rep_p ? !d_ptr_p : true);  // No 'implies' operator
+    BSLS_ASSERT_OPT(!d_rep_p ? !d_ptr_p : true);  // No 'implies' operator
 
     if (d_rep_p) {
         d_rep_p->releaseRef();

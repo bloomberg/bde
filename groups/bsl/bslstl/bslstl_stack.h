@@ -823,7 +823,7 @@ template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::pop()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     d_container.pop_back();
 }
@@ -855,7 +855,7 @@ template <class VALUE, class CONTAINER>
 inline
 typename CONTAINER::reference stack<VALUE, CONTAINER>::top()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return d_container.back();
 }

@@ -403,7 +403,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 void TreeNodePool<VALUE, ALLOCATOR>::reserveNodes(size_type numNodes)
 {
-    BSLS_ASSERT_SAFE(0 < numNodes);
+    BSLS_ASSERT_OPT(0 < numNodes);
 
     d_pool.reserve(numNodes);
 }
@@ -413,7 +413,7 @@ inline
 void TreeNodePool<VALUE, ALLOCATOR>::swap(
                                          TreeNodePool<VALUE, ALLOCATOR>& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_ASSERT_OPT(allocator() == other.allocator());
 
     d_pool.swap(other.d_pool);
 }

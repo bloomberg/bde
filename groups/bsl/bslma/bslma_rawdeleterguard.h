@@ -222,16 +222,16 @@ RawDeleterGuard(TYPE *object, ALLOCATOR *allocator)
 : d_object_p(object)
 , d_allocator_p(allocator)
 {
-    BSLS_ASSERT_SAFE(object);
-    BSLS_ASSERT_SAFE(allocator);
+    BSLS_ASSERT_OPT(object);
+    BSLS_ASSERT_OPT(allocator);
 }
 
 template <class TYPE, class ALLOCATOR>
 inline
 RawDeleterGuard<TYPE, ALLOCATOR>::~RawDeleterGuard()
 {
-    BSLS_ASSERT_SAFE(d_object_p);
-    BSLS_ASSERT_SAFE(d_allocator_p);
+    BSLS_ASSERT_OPT(d_object_p);
+    BSLS_ASSERT_OPT(d_allocator_p);
 
     DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
 }

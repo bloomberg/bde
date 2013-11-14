@@ -1237,7 +1237,7 @@ inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return local_iterator(&d_impl.bucketAtIndex(index));
 }
@@ -1247,7 +1247,7 @@ inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
@@ -1437,7 +1437,7 @@ inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
@@ -1448,7 +1448,7 @@ typename
  unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
@@ -1460,7 +1460,7 @@ typename
  unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::cbegin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
@@ -1470,7 +1470,7 @@ inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
@@ -1498,7 +1498,7 @@ typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(
                                                          size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return d_impl.countElementsInBucket(index);
 }

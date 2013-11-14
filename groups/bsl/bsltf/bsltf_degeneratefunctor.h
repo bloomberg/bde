@@ -179,7 +179,7 @@ void
 DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::exchangeValues(
                                                       DegenerateFunctor *other)
 {
-    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_OPT(other);
 
     bslalg::SwapUtil::swap(static_cast<FUNCTOR *>(this),
                            static_cast<FUNCTOR *>(other) );

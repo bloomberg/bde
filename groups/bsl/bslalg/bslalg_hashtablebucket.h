@@ -179,7 +179,7 @@ BSLS_IDENT("$Id: $")
 //                                              d_allocator_p);
 //
 //      if (0 == last()) {
-//          BSLS_ASSERT_SAFE(0 == first());
+//          BSLS_ASSERT_OPT(0 == first());
 //
 //          setFirstAndLast(node, node);
 //      }
@@ -192,12 +192,12 @@ BSLS_IDENT("$Id: $")
 //  template <class PAYLOAD>
 //  void MyList<PAYLOAD>::popBack()
 //  {
-//      BSLS_ASSERT_SAFE(first() && last());
+//      BSLS_ASSERT_OPT(first() && last());
 //
 //      Node *toDelete = (Node *) last();
 //
 //      if (first() != toDelete) {
-//          BSLS_ASSERT_SAFE(0 != last());
+//          BSLS_ASSERT_OPT(0 != last());
 //          setLast(last()->previousLink());
 //          last()->setNextLink(0);
 //      }
@@ -354,7 +354,7 @@ bool operator!=(const HashTableBucket& lhs, const HashTableBucket& rhs);
 inline
 void HashTableBucket::setFirst(BidirectionalLink *node)
 {
-    BSLS_ASSERT_SAFE(!d_first_p == !node);
+    BSLS_ASSERT_OPT(!d_first_p == !node);
 
     d_first_p = node;
 }
@@ -362,7 +362,7 @@ void HashTableBucket::setFirst(BidirectionalLink *node)
 inline
 void HashTableBucket::setLast(BidirectionalLink *node)
 {
-    BSLS_ASSERT_SAFE(!d_last_p == !node);
+    BSLS_ASSERT_OPT(!d_last_p == !node);
 
     d_last_p = node;
 }
@@ -371,7 +371,7 @@ inline
 void HashTableBucket::setFirstAndLast(BidirectionalLink *first,
                                       BidirectionalLink *last)
 {
-    BSLS_ASSERT_SAFE(!first == !last);
+    BSLS_ASSERT_OPT(!first == !last);
 
     d_first_p = first;
     d_last_p  = last;

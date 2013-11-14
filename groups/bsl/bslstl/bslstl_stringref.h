@@ -711,7 +711,7 @@ void StringRefImp<CHAR_TYPE>::write(
         stream.write(data(), length());
     }
     else {
-        BSLS_ASSERT_SAFE(length() == 0);
+        BSLS_ASSERT_OPT(length() == 0);
     }
 }
 
@@ -729,8 +729,8 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data,
                                       int              length)
 : Base(data, data + length)
 {
-    BSLS_ASSERT_SAFE(0 <= length);
-    BSLS_ASSERT_SAFE(data || 0 == length);
+    BSLS_ASSERT_OPT(0 <= length);
+    BSLS_ASSERT_OPT(data || 0 == length);
 }
 
 template <typename CHAR_TYPE>
@@ -785,8 +785,8 @@ inline
 void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data,
                                      int              length)
 {
-    BSLS_ASSERT_SAFE(0 <= length);
-    BSLS_ASSERT_SAFE(data || 0 == length);
+    BSLS_ASSERT_OPT(0 <= length);
+    BSLS_ASSERT_OPT(data || 0 == length);
 
     *this = StringRefImp(data, data + length);
 }
@@ -803,7 +803,7 @@ template <typename CHAR_TYPE>
 inline
 void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data)
 {
-    BSLS_ASSERT_SAFE(data);
+    BSLS_ASSERT_OPT(data);
 
     *this = StringRefImp(
                 data,
@@ -837,8 +837,8 @@ inline
 typename StringRefImp<CHAR_TYPE>::const_reference
     StringRefImp<CHAR_TYPE>::operator[](int index) const
 {
-    BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < static_cast<int>(end() - begin()));
+    BSLS_ASSERT_OPT(0 <= index);
+    BSLS_ASSERT_OPT(index < static_cast<int>(end() - begin()));
 
     return begin()[index];
 }

@@ -1386,7 +1386,7 @@ ManagedPtr_Ref<TARGET_TYPE>::ManagedPtr_Ref(ManagedPtr_Members *base,
 : d_base_p(base)
 , d_cast_p(target)
 {
-    BSLS_ASSERT_SAFE(0 != base);
+    BSLS_ASSERT_OPT(0 != base);
 }
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
@@ -1394,7 +1394,7 @@ template <class TARGET_TYPE>
 inline
 ManagedPtr_Ref<TARGET_TYPE>::~ManagedPtr_Ref()
 {
-    BSLS_ASSERT_SAFE(0 != d_base_p);
+    BSLS_ASSERT_OPT(0 != d_base_p);
 }
 #endif
 
@@ -1512,7 +1512,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr<ALIASED_TYPE>&  alias,
                                     TARGET_TYPE               *ptr)
 : d_members()
 {
-    BSLS_ASSERT_SAFE(0 != alias.ptr() || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != alias.ptr() || 0 == ptr);
 
     if (0 != ptr) {
         d_members.move(&alias.d_members);
@@ -1531,7 +1531,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
             stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
-    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != factory || 0 == ptr);
 }
 
 template <class TARGET_TYPE>
@@ -1541,7 +1541,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(TARGET_TYPE *ptr,
                                                 DeleterFunc  deleter)
 : d_members(stripBasePointerType(ptr), cookie, deleter)
 {
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 }
 
 template <class TARGET_TYPE>
@@ -1557,7 +1557,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr,
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
 
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 }
 
 template <class TARGET_TYPE>
@@ -1575,7 +1575,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr,
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *,
                                       const MANAGED_BASE *>::value));
 
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 }
 
 template <class TARGET_TYPE>
@@ -1605,7 +1605,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(
     // on the grounds of simple efficiency, and there is currently no known
     // supported compiler that we use where this does not work as desired.
 
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 }
 
 template <class TARGET_TYPE>
@@ -1628,7 +1628,7 @@ void ManagedPtr<TARGET_TYPE>::load(TARGET_TYPE *ptr,
                                    void        *cookie,
                                    DeleterFunc  deleter)
 {
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
     d_members.set(stripBasePointerType(ptr), cookie, deleter);
@@ -1642,7 +1642,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                    DeleterFunc   deleter)
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr, cookie, deleter);
 }
@@ -1655,7 +1655,7 @@ void ManagedPtr<TARGET_TYPE>::loadImp(MANAGED_TYPE *ptr,
                                       DeleterFunc   deleter)
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
     d_members.set(stripCompletePointerType(ptr), cookie, deleter);
@@ -1670,7 +1670,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                    DeleterFunc   deleter)
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr, static_cast<void *>(cookie), deleter);
 }
@@ -1693,7 +1693,7 @@ inline
 void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
-    BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != factory || 0 == ptr);
 
     typedef typename
     ManagedPtr_FactoryDeleterType<MANAGED_TYPE, FACTORY_TYPE>::Type
@@ -1720,7 +1720,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLMF_ASSERT((!bsl::is_void<MANAGED_BASE>::value));
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, MANAGED_BASE *>::value));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr, cookie, reinterpret_cast<DeleterFunc>(deleter));
 }
@@ -1738,7 +1738,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, MANAGED_BASE *>::VALUE));
     BSLMF_ASSERT((bsl::is_convertible<COOKIE_TYPE *, COOKIE_BASE *>::VALUE));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == ptr);
 
     this->loadImp(ptr,
                   static_cast<void *>(static_cast<COOKIE_BASE *>(cookie)),
@@ -1750,7 +1750,7 @@ template <class ALIASED_TYPE>
 void ManagedPtr<TARGET_TYPE>::loadAlias(ManagedPtr<ALIASED_TYPE>&  alias,
                                          TARGET_TYPE               *ptr)
 {
-    BSLS_ASSERT_SAFE((0 == ptr && 0 == alias.ptr())
+    BSLS_ASSERT_OPT((0 == ptr && 0 == alias.ptr())
                    ||(0 != ptr && 0 != alias.ptr()));
 
     if (ptr && alias.d_members.pointer()) {
@@ -1791,7 +1791,7 @@ ManagedPtr<TARGET_TYPE>::release()
 template <typename TARGET_TYPE>
 TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
 {
-    BSLS_ASSERT_SAFE(deleter);
+    BSLS_ASSERT_OPT(deleter);
 
     TARGET_TYPE *result = ptr();
     if (result) {
@@ -1870,7 +1870,7 @@ inline
 typename bslmf::AddReference<TARGET_TYPE>::Type
 ManagedPtr<TARGET_TYPE>::operator*() const
 {
-    BSLS_ASSERT_SAFE(d_members.pointer());
+    BSLS_ASSERT_OPT(d_members.pointer());
 
     return *static_cast<TARGET_TYPE*>(d_members.pointer());
 }
@@ -1886,7 +1886,7 @@ template <class TARGET_TYPE>
 inline
 const ManagedPtrDeleter& ManagedPtr<TARGET_TYPE>::deleter() const
 {
-    BSLS_ASSERT_SAFE(d_members.pointer());
+    BSLS_ASSERT_OPT(d_members.pointer());
 
     return d_members.deleter();
 }

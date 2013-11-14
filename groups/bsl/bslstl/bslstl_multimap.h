@@ -1451,7 +1451,7 @@ inline
 typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const_iterator position)
 {
-    BSLS_ASSERT_SAFE(position != end());
+    BSLS_ASSERT_OPT(position != end());
 
     BloombergLP::bslalg::RbTreeNode *node =
                 const_cast<BloombergLP::bslalg::RbTreeNode *>(position.node());
@@ -1524,17 +1524,17 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear()
 {
-    BSLS_ASSERT_SAFE(d_tree.firstNode());
+    BSLS_ASSERT_OPT(d_tree.firstNode());
     if (d_tree.rootNode()) {
-        BSLS_ASSERT_SAFE(0 < d_tree.numNodes());
-        BSLS_ASSERT_SAFE(d_tree.firstNode() != d_tree.sentinel());
+        BSLS_ASSERT_OPT(0 < d_tree.numNodes());
+        BSLS_ASSERT_OPT(d_tree.firstNode() != d_tree.sentinel());
 
         BloombergLP::bslalg::RbTreeUtil::deleteTree(&d_tree, &nodeFactory());
     }
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     else {
-        BSLS_ASSERT_SAFE(0 == d_tree.numNodes());
-        BSLS_ASSERT_SAFE(d_tree.firstNode() == d_tree.sentinel());
+        BSLS_ASSERT_OPT(0 == d_tree.numNodes());
+        BSLS_ASSERT_OPT(d_tree.firstNode() == d_tree.sentinel());
     }
 #endif
 }

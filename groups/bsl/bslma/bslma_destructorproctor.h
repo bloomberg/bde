@@ -294,7 +294,7 @@ template <class TYPE>
 inline
 void DestructorProctor<TYPE>::reset(TYPE *object)
 {
-    BSLS_ASSERT_SAFE(object);
+    BSLS_ASSERT_OPT(object);
 
     d_object_p = object;
 }

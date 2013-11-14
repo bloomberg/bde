@@ -332,14 +332,14 @@ DeallocatorProctor(void *memory, ALLOCATOR *allocator)
 : d_memory_p(memory)
 , d_allocator_p(allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
+    BSLS_ASSERT_OPT(allocator);
 }
 
 template <class ALLOCATOR>
 inline
 DeallocatorProctor<ALLOCATOR>::~DeallocatorProctor()
 {
-    BSLS_ASSERT_SAFE(d_allocator_p);
+    BSLS_ASSERT_OPT(d_allocator_p);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != d_memory_p)) {
         d_allocator_p->deallocate(d_memory_p);
@@ -358,7 +358,7 @@ template <class ALLOCATOR>
 inline
 void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 {
-    BSLS_ASSERT_SAFE(memory);
+    BSLS_ASSERT_OPT(memory);
 
     d_memory_p = memory;
 }

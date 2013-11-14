@@ -514,7 +514,7 @@ bitset<N>::reference::reference(unsigned int *i, unsigned int offset)
 : d_int_p(i)
 , d_offset(offset)
 {
-    BSLS_ASSERT_SAFE(d_int_p);
+    BSLS_ASSERT_OPT(d_int_p);
 }
 
 // MANIPULATORS
@@ -842,7 +842,7 @@ bitset<N>& bitset<N>::operator^=(const bitset<N>& rhs)
 template <std::size_t N>
 bitset<N>& bitset<N>::operator<<=(std::size_t pos)
 {
-    BSLS_ASSERT_SAFE(pos <= N);
+    BSLS_ASSERT_OPT(pos <= N);
 
     if (pos) {
         const std::size_t shift  = pos / BITSPERINT;
@@ -871,7 +871,7 @@ bitset<N>& bitset<N>::operator<<=(std::size_t pos)
 template <std::size_t N>
 bitset<N>& bitset<N>::operator>>=(std::size_t pos)
 {
-    BSLS_ASSERT_SAFE(pos <= N);
+    BSLS_ASSERT_OPT(pos <= N);
 
     if (pos) {
         const std::size_t shift  = pos / BITSPERINT;
@@ -911,7 +911,7 @@ template <std::size_t N>
 inline
 bitset<N>& bitset<N>::flip(std::size_t pos)
 {
-    BSLS_ASSERT_SAFE(pos < N);
+    BSLS_ASSERT_OPT(pos < N);
 
     const std::size_t shift  = pos / BITSPERINT;
     const std::size_t offset = pos % BITSPERINT;
@@ -931,7 +931,7 @@ template <std::size_t N>
 inline
 bitset<N>& bitset<N>::reset(std::size_t pos)
 {
-    BSLS_ASSERT_SAFE(pos < N);
+    BSLS_ASSERT_OPT(pos < N);
 
     const std::size_t shift  = pos / BITSPERINT;
     const std::size_t offset = pos % BITSPERINT;
@@ -951,7 +951,7 @@ bitset<N>& bitset<N>::set()
 template <std::size_t N>
 bitset<N>& bitset<N>::set(std::size_t pos, int val)
 {
-    BSLS_ASSERT_SAFE(pos < N);
+    BSLS_ASSERT_OPT(pos < N);
 
     const std::size_t shift  = pos / BITSPERINT;
     const std::size_t offset = pos % BITSPERINT;
@@ -968,7 +968,7 @@ template <std::size_t N>
 inline
 typename bitset<N>::reference bitset<N>::operator[](std::size_t pos)
 {
-    BSLS_ASSERT_SAFE(pos < N);
+    BSLS_ASSERT_OPT(pos < N);
 
     const std::size_t shift  = pos / BITSPERINT;
     const std::size_t offset = pos % BITSPERINT;
@@ -981,7 +981,7 @@ template <std::size_t N>
 inline
 bitset<N> bitset<N>::operator<<(std::size_t pos) const
 {
-    BSLS_ASSERT_SAFE(pos <= N);
+    BSLS_ASSERT_OPT(pos <= N);
 
     bitset<N> tmp(*this);
     return tmp <<= pos;
@@ -991,7 +991,7 @@ template <std::size_t N>
 inline
 bitset<N> bitset<N>::operator>>(std::size_t pos) const
 {
-    BSLS_ASSERT_SAFE(pos <= N);
+    BSLS_ASSERT_OPT(pos <= N);
 
     bitset<N> tmp(*this);
     return tmp >>= pos;
@@ -1009,7 +1009,7 @@ template <std::size_t N>
 inline
 bool bitset<N>::operator[](std::size_t pos) const
 {
-    BSLS_ASSERT_SAFE(pos < N);
+    BSLS_ASSERT_OPT(pos < N);
 
     const std::size_t shift  = pos / BITSPERINT;
     const std::size_t offset = pos % BITSPERINT;

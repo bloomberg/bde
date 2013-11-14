@@ -51,8 +51,8 @@ std::size_t Vector_Util::computeNewCapacity(std::size_t newLength,
                                             std::size_t capacity,
                                             std::size_t maxSize)
 {
-    BSLS_ASSERT_SAFE(newLength > capacity);
-    BSLS_ASSERT_SAFE(newLength <= maxSize);
+    BSLS_ASSERT_OPT(newLength > capacity);
+    BSLS_ASSERT_OPT(newLength <= maxSize);
 
     capacity += !capacity;
     while (capacity < newLength) {

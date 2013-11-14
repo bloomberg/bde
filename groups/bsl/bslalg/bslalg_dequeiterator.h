@@ -403,8 +403,8 @@ DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::DequeIterator(BlockPtr   *blockPtrPtr,
 : d_blockPtr_p(blockPtrPtr)
 , d_value_p(valuePtr)
 {
-    BSLS_ASSERT_SAFE(blockPtrPtr[0]->d_data <= valuePtr);
-    BSLS_ASSERT_SAFE(valuePtr - blockPtrPtr[0]->d_data < BLOCK_LENGTH);
+    BSLS_ASSERT_OPT(blockPtrPtr[0]->d_data <= valuePtr);
+    BSLS_ASSERT_OPT(valuePtr - blockPtrPtr[0]->d_data < BLOCK_LENGTH);
 }
 
 // MANIPULATORS
@@ -481,8 +481,8 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrIncrement()
 {
-    BSLS_ASSERT_SAFE(d_blockPtr_p[0]->d_data <= d_value_p);
-    BSLS_ASSERT_SAFE(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
+    BSLS_ASSERT_OPT(d_blockPtr_p[0]->d_data <= d_value_p);
+    BSLS_ASSERT_OPT(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
 
     ++d_value_p;
 }
@@ -491,8 +491,8 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrDecrement()
 {
-    BSLS_ASSERT_SAFE(d_blockPtr_p[0]->d_data <= d_value_p);
-    BSLS_ASSERT_SAFE(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
+    BSLS_ASSERT_OPT(d_blockPtr_p[0]->d_data <= d_value_p);
+    BSLS_ASSERT_OPT(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
 
     --d_value_p;
 }
@@ -619,7 +619,7 @@ DequeIterator<VALUE_TYPE, 1>::DequeIterator(BlockPtr   *blockPtrPtr,
 : d_blockPtr_p(blockPtrPtr)
 , d_value_p(valuePtr)
 {
-    BSLS_ASSERT_SAFE((*blockPtrPtr)->d_data == valuePtr);
+    BSLS_ASSERT_OPT((*blockPtrPtr)->d_data == valuePtr);
 }
 
 // MANIPULATORS
@@ -683,7 +683,7 @@ inline
 void DequeIterator<VALUE_TYPE, 1>::valuePtrIncrement()
 {
     // This should never be called for 'BLOCK_LENGTH' of 1
-    BSLS_ASSERT_SAFE(0);
+    BSLS_ASSERT_OPT(0);
 }
 
 template <class VALUE_TYPE>
@@ -691,7 +691,7 @@ inline
 void DequeIterator<VALUE_TYPE, 1>::valuePtrDecrement()
 {
     // This should never be called for 'BLOCK_LENGTH' of 1
-    BSLS_ASSERT_SAFE(0);
+    BSLS_ASSERT_OPT(0);
 }
 
 // ACCESSORS

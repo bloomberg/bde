@@ -267,14 +267,14 @@ RawDeleterProctor(TYPE *object, ALLOCATOR *allocator)
 : d_object_p(object)
 , d_allocator_p(allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
+    BSLS_ASSERT_OPT(allocator);
 }
 
 template <class TYPE, class ALLOCATOR>
 inline
 RawDeleterProctor<TYPE, ALLOCATOR>::~RawDeleterProctor()
 {
-    BSLS_ASSERT_SAFE(d_allocator_p);
+    BSLS_ASSERT_OPT(d_allocator_p);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != d_object_p)) {
         DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
@@ -293,7 +293,7 @@ template <class TYPE, class ALLOCATOR>
 inline
 void RawDeleterProctor<TYPE, ALLOCATOR>::reset(TYPE *object)
 {
-    BSLS_ASSERT_SAFE(object);
+    BSLS_ASSERT_OPT(object);
 
     d_object_p = object;
 }

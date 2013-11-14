@@ -410,8 +410,8 @@ BSLS_IDENT("$Id: $")
 //  , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
 //  , d_id(id)
 //  {
-//      BSLS_ASSERT_SAFE(!firstName.isEmpty());
-//      BSLS_ASSERT_SAFE(!lastName.isEmpty());
+//      BSLS_ASSERT_OPT(!firstName.isEmpty());
+//      BSLS_ASSERT_OPT(!lastName.isEmpty());
 //  }
 //
 //  inline
@@ -441,7 +441,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void Employee::setFirstName(const bslstl::StringRef& value)
 //  {
-//      BSLS_ASSERT_SAFE(!value.isEmpty());
+//      BSLS_ASSERT_OPT(!value.isEmpty());
 //
 //      d_firstName.assign(value.begin(), value.end());
 //  }
@@ -449,7 +449,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void Employee::setLastName(const bslstl::StringRef& value)
 //  {
-//      BSLS_ASSERT_SAFE(!value.isEmpty());
+//      BSLS_ASSERT_OPT(!value.isEmpty());
 //
 //      d_lastName.assign(value.begin(), value.end());
 //  }
@@ -2488,7 +2488,7 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::computeNewCapacity(SIZE_TYPE newLength,
                                                      SIZE_TYPE oldCapacity,
                                                      SIZE_TYPE maxSize)
 {
-    BSLS_ASSERT_SAFE(newLength >= oldCapacity);
+    BSLS_ASSERT_OPT(newLength >= oldCapacity);
 
     SIZE_TYPE newCapacity = oldCapacity + (oldCapacity >> 1);
         // We must exercise an exponential growth, otherwise we cannot
@@ -2672,7 +2672,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                                                                 iterator begin,
                                                                 iterator end)
 {
-    BSLS_ASSERT_SAFE(begin <= end);
+    BSLS_ASSERT_OPT(begin <= end);
 
     return privateAppendDispatch(const_iterator(begin), const_iterator(end));
 }
@@ -2683,7 +2683,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                                                           const_iterator begin,
                                                           const_iterator end)
 {
-    BSLS_ASSERT_SAFE(begin <= end);
+    BSLS_ASSERT_OPT(begin <= end);
 
     size_type numChars = end - begin;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -2718,7 +2718,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(numChars <= max_size());
+    BSLS_ASSERT_OPT(numChars <= max_size());
 
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
@@ -2742,7 +2742,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
                                                            size_type numChars,
                                                            CHAR_TYPE character)
 {
-    BSLS_ASSERT_SAFE(numChars <= max_size());
+    BSLS_ASSERT_OPT(numChars <= max_size());
 
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
@@ -2766,7 +2766,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(length() <= max_size() - numChars);
+    BSLS_ASSERT_OPT(length() <= max_size() - numChars);
 
     size_type  newLength  = this->d_length + numChars;
     size_type  newStorage = this->d_capacity;
@@ -2802,7 +2802,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
                                                            size_type numChars,
                                                            CHAR_TYPE character)
 {
-    BSLS_ASSERT_SAFE(length() <= max_size() - numChars);
+    BSLS_ASSERT_OPT(length() <= max_size() - numChars);
 
     size_type newLength = this->d_length + numChars;
     privateReserveRaw(newLength);
@@ -2842,7 +2842,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
                                                                 iterator begin,
                                                                 iterator end)
 {
-    BSLS_ASSERT_SAFE(begin <= end);
+    BSLS_ASSERT_OPT(begin <= end);
 
     privateInitDispatch((const_iterator)begin, (const_iterator)end);
 }
@@ -2853,7 +2853,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
                                                         const_iterator   begin,
                                                         const_iterator   end)
 {
-    BSLS_ASSERT_SAFE(begin <= end);
+    BSLS_ASSERT_OPT(begin <= end);
 
     size_type numChars = end - begin;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > max_size())) {
@@ -2887,7 +2887,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        iterator       first,
                                                        iterator       last)
 {
-    BSLS_ASSERT_SAFE(first <= last);
+    BSLS_ASSERT_OPT(first <= last);
 
     privateInsertDispatch(position,
                           const_iterator(first),
@@ -2900,7 +2900,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        const_iterator first,
                                                        const_iterator last)
 {
-    BSLS_ASSERT_SAFE(first <= last);
+    BSLS_ASSERT_OPT(first <= last);
 
     size_type pos = position - cbegin();
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > length())) {
@@ -2942,9 +2942,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertRaw(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(outPosition <= length());
-    BSLS_ASSERT_SAFE(numChars <= max_size() - length());
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(outPosition <= length());
+    BSLS_ASSERT_OPT(numChars <= max_size() - length());
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     size_type  newLength  = this->d_length + numChars;
     size_type  newStorage = this->d_capacity;
@@ -3001,11 +3001,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(outPosition <= length());
-    BSLS_ASSERT_SAFE(outNumChars <= length());
-    BSLS_ASSERT_SAFE(outPosition <= length() - outNumChars);
-    BSLS_ASSERT_SAFE(length() - outNumChars <= max_size() - numChars);
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(outPosition <= length());
+    BSLS_ASSERT_OPT(outNumChars <= length());
+    BSLS_ASSERT_OPT(outPosition <= length() - outNumChars);
+    BSLS_ASSERT_OPT(length() - outNumChars <= max_size() - numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     const difference_type displacement =
                           static_cast<difference_type>(numChars - outNumChars);
@@ -3097,10 +3097,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
                                                          size_type numChars,
                                                          CHAR_TYPE character)
 {
-    BSLS_ASSERT_SAFE(outPosition <= length());
-    BSLS_ASSERT_SAFE(outNumChars <= length());
-    BSLS_ASSERT_SAFE(outPosition <= length() - outNumChars);
-    BSLS_ASSERT_SAFE(length() <= max_size() - numChars);
+    BSLS_ASSERT_OPT(outPosition <= length());
+    BSLS_ASSERT_OPT(outNumChars <= length());
+    BSLS_ASSERT_OPT(outPosition <= length() - outNumChars);
+    BSLS_ASSERT_OPT(length() <= max_size() - numChars);
 
     size_type  newLength  = this->d_length - outNumChars + numChars;
     size_type  newStorage = this->d_capacity;
@@ -3246,7 +3246,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                                                     const_iterator last,
                                                     std::forward_iterator_tag)
 {
-    BSLS_ASSERT_SAFE(first <= last);
+    BSLS_ASSERT_OPT(first <= last);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < outPosition)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3274,7 +3274,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                                                     iterator       last,
                                                     std::forward_iterator_tag)
 {
-    BSLS_ASSERT_SAFE(first <= last);
+    BSLS_ASSERT_OPT(first <= last);
 
     return privateReplace(outPosition,
                           outNumChars,
@@ -3287,7 +3287,7 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
                                                          size_type newCapacity)
 {
-    BSLS_ASSERT_SAFE(newCapacity <= max_size());
+    BSLS_ASSERT_OPT(newCapacity <= max_size());
 
     if (this->d_capacity < newCapacity) {
         size_type newStorage = this->computeNewCapacity(newCapacity,
@@ -3311,9 +3311,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
                                                         size_type  newCapacity,
                                                         size_type  numChars)
 {
-    BSLS_ASSERT_SAFE(numChars <= length());
-    BSLS_ASSERT_SAFE(newCapacity <= max_size());
-    BSLS_ASSERT_SAFE(storage != 0);
+    BSLS_ASSERT_OPT(numChars <= length());
+    BSLS_ASSERT_OPT(newCapacity <= max_size());
+    BSLS_ASSERT_OPT(storage != 0);
 
     if (*storage >= newCapacity) {
         return 0;                                                     // RETURN
@@ -3335,7 +3335,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateResizeRaw(
                                                            size_type newLength,
                                                            CHAR_TYPE character)
 {
-    BSLS_ASSERT_SAFE(newLength <= max_size());
+    BSLS_ASSERT_OPT(newLength <= max_size());
 
     privateReserveRaw(newLength);
 
@@ -3357,10 +3357,10 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
                                           const CHAR_TYPE *other,
                                           size_type        otherNumChars) const
 {
-    BSLS_ASSERT_SAFE(lhsPosition <= length());
-    BSLS_ASSERT_SAFE(lhsNumChars <= length());
-    BSLS_ASSERT_SAFE(lhsPosition <= length() - lhsNumChars);
-    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_OPT(lhsPosition <= length());
+    BSLS_ASSERT_OPT(lhsNumChars <= length());
+    BSLS_ASSERT_OPT(lhsPosition <= length() - lhsNumChars);
+    BSLS_ASSERT_OPT(other);
 
     size_type numChars = lhsNumChars < otherNumChars ? lhsNumChars
                                                      : otherNumChars;
@@ -3393,8 +3393,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3409,8 +3409,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     }
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3426,8 +3426,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     }
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3442,8 +3442,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(original, position, numChars);
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3453,13 +3453,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     assign(characterString);
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3470,13 +3470,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     assign(characterString, numChars);
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3490,8 +3490,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(numChars, character);
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3507,8 +3507,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     privateInitDispatch(first, last);
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3522,8 +3522,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     this->assign(original.data(), original.length());
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3537,16 +3537,16 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(strRef.begin(), strRef.end());
 
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     privateDeallocate();
     this->d_length = npos;  // invalid length
@@ -3562,8 +3562,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                                                        const basic_string& rhs)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return assign(rhs, size_type(0), npos);
 }
@@ -3573,9 +3573,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(const CHAR_TYPE *rhs)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE(rhs);
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT(rhs);
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
 
     return assign(rhs);
@@ -3586,8 +3586,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return assign(1, character);
 }
@@ -3599,8 +3599,8 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength,
                                                            CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3614,8 +3614,8 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3630,8 +3630,8 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
                                                          size_type newCapacity)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newCapacity > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3645,8 +3645,8 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::clear()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     // Note: Stlport and Dinkumware do not deallocate the allocated buffer in
     // long string representation, ApacheSTL does.
@@ -3662,7 +3662,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return this->dataPtr();
 }
@@ -3673,8 +3673,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return begin() + this->d_length;
 }
@@ -3685,8 +3685,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return reverse_iterator(end());
 }
@@ -3697,8 +3697,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return reverse_iterator(begin());
 }
@@ -3711,9 +3711,9 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator[](size_type position)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(position <= length());
+    BSLS_ASSERT_OPT(position <= length());
 
     return *(begin() + position);
 }
@@ -3723,8 +3723,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     // Note: deliberately not inline, because 1) this is not a very widely used
     // function, and 2) it is very convenient to have at least one non-inlined
@@ -3744,10 +3744,10 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *begin();
 }
@@ -3758,10 +3758,10 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *(begin() + length() - 1);
 }
@@ -3773,8 +3773,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
     operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
     result.assign(data(), length());
@@ -3789,8 +3789,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                                                     const basic_string& string)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return append(string);
 }
@@ -3801,10 +3801,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                                                        const CHAR_TYPE *string)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(string);
+    BSLS_ASSERT_OPT(string);
 
     return append(string);
 }
@@ -3814,8 +3814,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     push_back(character);
     return *this;
@@ -3827,8 +3827,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                                    const basic_string&  string)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return append(string, size_type(0), npos);
 }
@@ -3841,8 +3841,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                                   size_type           numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > string.length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3868,10 +3868,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               size_type        numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                            numChars > max_size() - length())) {
@@ -3888,10 +3888,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               const CHAR_TYPE *characterString)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return append(characterString, CHAR_TRAITS::length(characterString));
 }
@@ -3902,8 +3902,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(size_type numChars,
                                                       CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                      numChars > max_size() - this->d_length)) {
@@ -3922,8 +3922,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return privateAppendDispatch(first, last);
 }
@@ -3933,8 +3933,8 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
                                                            CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() >= max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3955,8 +3955,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                     const basic_string& string)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return assign(string, size_type(0), npos);
 }
@@ -3969,8 +3969,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                   size_type           numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > string.length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3995,10 +3995,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                               const CHAR_TYPE *characterString)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return assign(characterString, CHAR_TRAITS::length(characterString));
 }
@@ -4010,10 +4010,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                               size_type        numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4030,8 +4030,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
                                                       CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4050,8 +4050,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     basic_string(first, last, get_allocator()).swap(*this);
     return *this;
@@ -4064,8 +4064,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                                   const basic_string& string)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return insert(position, string, size_type(0), npos);
 }
@@ -4079,8 +4079,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type            numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())
      || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > string.length())) {
@@ -4108,10 +4108,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type        numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4134,10 +4134,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               const CHAR_TYPE *characterString)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return insert(position,
                   characterString,
@@ -4151,8 +4151,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(size_type position,
                                                       CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4174,11 +4174,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
                                                       CHAR_TYPE      character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(position >= cbegin());
-    BSLS_ASSERT_SAFE(position <= cend());
+    BSLS_ASSERT_OPT(position >= cbegin());
+    BSLS_ASSERT_OPT(position <= cend());
 
     size_type pos = position - cbegin();
     insert(pos, size_type(1), character);
@@ -4208,11 +4208,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
                                                       INPUT_ITER     last)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(position >= cbegin());
-    BSLS_ASSERT_SAFE(position <= cend());
+    BSLS_ASSERT_OPT(position >= cbegin());
+    BSLS_ASSERT_OPT(position <= cend());
 
     size_type pos = position - cbegin();
     privateInsertDispatch(position, first, last);
@@ -4229,11 +4229,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
                                                       CHAR_TYPE      character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(position >= cbegin());
-    BSLS_ASSERT_SAFE(position <= cend());
+    BSLS_ASSERT_OPT(position >= cbegin());
+    BSLS_ASSERT_OPT(position <= cend());
 
     size_type pos = position - cbegin();
     insert(pos, numChars, character);
@@ -4246,8 +4246,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(size_type position,
                                                      size_type numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4272,11 +4272,11 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator position)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(position >= cbegin());
-    BSLS_ASSERT_SAFE(position < cend());
+    BSLS_ASSERT_OPT(position >= cbegin());
+    BSLS_ASSERT_OPT(position < cend());
 
     const_iterator postPosition = position;
     iterator dstPosition = begin() + (position - cbegin());
@@ -4296,14 +4296,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator first,
                                                      const_iterator last)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(first >= cbegin());
-    BSLS_ASSERT_SAFE(first <= cend());
-    BSLS_ASSERT_SAFE(last >= cbegin());
-    BSLS_ASSERT_SAFE(last <= cend());
-    BSLS_ASSERT_SAFE(last - first >= 0);
+    BSLS_ASSERT_OPT(first >= cbegin());
+    BSLS_ASSERT_OPT(first <= cend());
+    BSLS_ASSERT_OPT(last >= cbegin());
+    BSLS_ASSERT_OPT(last <= cend());
+    BSLS_ASSERT_OPT(last - first >= 0);
 
     iterator dstFirst = begin() + (first - cbegin());
 
@@ -4322,10 +4322,10 @@ inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::pop_back()
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     --this->d_length;
     CHAR_TRAITS::assign(*(begin() + length()), CHAR_TYPE());
@@ -4339,8 +4339,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                const basic_string& string)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < outPosition)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4372,8 +4372,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                size_type           numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4413,10 +4413,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               size_type        numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4447,10 +4447,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               const CHAR_TYPE *characterString)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return replace(outPosition,
                    outNumChars,
@@ -4466,8 +4466,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(size_type outPosition,
                                                        CHAR_TYPE character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4498,13 +4498,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                     const basic_string& string)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(first >= cbegin());
-    BSLS_ASSERT_SAFE(first <= cend());
-    BSLS_ASSERT_SAFE(first <= last);
-    BSLS_ASSERT_SAFE(last <= cend());
+    BSLS_ASSERT_OPT(first >= cbegin());
+    BSLS_ASSERT_OPT(first <= cend());
+    BSLS_ASSERT_OPT(first <= last);
+    BSLS_ASSERT_OPT(last <= cend());
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
@@ -4530,14 +4530,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               size_type        numChars)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(first >= cbegin());
-    BSLS_ASSERT_SAFE(first <= cend());
-    BSLS_ASSERT_SAFE(first <= last);
-    BSLS_ASSERT_SAFE(last <= cend());
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(first >= cbegin());
+    BSLS_ASSERT_OPT(first <= cend());
+    BSLS_ASSERT_OPT(first <= last);
+    BSLS_ASSERT_OPT(last <= cend());
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
@@ -4562,14 +4562,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               const CHAR_TYPE *characterString)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(first >= cbegin());
-    BSLS_ASSERT_SAFE(first <= cend());
-    BSLS_ASSERT_SAFE(first <= last);
-    BSLS_ASSERT_SAFE(last <= cend());
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(first >= cbegin());
+    BSLS_ASSERT_OPT(first <= cend());
+    BSLS_ASSERT_OPT(first <= last);
+    BSLS_ASSERT_OPT(last <= cend());
+    BSLS_ASSERT_OPT(characterString);
 
     return replace(first,
                    last,
@@ -4586,13 +4586,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                       CHAR_TYPE      character)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(first >= cbegin());
-    BSLS_ASSERT_SAFE(first <= cend());
-    BSLS_ASSERT_SAFE(first <= last);
-    BSLS_ASSERT_SAFE(last <= cend());
+    BSLS_ASSERT_OPT(first >= cbegin());
+    BSLS_ASSERT_OPT(first <= cend());
+    BSLS_ASSERT_OPT(first <= last);
+    BSLS_ASSERT_OPT(last <= cend());
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
@@ -4617,13 +4617,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                     INPUT_ITER     stringLast)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(first >= cbegin());
-    BSLS_ASSERT_SAFE(first <= cend());
-    BSLS_ASSERT_SAFE(first <= last);
-    BSLS_ASSERT_SAFE(last <= cend());
+    BSLS_ASSERT_OPT(first >= cbegin());
+    BSLS_ASSERT_OPT(first <= cend());
+    BSLS_ASSERT_OPT(first <= last);
+    BSLS_ASSERT_OPT(last <= cend());
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
@@ -4640,8 +4640,8 @@ void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (get_allocator() == other.get_allocator()) {
         privateBase().swap(other.privateBase());
@@ -4665,7 +4665,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return this->dataPtr();
 }
@@ -4676,8 +4676,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cbegin() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return begin();
 }
@@ -4688,8 +4688,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return begin() + this->d_length;
 }
@@ -4700,8 +4700,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cend() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return end();
 }
@@ -4712,8 +4712,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return const_reverse_iterator(end());
 }
@@ -4724,8 +4724,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crbegin() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return const_reverse_iterator(end());
 }
@@ -4735,8 +4735,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return const_reverse_iterator(begin());
 }
@@ -4746,8 +4746,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crend() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return const_reverse_iterator(begin());
 }
@@ -4805,7 +4805,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator[](
                                                       size_type position) const
 {
-    BSLS_ASSERT_SAFE(position <= length());
+    BSLS_ASSERT_OPT(position <= length());
 
     return *(begin() + position);
 }
@@ -4815,8 +4815,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     // Note: deliberately not inlined (see comment in non-const version).
 
@@ -4834,10 +4834,10 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *begin();
 }
@@ -4848,10 +4848,10 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *(end() - 1);
 }
@@ -4863,10 +4863,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::copy(CHAR_TYPE *characterString,
                                                     size_type  position) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < position)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4888,8 +4888,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_pointer
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::c_str() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return this->dataPtr();
 }
@@ -4910,8 +4910,8 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_pointer
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return this->dataPtr();
 }
@@ -4951,10 +4951,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                                size_type        numChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(string);
+    BSLS_ASSERT_OPT(string);
 
     size_type remChars = length() - position;
     if (position > length() || numChars > remChars) {
@@ -4984,7 +4984,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                                const CHAR_TYPE *string,
                                                size_type        position) const
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_ASSERT_OPT(string);
 
     return find(string, position, CHAR_TRAITS::length(string));
 }
@@ -5021,10 +5021,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                               size_type        numChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (0 == numChars) {
         return position > length() ? length() : position;             // RETURN
@@ -5051,7 +5051,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                               const CHAR_TYPE *characterString,
                                               size_type        position) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return rfind(characterString,
                  position,
@@ -5083,10 +5083,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                               size_type        numChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (0 < numChars && position < length()) {
         for (const CHAR_TYPE *current = this->dataPtr() + position;
@@ -5108,7 +5108,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                               const CHAR_TYPE *characterString,
                                               size_type        position) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return find_first_of(characterString,
                          position,
@@ -5141,10 +5141,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                               size_type        numChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (0 < numChars && 0 < length()) {
         size_type remChars = position < length() ? position : length() - 1;
@@ -5170,7 +5170,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                               const CHAR_TYPE *characterString,
                                               size_type        position) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return find_last_of(characterString,
                         position,
@@ -5203,10 +5203,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                               size_type        numChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (position < length()) {
         const CHAR_TYPE *last = this->dataPtr() + length();
@@ -5229,7 +5229,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                               const CHAR_TYPE *characterString,
                                               size_type        position) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return find_first_not_of(characterString,
                              position,
@@ -5262,10 +5262,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                               size_type        numChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
+    BSLS_ASSERT_OPT(characterString || 0 == numChars);
 
     if (0 < length()) {
         size_type remChars = position < length() ? position : length() - 1;
@@ -5288,7 +5288,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                               const CHAR_TYPE *characterString,
                                               size_type        position) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_OPT(characterString);
 
     return find_last_not_of(characterString,
                             position,
@@ -5310,8 +5310,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
                                                       size_type numChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return basic_string<CHAR_TYPE,
                         CHAR_TRAITS,
@@ -5323,8 +5323,8 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                const basic_string& other) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     return privateCompareRaw(size_type(0),
                              length(),
@@ -5339,8 +5339,8 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                               const basic_string&  other) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < position)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -5362,8 +5362,8 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                        size_type           otherNumChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < lhsPosition)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -5393,10 +5393,10 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                   const CHAR_TYPE *other) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_OPT(other);
 
     return privateCompareRaw(size_type(0),
                              length(),
@@ -5412,10 +5412,10 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                           size_type        otherNumChars) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_OPT(other);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < lhsPosition)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -5438,10 +5438,10 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                   const CHAR_TYPE *other) const
 {
     // perform a validity check
-    BSLS_ASSERT_SAFE((*this)[this->d_length] == CHAR_TYPE());
-    BSLS_ASSERT_SAFE(capacity() >= length());
+    BSLS_ASSERT_OPT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT_OPT(capacity() >= length());
 
-    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_OPT(other);
 
     return compare(lhsPosition,
                    lhsNumChars,
@@ -5455,7 +5455,7 @@ inline
 void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
           basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.get_allocator() == rhs.get_allocator());
+    BSLS_ASSERT_OPT(lhs.get_allocator() == rhs.get_allocator());
 
     lhs.swap(rhs);
 }
@@ -5495,7 +5495,7 @@ inline
 bool operator==(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
 {
-    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_OPT(lhs);
 
     std::size_t len = CHAR_TRAITS::length(lhs);
     return len == rhs.size()
@@ -5507,7 +5507,7 @@ inline
 bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                 const CHAR_TYPE*                                 rhs)
 {
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_ASSERT_OPT(rhs);
 
     std::size_t len = CHAR_TRAITS::length(rhs);
     return lhs.size() == len
@@ -5545,7 +5545,7 @@ inline
 bool operator!=(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
 {
-    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_OPT(lhs);
 
     return !(lhs == rhs);
 }
@@ -5555,7 +5555,7 @@ inline
 bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs)
 {
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_ASSERT_OPT(rhs);
 
     return !(lhs == rhs);
 }
@@ -5605,7 +5605,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<(const CHAR_TYPE                                  *lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
 {
-    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_OPT(lhs);
 
     const std::size_t lhsLen = CHAR_TRAITS::length(lhs);
     const std::size_t minLen = lhsLen < rhs.length() ? lhsLen : rhs.length();
@@ -5620,7 +5620,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs)
 {
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_ASSERT_OPT(rhs);
 
     const std::size_t rhsLen = CHAR_TRAITS::length(rhs);
     const std::size_t minLen = rhsLen < lhs.length() ? rhsLen : lhs.length();
@@ -5661,7 +5661,7 @@ inline
 bool operator>(const CHAR_TYPE                                  *lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
 {
-    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_OPT(lhs);
 
     return rhs < lhs;
 }
@@ -5671,7 +5671,7 @@ inline
 bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs)
 {
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_ASSERT_OPT(rhs);
 
     return rhs < lhs;
 }
@@ -5706,7 +5706,7 @@ inline
 bool operator<=(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
 {
-    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_OPT(lhs);
 
     return !(rhs < lhs);
 }
@@ -5716,7 +5716,7 @@ inline
 bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs)
 {
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_ASSERT_OPT(rhs);
 
     return !(rhs < lhs);
 }
@@ -5751,7 +5751,7 @@ inline
 bool operator>=(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
 {
-    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_OPT(lhs);
 
     return !(lhs < rhs);
 }
@@ -5761,7 +5761,7 @@ inline
 bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs)
 {
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_ASSERT_OPT(rhs);
 
     return !(lhs < rhs);
 }
@@ -5807,7 +5807,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const CHAR_TYPE                                      *lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs)
 {
-    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_OPT(lhs);
 
     typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
                                           lhsLength = CHAR_TRAITS::length(lhs);
@@ -5835,7 +5835,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
           const CHAR_TYPE                                      *rhs)
 {
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_ASSERT_OPT(rhs);
 
     typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
                                           rhsLength = CHAR_TRAITS::length(rhs);
@@ -5864,7 +5864,7 @@ bool bslstl_string_fill(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&   os,
                         size_t n)
     // Do not use, for internal use by 'operator<<' only.
 {
-    BSLS_ASSERT_SAFE(buf);
+    BSLS_ASSERT_OPT(buf);
 
     CHAR_TYPE fillChar = os.fill();
 

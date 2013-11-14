@@ -28,7 +28,7 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
     BSLS_ASSERT(link);
 
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-    BSLS_ASSERT_SAFE(bucket);
+    BSLS_ASSERT_OPT(bucket);
 
     if (bucket->first()) {
         BidirectionalLinkListUtil::insertLinkBeforeTarget(link,
@@ -60,7 +60,7 @@ void HashTableImpUtil::insertAtBackOfBucket(HashTableAnchor    *anchor,
     BSLS_ASSERT(link);
 
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-    BSLS_ASSERT_SAFE(bucket);
+    BSLS_ASSERT_OPT(bucket);
 
     if (bucket->last()) {
         BidirectionalLinkListUtil::insertLinkAfterTarget(link,
@@ -93,7 +93,7 @@ void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
 #ifdef BDE_BUILD_TARGET_SAFE_2
     BSLS_ASSERT(bucket);
-    BSLS_ASSERT_SAFE(bucketContainsLink(*bucket, position));
+    BSLS_ASSERT_OPT(bucketContainsLink(*bucket, position));
 #endif
 
     BidirectionalLinkListUtil::insertLinkBeforeTarget(link, position);
@@ -120,7 +120,7 @@ void HashTableImpUtil::remove(HashTableAnchor    *anchor,
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
 #ifdef BDE_BUILD_TARGET_SAFE_2
     BSLS_ASSERT(bucket);
-    BSLS_ASSERT_SAFE(bucketContainsLink(*bucket, link));
+    BSLS_ASSERT_OPT(bucketContainsLink(*bucket, link));
 #endif
 
     if (bucket->first() == link) {

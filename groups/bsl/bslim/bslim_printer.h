@@ -1007,7 +1007,7 @@ void Printer::print(const TYPE& data, const char *name) const
 template <class TYPE>
 void Printer::printAttribute(const char *name, const TYPE& data) const
 {
-    BSLS_ASSERT_SAFE(0 != name);
+    BSLS_ASSERT_OPT(0 != name);
 
     printIndentation();
 
@@ -1024,7 +1024,7 @@ void Printer::printAttribute(const char      *name,
                              const ITERATOR&  begin,
                              const ITERATOR&  end) const
 {
-    BSLS_ASSERT_SAFE(0 != name);
+    BSLS_ASSERT_OPT(0 != name);
 
     printIndentation();
 

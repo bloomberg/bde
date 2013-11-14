@@ -50,12 +50,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
 #endif
 
-// Solely for IC builds, this will force all dependencies of this file to be
-// built in "safe" mode (enabling SAFE asserts in all build modes).
-#ifndef BDE_BUILD_TARGET_SAFE
-#define BDE_BUILD_TARGET_SAFE
-#endif
-
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // This macro controls whether we allow features which we must continue to
     // support for our clients but do not want to rely on in our own code base.

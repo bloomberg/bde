@@ -2036,7 +2036,7 @@ class HashTable {
             // unless this object was created with the same allocator as
             // 'other'.
         {
-            BSLS_ASSERT_SAFE(other);
+            BSLS_ASSERT_OPT(other);
 
             bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
                                    static_cast<BaseHasher*>(other));
@@ -2052,7 +2052,7 @@ class HashTable {
             // object with those of the specified 'other' object.  This method
             // provides the no-throw exception-safety guarantee.
         {
-            BSLS_ASSERT_SAFE(other);
+            BSLS_ASSERT_OPT(other);
 
             bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
                                    static_cast<BaseHasher*>(other));
@@ -2971,7 +2971,7 @@ HashTable_NodeProctor<FACTORY>::HashTable_NodeProctor(
 : d_factory(factory)
 , d_node(node)
 {
-    BSLS_ASSERT_SAFE(factory);
+    BSLS_ASSERT_OPT(factory);
 }
 
 template <class FACTORY>
@@ -3004,8 +3004,8 @@ HashTable_ArrayProctor<FACTORY>::HashTable_ArrayProctor(
 : d_factory(factory)
 , d_anchor(anchor)
 {
-    BSLS_ASSERT_SAFE(factory);
-    BSLS_ASSERT_SAFE(anchor);
+    BSLS_ASSERT_OPT(factory);
+    BSLS_ASSERT_OPT(anchor);
 }
 
 template <class FACTORY>
@@ -3066,8 +3066,8 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
                                 native_std::size_t       bucketArraySize,
                                 const ALLOCATOR&         allocator)
 {
-    BSLS_ASSERT_SAFE(anchor);
-    BSLS_ASSERT_SAFE(0 != bucketArraySize);
+    BSLS_ASSERT_OPT(anchor);
+    BSLS_ASSERT_OPT(0 != bucketArraySize);
 
     typedef ::bsl::allocator_traits<ALLOCATOR>               ParamAllocTraits;
     typedef typename ParamAllocTraits::template
@@ -3076,7 +3076,7 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
     typedef typename ArrayAllocatorTraits::size_type         SizeType;
 
-    BSLS_ASSERT_SAFE(
+    BSLS_ASSERT_OPT(
                bucketArraySize <= native_std::numeric_limits<SizeType>::max());
 
     ArrayAllocator reboundAllocator(allocator);
@@ -3114,8 +3114,8 @@ void HashTable_Util::destroyBucketArray(
                                      native_std::size_t        bucketArraySize,
                                      const ALLOCATOR&          allocator)
 {
-    BSLS_ASSERT_SAFE(data);
-    BSLS_ASSERT_SAFE(
+    BSLS_ASSERT_OPT(data);
+    BSLS_ASSERT_OPT(
                   (1  < bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() != data)
                || (1 == bucketArraySize
@@ -3128,7 +3128,7 @@ void HashTable_Util::destroyBucketArray(
     typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
     typedef typename ArrayAllocatorTraits::size_type         SizeType;
 
-    BSLS_ASSERT_SAFE(
+    BSLS_ASSERT_OPT(
                bucketArraySize <= native_std::numeric_limits<SizeType>::max());
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
@@ -3243,7 +3243,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
     // kind of catastrophic failure we are concerned with handling in an
     // invariant check that runs only in SAFE_2 builds from a destructor.
 
-    BSLS_ASSERT_SAFE(bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG>(
+    BSLS_ASSERT_OPT(bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG>(
                                  this->d_anchor,
                                  this->d_parameters.hasher(),
                                  HashTable_ImpDetails::incidentalAllocator()));
@@ -3310,8 +3310,8 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 quickSwapRetainAllocators(HashTable *other)
 {
-    BSLS_ASSERT_SAFE(other);
-    BSLS_ASSERT_SAFE(this->allocator() == other->allocator());
+    BSLS_ASSERT_OPT(other);
+    BSLS_ASSERT_OPT(this->allocator() == other->allocator());
 
     d_parameters.quickSwapRetainAllocators(&other->d_parameters);
 
@@ -3326,7 +3326,7 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 quickSwapExchangeAllocators(HashTable *other)
 {
-    BSLS_ASSERT_SAFE(other);
+    BSLS_ASSERT_OPT(other);
 
     d_parameters.quickSwapExchangeAllocators(&other->d_parameters);
 
@@ -3470,7 +3470,7 @@ native_std::size_t
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
                                          bslalg::BidirectionalLink *node) const
 {
-    BSLS_ASSERT_SAFE(node);
+    BSLS_ASSERT_OPT(node);
 
     return d_parameters.hashCodeForKey(
                        bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node));
@@ -3482,7 +3482,7 @@ bslalg::HashTableBucket *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::getBucketAddress(
                                                     SizeType bucketIndex) const
 {
-    BSLS_ASSERT_SAFE(bucketIndex < this->numBuckets());
+    BSLS_ASSERT_OPT(bucketIndex < this->numBuckets());
 
     return d_anchor.bucketArrayAddress() + bucketIndex;
 }
@@ -3790,8 +3790,8 @@ bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::remove(
                                                bslalg::BidirectionalLink *node)
 {
-    BSLS_ASSERT_SAFE(node);
-    BSLS_ASSERT_SAFE(node->previousLink()
+    BSLS_ASSERT_OPT(node);
+    BSLS_ASSERT_OPT(node->previousLink()
                   || d_anchor.listRootAddress() == node);
 
     bslalg::BidirectionalLink *result = node->nextLink();
@@ -3825,7 +3825,7 @@ inline
 void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
                                                         float newMaxLoadFactor)
 {
-    BSLS_ASSERT_SAFE(0.0f < newMaxLoadFactor);
+    BSLS_ASSERT_OPT(0.0f < newMaxLoadFactor);
 
     size_t capacity;
     SizeType numBuckets = static_cast<SizeType>(
@@ -3939,8 +3939,8 @@ HashTable< KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findRange(
                                          bslalg::BidirectionalLink **last,
                                          const KeyType&              key) const
 {
-    BSLS_ASSERT_SAFE(first);
-    BSLS_ASSERT_SAFE(last);
+    BSLS_ASSERT_OPT(first);
+    BSLS_ASSERT_OPT(last);
 
     *first = this->find(key);
     *last  = *first
@@ -3953,7 +3953,7 @@ bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
                                         bslalg::BidirectionalLink *first) const
 {
-    BSLS_ASSERT_SAFE(first);
+    BSLS_ASSERT_OPT(first);
 
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4006,7 +4006,7 @@ typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::countElementsInBucket(
                                                           SizeType index) const
 {
-    BSLS_ASSERT_SAFE(index < this->numBuckets());
+    BSLS_ASSERT_OPT(index < this->numBuckets());
 
     return static_cast<SizeType>(bucketAtIndex(index).countElements());
 }
@@ -4029,7 +4029,7 @@ const bslalg::HashTableBucket&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketAtIndex(
                                                           SizeType index) const
 {
-    BSLS_ASSERT_SAFE(index < this->numBuckets());
+    BSLS_ASSERT_OPT(index < this->numBuckets());
 
     return d_anchor.bucketArrayAddress()[index];
 }

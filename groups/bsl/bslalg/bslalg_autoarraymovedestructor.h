@@ -375,23 +375,23 @@ AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
 , d_middle_p(middle)
 , d_end_p(end)
 {
-    BSLS_ASSERT_SAFE(!begin  == !middle);  // neither or both are null
-    BSLS_ASSERT_SAFE(!middle == !end);     // neither or both are null
-    BSLS_ASSERT_SAFE(destination || begin == middle);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
+    BSLS_ASSERT_OPT(!begin  == !middle);  // neither or both are null
+    BSLS_ASSERT_OPT(!middle == !end);     // neither or both are null
+    BSLS_ASSERT_OPT(destination || begin == middle);
+    BSLS_ASSERT_OPT(begin  <= middle);
+    BSLS_ASSERT_OPT(middle <= end);
 
 }
 
 template <class OBJECT_TYPE>
 AutoArrayMoveDestructor<OBJECT_TYPE>::~AutoArrayMoveDestructor()
 {
-    BSLS_ASSERT_SAFE(!d_begin_p  == !d_middle_p);  // neither or both are null
-    BSLS_ASSERT_SAFE(!d_middle_p == !d_end_p);     // neither or both are null
-    BSLS_ASSERT_SAFE(d_dst_p || d_begin_p == d_middle_p);
-    BSLS_ASSERT_SAFE(d_begin_p  <= d_middle_p);
-    BSLS_ASSERT_SAFE(d_middle_p <= d_end_p);
-    BSLS_ASSERT_SAFE(d_dst_p    <  d_begin_p
+    BSLS_ASSERT_OPT(!d_begin_p  == !d_middle_p);  // neither or both are null
+    BSLS_ASSERT_OPT(!d_middle_p == !d_end_p);     // neither or both are null
+    BSLS_ASSERT_OPT(d_dst_p || d_begin_p == d_middle_p);
+    BSLS_ASSERT_OPT(d_begin_p  <= d_middle_p);
+    BSLS_ASSERT_OPT(d_middle_p <= d_end_p);
+    BSLS_ASSERT_OPT(d_dst_p    <  d_begin_p
                   || d_end_p    <= d_dst_p
                   || d_middle_p == d_end_p);
 
@@ -407,12 +407,12 @@ template <class OBJECT_TYPE>
 inline
 void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
 {
-    BSLS_ASSERT_SAFE(d_middle_p < d_end_p);
+    BSLS_ASSERT_OPT(d_middle_p < d_end_p);
 
     ++d_middle_p;
     ++d_dst_p;
 
-    BSLS_ASSERT_SAFE(d_dst_p != d_begin_p || d_middle_p == d_end_p);
+    BSLS_ASSERT_OPT(d_dst_p != d_begin_p || d_middle_p == d_end_p);
 }
 
 // ACCESSORS

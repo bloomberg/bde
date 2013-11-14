@@ -352,7 +352,7 @@ template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
 void HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::advance()
 {
-    BSLS_ASSERT_SAFE(d_node_p);
+    BSLS_ASSERT_OPT(d_node_p);
 
     this->d_node_p = this->d_node_p->nextLink();
 }
@@ -362,7 +362,7 @@ inline
 HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>&
 HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::operator++()
 {
-    BSLS_ASSERT_SAFE(this->d_node_p);
+    BSLS_ASSERT_OPT(this->d_node_p);
 
     this->advance();
     return *this;
@@ -374,7 +374,7 @@ inline
 typename HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::reference
 HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::operator*() const
 {
-    BSLS_ASSERT_SAFE(this->d_node_p);
+    BSLS_ASSERT_OPT(this->d_node_p);
 
     return static_cast<bslalg::BidirectionalNode<VALUE_TYPE> *>(
                                                             d_node_p)->value();
@@ -385,7 +385,7 @@ inline
 typename HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::pointer
 HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::operator->() const
 {
-    BSLS_ASSERT_SAFE(this->d_node_p);
+    BSLS_ASSERT_OPT(this->d_node_p);
 
     return bsls::Util::addressOf(
             static_cast<bslalg::BidirectionalNode<VALUE_TYPE> *>(
@@ -476,7 +476,7 @@ inline
 HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>
 operator++(HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& iter, int)
 {
-    BSLS_ASSERT_SAFE(iter.node());
+    BSLS_ASSERT_OPT(iter.node());
 
     HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE> temp(iter);
     ++iter;

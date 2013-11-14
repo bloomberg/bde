@@ -381,7 +381,7 @@ StdStatefulAllocator<TYPE,
 StdStatefulAllocator(bslma::TestAllocator *testAllocator)
 : d_allocator_p(testAllocator)
 {
-    BSLS_ASSERT_SAFE(testAllocator);
+    BSLS_ASSERT_OPT(testAllocator);
 }
 
 // CREATORS

@@ -1184,9 +1184,9 @@ inline
 typename Deque_Base<VALUE_TYPE>::reference
 Deque_Base<VALUE_TYPE>::operator[](size_type position)
 {
-    BSLS_ASSERT_SAFE(begin() + position < end());
+    BSLS_ASSERT_OPT(begin() + position < end());
 
-    // BSLS_ASSERT_SAFE(position >= 0); // 'size_type' is 'size_t', always >= 0
+    // BSLS_ASSERT_OPT(position >= 0); // 'size_type' is 'size_t', always >= 0
 
     return *(begin() + position);
 }
@@ -1208,7 +1208,7 @@ inline
 typename Deque_Base<VALUE_TYPE>::reference
 Deque_Base<VALUE_TYPE>::front()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *d_start;
 }
@@ -1218,7 +1218,7 @@ inline
 typename Deque_Base<VALUE_TYPE>::reference
 Deque_Base<VALUE_TYPE>::back()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     IteratorImp backIterator = d_finish;
     --backIterator;
@@ -1321,9 +1321,9 @@ inline
 typename Deque_Base<VALUE_TYPE>::const_reference
 Deque_Base<VALUE_TYPE>::operator[](size_type position) const
 {
-    BSLS_ASSERT_SAFE(begin() + position < end());
+    BSLS_ASSERT_OPT(begin() + position < end());
 
-    // BSLS_ASSERT_SAFE(position >= 0); // 'size_type' is 'size_t', always >= 0
+    // BSLS_ASSERT_OPT(position >= 0); // 'size_type' is 'size_t', always >= 0
 
     return *(begin() + position);
 }
@@ -1345,7 +1345,7 @@ inline
 typename Deque_Base<VALUE_TYPE>::const_reference
 Deque_Base<VALUE_TYPE>::front() const
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     return *d_start;
 }
@@ -1355,7 +1355,7 @@ inline
 typename Deque_Base<VALUE_TYPE>::const_reference
 Deque_Base<VALUE_TYPE>::back() const
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_OPT(!empty());
 
     IteratorImp backIterator = d_finish;
     --backIterator;
@@ -2342,8 +2342,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator    position,
                                          size_type         numElements,
                                          const VALUE_TYPE& value)
 {
-    BSLS_ASSERT_SAFE(position >= this->begin());
-    BSLS_ASSERT_SAFE(position <= this->end());
+    BSLS_ASSERT_OPT(position >= this->begin());
+    BSLS_ASSERT_OPT(position <= this->end());
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2408,8 +2408,8 @@ typename deque<VALUE_TYPE,ALLOCATOR>::iterator
 deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator    position,
                                     const VALUE_TYPE& value)
 {
-    BSLS_ASSERT_SAFE(position >= this->begin());
-    BSLS_ASSERT_SAFE(position <= this->end());
+    BSLS_ASSERT_OPT(position >= this->begin());
+    BSLS_ASSERT_OPT(position <= this->end());
 
     if (position == this->cbegin()) {
         push_front(value);
@@ -2467,8 +2467,8 @@ void deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator position,
                                          INPUT_ITER     first,
                                          INPUT_ITER     last)
 {
-    BSLS_ASSERT_SAFE(position >= this->begin());
-    BSLS_ASSERT_SAFE(position <= this->end());
+    BSLS_ASSERT_OPT(position >= this->begin());
+    BSLS_ASSERT_OPT(position <= this->end());
 
     privateInsertDispatch(position,
                           first,
@@ -2480,7 +2480,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator position,
 template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE,ALLOCATOR>::pop_front()
 {
-    BSLS_ASSERT_SAFE(!this->empty());
+    BSLS_ASSERT_OPT(!this->empty());
 
     BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                                      this->d_start.valuePtr());
@@ -2497,7 +2497,7 @@ void deque<VALUE_TYPE,ALLOCATOR>::pop_front()
 template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE,ALLOCATOR>::pop_back()
 {
-    BSLS_ASSERT_SAFE(!this->empty());
+    BSLS_ASSERT_OPT(!this->empty());
 
     if (0 == this->d_finish.offsetInBlock()) {
         --this->d_finish;
@@ -2517,10 +2517,10 @@ typename deque<VALUE_TYPE,ALLOCATOR>::iterator
 deque<VALUE_TYPE,ALLOCATOR>::erase(const_iterator first,
                                    const_iterator last)
 {
-    BSLS_ASSERT_SAFE(first >= this->begin());
-    BSLS_ASSERT_SAFE(first <= this->end());
-    BSLS_ASSERT_SAFE(first <= last);
-    BSLS_ASSERT_SAFE(last <= this->end());
+    BSLS_ASSERT_OPT(first >= this->begin());
+    BSLS_ASSERT_OPT(first <= this->end());
+    BSLS_ASSERT_OPT(first <= last);
+    BSLS_ASSERT_OPT(last <= this->end());
 
     iterator first_imp = this->begin() + (first - this->cbegin());
     iterator last_imp  = this->begin() + (last - this->cbegin());
@@ -2551,8 +2551,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 typename deque<VALUE_TYPE,ALLOCATOR>::iterator
 deque<VALUE_TYPE,ALLOCATOR>::erase(const_iterator position)
 {
-    BSLS_ASSERT_SAFE(position >= this->begin());
-    BSLS_ASSERT_SAFE(position < this->end());
+    BSLS_ASSERT_OPT(position >= this->begin());
+    BSLS_ASSERT_OPT(position < this->end());
 
     if (position == const_iterator(this->d_start)) {
         pop_front();
@@ -2927,7 +2927,7 @@ Deque_Guard<VALUE_TYPE, ALLOCATOR>::~Deque_Guard()
     if (d_count == 0) {
         return;                                                       // RETURN
     }
-    BSLS_ASSERT_SAFE(d_count > 0);
+    BSLS_ASSERT_OPT(d_count > 0);
 
     IteratorImp begin, end;
 

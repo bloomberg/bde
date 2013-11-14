@@ -133,14 +133,14 @@ inline
 DestructorGuard<TYPE>::DestructorGuard(TYPE *object)
 : d_object_p(object)
 {
-    BSLS_ASSERT_SAFE(object);
+    BSLS_ASSERT_OPT(object);
 }
 
 template <class TYPE>
 inline
 DestructorGuard<TYPE>::~DestructorGuard()
 {
-    BSLS_ASSERT_SAFE(d_object_p);
+    BSLS_ASSERT_OPT(d_object_p);
 
     d_object_p->~TYPE();
 }

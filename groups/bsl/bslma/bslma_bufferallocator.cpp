@@ -59,7 +59,7 @@ void *allocateFromBufferImp(int  *cursor,
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
+    BSLS_ASSERT_OPT(isPowerOfTwo(alignment));
 
     int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
@@ -118,7 +118,7 @@ void *BufferAllocator::allocateFromBuffer(int       *cursor,
     BSLS_ASSERT(0 <= size);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
+    BSLS_ASSERT_OPT(isPowerOfTwo(alignment));
 
     return 0 >= size
            ? static_cast<void *>(0)

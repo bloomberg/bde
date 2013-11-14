@@ -456,11 +456,11 @@ TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
 , d_dereferenceable_p(dereferenceable)
 , d_isValid_p(isValid)
 {
-    BSLS_ASSERT_SAFE(object);
-    BSLS_ASSERT_SAFE(end);
-    BSLS_ASSERT_SAFE(dereferenceable);
-    BSLS_ASSERT_SAFE(isValid);
-    BSLS_ASSERT_SAFE(*isValid);
+    BSLS_ASSERT_OPT(object);
+    BSLS_ASSERT_OPT(end);
+    BSLS_ASSERT_OPT(dereferenceable);
+    BSLS_ASSERT_OPT(isValid);
+    BSLS_ASSERT_OPT(*isValid);
 }
 
 template <class VALUE>

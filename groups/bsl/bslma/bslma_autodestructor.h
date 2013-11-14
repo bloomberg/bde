@@ -391,14 +391,14 @@ AutoDestructor<TYPE>::AutoDestructor(TYPE *origin, int length)
 : d_origin_p(origin)
 , d_length(length)
 {
-    BSLS_ASSERT_SAFE(origin || !length);
+    BSLS_ASSERT_OPT(origin || !length);
 }
 
 template <class TYPE>
 inline
 AutoDestructor<TYPE>::~AutoDestructor()
 {
-    BSLS_ASSERT_SAFE(d_origin_p || !d_length);
+    BSLS_ASSERT_OPT(d_origin_p || !d_length);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_length)) {
         destroy();
@@ -410,7 +410,7 @@ template <class TYPE>
 inline
 void AutoDestructor<TYPE>::operator++()
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     ++d_length;
 }
@@ -419,7 +419,7 @@ template <class TYPE>
 inline
 void AutoDestructor<TYPE>::operator--()
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     --d_length;
 }
@@ -435,7 +435,7 @@ template <class TYPE>
 inline
 void AutoDestructor<TYPE>::reset(TYPE *origin)
 {
-    BSLS_ASSERT_SAFE(origin);
+    BSLS_ASSERT_OPT(origin);
 
     d_origin_p = origin;
 }
@@ -444,7 +444,7 @@ template <class TYPE>
 inline
 void AutoDestructor<TYPE>::setLength(int length)
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     d_length = length;
 }

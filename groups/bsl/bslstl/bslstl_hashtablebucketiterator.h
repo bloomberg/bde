@@ -386,8 +386,8 @@ void
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::
 advance()
 {
-    BSLS_ASSERT_SAFE(this->d_node_p);
-    BSLS_ASSERT_SAFE(this->d_bucket_p);
+    BSLS_ASSERT_OPT(this->d_node_p);
+    BSLS_ASSERT_OPT(this->d_bucket_p);
 
     if (this->d_bucket_p->last() == this->d_node_p) {
         this->d_node_p = 0;
@@ -403,8 +403,8 @@ HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>&
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::
 operator++()
 {
-    BSLS_ASSERT_SAFE(this->d_node_p);
-    BSLS_ASSERT_SAFE(this->d_bucket_p);
+    BSLS_ASSERT_OPT(this->d_node_p);
+    BSLS_ASSERT_OPT(this->d_bucket_p);
 
     this->advance();
     return *this;
@@ -418,7 +418,7 @@ HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::reference
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::
 operator*() const
 {
-    BSLS_ASSERT_SAFE(this->d_node_p);
+    BSLS_ASSERT_OPT(this->d_node_p);
 
     return static_cast<bslalg::BidirectionalNode<VALUE_TYPE> *>(
                                                             d_node_p)->value();
@@ -431,7 +431,7 @@ HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::pointer
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::
 operator->() const
 {
-    BSLS_ASSERT_SAFE(this->d_node_p);
+    BSLS_ASSERT_OPT(this->d_node_p);
 
     return bsls::Util::addressOf(
             static_cast<bslalg::BidirectionalNode<VALUE_TYPE> *>(
@@ -460,7 +460,7 @@ bool operator==(
               const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
               const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() == rhs.node();
 }
@@ -471,7 +471,7 @@ bool operator==(
         const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       lhs,
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() == rhs.node();
 }
@@ -482,7 +482,7 @@ bool operator==(
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
         const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() == rhs.node();
 }
@@ -493,7 +493,7 @@ bool operator==(
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() == rhs.node();
 }
@@ -504,7 +504,7 @@ bool operator!=(
               const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
               const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() != rhs.node();
 }
@@ -515,7 +515,7 @@ bool operator!=(
         const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       lhs,
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() != rhs.node();
 }
@@ -526,7 +526,7 @@ bool operator!=(
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
         const HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE >&       rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() != rhs.node();
 }
@@ -537,7 +537,7 @@ bool operator!=(
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& lhs,
         const HashTableBucketIterator<const VALUE_TYPE, DIFFERENCE_TYPE >& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.bucket() == rhs.bucket() );
+    BSLS_ASSERT_OPT(lhs.bucket() == rhs.bucket() );
 
     return lhs.node() != rhs.node();
 }
@@ -547,8 +547,8 @@ inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>
 operator++(HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE> &iter, int)
 {
-    BSLS_ASSERT_SAFE(iter.node());
-    BSLS_ASSERT_SAFE(iter.bucket());
+    BSLS_ASSERT_OPT(iter.node());
+    BSLS_ASSERT_OPT(iter.bucket());
 
     HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE> temp(iter);
     ++iter;

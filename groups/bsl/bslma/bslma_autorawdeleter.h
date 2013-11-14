@@ -506,15 +506,15 @@ AutoRawDeleter(TYPE **origin, ALLOCATOR *allocator, int length)
 , d_length(length)
 , d_allocator_p(allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
-    BSLS_ASSERT_SAFE(origin || !length);
+    BSLS_ASSERT_OPT(allocator);
+    BSLS_ASSERT_OPT(origin || !length);
 }
 
 template <class TYPE, class ALLOCATOR>
 inline
 AutoRawDeleter<TYPE, ALLOCATOR>::~AutoRawDeleter()
 {
-    BSLS_ASSERT_SAFE(d_origin_p || !d_length);
+    BSLS_ASSERT_OPT(d_origin_p || !d_length);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_length)) {
         rawDelete();
@@ -526,7 +526,7 @@ template <class TYPE, class ALLOCATOR>
 inline
 void AutoRawDeleter<TYPE, ALLOCATOR>::operator++()
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     ++d_length;
 }
@@ -535,7 +535,7 @@ template <class TYPE, class ALLOCATOR>
 inline
 void AutoRawDeleter<TYPE, ALLOCATOR>::operator--()
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     --d_length;
 }
@@ -551,7 +551,7 @@ template <class TYPE, class ALLOCATOR>
 inline
 void AutoRawDeleter<TYPE, ALLOCATOR>::reset(TYPE **origin)
 {
-    BSLS_ASSERT_SAFE(origin);
+    BSLS_ASSERT_OPT(origin);
 
     d_origin_p = origin;
 }
@@ -560,7 +560,7 @@ template <class TYPE, class ALLOCATOR>
 inline
 void AutoRawDeleter<TYPE, ALLOCATOR>::setLength(int length)
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     d_length = length;
 }

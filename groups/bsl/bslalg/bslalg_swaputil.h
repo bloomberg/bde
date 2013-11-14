@@ -160,8 +160,8 @@ class SwapUtil {
 template <typename T>
 void SwapUtil::swap(T *a, T *b)
 {
-    BSLS_ASSERT_SAFE(a != NULL);
-    BSLS_ASSERT_SAFE(b != NULL);
+    BSLS_ASSERT_OPT(a != NULL);
+    BSLS_ASSERT_OPT(b != NULL);
 
     using std::swap;
 

@@ -707,7 +707,7 @@ typename allocator<T>::pointer
 allocator<T>::allocate(typename allocator::size_type  n,
                        const void                    *hint)
 {
-    BSLS_ASSERT_SAFE(n <= this->max_size());
+    BSLS_ASSERT_OPT(n <= this->max_size());
 
     // Both 'bslma::Allocator::size_type' and 'allocator<T>::size_type' have
     // the same width; however, the former is signed, but the latter is not.

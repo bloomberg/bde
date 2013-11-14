@@ -201,7 +201,7 @@ void ManagedPtrDeleter::set(void *object, void *factory, Deleter deleter)
 inline
 void ManagedPtrDeleter::deleteManagedObject() const
 {
-    BSLS_ASSERT_SAFE(0 != d_deleter);
+    BSLS_ASSERT_OPT(0 != d_deleter);
 
     d_deleter(d_object_p, d_factory_p);
 }

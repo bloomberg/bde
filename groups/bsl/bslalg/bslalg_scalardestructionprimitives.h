@@ -220,7 +220,7 @@ template <typename TARGET_TYPE>
 inline
 void ScalarDestructionPrimitives::destroy(TARGET_TYPE *object)
 {
-    BSLS_ASSERT_SAFE(object);
+    BSLS_ASSERT_OPT(object);
 
     destroy(object, typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
 }

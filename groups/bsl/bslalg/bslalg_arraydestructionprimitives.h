@@ -205,9 +205,9 @@ inline
 void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
                                          TARGET_TYPE *end)
 {
-    BSLS_ASSERT_SAFE(begin || !end);
-    BSLS_ASSERT_SAFE(end   || !begin);
-    BSLS_ASSERT_SAFE(begin <= end);
+    BSLS_ASSERT_OPT(begin || !end);
+    BSLS_ASSERT_OPT(end   || !begin);
+    BSLS_ASSERT_OPT(begin <= end);
 
     destroy(begin, end,
             typename bsl::is_trivially_copyable<TARGET_TYPE>::type());

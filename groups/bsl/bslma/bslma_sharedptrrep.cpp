@@ -35,7 +35,7 @@ void SharedPtrRep::acquireWeakRef()
 
 void SharedPtrRep::releaseRef()
 {
-    BSLS_ASSERT_SAFE(0 < numReferences());
+    BSLS_ASSERT_OPT(0 < numReferences());
 
     const int sharedCount = d_adjustedSharedCount.add(-2);
                                         // release consistency: acquire/release
@@ -57,8 +57,8 @@ void SharedPtrRep::releaseRef()
 void SharedPtrRep::resetCountsRaw(int numSharedReferences,
                                   int numWeakReferences)
 {
-    BSLS_ASSERT_SAFE(0 <= numSharedReferences);
-    BSLS_ASSERT_SAFE(0 <= numWeakReferences);
+    BSLS_ASSERT_OPT(0 <= numSharedReferences);
+    BSLS_ASSERT_OPT(0 <= numWeakReferences);
 
     // These reference counts can be relaxed because access to this
     // 'SharedPtrRep' must be serialized when calling this function (as

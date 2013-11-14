@@ -350,7 +350,7 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //  void *my_NewDeleteAllocator::allocate(size_type size)
 //  {
-//      BSLS_ASSERT_SAFE(0 <= size);
+//      BSLS_ASSERT_OPT(0 <= size);
 //
 //      return 0 == size ? 0 : ::operator new(size);
 //  }

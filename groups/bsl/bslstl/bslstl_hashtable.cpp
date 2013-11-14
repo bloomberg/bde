@@ -36,8 +36,8 @@ bslalg::HashTableBucket *HashTable_ImpDetails::defaultBucketAddress()
     // These two tests should not be necessary, but will catch corruption in
     // components that try to write to the shared bucket.
 
-    BSLS_ASSERT_SAFE(!s_bucket.first());
-    BSLS_ASSERT_SAFE(!s_bucket.last());
+    BSLS_ASSERT_OPT(!s_bucket.first());
+    BSLS_ASSERT_OPT(!s_bucket.last());
 
     return &s_bucket;
 }
@@ -76,10 +76,10 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
                                                       size_t  requestedBuckets,
                                                       double  maxLoadFactor)
 {
-    BSLS_ASSERT_SAFE(  0 != capacity);
-    BSLS_ASSERT_SAFE(  0  < minElements);
-    BSLS_ASSERT_SAFE(  0  < requestedBuckets);
-    BSLS_ASSERT_SAFE(0.0  < maxLoadFactor);
+    BSLS_ASSERT_OPT(  0 != capacity);
+    BSLS_ASSERT_OPT(  0  < minElements);
+    BSLS_ASSERT_OPT(  0  < requestedBuckets);
+    BSLS_ASSERT_OPT(0.0  < maxLoadFactor);
 
     static const size_t MAX_SIZE_T = native_std::numeric_limits<size_t>::max();
     static const double MAX_AS_DBL = static_cast<double>(MAX_SIZE_T);
@@ -96,7 +96,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
             // the highest unsigned value representable by 'size_t' if 'd' is
             // larger.  The behavior is undefine unless '0.0 <= d'.
         {
-            BSLS_ASSERT_SAFE(0.0 <= d);
+            BSLS_ASSERT_OPT(0.0 <= d);
 
             return d < MAX_AS_DBL
                  ? static_cast<size_t>(d)
@@ -109,7 +109,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
             // integer value corresponding to the specified 'd', rounding down.
             // The behavior is undefine unless '0.0 <= d'.
         {
-            BSLS_ASSERT_SAFE(0.0 <= d);
+            BSLS_ASSERT_OPT(0.0 <= d);
 
             if (d > MAX_AS_DBL) {
                 StdExceptUtil::throwLengthError(

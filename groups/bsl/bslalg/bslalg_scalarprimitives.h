@@ -1231,7 +1231,7 @@ void
 ScalarPrimitives::defaultConstruct(TARGET_TYPE      *address,
                                    bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1251,7 +1251,7 @@ void
 ScalarPrimitives::defaultConstruct(TARGET_TYPE *address,
                                    void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bsl::is_trivially_default_constructible<TARGET_TYPE>::value
@@ -1270,7 +1270,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
                                 const TARGET_TYPE&  original,
                                 bslma::Allocator   *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1292,7 +1292,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
                                 const TARGET_TYPE&  original,
                                 void               *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
@@ -1311,8 +1311,8 @@ ScalarPrimitives::destructiveMove(TARGET_TYPE *address,
                                   TARGET_TYPE *original,
                                   ALLOCATOR   *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
-    BSLS_ASSERT_SAFE(original);
+    BSLS_ASSERT_OPT(address);
+    BSLS_ASSERT_OPT(original);
 
     enum {
         VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
@@ -1333,7 +1333,7 @@ void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1349,7 +1349,7 @@ void
 ScalarPrimitives::construct(TARGET_TYPE *address,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     new (address) TARGET_TYPE();
 }
@@ -1361,7 +1361,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG1&       a1,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1383,7 +1383,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG1&  a1,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1);
 }
@@ -1396,7 +1396,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG2&       a2,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1416,7 +1416,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG2&  a2,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2);
 }
@@ -1430,7 +1430,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG3&       a3,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1449,7 +1449,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG3&  a3,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3);
 }
@@ -1465,7 +1465,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG4&       a4,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1489,7 +1489,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG4&  a4,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4);
 }
@@ -1506,7 +1506,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG5&       a5,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1531,7 +1531,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG5&  a5,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5);
 }
@@ -1549,7 +1549,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG6&       a6,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1575,7 +1575,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG6&  a6,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6);
 }
@@ -1594,7 +1594,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG7&       a7,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1621,7 +1621,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG7&  a7,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7);
 }
@@ -1642,7 +1642,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG8&       a8,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1671,7 +1671,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG8&  a8,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8);
 }
@@ -1693,7 +1693,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG9&       a9,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1723,7 +1723,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
                             const ARG9&  a9,
                             void        *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9);
 }
@@ -1746,7 +1746,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG10&      a10,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1777,7 +1777,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
                             const ARG10&  a10,
                             void         *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
 }
@@ -1801,7 +1801,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG11&      a11,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1833,7 +1833,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
                             const ARG11&  a11,
                             void         *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
 }
@@ -1859,7 +1859,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG12&      a12,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1893,7 +1893,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
                             const ARG12&  a12,
                             void         *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(a1,  a2,  a3, a4, a5, a6, a7, a8, a9,
                                 a10, a11, a12);
@@ -1921,7 +1921,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG13&      a13,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -1956,7 +1956,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
                             const ARG13&  a13,
                             void         *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(
                        a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
@@ -1985,7 +1985,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                             const ARG14&      a14,
                             bslma::Allocator *allocator)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -2021,7 +2021,7 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
                             const ARG14&  a14,
                             void         *)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     ::new (address) TARGET_TYPE(
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);

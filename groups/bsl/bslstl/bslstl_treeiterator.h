@@ -373,7 +373,7 @@ inline
 typename TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::reference
 TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::operator*() const
 {
-    BSLS_ASSERT_SAFE(d_node_p);
+    BSLS_ASSERT_OPT(d_node_p);
 
     return static_cast<NODE *>(d_node_p)->value();
 }
@@ -383,7 +383,7 @@ inline
 typename TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::pointer
 TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::operator->() const
 {
-    BSLS_ASSERT_SAFE(d_node_p);
+    BSLS_ASSERT_OPT(d_node_p);
 
     return bsls::Util::addressOf(static_cast<NODE *>(d_node_p)->value());
 }

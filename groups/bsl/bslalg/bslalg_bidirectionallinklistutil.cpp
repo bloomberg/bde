@@ -24,7 +24,7 @@ void BidirectionalLinkListUtil::insertLinkBeforeTarget(
 {
     BSLS_ASSERT(newNode);
 #ifdef BDE_BUILD_TARGET_SAFE_2
-    BSLS_ASSERT_SAFE(isWellFormed(target, target));
+    BSLS_ASSERT_OPT(isWellFormed(target, target));
 #endif
 
     // Prepending before an empty list is *explicitly* *allowed*
@@ -49,13 +49,13 @@ void BidirectionalLinkListUtil::insertLinkAfterTarget(
                                                     BidirectionalLink *newNode,
                                                     BidirectionalLink *target)
 {
-    BSLS_ASSERT_SAFE(newNode);
-    BSLS_ASSERT_SAFE(target);
+    BSLS_ASSERT_OPT(newNode);
+    BSLS_ASSERT_OPT(target);
 
     BidirectionalLink *next = target->nextLink();
 
 #ifdef BDE_BUILD_TARGET_SAFE_2
-    BSLS_ASSERT_SAFE(!next || isWellFormed(target, next));
+    BSLS_ASSERT_OPT(!next || isWellFormed(target, next));
 #endif
 
     target->setNextLink(newNode);
@@ -111,17 +111,17 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
                                                     BidirectionalLink *last,
                                                     BidirectionalLink *target)
 {
-    BSLS_ASSERT_SAFE(first);
-    BSLS_ASSERT_SAFE(last);
+    BSLS_ASSERT_OPT(first);
+    BSLS_ASSERT_OPT(last);
 #ifdef BDE_BUILD_TARGET_SAFE_2
     // Test to avoid creating loops is O(N) expensive, so check only in SAFE_2
 
     BidirectionalLink *cursor = first;
     while(cursor != last->nextLink()) {
-        BSLS_ASSERT_SAFE(cursor != target);
+        BSLS_ASSERT_OPT(cursor != target);
         cursor = cursor->nextLink();
     }
-    BSLS_ASSERT_SAFE(isWellFormed(first, last));
+    BSLS_ASSERT_OPT(isWellFormed(first, last));
 #endif
 
     // unlink from existing list
@@ -158,13 +158,13 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
 
 void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
 {
-    BSLS_ASSERT_SAFE(node);
+    BSLS_ASSERT_OPT(node);
 
     BidirectionalLink *prev = node->previousLink(), *next = node->nextLink();
 
     if (prev) {
         if (next) {
-            BSLS_ASSERT_SAFE(isWellFormed(prev, next));
+            BSLS_ASSERT_OPT(isWellFormed(prev, next));
 
             next->setPreviousLink(prev);
             prev->setNextLink(next);

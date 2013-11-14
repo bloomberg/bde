@@ -350,7 +350,7 @@ int SequentialPool::truncate(void *address,
                              int   originalNumBytes,
                              int   newNumBytes)
 {
-    BSLS_ASSERT_SAFE(newNumBytes <= originalNumBytes);
+    BSLS_ASSERT_OPT(newNumBytes <= originalNumBytes);
 
     if ((char *)address + originalNumBytes == d_buffer + d_cursor) {
         // Memory is managed and not directly from the block list.

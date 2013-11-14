@@ -428,7 +428,7 @@ BslLock::BslLock()
 #else
     const int status = pthread_mutex_init(&d_lock, 0);
     (void)status;
-    BSLS_ASSERT_SAFE(0 == status);
+    BSLS_ASSERT_OPT(0 == status);
 #endif
 }
 
@@ -452,7 +452,7 @@ void BslLock::lock()
 #else
     const int status = pthread_mutex_lock(&d_lock);
     (void)status;
-    BSLS_ASSERT_SAFE(0 == status);
+    BSLS_ASSERT_OPT(0 == status);
 #endif
 }
 
@@ -464,7 +464,7 @@ void BslLock::unlock()
 #else
     const int status = pthread_mutex_unlock(&d_lock);
     (void)status;
-    BSLS_ASSERT_SAFE(0 == status);
+    BSLS_ASSERT_OPT(0 == status);
 #endif
 }
 
@@ -477,7 +477,7 @@ inline
 BslLockGuard::BslLockGuard(BslLock *lock)
 : d_lock_p(lock)
 {
-    BSLS_ASSERT_SAFE(lock);
+    BSLS_ASSERT_OPT(lock);
 
     d_lock_p->lock();
 }

@@ -370,7 +370,7 @@ void RbTreeUtil::remove(RbTreeAnchor *tree, RbTreeNode *node)
         // this context, we may have to set the first and last node of the
         // tree.
 
-        BSLS_ASSERT_SAFE(0 == node->leftChild() || 0 == node->rightChild());
+        BSLS_ASSERT_OPT(0 == node->leftChild() || 0 == node->rightChild());
         if (isLeftChild(node)) {
             // If the node being removed is to the left of its parent, it may
             // be the first node of the tree.
@@ -396,9 +396,9 @@ void RbTreeUtil::remove(RbTreeAnchor *tree, RbTreeNode *node)
         // the first or last node of the tree (as the node being removed has
         // two children).
 
-        BSLS_ASSERT_SAFE(0 != node->leftChild() && 0 != node->rightChild());
-        BSLS_ASSERT_SAFE(0 == y->leftChild());
-        BSLS_ASSERT_SAFE(x == y->rightChild());
+        BSLS_ASSERT_OPT(0 != node->leftChild() && 0 != node->rightChild());
+        BSLS_ASSERT_OPT(0 == y->leftChild());
+        BSLS_ASSERT_OPT(x == y->rightChild());
 
         if (isLeftChild(node)) {
             node->parent()->setLeftChild(y);
@@ -414,7 +414,7 @@ void RbTreeUtil::remove(RbTreeAnchor *tree, RbTreeNode *node)
             // not a direct descendent of the 'node' being replaced, otherwise
             // it is a degenerate case.
 
-            BSLS_ASSERT_SAFE(y->parent()->leftChild() == y);
+            BSLS_ASSERT_OPT(y->parent()->leftChild() == y);
 
             parentOfX = y->parent();
             y->parent()->setLeftChild(x);  // 'x' is y->rightChild()

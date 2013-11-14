@@ -1,3 +1,9 @@
+bsl-internal (2.19.0.6) unstable; urgency=low
+
+  * Bump changelog
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Nov 2013 10:14:53 -0500
+
 bsl-internal (2.19.0.5) unstable; urgency=low
 
   * Bump changelog

@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //                                  const TARGET_TYPE&  original,
 //                                  bslma::Allocator   *allocator)
 //  {
-//      BSLS_ASSERT_SAFE(address);
+//      BSLS_ASSERT_OPT(address);
 //
 //      enum {
 //          VALUE = HasTrait<TARGET_TYPE,

@@ -1155,7 +1155,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return local_iterator(&d_impl.bucketAtIndex(index));
 }
@@ -1165,7 +1165,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
@@ -1331,7 +1331,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::swap(unordered_set& other)
 {
-    BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
+    BSLS_ASSERT_OPT(this->get_allocator() == other.get_allocator());
 
     d_impl.swap(other.d_impl);
 }
@@ -1358,7 +1358,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
@@ -1368,7 +1368,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
@@ -1394,7 +1394,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket(const key_type& key) const
 {
-    BSLS_ASSERT_SAFE(this->bucket_count() > 0);
+    BSLS_ASSERT_OPT(this->bucket_count() > 0);
 
     return d_impl.bucketIndexForKey(key);
 }
@@ -1478,7 +1478,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return d_impl.countElementsInBucket(index);
 }
@@ -1489,7 +1489,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cbegin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
@@ -1499,7 +1499,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    BSLS_ASSERT_OPT(index < this->bucket_count());
 
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }

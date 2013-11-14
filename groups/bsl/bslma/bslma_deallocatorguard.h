@@ -171,16 +171,16 @@ DeallocatorGuard<ALLOCATOR>::DeallocatorGuard(void      *memory,
 : d_memory_p(memory)
 , d_allocator_p(allocator)
 {
-    BSLS_ASSERT_SAFE(memory);
-    BSLS_ASSERT_SAFE(allocator);
+    BSLS_ASSERT_OPT(memory);
+    BSLS_ASSERT_OPT(allocator);
 }
 
 template <class ALLOCATOR>
 inline
 DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 {
-    BSLS_ASSERT_SAFE(d_memory_p);
-    BSLS_ASSERT_SAFE(d_allocator_p);
+    BSLS_ASSERT_OPT(d_memory_p);
+    BSLS_ASSERT_OPT(d_allocator_p);
 
     d_allocator_p->deallocate(d_memory_p);
 }

@@ -414,7 +414,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      IntSet_NodeFactory(bslma::Allocator *allocator)
 //      : d_allocator_p(allocator)
 //      {
-//          BSLS_ASSERT_SAFE(allocator);
+//          BSLS_ASSERT_OPT(allocator);
 //      }
 //
 //      RbTreeNode *createNode(int value) const
@@ -1367,9 +1367,9 @@ void RbTreeUtil::copyTree(RbTreeAnchor        *result,
                           const RbTreeAnchor&  original,
                           FACTORY             *nodeFactory)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(0 == result->rootNode());
-    BSLS_ASSERT_SAFE(nodeFactory);
+    BSLS_ASSERT_OPT(result);
+    BSLS_ASSERT_OPT(0 == result->rootNode());
+    BSLS_ASSERT_OPT(nodeFactory);
 
     if (!original.rootNode()) {
         result->reset(0, result->sentinel(), 0);
@@ -1432,11 +1432,11 @@ void RbTreeUtil::copyTree(RbTreeAnchor        *result,
 template <class FACTORY>
 void RbTreeUtil::deleteTree(RbTreeAnchor *tree, FACTORY *nodeFactory)
 {
-    BSLS_ASSERT_SAFE(tree);
-    BSLS_ASSERT_SAFE(nodeFactory);
+    BSLS_ASSERT_OPT(tree);
+    BSLS_ASSERT_OPT(nodeFactory);
 
     if (0 == tree->rootNode()) {
-        BSLS_ASSERT_SAFE(tree->sentinel() == tree->firstNode());
+        BSLS_ASSERT_OPT(tree->sentinel() == tree->firstNode());
         return;                                                       // RETURN
     }
 
@@ -1475,8 +1475,8 @@ RbTreeNode *RbTreeUtil::findInsertLocation(
                                  NODE_VALUE_COMPARATOR&  comparator,
                                  const VALUE&            value)
 {
-    BSLS_ASSERT_SAFE(insertAsLeftChildFlag);
-    BSLS_ASSERT_SAFE(tree);
+    BSLS_ASSERT_OPT(insertAsLeftChildFlag);
+    BSLS_ASSERT_OPT(tree);
 
     RbTreeNode *parent = tree->sentinel();
     RbTreeNode *node   = tree->rootNode();
@@ -1504,9 +1504,9 @@ RbTreeNode *RbTreeUtil::findInsertLocation(
                                  const VALUE&            value,
                                  RbTreeNode             *hint)
 {
-    BSLS_ASSERT_SAFE(insertAsLeftChildFlag);
-    BSLS_ASSERT_SAFE(tree);
-    BSLS_ASSERT_SAFE(hint);
+    BSLS_ASSERT_OPT(insertAsLeftChildFlag);
+    BSLS_ASSERT_OPT(tree);
+    BSLS_ASSERT_OPT(hint);
 
     // 'hint' is valid if it is equal to, or the smallest value greater than,
     // 'value'.
@@ -1526,7 +1526,7 @@ RbTreeNode *RbTreeUtil::findInsertLocation(
                 *insertAsLeftChildFlag = true;
                 return hint;                                          // RETURN
             }
-            BSLS_ASSERT_SAFE(prev);
+            BSLS_ASSERT_OPT(prev);
             *insertAsLeftChildFlag = false;
             return prev;                                              // RETURN
         }
@@ -1547,8 +1547,8 @@ RbTreeNode *RbTreeUtil::findUniqueInsertLocation(
                                       NODE_VALUE_COMPARATOR&  comparator,
                                       const VALUE&            value)
 {
-    BSLS_ASSERT_SAFE(comparisonResult);
-    BSLS_ASSERT_SAFE(tree);
+    BSLS_ASSERT_OPT(comparisonResult);
+    BSLS_ASSERT_OPT(tree);
 
     // Note that 'nextSmallestNode' is used, rather than 'nextLargestNode' (as
     // seen in 'upperBound' and 'lowerBound') to avoid an unnecessary
@@ -1589,9 +1589,9 @@ RbTreeNode *RbTreeUtil::findUniqueInsertLocation(
                                       const VALUE&            value,
                                       RbTreeNode             *hint)
 {
-    BSLS_ASSERT_SAFE(comparisonResult);
-    BSLS_ASSERT_SAFE(tree);
-    BSLS_ASSERT_SAFE(hint);
+    BSLS_ASSERT_OPT(comparisonResult);
+    BSLS_ASSERT_OPT(tree);
+    BSLS_ASSERT_OPT(hint);
 
     enum { LEFT_CHILD = -1, NODE_FOUND = 0, RIGHT_CHILD = 1 };
 
@@ -1613,7 +1613,7 @@ RbTreeNode *RbTreeUtil::findUniqueInsertLocation(
                 return hint;                                          // RETURN
             }
 
-            BSLS_ASSERT_SAFE(prev);
+            BSLS_ASSERT_OPT(prev);
             *comparisonResult = RIGHT_CHILD;
             return prev;                                              // RETURN
         }
@@ -1650,8 +1650,8 @@ void RbTreeUtil::insert(RbTreeAnchor           *tree,
                         const NODE_COMPARATOR&  comparator,
                         RbTreeNode             *newNode)
 {
-    BSLS_ASSERT_SAFE(tree);
-    BSLS_ASSERT_SAFE(newNode);
+    BSLS_ASSERT_OPT(tree);
+    BSLS_ASSERT_OPT(newNode);
 
     // Note that the following logic is the same as 'findInsertLocation'
     // except that the comparator required for this operation compares two
@@ -1678,8 +1678,8 @@ void RbTreeUtil::insert(RbTreeAnchor           *tree,
 inline
 bool RbTreeUtil::isLeftChild(const RbTreeNode *node)
 {
-    BSLS_ASSERT_SAFE(node);
-    BSLS_ASSERT_SAFE(node->parent());
+    BSLS_ASSERT_OPT(node);
+    BSLS_ASSERT_OPT(node->parent());
 
     return node->parent()->leftChild() == node;
 }
@@ -1687,8 +1687,8 @@ bool RbTreeUtil::isLeftChild(const RbTreeNode *node)
 inline
 bool RbTreeUtil::isRightChild(const RbTreeNode *node)
 {
-    BSLS_ASSERT_SAFE(node);
-    BSLS_ASSERT_SAFE(node->parent());
+    BSLS_ASSERT_OPT(node);
+    BSLS_ASSERT_OPT(node->parent());
 
     return node->parent()->rightChild() == node;
 }
@@ -1745,8 +1745,8 @@ int RbTreeUtil_Validator::validateRbTree(
                                      const RbTreeNode        *maxNodeValue,
                                      const NODE_COMPARATOR&   comparator)
 {
-    BSLS_ASSERT_SAFE(errorNode);
-    BSLS_ASSERT_SAFE(errorDescription);
+    BSLS_ASSERT_OPT(errorNode);
+    BSLS_ASSERT_OPT(errorDescription);
 
     //: 1 All the descendents to the left of each node are are ordered
     //:   that at or before that node, and all descendents to the right of
@@ -1849,7 +1849,7 @@ RbTreeUtilTreeProctor<DELETER>::RbTreeUtilTreeProctor(RbTreeAnchor *tree,
 : d_tree_p(tree)
 , d_deleter_p(deleter)
 {
-    BSLS_ASSERT_SAFE(deleter);
+    BSLS_ASSERT_OPT(deleter);
 }
 
 template <class DELETER>

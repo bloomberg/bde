@@ -1016,8 +1016,8 @@ void TemplateTestFacility::emplace<TemplateTestFacility::MethodPtr>(
                                    int                              identifier,
                                    bslma::Allocator                *)
 {
-    BSLS_ASSERT_SAFE(address);
-    BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
+    BSLS_ASSERT_OPT(address);
+    BSLS_ASSERT_OPT(0 <= identifier);  BSLS_ASSERT_OPT(identifier < 128);
 
     // Note that we initialize the pointer-to-member with a simple assignment,
     // rather than using 'bslalg::ScalarPrimitives' like most of the other

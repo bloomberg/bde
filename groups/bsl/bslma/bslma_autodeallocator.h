@@ -538,8 +538,8 @@ AutoDeallocator<ALLOCATOR>
 , d_length(length)
 , d_allocator_p(allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
-    BSLS_ASSERT_SAFE(origin || !length);
+    BSLS_ASSERT_OPT(allocator);
+    BSLS_ASSERT_OPT(origin || !length);
 }
 
 template <class ALLOCATOR>
@@ -552,15 +552,15 @@ AutoDeallocator<ALLOCATOR>
 , d_length(length)
 , d_allocator_p(allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
-    BSLS_ASSERT_SAFE(origin || !length);
+    BSLS_ASSERT_OPT(allocator);
+    BSLS_ASSERT_OPT(origin || !length);
 }
 
 template <class ALLOCATOR>
 inline
 AutoDeallocator<ALLOCATOR>::~AutoDeallocator()
 {
-    BSLS_ASSERT_SAFE(d_origin_p || !d_length);
+    BSLS_ASSERT_OPT(d_origin_p || !d_length);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_length)) {
         deallocate();
@@ -572,7 +572,7 @@ template <class ALLOCATOR>
 inline
 void AutoDeallocator<ALLOCATOR>::operator++()
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     ++d_length;
 }
@@ -581,7 +581,7 @@ template <class ALLOCATOR>
 inline
 void AutoDeallocator<ALLOCATOR>::operator--()
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     --d_length;
 }
@@ -598,7 +598,7 @@ template <class TYPE>
 inline
 void AutoDeallocator<ALLOCATOR>::reset(TYPE **origin)
 {
-    BSLS_ASSERT_SAFE(origin);
+    BSLS_ASSERT_OPT(origin);
 
     d_origin_p = (void **)origin;
 }
@@ -607,7 +607,7 @@ template <class ALLOCATOR>
 inline
 void AutoDeallocator<ALLOCATOR>::reset(void **origin)
 {
-    BSLS_ASSERT_SAFE(origin);
+    BSLS_ASSERT_OPT(origin);
 
     d_origin_p = origin;
 }
@@ -617,7 +617,7 @@ inline
 void
 AutoDeallocator<ALLOCATOR>::setLength(int length)
 {
-    BSLS_ASSERT_SAFE(d_origin_p);
+    BSLS_ASSERT_OPT(d_origin_p);
 
     d_length = length;
 }

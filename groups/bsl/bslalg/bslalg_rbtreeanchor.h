@@ -440,8 +440,8 @@ RbTreeAnchor::RbTreeAnchor(RbTreeNode *rootNode,
 inline
 RbTreeAnchor::~RbTreeAnchor()
 {
-    BSLS_ASSERT_SAFE(sentinel()->leftChild() == rootNode());
-    BSLS_ASSERT_SAFE(sentinel()->rightChild() == firstNode());
+    BSLS_ASSERT_OPT(sentinel()->leftChild() == rootNode());
+    BSLS_ASSERT_OPT(sentinel()->rightChild() == firstNode());
 }
 #endif
 
@@ -471,7 +471,7 @@ void RbTreeAnchor::setRootNode(RbTreeNode *value)
 inline
 void RbTreeAnchor::setNumNodes(int value)
 {
-    BSLS_ASSERT_SAFE(0 <= value);
+    BSLS_ASSERT_OPT(0 <= value);
 
     d_numNodes = value;
 }

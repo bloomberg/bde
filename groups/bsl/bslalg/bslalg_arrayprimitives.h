@@ -1512,7 +1512,7 @@ void ArrayPrimitives::defaultConstruct(TARGET_TYPE *begin,
                                        size_type    numElements,
                                        ALLOCATOR   *allocator)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     enum {
@@ -1535,7 +1535,7 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
                                          const TARGET_TYPE&  value,
                                          ALLOCATOR          *allocator)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     enum {
@@ -1572,7 +1572,7 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
                                     FWD_ITER     fromEnd,
                                     ALLOCATOR   *allocator)
 {
-    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_OPT(toBegin || fromBegin == fromEnd);
 
     typedef typename bsl::remove_pointer<FWD_ITER>::type FwdTarget;
     enum {
@@ -1601,8 +1601,8 @@ void ArrayPrimitives::destructiveMove(TARGET_TYPE *toBegin,
                                       TARGET_TYPE *fromEnd,
                                       ALLOCATOR   *allocator)
 {
-    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+    BSLS_ASSERT_OPT(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
 
     enum {
@@ -1823,7 +1823,7 @@ void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
                              size_type           numElements,
                              ALLOCATOR          *allocator)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
@@ -1854,7 +1854,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               ALLOCATOR                 *allocator,
                               Args&&...                  args)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -1888,7 +1888,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               size_type                  numElements,
                               ALLOCATOR                 *allocator)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -1919,7 +1919,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               ALLOCATOR                 *allocator,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -1953,7 +1953,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -1990,7 +1990,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -2030,7 +2030,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -2073,7 +2073,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -2110,7 +2110,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                               ALLOCATOR                 *allocator,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -2204,9 +2204,9 @@ void ArrayPrimitives::erase(TARGET_TYPE *first,
                             TARGET_TYPE *last,
                             ALLOCATOR   *allocator)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(first,
                                                           middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(middle,
                                                           last));
 
     if (first == middle) { // erasing empty range O(1) versus O(N): Do not
@@ -2232,9 +2232,9 @@ void ArrayPrimitives::rotate(TARGET_TYPE *first,
                              TARGET_TYPE *middle,
                              TARGET_TYPE *last)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(first,
                                                           middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(middle,
                                                           last));
 
     enum {
@@ -2264,7 +2264,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                   ALLOCATOR                                       *,
                   bslmf::MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset((void *)begin, 0, sizeof(TARGET_TYPE) * numElements);
@@ -2278,7 +2278,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     ScalarPrimitives::defaultConstruct(begin, allocator);
@@ -2294,7 +2294,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                                        ALLOCATOR                  *allocator,
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
@@ -2317,7 +2317,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset((char *)begin, (char)value, numElements);
@@ -2331,7 +2331,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
@@ -2345,7 +2345,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
@@ -2359,7 +2359,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
@@ -2373,7 +2373,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::wmemset(begin, value, numElements);
@@ -2387,7 +2387,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN(
@@ -2403,7 +2403,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN(
@@ -2419,7 +2419,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -2443,7 +2443,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -2467,7 +2467,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         void                                      *,
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN((bsls::Types::Int64 *)begin,
@@ -2486,7 +2486,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        void                                       *,
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Note: 'const'-correctness is respected because the next overload picks
@@ -2512,7 +2512,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        void                                       *,
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // While it seems that this overload is subsumed by the previous template,
@@ -2533,7 +2533,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                           ALLOCATOR                               *,
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
@@ -2571,7 +2571,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                                        ALLOCATOR                  *allocator,
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLS_ASSERT_OPT(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
@@ -2635,8 +2635,8 @@ void ArrayPrimitives_Imp::copyConstruct(
                             ALLOCATOR                               *,
                             bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(toBegin);
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+    BSLS_ASSERT_OPT(toBegin);
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
 
     const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
@@ -2650,8 +2650,8 @@ void ArrayPrimitives_Imp::copyConstruct(TARGET_TYPE                *toBegin,
                                         ALLOCATOR                  *allocator,
                                         bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+    BSLS_ASSERT_OPT(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
 
     AutoArrayDestructor<TARGET_TYPE> guard(toBegin, toBegin);
@@ -2678,8 +2678,8 @@ void ArrayPrimitives_Imp::destructiveMove(
                             ALLOCATOR                               *,
                             bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+    BSLS_ASSERT_OPT(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
 
     const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
@@ -2695,8 +2695,8 @@ void ArrayPrimitives_Imp::destructiveMove(
                                          ALLOCATOR                  *allocator,
                                          bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+    BSLS_ASSERT_OPT(toBegin || fromBegin == fromEnd);
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
 
     // 'TARGET_TYPE' certainly cannot be bit-wise copyable, so we can save the
@@ -2719,7 +2719,7 @@ void ArrayPrimitives_Imp::insert(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
@@ -2778,7 +2778,7 @@ void ArrayPrimitives_Imp::insert(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
@@ -2859,7 +2859,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
                                  ALLOCATOR                  *allocator,
                                  bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
@@ -3000,7 +3000,7 @@ void ArrayPrimitives_Imp::emplace(
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
                           Args&&...                                args)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3074,7 +3074,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                                   bslmf::MetaInt<NIL_TRAITS> *,
                                   Args&&...                   args)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3330,7 +3330,7 @@ void ArrayPrimitives_Imp::emplace(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3379,7 +3379,7 @@ void ArrayPrimitives_Imp::emplace(
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3434,7 +3434,7 @@ void ArrayPrimitives_Imp::emplace(
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3495,7 +3495,7 @@ void ArrayPrimitives_Imp::emplace(
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3562,7 +3562,7 @@ void ArrayPrimitives_Imp::emplace(
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3635,7 +3635,7 @@ void ArrayPrimitives_Imp::emplace(
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3703,7 +3703,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                                   ALLOCATOR                  *allocator,
                                   bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3770,7 +3770,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                                   bslmf::MetaInt<NIL_TRAITS> *,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3843,7 +3843,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -3922,7 +3922,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -4007,7 +4007,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -4098,7 +4098,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -4207,7 +4207,7 @@ void ArrayPrimitives_Imp::emplace(
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -4259,7 +4259,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                *toBegin,
                                   bslmf::MetaInt<NIL_TRAITS> *,
                                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
@@ -4383,16 +4383,16 @@ void ArrayPrimitives_Imp::insert(
 {
     // 'FWD_ITER' has been converted to a 'const TARGET_TYPE *' and
     // 'TARGET_TYPE' is bit-wise copyable.
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
-    BSLS_ASSERT_SAFE(fromBegin || 0 == numElements);
+    BSLS_ASSERT_OPT(fromBegin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    BSLS_ASSERT_SAFE(fromBegin + numElements == fromEnd);
-    BSLS_ASSERT_SAFE(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
-    (void) fromEnd;  // quell warning when 'BSLS_ASSERT_SAFE' is compiled out
+    BSLS_ASSERT_OPT(fromBegin + numElements == fromEnd);
+    BSLS_ASSERT_OPT(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
+    (void) fromEnd;  // quell warning when 'BSLS_ASSERT_OPT' is compiled out
 
     // Key to the transformation diagrams:
     //..
@@ -4426,7 +4426,7 @@ void ArrayPrimitives_Imp::insert(
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
     // 'TARGET_TYPE' is bit-wise moveable.
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
@@ -4514,7 +4514,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
                                  ALLOCATOR                  *allocator,
                                  bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
@@ -4622,12 +4622,12 @@ void ArrayPrimitives_Imp::moveInsert(
                          ALLOCATOR                                *allocator,
                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>  *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
-    BSLS_ASSERT_SAFE(first || 0 == numElements);
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT(first || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
-    BSLS_ASSERT_SAFE(lastPtr);
+    BSLS_ASSERT_OPT(lastPtr);
 
     // Functionally indistinguishable from this:
 
@@ -4648,12 +4648,12 @@ void ArrayPrimitives_Imp::moveInsert(TARGET_TYPE                 *toBegin,
                                      ALLOCATOR                   *allocator,
                                      bslmf::MetaInt<NIL_TRAITS>  *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
-    BSLS_ASSERT_SAFE(first || 0 == numElements);
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT(first || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
-    BSLS_ASSERT_SAFE(lastPtr);
+    BSLS_ASSERT_OPT(lastPtr);
 
     // There isn't any advantage at destroying [first,last) one by one as we're
     // moving it, except perhaps for slightly better memory usage.
@@ -4675,9 +4675,9 @@ void ArrayPrimitives_Imp::erase(
                                ALLOCATOR                               *,
                                bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(first,
                                                           middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(middle,
                                                           last));
 
     // Key to the transformation diagrams:
@@ -4706,9 +4706,9 @@ void ArrayPrimitives_Imp::erase(TARGET_TYPE                *first,
                                 ALLOCATOR                  *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(first,
                                                           middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(middle,
                                                           last));
 
     // Key to the transformation diagrams:
@@ -4743,9 +4743,9 @@ void ArrayPrimitives_Imp::rotate(
                                TARGET_TYPE                             *end,
                                bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(begin,
                                                           middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
 
     bitwiseRotate((char *)begin, (char *)middle, (char *)end);
 }
@@ -4756,9 +4756,9 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
                                  TARGET_TYPE                *end,
                                  bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin,
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(begin,
                                                           middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
+    BSLS_ASSERT_OPT(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
 
     if (begin == middle || middle == end) {
         // This test changes into O(1) what would otherwise be O(N): Do not

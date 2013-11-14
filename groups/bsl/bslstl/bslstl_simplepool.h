@@ -424,7 +424,7 @@ SimplePool<VALUE, ALLOCATOR>::allocateChunk(size_type size)
     Chunk *chunkPtr = reinterpret_cast<Chunk *>(
                     AllocatorTraits::allocate(allocator(), numMaxAlignedType));
 
-    BSLS_ASSERT_SAFE(0 ==
+    BSLS_ASSERT_OPT(0 ==
              reinterpret_cast<bsls::Types::UintPtr>(chunkPtr) % sizeof(Chunk));
 
     chunkPtr->d_next_p = d_chunkList_p;
@@ -489,7 +489,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 void SimplePool<VALUE, ALLOCATOR>::deallocate(void *address)
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_OPT(address);
 
     reinterpret_cast<Block *>(address)->d_next_p = d_freeList_p;
     d_freeList_p = reinterpret_cast<Block *>(address);
@@ -499,7 +499,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 void SimplePool<VALUE, ALLOCATOR>::swap(SimplePool<VALUE, ALLOCATOR>& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_ASSERT_OPT(allocator() == other.allocator());
 
     std::swap(d_blocksPerChunk, other.d_blocksPerChunk);
     std::swap(d_freeList_p, other.d_freeList_p);

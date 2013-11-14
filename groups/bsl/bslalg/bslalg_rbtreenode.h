@@ -488,7 +488,7 @@ void RbTreeNode::makeRed()
 inline
 void RbTreeNode::setParent(RbTreeNode *address)
 {
-    BSLS_ASSERT_SAFE(0 == (toInt(address) & 0x01));
+    BSLS_ASSERT_OPT(0 == (toInt(address) & 0x01));
 
     d_parentWithColor_p =
                   toNode(toInt(address) | (toInt(d_parentWithColor_p) & 0x01));
@@ -527,7 +527,7 @@ void RbTreeNode::reset(RbTreeNode *parent,
                        RbTreeNode *rightChild,
                        Color       color)
 {
-    BSLS_ASSERT_SAFE(0 == (toInt(parent) & 0x01));
+    BSLS_ASSERT_OPT(0 == (toInt(parent) & 0x01));
 
     d_parentWithColor_p = toNode(toInt(parent) | color);
     d_left_p = leftChild;

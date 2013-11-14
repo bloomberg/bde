@@ -472,7 +472,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 void BidirectionalNodePool<VALUE, ALLOCATOR>::reserveNodes(size_type numNodes)
 {
-    BSLS_ASSERT_SAFE(0 < numNodes);
+    BSLS_ASSERT_OPT(0 < numNodes);
 
     d_pool.reserve(numNodes);
 }
@@ -482,7 +482,7 @@ inline
 void BidirectionalNodePool<VALUE, ALLOCATOR>::swapRetainAllocators(
                                 BidirectionalNodePool<VALUE, ALLOCATOR>& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_ASSERT_OPT(allocator() == other.allocator());
 
     d_pool.quickSwapRetainAllocators(other.d_pool);
 }

@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  MyClass::~MyClass()
 //  {
-//      BSLS_ASSERT_SAFE(0 <= d_capacity);
+//      BSLS_ASSERT_OPT(0 <= d_capacity);
 //
 //      d_allocator_p->deallocate(d_description_p);
 //  }
@@ -134,7 +134,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void MyClass::setDescription(const char *value)
 //  {
-//      BSLS_ASSERT_SAFE(value);
+//      BSLS_ASSERT_OPT(value);
 //
 //      int size = std::strlen(value) + 1;
 //      if (size > d_capacity) {
@@ -536,7 +536,7 @@ inline
 const TestAllocator *
 TestAllocatorMonitor::validateArgument(const TestAllocator *allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
+    BSLS_ASSERT_OPT(allocator);
 
     return allocator;
 }
@@ -555,8 +555,8 @@ void TestAllocatorMonitor::reset(const TestAllocator *testAllocator)
     d_initialMax   = d_testAllocator_p->numBlocksMax();
     d_initialTotal = d_testAllocator_p->numBlocksTotal();
 
-    BSLS_ASSERT_SAFE(0 <= d_initialMax);
-    BSLS_ASSERT_SAFE(0 <= d_initialTotal);
+    BSLS_ASSERT_OPT(0 <= d_initialMax);
+    BSLS_ASSERT_OPT(0 <= d_initialTotal);
 }
 
 // CREATORS
@@ -564,7 +564,7 @@ inline
 TestAllocatorMonitor::TestAllocatorMonitor(const TestAllocator *testAllocator)
 : d_testAllocator_p(testAllocator)
 {
-    BSLS_ASSERT_SAFE(d_testAllocator_p);
+    BSLS_ASSERT_OPT(d_testAllocator_p);
 
     reset();
 }
@@ -578,9 +578,9 @@ namespace bslma {
 inline
 TestAllocatorMonitor::~TestAllocatorMonitor()
 {
-    BSLS_ASSERT_SAFE(d_testAllocator_p);
-    BSLS_ASSERT_SAFE(0 <= d_initialMax);
-    BSLS_ASSERT_SAFE(0 <= d_initialTotal);
+    BSLS_ASSERT_OPT(d_testAllocator_p);
+    BSLS_ASSERT_OPT(0 <= d_initialMax);
+    BSLS_ASSERT_OPT(0 <= d_initialTotal);
 }
 
 }  // close package namespace

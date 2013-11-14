@@ -288,7 +288,7 @@ BSLS_IDENT("$Id: $")
 //  template <class KEY, class HASHER, class EQUAL>
 //  HashSet<KEY, HASHER, EQUAL>::~HashSet()
 //  {
-//      BSLS_ASSERT_SAFE(checkInvariants());
+//      BSLS_ASSERT_OPT(checkInvariants());
 //
 //      for (Link *link = listRootAddress(); link; ) {
 //          Node *toDelete = (Node *) link;
@@ -316,7 +316,7 @@ BSLS_IDENT("$Id: $")
 //                                                     bucketArraySize());
 //      Bucket& bucket = bucketArrayAddress()[bucketIdx];
 //
-//      BSLS_ASSERT_SAFE(bucket.first() && bucket.last());
+//      BSLS_ASSERT_OPT(bucket.first() && bucket.last());
 //
 //      if (bucket.first() == node) {
 //          if (bucket.last() == node) {
@@ -340,7 +340,7 @@ BSLS_IDENT("$Id: $")
 //      d_allocator_p->deallocate(node);
 //
 //      --d_numNodes;
-//      BSLS_ASSERT_SAFE(checkInvariants());
+//      BSLS_ASSERT_OPT(checkInvariants());
 //
 //      return true;
 //  }
@@ -368,8 +368,8 @@ BSLS_IDENT("$Id: $")
 //
 //      ImpUtil::insertAtBackOfBucket(this, node, hashCode);
 //
-//      BSLS_ASSERT_SAFE(find(key, hashCode));
-//      BSLS_ASSERT_SAFE(checkInvariants());
+//      BSLS_ASSERT_OPT(find(key, hashCode));
+//      BSLS_ASSERT_OPT(checkInvariants());
 //
 //      return true;
 //  }
@@ -793,8 +793,8 @@ HashTableBucket *HashTableImpUtil::findBucketForHashCode(
                                                const HashTableAnchor& anchor,
                                                native_std::size_t     hashCode)
 {
-    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
-    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
+    BSLS_ASSERT_OPT(anchor.bucketArrayAddress());
+    BSLS_ASSERT_OPT(anchor.bucketArraySize());
 
     native_std::size_t bucketId = HashTableImpUtil::computeBucketIndex(
                                                      hashCode,
@@ -807,7 +807,7 @@ native_std::size_t HashTableImpUtil::computeBucketIndex(
                                                  native_std::size_t hashCode,
                                                  native_std::size_t numBuckets)
 {
-    BSLS_ASSERT_SAFE(0 != numBuckets);
+    BSLS_ASSERT_OPT(0 != numBuckets);
 
     return hashCode % numBuckets;
 }
@@ -818,7 +818,7 @@ bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&   bucket,
     // Return true the specified 'link' is contained in the specified 'bucket'
     // and false otherwise.
 {
-    BSLS_ASSERT_SAFE(!bucket.first() == !bucket.last());
+    BSLS_ASSERT_OPT(!bucket.first() == !bucket.last());
 
     for (BidirectionalLink *cursor     = bucket.first(),
                            * const end = bucket.end(); end != cursor;
@@ -827,7 +827,7 @@ bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&   bucket,
             return true;                                              // RETURN
         }
 
-        BSLS_ASSERT_SAFE(cursor);
+        BSLS_ASSERT_OPT(cursor);
     }
 
     return false;
@@ -839,7 +839,7 @@ inline
 typename KEY_CONFIG::ValueType& HashTableImpUtil::extractValue(
                                                        BidirectionalLink *link)
 {
-    BSLS_ASSERT_SAFE(link);
+    BSLS_ASSERT_OPT(link);
 
     typedef BidirectionalNode<typename KEY_CONFIG::ValueType> BNode;
     return static_cast<BNode *>(link)->value();
@@ -850,7 +850,7 @@ inline
 typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type
 HashTableImpUtil::extractKey(BidirectionalLink *link)
 {
-    BSLS_ASSERT_SAFE(link);
+    BSLS_ASSERT_OPT(link);
 
     typedef BidirectionalNode<typename KEY_CONFIG::ValueType> BNode;
 
@@ -866,11 +866,11 @@ BidirectionalLink *HashTableImpUtil::find(
   const KEY_EQUAL&                                             equalityFunctor,
   native_std::size_t                                           hashCode)
 {
-    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
-    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
+    BSLS_ASSERT_OPT(anchor.bucketArrayAddress());
+    BSLS_ASSERT_OPT(anchor.bucketArraySize());
 
     const HashTableBucket *bucket = findBucketForHashCode(anchor, hashCode);
-    BSLS_ASSERT_SAFE(bucket);
+    BSLS_ASSERT_OPT(bucket);
 
     for (BidirectionalLink *cursor     = bucket->first(),
                            * const end = bucket->end();
@@ -888,10 +888,10 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
                               BidirectionalLink *elementList,
                               const HASHER&      hasher)
 {
-    BSLS_ASSERT_SAFE(newAnchor);
-    BSLS_ASSERT_SAFE(newAnchor->bucketArrayAddress());
-    BSLS_ASSERT_SAFE(0 != newAnchor->bucketArraySize());
-    BSLS_ASSERT_SAFE(!elementList || !elementList->previousLink());
+    BSLS_ASSERT_OPT(newAnchor);
+    BSLS_ASSERT_OPT(newAnchor->bucketArrayAddress());
+    BSLS_ASSERT_OPT(0 != newAnchor->bucketArraySize());
+    BSLS_ASSERT_OPT(!elementList || !elementList->previousLink());
 
     class Proctor {
         // An object of this proctor class guarnatees that, on leaving scope,

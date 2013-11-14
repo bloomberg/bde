@@ -2295,7 +2295,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 VALUE& list<VALUE, ALLOCATOR>::front()
 {
-    BSLS_ASSERT_SAFE(size_ref() > 0);
+    BSLS_ASSERT_OPT(size_ref() > 0);
 
     return head()->d_value;
 }
@@ -2304,7 +2304,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 VALUE& list<VALUE, ALLOCATOR>::back()
 {
-    BSLS_ASSERT_SAFE(size_ref() > 0);
+    BSLS_ASSERT_OPT(size_ref() > 0);
 
     NodePtr last = d_sentinel->d_prev;
     return last->d_value;
@@ -2422,7 +2422,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::pop_front()
 {
-    BSLS_ASSERT_SAFE(size_ref() > 0);
+    BSLS_ASSERT_OPT(size_ref() > 0);
 
     erase(begin());
 }
@@ -2538,7 +2538,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::pop_back()
 {
-    BSLS_ASSERT_SAFE(size_ref() > 0);
+    BSLS_ASSERT_OPT(size_ref() > 0);
 
     erase(--end());
 }
@@ -3143,7 +3143,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 const VALUE& list<VALUE, ALLOCATOR>::front() const
 {
-    BSLS_ASSERT_SAFE(size_ref() > 0);
+    BSLS_ASSERT_OPT(size_ref() > 0);
 
     return head()->d_value;
 }
@@ -3152,7 +3152,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 const VALUE& list<VALUE, ALLOCATOR>::back() const
 {
-    BSLS_ASSERT_SAFE(size_ref() > 0);
+    BSLS_ASSERT_OPT(size_ref() > 0);
 
     NodePtr last = d_sentinel->d_prev;
     return last->d_value;

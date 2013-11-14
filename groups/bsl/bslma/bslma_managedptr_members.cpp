@@ -63,7 +63,7 @@ void ManagedPtr_Members::set(void        *object,
     // Note that 'factory' may be null if 'deleter' supports it, so cannot be
     // asserted here.
 
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
+    BSLS_ASSERT_OPT(0 != deleter || 0 == object);
 
     d_obj_p = object;
     if (object) {

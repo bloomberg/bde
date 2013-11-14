@@ -250,8 +250,8 @@ StringRefData<CHAR_TYPE>
 : d_begin_p(begin)
 , d_end_p(end)
 {
-    BSLS_ASSERT_SAFE(d_begin_p <= d_end_p);
-    BSLS_ASSERT_SAFE(!d_begin_p == !d_end_p);
+    BSLS_ASSERT_OPT(d_begin_p <= d_end_p);
+    BSLS_ASSERT_OPT(!d_begin_p == !d_end_p);
 }
 
 // ACCESSORS

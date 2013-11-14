@@ -169,7 +169,7 @@ inline
 void DeleterHelper::deleteObject(const TYPE *object,
                                  ALLOCATOR  *allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
+    BSLS_ASSERT_OPT(allocator);
 
     if (0 != object) {
         void *address = DeleterHelper_Helper<
@@ -191,7 +191,7 @@ inline
 void DeleterHelper::deleteObjectRaw(const TYPE *object,
                                     ALLOCATOR  *allocator)
 {
-    BSLS_ASSERT_SAFE(allocator);
+    BSLS_ASSERT_OPT(allocator);
 
     if (0 != object) {
         void *address = const_cast<TYPE *>(object);
