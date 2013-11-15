@@ -134,7 +134,7 @@ struct baenet_HttpParserUtil {
     };
 
     // FUNCTIONS
-    static int parseChunkHeader(bsls_Types::Int64  *result,
+    static int parseChunkHeader(bsls::Types::Int64 *result,
                                 int                *numBytesConsumed,
                                 bsl::streambuf     *buffer);
         // Parse the chunk header contained in the specified 'buffer' and load
@@ -220,7 +220,7 @@ struct baenet_HttpParserUtil {
                                const bdeut_StringRef&  str);
     static int parseFieldValue(int                    *result,
                                const bdeut_StringRef&  str);
-    static int parseFieldValue(bsls_Types::Int64       *result,
+    static int parseFieldValue(bsls::Types::Int64      *result,
                                const bdeut_StringRef&  str);
     static int parseFieldValue(bsl::string            *result,
                                const bdeut_StringRef&  str);

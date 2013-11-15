@@ -2230,7 +2230,7 @@ int baenet_HttpParserUtil::parseFieldValue(int                    *object,
     return parseIntValue(object, str);
 }
 
-int baenet_HttpParserUtil::parseFieldValue(bsls_Types::Int64      *object,
+int baenet_HttpParserUtil::parseFieldValue(bsls::Types::Int64     *object,
                                            const bdeut_StringRef&  str)
 {
     return parseIntValue(object, str);
@@ -2611,7 +2611,7 @@ int baenet_HttpParserUtil::parseFieldValue(baenet_HttpHost        *result,
     return BAENET_SUCCESS;
 }
 
-int baenet_HttpParserUtil::parseChunkHeader(bsls_Types::Int64  *result,
+int baenet_HttpParserUtil::parseChunkHeader(bsls::Types::Int64 *result,
                                             int                *numBytesConsumed,
                                             bsl::streambuf     *buffer)
 {
@@ -2640,7 +2640,7 @@ int baenet_HttpParserUtil::parseChunkHeader(bsls_Types::Int64  *result,
     if (eof != c && NOT_HEX == hexCharTable[c]) {
         return BAENET_FAILURE;
     }
-    bsls_Types::Int64 value = 0;
+    bsls::Types::Int64 value = 0;
     int bytesRead = 0;
 
     while (eof != c && NOT_HEX != hexCharTable[c]) {

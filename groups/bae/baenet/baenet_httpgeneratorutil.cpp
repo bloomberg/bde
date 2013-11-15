@@ -178,7 +178,7 @@ class HeaderFieldGenerator {
                 const bdeut_StringRef&        fieldName);
     int execute(const int&                    object,
                 const bdeut_StringRef&        fieldName);
-    int execute(const bsls_Types::Int64&      object,
+    int execute(const bsls::Types::Int64&     object,
                 const bdeut_StringRef&        fieldName);
     int execute(const bsl::string&            object,
                 const bdeut_StringRef&        fieldName);
@@ -338,8 +338,8 @@ int HeaderFieldGenerator::execute(const int&             object,
     return 0;
 }
 
-int HeaderFieldGenerator::execute(const bsls_Types::Int64& object,
-                                  const bdeut_StringRef&   fieldName)
+int HeaderFieldGenerator::execute(const bsls::Types::Int64& object,
+                                  const bdeut_StringRef&    fieldName)
 {
     (*d_stream_p) << fieldName << ": " << object << "\r\n";
 

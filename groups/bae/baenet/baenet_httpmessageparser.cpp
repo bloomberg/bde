@@ -237,7 +237,7 @@ int baenet_HttpMessageParser::processHeader(bsl::ostream& errorStream)
         return BAENET_FAILURE;
     }
 
-    const bdeut_NullableValue<bsls_Types::Int64>& contentLength
+    const bdeut_NullableValue<bsls::Types::Int64>& contentLength
                                   = d_header_sp->basicFields().contentLength();
 
     if (0 == numTransferEncodings) {
