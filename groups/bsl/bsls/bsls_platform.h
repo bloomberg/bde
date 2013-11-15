@@ -792,7 +792,8 @@ struct bsls_Platform_Assert;
                                  // Validation
 
 // Unix flag must be set by the compiler if Unix detected (except for AIX).
-#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX) && \
+                                              !defined(BSLS_PLATFORM_OS_DARWIN)
     #if !defined(unix) && !defined(__unix__) && !defined(__unix)
         #error "Unix platform assumed, but unix flag not set by compiler"
         BSLS_PLATFORM_COMPILER_ERROR;
