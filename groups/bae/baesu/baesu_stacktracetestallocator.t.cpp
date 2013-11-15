@@ -911,6 +911,7 @@ void Functor::nest3()
     --d_nestDepth;                    // Guarantee routine calls, not chaining
 }
 
+
 void Functor::nest2()
 {
     if (++d_nestDepth > 10) {
@@ -2536,7 +2537,14 @@ int main(int argc, char *argv[])
 
         bsl::stringstream ss(&touchy);
 
-        Obj *pta = new (touchy) Obj(8, &touchy);
+        // Note: The Aix optimizer is doing something generally insane here.
+        // Some of these functions wind up being called twice in the same stack
+        // trace for no apparent reason, and the original stack depth of 8 was
+        // exhausted before the trace reached back to 'nest1'.  Increased the
+        // stack depth to 16, test passes again.  Still really don't understand
+        // what that optimizer is doing, though.
+
+        Obj *pta = new (touchy) Obj(16, &touchy);
         pta->setName("ta");
         pta->setOstream(&ss);
 
