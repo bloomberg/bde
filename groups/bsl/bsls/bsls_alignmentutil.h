@@ -431,8 +431,8 @@ bool AlignmentUtil::is8ByteAligned(const void *address)
 inline
 std::size_t AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 {
-    BSLS_ASSERT_OPT(size <= std::numeric_limits<std::size_t>::max()
-                           - BSLS_MAX_ALIGNMENT + 1);
+    // BSLS_ASSERT_OPT(size <= std::numeric_limits<std::size_t>::max()
+    //                        - BSLS_MAX_ALIGNMENT + 1);
 
     return ((size + BSLS_MAX_ALIGNMENT - 1) / BSLS_MAX_ALIGNMENT)
                                                           * BSLS_MAX_ALIGNMENT;
