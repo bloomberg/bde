@@ -431,6 +431,10 @@ class Function_Rep {
                                      // knows about the erased type 'ALLOC' of
                                      // the allocator object), or null if
                                      // 'ALLOC' is 'bslma::Allocator*'
+
+public:
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
 };
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -665,6 +669,3870 @@ bool operator!=(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 template <class RET, class... ARGS>
 void swap(function<RET(ARGS...)>&, function<RET(ARGS...)>&);
 
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.cpp bslstl_function.t.cpp
+
+
+template <class FUNC,
+          class OBJ_TYPE,
+          class OBJ_ARG_TYPE,
+          class RET,
+          class ARGS_0 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_1 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_2 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_3 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_4 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_5 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_6 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_7 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_8 = BSLS_COMPILERFEATURES_NILT,
+          class ARGS_9 = BSLS_COMPILERFEATURES_NILT,
+          class = BSLS_COMPILERFEATURES_NILT>
+struct Function_MemFuncInvokeImp;
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj)
+        { return (obj.*f)(); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj)
+        { return ((*obj).*f)(); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj)
+        { return invoke_imp(DirectInvoke(), f, obj); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01)
+        { return (obj.*f)(args_01); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01)
+        { return ((*obj).*f)(args_01); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02)
+        { return (obj.*f)(args_01,
+                          args_02); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02)
+        { return ((*obj).*f)(args_01,
+                             args_02); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03,
+                          args_04); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03,
+                             args_04); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+               typename bslmf::ForwardingType<ARGS_04>::Type args_04)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04,
+                                                                    ARGS_05> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03,
+                             args_04,
+                             args_05); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+               typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+               typename bslmf::ForwardingType<ARGS_05>::Type args_05)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04,
+                                                                    ARGS_05,
+                                                                    ARGS_06> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03,
+                             args_04,
+                             args_05,
+                             args_06); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+               typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+               typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+               typename bslmf::ForwardingType<ARGS_06>::Type args_06)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04,
+                                                                    ARGS_05,
+                                                                    ARGS_06,
+                                                                    ARGS_07> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03,
+                             args_04,
+                             args_05,
+                             args_06,
+                             args_07); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+               typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+               typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+               typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+               typename bslmf::ForwardingType<ARGS_07>::Type args_07)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04,
+                                                                    ARGS_05,
+                                                                    ARGS_06,
+                                                                    ARGS_07,
+                                                                    ARGS_08> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03,
+                             args_04,
+                             args_05,
+                             args_06,
+                             args_07,
+                             args_08); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+               typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+               typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+               typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+               typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+               typename bslmf::ForwardingType<ARGS_08>::Type args_08)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04,
+                                                                    ARGS_05,
+                                                                    ARGS_06,
+                                                                    ARGS_07,
+                                                                    ARGS_08,
+                                                                    ARGS_09> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                   typename bslmf::ForwardingType<ARGS_09>::Type args_09)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                   typename bslmf::ForwardingType<ARGS_09>::Type args_09)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03,
+                             args_04,
+                             args_05,
+                             args_06,
+                             args_07,
+                             args_08,
+                             args_09); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+               typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+               typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+               typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+               typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+               typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+               typename bslmf::ForwardingType<ARGS_09>::Type args_09)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09); }
+
+};
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04,
+                                                                    ARGS_05,
+                                                                    ARGS_06,
+                                                                    ARGS_07,
+                                                                    ARGS_08,
+                                                                    ARGS_09,
+                                                                    ARGS_10> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                   typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                   typename bslmf::ForwardingType<ARGS_10>::Type args_10)
+        { return (obj.*f)(args_01,
+                          args_02,
+                          args_03,
+                          args_04,
+                          args_05,
+                          args_06,
+                          args_07,
+                          args_08,
+                          args_09,
+                          args_10); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                   typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                   typename bslmf::ForwardingType<ARGS_10>::Type args_10)
+        { return ((*obj).*f)(args_01,
+                             args_02,
+                             args_03,
+                             args_04,
+                             args_05,
+                             args_06,
+                             args_07,
+                             args_08,
+                             args_09,
+                             args_10); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+               typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+               typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+               typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+               typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+               typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+               typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+               typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+               typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+               typename bslmf::ForwardingType<ARGS_10>::Type args_10)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10); }
+
+};
+
+
+template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08,
+                                                   ARGS_09>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08,
+                                                   ARGS_09,
+                                                   ARGS_10>
+{
+};
+
+
+template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)() const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04,
+                                                                   ARGS_05>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04,
+                                                                   ARGS_05,
+                                                                   ARGS_06>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04,
+                                                                   ARGS_05,
+                                                                   ARGS_06,
+                                                                   ARGS_07>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04,
+                                                                   ARGS_05,
+                                                                   ARGS_06,
+                                                                   ARGS_07,
+                                                                   ARGS_08>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04,
+                                                                   ARGS_05,
+                                                                   ARGS_06,
+                                                                   ARGS_07,
+                                                                   ARGS_08,
+                                                                   ARGS_09>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04,
+                                                                   ARGS_05,
+                                                                   ARGS_06,
+                                                                   ARGS_07,
+                                                                   ARGS_08,
+                                                                   ARGS_09,
+                                                                   ARGS_10>
+{
+};
+
+
+template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)() volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04,
+                                                                      ARGS_05>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04,
+                                                                      ARGS_05,
+                                                                      ARGS_06>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04,
+                                                                      ARGS_05,
+                                                                      ARGS_06,
+                                                                      ARGS_07>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04,
+                                                                      ARGS_05,
+                                                                      ARGS_06,
+                                                                      ARGS_07,
+                                                                      ARGS_08>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04,
+                                                                      ARGS_05,
+                                                                      ARGS_06,
+                                                                      ARGS_07,
+                                                                      ARGS_08,
+                                                                      ARGS_09>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10
+                                                ) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04,
+                                                                      ARGS_05,
+                                                                      ARGS_06,
+                                                                      ARGS_07,
+                                                                      ARGS_08,
+                                                                      ARGS_09,
+                                                                      ARGS_10>
+{
+};
+
+
+template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)() const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08,
+                                                   ARGS_09>
+{
+};
+
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08,
+                                                   ARGS_09,
+                                                   ARGS_10>
+{
+};
+
+
+
+template <class RET>
+class function<RET()> :
+        public Function_ArgTypes<RET()>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()() const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01>
+class function<RET(ARGS_01)> :
+        public Function_ArgTypes<RET(ARGS_01)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+class function<RET(ARGS_01,
+                   ARGS_02)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                        typename bslmf::ForwardingType<ARGS_04>::Type args_04);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04,
+                                     ARGS_05)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                        typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                        typename bslmf::ForwardingType<ARGS_05>::Type args_05);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04,
+                                     ARGS_05,
+                                     ARGS_06)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                        typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                        typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                        typename bslmf::ForwardingType<ARGS_06>::Type args_06);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04,
+                                     ARGS_05,
+                                     ARGS_06,
+                                     ARGS_07)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                        typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                        typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                        typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                        typename bslmf::ForwardingType<ARGS_07>::Type args_07);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04,
+                                     ARGS_05,
+                                     ARGS_06,
+                                     ARGS_07,
+                                     ARGS_08)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                        typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                        typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                        typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                        typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                        typename bslmf::ForwardingType<ARGS_08>::Type args_08);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04,
+                                     ARGS_05,
+                                     ARGS_06,
+                                     ARGS_07,
+                                     ARGS_08,
+                                     ARGS_09)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                        typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                        typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                        typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                        typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                        typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                        typename bslmf::ForwardingType<ARGS_09>::Type args_09);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+class function<RET(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09,
+                   ARGS_10)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04,
+                                     ARGS_05,
+                                     ARGS_06,
+                                     ARGS_07,
+                                     ARGS_08,
+                                     ARGS_09,
+                                     ARGS_10)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                        typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                        typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                        typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                        typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                        typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                        typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                        typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                        typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                        typename bslmf::ForwardingType<ARGS_10>::Type args_10);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type,
+                                typename bslmf::ForwardingType<ARGS_10>::Type);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type,
+                                typename bslmf::ForwardingType<ARGS_10>::Type);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC));
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09,
+                   ARGS_10) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+
+template <class RET>
+bool operator==(const function<RET()>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator==(const function<RET(ARGS_01)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07,
+                                   ARGS_08)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07,
+                                   ARGS_08,
+                                   ARGS_09)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator==(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07,
+                                   ARGS_08,
+                                   ARGS_09,
+                                   ARGS_10)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+bool operator==(nullptr_t, const function<RET()>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator==(nullptr_t, const function<RET(ARGS_01)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07,
+                                              ARGS_08)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07,
+                                              ARGS_08,
+                                              ARGS_09)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator==(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07,
+                                              ARGS_08,
+                                              ARGS_09,
+                                              ARGS_10)>&) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+bool operator!=(const function<RET()>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator!=(const function<RET(ARGS_01)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07,
+                                   ARGS_08)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07,
+                                   ARGS_08,
+                                   ARGS_09)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator!=(const function<RET(ARGS_01,
+                                   ARGS_02,
+                                   ARGS_03,
+                                   ARGS_04,
+                                   ARGS_05,
+                                   ARGS_06,
+                                   ARGS_07,
+                                   ARGS_08,
+                                   ARGS_09,
+                                   ARGS_10)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+bool operator!=(nullptr_t, const function<RET()>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator!=(nullptr_t, const function<RET(ARGS_01)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07,
+                                              ARGS_08)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07,
+                                              ARGS_08,
+                                              ARGS_09)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator!=(nullptr_t, const function<RET(ARGS_01,
+                                              ARGS_02,
+                                              ARGS_03,
+                                              ARGS_04,
+                                              ARGS_05,
+                                              ARGS_06,
+                                              ARGS_07,
+                                              ARGS_08,
+                                              ARGS_09,
+                                              ARGS_10)>&) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+void swap(function<RET()>&, function<RET()>&);
+
+template <class RET, class ARGS_01>
+void swap(function<RET(ARGS_01)>&, function<RET(ARGS_01)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+void swap(function<RET(ARGS_01,
+                       ARGS_02)>&, function<RET(ARGS_01,
+                                                ARGS_02)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08,
+                       ARGS_09)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09)>&);
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+void swap(function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08,
+                       ARGS_09,
+                       ARGS_10)>&, function<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10)>&);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE,
+          class RET, class... ARGS>
+struct Function_MemFuncInvokeImp {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    static
+    RET invoke_imp(true_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args)
+        { return (obj.*f)(args...); }
+
+    static
+    RET invoke_imp(false_type, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args)
+        { return ((*obj).*f)(args...); }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS>::Type... args)
+        { return invoke_imp(DirectInvoke(), f, obj, args...); }
+
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS...>
+{
+};
+
+
+template <class RET, class... ARGS>
+class function<RET(ARGS...)> :
+        public Function_ArgTypes<RET(ARGS...)>,
+        public Function_Rep
+{
+
+
+
+
+    typedef RET Invoker(const Function_Rep* rep,
+                        typename bslmf::ForwardingType<ARGS>::Type... args);
+
+    typedef Function_Rep::FuncType FuncType;
+
+    Invoker *d_invoker_p;
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&,
+                              bslmf::SelectTraitCase<FitsInplace>);
+
+    template <class FUNC>
+    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
+
+    template <class FUNC>
+    static RET functionPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
+
+    template <class FUNC>
+    static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
+
+public:
+    typedef RET result_type;
+
+    function() BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(const function&);
+    template<class FUNC> function(FUNC);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, nullptr_t);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                   const function&);
+    template<class FUNC, class ALLOC> function(allocator_arg_t, const ALLOC&,
+                                               FUNC);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function(function&&);
+    template<class ALLOC> function(allocator_arg_t, const ALLOC&, function&&);
+#endif
+
+    ~function();
+
+    function& operator=(const function&);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&&);
+#endif
+    function& operator=(nullptr_t);
+    template<class FUNC>
+    function& operator=(FUNC&&);
+
+
+    void swap(function&) BSLS_NOTHROW_SPEC;
+    template<class FUNC, class ALLOC> void assign(FUNC&&, const ALLOC&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit
+#endif
+    operator bool() const BSLS_NOTHROW_SPEC;
+
+    RET operator()(ARGS...) const;
+
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+};
+
+template <class RET, class... ARGS>
+bool operator==(const function<RET(ARGS...)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+bool operator==(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+bool operator!=(const function<RET(ARGS...)>&, nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+bool operator!=(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+void swap(function<RET(ARGS...)>&, function<RET(ARGS...)>&);
+
+// }}} END GENERATED CODE
 #endif
 
 }  // close namespace bsl
@@ -999,6 +4867,12 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
             integral_constant<AllocType, BSLMA_ALLOC_PTR>());
 }
 
+inline
+bslma::Allocator *bsl::Function_Rep::allocator() const
+{
+    return d_allocator_p;
+}
+
                         // ----------------------------
                         // class template bsl::function
                         // ----------------------------
@@ -1300,6 +5174,7070 @@ void swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
     a.swap(b);
 }
 
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.cpp bslstl_function.t.cpp
+
+template <class RET>
+template <class FUNC>
+RET bsl::function<RET()>::functionPtrInvoker(const Function_Rep *rep)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f();
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08,
+             args_09);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10)>::functionPtrInvoker(const Function_Rep *rep,
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                         typename bslmf::ForwardingType<ARGS_10>::Type args_10)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08,
+             args_09,
+             args_10);
+}
+
+
+template <class RET>
+template <class FUNC>
+RET bsl::function<RET()>::memFuncPtrInvoker(const Function_Rep *rep)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f);
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03,
+                                                            args_04);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03,
+                                                            args_04,
+                                                            args_05);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03,
+                                                            args_04,
+                                                            args_05,
+                                                            args_06);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03,
+                                                            args_04,
+                                                            args_05,
+                                                            args_06,
+                                                            args_07);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03,
+                                                            args_04,
+                                                            args_05,
+                                                            args_06,
+                                                            args_07,
+                                                            args_08);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03,
+                                                            args_04,
+                                                            args_05,
+                                                            args_06,
+                                                            args_07,
+                                                            args_08,
+                                                            args_09);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                         typename bslmf::ForwardingType<ARGS_10>::Type args_10)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09,
+                                            ARGS_10>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
+                                                            args_02,
+                                                            args_03,
+                                                            args_04,
+                                                            args_05,
+                                                            args_06,
+                                                            args_07,
+                                                            args_08,
+                                                            args_09,
+                                                            args_10);
+}
+
+
+template <class RET>
+template <class FUNC>
+inline
+typename bsl::function<RET()>::Invoker *
+bsl::function<RET()>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01)>::Invoker *
+bsl::function<RET(ARGS_01)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09,
+                           ARGS_10)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+
+template <class RET>
+template <class FUNC>
+typename bsl::function<RET()>::Invoker *
+bsl::function<RET()>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01)>::Invoker *
+bsl::function<RET(ARGS_01)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09,
+                           ARGS_10)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+
+template <class RET>
+template <class FUNC>
+typename bsl::function<RET()>::Invoker *
+bsl::function<RET()>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01)>::Invoker *
+bsl::function<RET(ARGS_01)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09,
+                           ARGS_10)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+
+template <class RET>
+template <class FUNC>
+typename bsl::function<RET()>::Invoker *
+bsl::function<RET()>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01)>::Invoker *
+bsl::function<RET(ARGS_01)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+typename bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09,
+                           ARGS_10)>::Invoker *
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+
+template <class RET>
+bsl::function<RET()>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+
+template <class RET>
+bsl::function<RET()>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+
+template <class RET>
+bsl::function<RET()>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(const function&)
+{
+}
+
+
+template <class RET>
+template<class FUNC>
+bsl::function<RET()>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01>
+template<class FUNC>
+bsl::function<RET(ARGS_01)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+
+template <class RET>
+template<class ALLOC>
+bsl::function<RET()>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)() = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01>
+template<class ALLOC>
+bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+
+template <class RET>
+template<class ALLOC>
+bsl::function<RET()>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)() = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01>
+template<class ALLOC>
+bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+
+template <class RET>
+template<class ALLOC>
+bsl::function<RET()>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01>
+template<class ALLOC>
+bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+
+template <class RET>
+template<class FUNC, class ALLOC>
+bsl::function<RET()>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class RET>
+bsl::function<RET()>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::function(function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::function(function&&)
+{
+}
+
+
+template <class RET>
+template<class ALLOC>
+bsl::function<RET()>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01>
+template<class ALLOC>
+bsl::function<RET(ARGS_01
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class ALLOC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10
+                  )>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+
+#endif
+
+template <class RET>
+bsl::function<RET()>::~function()
+{
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::~function()
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::~function()
+{
+}
+
+
+template <class RET>
+bsl::function<RET()>&
+bsl::function<RET()>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>&
+bsl::function<RET(ARGS_01)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::operator=(const function&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::operator=(const function&)
+{
+    return *this;
+}
+
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class RET>
+bsl::function<RET()>&
+bsl::function<RET()>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>&
+bsl::function<RET(ARGS_01)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::operator=(function&&)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::operator=(function&&)
+{
+    return *this;
+}
+
+
+#endif
+
+template <class RET>
+bsl::function<RET()>&
+bsl::function<RET()>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>&
+bsl::function<RET(ARGS_01)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+
+template <class RET>
+template<class FUNC>
+bsl::function<RET()>&
+bsl::function<RET()>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01>
+template<class FUNC>
+bsl::function<RET(ARGS_01)>&
+bsl::function<RET(ARGS_01)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class FUNC>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+
+
+template <class RET>
+void bsl::function<RET()>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01>
+void bsl::function<RET(ARGS_01)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08,
+                       ARGS_09)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08,
+                       ARGS_09,
+                       ARGS_10)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+
+template <class RET>
+template<class FUNC, class ALLOC>
+void bsl::function<RET()>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08,
+                       ARGS_09)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08,
+                       ARGS_09,
+                       ARGS_10)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+
+template <class RET>
+bsl::function<RET()>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01>
+bsl::function<RET(ARGS_01)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+
+template <class RET>
+RET bsl::function<RET()>::operator()() const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01>
+RET bsl::function<RET(ARGS_01)>::operator()(ARGS_01 args_01) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03,
+                                            ARGS_04 args_04) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03,
+                                 args_04);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03,
+                                            ARGS_04 args_04,
+                                            ARGS_05 args_05) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03,
+                                 args_04,
+                                 args_05);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03,
+                                            ARGS_04 args_04,
+                                            ARGS_05 args_05,
+                                            ARGS_06 args_06) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03,
+                                 args_04,
+                                 args_05,
+                                 args_06);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03,
+                                            ARGS_04 args_04,
+                                            ARGS_05 args_05,
+                                            ARGS_06 args_06,
+                                            ARGS_07 args_07) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03,
+                                 args_04,
+                                 args_05,
+                                 args_06,
+                                 args_07);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03,
+                                            ARGS_04 args_04,
+                                            ARGS_05 args_05,
+                                            ARGS_06 args_06,
+                                            ARGS_07 args_07,
+                                            ARGS_08 args_08) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03,
+                                 args_04,
+                                 args_05,
+                                 args_06,
+                                 args_07,
+                                 args_08);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03,
+                                            ARGS_04 args_04,
+                                            ARGS_05 args_05,
+                                            ARGS_06 args_06,
+                                            ARGS_07 args_07,
+                                            ARGS_08 args_08,
+                                            ARGS_09 args_09) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03,
+                                 args_04,
+                                 args_05,
+                                 args_06,
+                                 args_07,
+                                 args_08,
+                                 args_09);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10)>::operator()(ARGS_01 args_01,
+                                            ARGS_02 args_02,
+                                            ARGS_03 args_03,
+                                            ARGS_04 args_04,
+                                            ARGS_05 args_05,
+                                            ARGS_06 args_06,
+                                            ARGS_07 args_07,
+                                            ARGS_08 args_08,
+                                            ARGS_09 args_09,
+                                            ARGS_10 args_10) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args_01,
+                                 args_02,
+                                 args_03,
+                                 args_04,
+                                 args_05,
+                                 args_06,
+                                 args_07,
+                                 args_08,
+                                 args_09,
+                                 args_10);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+
+template <class RET>
+const std::type_info&
+bsl::function<RET()>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01>
+const std::type_info&
+bsl::function<RET(ARGS_01)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+const std::type_info&
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+
+template <class RET>
+template<class T>
+T* bsl::function<RET()>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01>
+template<class T>
+T* bsl::function<RET(ARGS_01)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03,
+                     ARGS_04)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03,
+                     ARGS_04,
+                     ARGS_05)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03,
+                     ARGS_04,
+                     ARGS_05,
+                     ARGS_06)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03,
+                     ARGS_04,
+                     ARGS_05,
+                     ARGS_06,
+                     ARGS_07)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03,
+                     ARGS_04,
+                     ARGS_05,
+                     ARGS_06,
+                     ARGS_07,
+                     ARGS_08)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03,
+                     ARGS_04,
+                     ARGS_05,
+                     ARGS_06,
+                     ARGS_07,
+                     ARGS_08,
+                     ARGS_09)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class T>
+T* bsl::function<RET(ARGS_01,
+                     ARGS_02,
+                     ARGS_03,
+                     ARGS_04,
+                     ARGS_05,
+                     ARGS_06,
+                     ARGS_07,
+                     ARGS_08,
+                     ARGS_09,
+                     ARGS_10)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+
+template <class RET>
+template<class T>
+const T* bsl::function<RET()>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01>
+template<class T>
+const T* bsl::function<RET(ARGS_01)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template<class T>
+const T* bsl::function<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09,
+                           ARGS_10)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+
+template <class RET>
+bool operator==(const bsl::function<RET()>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator==(const bsl::function<RET(ARGS_01)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator==(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09,
+                                        ARGS_10)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET()>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09,
+                                        ARGS_10)>&) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+bool operator!=(const bsl::function<RET()>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator!=(const bsl::function<RET(ARGS_01)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator!=(const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09,
+                                        ARGS_10)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET()>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS_01,
+                                        ARGS_02,
+                                        ARGS_03,
+                                        ARGS_04,
+                                        ARGS_05,
+                                        ARGS_06,
+                                        ARGS_07,
+                                        ARGS_08,
+                                        ARGS_09,
+                                        ARGS_10)>&) BSLS_NOTHROW_SPEC;
+
+
+template <class RET>
+inline
+void swap(bsl::function<RET()>& a, bsl::function<RET()>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01>
+inline
+void swap(bsl::function<RET(ARGS_01)>& a, bsl::function<RET(ARGS_01)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03,
+                            ARGS_04)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03,
+                                                            ARGS_04)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03,
+                            ARGS_04,
+                            ARGS_05)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03,
+                                                            ARGS_04,
+                                                            ARGS_05)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03,
+                            ARGS_04,
+                            ARGS_05,
+                            ARGS_06)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03,
+                                                            ARGS_04,
+                                                            ARGS_05,
+                                                            ARGS_06)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03,
+                            ARGS_04,
+                            ARGS_05,
+                            ARGS_06,
+                            ARGS_07)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03,
+                                                            ARGS_04,
+                                                            ARGS_05,
+                                                            ARGS_06,
+                                                            ARGS_07)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03,
+                            ARGS_04,
+                            ARGS_05,
+                            ARGS_06,
+                            ARGS_07,
+                            ARGS_08)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03,
+                                                            ARGS_04,
+                                                            ARGS_05,
+                                                            ARGS_06,
+                                                            ARGS_07,
+                                                            ARGS_08)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03,
+                            ARGS_04,
+                            ARGS_05,
+                            ARGS_06,
+                            ARGS_07,
+                            ARGS_08,
+                            ARGS_09)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03,
+                                                            ARGS_04,
+                                                            ARGS_05,
+                                                            ARGS_06,
+                                                            ARGS_07,
+                                                            ARGS_08,
+                                                            ARGS_09)>& b)
+{
+    a.swap(b);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+inline
+void swap(bsl::function<RET(ARGS_01,
+                            ARGS_02,
+                            ARGS_03,
+                            ARGS_04,
+                            ARGS_05,
+                            ARGS_06,
+                            ARGS_07,
+                            ARGS_08,
+                            ARGS_09,
+                            ARGS_10)>& a, bsl::function<RET(ARGS_01,
+                                                            ARGS_02,
+                                                            ARGS_03,
+                                                            ARGS_04,
+                                                            ARGS_05,
+                                                            ARGS_06,
+                                                            ARGS_07,
+                                                            ARGS_08,
+                                                            ARGS_09,
+                                                            ARGS_10)>& b)
+{
+    a.swap(b);
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+template <class RET, class... ARGS>
+template <class FUNC>
+RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
+{
+    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    return f(args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep, 
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
+{
+    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
+    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+inline
+typename bsl::function<RET(ARGS...)>::Invoker *
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
+{
+    if (f) {
+        return &functionPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+typename bsl::function<RET(ARGS...)>::Invoker *
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
+                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
+{
+    if (f) {
+        return &memFuncPtrInvoker<FUNC>;
+    }
+    else {
+        return NULL;
+    }
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+typename bsl::function<RET(ARGS...)>::Invoker *
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
+                                      bslmf::SelectTraitCase<FitsInplace>)
+{
+    return NULL;
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+typename bsl::function<RET(ARGS...)>::Invoker *
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+{
+    return NULL;
+}
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = bslma::Default::defaultAllocator();
+    d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
+}
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function(const function&)
+{
+}
+
+template <class RET, class... ARGS>
+template<class FUNC>
+bsl::function<RET(ARGS...)>::function(FUNC func)
+{
+    initRep(func, bslma::Default::defaultAllocator(),
+            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+
+    typedef typename bslmf::SelectTrait<FUNC,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       FitsInplace>::Type TraitSelection;
+
+    d_invoker_p = getInvoker(func, TraitSelection());
+}
+
+template <class RET, class... ARGS>
+template<class ALLOC>
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
+{
+    RET (*nullfunc_p)(ARGS...) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class... ARGS>
+template<class ALLOC>
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
+                                      nullptr_t)
+{
+    RET (*nullfunc_p)(ARGS...) = NULL;
+    initRep(nullfunc_p, alloc, typename bsl::is_pointer<ALLOC>::type());
+
+    d_invoker_p = NULL;
+}
+
+template <class RET, class... ARGS>
+template<class ALLOC>
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&,
+                                    const function&)
+{
+}
+
+template <class RET, class... ARGS>
+template<class FUNC, class ALLOC>
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&, FUNC)
+{
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::function(function&&)
+{
+}
+
+template <class RET, class... ARGS>
+template<class ALLOC>
+bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&, function&&)
+{
+}
+
+#endif
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::~function()
+{
+}
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(const function&)
+{
+    return *this;
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(function&&)
+{
+    return *this;
+}
+
+#endif
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(nullptr_t)
+{
+    return *this;
+}
+
+template <class RET, class... ARGS>
+template<class FUNC>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC))
+{
+    return *this;
+}
+
+
+template <class RET, class... ARGS>
+void bsl::function<RET(ARGS...)>::swap(function&) BSLS_NOTHROW_SPEC
+{
+}
+
+template <class RET, class... ARGS>
+template<class FUNC, class ALLOC>
+void bsl::function<RET(ARGS...)>::assign(
+                                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC),
+                                       const ALLOC&)
+{
+}
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return d_invoker_p;
+}
+
+template <class RET, class... ARGS>
+RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
+{
+    if (d_invoker_p) {
+        return d_invoker_p(this, args...);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+}
+
+template <class RET, class... ARGS>
+const std::type_info&
+bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! *this) {
+        return typeid(void);
+    }
+
+    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    return *static_cast<const std::type_info*>(ret);
+}
+
+template <class RET, class... ARGS>
+template<class T>
+T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
+{
+    if ((! *this) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    return static_cast<T*>(const_cast<void*>(target_p));
+}
+
+template <class RET, class... ARGS>
+template<class T>
+const T* bsl::function<RET(ARGS...)>::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<function*>(this)->target<T>();
+}
+
+template <class RET, class... ARGS>
+bool operator==(const bsl::function<RET(ARGS...)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+bool operator==(bsl::nullptr_t,
+                const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+bool operator!=(const bsl::function<RET(ARGS...)>&,
+                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+bool operator!=(bsl::nullptr_t,
+                const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+
+template <class RET, class... ARGS>
+inline
+void swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
+{
+    a.swap(b);
+}
+
+// }}} END GENERATED CODE
 #endif
 
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
