@@ -112,14 +112,6 @@ struct NthParameter<0, FIRST_PARAM, PARAMS...> {
         // The type of the 0th parameter.
 };
 
-template <>
-struct NthParameter<0, NthParameter_Sentinel> {
-    // Specialization of 'NthParameter' for when 'N' excedes the actual
-    // number of parameters.
-
-    // No 'Type' member is defined.
-};
-
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -499,11 +491,6 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
     typedef FIRST_PARAM Type;
 };
 
-
-template <>
-struct NthParameter<0, NthParameter_Sentinel> {
-
-};
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -522,13 +509,27 @@ struct NthParameter<0, FIRST_PARAM, PARAMS...> {
     typedef FIRST_PARAM Type;
 };
 
-template <>
-struct NthParameter<0, NthParameter_Sentinel> {
-
-};
-
 // }}} END GENERATED CODE
 #endif
+
+template <>
+struct NthParameter<0, NthParameter_Sentinel> {
+    // Specialization of 'NthParameter' for when 'N' excedes the actual
+    // number of parameters.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+    // No 'Type' member is defined.
+#else
+    // Because this is a full specialization, there are no dependent
+    // parameters.  When used in another simulated variadic template, the
+    // compiler may attempt to evaluate the 'Type' member even when that
+    // client is not actually instantiated.  To avoid a spurious compilation
+    // error, we must therefore make sure that 'Type' is defined, even if it
+    // is defined as an incomplete class.
+    typedef NthParameter_Sentinel Type;
+#endif
+
+};
 
 }  // close package namespace
 

@@ -350,8 +350,8 @@ int main(int argc, char *argv[])
             ASSERT(typeid(void) == F.target_type());
             ASSERT(  isConstPtr(F.target<nullptr_t>()));
             ASSERT(! isConstPtr(f.target<nullptr_t>()));
-            ASSERT(nullptr_t() == F.target<nullptr_t>());
-            ASSERT(nullptr_t() == f.target<nullptr_t>());
+            ASSERT(NULL == F.target<nullptr_t>());
+            ASSERT(NULL == f.target<nullptr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -364,36 +364,36 @@ int main(int argc, char *argv[])
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(np == F.target<nullptr_t>());
-            ASSERT(np == f.target<nullptr_t>());
+            ASSERT(NULL == F.target<nullptr_t>());
+            ASSERT(NULL == f.target<nullptr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
         {
             // Construct with protoFunc_t* argument
-            const protoFuncPtr_t nullFuncPtr = 0;
+            const protoFuncPtr_t nullFuncPtr = NULL;
             globalAllocMonitor.reset();
             Obj f(nullFuncPtr); const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(0 == F.target<protoFuncPtr_t>());
-            ASSERT(0 == f.target<protoFuncPtr_t>());
+            ASSERT(NULL == F.target<protoFuncPtr_t>());
+            ASSERT(NULL == f.target<protoFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
         {
             // Construct with protoMemFuncPtr_t argument
-            const protoMemFuncPtr_t nullMemFuncPtr = 0;
+            const protoMemFuncPtr_t nullMemFuncPtr = NULL;
             globalAllocMonitor.reset();
             Obj f(nullMemFuncPtr); const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(0 == F.target<protoMemFuncPtr_t>());
-            ASSERT(0 == f.target<protoMemFuncPtr_t>());
+            ASSERT(NULL == F.target<protoMemFuncPtr_t>());
+            ASSERT(NULL == f.target<protoMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
