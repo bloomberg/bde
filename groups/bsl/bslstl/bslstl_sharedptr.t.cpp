@@ -17,6 +17,7 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
+#include <bsltf_stdstatefulallocator.h>
 
 // Look what the usage examples drag in...
 #include <bslstl_deque.h>
@@ -68,6 +69,8 @@ using namespace BloombergLP;
 // [ 3] bsl::shared_ptrTYPE *ptr, bslma::SharedPtrRep *rep);
 // [ 3] bsl::shared_ptr(OTHER *ptr, DELETER *const& deleter);
 // [ 3] bsl::shared_ptr(OTHER *ptr, const DELETER&, bslma::Allocator * = 0);
+// [ 3] bsl::shared_ptr(OTHER *ptr, const DELETER&, ALLOCATOR *);
+// [ 3] bsl::shared_ptr(OTHER *ptr, const DELETER&, ALLOCATOR);
 // [ 3] bsl::shared_ptr(nullptr_t, const DELETER&, bslma::Allocator * = 0);
 //*[  ] bsl::shared_ptr(bslma::ManagedPtr<OTHER>, bslma::Allocator * = 0);
 // [ 3] bsl::shared_ptr(std::auto_ptr<OTHER>, bslma::Allocator * = 0);
@@ -6564,9 +6567,38 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations == ta.numDeallocations());
 #endif  // BSLS_PLATFORM_CMP_IBM
 
-        if (verbose)
-            printf("\nTesting constructor (with deleter and allocator)"
-                   "\n------------------------------------------------\n");
+        if (verbose) printf(
+                "\nTesting constructor (with deleter and bslma::allocator)"
+                "\n-------------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            MyTestDeleter deleter(&ta);
+            bslma::Allocator *ba = &ta;
+            Obj x(p, deleter, ba); const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT((numDeallocations+2) == ta.numDeallocations());
+
+        
+        if (verbose) printf(
+               "\nTesting constructor (with deleter and derived allocator)"
+               "\n--------------------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -6592,9 +6624,97 @@ int main(int argc, char *argv[])
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
 
-        if (verbose)
-            printf("\nTesting ctor (with function pointer and allocator)"
-                   "\n--------------------------------------------------\n");
+        if (verbose) printf(
+              "\nTesting constructor (with deleter and standard allocator)"
+              "\n---------------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            MyTestDeleter deleter(&ta);
+            bsltf::StdStatefulAllocator<TObj, false, false, false, false>
+                                                                    alloc(&ta);
+            Obj x(p, deleter, alloc);  const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERTV(numDeletes, 0 == numDeletes);
+            ASSERTV(p, X.ptr(), p == X.ptr());
+            ASSERTV(X.numReferences(), 1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERTV(numDeletes, 1 == numDeletes);
+        ASSERTV((numDeallocations+2),   ta.numDeallocations(),
+                (numDeallocations+2) == ta.numDeallocations());
+
+
+        if (verbose) printf(
+           "\nTesting constructor (with deleter and propagating allocator)"
+           "\n------------------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            MyTestDeleter deleter(&ta);
+            bsltf::StdStatefulAllocator<TObj> alloc(&ta);
+            Obj x(p, deleter, alloc);  const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT((numDeallocations+2) == ta.numDeallocations());
+
+
+        if (verbose) printf(
+               "\nTesting ctor (with function pointer and bslma allocator)"
+               "\n--------------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            bslma::Allocator *ba = &ta;
+            Obj x(&testObject, &TestDriver::doNotDelete<TObj>, ba);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+
+        if (verbose) printf(
+             "\nTesting ctor (with function pointer and derived allocator)"
+             "\n----------------------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
         {
@@ -6619,9 +6739,98 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
 
+
+        if (verbose) printf(
+            "\nTesting ctor (with function pointer and standard allocator)"
+            "\n-----------------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            bsltf::StdStatefulAllocator<TObj, false, false, false, false>
+                                                                    alloc(&ta);
+            Obj x(&testObject, &TestDriver::doNotDelete<TObj>, alloc);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+
+
+        if (verbose) printf(
+         "\nTesting ctor (with function pointer and propagating allocator)"
+         "\n--------------------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            bsltf::StdStatefulAllocator<TObj> alloc(&ta);
+            Obj x(&testObject, &TestDriver::doNotDelete<TObj>, alloc);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+
+
 #if !defined(BSLS_PLATFORM_CMP_IBM)
         if (verbose) printf(
-                        "\nTesting ctor (with function type and allocator)"
+                        "\nTesting ctor (with function type and bslma allocator)"
+                        "\n-----------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            bslma::Allocator *ba = &ta;
+            Obj x(&testObject, TestDriver::doNotDelete<TObj>, ba);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+
+
+        if (verbose) printf(
+                        "\nTesting ctor (with function type and derived allocator)"
                         "\n-----------------------------------------------\n");
 
         numDeallocations = ta.numDeallocations();
@@ -6646,6 +6855,68 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
+
+
+#if defined(BSLSTL_SWITCH_OVER_TO_PASS_DELETER_BY_VALUE)
+        if (verbose) printf(
+                        "\nTesting ctor (with function type and standard allocator)"
+                        "\n-----------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            bsltf::StdStatefulAllocator<TObj, false, false, false, false>
+                                                                    alloc(&ta);
+            Obj x(&testObject, TestDriver::doNotDelete<TObj>, alloc);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+
+
+        if (verbose) printf(
+                        "\nTesting ctor (with function type and propagating allocator)"
+                        "\n-----------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj testObject(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            bsltf::StdStatefulAllocator<TObj> alloc(&ta);
+            Obj x(&testObject, TestDriver::doNotDelete<TObj>, alloc);
+            const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.numReferences());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(&testObject == X.ptr());
+            ASSERT(1 == X.numReferences());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations+1 == ta.numDeallocations());
+#endif
+
 #endif  // BSLS_PLATFORM_CMP_IBM
 
         if (verbose) printf("\nTesting constructor (with rep)"

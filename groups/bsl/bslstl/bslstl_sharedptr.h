@@ -1543,6 +1543,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_managedptr.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_SHAREDPTRALLOCATEOUTOFPLACEREP
+#include <bslma_sharedptrallocateoutofplacerep.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_SHAREDPTRINPLACEREP
 #include <bslma_sharedptrinplacerep.h>
 #endif
@@ -1863,8 +1867,8 @@ class shared_ptr {
         // section in the component-level documentation.)  If 'COMPATIBLE_TYPE
         // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
         // diagnostic will be emitted indicating the error.  Also note that if
-        // 'ptr' is 0, an empty shared pointer is created and 'deleter' is
-        // ignored.
+        // 'ptr' is 0, then the null pointer will be reference counted, and the
+        // deleter will be called when the last reference is destroyed.
 
     template <class COMPATIBLE_TYPE, class DELETER>
     shared_ptr(COMPATIBLE_TYPE               *ptr,
@@ -1884,8 +1888,49 @@ class shared_ptr {
         // section in the component- level documentation.)  If 'COMPATIBLE_TYPE
         // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
         // diagnostic will be emitted indicating the error.  Also note that if
-        // 'ptr' is 0, an empty shared pointer is created and 'deleter' and
-        // 'basicAllocator' are ignored.
+        // 'ptr' is 0, then the null pointer will be reference counted, and the
+        // deleter will be called when the last reference is destroyed.
+
+    template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
+    shared_ptr(COMPATIBLE_TYPE  *ptr,
+               const DELETER&    deleter,
+               ALLOCATOR        *basicAllocator);
+        // Create a shared pointer that manages a modifiable object of
+        // (template parameter) type 'COMPATIBLE_TYPE' and refers to
+        // '(ELEMENT_TYPE *)ptr', using the specified 'deleter' to delete the
+        // shared object when all references have been released and the
+        // specified 'basicAllocator' to allocate and deallocate the internal
+        // representation of the shared pointer.  If 'DELETER' is a
+        // reference type, then 'deleter' is assumed to be a function-like
+        // deleter that may be invoked to destroy the object referred to by a
+        // single argument of type 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)'
+        // will be called to destroy the shared object).  (See the "Deleters"
+        // section in the component- level documentation.)  If 'COMPATIBLE_TYPE
+        // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  Also note that if
+        // 'ptr' is 0, then the null pointer will be reference counted, and the
+        // deleter will be called when the last reference is destroyed.
+
+    template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
+    shared_ptr(COMPATIBLE_TYPE *ptr,
+               const DELETER&   deleter,
+               ALLOCATOR        basicAllocator,
+               typename ALLOCATOR::value_type * = 0);
+        // Create a shared pointer that manages a modifiable object of
+        // (template parameter) type 'COMPATIBLE_TYPE' and refers to
+        // '(ELEMENT_TYPE *)ptr', using the specified 'deleter' to delete the
+        // shared object when all references have been released and the
+        // specified 'basicAllocator' to allocate and deallocate the internal
+        // representation of the shared pointer.  If 'DELETER' is a
+        // reference type, then 'deleter' is assumed to be a function-like
+        // deleter that may be invoked to destroy the object referred to by a
+        // single argument of type 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)'
+        // will be called to destroy the shared object).  (See the "Deleters"
+        // section in the component- level documentation.)  If 'COMPATIBLE_TYPE
+        // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  Also note that if
+        // 'ptr' is 0, then the null pointer will be reference counted, and the
+        // deleter will be called when the last reference is destroyed.
 
     template <class DELETER>
     shared_ptr(nullptr_t                      nullPointerLiteral,
@@ -3186,6 +3231,37 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 {
     typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
                                                        DELETER> RepMaker;
+
+    d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE  *ptr,
+                                     const DELETER&    deleter,
+                                     ALLOCATOR        *basicAllocator)
+: d_ptr_p(ptr)
+{
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
+                                                       DELETER> RepMaker;
+
+    d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE  *ptr,
+                                     const DELETER&    deleter,
+                                     ALLOCATOR         basicAllocator,
+                                     typename ALLOCATOR::value_type *)
+: d_ptr_p(ptr)
+{
+    typedef
+    BloombergLP::bslma::SharedPtrAllocateOutofplaceRep<COMPATIBLE_TYPE,
+                                                       DELETER,
+                                                       ALLOCATOR> RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
 }
