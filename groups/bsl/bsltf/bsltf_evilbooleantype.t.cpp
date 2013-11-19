@@ -3,12 +3,6 @@
 
 #include <bsls_bsltestutil.h>
 
-// bsls_bsltestutil.h use of __builtin_expect() fails w/ bsltf_evilbooleantype
-#undef  __builtin_expect
-#define __builtin_expect(cond, expect)  (cond)
-#undef  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY
-#define BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(expr)  (expr)
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -58,7 +52,7 @@ static void aSsErT(bool b, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERT(X)    BSLS_BSLTESTUTIL_ASSERT((bool)(X))
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
