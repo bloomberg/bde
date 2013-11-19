@@ -94,7 +94,7 @@
 
           # IBM Visual Age xlC
           [ 'compiler_tag == "xlC"', {
-            'defines_base': [ '__unix',
+            'defines_base': [
                               '__VACPP_MULTI__',   # thread aware (or use xlC_r)
                               # (optional) see "xlC streams optimization" below
                               #'__NOLOCK_ON_INPUT', '__NOLOCK_ON_OUTPUT',
@@ -195,9 +195,6 @@
 
 
           [ 'OS == "mac"', {
-            'defines_base': [
-              '__unix',              # xcodebuild/clang does not define __unix
-            ],
             'cflags_abi_32=': [ 'i386' ],
             'cflags_abi_64=': [ 'x86_64' ],
           }],
