@@ -347,9 +347,9 @@ int main(int argc, char *argv[])
                                   baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 1 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
-        ASSERT(string::npos != o.str().find("AlwaysAssert"));
+        ASSERT(string::npos != o.str().find("printStackTrace"));
         o.str(string());
-        ASSERT(string::npos == o.str().find("AlwaysAssert"));
+        ASSERT(string::npos == o.str().find("printStackTrace"));
 
         if (veryVerbose) { T_ cout << "Severity ERROR" << endl; }
         baesu_AssertionLogger::setDefaultLogSeverity(
@@ -360,9 +360,9 @@ int main(int argc, char *argv[])
                                   baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
-        ASSERT(string::npos != o.str().find("AlwaysAssert"));
+        ASSERT(string::npos != o.str().find("printStackTrace"));
         o.str(string());
-        ASSERT(string::npos == o.str().find("AlwaysAssert"));
+        ASSERT(string::npos == o.str().find("printStackTrace"));
 
         if (veryVerbose) { T_ cout << "Severity WARN" << endl; }
         baesu_AssertionLogger::setDefaultLogSeverity(bael_Severity::BAEL_WARN);
@@ -397,9 +397,9 @@ int main(int argc, char *argv[])
                                   baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
-        ASSERT(string::npos != o.str().find("AlwaysAssert"));
+        ASSERT(string::npos != o.str().find("printStackTrace"));
         o.str(string());
-        ASSERT(string::npos == o.str().find("AlwaysAssert"));
+        ASSERT(string::npos == o.str().find("printStackTrace"));
 
         baesu_AssertionLogger::setLogSeverityCallback(warnCb.callback, &cb);
         baesu_AssertionLogger::getLogSeverityCallback(&cb, &cl);
