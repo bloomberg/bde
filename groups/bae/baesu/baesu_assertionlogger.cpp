@@ -5,7 +5,7 @@
 BDES_IDENT_RCSID(baesu_assertionlogger_cpp,"$Id$ $CSID$")
 
 #include <bael_log.h>
-#include <baesu_stacktraceprintutil.h>
+#include <baesu_stacktraceutil.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -20,7 +20,7 @@ struct StackTrace
 bsl::ostream& operator<<(bsl::ostream& stream, const StackTrace&)
     // Print a stack trace to the specified 'stream'.
 {
-    return baesu_StackTracePrintUtil::printStackTrace(stream);
+    return baesu_StackTraceUtil::hexStackTrace(stream);
 }
 
 // STATIC DATA

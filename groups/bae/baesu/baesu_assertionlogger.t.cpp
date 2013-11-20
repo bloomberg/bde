@@ -217,15 +217,12 @@ void protect_the_subsystem()
 }
 //..
 // Finally, we activate the logging handler and find logged errors similar to
-// the following, indicating bugs that must be fixed:
+// the following, indicating bugs that must be fixed.  The hexadecimal stack
+// trace can be merged against the executable program to determine the location
+// of the error.
 //..
 // Assertion failed: (*this)[this->d_length] == CHAR_TYPE()...
-// (0): BloombergLP::baesu_StackTracePrintUtil::printStackTrace...
-// (1): BloombergLP::baesu_AssertionLogger::failTrace...
-// (2): bsl::basic_string<...>::~basic_string...
-// (3): big_important_highly_visible_subsystem()...
-// (4): protect_the_subsystem()...
-// (5): main...
+// 0x804f45a 0x804c72e 0x804c775 0x804c990 0x6e7e9c 0x804c351
 //..
 
 // ============================================================================
@@ -347,9 +344,9 @@ int main(int argc, char *argv[])
                                   baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 1 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
-        ASSERT(string::npos != o.str().find("printStackTrace"));
+        ASSERT(string::npos != o.str().find(" 0x"));
         o.str(string());
-        ASSERT(string::npos == o.str().find("printStackTrace"));
+        ASSERT(string::npos == o.str().find(" 0x"));
 
         if (veryVerbose) { T_ cout << "Severity ERROR" << endl; }
         baesu_AssertionLogger::setDefaultLogSeverity(
@@ -360,9 +357,9 @@ int main(int argc, char *argv[])
                                   baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
-        ASSERT(string::npos != o.str().find("printStackTrace"));
+        ASSERT(string::npos != o.str().find(" 0x"));
         o.str(string());
-        ASSERT(string::npos == o.str().find("printStackTrace"));
+        ASSERT(string::npos == o.str().find(" 0x"));
 
         if (veryVerbose) { T_ cout << "Severity WARN" << endl; }
         baesu_AssertionLogger::setDefaultLogSeverity(bael_Severity::BAEL_WARN);
@@ -397,9 +394,9 @@ int main(int argc, char *argv[])
                                   baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
-        ASSERT(string::npos != o.str().find("printStackTrace"));
+        ASSERT(string::npos != o.str().find(" 0x"));
         o.str(string());
-        ASSERT(string::npos == o.str().find("printStackTrace"));
+        ASSERT(string::npos == o.str().find(" 0x"));
 
         baesu_AssertionLogger::setLogSeverityCallback(warnCb.callback, &cb);
         baesu_AssertionLogger::getLogSeverityCallback(&cb, &cl);
