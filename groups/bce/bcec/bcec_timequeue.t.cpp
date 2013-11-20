@@ -172,8 +172,8 @@ class TestString {
         // Destroy this string object.
 
     // MANIPULATORS
-    TestString& operator=(const TestString& s);
-    TestString& operator=(const bsl::string& s);
+    TestString& operator=(const TestString& rhs);
+    TestString& operator=(const bsl::string& rhs);
         // Assign the string 's' to this instance.
 
     // ACCESSORS
@@ -185,11 +185,11 @@ class TestString {
 bsl::ostream& operator<<(bsl::ostream& os, const TestString& string);
     // Output the specified 'string' to the specified 'stream'.
 
-bool operator==(const TestString& s1, const TestString& s2);
+bool operator==(const TestString& lhs, const TestString& rhs);
     // Return 0 whether the specified strings 's1' and 's2' hold the same C++
     // string and 1 if not.
 
-bool operator!=(const TestString& s1, const TestString& s2);
+bool operator!=(const TestString& lhs, const TestString& rhs);
     // Return 0 whether the specified strings 's1' and 's2' do not hold the
     // same C++ string and 1 if they do.
 
@@ -228,26 +228,26 @@ TestString::~TestString()
 }
 
 // MANIPULATORS
-TestString& TestString::operator=(const TestString& s)
+TestString& TestString::operator=(const TestString& rhs)
 {
     if (d_string_p) {
         d_allocator_p->deleteObjectRaw(d_string_p);
         d_string_p = 0;
     }
-    if (s.d_string_p) {
-        d_string_p = new(*d_allocator_p) bsl::string(*s.d_string_p,
+    if (rhs.d_string_p) {
+        d_string_p = new(*d_allocator_p) bsl::string(*rhs.d_string_p,
                                                      d_allocator_p);
     }
     return *this;
 }
 
-TestString& TestString::operator=(const bsl::string& s)
+TestString& TestString::operator=(const bsl::string& rhs)
 {
     if (d_string_p) {
         d_allocator_p->deleteObjectRaw(d_string_p);
         d_string_p = 0;
     }
-    d_string_p = new(*d_allocator_p) bsl::string(s, d_allocator_p);
+    d_string_p = new(*d_allocator_p) bsl::string(rhs, d_allocator_p);
     return *this;
 }
 
@@ -255,7 +255,7 @@ TestString& TestString::operator=(const bsl::string& s)
 TestString::operator const bsl::string&() const
 {
     if (d_string_p) {
-        return *d_string_p;
+        return *d_string_p;                                           // RETURN
     }
     return s_emptyString;
 }
@@ -266,14 +266,14 @@ bsl::ostream& operator<<(bsl::ostream& os, const TestString& s)
     return os << (const bsl::string&)s;
 }
 
-bool operator==(const TestString& s1, const TestString& s2)
+bool operator==(const TestString& lhs, const TestString& rhs)
 {
-    return (const bsl::string&)s1 == (const bsl::string&)s2;
+    return (const bsl::string&) lhs == (const bsl::string&) rhs;
 }
 
-bool operator!=(const TestString& s1, const TestString& s2)
+bool operator!=(const TestString& lhs, const TestString& rhs)
 {
-    return !(s1 == s2);
+    return !(lhs == rhs);
 }
 
 //=============================================================================
@@ -296,7 +296,7 @@ TimeQueue timequeue(&ta);
 
 bcemt_Barrier barrier(NUM_THREADS + 1);
 
-struct case11ThreadInfo {
+struct Case11ThreadInfo {
     int                         d_id;
     bsl::vector<TimeQueueItem> *d_items_p;
 };
@@ -307,7 +307,7 @@ void *testAddUpdatePopRemoveAll(void *arg)
     // Invoke 'add', 'update', 'popFront', 'popLE', and/or 'removeAll' in a
     // loop.
 {
-    case11ThreadInfo *info = (case11ThreadInfo*)arg;
+    Case11ThreadInfo *info = (Case11ThreadInfo*)arg;
     const int THREAD_ID = info->d_id;
     bsl::vector<TimeQueueItem> *vPtr = info->d_items_p;
 
@@ -370,7 +370,7 @@ void *testLength(void *)
 
 } // extern "C"
 
-} // close namespace BCEC_TIMEQUEUE_TEST_CASE_11
+}  // close namespace BCEC_TIMEQUEUE_TEST_CASE_11
 //=============================================================================
 //                      CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -391,6 +391,7 @@ class TestLockObject {
 
   public:
     // CREATORS
+    explicit
     TestLockObject(const bcec_TimeQueue<TestLockObject> *queue = 0,
                    int                                  *numDestructions = 0,
                    int                                   verbose = 0);
@@ -445,7 +446,7 @@ void TestLockObject::reset()
     d_timeQueue_p = 0;
 }
 
-} // close namespace BCEC_TIMEQUEUE_TEST_CASE_10
+}  // close namespace BCEC_TIMEQUEUE_TEST_CASE_10
 
 //=============================================================================
 //                      CASE -100 RELATED ENTITIES
@@ -476,20 +477,20 @@ void threadFunc(bcec_TimeQueue<int> *timeQueue,
     bsl::vector<bcec_TimeQueueItem<int> > resubmit;
     bsls::Stopwatch sw;
 
-    for(int i=0; i<numIterations; i++) {
-        if( verbose ) {
+    for (int i=0; i<numIterations; i++) {
+        if ( verbose ) {
             sw.start();
         }
 
         // "send" messages
-        for(int snd=0; snd<sendCount; snd++) {
+        for (int snd=0; snd<sendCount; snd++) {
             currentTime++;
             bdet_TimeInterval t(currentTime + delay, 0);
             timers[snd] = timeQueue->add(t, delay);
         }
 
         // "receive" replies
-        for(int rcv=0; rcv<rcvCount; rcv++) {
+        for (int rcv=0; rcv<rcvCount; rcv++) {
             timeQueue->remove(timers[rcv]);
         }
 
@@ -497,13 +498,13 @@ void threadFunc(bcec_TimeQueue<int> *timeQueue,
         bdet_TimeInterval now(currentTime, 0);
         timeQueue->popLE(now, &resubmit);
         int numResubmitted = resubmit.size();
-        for(int retry=0; retry<numResubmitted; retry++) {
+        for (int retry=0; retry<numResubmitted; retry++) {
             int newdelay = resubmit[retry].data() * 2;
             bdet_TimeInterval t(currentTime + newdelay, 0);
             timeQueue->add(t, newdelay);
         }
 
-        if( verbose ) {
+        if (verbose) {
             sw.stop();
 
             int iteration = i;
@@ -544,7 +545,7 @@ void run()
 
 }
 
-} // close namespace BCEC_TIMEQUEUE_TEST_CASE_MINUS_100
+}  // close namespace BCEC_TIMEQUEUE_TEST_CASE_MINUS_100
 
 //=============================================================================
 //          USAGE EXAMPLE from header (with assert replaced with ASSERT)
@@ -604,7 +605,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         // manage an external connection like a socket.
 
       public:
-        inline my_Session();
+        my_Session();
         virtual int processData(void *data, int length) = 0;
         virtual int handleTimeout(my_Connection *connection) = 0;
         virtual ~my_Session();
@@ -612,6 +613,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 //..
 // The constructor and destructor do nothing:
 //..
+    inline
     my_Session::my_Session()
     {
     }
@@ -682,11 +684,12 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
             // Monitor all timers in the current 'my_Server', and handle each
             // timer as it expires.
 
-        friend void* my_connectionMonitorThreadEntry(void *server);
-        friend void* my_timerMonitorThreadEntry(void *server);
+        friend void* my_connectionMonitorThreadEntry(void *);
+        friend void* my_timerMonitorThreadEntry(void *);
 
       public:
         // CREATORS
+        explicit
         my_Server(int ioTimeout, bslma::Allocator *allocator=0);
             // Construct a 'my_Server' object with a timeout value of
             // 'ioTimeout' seconds.  Use the specified 'allocator' for all
@@ -810,7 +813,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 //..
     void my_Server::monitorTimers()
     {
-        while(!d_done) {
+        while (!d_done) {
             bsl::vector<bcec_TimeQueueItem<my_Connection*> > expiredTimers;
             {
                 bcemt_LockGuard<bcemt_Mutex> lock(&d_timerMonitorMutex);
@@ -840,7 +843,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
             if (length) {
                 bcec_TimeQueueItem<my_Connection*> *data =
                                                         &expiredTimers.front();
-                for( int i=0; i < length; ++i) {
+                for (int i = 0; i < length; ++i) {
                     closeConnection(data[i].data());
                 }
             }
@@ -862,13 +865,13 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         if (bcemt_ThreadUtil::create(&d_connectionThreadHandle, attr,
                                      &my_connectionMonitorThreadEntry,
                                      this)) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if (bcemt_ThreadUtil::create(&d_timerThreadHandle, attr,
                                      &my_timerMonitorThreadEntry,
                                      this)) {
-            return -1;
+            return -1;                                                // RETURN
         }
         return 0;
     }
@@ -906,10 +909,12 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         int d_verbose;
       public:
         // CREATORS
+        explicit
         my_TestSession(int verbose) : my_Session(), d_verbose(verbose) { }
 
         // MANIPULATORS
-        virtual int handleTimeout(my_Connection *connection) {
+        virtual int handleTimeout(my_Connection *connection)
+        {
             // Do something to handle timeout.
             if (d_verbose) {
                 bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
@@ -918,7 +923,8 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
             return 0;
         }
 
-        virtual int processData(void *data, int length) {
+        virtual int processData(void *data, int length)
+        {
             // Do something with the data...
             if (d_verbose) {
                 bsl::cout << bdetu_SystemTime::nowAsDatetimeUtc() << ": ";
@@ -948,6 +954,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
       public:
         // CREATORS
+        explicit
         my_TestServer(int               ioTimeout,
                       int               verbose = 0,
                       bslma::Allocator *allocator = 0)
@@ -1036,7 +1043,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 //  17:10:42.000: Closing connection 0x00161880
 //..
 
-} // close namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE
+}  // close namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE
 
 
 
@@ -1100,7 +1107,7 @@ int main(int argc, char *argv[])
         // CONCERN: Memory Pooling.
         //
         // Note that this is a white-box test added when the 'poolTimerMemory'
-        // flag was removed.  See drqs 35794413.  
+        // flag was removed.  See drqs 35794413.
         //
         // Concerns:
         //  1. That memory using when adding an element to a queue, is
@@ -1122,7 +1129,7 @@ int main(int argc, char *argv[])
         }
 
         bslma::TestAllocator ta;
-        
+
         {
             if (verbose) {
                 cout << "\tAdd, remove, and re-add itesm to the queue" << endl;
@@ -1131,15 +1138,15 @@ int main(int argc, char *argv[])
             bdet_TimeInterval futureTime = bdetu_SystemTime::now() +
                                            bdet_TimeInterval(600, 0);
 
-            
-            Obj x(&ta); 
+
+            Obj x(&ta);
 
             {
                 bslma::TestAllocatorMonitor tam(&ta);
                 x.add(futureTime, "test data 1");
                 x.add(futureTime, "test data 2");
                 x.removeAll();
-            
+
                 ASSERT(tam.isInUseUp());
                 ASSERT(tam.isTotalUp());
             }
@@ -1147,13 +1154,13 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor tam(&ta);
                 x.add(futureTime, "test data 3");
                 x.add(futureTime, "test data 4");
-          
+
                 ASSERT(tam.isInUseSame());
                 ASSERT(tam.isTotalSame());
             }
             x.removeAll();
-            
-        }       
+
+        }
       } break;
       case 12: {
           // ------------------------------------------------------------------
@@ -1320,7 +1327,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_TIMEQUEUE_TEST_CASE_11;
 
-        case11ThreadInfo info[NUM_THREADS];
+        Case11ThreadInfo info[NUM_THREADS];
         bcemt_ThreadUtil::Handle threads[NUM_THREADS + 1];
         bsl::vector<bcec_TimeQueueItem<DATA> > items[NUM_THREADS];
 
@@ -1387,11 +1394,11 @@ int main(int argc, char *argv[])
             const bdet_TimeInterval T3  = NOW + bdet_TimeInterval(3.0);
             const bdet_TimeInterval T4  = NOW + bdet_TimeInterval(4.0);
 
-            /* Obj::Handle f = */ mX.add(NOW, L);
-            /* Obj::Handle g = */ mX.add(T1, L);
-            /* Obj::Handle h = */ mX.add(T2, L);
+            (void) mX.add(NOW, L);
+            (void) mX.add(T1, L);
+            (void) mX.add(T2, L);
             int i = mX.add(T3, L);
-            /* Obj::Handle j = */ mX.add(T4, L);
+            (void) mX.add(T4, L);
             ASSERT(5 == mX.length());
             ASSERT(0 == numDestructions);
 
@@ -1424,7 +1431,7 @@ int main(int argc, char *argv[])
             ASSERT(5 == numDestructions);
 
             if (verbose) cout << "\tat destruction...\n";
-            /* h  = */ mX.add(NOW, L);
+            (void) mX.add(NOW, L);
             mL.reset();  // avoid complications with order of
                          // destruction of L and mX
             ASSERT(1 == mX.length());
@@ -3241,7 +3248,7 @@ int main(int argc, char *argv[])
         bsls::Stopwatch s;
         s.start();
         {
-            Obj mX(&na1); 
+            Obj mX(&na1);
             for (int j = 0, t = 0; j < NUM_OUTER_ITERATIONS; ++j) {
                 for (int k = 0; k < NUM_INNER_ITERATIONS; ++k, ++t) {
                     handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
