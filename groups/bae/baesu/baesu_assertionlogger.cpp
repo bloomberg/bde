@@ -63,7 +63,9 @@ void baesu_AssertionLogger::assertionFailureHandler(const char *text,
             << ", line "
             << line
             << "\n"
+            << "For stack trace, run 'showfunc.tsk <your_program_binary> "
             << StackTrace()
+            << "'\n"
         << BAEL_LOG_END
     }
 }
