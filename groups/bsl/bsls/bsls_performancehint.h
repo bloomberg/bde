@@ -405,20 +405,48 @@ namespace BloombergLP {
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
 #endif
 
+// Disable compiler optimizations reaching across designated fence locations.
+
 #if defined(BSLS_PLATFORM_CMP_IBM)
+    #ifdef __cplusplus
+    #include <builtins.h>
+    #endif
     #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
                              __fence()
-    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE                          \
-                             BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     #include <intrin.h>
     #pragma intrinsic(_ReadWriteBarrier)
     #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
                              _ReadWriteBarrier()
-    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE
-#else
+#elif defined(BSLS_PLATFORM_CMP_HP)
+    #include <machine/sys/inline.h>
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
+                             _Asm_sched_fence(_UP_MEM_FENCE|_DOWN_MEM_FENCE)
+#elif (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5110)
+    #include <mbarrier.h>
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
+                             __compiler_barrier()
+#elif defined(BSLS_PLATFORM_CMP_GNU)                                          \
+   || defined(BSLS_PLATFORM_CMP_CLANG)                                        \
+   || (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5100)
     #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
                              asm volatile ("":::"memory")
+#else
+    #error "BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE not implemented"
+#endif
+
+// Workaround for optimization issue in xlC that mishandles pointer aliasing.
+// Place this macro following each use of placment new.  Alternatively,
+// compile with xlC_r -qalias=noansi, which reduces optimization opportunities
+// across entire translation unit instead of simply across optimization fence.
+// Issue appears to be fixed in xlC 12.1.  When fix is confirmed from IBM, then
+// BSLS_PLATFORM_CMP_VERSION can be checked and macro made a no-op in later
+// versions of xlC compiler.
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE                          \
+                             BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+#else
     #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE
 #endif
 
