@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // Prevent this header from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_function.h> instead of <bslmf_function.h> in \
+#error "include <bsl_function.h> instead of <bslstl_function.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
 
@@ -341,16 +341,11 @@ class Function_Rep {
         // allocation for those function objects is balanced against the waste
         // of space when used with smaller function objects.
 
-        void                *d_object_p;                // pointer to external
-                                                        // representation
-
-        void               (*d_func_p)();               // pointer to function
-
-        void (Function_Rep::*d_memFunc_p)();            // pointer to member
-                                                        // function
-
-        MaxAlignedType       d_align;                   // force align
-        char                 d_minbuf[4*sizeof(void*)]; // force minimum size
+        void                *d_object_p;     // pointer to external rep
+        void               (*d_func_p)();    // pointer to function
+        void (Function_Rep::*d_memFunc_p)(); // pointer to member function
+        MaxAlignedType       d_align;        // force align
+        void                *d_minbuf[4];    // force minimum size
     };
 
     template <class T>
@@ -602,6 +597,14 @@ class function<RET(ARGS...)> :
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS>::Type...);
 
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
+
 public:
     // PUBLIC TYPES
     typedef RET result_type;
@@ -672,7 +675,7 @@ void swap(function<RET(ARGS...)>&, function<RET(ARGS...)>&);
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.cpp bslstl_function.t.cpp
+// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.t.cpp
 
 
 template <class FUNC,
@@ -2480,6 +2483,12 @@ class function<RET()> :
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep);
 
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep);
+
 public:
     typedef RET result_type;
 
@@ -2564,6 +2573,14 @@ class function<RET(ARGS_01)> :
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type);
 
 public:
@@ -2655,6 +2672,16 @@ class function<RET(ARGS_01,
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type,
                                 typename bslmf::ForwardingType<ARGS_02>::Type);
 
@@ -2753,6 +2780,18 @@ class function<RET(ARGS_01,
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type,
                                 typename bslmf::ForwardingType<ARGS_02>::Type,
                                 typename bslmf::ForwardingType<ARGS_03>::Type);
@@ -2858,6 +2897,20 @@ class function<RET(ARGS_01,
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type,
                                 typename bslmf::ForwardingType<ARGS_02>::Type,
                                 typename bslmf::ForwardingType<ARGS_03>::Type,
@@ -2970,6 +3023,22 @@ class function<RET(ARGS_01,
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type,
                                 typename bslmf::ForwardingType<ARGS_02>::Type,
                                 typename bslmf::ForwardingType<ARGS_03>::Type,
@@ -3089,6 +3158,24 @@ class function<RET(ARGS_01,
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type,
                                 typename bslmf::ForwardingType<ARGS_02>::Type,
                                 typename bslmf::ForwardingType<ARGS_03>::Type,
@@ -3223,6 +3310,26 @@ class function<RET(ARGS_01,
                                 typename bslmf::ForwardingType<ARGS_06>::Type,
                                 typename bslmf::ForwardingType<ARGS_07>::Type);
 
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type);
+
 public:
     typedef RET result_type;
 
@@ -3348,6 +3455,28 @@ class function<RET(ARGS_01,
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type,
                                 typename bslmf::ForwardingType<ARGS_02>::Type,
                                 typename bslmf::ForwardingType<ARGS_03>::Type,
@@ -3498,6 +3627,30 @@ class function<RET(ARGS_01,
                                 typename bslmf::ForwardingType<ARGS_08>::Type,
                                 typename bslmf::ForwardingType<ARGS_09>::Type);
 
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type);
+
 public:
     typedef RET result_type;
 
@@ -3635,6 +3788,32 @@ class function<RET(ARGS_01,
 
     template <class FUNC>
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type,
+                                typename bslmf::ForwardingType<ARGS_10>::Type);
+
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS_01>::Type,
+                                typename bslmf::ForwardingType<ARGS_02>::Type,
+                                typename bslmf::ForwardingType<ARGS_03>::Type,
+                                typename bslmf::ForwardingType<ARGS_04>::Type,
+                                typename bslmf::ForwardingType<ARGS_05>::Type,
+                                typename bslmf::ForwardingType<ARGS_06>::Type,
+                                typename bslmf::ForwardingType<ARGS_07>::Type,
+                                typename bslmf::ForwardingType<ARGS_08>::Type,
+                                typename bslmf::ForwardingType<ARGS_09>::Type,
+                                typename bslmf::ForwardingType<ARGS_10>::Type);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS_01>::Type,
                                 typename bslmf::ForwardingType<ARGS_02>::Type,
                                 typename bslmf::ForwardingType<ARGS_03>::Type,
@@ -4472,6 +4651,14 @@ class function<RET(ARGS...)> :
     static RET memFuncPtrInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS>::Type...);
 
+    template <class FUNC>
+    static RET inplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
+
+    template <class FUNC>
+    static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
+                                typename bslmf::ForwardingType<ARGS>::Type...);
+
 public:
     typedef RET result_type;
 
@@ -4730,7 +4917,8 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
       } break;
 
       case DESTROY: {
-          reinterpret_cast<FUNC&>(rep->d_objbuf).~FUNC();
+          reinterpret_cast<FUNC&>(rep->d_objbuf.d_object_p).~FUNC();
+          rep->d_allocator_p->deallocate(rep->d_objbuf.d_object_p);
       } break;
 
       case INPLACE_DETECTION: {
@@ -4746,6 +4934,8 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
       } break;
 
     } // end switch
+
+    return NULL;
 }
 
 
@@ -4761,6 +4951,7 @@ void bsl::Function_Rep::initRep(FUNC& func, bslma::Allocator* alloc,
     }
     else {
         function_p = alloc->allocate(sizeof(FUNC));
+        d_objbuf.d_object_p = function_p;
     }
 
     // Construct function object in designated location
@@ -4903,6 +5094,25 @@ RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
 inline
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
@@ -4936,8 +5146,7 @@ typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    // TBD
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class... ARGS>
@@ -4945,8 +5154,7 @@ template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    // TBD
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 // CREATORS
@@ -5043,6 +5251,13 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&, function&&)
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 // MANIPULATORS
@@ -5177,7 +5392,7 @@ void swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.cpp bslstl_function.t.cpp
+// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.t.cpp
 
 template <class RET>
 template <class FUNC>
@@ -5795,6 +6010,585 @@ RET bsl::function<RET(ARGS_01,
 
 template <class RET>
 template <class FUNC>
+RET bsl::function<RET()>::inplaceFunctorInvoker(const Function_Rep *rep)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f();
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08,
+             args_09);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+RET bsl::function<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10
+                      )>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                         typename bslmf::ForwardingType<ARGS_10>::Type args_10)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08,
+             args_09,
+             args_10);
+}
+
+
+template <class RET>
+template <class FUNC>
+RET
+bsl::function<RET()>::outofplaceFunctorInvoker(const Function_Rep *rep)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f();
+}
+
+template <class RET, class ARGS_01>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08,
+             args_09);
+}
+
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS_01,
+                  ARGS_02,
+                  ARGS_03,
+                  ARGS_04,
+                  ARGS_05,
+                  ARGS_06,
+                  ARGS_07,
+                  ARGS_08,
+                  ARGS_09,
+                  ARGS_10)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                         typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                         typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                         typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                         typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                         typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                         typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                         typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                         typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                         typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                         typename bslmf::ForwardingType<ARGS_10>::Type args_10)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args_01,
+             args_02,
+             args_03,
+             args_04,
+             args_05,
+             args_06,
+             args_07,
+             args_08,
+             args_09,
+             args_10);
+}
+
+
+template <class RET>
+template <class FUNC>
 inline
 typename bsl::function<RET()>::Invoker *
 bsl::function<RET()>::getInvoker(const FUNC& f,
@@ -6390,7 +7184,7 @@ typename bsl::function<RET()>::Invoker *
 bsl::function<RET()>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01>
@@ -6399,7 +7193,7 @@ typename bsl::function<RET(ARGS_01)>::Invoker *
 bsl::function<RET(ARGS_01)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6411,7 +7205,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_02)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6426,7 +7220,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_03)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6444,7 +7238,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_04)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6465,7 +7259,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_05)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6489,7 +7283,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_06)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6516,7 +7310,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_07)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6546,7 +7340,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_08)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6579,7 +7373,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_09)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6615,7 +7409,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_10)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 
@@ -6624,7 +7418,7 @@ template <class FUNC>
 typename bsl::function<RET()>::Invoker *
 bsl::function<RET()>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01>
@@ -6632,7 +7426,7 @@ template <class FUNC>
 typename bsl::function<RET(ARGS_01)>::Invoker *
 bsl::function<RET(ARGS_01)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6643,7 +7437,7 @@ typename bsl::function<RET(ARGS_01,
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6657,7 +7451,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6674,7 +7468,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_03,
                   ARGS_04)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6694,7 +7488,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_04,
                   ARGS_05)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6717,7 +7511,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_05,
                   ARGS_06)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6743,7 +7537,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_06,
                   ARGS_07)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6772,7 +7566,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_07,
                   ARGS_08)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6804,7 +7598,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_08,
                   ARGS_09)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class ARGS_01,
@@ -6839,7 +7633,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_09,
                   ARGS_10)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 
@@ -8795,11 +9589,25 @@ bsl::function<RET(ARGS_01,
 template <class RET>
 bsl::function<RET()>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01>
 bsl::function<RET(ARGS_01)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8807,6 +9615,13 @@ template <class RET, class ARGS_01,
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8816,6 +9631,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8827,6 +9649,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_03,
                   ARGS_04)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8840,6 +9669,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_04,
                   ARGS_05)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8855,6 +9691,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_05,
                   ARGS_06)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8872,6 +9715,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_06,
                   ARGS_07)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8891,6 +9741,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_07,
                   ARGS_08)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8912,6 +9769,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_08,
                   ARGS_09)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class ARGS_01,
@@ -8935,6 +9799,13 @@ bsl::function<RET(ARGS_01,
                   ARGS_09,
                   ARGS_10)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 
@@ -11981,6 +12852,25 @@ RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep, 
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
+{
+    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    return f(args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
+RET
+bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep, 
+                            typename bslmf::ForwardingType<ARGS>::Type... args)
+{
+    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    return f(args...);
+}
+
+template <class RET, class... ARGS>
+template <class FUNC>
 inline
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
@@ -12014,7 +12904,7 @@ typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
                                       bslmf::SelectTraitCase<FitsInplace>)
 {
-    return NULL;
+    return &inplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class... ARGS>
@@ -12022,7 +12912,7 @@ template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 {
-    return NULL;
+    return &outofplaceFunctorInvoker<FUNC>;
 }
 
 template <class RET, class... ARGS>
@@ -12117,6 +13007,13 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&, function&&)
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::~function()
 {
+    if (d_funcManager_p) {
+        d_funcManager_p(DESTROY, NULL, this);
+    }
+
+    if (d_allocManager_p) {
+        d_allocManager_p(DESTROY, NULL, this);
+    }
 }
 
 template <class RET, class... ARGS>

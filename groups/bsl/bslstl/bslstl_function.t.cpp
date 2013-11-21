@@ -211,10 +211,90 @@ typedef bsl::function<OBJ_PROTOTYPE> Obj;
 typedef int (*protoFuncPtr_t)(const RunningSum&, int);
 typedef int (RunningSum::*protoMemFuncPtr_t)(int) const;
 
+// Simple function
 int protoFunc(const RunningSum& rs, int v)
 {
     return rs.value() + v;
 }
+
+// Simple functor with no state
+struct EmptyFunctor
+{
+    // Stateless functor
+
+    int operator()(const RunningSum& rs, int v)
+        { return rs.value() + v; }
+
+    friend bool operator==(const EmptyFunctor&, const EmptyFunctor&)
+        { return true; }
+
+    friend bool operator!=(const EmptyFunctor&, const EmptyFunctor&)
+        { return false; }
+};
+
+class SmallFunctor
+{
+    // Small stateful functor.
+
+    int d_state;  // Arbitrary state to distinguish one instance from another
+
+public:
+    explicit SmallFunctor(int v) : d_state(v) { }
+
+    int operator()(const RunningSum& rs, int v)
+        { return d_state + rs.value() + v; }
+
+    friend bool operator==(const SmallFunctor& a, const SmallFunctor& b)
+        { return a.d_state == b.d_state; }
+
+    friend bool operator!=(const SmallFunctor& a, const SmallFunctor& b)
+        { return a.d_state != b.d_state; }
+};
+
+struct SmallObjectBuffer {
+    // For white-box testing: size of small-object buffer in 'function'.
+    void *d_padding[4];  // Size of 4 pointers
+};
+
+class MediumFunctor
+{
+    // Functor that barely fits into the small object buffer.
+
+    int  d_state;  // Arbitrary state to distinguish one instance from another
+    char d_padding[sizeof(SmallObjectBuffer) - sizeof(int)];
+    
+public:
+    explicit MediumFunctor(int v) : d_state(v) { }
+
+    int operator()(const RunningSum& rs, int v)
+        { return d_state + rs.value() + v; }
+
+    friend bool operator==(const MediumFunctor& a, const MediumFunctor& b)
+        { return a.d_state == b.d_state; }
+
+    friend bool operator!=(const MediumFunctor& a, const MediumFunctor& b)
+        { return a.d_state != b.d_state; }
+};
+
+class LargeFunctor
+{
+    // Functor that barely does not fit into the small object buffer.
+
+    int  d_state;  // Arbitrary state to distinguish one instance from another
+    char d_padding[sizeof(SmallObjectBuffer) - sizeof(int) + 1];
+    
+public:
+    explicit LargeFunctor(int v) : d_state(v) { }
+
+    int operator()(const RunningSum& rs, int v)
+        { return d_state + rs.value() + v; }
+
+    friend bool operator==(const LargeFunctor& a, const LargeFunctor& b)
+        { return a.d_state == b.d_state; }
+
+    friend bool operator!=(const LargeFunctor& a, const LargeFunctor& b)
+        { return a.d_state != b.d_state; }
+};
 
 inline bool isConstPtr(void *) { return false; }
 inline bool isConstPtr(const void *) { return true; }
@@ -260,65 +340,237 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTOR function(FUNC)
+        //
+        // Concerns:
+        //:  1 Construction with a null pointer to function or null
+        //:    pointer to member function creates an empty 'function' object.
+        //:  2 Construction with a non-null pointer to
+        //:    function, non-null pointer to member function, or functor
+        //:    object creates a non-empty 'function' object.
+        //:  3 'operator bool' returns true for non-empty function objects.
+        //:  4 'bslma::Default::defaultAllocator()' is stored as the
+        //:    allocator.
+        //:  5 No memory is allocated unless the invocable is too large for
+        //:    the small-object optimization.
+        //:  6 The destructor releases allocated memory, if any.
+        //:  7 For a non-empty 'function', the 'target_type' accessor returns
+        //:    the 'type_info' of the invocable specified at construction.
+        //:  8 For a non-empty 'function', the 'target' accessor returns a
+        //:    cv-qualified pointer to a copy of the invocable specified at
+        //:    construction.
+        //
+        // Plan:
+        //:  1 For concern 1, construct 'function' objects using a null
+        //:    pointer to function and a null pointer to member function.
+        //:    Verify that the resulting 'function' objects evaluate to false
+        //:    in a boolean context.
+        //:  2 For concerns 2 and 3, construct 'function' objects with a
+        //:    non-null pointer to function, a non-null pointer to member
+        //:    function, and a functor object.  Verify that the resulting
+        //:    objects evaluate to true in a boolean context.
+        //:  3 For concern 4, verify that 'allocator' returns
+        //:    'bslma::Default::defaultAllocator()' for each object
+        //:    constructed in the previous two steps.
+        //:  4 For concerns 5 and 6, install a test allocator as the default
+        //:    allocator and override 'operator new' and 'operator delete' to
+        //:    use the test allocator as well.  Verify that none of the
+        //:    constructors result in memory being allocated from the test
+        //:    allocator except in the case of the functor object.  Using
+        //:    various sized functors, verify that only functors that are too
+        //:    large for the small-object optimization result in any
+        //:    allocations, and that those large functors result result in
+        //:    exactly one block being allocated.  Verify that the destructor
+        //:    releases any allocated memory.
+        //:  5 For concern 7, verify that the return value of 'target_type'
+        //:    matches the expected 'type_info'.
+        //:  6 For concern 8, verify that, for the non-empty 'function'
+        //:    objects, the return value of 'target' is a non-null pointer
+        //:    pointing to a copy of the invocable used to construct the
+        //:    'function' object.
+        //:  7 Note that the semantics and implementation of the operations
+        //:    being tested here are independent of the function prototype.
+        //:    It is therefore not necessary to repeat these tests with
+        //:    different prototypes. (Different prototypes are tested in the
+        //:    invocation tests.)
+        //
+        // Testing
+        //      function(FUNC f);
+        //      ~function();
+        //      operator bool() const;               // For non-empty objects
+        //      const typeinfo& target_type() const; // For non-empty objects
+        //      T      * target<T>();                // For non-empty objects
+        //      T const* target<T>() const;          // For non-empty objects
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONSTRUCTOR function(FUNC)"
+                            "\n==========================\n");
+
+        bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
+
+        if (veryVerbose) printf("Construct with null pointer to function\n");
+        globalAllocMonitor.reset();
+        {
+            const protoFuncPtr_t nullFuncPtr = NULL;
+            Obj f(nullFuncPtr); const Obj& F = f;
+            ASSERT(! F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(void) == F.target_type());
+            ASSERT(NULL == F.target<protoFuncPtr_t>());
+            ASSERT(NULL == f.target<protoFuncPtr_t>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) {
+            printf("Construct with null pointer to member function\n");
+        }
+        globalAllocMonitor.reset();
+        {
+            const protoMemFuncPtr_t nullMemFuncPtr = NULL;
+            Obj f(nullMemFuncPtr); const Obj& F = f;
+            ASSERT(! F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(void) == F.target_type());
+            ASSERT(NULL == F.target<protoMemFuncPtr_t>());
+            ASSERT(NULL == f.target<protoMemFuncPtr_t>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with pointer to function\n");
+        globalAllocMonitor.reset();
+        {
+            Obj f(protoFunc); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(protoFuncPtr_t) == F.target_type());
+            ASSERT(F.target<protoFuncPtr_t>() &&
+                   &protoFunc == *F.target<protoFuncPtr_t>());
+            ASSERT(f.target<protoFuncPtr_t>() &&
+                   &protoFunc == *f.target<protoFuncPtr_t>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with pointer to member function\n");
+        globalAllocMonitor.reset();
+        {
+            Obj f(&RunningSum::add1); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(protoMemFuncPtr_t) == F.target_type());
+            ASSERT(F.target<protoMemFuncPtr_t>() &&
+                   &RunningSum::add1 == *F.target<protoMemFuncPtr_t>());
+            ASSERT(f.target<protoMemFuncPtr_t>() &&
+                   &RunningSum::add1 == *f.target<protoMemFuncPtr_t>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with empty functor\n");
+        globalAllocMonitor.reset();
+        {
+            EmptyFunctor ftor;
+            Obj f(ftor); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(EmptyFunctor) == F.target_type());
+            ASSERT(F.target<EmptyFunctor>() &&
+                   ftor == *F.target<EmptyFunctor>());
+            ASSERT(f.target<EmptyFunctor>() &&
+                   ftor == *f.target<EmptyFunctor>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with small functor\n");
+        globalAllocMonitor.reset();
+        {
+            SmallFunctor ftor(42);
+            Obj f(ftor); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(SmallFunctor) == F.target_type());
+            ASSERT(F.target<SmallFunctor>() &&
+                   ftor == *F.target<SmallFunctor>());
+            ASSERT(f.target<SmallFunctor>() &&
+                   ftor == *f.target<SmallFunctor>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with medium functor\n");
+        globalAllocMonitor.reset();
+        {
+            MediumFunctor ftor(84);
+            Obj f(ftor); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(MediumFunctor) == F.target_type());
+            ASSERT(F.target<MediumFunctor>() &&
+                   ftor == *F.target<MediumFunctor>());
+            ASSERT(f.target<MediumFunctor>() &&
+                   ftor == *f.target<MediumFunctor>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with large functor\n");
+        globalAllocMonitor.reset();
+        {
+            long long preBlocks = globalTestAllocator.numBlocksInUse();
+            LargeFunctor ftor(21);
+            Obj f(ftor); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(preBlocks + 1 == globalTestAllocator.numBlocksInUse());
+            ASSERT(typeid(LargeFunctor) == F.target_type());
+            ASSERT(F.target<LargeFunctor>() &&
+                   ftor == *F.target<LargeFunctor>());
+            ASSERT(f.target<LargeFunctor>() &&
+                   ftor == *f.target<LargeFunctor>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+      } break;
+
       case 2: {
         // --------------------------------------------------------------------
-        // TEST EMPTY CONSTRUCTORS
+        // PRIMARY MANIPULATORS
         //
         // Concerns:
         //:  1 Default construction, construction using a nullptr_t(), and
         //:    construction using a null pointer each create an empty
         //:    'function' object.
         //:  2 'operator bool' returns false for empty function objects.
-        //:  3 If no allocator is specified, then
-        //:    'bslma::Default::defaultAllocator()' is stored as the
+        //:  3 'bslma::Default::defaultAllocator()' is stored as the
         //:    allocator.
-        //:  4 If an allocator is specified, that allocator is type-erased as
-        //:    follows:
-        //:    a If the allocator if of type 'nullptr_t', then
-        //:      'bslma::Default::defaultAllocator()' is stored as the
-        //:      allocator.
-        //:    b If the allocator has pointer type convertible to
-        //:      'bslma::Allocator', that pointer is stored unchanged.
-        //:    c If the allocator is of type 'bsl::allocator<T>', then
-        //:      the result of calling the allocator's 'mechanism' accessor
-        //:      is stored.
-        //:    d Otherwise, the a copy of the allocator is wrapped in a
-        //:      'bslma::AllocatorAdaptor' and stored in the 'function'
-        //:      object.
-        //:  5 No memory is allocated unless an allocator is supplied that is
-        //:    too large for the small-object optimization.
-        //:  6 If a large stl-style allocator is supplied to the constructor,
-        //:    a single block is allocated from that allocator (to hold a copy
-        //:    of the allocator itself).
-        //:  7 The destructor releases allocated memory, if any.
-        //:  8 'target_type' returns 'typeid(void)' for empty function objects.
-        //:  9 'target' returns a null pointer for empty function objects.
+        //:  4 No memory is allocated by the constructors.
+        //:  5 'target_type' returns 'typeid(void)' for empty function objects.
+        //:  6 'target' returns a null pointer for empty function objects.
         //
-        // Plan
-        //:  1 For concerns 1 and 2, construct a 'function' objects using each
-        //:    of the argument lists described in concern 1.  Test that the
-        //:    resulting 'function' object evaluates to false in a boolean
+        // Plan:
+        //:  1 For concerns 1 and 2, construct 'function' objects using each
+        //:    of the argument lists described in concern 1.  Verify that the
+        //:    resulting 'function' objects evaluate to false in a boolean
         //:    context.
         //:  2 For concern 3, test that the value returned by the 'allocator'
         //:    accessor is 'bslma::Default::defaultAllocator()'.
-        //:  3 For concern 4, repeat step 1 but supply each type of allocator
-        //:    to each type of constructor.  Verify that 'allocator' returns
-        //:    the expected value.
-        //:  4 For concern 5, install a test allocator as the default
+        //:  3 For concern 4, install a test allocator as the default
         //:    allocator and override 'operator new' and 'operator delete' to
         //:    use the test allocator as well.  Verify that none of the
         //:    constructors result in memory being allocated from the test
-        //:  5 For concerns 6 and 7, construct a 'function' using a large
-        //:    STL-style allocator and verify that a single block is allocated
-        //:    from that allocator. Verify that the destructor frees that
-        //:    block.
-        //:  6 For concern 8, verify for each constructed empty 'function'
+        //:    allocator.
+        //:  4 For concern 5, verify for each constructed empty 'function'
         //:    that the 'target_type' accessor returns 'typeid(void)'.
-        //:  7 For concern 9, verify for each constructed empty 'function'
+        //:  5 For concern 6, verify for each constructed empty 'function'
         //:    that the 'target' accessor returns a null pointer (a
         //:    null-pointer to a const object, in the case of a const
         //:    'function').
-        //:  8 Note that the semantics and implementation of the operations
+        //:  6 Note that the semantics and implementation of the operations
         //:    being tested here are independent of the function prototype.
         //:    It is therefore not necessary to repeat these tests with
         //:    different prototypes. (Different prototypes are tested in the
@@ -330,20 +582,20 @@ int main(int argc, char *argv[])
         //      function(FUNC f); // For a null pointer to function
         //      function(FUNC f); // For a null pointer to member function
         //      bslma::Allocator* allocator() const;
-        //      operator bool() const; // For empty objects
-        //      const typeinfo& target_type() const;
-        //      T      * target<T>();
-        //      T const* target<T>() const;
+        //      operator bool() const;               // For empty objects
+        //      const typeinfo& target_type() const; // For empty objects
+        //      T      * target<T>();                // For empty objects
+        //      T const* target<T>() const;          // For empty objects
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTEST EMPTY CONSTRUCTORS"
-                            "\n=======================\n");
+        if (verbose) printf("\nPRIMARY MANIPULATORS"
+                            "\n====================\n");
 
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
+        if (veryVerbose) printf("Construct with no arguments\n");
+        globalAllocMonitor.reset();
         {
-            // Construct with no arguments
-            globalAllocMonitor.reset();
             Obj f; const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
@@ -356,9 +608,9 @@ int main(int argc, char *argv[])
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
+        if (veryVerbose) printf("Construct with nullptr_t argument\n");
+        globalAllocMonitor.reset();
         {
-            // Construct with nullptr_t argument
-            globalAllocMonitor.reset();
             const nullptr_t np = nullptr_t();
             Obj f(np); const Obj& F = f;
             ASSERT(! F);
@@ -366,34 +618,6 @@ int main(int argc, char *argv[])
             ASSERT(typeid(void) == F.target_type());
             ASSERT(NULL == F.target<nullptr_t>());
             ASSERT(NULL == f.target<nullptr_t>());
-            ASSERT(&globalTestAllocator == f.allocator());
-        }
-        ASSERT(globalAllocMonitor.isInUseSame());
-
-        {
-            // Construct with protoFunc_t* argument
-            const protoFuncPtr_t nullFuncPtr = NULL;
-            globalAllocMonitor.reset();
-            Obj f(nullFuncPtr); const Obj& F = f;
-            ASSERT(! F);
-            ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<protoFuncPtr_t>());
-            ASSERT(NULL == f.target<protoFuncPtr_t>());
-            ASSERT(&globalTestAllocator == f.allocator());
-        }
-        ASSERT(globalAllocMonitor.isInUseSame());
-
-        {
-            // Construct with protoMemFuncPtr_t argument
-            const protoMemFuncPtr_t nullMemFuncPtr = NULL;
-            globalAllocMonitor.reset();
-            Obj f(nullMemFuncPtr); const Obj& F = f;
-            ASSERT(! F);
-            ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<protoMemFuncPtr_t>());
-            ASSERT(NULL == f.target<protoMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
