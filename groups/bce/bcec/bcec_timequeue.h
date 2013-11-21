@@ -44,8 +44,8 @@ BDES_IDENT("$Id: $")
 // the time value for a specific 'bcec_TimeQueueItem' without removing it from
 // the queue.
 //
-///'bcec_TimeQueue::Handle' Uniqueness, Reuse' and 'numIndexBits'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
+///'bcec_TimeQueue::Handle' Uniqueness, Reuse and 'numIndexBits'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
 // 'bcec_TimeQueue::Handle' is an alias for a 32 bit 'int' type.  A handle
 // consists of two parts, the "index section" and the "iteration section"'.
 // The index section, which is the low-order 'numIndexBits' (which defaults to
