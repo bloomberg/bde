@@ -287,6 +287,7 @@ void testUsageExample1(int argc, bool assert)
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+    double tolerance = 0.02;
 
     (void) assert;
     (void) verbose;
@@ -363,8 +364,6 @@ void testUsageExample1(int argc, bool assert)
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' expands into something
     // meaningful.
 
-    double tolerance = 0.02;
-
     if (assert) {
         LOOP2_ASSERT(likelyTime, unlikelyTime,
                      likelyTime + tolerance > unlikelyTime);
@@ -372,6 +371,53 @@ void testUsageExample1(int argc, bool assert)
 
 #endif
 
+#endif
+
+    int z;
+    timer.reset();
+
+    if (veryVerbose) {
+        cout << "BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE" << endl;
+    }
+
+    timer.start();
+
+    z = 0;
+    for (int x = 0; x < TESTSIZE; ++x) {
+        ++z;
+        BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE;
+    }
+
+    timer.stop();
+    double timeWithOptFence = timer.elapsedTime();
+
+    if (veryVerbose) {
+        cout << "\ttime = " << timeWithOptFence << endl;
+    }
+
+
+    if (veryVerbose) {
+        cout << "without BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE" << endl;
+    }
+
+    timer.reset();
+    timer.start();
+
+    z = 0;
+    for (int x = 0; x < TESTSIZE; ++x) {
+        ++z;
+    }
+    timer.stop();
+    double timeWithoutOptFence = timer.elapsedTime();
+
+    if (veryVerbose) {
+        cout << "\ttime = " << timeWithoutOptFence << endl;
+    }
+
+#if defined(BDE_BUILD_TARGET_OPT)
+    // Only check under optimized build.
+    LOOP2_ASSERT(timeWithOptFence, timeWithoutOptFence,
+                 timeWithOptFence + tolerance > timeWithoutOptFence);
 #endif
 }
 
@@ -630,13 +676,19 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_PERFORMANCEHINT_PREDICT_LIKELY,
         //   BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY
+        //   BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+        //   BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING USAGE EXAMPLE 1"
                             "\n=======================\n");
 
+        // Simple test that macros expand to compilable code; not usage example
+        BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE;
+        BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE;
+
         ASSERT(true);
-        TestCase1::testUsageExample1(argc, false);
+        TestCase1::testUsageExample1(argc, true);
 
       } break;
       case 1: {
