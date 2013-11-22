@@ -46,8 +46,8 @@ BDES_IDENT("$Id: $")
 //
 ///'bcec_TimeQueue::Handle' Uniqueness, Reuse and 'numIndexBits'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
-// 'bcec_TimeQueue::Handle' is an alias for a 32 bit 'int' type.  A handle
-// consists of two parts, the "index section" and the "iteration section"'.
+// 'bcec_TimeQueue::Handle' is an alias for a 32-bit 'int' type.  A handle
+// consists of two parts, the "index section" and the "iteration section".
 // The index section, which is the low-order 'numIndexBits' (which defaults to
 // 'numIndexBits == 17'), uniquely identifies the node.  Once a node is added,
 // it never ceases to exist - it may be freed, but it will be kept on a free
