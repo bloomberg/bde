@@ -162,8 +162,8 @@ struct btes5_TestServerArgs {
         //: o 'd_expectedPort = 0'
         //: o 'd_expectedDestination' unset
         //: o 'd_expectedCredentials' unset
-        // Optionally specify an ’allocator’ used to supply memory. If
-        // ’allocator’ is 0, the currently installed default allocator is used. 
+        // Optionally specify an 'allocator' used to supply memory. If
+        // 'allocator' is 0, the currently installed default allocator is used. 
 
 };
 
@@ -197,7 +197,7 @@ class btes5_TestServer {
         // specified 'proxy'. The server will run as a thread on 'localhost'
         // with a system-assigned port. If the optionally specified 'args'
         // is not 0 use it to control the SOCKS5 server behavior. Optionally
-        // specify an ’allocator’ used to supply memory. If ’allocator’ is 0,
+        // specify an 'allocator' used to supply memory. If 'allocator' is 0,
         // the currently installed default allocator is used. The behavior is
         // undefined unless the lifetime of 'allocator' extends past the end of
         // the server thread, which may exist longer than the lifetime of this
