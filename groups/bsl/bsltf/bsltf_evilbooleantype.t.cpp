@@ -52,7 +52,7 @@ static void aSsErT(bool b, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT(X)    BSLS_BSLTESTUTIL_ASSERT((bool)(X))
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT

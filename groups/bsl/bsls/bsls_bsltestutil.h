@@ -420,7 +420,7 @@ BSLS_IDENT("$Id: $")
                        // =================
 
 #define BSLS_BSLTESTUTIL_ASSERT(X) {                                          \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!((bool)(X)))) {                \
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                           \
                 aSsErT(true, #X, __LINE__); } }
 
@@ -428,7 +428,7 @@ BSLS_IDENT("$Id: $")
     BSLS_BSLTESTUTIL_ASSERT
 
 #define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) {                                   \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!((bool)(X)))) {                \
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                           \
                 bsls::BslTestUtil::callDebugprint(I, #I ": ", "\n");          \
                 aSsErT(true, #X, __LINE__); } }
@@ -437,14 +437,14 @@ BSLS_IDENT("$Id: $")
     BSLS_BSLTESTUTIL_LOOP_ASSERT
 
 #define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) {                                \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!((bool)(X)))) {                \
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                           \
                 bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\n");          \
                 aSsErT(true, #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) {                              \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!((bool)(X)))) {                \
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                           \
                 bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
@@ -452,7 +452,7 @@ BSLS_IDENT("$Id: $")
                 aSsErT(true, #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) {                            \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!((bool)(X)))) {                \
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                           \
                 bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
@@ -461,7 +461,7 @@ BSLS_IDENT("$Id: $")
                 aSsErT(true, #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) {                          \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!((bool)(X)))) {                \
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                           \
                 bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
@@ -471,7 +471,7 @@ BSLS_IDENT("$Id: $")
                 aSsErT(true, #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) {                        \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!((bool)(X)))) {                \
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                           \
                 bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
