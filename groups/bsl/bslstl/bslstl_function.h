@@ -86,6 +86,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_memberfunctionpointertraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include <bslmf_addlvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NTHPARAMETER
 #include <bslmf_nthparameter.h>
 #endif
@@ -447,17 +451,33 @@ struct Function_MemFuncInvokeImp {
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS>::Type... args)
-        { return (obj.*f)(args...); }
+    enum { NUM_ARGS = sizeof...(ARGS) };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type /* DirectInvoke */, FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS>::Type... args)
-        { return ((*obj).*f)(args...); }
+                   typename bslmf::ForwardingType<ARGS>::Type... args) {
+        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
+        // forwarded as a const reference, instead.  In order to call a
+        // potentially non-const member function on it, we must cast the
+        // reference back to a the original type.  The 'const_cast', below,
+        // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args...);
+    }
+
+    static
+    RET invoke_imp(false_type /* DirectInvoke */, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args) {
+        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
+        // forwarded as a const reference, instead.  In order to call a
+        // potentially non-const member function on it, we must cast the
+        // reference back to a the original type.  The 'const_cast', below,
+        // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args...);
+    }
 
 public:
     static
@@ -675,7 +695,7 @@ void swap(function<RET(ARGS...)>&, function<RET(ARGS...)>&);
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.t.cpp
+// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.cpp bslstl_function.t.cpp
 
 
 template <class FUNC,
@@ -703,15 +723,21 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET> {
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj)
-        { return (obj.*f)(); }
+    enum { NUM_ARGS =  0u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj)
-        { return ((*obj).*f)(); }
+    RET invoke_imp(true_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)();
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)();
+    }
 
 public:
     static
@@ -730,17 +756,23 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01> {
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01)
-        { return (obj.*f)(args_01); }
+    enum { NUM_ARGS =  1u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01)
-        { return ((*obj).*f)(args_01); }
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01);
+    }
 
 public:
     static
@@ -762,21 +794,27 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02)
-        { return (obj.*f)(args_01,
-                          args_02); }
+    enum { NUM_ARGS =  2u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02)
-        { return ((*obj).*f)(args_01,
-                             args_02); }
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02);
+    }
 
 public:
     static
@@ -802,25 +840,31 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03); }
+    enum { NUM_ARGS =  3u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03); }
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03);
+    }
 
 public:
     static
@@ -850,29 +894,35 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03,
-                          args_04); }
+    enum { NUM_ARGS =  4u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                    typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03,
-                             args_04); }
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04);
+    }
 
 public:
     static
@@ -906,33 +956,39 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
-                   typename bslmf::ForwardingType<ARGS_05>::Type args_05)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05); }
+    enum { NUM_ARGS =  5u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                    typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                    typename bslmf::ForwardingType<ARGS_04>::Type args_04,
-                   typename bslmf::ForwardingType<ARGS_05>::Type args_05)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03,
-                             args_04,
-                             args_05); }
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04,
+                                           args_05);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05);
+    }
 
 public:
     static
@@ -970,37 +1026,43 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
-                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
-                   typename bslmf::ForwardingType<ARGS_06>::Type args_06)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06); }
+    enum { NUM_ARGS =  6u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                    typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                    typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                    typename bslmf::ForwardingType<ARGS_05>::Type args_05,
-                   typename bslmf::ForwardingType<ARGS_06>::Type args_06)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03,
-                             args_04,
-                             args_05,
-                             args_06); }
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04,
+                                           args_05,
+                                           args_06);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06);
+    }
 
 public:
     static
@@ -1042,26 +1104,10 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
-                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
-                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
-                   typename bslmf::ForwardingType<ARGS_07>::Type args_07)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07); }
+    enum { NUM_ARGS =  7u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -1069,14 +1115,36 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                    typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                    typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                    typename bslmf::ForwardingType<ARGS_06>::Type args_06,
-                   typename bslmf::ForwardingType<ARGS_07>::Type args_07)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03,
-                             args_04,
-                             args_05,
-                             args_06,
-                             args_07); }
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04,
+                                           args_05,
+                                           args_06,
+                                           args_07);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07);
+    }
 
 public:
     static
@@ -1122,28 +1190,10 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
-                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
-                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
-                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
-                   typename bslmf::ForwardingType<ARGS_08>::Type args_08)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08); }
+    enum { NUM_ARGS =  8u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -1152,15 +1202,39 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                    typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                    typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                    typename bslmf::ForwardingType<ARGS_07>::Type args_07,
-                   typename bslmf::ForwardingType<ARGS_08>::Type args_08)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03,
-                             args_04,
-                             args_05,
-                             args_06,
-                             args_07,
-                             args_08); }
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04,
+                                           args_05,
+                                           args_06,
+                                           args_07,
+                                           args_08);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08);
+    }
 
 public:
     static
@@ -1210,30 +1284,10 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
-                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
-                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
-                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
-                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
-                   typename bslmf::ForwardingType<ARGS_09>::Type args_09)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09); }
+    enum { NUM_ARGS =  9u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -1243,16 +1297,42 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                    typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                    typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                    typename bslmf::ForwardingType<ARGS_08>::Type args_08,
-                   typename bslmf::ForwardingType<ARGS_09>::Type args_09)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03,
-                             args_04,
-                             args_05,
-                             args_06,
-                             args_07,
-                             args_08,
-                             args_09); }
+                   typename bslmf::ForwardingType<ARGS_09>::Type args_09) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04,
+                                           args_05,
+                                           args_06,
+                                           args_07,
+                                           args_08,
+                                           args_09);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                   typename bslmf::ForwardingType<ARGS_09>::Type args_09) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09);
+    }
 
 public:
     static
@@ -1306,32 +1386,10 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
-                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
-                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
-                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
-                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
-                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
-                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
-                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
-                   typename bslmf::ForwardingType<ARGS_09>::Type args_09,
-                   typename bslmf::ForwardingType<ARGS_10>::Type args_10)
-        { return (obj.*f)(args_01,
-                          args_02,
-                          args_03,
-                          args_04,
-                          args_05,
-                          args_06,
-                          args_07,
-                          args_08,
-                          args_09,
-                          args_10); }
+    enum { NUM_ARGS = 10u };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
                    typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                    typename bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -1342,17 +1400,45 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                    typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                    typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                    typename bslmf::ForwardingType<ARGS_09>::Type args_09,
-                   typename bslmf::ForwardingType<ARGS_10>::Type args_10)
-        { return ((*obj).*f)(args_01,
-                             args_02,
-                             args_03,
-                             args_04,
-                             args_05,
-                             args_06,
-                             args_07,
-                             args_08,
-                             args_09,
-                             args_10); }
+                   typename bslmf::ForwardingType<ARGS_10>::Type args_10) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04,
+                                           args_05,
+                                           args_06,
+                                           args_07,
+                                           args_08,
+                                           args_09,
+                                           args_10);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS_01>::Type args_01,
+                   typename bslmf::ForwardingType<ARGS_02>::Type args_02,
+                   typename bslmf::ForwardingType<ARGS_03>::Type args_03,
+                   typename bslmf::ForwardingType<ARGS_04>::Type args_04,
+                   typename bslmf::ForwardingType<ARGS_05>::Type args_05,
+                   typename bslmf::ForwardingType<ARGS_06>::Type args_06,
+                   typename bslmf::ForwardingType<ARGS_07>::Type args_07,
+                   typename bslmf::ForwardingType<ARGS_08>::Type args_08,
+                   typename bslmf::ForwardingType<ARGS_09>::Type args_09,
+                   typename bslmf::ForwardingType<ARGS_10>::Type args_10) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10);
+    }
 
 public:
     static
@@ -4560,17 +4646,23 @@ struct Function_MemFuncInvokeImp {
             OBJ_TYPE*
         >::type DirectInvoke;
 
-    static
-    RET invoke_imp(true_type, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS>::Type... args)
-        { return (obj.*f)(args...); }
+    enum { NUM_ARGS = sizeof...(ARGS) };
 
     static
-    RET invoke_imp(false_type, FUNC f,
+    RET invoke_imp(true_type , FUNC f,
                    typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS>::Type... args)
-        { return ((*obj).*f)(args...); }
+                   typename bslmf::ForwardingType<ARGS>::Type... args) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args...);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args...);
+    }
 
 public:
     static
@@ -5089,7 +5181,9 @@ RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
 {
     FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args...);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args...);
 }
 
 template <class RET, class... ARGS>
@@ -5392,7 +5486,7 @@ void swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.t.cpp
+// Generator command line: sim_cpp11_features.pl bslstl_function.h bslstl_function.cpp bslstl_function.t.cpp
 
 template <class RET>
 template <class FUNC>
@@ -5679,7 +5773,9 @@ RET bsl::function<RET()>::memFuncPtrInvoker(const Function_Rep *rep)
 {
     FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 0u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f);
 }
 
 template <class RET, class ARGS_01>
@@ -5689,7 +5785,9 @@ RET bsl::function<RET(ARGS_01)>::memFuncPtrInvoker(const Function_Rep *rep,
 {
     FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 1u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01);
 }
 
 template <class RET, class ARGS_01,
@@ -5703,8 +5801,10 @@ RET bsl::function<RET(ARGS_01,
     FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 2u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02);
 }
 
 template <class RET, class ARGS_01,
@@ -5722,9 +5822,11 @@ RET bsl::function<RET(ARGS_01,
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 3u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03);
 }
 
 template <class RET, class ARGS_01,
@@ -5746,10 +5848,12 @@ RET bsl::function<RET(ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
                                             ARGS_04>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03,
-                                                            args_04);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 4u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03,
+                                       args_04);
 }
 
 template <class RET, class ARGS_01,
@@ -5775,11 +5879,13 @@ RET bsl::function<RET(ARGS_01,
                                             ARGS_03,
                                             ARGS_04,
                                             ARGS_05>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03,
-                                                            args_04,
-                                                            args_05);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 5u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03,
+                                       args_04,
+                                       args_05);
 }
 
 template <class RET, class ARGS_01,
@@ -5809,12 +5915,14 @@ RET bsl::function<RET(ARGS_01,
                                             ARGS_04,
                                             ARGS_05,
                                             ARGS_06>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03,
-                                                            args_04,
-                                                            args_05,
-                                                            args_06);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 6u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03,
+                                       args_04,
+                                       args_05,
+                                       args_06);
 }
 
 template <class RET, class ARGS_01,
@@ -5848,13 +5956,15 @@ RET bsl::function<RET(ARGS_01,
                                             ARGS_05,
                                             ARGS_06,
                                             ARGS_07>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03,
-                                                            args_04,
-                                                            args_05,
-                                                            args_06,
-                                                            args_07);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 7u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03,
+                                       args_04,
+                                       args_05,
+                                       args_06,
+                                       args_07);
 }
 
 template <class RET, class ARGS_01,
@@ -5892,14 +6002,16 @@ RET bsl::function<RET(ARGS_01,
                                             ARGS_06,
                                             ARGS_07,
                                             ARGS_08>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03,
-                                                            args_04,
-                                                            args_05,
-                                                            args_06,
-                                                            args_07,
-                                                            args_08);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 8u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03,
+                                       args_04,
+                                       args_05,
+                                       args_06,
+                                       args_07,
+                                       args_08);
 }
 
 template <class RET, class ARGS_01,
@@ -5941,15 +6053,17 @@ RET bsl::function<RET(ARGS_01,
                                             ARGS_07,
                                             ARGS_08,
                                             ARGS_09>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03,
-                                                            args_04,
-                                                            args_05,
-                                                            args_06,
-                                                            args_07,
-                                                            args_08,
-                                                            args_09);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT( 9u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03,
+                                       args_04,
+                                       args_05,
+                                       args_06,
+                                       args_07,
+                                       args_08,
+                                       args_09);
 }
 
 template <class RET, class ARGS_01,
@@ -5995,16 +6109,18 @@ RET bsl::function<RET(ARGS_01,
                                             ARGS_08,
                                             ARGS_09,
                                             ARGS_10>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args_01,
-                                                            args_02,
-                                                            args_03,
-                                                            args_04,
-                                                            args_05,
-                                                            args_06,
-                                                            args_07,
-                                                            args_08,
-                                                            args_09,
-                                                            args_10);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT(10u == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args_01,
+                                       args_02,
+                                       args_03,
+                                       args_04,
+                                       args_05,
+                                       args_06,
+                                       args_07,
+                                       args_08,
+                                       args_09,
+                                       args_10);
 }
 
 
@@ -12847,7 +12963,9 @@ RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
 {
     FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
-    return Function_MemFuncInvoke<FUNC, ObjType>::invoke(f, args...);
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
+    return (RET) InvokeType::invoke(f, args...);
 }
 
 template <class RET, class... ARGS>

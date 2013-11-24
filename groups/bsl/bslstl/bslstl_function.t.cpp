@@ -167,6 +167,22 @@ void operator delete(void *address)
     globalTestAllocator.deallocate(address);
 }
 
+template <class TYPE>
+class smart_ptr
+{
+    // A simple class with the interface of a smart pointer.
+
+    TYPE *d_pointer;
+
+public:
+    typedef TYPE value_type;
+
+    smart_ptr(TYPE *p = NULL) : d_pointer(p) { }
+
+    TYPE& operator*() const { return *d_pointer; }
+    TYPE* operator->() const { return d_pointer; }
+};
+
 #define INT_ARGN(n) int arg ## n
 #define ARGN(n) arg ## n
 
@@ -180,41 +196,45 @@ void operator delete(void *address)
 SUMMING_FUNC(0)
 BSLS_MACROREPEAT(10, SUMMING_FUNC)
 
-struct RunningSum {
+class IntWrapper
+{
+    // Simple wrapper around an 'int' that supplies member functions (whose
+    // address can be taken) for testing 'bsl::function'.
+
     int d_value;
 
 public:
-    RunningSum(int v = 0) : d_value(v) { }
+    IntWrapper(int i = 0) : d_value(i) { } // Convertible from 'int'
+
+    void incrementBy1() { ++d_value; }
+
+    int value() const { return d_value; }
 
 #define ADD_FUNC(n)                                                  \
     int add ## n (BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) const {       \
-        return d_value + BSLS_MACROREPEAT_SEP(n, ARGN, +);           \
+        return value() + BSLS_MACROREPEAT_SEP(n, ARGN, +);           \
     }
 
 #define INCREMENT_FUNC(n)                                            \
-    void increment ## n (BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) {      \
-        d_value += BSLS_MACROREPEAT_SEP(n, ARGN, +);                 \
+    int increment ## n (BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) {       \
+        return d_value += BSLS_MACROREPEAT_SEP(n, ARGN, +);          \
     }
 
+    // Const function with 0 to 10 arguments.  Return value() plus the sum of
+    // all arguments.
     int add0() const { return d_value; }
-    BSLS_MACROREPEAT(9, ADD_FUNC)
+    BSLS_MACROREPEAT(10, ADD_FUNC)
 
-    void increment0() { }
-    BSLS_MACROREPEAT(9, INCREMENT_FUNC)
-
-    int value() const { return d_value; }
+    // Mutable function with 0 to 10 arguments.  Increment the value by
+    // the sum of all arguments.  'increment0()' is a no-op.
+    int increment0() { return d_value; }
+    BSLS_MACROREPEAT(10, INCREMENT_FUNC)
 };
 
-// Prototype and object type for non-invocation tests
-#define OBJ_PROTOTYPE int(const RunningSum&, int)
-typedef bsl::function<OBJ_PROTOTYPE> Obj;
-typedef int (*protoFuncPtr_t)(const RunningSum&, int);
-typedef int (RunningSum::*protoMemFuncPtr_t)(int) const;
-
 // Simple function
-int protoFunc(const RunningSum& rs, int v)
+int simpleFunc(const IntWrapper& iw, int v)
 {
-    return rs.value() + v;
+    return iw.value() + v;
 }
 
 // Simple functor with no state
@@ -222,8 +242,20 @@ struct EmptyFunctor
 {
     // Stateless functor
 
-    int operator()(const RunningSum& rs, int v)
-        { return rs.value() + v; }
+#define OP_PAREN(n)                                                           \
+    int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
+    {                                                                         \
+        return iw.value() + BSLS_MACROREPEAT_SEP(n, ARGN, +);                 \
+    }
+
+    // Invocation operator with 0 to 10 arguments.  The first argument (if
+    // any) is a const reference to 'IntWrapper', although it can be passed an
+    // 'int'.  The remaining arguments are of type 'int'.
+    int operator()() { return 0; }
+    int operator()(const IntWrapper& iw) { return iw.value(); }
+    BSLS_MACROREPEAT(9, OP_PAREN)
+
+#undef OP_PAREN
 
     friend bool operator==(const EmptyFunctor&, const EmptyFunctor&)
         { return true; }
@@ -241,14 +273,28 @@ class SmallFunctor
 public:
     explicit SmallFunctor(int v) : d_state(v) { }
 
-    int operator()(const RunningSum& rs, int v)
-        { return d_state + rs.value() + v; }
+#define OP_PAREN(n)                                                           \
+    int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
+    {                                                                         \
+        return d_state += iw.value() + BSLS_MACROREPEAT_SEP(n, ARGN, +);      \
+    }
+
+    // Invocation operator with 0 to 10 arguments.  The first argument (if
+    // any) is a const reference to 'IntWrapper', although it can be passed an
+    // 'int'.  The remaining arguments are of type 'int'.
+    int operator()() { return d_state; }
+    int operator()(const IntWrapper& iw) { return d_state += iw.value(); }
+    BSLS_MACROREPEAT(9, OP_PAREN)
+
+#undef OP_PAREN
+
+    int value() const { return d_state; }
 
     friend bool operator==(const SmallFunctor& a, const SmallFunctor& b)
-        { return a.d_state == b.d_state; }
+        { return a.value() == b.value(); }
 
     friend bool operator!=(const SmallFunctor& a, const SmallFunctor& b)
-        { return a.d_state != b.d_state; }
+        { return a.value() != b.value(); }
 };
 
 struct SmallObjectBuffer {
@@ -256,44 +302,36 @@ struct SmallObjectBuffer {
     void *d_padding[4];  // Size of 4 pointers
 };
 
-class MediumFunctor
+class MediumFunctor : public SmallFunctor
 {
     // Functor that barely fits into the small object buffer.
 
-    int  d_state;  // Arbitrary state to distinguish one instance from another
-    char d_padding[sizeof(SmallObjectBuffer) - sizeof(int)];
+    char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor)];
     
 public:
-    explicit MediumFunctor(int v) : d_state(v) { }
-
-    int operator()(const RunningSum& rs, int v)
-        { return d_state + rs.value() + v; }
+    explicit MediumFunctor(int v) : SmallFunctor(v) { }
 
     friend bool operator==(const MediumFunctor& a, const MediumFunctor& b)
-        { return a.d_state == b.d_state; }
+        { return a.value() == b.value(); }
 
     friend bool operator!=(const MediumFunctor& a, const MediumFunctor& b)
-        { return a.d_state != b.d_state; }
+        { return a.value() != b.value(); }
 };
 
-class LargeFunctor
+class LargeFunctor : public SmallFunctor
 {
     // Functor that barely does not fit into the small object buffer.
 
-    int  d_state;  // Arbitrary state to distinguish one instance from another
-    char d_padding[sizeof(SmallObjectBuffer) - sizeof(int) + 1];
+    char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor) + 1];
     
 public:
-    explicit LargeFunctor(int v) : d_state(v) { }
-
-    int operator()(const RunningSum& rs, int v)
-        { return d_state + rs.value() + v; }
+    explicit LargeFunctor(int v) : SmallFunctor(v) { }
 
     friend bool operator==(const LargeFunctor& a, const LargeFunctor& b)
-        { return a.d_state == b.d_state; }
+        { return a.value() == b.value(); }
 
     friend bool operator!=(const LargeFunctor& a, const LargeFunctor& b)
-        { return a.d_state != b.d_state; }
+        { return a.value() != b.value(); }
 };
 
 inline bool isConstPtr(void *) { return false; }
@@ -340,6 +378,485 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+
+      case 5: {
+        // --------------------------------------------------------------------
+        // POINTER TO MEMBER FUNCTION INVOCATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nPOINTER TO MEMBER FUNCTION INVOCATION"
+                            "\n=====================================\n");
+
+        IntWrapper iw(0x3001);  const IntWrapper &IW = iw;
+
+        if (veryVerbose) std::printf("const member functions\n");
+
+        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper val\n");
+        {
+            bsl::function<int(IntWrapper)> f1(&IntWrapper::add0);
+            ASSERT(0x3001 == f1(IW));
+
+            bsl::function<int(IntWrapper, int)> f2(&IntWrapper::add1);
+            ASSERT(0x3003 == f2(IW, 2));
+          
+            bsl::function<int(IntWrapper, int,
+                              int)> f3(&IntWrapper::add2);
+            ASSERT(0x3007 == f3(IW, 2, 4));
+          
+            bsl::function<int(IntWrapper, int, int,
+                              int)> f4(&IntWrapper::add3);
+            ASSERT(0x300f == f4(IW, 2, 4, 8));
+          
+            bsl::function<int(IntWrapper, int, int, int,
+                              int)> f5(&IntWrapper::add4);
+            ASSERT(0x301f == f5(IW, 2, 4, 8, 0x10));
+          
+            bsl::function<int(IntWrapper, int, int, int, int,
+                              int)> f6(&IntWrapper::add5);
+            ASSERT(0x303f == f6(IW, 2, 4, 8, 0x10, 0x20));
+          
+            bsl::function<int(IntWrapper, int, int, int, int, int,
+                              int)> f7(&IntWrapper::add6);
+            ASSERT(0x307f == f7(IW, 2, 4, 8, 0x10, 0x20, 0x40));
+          
+            bsl::function<int(IntWrapper, int, int, int, int, int, int,
+                              int)> f8(&IntWrapper::add7);
+            ASSERT(0x30ff == f8(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+          
+            bsl::function<int(IntWrapper, int, int, int, int, int, int,
+                              int, int)> f9(&IntWrapper::add8);
+            ASSERT(0x31ff == f9(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+
+            bsl::function<int(IntWrapper, int, int, int, int, int, int,
+                              int, int, int)> f10(&IntWrapper::add9);
+            ASSERT(0x33ff == f10(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+        }
+
+        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ref\n");
+        {
+            bsl::function<int(const IntWrapper&)> f1(&IntWrapper::add0);
+            ASSERT(0x3001 == f1(IW));
+
+            bsl::function<int(const IntWrapper&, int)> f2(&IntWrapper::add1);
+            ASSERT(0x3003 == f2(IW, 2));
+          
+            bsl::function<int(const IntWrapper&, int,
+                              int)> f3(&IntWrapper::add2);
+            ASSERT(0x3007 == f3(IW, 2, 4));
+          
+            bsl::function<int(const IntWrapper&, int, int,
+                              int)> f4(&IntWrapper::add3);
+            ASSERT(0x300f == f4(IW, 2, 4, 8));
+          
+            bsl::function<int(const IntWrapper&, int, int, int,
+                              int)> f5(&IntWrapper::add4);
+            ASSERT(0x301f == f5(IW, 2, 4, 8, 0x10));
+          
+            bsl::function<int(const IntWrapper&, int, int, int, int,
+                              int)> f6(&IntWrapper::add5);
+            ASSERT(0x303f == f6(IW, 2, 4, 8, 0x10, 0x20));
+          
+            bsl::function<int(const IntWrapper&, int, int, int, int, int,
+                              int)> f7(&IntWrapper::add6);
+            ASSERT(0x307f == f7(IW, 2, 4, 8, 0x10, 0x20, 0x40));
+          
+            bsl::function<int(const IntWrapper&, int, int, int, int, int, int,
+                              int)> f8(&IntWrapper::add7);
+            ASSERT(0x30ff == f8(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+          
+            bsl::function<int(const IntWrapper&, int, int, int, int, int, int,
+                              int, int)> f9(&IntWrapper::add8);
+            ASSERT(0x31ff == f9(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+
+            bsl::function<int(const IntWrapper&, int, int, int, int, int, int,
+                              int, int, int)> f10(&IntWrapper::add9);
+            ASSERT(0x33ff == f10(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+        }
+
+        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ptr\n");
+        {
+            bsl::function<int(const IntWrapper*)> f1(&IntWrapper::add0);
+            ASSERT(0x3001 == f1(&IW));
+
+            bsl::function<int(const IntWrapper*, int)> f2(&IntWrapper::add1);
+            ASSERT(0x3003 == f2(&IW, 2));
+          
+            bsl::function<int(const IntWrapper*, int,
+                              int)> f3(&IntWrapper::add2);
+            ASSERT(0x3007 == f3(&IW, 2, 4));
+          
+            bsl::function<int(const IntWrapper*, int, int,
+                              int)> f4(&IntWrapper::add3);
+            ASSERT(0x300f == f4(&IW, 2, 4, 8));
+          
+            bsl::function<int(const IntWrapper*, int, int, int,
+                              int)> f5(&IntWrapper::add4);
+            ASSERT(0x301f == f5(&IW, 2, 4, 8, 0x10));
+          
+            bsl::function<int(const IntWrapper*, int, int, int, int,
+                              int)> f6(&IntWrapper::add5);
+            ASSERT(0x303f == f6(&IW, 2, 4, 8, 0x10, 0x20));
+          
+            bsl::function<int(const IntWrapper*, int, int, int, int, int,
+                              int)> f7(&IntWrapper::add6);
+            ASSERT(0x307f == f7(&IW, 2, 4, 8, 0x10, 0x20, 0x40));
+          
+            bsl::function<int(const IntWrapper*, int, int, int, int, int, int,
+                              int)> f8(&IntWrapper::add7);
+            ASSERT(0x30ff == f8(&IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+          
+            bsl::function<int(const IntWrapper*, int, int, int, int, int, int,
+                              int, int)> f9(&IntWrapper::add8);
+            ASSERT(0x31ff == f9(&IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+
+            bsl::function<int(const IntWrapper*, int, int, int, int, int, int,
+                              int, int, int)> f10(&IntWrapper::add9);
+            ASSERT(0x33ff == f10(&IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+        }
+
+        if (veryVeryVerbose) std::printf("\tInvoked via smart_ptr\n");
+        {
+            bsl::function<int(smart_ptr<const IntWrapper>)>
+                f1(&IntWrapper::add0);
+            ASSERT(0x3001 == f1(&IW));
+
+            bsl::function<int(smart_ptr<const IntWrapper>,
+                              int)> f2(&IntWrapper::add1);
+            ASSERT(0x3003 == f2(&IW, 2));
+          
+            bsl::function<int(smart_ptr<const IntWrapper>, int,
+                              int)> f3(&IntWrapper::add2);
+            ASSERT(0x3007 == f3(&IW, 2, 4));
+          
+            bsl::function<int(smart_ptr<const IntWrapper>, int, int,
+                              int)> f4(&IntWrapper::add3);
+            ASSERT(0x300f == f4(&IW, 2, 4, 8));
+          
+            bsl::function<int(smart_ptr<const IntWrapper>, int, int, int,
+                              int)> f5(&IntWrapper::add4);
+            ASSERT(0x301f == f5(&IW, 2, 4, 8, 0x10));
+          
+            bsl::function<int(smart_ptr<const IntWrapper>, int, int, int, int,
+                              int)> f6(&IntWrapper::add5);
+            ASSERT(0x303f == f6(&IW, 2, 4, 8, 0x10, 0x20));
+          
+            bsl::function<int(smart_ptr<const IntWrapper>, int, int, int, int,
+                              int, int)> f7(&IntWrapper::add6);
+            ASSERT(0x307f == f7(&IW, 2, 4, 8, 0x10, 0x20, 0x40));
+          
+            bsl::function<int(smart_ptr<const IntWrapper>, int, int, int, int,
+                              int, int, int)> f8(&IntWrapper::add7);
+            ASSERT(0x30ff == f8(&IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+          
+            bsl::function<int(smart_ptr<const IntWrapper>, int, int, int, int,
+                              int, int, int, int)> f9(&IntWrapper::add8);
+            ASSERT(0x31ff == f9(&IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+
+            bsl::function<int(smart_ptr<const IntWrapper>, int, int, int, int,
+                              int, int, int, int, int)> f10(&IntWrapper::add9);
+            ASSERT(0x33ff == f10(&IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+        }
+
+        if (veryVerbose) std::printf("non-const member functions\n");
+
+        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper val\n");
+        {
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper)> f1(&IntWrapper::increment0);
+            ASSERT(0x2001 == f1(iw));
+            ASSERT(0x2001 == IW.value());
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int)> f2(&IntWrapper::increment1);
+            ASSERT(0x2003 == f2(iw, 2));   // Modify a temp copy of 'iw'
+            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int,
+                              int)> f3(&IntWrapper::increment2);
+            ASSERT(0x2007 == f3(iw, 2, 4)); // Modify a temp copy of 'iw'
+            ASSERT(0x2001 == IW.value());   // Original 'iw' unmodified
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int, int,
+                              int)> f4(&IntWrapper::increment3);
+            ASSERT(0x200f == f4(iw, 2, 4, 8)); // Modify a temp copy of 'iw'
+            ASSERT(0x2001 == IW.value());      // Original 'iw' unmodified
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int, int, int,
+                              int)> f5(&IntWrapper::increment4);
+            ASSERT(0x201f == f5(iw, 2, 4, 8, 0x10)); 
+            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int, int, int, int,
+                              int)> f6(&IntWrapper::increment5);
+            ASSERT(0x203f == f6(iw, 2, 4, 8, 0x10, 0x20));
+            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int, int, int, int, int,
+                              int)> f7(&IntWrapper::increment6);
+            ASSERT(0x207f == f7(iw, 2, 4, 8, 0x10, 0x20, 0x40));
+            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int, int, int, int, int, int,
+                              int)> f8(&IntWrapper::increment7);
+            ASSERT(0x20ff == f8(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int, int, int, int, int, int,
+                              int, int)> f9(&IntWrapper::increment8);
+            ASSERT(0x21ff == f9(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper, int, int, int, int, int, int,
+                              int, int, int)> f10(&IntWrapper::increment9);
+            ASSERT(0x23ff == f10(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+        }
+
+        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ref\n");
+        {
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&)> f1(&IntWrapper::increment0);
+            ASSERT(0x2001 == f1(iw));
+            ASSERT(0x2001 == IW.value());
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int)> f2(&IntWrapper::increment1);
+            ASSERT(0x2003 == f2(iw, 2));
+            ASSERT(0x2003 == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int,
+                              int)> f3(&IntWrapper::increment2);
+            ASSERT(0x2007 == f3(iw, 2, 4));
+            ASSERT(0x2007 == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int, int,
+                              int)> f4(&IntWrapper::increment3);
+            ASSERT(0x200f == f4(iw, 2, 4, 8));
+            ASSERT(0x200f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int, int, int,
+                              int)> f5(&IntWrapper::increment4);
+            ASSERT(0x201f == f5(iw, 2, 4, 8, 0x10));
+            ASSERT(0x201f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int, int, int, int,
+                              int)> f6(&IntWrapper::increment5);
+            ASSERT(0x203f == f6(iw, 2, 4, 8, 0x10, 0x20));
+            ASSERT(0x203f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int, int, int, int, int,
+                              int)> f7(&IntWrapper::increment6);
+            ASSERT(0x207f == f7(iw, 2, 4, 8, 0x10, 0x20, 0x40));
+            ASSERT(0x207f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
+                              int)> f8(&IntWrapper::increment7);
+            ASSERT(0x20ff == f8(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+            ASSERT(0x20ff == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
+                              int, int)> f9(&IntWrapper::increment8);
+            ASSERT(0x21ff == f9(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+            ASSERT(0x21ff == IW.value());
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
+                              int, int, int)> f10(&IntWrapper::increment9);
+            ASSERT(0x23ff == f10(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+            ASSERT(0x23ff == IW.value());
+        }
+
+        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ptr\n");
+        {
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*)> f1(&IntWrapper::increment0);
+            ASSERT(0x2001 == f1(&iw));
+            ASSERT(0x2001 == IW.value());
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int)> f2(&IntWrapper::increment1);
+            ASSERT(0x2003 == f2(&iw, 2));
+            ASSERT(0x2003 == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int,
+                              int)> f3(&IntWrapper::increment2);
+            ASSERT(0x2007 == f3(&iw, 2, 4));
+            ASSERT(0x2007 == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int, int,
+                              int)> f4(&IntWrapper::increment3);
+            ASSERT(0x200f == f4(&iw, 2, 4, 8));
+            ASSERT(0x200f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int, int, int,
+                              int)> f5(&IntWrapper::increment4);
+            ASSERT(0x201f == f5(&iw, 2, 4, 8, 0x10));
+            ASSERT(0x201f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int, int, int, int,
+                              int)> f6(&IntWrapper::increment5);
+            ASSERT(0x203f == f6(&iw, 2, 4, 8, 0x10, 0x20));
+            ASSERT(0x203f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int, int, int, int, int,
+                              int)> f7(&IntWrapper::increment6);
+            ASSERT(0x207f == f7(&iw, 2, 4, 8, 0x10, 0x20, 0x40));
+            ASSERT(0x207f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
+                              int)> f8(&IntWrapper::increment7);
+            ASSERT(0x20ff == f8(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+            ASSERT(0x20ff == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
+                              int, int)> f9(&IntWrapper::increment8);
+            ASSERT(0x21ff == f9(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+            ASSERT(0x21ff == IW.value());
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
+                              int, int, int)> f10(&IntWrapper::increment9);
+            ASSERT(0x23ff == f10(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+            ASSERT(0x23ff == IW.value());
+        }
+
+        if (veryVeryVerbose) std::printf("\tInvoked via smart_ptr\n");
+        {
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>)>
+                f1(&IntWrapper::increment0);
+            ASSERT(0x2001 == f1(&iw));
+            ASSERT(0x2001 == IW.value());
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>,
+                              int)> f2(&IntWrapper::increment1);
+            ASSERT(0x2003 == f2(&iw, 2));
+            ASSERT(0x2003 == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int,
+                              int)> f3(&IntWrapper::increment2);
+            ASSERT(0x2007 == f3(&iw, 2, 4));
+            ASSERT(0x2007 == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int, int,
+                              int)> f4(&IntWrapper::increment3);
+            ASSERT(0x200f == f4(&iw, 2, 4, 8));
+            ASSERT(0x200f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int, int, int,
+                              int)> f5(&IntWrapper::increment4);
+            ASSERT(0x201f == f5(&iw, 2, 4, 8, 0x10));
+            ASSERT(0x201f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int, int, int, int,
+                              int)> f6(&IntWrapper::increment5);
+            ASSERT(0x203f == f6(&iw, 2, 4, 8, 0x10, 0x20));
+            ASSERT(0x203f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int, int, int, int,
+                              int, int)> f7(&IntWrapper::increment6);
+            ASSERT(0x207f == f7(&iw, 2, 4, 8, 0x10, 0x20, 0x40));
+            ASSERT(0x207f == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int, int, int, int,
+                              int, int, int)> f8(&IntWrapper::increment7);
+            ASSERT(0x20ff == f8(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+            ASSERT(0x20ff == IW.value());
+          
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int, int, int, int,
+                              int, int, int, int)> f9(&IntWrapper::increment8);
+            ASSERT(0x21ff == f9(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+            ASSERT(0x21ff == IW.value());
+
+            iw = IntWrapper(0x2001);
+            bsl::function<int(smart_ptr<IntWrapper>, int, int, int, int,
+                              int, int, int, int, int)> f10(&IntWrapper::increment9);
+            ASSERT(0x23ff == f10(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+            ASSERT(0x23ff == IW.value());
+        }
+      } break;
+
+      case 4: {
+        // --------------------------------------------------------------------
+        // POINTER TO FUNCTION INVOCATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nPOINTER TO FUNCTION INVOCATION"
+                            "\n==============================\n");
+
+        bsl::function<int()> f0(sum0);
+        ASSERT(0x4000 == f0());
+
+        bsl::function<int(int)> f1(sum1);
+        ASSERT(0x4001 == f1(1));
+
+        bsl::function<int(int, int)> f2(sum2);
+        ASSERT(0x4003 == f2(1, 2));
+          
+        bsl::function<int(int, int, int)> f3(sum3);
+        ASSERT(0x4007 == f3(1, 2, 4));
+          
+        bsl::function<int(int, int, int, int)> f4(sum4);
+        ASSERT(0x400f == f4(1, 2, 4, 8));
+          
+        bsl::function<int(int, int, int, int, int)> f5(sum5);
+        ASSERT(0x401f == f5(1, 2, 4, 8, 0x10));
+          
+        bsl::function<int(int, int, int, int, int, int)> f6(sum6);
+        ASSERT(0x403f == f6(1, 2, 4, 8, 0x10, 0x20));
+          
+        bsl::function<int(int, int, int, int, int, int, int)> f7(sum7);
+        ASSERT(0x407f == f7(1, 2, 4, 8, 0x10, 0x20, 0x40));
+          
+        bsl::function<int(int, int, int, int, int, int, int, int)> f8(sum8);
+        ASSERT(0x40ff == f8(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+          
+        bsl::function<int(int,int,int,int,int,int,int,int,int)> f9(sum9);
+        ASSERT(0x41ff == f9(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+          
+        bsl::function<int(int,int,int,int,int,int,int,int,int,int)> f10(sum10);
+        ASSERT(0x43ff == f10(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,0x200));
+          
+      } break;
+
       case 3: {
         // --------------------------------------------------------------------
         // CONSTRUCTOR function(FUNC)
@@ -408,18 +925,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCONSTRUCTOR function(FUNC)"
                             "\n==========================\n");
 
+        typedef bsl::function<int(const IntWrapper&, int)> Obj;
+        typedef int (*simpleFuncPtr_t)(const IntWrapper&, int);
+        typedef int (IntWrapper::*simpleMemFuncPtr_t)(int) const;
+
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
         if (veryVerbose) printf("Construct with null pointer to function\n");
         globalAllocMonitor.reset();
         {
-            const protoFuncPtr_t nullFuncPtr = NULL;
+            const simpleFuncPtr_t nullFuncPtr = NULL;
             Obj f(nullFuncPtr); const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<protoFuncPtr_t>());
-            ASSERT(NULL == f.target<protoFuncPtr_t>());
+            ASSERT(NULL == F.target<simpleFuncPtr_t>());
+            ASSERT(NULL == f.target<simpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -429,13 +950,13 @@ int main(int argc, char *argv[])
         }
         globalAllocMonitor.reset();
         {
-            const protoMemFuncPtr_t nullMemFuncPtr = NULL;
+            const simpleMemFuncPtr_t nullMemFuncPtr = NULL;
             Obj f(nullMemFuncPtr); const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<protoMemFuncPtr_t>());
-            ASSERT(NULL == f.target<protoMemFuncPtr_t>());
+            ASSERT(NULL == F.target<simpleMemFuncPtr_t>());
+            ASSERT(NULL == f.target<simpleMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -443,14 +964,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Construct with pointer to function\n");
         globalAllocMonitor.reset();
         {
-            Obj f(protoFunc); const Obj& F = f;
+            Obj f(simpleFunc); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(protoFuncPtr_t) == F.target_type());
-            ASSERT(F.target<protoFuncPtr_t>() &&
-                   &protoFunc == *F.target<protoFuncPtr_t>());
-            ASSERT(f.target<protoFuncPtr_t>() &&
-                   &protoFunc == *f.target<protoFuncPtr_t>());
+            ASSERT(typeid(simpleFuncPtr_t) == F.target_type());
+            ASSERT(F.target<simpleFuncPtr_t>() &&
+                   &simpleFunc == *F.target<simpleFuncPtr_t>());
+            ASSERT(f.target<simpleFuncPtr_t>() &&
+                   &simpleFunc == *f.target<simpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -458,14 +979,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Construct with pointer to member function\n");
         globalAllocMonitor.reset();
         {
-            Obj f(&RunningSum::add1); const Obj& F = f;
+            Obj f(&IntWrapper::add1); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(protoMemFuncPtr_t) == F.target_type());
-            ASSERT(F.target<protoMemFuncPtr_t>() &&
-                   &RunningSum::add1 == *F.target<protoMemFuncPtr_t>());
-            ASSERT(f.target<protoMemFuncPtr_t>() &&
-                   &RunningSum::add1 == *f.target<protoMemFuncPtr_t>());
+            ASSERT(typeid(simpleMemFuncPtr_t) == F.target_type());
+            ASSERT(F.target<simpleMemFuncPtr_t>() &&
+                   &IntWrapper::add1 == *F.target<simpleMemFuncPtr_t>());
+            ASSERT(f.target<simpleMemFuncPtr_t>() &&
+                   &IntWrapper::add1 == *f.target<simpleMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -591,6 +1112,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPRIMARY MANIPULATORS"
                             "\n====================\n");
 
+        typedef bsl::function<int(const IntWrapper&, int)> Obj;
+
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
         if (veryVerbose) printf("Construct with no arguments\n");
@@ -660,9 +1183,8 @@ int main(int argc, char *argv[])
             ASSERT(  (bsl::is_same<char&,  Obj::second_argument_type>::value));
         }
 
+        if (veryVerbose) printf("Wrap int(*)()\n");
         {
-            if (veryVerbose) printf("Wrap int(*)()\n");
-
             typedef bsl::function<int()> Obj;
             Obj n;
             ASSERT(! n);
@@ -677,9 +1199,8 @@ int main(int argc, char *argv[])
             ASSERT(NULL == F.target<int(*)(int)>());
         }
 
+        if (veryVerbose) printf("Wrap int(*)(int, int)\n");
         {
-            if (veryVerbose) printf("Wrap int(*)(int, int)\n");
-
             typedef bsl::function<int(int, int)> Obj;
             Obj f(sum2);
             ASSERT(0x4003 == f(1, 2));
@@ -688,30 +1209,30 @@ int main(int argc, char *argv[])
         }
 
         {
-            if (veryVerbose) {
-                printf("Wrap void (RunningSum::*nullMember_p)(int)\n");
-            }
+            IntWrapper iw(0x4000), *iw_p = &iw; const IntWrapper& IW = iw;
 
-            RunningSum rs(0x4000), *rsp = &rs; const RunningSum& RS = rs;
-
-            void (RunningSum::*nullMember_p)(int) = NULL;
-            bsl::function<void(RunningSum&, int)> nullf(nullMember_p);
+            if (veryVerbose) printf("Wrap NULL void (IntWrapper::*)(int)\n");
+            void (IntWrapper::*nullMember_p)(int) = NULL;
+            bsl::function<void(IntWrapper&, int)> nullf(nullMember_p);
             ASSERT(! nullf);
 
-            bsl::function<void(RunningSum&)> f0(&RunningSum::increment0);
+            if (veryVerbose) printf("Wrap void (IntWrapper::*)()\n");
+            bsl::function<void(IntWrapper&)> f0(&IntWrapper::incrementBy1);
             ASSERT(f0);
-            f0(rs);
-            ASSERT(0x4000 == rs.value());
+            f0(iw);
+            ASSERT(0x4001 == iw.value());
 
-            bsl::function<void(RunningSum*, int, int, int)>
-                f3(&RunningSum::increment3);
+            if (veryVerbose) printf("Wrap void (IntWrapper::*)(int, int)\n");
+            bsl::function<void(IntWrapper*, int, int)>
+                f3(&IntWrapper::increment2);
             ASSERT(f3);
-            f3(rsp, 1, 2, 4);
-            ASSERT(0x4007 == rsp->value());
+            f3(iw_p, 2, 4);
+            ASSERT(0x4007 == iw_p->value());
 
-            bsl::function<int(const RunningSum&)> fv(&RunningSum::value);
+            if (veryVerbose) printf("Wrap int (IntWrapper::*)(int) const\n");
+            bsl::function<int(const IntWrapper&, int)> fv(&IntWrapper::add1);
             ASSERT(fv);
-            ASSERT(0x4007 == fv(RS));
+            ASSERT(0x400f == fv(IW, 8));
         }
 
       } break;
