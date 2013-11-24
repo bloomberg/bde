@@ -39,7 +39,8 @@
 
           # GNU gcc
           [ 'compiler_tag == "gcc"', {
-            'cflags_base%': [ '-pipe', # uncomment -std= to specify compiler std
+            'cflags_base%': [ '--param', 'ggc-min-expand=50',
+                              '-pipe', # uncomment -std= to specify compiler std
                              #'-std=c++0x', # gcc 4.6
                              #'-std=c++11', # gcc 4.7
                               '-pthread', ],       # thread aware (not optional)
