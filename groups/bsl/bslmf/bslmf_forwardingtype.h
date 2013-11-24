@@ -184,7 +184,7 @@ struct ForwardingType<const volatile TYPE&> {
 template <class TYPE>
 struct ForwardingType<volatile TYPE&> {
     // This specialization is used when the template parameter of
-    // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
+    // 'ForwardingType' is a 'volatile T&'.  In that case, this template
     // parameter cannot be forwarded as any other type.
 
     enum { BSLMF_FORWARDING_TYPE_ID = 4 };  // For testing only.
