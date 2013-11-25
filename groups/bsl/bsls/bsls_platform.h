@@ -196,6 +196,8 @@ struct bsls_Platform_Assert;
     #if defined(_AIX)                          // must be defined
         #define BSLS_PLATFORM_OS_AIX 1
         #define BSLS_PLATFORM_OS_VER_MAJOR _AIX
+    #elif defined(__linux__)
+        #define BSLS_PLATFORM_OS_LINUX 1
     #else
         #error "AIX compiler appears to be in use on non-AIX OS."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -214,6 +216,10 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_COM
     #elif defined(_ARCH_601)
         #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_601
+    #elif defined(_ARCH_PPC)
+        #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_PPC
+    #elif defined(_ARCH_PPC64)
+        #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_PPC64
     #else
         #error "Unable to identify the AIX CPU."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -577,8 +583,10 @@ struct bsls_Platform_Assert;
     #elif defined(__powerpc) || defined(__powerpc__) \
           || defined(__POWERPC__) || defined(__ppc__) || defined(_POWER)
         #define BSLS_PLATFORM_CPU_POWERPC 1
-        #if defined(__64BIT__)
+        #if defined(__64BIT__) || defined(_LP64) || defined(__LP64__)
             #define BSLS_PLATFORM_CPU_64_BIT 1
+        #else  // defined(_ILP32)
+            #define BSLS_PLATFORM_CPU_32_BIT 1
         #endif
     #elif defined(__sparc__) || defined(__sparc_v9__) || defined(__sparcv9)
         #define BSLS_PLATFORM_CPU_SPARC 1
