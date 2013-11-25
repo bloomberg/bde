@@ -575,8 +575,6 @@ btemt_SessionPool::~btemt_SessionPool()
 // MANIPULATORS
 int btemt_SessionPool::start()
 {
-    BSLS_ASSERT(!d_channelPool_p);
-
     btemt_ChannelPool::ChannelStateChangeCallback channelStateFunctor(
                bdef_MemFnUtil::memFn(&btemt_SessionPool::channelStateCb, this),
                d_allocator_p);
