@@ -4007,8 +4007,6 @@ int main(int argc, char *argv[])
 
             // Corroborate attribute independence.
             {
-                TestAllocatorMonitor tam(oa);
-
                 // Set all attributes to their 'A' values.
 
                 mX.setAddress(A1);
@@ -4026,6 +4024,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(CONFIG, A5 == X.offsetFromSymbol());
                 LOOP_ASSERT(CONFIG, A6 == X.sourceFileName());
                 LOOP_ASSERT(CONFIG, A7 == X.symbolName());
+
+                TestAllocatorMonitor tam(oa);
 
                 // Set all attributes to their 'B' values.
 
@@ -4047,12 +4047,6 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(CONFIG, tam.isTotalSame());
             }
-
-            // Verify no temporary memory is allocated from the object
-            // allocator.
-
-            LOOP3_ASSERT(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
-                         oa.numBlocksTotal() == oa.numBlocksInUse());
 
             // Reclaim dynamically allocated object under test.
 
