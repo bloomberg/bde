@@ -3548,8 +3548,6 @@ int main(int argc, char *argv[])
 
             // Corroborate attribute independence.
             {
-                TestAllocatorMonitor tam(oa);
-
                 // Set all attributes to their 'A' values.
 
                 mX.setDatetimeTz(A1);
@@ -3567,15 +3565,12 @@ int main(int argc, char *argv[])
                 mX.setTimeZoneId(B2);
                 LOOP_ASSERT(CONFIG, B1 == X.datetimeTz());
                 LOOP_ASSERT(CONFIG, B2 == X.timeZoneId());
-
-                LOOP_ASSERT(CONFIG, tam.isTotalSame());
             }
 
             // Verify no temporary memory is allocated from the object
             // allocator.
 
-            LOOP3_ASSERT(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
-                         oa.numBlocksTotal() == oa.numBlocksInUse());
+            LOOP2_ASSERT(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
 
             // Reclaim dynamically allocated object under test.
 

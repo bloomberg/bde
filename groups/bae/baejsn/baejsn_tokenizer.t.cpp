@@ -1116,7 +1116,7 @@ int main(int argc, char *argv[])
         // Line  Suffix Text                             Allocates memory flag
         // ----  -----------                             ---------------------
 
-#if !defined(BSLS_PLATFORM_CPU_64_BIT)
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
 
         // 32-bit
 
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
         {   L_,  "12345678ABCDEF\"",                      true               },
         {   L_,  "12345678ABCDE12345678901234567890\"",   true               },
 
-#else
+#elif defined(BSLS_PLATFORM_CPU_64_BIT)
         // 64-bit
 
         {   L_,  "ABC\"",                                 false              },
@@ -1135,7 +1135,8 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_PLATFORM_CMP_AIX)
         // AIX
 
-        {   L_,  "ABCDE\"",                               true               },
+        {   L_,  "12345678ABCD\"",                        false              },
+        {   L_,  "12345678ABCDE\"",                       true               },
 #endif
 
         {   L_,  "ABCDE12345678901234567890\"",           true               },
@@ -1179,7 +1180,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, TEXT, data, TEXT == data);
 
             if (ALLOC) {
-                ASSERTV(LINE, ta.numBlocksTotal() > 0);
+                ASSERTV(LINE, TEXT.size(), ta.numBlocksTotal() > 0);
             }
             else {
                 ASSERTV(LINE, 0 == ta.numBlocksTotal());
