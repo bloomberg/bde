@@ -229,12 +229,13 @@ const char *bdeu_String::strstr(const char *string,
 {
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= stringLen);
-    BSLS_ASSERT(subString);
     BSLS_ASSERT(0 <= subStringLen);
 
     if (0 == subStringLen) {
         return string;                                                // RETURN
     }
+
+    BSLS_ASSERT(subString);
 
     if (stringLen < subStringLen) {
         return 0;                                                     // RETURN
@@ -258,12 +259,13 @@ const char *bdeu_String::strstrCaseless(const char *string,
 {
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= stringLen);
-    BSLS_ASSERT(subString);
     BSLS_ASSERT(0 <= subStringLen);
 
     if (0 == subStringLen) {
         return string;                                                // RETURN
     }
+
+    BSLS_ASSERT(subString);
 
     if (stringLen < subStringLen) {
         return 0;                                                     // RETURN
@@ -301,6 +303,7 @@ void bdeu_String::toFixedLength(char       *dstString,
     BSLS_ASSERT(0 <= srcLength);
 
     // TBD make alias safe
+
     if (dstLength < srcLength) {
         bsl::memcpy(dstString, srcString, dstLength);
     }

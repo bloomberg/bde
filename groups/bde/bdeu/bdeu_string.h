@@ -209,7 +209,8 @@ struct bdeu_String {
         // specified 'string' having the specified 'stringLen'; return 0 if
         // 'subString' is not found in 'string'.  The comparison is
         // case-sensitive.  Note that a 'subString' of length 0 matches the
-        // beginning of 'string'.
+        // beginning of 'string', and that 'subString' may be 0, but only if
+        // 'subStringLen' is 0.
 
     static const char *strstrCaseless(const char *string,
                                       int         stringLen,
@@ -220,7 +221,8 @@ struct bdeu_String {
         // specified 'string' having the specified 'stringLen'; return 0 if
         // 'subString' is not found in 'string'.  The comparison is
         // case-insensitive.  Note that a 'subString' of length 0 matches the
-        // beginning of 'string'.
+        // beginning of 'string', and that 'subString' may be 0, but only if
+        // 'subStringLen' is 0.
 
     static int strnlen(const char *string, int maximumLength);
         // Return the minimum of the length of the specified null-terminated
@@ -536,6 +538,7 @@ void bdeu_String::trim(char *string)
     BSLS_ASSERT_SAFE(string);
 
     // TBD efficiency
+
     rtrim(string);
     ltrim(string);
 }
