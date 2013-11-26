@@ -194,7 +194,7 @@ void sessionStateCallback(int            state,
         }
       } break;
     }
- }
+}
 
 void sessionStateCallbackWithBarrier(int            state,
                                      int            handle,
@@ -1982,6 +1982,28 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 15: {
         // --------------------------------------------------------------------
+        // TEST USAGE EXAMPLE
+        //   The usage example from the header has been incorporated into this
+        //   test driver.  All references to 'assert' have been replaced with
+        //   'ASSERT'.  Call the test example function and assert that it works
+        //   as expected.
+        //
+        // Plan:
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "USAGE EXAMPLE" << bsl::endl
+                               << "=============" << bsl::endl;
+
+        using namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE;
+
+        usageExample(&ta);
+        ASSERT(0 == ta.numBytesInUse());
+        ASSERT(0 == ta.numMismatches());
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
         // TESTING 'connect' with socket options
         //   Ensure that the 'connect' that takes a socket option object
         //   returns a session up callback on success and user callback on
@@ -2091,7 +2113,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
       } break;
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'connect' with a user-specified local address
         //   Ensure that the 'connect' that takes a client address returns a
@@ -2207,7 +2229,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING 'setWriteCacheWatermarks'
         //   The 'setWriteCacheWatermarks' method has the expected effect.
@@ -2324,7 +2346,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == sessionPool.stop());
 
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'stopAndRemoveAllSessions'
         //
@@ -2462,7 +2484,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.numSessions());
       } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28731692
         //  Ensure that when session pool owns factories used for allocating
@@ -2552,7 +2574,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::microSleep(0, 3);
         }
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 29067989
         //  Ensure that session pool does not allocate and hold on to
@@ -2648,7 +2670,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::microSleep(0, 1);
         }
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 24968477
         //  Ensure that the bug where d_numSessions is decremented in stop and
@@ -2736,7 +2758,7 @@ int main(int argc, char *argv[])
           socketFactory.deallocate(socket);
         }
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 20535695
         //
@@ -2783,7 +2805,7 @@ int main(int argc, char *argv[])
 
         barrier.wait();
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 22373213
         //
@@ -2862,10 +2884,8 @@ int main(int argc, char *argv[])
         socketFactory.deallocate(socket);
 
         LOOP_ASSERT(cbClass.cbCount(), 1 == cbClass.cbCount());
-        // TBD:
-        bcemt_ThreadUtil::microSleep(0, 1);
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // BLOB BASED USAGE EXAMPLE
         //   The usage example from the header has been changed to use
@@ -2902,14 +2922,14 @@ int main(int argc, char *argv[])
 
         socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
 
-        bcemt_ThreadUtil::sleep(bdet_TimeInterval(5));
+        bcemt_ThreadUtil::microSleep(0, 1);
 
         factory.deallocate(socket);
 
-        bcemt_ThreadUtil::sleep(bdet_TimeInterval(10));
+        bcemt_ThreadUtil::microSleep(0, 1);
 
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // BLOB BASED USAGE EXAMPLE
         //   The usage example from the header has been changed to use
@@ -2936,7 +2956,7 @@ int main(int argc, char *argv[])
         const bteso_IPv4Address ADDRESS("127.0.0.1", tester.portNumber());
         ASSERT(0 == socket->connect(ADDRESS));
 
-        bcemt_ThreadUtil::sleep(bdet_TimeInterval(5));
+        bcemt_ThreadUtil::microSleep(0, 1);
 
         if (veryVerbose) {
             MTCOUT << "Bringing down the channel" << MTENDL;
@@ -2946,10 +2966,10 @@ int main(int argc, char *argv[])
 
         factory.deallocate(socket);
 
-        bcemt_ThreadUtil::sleep(bdet_TimeInterval(10));
+        bcemt_ThreadUtil::microSleep(0, 1);
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // BLOB BASED USAGE EXAMPLE
         //   The usage example from the header has been changed to use
@@ -2969,7 +2989,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
 
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // TEST ALLOCATOR PROPAGATION
         //
@@ -2978,6 +2998,7 @@ int main(int argc, char *argv[])
         // the test is complete.  Then verify that no memory is outstanding
         // through the default allocator.
         // --------------------------------------------------------------------
+
         if (verbose) bsl::cout << "ALLOCATOR PROPAGATION" << bsl::endl
                                << "=====================" << bsl::endl;
 
@@ -3013,28 +3034,6 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
 
-      case 2: {
-        // --------------------------------------------------------------------
-        // TEST USAGE EXAMPLE
-        //   The usage example from the header has been incorporated into this
-        //   test driver.  All references to 'assert' have been replaced with
-        //   'ASSERT'.  Call the test example function and assert that it works
-        //   as expected.
-        //
-        // Plan:
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "USAGE EXAMPLE" << bsl::endl
-                               << "=============" << bsl::endl;
-
-        using namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE;
-
-        usageExample(&ta);
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == ta.numMismatches());
-
-      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:
@@ -3047,9 +3046,7 @@ int main(int argc, char *argv[])
 
           btemt_ChannelPoolConfiguration config;
 
-          Obj X(config,
-                btemt_SessionPool::SessionPoolStateCallback());
-
+          Obj X(config, btemt_SessionPool::SessionPoolStateCallback());
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
