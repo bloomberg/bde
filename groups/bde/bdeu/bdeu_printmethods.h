@@ -47,7 +47,7 @@ BDES_IDENT("$Id: $")
 // traits), the relative precedence of the traits is shown above.  The next
 // sub-sections describe these traits and their affects on printing.
 //
-///Affect of 'bdeu_TypeTraitHasPrintMethod' Trait
+///Effect of 'bdeu_TypeTraitHasPrintMethod' Trait
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // If a class 'X' declares the 'bdeu_TypeTraitHasPrintMethod' trait, then it
 // must provide a 'print' method with the following signature:
@@ -72,7 +72,7 @@ BDES_IDENT("$Id: $")
 //  'stream' is not valid on entry, this operation has no effect.
 //..
 //
-///Affect of 'bslalg::TypeTraitHasStlIterators' Trait
+///Effect of 'bslalg::TypeTraitHasStlIterators' Trait
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // If a class 'X' declares the 'bslalg::TypeTraitHasStlIterators' trait, then
 // it must provide access to iterators using the standard STL protocol.  The
@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $")
 // its own print method, and with an indentation level one higher than that of
 // the container.
 //
-///Affect of 'bslalg::TypeTraitPair' Trait
+///Effect of 'bslalg::TypeTraitPair' Trait
 /// - - - - - - - - - - - - - - - - - - -
 // If a class 'X' declares the 'bslalg::TypeTraitPair' trait, then the class
 // must contain two 'public' data members named 'first' and 'second'.  The

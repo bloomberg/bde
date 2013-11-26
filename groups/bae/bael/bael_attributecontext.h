@@ -28,7 +28,7 @@ BDES_IDENT("$Id: $")
 // attribute context using the 'addAttributes()' and removeAttributes()'
 // methods.  Finally the 'bael_AttributeContext' provides methods (used
 // primarily by other components in the 'bael' package') to determine the
-// affect of the current logging rules on the logging thresholds of a
+// effect of the current logging rules on the logging thresholds of a
 // category.  The 'hasRelevantActiveRules()' method, returns 'true' if there
 // is at least on relevant and active rule (in the global set of rules) that
 // might modify the logging thresholds of the supplied 'category'.  A rule is
@@ -113,7 +113,7 @@ BDES_IDENT("$Id: $")
 // In this example we demonstrate how to call the 'hasRelevantActiveRules()'
 // and 'determineThresholdLevels()' methods.  These methods are used
 // (primarily by other components in the 'bael' package) to determine the
-// affect of the current logging rules on the logging thresholds of a
+// effect of the current logging rules on the logging thresholds of a
 // category.  Note that a rule is "relevant" if the rule's pattern matches
 // the category's name, and a rule is "active" if 'bael_Rule::evaluate()'
 // returns 'true' for the collection of attributes maintained for the current
@@ -460,7 +460,7 @@ class bael_AttributeContext {
     // 'removeAttributes()' methods are used to add and remove collections of
     // attributes from the (thread-local) context object.  Finally the
     // 'bael_AttributeContext' provides methods (used primarily by other
-    // components in the 'bael' package') to determine the affect of the
+    // components in the 'bael' package') to determine the effect of the
     // current logging rules on the logging thresholds of a category.  The
     // 'hasRelevantActiveRules()' method, returns 'true' if there are any
     // relevant and active rules that might modify the logging thresholds of
