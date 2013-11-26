@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //                : Imp::NIL_TRAITS
 //      };
 //      Imp::copyConstruct(address, original, allocator,
-//                         (bslmf::MetaInt<VALUE>*)0);
+//                         (bsl::integral_constant<int, VALUE>*)0);
 //  }
 //..
 // We would like to replace the cumbersome chain of '?:' operations with a

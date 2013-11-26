@@ -7,24 +7,38 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a way to force a link-time reference into an object.
+//@PURPOSE: Provide a way to force a link-time dependency into an object.
 //
 //@MACROS:
-// BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY
+//  BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY
 //
-//@DESCRIPTION: This component provides a way to force a link-time reference
-// to a symbol of type 'const char *' into the object being compiled.
+//@DESCRIPTION: This component provides a facility to force a link-time
+// dependency on a symbol of the name supplied to the macro into the
+// translation unit being compiled. This macro can be useful for coercing the
+// linker to incorporate version symbols for a library into resulting binary,
+// and generating link-time failures if a library version mismatch occurs.
+//
+///Macro Summary
+///-------------
+// This section provides a brief description of the macros defined in this
+// component.
+//..
+//   BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY
+//       This macro forces a link-time dependency into an object.
+//..
 //
 ///Usage
 ///-----
-// A component that wants to make sure clients link in the correct version
-// of the corresponding library could declare a coercion symbol in its header.
-// First, declare a 'const char *' variable as follows:
+// In this section we show intended use of this component.
+//
+///Example 1 - Force a Link-Time Dependency on 's_coerce'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, declare a variable 's_coerce' of type 'const char *':
 //..
 //  extern const char *s_coerce;
 //..
-// Next, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to force a reference
-// to this symbol into any object which includes the header:
+// Next, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to add a dependency on
+// this symbol into any object which includes the header:
 //..
 // BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
 //                                           bsls_coerceexample_coerce,
