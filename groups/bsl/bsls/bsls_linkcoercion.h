@@ -37,12 +37,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  extern const char *s_coerce;
 //..
-// Next, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to add a dependency on
+// Then, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to add a dependency on
 // this symbol into any object which includes the header:
 //..
-// BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
-//                                           bsls_coerceexample_coerce,
-//                                           s_coerce)
+//  BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+//                                            bsls_coerceexample_coerce,
+//                                            s_coerce)
 //..
 // Finally, in the corresponding '.cpp' file, the 's_coerce' symbol needs to be
 // defined:

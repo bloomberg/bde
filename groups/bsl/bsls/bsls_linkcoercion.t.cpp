@@ -2,8 +2,8 @@
 
 #include <bsls_linkcoercion.h>
 #include <bsls_linkcoercion.h>
-#include <cstdio>  // std::printf
-#include <cstdlib> // std::atoi
+#include <stdio.h>  // printf
+#include <stdlib.h> // atoi
 
 
 //=============================================================================
@@ -22,7 +22,7 @@ static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
     if (c) {
-        std::printf("Error %s (%d): %s    (failed)\n", __FILE__, i, s);
+        printf("Error %s (%d): %s    (failed)\n", __FILE__, i, s);
 
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
@@ -33,25 +33,23 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                        TESTING USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-///Usage
-///-----
-// A component that wants to make sure clients link in the correct version
-// of the corresponding library could declare a coercion symbol in its header.
-// First, declare a 'const char *' variable as follows:
+///Example 1 - Force a Link-Time Dependency on 's_coerce'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, declare a variable 's_coerce' of type 'const char *':
 //..
-extern const char *s_coerce;
+    extern const char *s_coerce;
 //..
-// Next, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to force a reference
-// to this symbol into any object which includes the header:
+// Then, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to add a dependency on
+// this symbol into any object which includes the header:
 //..
-BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
-                                          bsls_coerceexample_coerce,
-                                          s_coerce)
+    BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+                                              bsls_coerceexample_coerce,
+                                              s_coerce)
 //..
 // Finally, in the corresponding '.cpp' file, the 's_coerce' symbol needs to be
 // defined:
 //..
-const char *s_coerce = "Link me in!";
+    const char *s_coerce = "Link me in!";
 //..
 
 //=============================================================================
@@ -60,12 +58,12 @@ const char *s_coerce = "Link me in!";
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 //    int veryVerbose = argc > 3;
 //    int veryVeryVerbose = argc > 4;
 
-    std::printf("TEST %s CASE %d\n", __FILE__, test);
+    printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
@@ -78,23 +76,23 @@ int main(int argc, char *argv[])
         //   Do nothing.
         // --------------------------------------------------------------------
 
-        if (verbose) std::printf("\nBREATHING TEST"
-                                 "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         ASSERT(true);  // Reference assert implementation
 
         if (verbose)
-            std::printf("\nThere is no runtime test for this component\n");
+            printf("\nThere is no runtime test for this component\n");
 
       } break;
       default: {
-        std::printf("WARNING: CASE `%d' NOT FOUND.\n", test);
+        printf("WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        std::printf("Error, non-zero test status = %d.\n", testStatus);
+        printf("Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

@@ -30,12 +30,12 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #ifndef INCLUDED_BSLS_LINKCOERCION
 #include <bsls_linkcoercion.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 namespace BloombergLP {
