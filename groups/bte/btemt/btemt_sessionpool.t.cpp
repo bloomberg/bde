@@ -232,6 +232,7 @@ class TestSession : public btemt_Session {
     // to use along with 'Tester' objects.
 
     // DATA
+    bool                d_useBlobReadCb;
     btemt_AsyncChannel *d_channel_p;
     BlobReadCallback   *d_callback_p;
 
@@ -240,15 +241,22 @@ class TestSession : public btemt_Session {
     TestSession(const TestSession&);
     TestSession& operator=(const TestSession&);
 
-    void readCb(int         result,
-                int        *numNeeded,
-                bcema_Blob *blob,
-                int         channelId);
+    void blobReadCb(int         result,
+                    int        *numNeeded,
+                    bcema_Blob *blob,
+                    int         channelId);
         // Read callback for session pool.
+
+    void dataMsgReadCb(int                   state,
+                       int                  *numConsumed,
+                       int                  *numNeeded,
+                       const btemt_DataMsg&  msg);
 
   public:
     // CREATORS
-    TestSession(btemt_AsyncChannel *channel, BlobReadCallback *callback);
+    TestSession(bool                useBlobReadCb,
+                btemt_AsyncChannel *channel,
+                BlobReadCallback   *callback);
         // Create a new 'TestSession' object for the specified 'channel'.
 
     ~TestSession();
@@ -266,54 +274,15 @@ class TestSession : public btemt_Session {
         // Return the channel associate with this session.
 };
 
-                    // =================
-                    // class TestFactory
-                    // =================
-
-class TestFactory : public btemt_SessionFactory {
-    // This class is a concrete implementation of the 'btemt_SessionFactory'
-    // that simply allocates 'TestSession' objects.  No specific allocation
-    // strategy (such as pooling) is implemented.
-
-    // DATA
-    BlobReadCallback *d_callback_p;   // read callback (held, not owned)
-    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
-
-  public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestFactory,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
-    // CREATORS
-    TestFactory(BlobReadCallback *callback = 0,
-                bslma::Allocator *basicAllocator = 0);
-        // Create a new 'TestFactory' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
-
-    virtual ~TestFactory();
-        // Destroy this factory.
-
-    // MANIPULATORS
-    virtual void allocate(btemt_AsyncChannel                    *channel,
-                          const btemt_SessionFactory::Callback&  callback);
-        // Asynchronously allocate a 'btemt_Session' object for the
-        // specified 'channel', and invoke the specified 'callback' with
-        // this session.
-
-    virtual void deallocate(btemt_Session *session);
-        // Deallocate the specified 'session'.
-};
-
                             // -----------------
                             // class TestSession
                             // -----------------
 
 // PRIVATE MANIPULATORS
-void TestSession::readCb(int         result,
-                         int        *numNeeded,
-                         bcema_Blob *blob,
-                         int         channelId)
+void TestSession::blobReadCb(int         result,
+                             int        *numNeeded,
+                             bcema_Blob *blob,
+                             int         channelId)
 {
     if (result) {
         // Session is going down.
@@ -322,13 +291,41 @@ void TestSession::readCb(int         result,
         return;
     }
 
+    ASSERT(0 == d_channel_p->write(*blob));
+
     blob->removeAll();
+
+    *numNeeded = 1;
+}
+
+void TestSession::dataMsgReadCb(int                   state,
+                                int                  *numConsumed,
+                                int                  *numNeeded,
+                                const btemt_DataMsg&  msg)
+{
+    if (state) {
+        // Session is going down.
+
+        d_channel_p->close();
+        return;
+    }
+
+    ASSERT(numConsumed);
+    ASSERT(msg.data());
+    ASSERT(0 < msg.data()->length());
+
+    ASSERT(0 == d_channel_p->write(msg));
+
+    *numConsumed = msg.data()->length();
+    *numNeeded   = 1;
 }
 
 // CREATORS
-TestSession::TestSession(btemt_AsyncChannel *channel,
+TestSession::TestSession(bool                useBlobReadCb,
+                         btemt_AsyncChannel *channel,
                          BlobReadCallback   *callback)
-: d_channel_p(channel)
+: d_useBlobReadCb(useBlobReadCb)
+, d_channel_p(channel)
 , d_callback_p(callback)
 {
 }
@@ -343,14 +340,22 @@ int TestSession::start()
     if (veryVerbose) {
         MTCOUT << "Session started" << MTENDL;
     }
-    
-    btemt_AsyncChannel::BlobBasedReadCallback callback =
-                                  d_callback_p
-                                  ? *d_callback_p
-                                  : bdef_MemFnUtil::memFn(&TestSession::readCb,
-                                                          this);
 
-    d_channel_p->read(1, callback);
+    if (d_useBlobReadCb) {
+        btemt_AsyncChannel::BlobBasedReadCallback callback =
+                            d_callback_p
+                            ? *d_callback_p
+                            : bdef_MemFnUtil::memFn(&TestSession::blobReadCb,
+                                                    this);
+
+        d_channel_p->read(1, callback);
+    }
+    else {
+        btemt_AsyncChannel::ReadCallback callback =
+                      bdef_MemFnUtil::memFn(&TestSession::dataMsgReadCb, this);
+
+        d_channel_p->read(1, callback);
+    }
 
     return 0;
 }
@@ -371,14 +376,57 @@ btemt_AsyncChannel *TestSession::channel() const
     return d_channel_p;
 }
 
+                    // =================
+                    // class TestFactory
+                    // =================
+
+class TestFactory : public btemt_SessionFactory {
+    // This class is a concrete implementation of the 'btemt_SessionFactory'
+    // that simply allocates 'TestSession' objects.  No specific allocation
+    // strategy (such as pooling) is implemented.
+
+    // DATA
+    bool              d_useBlobReadCb; // use blobs
+    BlobReadCallback *d_callback_p;    // read callback (held, not owned)
+    bslma::Allocator *d_allocator_p;   // memory allocator (held, not owned)
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TestFactory,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    TestFactory(bool              useBlobReadCb = true,
+                BlobReadCallback *callback = 0,
+                bslma::Allocator *basicAllocator = 0);
+        // Create a new 'TestFactory' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    virtual ~TestFactory();
+        // Destroy this factory.
+
+    // MANIPULATORS
+    virtual void allocate(btemt_AsyncChannel                    *channel,
+                          const btemt_SessionFactory::Callback&  callback);
+        // Asynchronously allocate a 'btemt_Session' object for the
+        // specified 'channel', and invoke the specified 'callback' with
+        // this session.
+
+    virtual void deallocate(btemt_Session *session);
+        // Deallocate the specified 'session'.
+};
+
                         // -----------------
                         // class TestFactory
                         // -----------------
 
 // CREATORS
-TestFactory::TestFactory(BlobReadCallback *callback,
+TestFactory::TestFactory(bool              useBlobReadCb,
+                         BlobReadCallback *callback,
                          bslma::Allocator *basicAllocator)
-: d_callback_p(callback)
+: d_useBlobReadCb(useBlobReadCb)
+, d_callback_p(callback)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -395,7 +443,8 @@ void TestFactory::allocate(btemt_AsyncChannel                    *channel,
         MTCOUT << "Allocate factory called: " << MTENDL;
     }
 
-    TestSession *session = new (*d_allocator_p) TestSession(channel,
+    TestSession *session = new (*d_allocator_p) TestSession(d_useBlobReadCb,
+                                                            channel,
                                                             d_callback_p);
 
     callback(0, session);
@@ -855,7 +904,7 @@ void TestSessionFactory::allocate(
         MTCOUT << "Allocate factory called: " << MTENDL;
     }
 
-    d_session_p = new (*d_allocator_p) TestSession(channel, 0);
+    d_session_p = new (*d_allocator_p) TestSession(true, channel, 0);
 
     d_barrier_p->wait();
 
@@ -890,666 +939,9 @@ btemt_AsyncChannel *TestSessionFactory::channel() const
 
 }
 
-namespace BTEMT_SESSION_POOL_DRQS {
-
-using namespace BTEMT_SESSION_POOL_GENERIC_METHODS;
-
-static bcemt_Mutex globalLock;
-static bool        closeChannel = false;
-
-
-                    // =================
-                    // class TestFactory
-                    // =================
-
-class TestFactory : public btemt_SessionFactory {
-    // This class is a concrete implementation of the 'btemt_SessionFactory'
-    // that simply allocates 'TestSession' objects.  No specific allocation
-    // strategy (such as pooling) is implemented.
-
-    // DATA
-    int                              d_mode;
-    btemt_SessionFactory::Callback   d_callback;
-    btemt_Session                   *d_session_p;
-    bslma::Allocator                *d_allocator_p; // memory allocator (held,
-                                                    // not owned)
-
-  public:
-
-    enum { LISTENER = 0, CONNECTOR };
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestFactory,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
-    // CREATORS
-    TestFactory(int mode, bslma::Allocator *basicAllocator = 0);
-        // Create a new 'TestFactory' object of the specified 'mode'.
-        // Optionally specify 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-
-    virtual ~TestFactory();
-        // Destroy this factory.
-
-    // MANIPULATORS
-    virtual void allocate(btemt_AsyncChannel                   *channel,
-                          const btemt_SessionFactory::Callback& callback);
-        // Asynchronously allocate a 'btemt_Session' object for the
-        // specified 'channel', and invoke the specified 'callback' with
-        // this session.
-
-    virtual void deallocate(btemt_Session *session);
-        // Deallocate the specified 'session'.
-
-    void readCb(int         state,
-                int        *numNeeded,
-                bcema_Blob *msg,
-                int         channelId);
-        // Blob based read callback for session pool.
-
-
-    void writeCb(int         state,
-                int        *numNeeded,
-                bcema_Blob *msg,
-                int         channelId);
-        // Blob based read callback for session pool.
-
-    btemt_Session *session() const;
-        // Return the session managed by this factory.
-};
-
-                        // -------------------
-                        // class TestFactory
-                        // -------------------
-
-// CREATORS
-TestFactory::TestFactory(int mode, bslma::Allocator *basicAllocator)
-: d_mode(mode)
-, d_session_p(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
-
-TestFactory::~TestFactory()
-{
-}
-
-// MANIPULATORS
-void TestFactory::allocate(btemt_AsyncChannel                    *channel,
-                           const btemt_SessionFactory::Callback&  callback)
-{
-    if (veryVerbose) {
-        MTCOUT << "Allocate factory called: " << MTENDL;
-        if (LISTENER == d_mode) {
-            MTCOUT << "LISTENER" << MTENDL;
-        }
-        else {
-            MTCOUT << "CONNECTOR" << MTENDL;
-        }
-    }
-
-    d_session_p = new (*d_allocator_p) TestSession(channel, 0);
-
-    callback(0, d_session_p);
-}
-
-void TestFactory::deallocate(btemt_Session *session)
-{
-    d_allocator_p->deleteObjectRaw(session);
-}
-
-void TestFactory::readCb(int         state,
-                           int        *numNeeded,
-                           bcema_Blob *msg,
-                           int         channelId)
-{
-    if (veryVerbose) {
-        MTCOUT << "Read callback called with: " << state << MTENDL;
-    }
-
-    d_callback(0, d_session_p);
-}
-
-btemt_Session *TestFactory::session() const
-{
-    return d_session_p;
-}
-
-                        // -----------------
-                        // class TestFactory
-                        // -----------------
-
-class Tester {
-    btemt_ChannelPoolConfiguration  d_config;          // pool configuration
-
-    btemt_SessionPool              *d_sessionPool_p;   // managed pool (owned)
-
-    TestFactory                   d_sessionFactory;  // factory
-
-    int                             d_portNumber;      // port on which this
-                                                       // echo server is
-                                                       // listening
-
-    bslma::Allocator               *d_allocator_p;     // memory allocator
-                                                       // (held)
-
-  public:
-
-    enum { LISTENER = 0, CONNECTOR };
-
-    // CREATORS
-    Tester(int                       mode,
-           const bteso_IPv4Address&  endPointAddr,
-           bool                      useBlobBasedReads = false,
-           bslma::Allocator         *basicAllocator = 0);
-    ~Tester();
-
-    void poolStateCb(int reason, int source, void *userData);
-        // Indicates the status of the whole pool.
-
-    void sessionStateCb(int            state,
-                        int            handle,
-                        btemt_Session *session,
-                        void          *userData);
-        // Per-session state.
-
-    int portNumber() const;
-
-    btemt_Session *session() const { return d_sessionFactory.session(); }
-};
-
-// CREATORS
-Tester::Tester(int                       mode,
-               const bteso_IPv4Address&  endPointAddr,
-               bool                      useBlobBasedReads,
-               bslma::Allocator         *basicAllocator)
-: d_sessionFactory(mode, basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    d_config.setMaxThreads(4);                  // 4 I/O threads
-    d_config.setMaxConnections(5);
-    d_config.setReadTimeout(5.0);               // in seconds
-    d_config.setMetricsInterval(10.0);          // seconds
-    d_config.setMaxWriteCache(1<<10);           // 1Mb
-    d_config.setIncomingMessageSizes(1, 100, 1024);
-
-    typedef btemt_SessionPool::SessionPoolStateCallback SessionPoolStateCb;
-
-    SessionPoolStateCb poolStateCb = bdef_MemFnUtil::memFn(
-                                          &Tester::poolStateCb,
-                                          this);
-
-    d_sessionPool_p = new (*d_allocator_p)
-                             btemt_SessionPool(d_config,
-                                               poolStateCb,
-                                               useBlobBasedReads,
-                                               basicAllocator);
-
-    btemt_SessionPool::SessionStateCallback sessionStateCb =
-                 bdef_MemFnUtil::memFn(&Tester::sessionStateCb,
-                                       this);
-
-    ASSERT(0 == d_sessionPool_p->start());
-    int handle;
-    if (LISTENER == mode) {
-        ASSERT(0 == d_sessionPool_p->listen(&handle,
-                                            sessionStateCb,
-                                            d_portNumber,
-                                            5,
-                                            1,
-                                            &d_sessionFactory));
-
-        d_portNumber = d_sessionPool_p->portNumber(handle);
-    }
-    else {
-        ASSERT(0 == d_sessionPool_p->connect(&handle,
-                                             sessionStateCb,
-                                             endPointAddr,
-                                             5,
-                                             bdet_TimeInterval(1),
-                                             &d_sessionFactory));
-        d_portNumber = endPointAddr.portNumber();
-    }
-
-}
-
-Tester::~Tester()
-{
-    d_sessionPool_p->stop();
-    d_allocator_p->deleteObject(d_sessionPool_p);
-}
-
-void Tester::poolStateCb(int reason, int source, void *userData)
-{
-    if (veryVerbose) {
-        MTCOUT << "Pool state changed: (" << reason << ", " << source << ") "
-               << MTENDL;
-    }
-}
-
-void Tester::sessionStateCb(int            state,
-                            int            handle,
-                            btemt_Session *session,
-                            void          *userData)
-{
-    switch (state) {
-      case btemt_SessionPool::SESSION_DOWN: {
-          if (veryVerbose) {
-              MTCOUT << "Client from "
-                     << session->channel()->peerAddress()
-                     << " has disconnected."
-                     << MTENDL;
-          }
-      } break;
-      case btemt_SessionPool::SESSION_UP: {
-          if (veryVerbose) {
-              MTCOUT << "Client connected from "
-                     << session->channel()->peerAddress()
-                     << MTENDL;
-          }
-      } break;
-    }
-}
-
-int Tester::portNumber() const
-{
-    return d_portNumber;
-}
-
-}
-
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-
-namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE {
-
-                            // =============================
-                            // class my_BlobBasedEchoSession
-                            // =============================
-
-   class my_BlobBasedEchoSession : public btemt_Session {
-       // This class is a concrete implementation of the 'btemt_Session'
-       // protocol to use along with 'my_BlobBasedEchoServer' objects.
-
-       // DATA
-       btemt_AsyncChannel *d_channel_p; // underlying channel (held, not owned)
-
-       // PRIVATE MANIPULATORS
-       void blobBasedReadCb(int         state,
-                            int        *numNeeded,
-                            bcema_Blob *msg,
-                            int         channelId);
-           // Blob based read callback for session pool.
-
-     private:
-       // NOT IMPLEMENTED
-       my_BlobBasedEchoSession(const my_BlobBasedEchoSession&);
-       my_BlobBasedEchoSession& operator=(const my_BlobBasedEchoSession&);
-
-     public:
-       // CREATORS
-       my_BlobBasedEchoSession(btemt_AsyncChannel *channel);
-           // Create a new 'my_BlobBasedEchoSession' object for the specified
-           // 'channel'.
-
-       ~my_BlobBasedEchoSession();
-           // Destroy this object.
-
-       // MANIPULATORS
-       virtual int start();
-           // Begin the asynchronous operation of this session.
-
-       virtual int stop();
-           // Stop the operation of this session.
-
-       // ACCESSORS
-       virtual btemt_AsyncChannel *channel() const;
-           // Return the channel associate with this session.
-    };
-
-                        // ====================================
-                        // class my_BlobBasedEchoSessionFactory
-                        // ====================================
-
-    class my_BlobBasedEchoSessionFactory : public btemt_SessionFactory {
-        // This class is a concrete implementation of the
-        // 'btemt_SessionFactory' that simply allocates
-        // 'my_BlobBasedEchoSession' objects.  No specific allocation strategy
-        // (such as pooling) is implemented.
-
-        bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
-
-      public:
-        // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(my_BlobBasedEchoSessionFactory,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
-
-        // CREATORS
-        my_BlobBasedEchoSessionFactory(bslma::Allocator *basicAllocator = 0);
-            // Create a new 'my_BlobBasedEchoSessionFactory' object.
-            // Optionally specify 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default
-            // allocator is used.
-
-        virtual ~my_BlobBasedEchoSessionFactory();
-           // Destroy this factory.
-
-        // MANIPULATORS
-        virtual void allocate(btemt_AsyncChannel                   *channel,
-                              const btemt_SessionFactory::Callback& callback);
-           // Asynchronously allocate a 'btemt_Session' object for the
-           // specified 'channel', and invoke the specified 'callback' with
-           // this session.
-
-        virtual void deallocate(btemt_Session *session);
-           // Deallocate the specified 'session'.
-    };
-
-                            // -----------------------------
-                            // class my_BlobBasedEchoSession
-                            // -----------------------------
-
-    // PRIVATE MANIPULATORS
-    void my_BlobBasedEchoSession::blobBasedReadCb(int         state,
-                                                  int        *numNeeded,
-                                                  bcema_Blob *msg,
-                                                  int         channelId)
-    {
-        if (state) {
-            // Session is going down.
-
-            d_channel_p->close();
-            return;
-        }
-
-        ASSERT(0 < msg->length());
-
-        ASSERT(0 == d_channel_p->write(*msg));
-
-        bcema_BlobUtil::erase(msg, 0, msg->length());
-
-        *numNeeded = 1;
-
-        d_channel_p->close(); // close connection.
-    }
-
-    // CREATORS
-    my_BlobBasedEchoSession::my_BlobBasedEchoSession(
-                                                   btemt_AsyncChannel *channel)
-    : d_channel_p(channel)
-    {
-    }
-
-    my_BlobBasedEchoSession::~my_BlobBasedEchoSession()
-    {
-    }
-
-    // MANIPULATORS
-    int my_BlobBasedEchoSession::start()
-    {
-        btemt_AsyncChannel::BlobBasedReadCallback callback(
-               bdef_MemFnUtil::memFn(&my_BlobBasedEchoSession::blobBasedReadCb,
-                                     this));
-        return d_channel_p->read(1, callback);
-    }
-
-    int my_BlobBasedEchoSession::stop()
-    {
-        d_channel_p->close();
-        return 0;
-    }
-
-    // ACCESSORS
-    btemt_AsyncChannel *my_BlobBasedEchoSession::channel() const
-    {
-        return d_channel_p;
-    }
-
-                        // ------------------------------------
-                        // class my_BlobBasedEchoSessionFactory
-                        // ------------------------------------
-
-    // CREATORS
-    my_BlobBasedEchoSessionFactory::my_BlobBasedEchoSessionFactory(
-                                              bslma::Allocator *basicAllocator)
-    : d_allocator_p(bslma::Default::allocator(basicAllocator))
-    {
-    }
-
-    my_BlobBasedEchoSessionFactory::~my_BlobBasedEchoSessionFactory()
-    {
-    }
-
-    // MANIPULATORS
-    void
-    my_BlobBasedEchoSessionFactory::allocate(
-                                btemt_AsyncChannel                   *channel,
-                                const btemt_SessionFactory::Callback& callback)
-    {
-        my_BlobBasedEchoSession *session = new (*d_allocator_p)
-                                              my_BlobBasedEchoSession(channel);
-        callback(0, session);
-    }
-
-    void
-    my_BlobBasedEchoSessionFactory::deallocate(btemt_Session *session)
-    {
-        d_allocator_p->deleteObjectRaw(session);
-    }
-
-                        // ============================
-                        // class my_BlobBasedEchoServer
-                        // ============================
-
-    class my_BlobBasedEchoServer {
-        // This class implements a multi-user multi-threaded echo server.
-
-        // DATA
-        btemt_ChannelPoolConfiguration d_config;          // pool
-                                                          // configuration
-
-        btemt_SessionPool             *d_sessionPool_p;   // managed pool
-                                                          // (owned)
-
-        my_BlobBasedEchoSessionFactory d_sessionFactory;  // my_EchoSession
-                                                          // factory
-
-        int                            d_portNumber;      // port on which this
-                                                          // echo server is
-                                                          // listening
-
-        bcemt_Mutex                   *d_coutLock_p;      // mutex protecting
-                                                          // bsl::cout
-
-        bslma::Allocator              *d_allocator_p;     // memory allocator
-                                                          // (held)
-
-        // PRIVATE MANIPULATORS
-        void poolStateCb(int reason, int source, void *userData);
-            // Indicates the status of the whole pool.
-
-        void sessionStateCb(int            state,
-                            int            handle,
-                            btemt_Session *session,
-                            void          *userData);
-            // Per-session state.
-
-      private:
-        // NOT IMPLEMENTED
-        my_BlobBasedEchoServer(const my_BlobBasedEchoServer& original);
-        my_BlobBasedEchoServer& operator=(const my_BlobBasedEchoServer& rhs);
-
-      public:
-        // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(my_BlobBasedEchoServer,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
-
-        // CREATORS
-        my_BlobBasedEchoServer(bcemt_Mutex      *coutLock,
-                               int               portNumber,
-                               int               numConnections,
-                               bool              reuseAddressFlag,
-                               bslma::Allocator *basicAllocator = 0);
-            // Create an echo server that listens for incoming connections on
-            // the specified 'portNumber' managing up to the specified
-            // 'numConnections' simultaneous connections.  The echo server
-            // will use the specified 'coutLock' to synchronize access to the
-            // standard output.  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.  The behavior is undefined
-            // unless coutLock is not 0.
-
-        ~my_BlobBasedEchoServer();
-            // Destroy this server.
-
-        // MANIPULATORS
-        const btemt_SessionPool& pool() const;
-            // Return a non-modifiable reference to the session pool used by
-            // this echo server.
-
-        int portNumber() const;
-            // Return the actual port number on which this server is listening.
-    };
-
-    // my_echoserver.h (continued)
-
-                            // -------------------
-                            // class my_BlobBasedEchoServer
-                            // -------------------
-
-    // PRIVATE MANIPULATORS
-    void my_BlobBasedEchoServer::poolStateCb(int reason,
-                                             int source,
-                                             void *userData)
-    {
-        if (veryVerbose) {
-            d_coutLock_p->lock();
-            bsl::cout << "Pool state changed: (" << reason << ", " << source
-                      << ") " << bsl::endl;
-            d_coutLock_p->unlock();
-        }
-    }
-
-    void my_BlobBasedEchoServer::sessionStateCb(int            state,
-                                                int            handle,
-                                                btemt_Session *session,
-                                                void          *userData)
-    {
-        switch(state) {
-          case btemt_SessionPool::SESSION_DOWN: {
-              if (veryVerbose) {
-                  d_coutLock_p->lock();
-                  bsl::cout << "Client from "
-                            << session->channel()->peerAddress()
-                            << " has disconnected."
-                            << bsl::endl;
-                  d_coutLock_p->unlock();
-              }
-          } break;
-          case btemt_SessionPool::SESSION_UP: {
-              if (veryVerbose) {
-                  d_coutLock_p->lock();
-                  bsl::cout << "Client connected from "
-                            << session->channel()->peerAddress()
-                            << bsl::endl;
-                  d_coutLock_p->unlock();
-              }
-          } break;
-        }
-    }
-
-    // CREATORS
-    my_BlobBasedEchoServer::my_BlobBasedEchoServer(
-                                            bcemt_Mutex      *lock,
-                                            int               portNumber,
-                                            int               numConnections,
-                                            bool              reuseAddressFlag,
-                                            bslma::Allocator *basicAllocator)
-    : d_sessionFactory(basicAllocator)
-    , d_coutLock_p(lock)
-    , d_allocator_p(bslma::Default::allocator(basicAllocator))
-    {
-        d_config.setMaxThreads(4);                  // 4 I/O threads
-        d_config.setMaxConnections(numConnections);
-        d_config.setReadTimeout(5.0);               // in seconds
-        d_config.setMetricsInterval(10.0);          // seconds
-        d_config.setMaxWriteCache(1<<10);           // 1Mb
-        d_config.setIncomingMessageSizes(1, 100, 1024);
-
-        typedef btemt_SessionPool::SessionPoolStateCallback SessionPoolStateCb;
-
-        SessionPoolStateCb poolStateCb = bdef_MemFnUtil::memFn(
-                                          &my_BlobBasedEchoServer::poolStateCb,
-                                          this);
-
-        d_sessionPool_p = new (*d_allocator_p)
-                             btemt_SessionPool(d_config,
-                                               poolStateCb,
-                                               true,
-                                               basicAllocator);
-
-        btemt_SessionPool::SessionStateCallback sessionStateCb =
-                 bdef_MemFnUtil::memFn(&my_BlobBasedEchoServer::sessionStateCb,
-                                       this);
-
-        ASSERT(0 == d_sessionPool_p->start());
-        int handle;
-        ASSERT(0 == d_sessionPool_p->listen(&handle, sessionStateCb,
-                                            portNumber,
-                                            numConnections,
-                                            reuseAddressFlag,
-                                            &d_sessionFactory));
-
-        d_portNumber = d_sessionPool_p->portNumber(handle);
-    }
-
-    my_BlobBasedEchoServer::~my_BlobBasedEchoServer()
-    {
-        d_sessionPool_p->stop();
-        d_allocator_p->deleteObjectRaw(d_sessionPool_p);
-    }
-
-    // ACCESSORS
-    const btemt_SessionPool& my_BlobBasedEchoServer::pool() const
-    {
-        return *d_sessionPool_p;
-    }
-
-    int my_BlobBasedEchoServer::portNumber() const
-    {
-        return d_portNumber;
-    }
-
-    int blobBasedUsageExample(bslma::Allocator *allocator) {
-
-        enum {
-            BACKLOG = 5,
-            REUSE   = 1
-        };
-
-        my_BlobBasedEchoServer echoServer(&coutMutex, 0, BACKLOG, REUSE);
-
-        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-
-        const char STRING[] = "Hello World!";
-
-        const bteso_IPv4Address ADDRESS("127.0.0.1", echoServer.portNumber());
-        ASSERT(0 == socket->connect(ADDRESS));
-        ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
-
-        char readBuffer[sizeof(STRING)];
-        ASSERT(sizeof(STRING) == socket->read(readBuffer, sizeof(STRING)));
-        ASSERT(0 == bsl::strcmp(readBuffer, STRING));
-
-        factory.deallocate(socket);
-        return 0;
-    }
-
-
-}  // close namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE
 
 namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
 
@@ -1980,7 +1372,7 @@ int main(int argc, char *argv[])
     bcema_TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 13: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -2002,7 +1394,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
 
       } break;
-      case 14: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING 'connect' with socket options
         //   Ensure that the 'connect' that takes a socket option object
@@ -2113,7 +1505,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
       } break;
-      case 13: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'connect' with a user-specified local address
         //   Ensure that the 'connect' that takes a client address returns a
@@ -2229,7 +1621,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
       } break;
-      case 12: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'setWriteCacheWatermarks'
         //   The 'setWriteCacheWatermarks' method has the expected effect.
@@ -2346,7 +1738,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == sessionPool.stop());
 
       } break;
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'stopAndRemoveAllSessions'
         //
@@ -2484,7 +1876,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.numSessions());
       } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28731692
         //  Ensure that when session pool owns factories used for allocating
@@ -2541,7 +1933,7 @@ int main(int argc, char *argv[])
                                                           _3,
                                                           _4,
                                                           &blob));
-            TestFactory factory(&callback, &ta2);
+            TestFactory factory(true, &callback, &ta2);
 
             int handle = 0;
             ASSERT(0 == sessionPool.listen(&handle,
@@ -2574,7 +1966,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::microSleep(0, 3);
         }
       } break;
-      case 9: {
+      case 7: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 29067989
         //  Ensure that session pool does not allocate and hold on to
@@ -2621,7 +2013,7 @@ int main(int argc, char *argv[])
 
             BlobReadCallback callback(&readCbWithMetrics);
 
-            TestFactory sessionFactory(&callback, &ta);
+            TestFactory sessionFactory(true, &callback, &ta);
 
             int handle = 0;
             ASSERT(0 == sessionPool.listen(&handle,
@@ -2670,7 +2062,7 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::microSleep(0, 1);
         }
       } break;
-      case 8: {
+      case 6: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 24968477
         //  Ensure that the bug where d_numSessions is decremented in stop and
@@ -2758,7 +2150,7 @@ int main(int argc, char *argv[])
           socketFactory.deallocate(socket);
         }
       } break;
-      case 7: {
+      case 5: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 20535695
         //
@@ -2805,7 +2197,7 @@ int main(int argc, char *argv[])
 
         barrier.wait();
       } break;
-      case 6: {
+      case 4: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 22373213
         //
@@ -2825,6 +2217,8 @@ int main(int argc, char *argv[])
         int           poolState;
         bcemt_Barrier barrier(2);
 
+        TestSessionFactory factory(&barrier);
+
         typedef btemt_SessionPool::SessionPoolStateCallback SessionPoolStateCb;
         SessionPoolStateCb poolCb(bdef_BindUtil::bind(
                                                  &poolStateCallbackWithBarrier,
@@ -2838,8 +2232,6 @@ int main(int argc, char *argv[])
 
         int rc = sessionPool.start();
         ASSERT(0 == rc);
-
-        TestSessionFactory factory(&barrier);
 
         int handle;
         rc = sessionPool.listen(&handle,
@@ -2885,90 +2277,6 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(cbClass.cbCount(), 1 == cbClass.cbCount());
       } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // BLOB BASED USAGE EXAMPLE
-        //   The usage example from the header has been changed to use
-        //   'bcema_Blob's for reading.
-        //
-        // Plan:
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "BLOB BASED USAGE EXAMPLE" << bsl::endl
-                               << "========================" << bsl::endl;
-
-        using namespace BTEMT_SESSION_POOL_DRQS;
-
-        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-
-        const char STRING[] = "Hello World!";
-
-        bteso_IPv4Address address("127.0.0.1",
-                                  bteso_IPv4Address::BTESO_ANY_PORT);
-
-        ASSERT(0 == socket->bind(address));
-
-        ASSERT(0 == socket->localAddress(&address));
-
-        Tester tester(Tester::CONNECTOR, address);
-
-        ASSERT(0 == socket->listen(2));
-
-        if (veryVerbose) {
-            MTCOUT << "Bringing down the channel" << MTENDL;
-        }
-
-        socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
-
-        bcemt_ThreadUtil::microSleep(0, 1);
-
-        factory.deallocate(socket);
-
-        bcemt_ThreadUtil::microSleep(0, 1);
-
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // BLOB BASED USAGE EXAMPLE
-        //   The usage example from the header has been changed to use
-        //   'bcema_Blob's for reading.
-        //
-        // Plan:
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "BLOB BASED USAGE EXAMPLE" << bsl::endl
-                               << "========================" << bsl::endl;
-
-        using namespace BTEMT_SESSION_POOL_DRQS;
-
-        Tester tester(Tester::LISTENER, getLocalAddress());
-
-        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
-
-        const char STRING[] = "Hello World!";
-
-        bcemt_ThreadUtil::sleep(bdet_TimeInterval(1));
-
-        const bteso_IPv4Address ADDRESS("127.0.0.1", tester.portNumber());
-        ASSERT(0 == socket->connect(ADDRESS));
-
-        bcemt_ThreadUtil::microSleep(0, 1);
-
-        if (veryVerbose) {
-            MTCOUT << "Bringing down the channel" << MTENDL;
-        }
-
-        socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
-
-        factory.deallocate(socket);
-
-        bcemt_ThreadUtil::microSleep(0, 1);
-
-      } break;
       case 3: {
         // --------------------------------------------------------------------
         // BLOB BASED USAGE EXAMPLE
@@ -2982,12 +2290,55 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "BLOB BASED USAGE EXAMPLE" << bsl::endl
                                << "========================" << bsl::endl;
 
-        using namespace BTEMT_SESSION_BLOB_BASED_EXAMPLE;
+        using namespace BTEMT_SESSION_POOL_GENERIC_METHODS;
 
-        blobBasedUsageExample(&ta);
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == ta.numMismatches());
+        bcema_TestAllocator da("defaultguard", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
+        TestFactory factory(true, 0, &ta);
+
+        btemt_ChannelPoolConfiguration config;
+
+        typedef btemt_SessionPool::SessionPoolStateCallback SessionPoolStateCb;
+        typedef btemt_SessionPool::SessionStateCallback     SessionStateCb;
+
+        SessionPoolStateCb poolStateCb    = &poolStateCallback;
+        SessionStateCb     sessionStateCb = &sessionStateCallback;
+
+        btemt_SessionPool sessionPool(config, poolStateCb, true, &ta);
+        int rc = sessionPool.start();
+        ASSERT(0 == rc);
+
+        int handle;
+        rc = sessionPool.listen(&handle,
+                                sessionStateCb,
+                                0,
+                                5,
+                                false,
+                                &factory);
+        ASSERT(0 == rc);
+
+        {
+            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&ta);
+            bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+
+            const char STRING[] = "Hello World!";
+
+            const bteso_IPv4Address ADDRESS("127.0.0.1",
+                                            sessionPool.portNumber(handle));
+            ASSERT(0 == socket->connect(ADDRESS));
+            ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+
+            char readBuffer[sizeof(STRING)];
+            ASSERT(sizeof(STRING) == socket->read(readBuffer, sizeof(STRING)));
+            ASSERT(0 == bsl::strcmp(readBuffer, STRING));
+
+            factory.deallocate(socket);
+        }
+
+        ASSERT(0 != ta.numBytesInUse());
+        const int NUM_BYTES = da.numBytesInUse();
+        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -3002,16 +2353,34 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "ALLOCATOR PROPAGATION" << bsl::endl
                                << "=====================" << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE;
-        enum {
-            BACKLOG = 5,
-            REUSE   = 1
-        };
+        using namespace BTEMT_SESSION_POOL_GENERIC_METHODS;
 
         bcema_TestAllocator da("defaultguard", veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
-        my_EchoServer echoServer(&coutMutex, 0, BACKLOG, REUSE, &ta);
+        TestFactory factory(false, 0, &ta);
+
+        btemt_ChannelPoolConfiguration config;
+
+        typedef btemt_SessionPool::SessionPoolStateCallback SessionPoolStateCb;
+        typedef btemt_SessionPool::SessionStateCallback     SessionStateCb;
+
+        SessionPoolStateCb poolStateCb    = &poolStateCallback;
+        SessionStateCb     sessionStateCb = &sessionStateCallback;
+
+        btemt_SessionPool sessionPool(config, poolStateCb, false, &ta);
+        int rc = sessionPool.start();
+        ASSERT(0 == rc);
+
+        int handle;
+        rc = sessionPool.listen(&handle,
+                                sessionStateCb,
+                                0,
+                                5,
+                                false,
+                                &factory);
+        ASSERT(0 == rc);
+
         {
             bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&ta);
             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
@@ -3019,7 +2388,7 @@ int main(int argc, char *argv[])
             const char STRING[] = "Hello World!";
 
             const bteso_IPv4Address ADDRESS("127.0.0.1",
-                                            echoServer.portNumber());
+                                            sessionPool.portNumber(handle));
             ASSERT(0 == socket->connect(ADDRESS));
             ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
 
