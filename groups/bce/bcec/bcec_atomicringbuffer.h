@@ -1,4 +1,4 @@
-// bcec_atomicringbuffer.h                                          -*-C++-*-
+// bcec_atomicringbuffer.h                                            -*-C++-*-
 #ifndef INCLUDED_ATOMICRINGBUFFER
 #define INCLUDED_ATOMICRINGBUFFER
 
@@ -27,7 +27,7 @@ BDES_IDENT("$Id: $")
 //
 // Here is an illustration representing a ring buffer that can hold at most
 // twenty items at any instant.
-//
+//..
 // +---------------------------------------------------------------------+
 // | 0| 1| 2| 3| 4| 5| 6| 7| 8| 9| 10| 11| 12| 13| 14| 15| 16| 17| 18| 19|
 // +---------------------------------------------------------------------+
@@ -51,8 +51,7 @@ BDES_IDENT("$Id: $")
 //                    +---|  1|---+---| 18|---+
 //                        +---|  0| 19|---+
 //                            +-------+
-//
-// ****************************************************************************
+//..
 // The Atomic Ring Buffer (ARB) is an implementation of a ring buffer that
 // allows concurrent access from multiple reader and writer threads.  The
 // component was designed to minimize contention between threads.
@@ -61,6 +60,7 @@ BDES_IDENT("$Id: $")
 // Cells of the outer ring hold an atomic integer which facilitates a state 
 // machine (sn) whose purpose is to protect access to a value (vn) contained
 // at the homogeneous inner cell.
+//..
 //
 //                            +-------+ 
 //                        +---| s9|s10|---+   
@@ -83,7 +83,7 @@ BDES_IDENT("$Id: $")
 //                     ---| s1|-------|s18|---
 //                        +---| s0|s19|---+
 //                            +-------+
-//
+//..
 // The outer ring implemented in the class bcec_AtomicRingBufferIndexManager.
 // The inner ring is implemented in the class bcec_AtomicRingBuffer. Objects
 // of this class have an instance of bcec_AtomicRinBufferIndexManager.
@@ -98,27 +98,26 @@ BDES_IDENT("$Id: $")
 //
 ///Exception safety
 ///----------------
-// AtomicRingBuffer provides a basic exception safety guarantee. It is 
+// 'bcec_AtomicRingBuffer' provides a basic exception safety guarantee. It is 
 // generally exception neutral; however, if an exception is thrown by the 
 // copy constructor of the contained type during the invocation of 'pushBack'
 // or 'tryPushBack', the queue is left in a valid but unspecified state. 
 //
 ///Usage
 ///-----
-///Example: Simple Thread Pool
-///- - - - - - - - - - - - - -
-// The following example demonstrates a typical usage of a 
-// 'bcec_AtomicRingBuffer'.
+// This section illustrates intended use of this component.
 //
-// This 'bcec_AtomicRingBuffer' is used to communicate between a single
-// "producer" thread and multiple "consumer" threads.  The "producer" will
-// push work requests onto the queue, and each "consumer" will iteratively 
-// take a work request from the queue and service the request.  This example
-// shows a partial, simplified implementation of the 'bcep_FixedThreadPool' 
-// class.  See component 'bcep_fixedthreadpool' for more information.
+///Example 1: A Simple Thread Pool
+///- - - - - - - - - - - - - - - -
+// In the following example a 'bcec_AtomicRingBuffer' is used to communicate
+// between a single "producer" thread and multiple "consumer" threads.  The
+// "producer" will push work requests onto the queue, and each "consumer" will
+// iteratively take a work request from the queue and service the request.
+// This example shows a partial, simplified implementation of the
+// 'bcep_FixedThreadPool' class.  See component 'bcep_fixedthreadpool' for more
+// information.
 //
-// We begin our example with some utility classes that define a simple "work
-// item":
+// First, we define a utility classes that handles a simple "work item":
 //..
 // struct my_WorkData {
 //     // Work data...
@@ -138,17 +137,17 @@ BDES_IDENT("$Id: $")
 // Next, we provide a simple function to service an individual work item.
 // The details are unimportant for this example:
 //..
-// void myDoWork(my_WorkData& data)
+// void myDoWork(my_WorkData& )
 // {
 //     // do some stuff...
 // }
 //..
-// The 'myConsumer' function will pop elements off the queue and process them.
-// As discussed above, note that the call to 'queue->popFront()' will block
-// until there is an element available on the queue.  This function will be
-// executed in multiple threads, so that each thread waits in
-// 'queue->popFront()', and 'bcec_AtomicRingBuffer' guarantees that each
-// thread gets a unique element from the queue:
+// Then, we define a 'myConsumer' function that will pop elements off the
+// queue and process them.  Note that the call to 'queue->popFront()' will
+// block until there is an element available on the queue.  This function will
+// be executed in multiple threads, so that each thread waits in
+// 'queue->popFront()', and 'bcec_AtomicRingBuffer' guarantees that each thread
+// gets a unique element from the queue:
 //..
 // void myConsumer(bcec_AtomicRingBuffer<my_WorkRequest> *queue)
 // {
@@ -160,16 +159,16 @@ BDES_IDENT("$Id: $")
 //     }
 // }
 //..
-// In this simple example, the 'myProducer' function serves multiple roles: it
+// Finally, we define a 'myProducer' function that serves multiple roles: it
 // creates the 'bcec_AtoimcRingBuffer', starts the consumer threads, and then
 // produces and enqueues work items.  When work requests are exhausted, this
-// function enqueues one 'STOP' item for each consumer queue.
+// function enqueues one 'STOP' item for each consumer queue.  This 'STOP'
+// item indicates to the consumer thread to terminate its thread-handling
+// function.  
 //
-// When each consumer thread reads a 'STOP', it terminates its thread-handling
-// function.  Note that, although the producer cannot control which thread
-// 'pop's a particular work item, it can rely on the knowledge that each
-// consumer thread will read a single 'STOP' item and then terminate.
-//
+// Note that, although the producer cannot control which thread 'pop's a
+// particular work item, it can rely on the knowledge that each consumer thread
+// will read a single 'STOP' item and then terminate.
 //..
 // void myProducer(int numThreads)
 // {
@@ -252,128 +251,57 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+
+                        // ===========================
+                        // class bcec_AtomicRingBuffer
+                        // ===========================
     
 template <typename TYPE>
 class bcec_AtomicRingBuffer {
     // This class provides a thread-enabled, lock-free, fixed-size queue of
     // values.      
-private:
 
-    // PRIVATE TYPES
-    class PopGuard {
-        bcec_AtomicRingBuffer *d_parent_p;
-        int                    d_generation; 
-                                 // of cell being popped when exception thrown
-        int                    d_index;
-                                 // of cell being popped when exception thrown
-       
-    public:
-        PopGuard(bcec_AtomicRingBuffer *parent, int generation, int index) 
-        : d_parent_p(parent), d_generation(generation), d_index(index)
-        {}
+  private:
 
-        ~PopGuard() {
-            // This popping thread currently has the cell at 'd_index'
-            // (in 'd_generation') reserved for popping.  Destroy the
-            // element at that position and then release the reservation.
-            // Wake up to 1 waiting pusher thread.
-            bslalg::ScalarDestructionPrimitives::destroy(
-                                            d_parent_p->d_elements + d_index);
-            d_parent_p->d_impl.releasePopReservation(d_generation, d_index);
-            //notify pusher of available element
-            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                          d_parent_p->d_numWaitingPushers)) {
-                d_parent_p->d_pushControlSema.post();
-            }
-        }
+    // PRIVATE CONSTANTS
+    enum {
+        e_PADDING = bces_Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
     };
 
-    class PushGuard {
-        bcec_AtomicRingBuffer *d_parent_p;
-        int                    d_index;
-                                 // of cell being popped when exception thrown
-
-        
-    public:
-        PushGuard(bcec_AtomicRingBuffer *parent, int index) 
-        : d_parent_p(parent), d_index(index)
-        {}
-
-        void release() {
-            d_parent_p = 0;
-        }
-
-        ~PushGuard() {
-            if (d_parent_p) {
-                // This pushing thread currently has the cell at 'd_index'
-                // reserved as WRITING. Pop and discard as many elements
-                // as we can until the pop index points at that cell, then
-                // mark the cell as OLD; this will leave the queue empty.
-                
-                bsl::size_t generation, index;
-                bsl::size_t stopIndex = d_index == 0 
-                    ? d_parent_p->d_impl.capacity()
-                    : d_index - 1;
-                int poppedItems = 1; // always at least 1 for the current cell
-                do {
-                    if (0 != d_parent_p->d_impl.acquirePopIndex(&generation, 
-                                                                &index)) {
-                        break;
-                    }
-                    bslalg::ScalarDestructionPrimitives::destroy(
-                                              d_parent_p->d_elements + index);
-                    d_parent_p->d_impl.releasePopReservation(generation, 
-                                                             index);
-                    poppedItems++;
-                } while (index != stopIndex);
-                
-                if (index == stopIndex) {
-                    // We incremented the pop index up to d_index, the 
-                    // cell that is currently in the WRITING state, but we
-                    // cannot advance past it using acquirePopIndex due to 
-                    // its state. 
-                    d_parent_p->d_impl.incrementPopIndexFrom(d_index);
-                }
-                    
-                d_parent_p->d_impl.releasePopReservation(generation, d_index);
-                int numWakeUps = bsl::min(
-                                       poppedItems, 
-                                       (int)d_parent_p->d_numWaitingPushers);
-                while (numWakeUps--) {
-                    // Wake up waiting pushers.
-                    d_parent_p->d_pushControlSema.post();
-                }
-            }
-        }
-    };
 
     // DATA
-    TYPE                             *d_elements;  // element storage
-    const char                        d_elementsPad[
-                                                  bces_Platform::e_BCEC_PAD]; 
-    bcec_AtomicRingBufferIndexManager d_impl;      // state variables
+    TYPE             *d_elements;  // element storage
+
+    const char        d_elementsPad[e_PADDING]; 
+    bcec_AtomicRingBufferIndexManager 
+                      d_impl;      // state variables
     
-    bsls::AtomicInt                   d_numWaitingPoppers;
-    bcemt_Semaphore                   d_popControlSema;  
-                                                   // pop threads wait on this
-                                                   // when the queue is empty
-    const char                        d_popControlSemaPad[
-                                                  bces_Platform::e_BCEC_PAD];
-    bsls::AtomicInt                   d_numWaitingPushers;
+    bsls::AtomicInt   d_numWaitingPoppers;
+    bcemt_Semaphore   d_popControlSema;    // pop threads wait on this
+                                           // when the queue is empty
+
+    const char        d_popControlSemaPad[e_PADDING];
+    bsls::AtomicInt   d_numWaitingPushers;
                   
-    bcemt_Semaphore                   d_pushControlSema;
-    const char                        d_pushControlSemaPad[
-                                                  bces_Platform::e_BCEC_PAD];
-    bslma::Allocator                 *d_allocator_p;
+    bcemt_Semaphore   d_pushControlSema;
+
+    const char        d_pushControlSemaPad[e_PADDING];
+
+    bslma::Allocator *d_allocator_p;
 
     // NOT IMPLEMENTED
     bcec_AtomicRingBuffer(const bcec_AtomicRingBuffer&);
     bcec_AtomicRingBuffer& operator=(const bcec_AtomicRingBuffer&);
-public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bcec_AtomicRingBuffer,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
 
+
+    // FRIENDS
+   template <class VAL> friend class bcec_AtomicRingBuffer_PushProctor;
+   template <class VAL> friend class bcec_AtomicRingBuffer_PopGuard;
+        
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(bcec_AtomicRingBuffer, 
+                                   bslma::UsesBslmaAllocator);
     // CREATORS
     explicit
     bcec_AtomicRingBuffer(bsl::size_t       capacity,
@@ -387,28 +315,30 @@ public:
        // Destroy this object.  
 
     // MANIPULATORS
-    int pushBack(const TYPE& object);
-       // Append the specified 'object' to the back of this queue.  If 
-       // the queue is full, block until the queue is not full or until
-       // the queue is disabled.  Return 0 on success, and a nonzero value if
-       // the queue is disabled.
+    int pushBack(const TYPE& value);
+       // Append the specified 'value' to the back of this queue, blocking
+       // until space is available if necessary.  Return 0 on success, and a
+       // nonzero value if the queue is disabled.
 
-    void popFront(TYPE* data);
-    TYPE popFront();
-       // Remove the element from the from of that queue and load that 
-       // element into the specified 'data'.  If the queue is empty, block
+    int tryPushBack(const TYPE &value);
+       // Attempt to append the specified 'value' to the back of this
+       // queue without blocking.  Return 0 on success, and a non-zero value
+       // if the queue is full or disabled.
+
+    void popFront(TYPE* value);
+       // Remove the element from the front of this queue and load that 
+       // element into the specified 'value'.  If the queue is empty, block
        // until it is not empty.
 
-    int tryPopFront(TYPE *data);
-       // Remove the element from the front of this queue and load that
-       // element into the specified 'data'. If this queue is empty, fail
-       // immediately.  Return 0 on success, and a non-zero value
-       // otherwise.  
+    TYPE popFront();
+       // Remove the element from the front of this queue and return it's
+       // value. If the queue is empty, block until it is not empty.
 
-    int tryPushBack(const TYPE &data);
-       // Append the specified 'data' to the back of this queue. If the
-       // queue is full, or if the queue is disabled, fail immediately.
-       // Return 0 on success, and a non-zero value otherwise.
+    int tryPopFront(TYPE *value);
+       // Attempt to remove the element from the front of this queue without
+       // blocking, and, if successful, load the specified 'value' with the
+       // removed element.  Return 0 on success, and a non-zero value if queue
+       // was empty.  On failure, 'value' is not changed.
     
     void removeAll();
        // Remove all items from this queue. Note that this operation is not 
@@ -442,16 +372,112 @@ public:
        // Return 'true' if this queue is full (when the number of elements 
        // currently in this queue equals its capacity), or 'false' otherwise.  
 
-    int length() const;
-       // *DEPRECATED*.  Invoke 'numElements'. 
-
     int numElements() const;
        // Returns the number of elements currently in this queue.
 
+    int length() const;
+       // [!DEPRECATED!] Invoke 'numElements'. 
+
     int size() const;
-       // *DEPRECATED*.  Invoke 'capacity'.  
+       // [!DEPRECATED!] Invoke 'capacity'.  
 
 };
+
+                        // ====================================
+                        // class bcec_AtomicRingBuffer_PopGuard
+                        // ====================================
+
+template <class VALUE>
+class bcec_AtomicRingBuffer_PopGuard {
+    // This class provides a guard that, upon its destruction, will remove
+    // (pop) the indicated element from the 'bcec_AtomicRingBuffer' object
+    // supplied at construction.  Note that this guard is used to provide
+    // exception safety when popping an element from a 'bcec_AtomicRingBuffer'
+    // object.
+
+    // DATA
+    bcec_AtomicRingBuffer<VALUE> *d_parent_p;        
+                                     // object from which an element will be
+                                     // popped
+
+    int                           d_generation; 
+                                     // generation count of cell being popped
+
+    int                           d_index;
+                                     // index of cell being popped
+       
+    // NOT IMPLEMENTED
+    bcec_AtomicRingBuffer_PopGuard(const bcec_AtomicRingBuffer_PopGuard&);
+    bcec_AtomicRingBuffer_PopGuard& operator=(
+                                         const bcec_AtomicRingBuffer_PopGuard&);
+  public:
+
+    // CREATORS
+    bcec_AtomicRingBuffer_PopGuard(bcec_AtomicRingBuffer<VALUE> *queue, 
+                                   int                           generation, 
+                                   int                           index);
+        // Create a guard that, upon its destruction, will update the state
+        // of the specified 'queue' to remove (pop) the element at the
+        // specified 'index' having the specified 'generation', and destroy
+        // that popped object.  The behavior is undefined unless 'index' and
+        // 'generation' refer to a valid element in 'queue' that the current
+        // thread has acquired a reservation to pop (using
+        // 'bcec_AtomicRingBufferIndexManager::acquirePopIndex').
+
+    ~bcec_AtomicRingBuffer_PopGuard();
+        // Update the state of the 'bcec_AtomicRingBuffer' object supplied at
+        // construction to remove (pop) the indicated element, and destroy the
+        // popped object. 
+};
+
+                        // =======================================
+                        // class bcec_AtomicRingBuffer_PushProctor
+                        // =======================================
+  
+template <class VALUE>
+class bcec_AtomicRingBuffer_PushProctor {
+    // This class provides a proctor that, unless the 'release' method has
+    // been previously invoked, will remove and destroy all the elements from a
+    // 'bcec_AtomicRingBuffer' object supplied at construction (putting that
+    // ring-buffer into a valid empty state) upon the proctor's destruction.
+    // Note that this guard is used to provide exception safety when pushing an
+    // element into a 'bcec_AtomicRingBuffer'.
+
+    // DATA
+    bcec_AtomicRingBuffer<VALUE> *d_parent_p;
+                                     // object in which an element was pushed
+
+    int                           d_index;
+                                     // index of cell being pushed when an
+                                     // exception was thrown 
+
+    // NOT IMPLEMENTED
+    bcec_AtomicRingBuffer_PushProctor(const bcec_AtomicRingBuffer_PushProctor&);
+    bcec_AtomicRingBuffer_PushProctor& operator=(
+                                      const bcec_AtomicRingBuffer_PushProctor&);
+        
+    public:
+ 
+    // CREATORS
+    bcec_AtomicRingBuffer_PushProctor(bcec_AtomicRingBuffer<VALUE> *queue, 
+                                      int                           index);
+        // Create a proctor that manages the specified 'queue' and, unless
+        // 'release' is called, will remove and destroy all the elements from
+        // 'queue' starting at the specified 'index'.   The behavior is
+        // undefined unless 'index' refers to a valid element in 'queue'.
+
+    ~bcec_AtomicRingBuffer_PushProctor();
+        // Destroy this proctor and, if 'release' was not called on this
+        // object, remove and destroy all the elements from the
+        // 'bcec_AtomicRingBuffer' object supplied at construction.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the 'bcec_AtomicRingBuffer' object supplied
+        // at construction.
+
+};
+
 
 // =====================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -499,16 +525,16 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
     } 
    
     // save data, mark as new
-    // If an exception is thrown by the copy constructor, PushGuard will
+    // If an exception is thrown by the copy constructor, PushProctor will
     // pop and discard items until reaching this cell, then mark this cell
     // empty (without regard to its current state, which is WRITING (i.e., 
     // reserved). That will leave the queue in a valid empty state.
-    PushGuard guard(this, index);
+    bcec_AtomicRingBuffer_PushProctor<TYPE> guard(this, index);
     bslalg::ScalarPrimitives::copyConstruct(&d_elements[index], 
                                             data, 
                                             d_allocator_p);
     guard.release();
-    d_impl.releasePushReservation(generation, index);
+    d_impl.releasePushIndex(generation, index);
     
     // notify poppers of available data
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPoppers)) {
@@ -529,9 +555,11 @@ int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE *data)
         return retval;
     }
     
-    // copy data. PopGuard will destroy original object, update the queue, and
-    // release a waiting pusher, even if the assignment operator throws.
-    PopGuard guard(this, generation, index);
+    // copy data. bcec_AtomicRingBuffer_PopGuard will destroy original object,
+    // update the queue, and release a waiting pusher, even if the assignment
+    // operator throws. 
+
+   bcec_AtomicRingBuffer_PopGuard<TYPE> guard(this, generation, index);
     *data = d_elements[index];
     return 0;
 }
@@ -588,9 +616,11 @@ TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
         d_numWaitingPoppers.addRelaxed(-1);
     }
     
-    // copy data. PopGuard will destroy original object, update the queue, and
-    // release a waiting pusher, even if the copy constructor throws.
-    PopGuard guard(this, generation, index);
+    // copy data. bcec_AtomicRingBuffer_PopGuard will destroy original object,
+    // update the queue, and release a waiting pusher, even if the copy
+    // constructor throws.
+
+    bcec_AtomicRingBuffer_PopGuard<TYPE> guard(this, generation, index);
     return TYPE(d_elements[index]);
 }           
     
@@ -608,7 +638,7 @@ void bcec_AtomicRingBuffer<TYPE>::removeAll()
         }
         
         bslalg::ScalarDestructionPrimitives::destroy(d_elements + index);
-        d_impl.releasePopReservation(generation, index);
+        d_impl.releasePopIndex(generation, index);
     }
   
     int numWakeUps = bsl::min(poppedItems, (int) d_numWaitingPushers);
@@ -677,6 +707,115 @@ template <typename TYPE>
 inline
 bool bcec_AtomicRingBuffer<TYPE>::isEnabled() const {
     return d_impl.isEnabled();
+}
+
+                        // ------------------------------------
+                        // class bcec_AtomicRingBuffer_PopGuard
+                        // ------------------------------------
+
+
+// CREATORS
+template <class VALUE>
+inline
+bcec_AtomicRingBuffer_PopGuard<VALUE>::bcec_AtomicRingBuffer_PopGuard(
+                                      bcec_AtomicRingBuffer<VALUE> *parent, 
+                                      int                           generation, 
+                                      int                           index)
+: d_parent_p(parent)
+, d_generation(generation)
+, d_index(index)
+{
+}
+
+template <class VALUE>
+inline
+bcec_AtomicRingBuffer_PopGuard<VALUE>::~bcec_AtomicRingBuffer_PopGuard() 
+{
+    // This popping thread currently has the cell at 'd_index' (in
+    // 'd_generation') reserved for popping.  Destroy the element at that
+    // position and then release the reservation.  Wake up to 1 waiting pusher
+    // thread.
+    
+    bslalg::ScalarDestructionPrimitives::destroy(
+                                              d_parent_p->d_elements + d_index);
+
+    d_parent_p->d_impl.releasePopIndex(d_generation, d_index);
+
+    //notify pusher of available element
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+            d_parent_p->d_numWaitingPushers)) {
+        d_parent_p->d_pushControlSema.post();
+    }
+}
+
+                        // ---------------------------------------
+                        // class bcec_AtomicRingBuffer_PushProctor
+                        // ---------------------------------------
+
+// CREATORS
+template <class VALUE>
+inline
+bcec_AtomicRingBuffer_PushProctor<VALUE>::bcec_AtomicRingBuffer_PushProctor(
+                                           bcec_AtomicRingBuffer<VALUE> *parent,
+                                           int                           index) 
+: d_parent_p(parent)
+, d_index(index)
+{
+}
+
+template <class VALUE>
+inline
+bcec_AtomicRingBuffer_PushProctor<VALUE>::~bcec_AtomicRingBuffer_PushProctor()
+{
+    if (d_parent_p) {
+        // This pushing thread currently has the cell at 'd_index' reserved as
+        // WRITING. Pop and discard as many elements as we can until the pop
+        // index points at that cell, then mark the cell as OLD; this will
+        // leave the queue empty. 
+        
+        bsl::size_t generation, index;
+        bsl::size_t stopIndex = 0 == d_index
+                                ? d_parent_p->d_impl.capacity()
+                                : d_index - 1;
+
+        int poppedItems = 1; // always at least 1 for the current cell
+        do {
+            if (0 != d_parent_p->d_impl.acquirePopIndex(&generation, 
+                                                        &index)) {
+                break;
+            }
+
+            bslalg::ScalarDestructionPrimitives::destroy(
+                        d_parent_p->d_elements + index);
+
+            d_parent_p->d_impl.releasePopIndex(generation, index);
+            ++poppedItems;
+        } while (index != stopIndex);
+                
+        if (index == stopIndex) {
+            // We incremented the pop index up to d_index, the cell that is
+            // currently in the WRITING state, but we cannot advance past it
+            // using acquirePopIndex due to its state. 
+
+            d_parent_p->d_impl.incrementPopIndexFrom(d_index);
+        }
+                    
+        d_parent_p->d_impl.releasePopIndex(generation, d_index);
+        int numWakeUps = bsl::min(poppedItems, 
+                                  (int)d_parent_p->d_numWaitingPushers);
+        while (numWakeUps--) {
+            // Wake up waiting pushers.
+            d_parent_p->d_pushControlSema.post();
+        }
+    }
+}
+
+// MANIPULATORS
+template <class VALUE>
+inline
+void bcec_AtomicRingBuffer_PushProctor<VALUE>::release() 
+{
+    d_parent_p = 0;
 }
 
 }  // close namespace BloombergLP

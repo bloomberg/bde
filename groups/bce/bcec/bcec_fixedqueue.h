@@ -250,6 +250,12 @@ class bcec_FixedQueue_IndexQueue {
     // underlying implementation for 'bcec_FixedQueue'.
 
   private:
+
+    // PRIVATE CONSTANTS
+    enum {
+        e_PADDING = bces_Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
+    };
+
     // DATA
     const unsigned d_indexBits;      // Mask of the bits containing the
                                      // index stored in 'd_front' and
@@ -275,22 +281,22 @@ class bcec_FixedQueue_IndexQueue {
     bsl::vector<bces_AtomicInt>
                    d_data;
 
-    const char     d_dataPad[bces_Platform::e_BCEC_PAD];  
-                                         // keep 'd_data'  and 'd_back' on
-                                         // separate cache lines
-                                         // (performance only)
+    const char     d_dataPad[e_PADDING];  
+                                     // keep 'd_data'  and 'd_back' on
+                                     // separate cache lines
+                                     // (performance only)
 
-    bces_AtomicInt d_back;               // index of the back of the queue
-                                         // ORed with a generation count
+    bces_AtomicInt d_back;           // index of the back of the queue
+                                     // ORed with a generation count
 
-    const char     d_indexPad[bces_Platform::e_BCEC_PAD]; 
-                                         // keep 'd_back'  and 'd_front' on
-                                         // separate cache lines
-                                         // (performance only)
+    const char     d_indexPad[e_PADDING]; 
+                                     // keep 'd_back'  and 'd_front' on
+                                     // separate cache lines
+                                     // (performance only)
 
-    bces_AtomicInt d_front;              // index of the front of the queue
-                                         // in 'd_data' ORed with a generation
-                                         // count
+    bces_AtomicInt d_front;          // index of the front of the queue
+                                     // in 'd_data' ORed with a generation
+                                     // count
 
   private:
     // NOT IMPLEMENTED
@@ -380,16 +386,22 @@ class bcec_FixedQueue {
     // This class provides a thread-enabled implementation of a very efficient
     // fixed-size queue of templatized 'TYPE' values.
 
+  private:
+
+    // PRIVATE CONSTANTS
+    enum {
+        e_PADDING = bces_Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
+    };
+
     // PRIVATE TYPES
     typedef bcec_FixedQueue_IndexQueue IndexQ;
 
     // DATA
     IndexQ            d_queue;
 
-    const char        d_semaPad[bces_Platform::e_BCEC_PAD];  
-                                                    // keep 'd_queue' separate
-                                                    // from semaphores' cache
-                                                    // line (performance only)
+    const char        d_semaPad[e_PADDING];  // keep 'd_queue' separate
+                                             // from semaphores' cache
+                                             // line (performance only)
 
     bcemt_Semaphore   d_semaWaitingPushers;
     bces_AtomicInt    d_numWaitingPushers;

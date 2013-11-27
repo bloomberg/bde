@@ -176,9 +176,9 @@ struct bces_Platform {
       // might want to do this at runtime, but this would add at least one
       // level of indirection.
 #ifdef BSLS_PLATFORM_CPU_POWERPC
-        e_BCEC_PAD = 128 - sizeof(bsls::AtomicInt)
+        e_CACHE_LINE_SIZE = 128
 #else
-        e_BCEC_PAD = 64 - sizeof(bsls::AtomicInt)
+        e_CACHE_LINE_SIZE = 64
 #endif
     };
 };

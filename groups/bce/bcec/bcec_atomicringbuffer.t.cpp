@@ -147,7 +147,7 @@ void pushpopThread(bcec_AtomicRingBuffer<int> *queue,
 
         for (int j = 0; j < 100; ++j) {
             hardwork(&value, workSpin);
-            int queuedValue = queue->popFront();
+            queue->popFront();
         }
     }
 }
@@ -239,25 +239,30 @@ void pushpopThread(bcec_AtomicRingBuffer<int> *queue,
 class ExceptionTester 
 {
 public:
-    static bces_AtomicInt s_throwFrom;
+    static bsls::AtomicInt64 s_throwFrom;
 
     ExceptionTester() {}
 
-    ExceptionTester(const ExceptionTester& rhs) {
+    ExceptionTester(const ExceptionTester&) {
         if (s_throwFrom &&
-            bcemt_ThreadUtil::selfIdAsInt() == s_throwFrom) {
+            bcemt_ThreadUtil::selfIdAsUint64() == 
+            static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
             throw 1;
         }
     }
 
-    ExceptionTester& operator=(const ExceptionTester& rhs) {
+    ExceptionTester& operator=(const ExceptionTester&) {
         if (s_throwFrom &&
-            bcemt_ThreadUtil::selfIdAsInt() == s_throwFrom) {
+            bcemt_ThreadUtil::selfIdAsUint64() == 
+            static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
+
             throw 1;
         }
+        return *this;
     }
 };
-bces_AtomicInt ExceptionTester::s_throwFrom = 1;
+
+bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 
 void exceptionProducer(bcec_AtomicRingBuffer<ExceptionTester> *tester,
                        bcemt_TimedSemaphore                   *sema, 
@@ -968,7 +973,7 @@ struct my_WorkRequest {
     // Work data...
 };
 
-void myDoWork(my_WorkData& data)
+void myDoWork(my_WorkData& )
 {
     // do some stuff...
 }
@@ -1059,6 +1064,7 @@ int main(int argc, char *argv[])
         bcema_TestAllocator ta(veryVeryVerbose);
         {        
             // b.  popping from a queue with exception operates normally.
+
             enum {QUEUE_LENGTH = 3};
             bcec_AtomicRingBuffer<ExceptionTester> queue(QUEUE_LENGTH, 
                                                          &ta);
@@ -1078,7 +1084,8 @@ int main(int argc, char *argv[])
                                                          &numCaught));
             BSLS_ASSERT_OPT(0 == rc); // test invariant
             
-            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsInt();
+            ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
+                                            bcemt_ThreadUtil::selfIdAsUint64());
 
             if (veryVerbose) {
                 cout << endl
@@ -1127,8 +1134,8 @@ int main(int argc, char *argv[])
             }
 
             // b.  pushing into a queue with exception empties the queue.
-            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsInt(
-                                    bcemt_ThreadUtil::handleToId(producer));
+            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsUint64(
+                                       bcemt_ThreadUtil::handleToId(producer));
             
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
@@ -1163,7 +1170,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         break;
       }
-
       case 16: {
         // ---------------------------------------------------------
         // Template Requirements Test
@@ -1171,6 +1177,10 @@ int main(int argc, char *argv[])
         // bcec_AtomicRingBuffer<T> should work for types T that have no 
         // default constructor and a 1-arg copy constructor.
         // ---------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "Template Requirements Test" << endl
+                          << "==========================" << endl;
 
         bcec_AtomicRingBuffer<TestType> q(10);
 
@@ -1191,7 +1201,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == count);
       } break;
-
       case 15: {
         // ---------------------------------------------------------
         // length() stress-test
@@ -1201,6 +1210,11 @@ int main(int argc, char *argv[])
         // the real length of the queue will always be between 0 and N,
         // so verify that the reported length is always in this range.
         // ---------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "'length()' Stress Test" << endl
+                          << "======================" << endl;
+
 
         enum {
             NUM_PUSHPOP_THREADS = 6,

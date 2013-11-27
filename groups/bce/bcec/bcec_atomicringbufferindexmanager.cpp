@@ -11,6 +11,68 @@ BDES_IDENT_RCSID(bcec_atomicringbufferindexmanager_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+enum {
+    ///State Values
+    /// - - - - - -
+    // The following constants define the possible index states held in
+    // array of state values 'd_states'.  Note that the usage of different
+    // bits of the 'd_states' values are described in an implementation note
+    // in the .cpp file.
+    
+    e_INDEX_STATE_EMPTY    = 0,   // cell is empty and available for writing
+
+    e_INDEX_STATE_WRITING  = 1,   // cell is reserved for writing
+    
+    e_INDEX_STATE_FULL     = 2,   // cell has a value in it
+    
+    e_INDEX_STATE_READING  = 3,   // cell is reserved for reading
+    
+
+    ///State Constants
+    ///- - - - - - - -
+    // The following constants are used to manipulate the bits of elements
+    // in the 'd_states' array.  Note that the usage of different bits of
+    // the 'd_states' values are described in an implementation note in
+    ///the .cpp file. 
+    
+    e_INDEX_STATE_MASK     = 0x3, // bitmask used to determine the
+                                  // 'e_INDEX_STATE_*' value from an index
+                                  // state element
+
+    e_INDEX_STATE_SHIFT    = 0x2, // number of bits to left-shift to make
+                                  // room for state value.  
+                                  // must be base2Log(INDEX_STATE_MASK)
+
+    ///PushIndex Constants
+    ///- - - - - - - - - -
+    // The following constants are used to manipulate and modify the bits of
+    // 'd_pushIndex'.  The bits of 'd_pushIndex' encodes the index of the
+    // of the next element to be pushed, as well as the current generation
+    // count and a flag indicating whether the queue is disabled.  Note
+    // that the encoding of bits in 'd_pushIndex' is described in an
+    // implementation note in the .cpp file.
+
+    e_MAX_OP_INDEX = (1 << (8 * sizeof(int) - 1)) - 1,
+
+
+    e_DISABLED_STATE_MASK  = e_MAX_OP_INDEX + 1,
+                                      // bitmask for the disabled bit in
+                                      // 'd_pushIndex' 
+};
+
+
+// CLASS METHODS
+inline 
+bsl::size_t incrementIndex(bsl::size_t opCount, 
+                           bsl::size_t currentIndex)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(e_MAX_OP_INDEX == opCount)) {
+        return currentIndex + 1;
+    }
+    return opCount + 1;
+}
+
+
 // CREATORS
 bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
                                           bsl::size_t       capacity,
@@ -37,7 +99,7 @@ bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
          state < d_states + capacity; ++state) {
         bslalg::ScalarPrimitives::construct(
                                          state, 
-                                         e_INDEX_STATE_EMPTY,
+                                         static_cast<int>(e_INDEX_STATE_EMPTY),
                                          d_allocator_p); // allocator unused
     }
 }
@@ -80,7 +142,7 @@ void bcec_AtomicRingBufferIndexManager::disable() {
 }
 
 void
-bcec_AtomicRingBufferIndexManager::releasePopReservation(
+bcec_AtomicRingBufferIndexManager::releasePopIndex(
                                                   bsl::size_t currGeneration, 
                                                   bsl::size_t index)
 {
@@ -261,6 +323,14 @@ void bcec_AtomicRingBufferIndexManager::incrementPopIndexFrom(
     }
 }
 
+void bcec_AtomicRingBufferIndexManager::releasePushIndex(
+                                                    bsl::size_t generation,
+                                                    bsl::size_t index) {
+    d_states[index] = e_INDEX_STATE_FULL | 
+        (generation << e_INDEX_STATE_SHIFT);
+}
+
+
 // ACCESSORS
 bsl::size_t bcec_AtomicRingBufferIndexManager::length() const {
     const bsl::size_t w = d_pushIndex.load() & e_MAX_OP_INDEX;
@@ -268,6 +338,10 @@ bsl::size_t bcec_AtomicRingBufferIndexManager::length() const {
     return (w > r) 
         ? w - r 
         : 0;
+}
+
+bool bcec_AtomicRingBufferIndexManager::isEnabled() const {
+    return (0 == (d_pushIndex.load() & e_DISABLED_STATE_MASK));
 }
 
 } // close namespace BloombergLP

@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
             bsl::size_t generation, index;
             ASSERT(0 == mX.acquirePushIndex(&generation, &index));
-            mX.releasePushReservation(generation, index);
+            mX.releasePushIndex(generation, index);
             ASSERT(1 == mX.length());
             ASSERT(0 == generation);
             ASSERT(0 == index);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
             
             generation = index = 1;
             ASSERT(0 == mX.acquirePopIndex(&generation, &index));            
-            mX.releasePopReservation(generation, index);
+            mX.releasePopIndex(generation, index);
             ASSERT(0 == mX.length());
             ASSERT(0 == generation);
             ASSERT(0 == index);
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
             mX.enable();
             ASSERT(mX.isEnabled());
             ASSERT(0 == mX.acquirePushIndex(&generation, &index));
-            mX.releasePushReservation(generation, index);
+            mX.releasePushIndex(generation, index);
             ASSERT(1 == mX.length());
             ASSERT(1 == generation);
             ASSERT(0 == index);            
