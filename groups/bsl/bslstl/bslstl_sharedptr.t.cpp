@@ -207,9 +207,9 @@ using namespace BloombergLP;
 // [29] bool owner_before(const weak_ptr<OTHER_TYPE>& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [32] USAGE TEST
 // [33] USAGE TEST
 // [34] USAGE TEST
+// [35] USAGE TEST
 //
 // ============================================================================
 //                                   TEST PLAN (Utility struct SharedPtrUtil)
@@ -242,18 +242,6 @@ using namespace BloombergLP;
 // to such utilities at this point in our levelized library hierarchy, so will
 // settle for merely confirming that bit-patterns have not changed.
 // ----------------------------------------------------------------------------
-// bsl::owner_less<shared_ptr<TYPE> >
-//-----------------------------------
-// [30] bool operator()(const shared_ptr<TYPE>&, const shared_ptr<TYPE>&) const
-// [30] bool operator()(const shared_ptr<TYPE>&, const weak_ptr<TYPE>&)   const
-// [30] bool operator()(const weak_ptr<TYPE>&,   const shared_ptr<TYPE>&) const
-//
-// bsl::owner_less<weak_ptr<TYPE> >
-//-----------------------------------
-// [30] bool operator()(const shared_ptr<TYPE>&, const shared_ptr<TYPE>&) const
-// [30] bool operator()(const weak_ptr<TYPE>&,   const shared_ptr<TYPE>&) const
-// [30] bool operator()(const weak_ptr<TYPE>&,   const weak_ptr<TYPE>&)   const
-//
 // bsl::hash< shared_ptr<T> >
 //---------------------------
 // [31] void operator()(const shared_ptr<T>& ) const;
@@ -2529,7 +2517,7 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
-      case 34: {
+      case 35: {
 //..
 // Example 3 - SEE ABOVE
 // - - - - - - - - - - -
@@ -2542,7 +2530,7 @@ int main(int argc, char *argv[])
             search(&result, peerCache, keywords);
         }
       } break;
-      case 33: {
+      case 34: {
         // We know this example demonstrates a memory leak, so put the default
         // allocator into quiet mode for regular (non-verbose) testing, while
         // making the (expected) leak clear for veryVerbose or higher detail
@@ -2595,7 +2583,7 @@ int main(int argc, char *argv[])
 
         // No memory leak now
       } break;
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE (weak_ptr)
         //   The usage example provided in the component header file must
@@ -2673,6 +2661,314 @@ int main(int argc, char *argv[])
     ASSERT(!intWeakPtr2.acquireSharedPtr());
         }
       } break;
+      case 32: {
+        // --------------------------------------------------------------------
+        // TESTING 'createInplace'
+        //
+        // Concerns:
+        //
+        // Plan: TBD
+        //
+        // Testing:
+        //   shared_ptr make_shared<T>();
+        //   shared_ptr make_shared<T>(const A1& a1)
+        //   shared_ptr make_shared<T>(const A1& a1,..&a2);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a3);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a4);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a5);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a6);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a7);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a8);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a9);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a10);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a11);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a12);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a13);
+        //   shared_ptr make_shared<T>(const A1& a1,..&a14);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTesting 'make_shared'\n"
+                            "\n=======================\n");
+
+        static const MyTestArg1 V1(1);
+        static const MyTestArg2 V2(20);
+        static const MyTestArg3 V3(23);
+        static const MyTestArg4 V4(44);
+        static const MyTestArg5 V5(66);
+        static const MyTestArg6 V6(176);
+        static const MyTestArg7 V7(878);
+        static const MyTestArg8 V8(8);
+        static const MyTestArg9 V9(912);
+        static const MyTestArg10 V10(102);
+        static const MyTestArg11 V11(111);
+        static const MyTestArg12 V12(333);
+        static const MyTestArg13 V13(712);
+        static const MyTestArg14 V14(1414);
+
+        if (verbose) printf("\nTesting 'make_shared' with 1 argument"
+                            "\n---------------------------------------\n");
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&ta);
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                                          bsl::make_shared<MyInplaceTestObject>(V1);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 2 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                                      bsl::make_shared<MyInplaceTestObject>(V1, V2);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 3 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 4 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                              bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 5 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 6 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                      bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 7 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6, V7);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 9 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                    V8);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 10 arguments"
+                            "\n-----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                    V8, V9);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 2 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                    V8, V9, V10);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 11 arguments"
+                            "\n----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                    V8, V9, V10, V11);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 12 arguments"
+                            "\n-----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                    V8, V9, V10, V11, V12);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
+                    V12);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 13 arguments"
+                            "\n-----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                    V8, V9, V10, V11, V12, V13);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
+                    V12, V13);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 14 arguments"
+                            "\n-----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                    V8, V9, V10, V11, V12, V13, V14);
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
+                    V12, V13, V14);
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+      } break;
     case 31: {
       // --------------------------------------------------------------------
       // TEST 'hash' FUNCTOR  (shared_ptr):
@@ -2740,81 +3036,19 @@ int main(int argc, char *argv[])
     } break;
     case 30: {
       // --------------------------------------------------------------------
-      // TEST 'owner_less' FUNCTOR
+      // TEST number is spare 
       //
       // Concerns:
-      //   Test that the 'owner_less' functor works as expected.
       //
       // Plan:
       //
       // Testing:
-      //  bsl::owner_less<shared_ptr<T> >::
-      //   bool operator()(const shared_ptr<T>&, const shared_ptr<T>&) const
-      //   bool operator()(const shared_ptr<T>&, const weak_ptr<T>&)   const
-      //   bool operator()(const weak_ptr<T>&,   const shared_ptr<T>&) const
-      //
-      //  bsl::owner_less<weak_ptr<TYPE> >::
-      //   bool operator()(const shared_ptr<T>&, const shared_ptr<T>&) const
-      //   bool operator()(const weak_ptr<T>&,   const shared_ptr<T>&) const
-      //   bool operator()(const weak_ptr<T>&,   const weak_ptr<T>&)   const
       // --------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING 'owner_less' FUNCTOR"
-                          "\n============================\n");
+      if (verbose) printf("\nTESTING nothing, spare test number"
+                          "\n==================================\n");
 
       {
-          bslma::TestAllocator ta;
-          MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
-
-          MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
-
-          MyTestObject *PTR1 = REP1.ptr();
-          MyTestObject *PTR2 = REP2.ptr();
-          ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
-          ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
-          {
-              const ObjWP EWP1;
-              const ObjWP EWP2;
-              const ObjSP ESP;
-
-              bsl::owner_less<ObjSP> fnSP = {};
-              const bsl::owner_less<ObjSP>& FN_SP = fnSP;
-
-              bsl::owner_less<ObjWP> fnWP = {};
-              const bsl::owner_less<ObjWP>& FN_WP = fnWP;
-
-              ObjSP mSA(PTR1, &rep1); const ObjSP& SA = mSA;
-              ObjSP mSB(PTR2, &rep2); const ObjSP& SB = mSB;
-
-              ObjWP mWA(SA); const ObjWP& WA = mWA;
-              ObjWP mWB(SB); const ObjWP& WB = mWB;
-
-              ASSERT(false == FN_WP(EWP1, EWP1));
-              ASSERT(false == FN_WP(EWP1, EWP2));
-              ASSERT(false == FN_WP(EWP1, ESP));
-              ASSERT(true  == FN_WP(EWP1, SA));
-              ASSERT(true  == FN_WP(EWP1, WA));
-              ASSERT(true  == FN_WP(EWP1, SB));
-              ASSERT(true  == FN_WP(EWP1, WB));
-
-              ASSERT(false == FN_WP(WA, EWP1));
-              ASSERT(false == FN_WP(WA, ESP));
-              ASSERT(false == FN_WP(WA, SA));
-              ASSERT(false == FN_WP(WA, WA));
-              ASSERT(FN_WP(WA, SB) == (&REP1 < &REP2));
-              ASSERT(FN_WP(WA, WB) == (&REP1 < &REP2));
-
-              ASSERT(false == FN_SP(SA, EWP1));
-              ASSERT(false == FN_SP(SA, ESP));
-              ASSERT(false == FN_SP(SA, SA));
-              ASSERT(false == FN_SP(SA, WA));
-              ASSERT(FN_SP(SA, SB) == (&REP1 < &REP2));
-              ASSERT(FN_SP(SA, WB) == (&REP1 < &REP2));
-          }
       }
     } break;
     case 29: {
