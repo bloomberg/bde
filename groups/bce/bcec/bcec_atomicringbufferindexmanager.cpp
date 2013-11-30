@@ -3,7 +3,8 @@
 
 #include <bcemt_threadutil.h>
 
-#include <bslalg_scalarprimitives.h>
+#include <bslalg_arraydestructionprimitives.h>
+#include <bslalg_arrayprimitives.h>
 #include <bsls_assert.h>
 
 #include <bdes_ident.h>
@@ -11,337 +12,543 @@ BDES_IDENT_RCSID(bcec_atomicringbufferindexmanager_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-enum {
+///Implementation Note
+///-------------------
+// Each 'bcec_AtomicRingBufferIndexManager' object maintains a circular buffer
+// of atomic integers, 'd_states', that encode the states of the corresponding
+// elements in an external circular buffer (e.g.,'bcec_AtomicRingBuffer').
+// The bits in the atomic integers of the 'd_states' array, as well as both
+// 'd_pushIndex' and 'd_popIndex' encode multiple pieces of information, as
+// described below. 
+//
+///Generation Count
+/// - - - - - - - -
+// In order to alleviate the possibility of the ABA problem a generation count
+// is encoded into:
+//
+//: o Each element in the states array 'd_states'
+//: o 'd_pushIndex'
+//: o 'd_popIndex'
+//
+///Encoding of 'd_states' elements
+///- - - - - - - - - - - - - - - - 
+// The elements of the 'd_states' array indicate the state of the
+// corresponding element in the externally managed circular buffer.  Each
+// 'd_states' element encodes:
+//
+//: o the 'ElementState' (e_EMPTY, e_WRITING, e_FULL, or e_READING)
+//: o the generation count
+//
+//..
+// |31 30 . . . . . . . . . . . . . . . . . 4 3 | 1 0 |
+// .--------------------------------------------------.
+// |    Generation Count                        |     |
+// `--------------------------------------------------'
+//                                                 ^--ElementState
+//..
+//
+///Terminology: Combined Index
+///- - - - - - - - - - - - - -
+// We defined the term *Combined Index* to describe the combination of an
+// index position (into the circular buffer 'd_states') and the generation
+// count as follows: 
+//..
+//  Combined Index   = (Generation Count * Queue Capacity) + Element Index
+//  Generation Count = Combined Index / Queue Capacity
+//  Element Index    = Combined Index % Queue Capacity
+//..
+// A combined index has the nice property that incrementing a combined index
+// whose index is at the end of an array, sets the index back to 0 and
+// increments the generation count.  Both 'd_pushIndex' and 'd_popIndex'
+// maintain a combined index. 
+//
+///Description of 'd_pushIndex' and 'd_PopIndex'
+///- - - - - - - - - - - - - - - - - - - - - - - 
+// 'd_PushIndex' and 'd_popIndex' both can be used to determine the index of
+// the element at which the next push or pop should occur (respectively) as
+// well as the generation count. Additionally, 'd_pushIndex' encodes the
+///disabled status for the queue.  The 'd_pushIndex' is encoded as follows: 
+//..
+// |31 30 . . . . . . . . . . . . . . . . . . . . . 0 |
+// .--------------------------------------------------.
+// |  |  (generation count * d_capacity) + push index |
+// `--------------------------------------------------'
+//  ^--Disabled bit
+//..
+// 'd_popIndex' is the same, but does not maintain a disabled bit.  
+//
+///Maximum Capacity
+/// - - - - - - - - 
+// As noted earlier, the index manager uses a generation count to avoid ABA
+///problems.  In order for generation count to be effective we must ensure that
+///'d_pushIndex', 'd_popIndex', and 'd_states' elements each can represent at
+///least two generations.  'd_states' elements each have 'sizeof(int) - 2'
+///elements bits available to represent the generation count (which we assume
+///is plenty), and 'd_popIndex' has one more bit available than 'd_pushIndex'.
+//
+// For 'd_pushIndex' to represent at least 2 generations, we must reserve at
+// least 1 bit for the generation count in addition to the 1 bit reserved for
+// the disabled flag.  This leads to a maximum supportable capacity of:
+// '1 << ((sizeof(int) * 8) - 2)
+//
+///Maximum Generation Count and Maximum Combined Index
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// The maximum generation count and maximum combined index are per-object
+///constants, derived from the buffer capacity, that are stored within the
+///'d_maxGeneration' and 'd_maxCombinedIndex' data members respectively.
+//
+//: 'd_maxGeneration': The maximum *complete* generation that can be represented
+//:                    within a combined index.  
+//:
+//: 'd_maxCombinedIndex': The maximum combined index, which is equal to
+//:                       'd_maxGeneration * capacity'.
+//
+// Note that a *complete* generation is one in which the last element of that
+// generation is the last element in the array.
+//
+// If 'd_capacity' is not a power of 2, one could theoretically represent a
+// *partial* generation beyond 'd_maxGeneration', but the last representable
+// combined index in that generation would fall in the middle of the buffer
+// (requiring re-alignment of the indices when the generation count rolls over).
+
+namespace {
+
+enum ElementState {
     ///State Values
     /// - - - - - -
-    // The following constants define the possible index states held in
-    // array of state values 'd_states'.  Note that the usage of different
-    // bits of the 'd_states' values are described in an implementation note
-    // in the .cpp file.
+    // The following constants define the possible states for elements in the
+    // externally managed queue.  Note that these states are maintained by the
+    // index manager in the 'd_states' member variable.
     
-    e_INDEX_STATE_EMPTY    = 0,   // cell is empty and available for writing
+    e_EMPTY    = 0,   // element is empty and available for writing
+    e_WRITING  = 1,   // element is reserved for writing  
+    e_FULL     = 2,   // element has a value in it    
+    e_READING  = 3,   // element is reserved for reading
 
-    e_INDEX_STATE_WRITING  = 1,   // cell is reserved for writing
-    
-    e_INDEX_STATE_FULL     = 2,   // cell has a value in it
-    
-    e_INDEX_STATE_READING  = 3,   // cell is reserved for reading
-    
-
-    ///State Constants
-    ///- - - - - - - -
-    // The following constants are used to manipulate the bits of elements
-    // in the 'd_states' array.  Note that the usage of different bits of
-    // the 'd_states' values are described in an implementation note in
-    ///the .cpp file. 
-    
-    e_INDEX_STATE_MASK     = 0x3, // bitmask used to determine the
-                                  // 'e_INDEX_STATE_*' value from an index
-                                  // state element
-
-    e_INDEX_STATE_SHIFT    = 0x2, // number of bits to left-shift to make
-                                  // room for state value.  
-                                  // must be base2Log(INDEX_STATE_MASK)
-
-    ///PushIndex Constants
-    ///- - - - - - - - - -
-    // The following constants are used to manipulate and modify the bits of
-    // 'd_pushIndex'.  The bits of 'd_pushIndex' encodes the index of the
-    // of the next element to be pushed, as well as the current generation
-    // count and a flag indicating whether the queue is disabled.  Note
-    // that the encoding of bits in 'd_pushIndex' is described in an
-    // implementation note in the .cpp file.
-
-    e_MAX_OP_INDEX = (1 << (8 * sizeof(int) - 1)) - 1,
-
-
-    e_DISABLED_STATE_MASK  = e_MAX_OP_INDEX + 1,
-                                      // bitmask for the disabled bit in
-                                      // 'd_pushIndex' 
 };
 
 
-// CLASS METHODS
-inline 
-bsl::size_t incrementIndex(bsl::size_t opCount, 
-                           bsl::size_t currentIndex)
+///State Constants
+///- - - - - - - -
+// The following constants are used to manipulate the bits of elements
+// in the 'd_states' array.  
+    
+static const unsigned int e_ELEMENT_STATE_MASK     = 0x3;
+                                  // bitmask used to determine the
+                                  // 'ElementState' value from a 'd_states'
+                                  // element
+
+static const unsigned int e_GENERATION_COUNT_SHIFT = 0x2;
+                                  // number of bits to left-shift the
+                                  // generation count in a 'd_states' element
+                                  // to make room for 'ElementState' value --
+                                  // must be base2Log(e_ELEMENT_STATE_MASK)
+
+///Push-Index Constants
+/// - - - - - - - - - -
+// The following constants are used to manipulate and modify the bits of
+// 'd_pushIndex'.  The bits of 'd_pushIndex' encode the index of the
+// of the next element to be pushed, as well as the current generation
+// count and a flag indicating whether the queue is disabled. 
+
+static const unsigned int e_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
+                                      // bitmask for the disabled bit in
+                                      // 'd_pushIndex' 
+
+static const unsigned int e_MAX_REPRESENTABLE_COMBINED_INDEX = 
+                                                  e_DISABLED_STATE_MASK - 1;
+                                      // maximum representable combined index
+                                      // and generation count value for
+                                      // 'd_pushIndex' and 'd_popIndex'
+
+
+///State Element Encoding
+///- - - - - - - - - - -
+// The following operations are used to encode and decode the 'ElementState'
+// and generation count from 'd_states' elements.
+
+inline
+static unsigned int encodeElementState(unsigned int generation, 
+                                       ElementState indexState)
+    // Return an encoded state value of the specified 'generation' and the
+    // specified 'indexState'.  Note that the resulting encoded value is
+    // appropriate for storage in the 'd_states' array.
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(e_MAX_OP_INDEX == opCount)) {
-        return currentIndex + 1;
-    }
-    return opCount + 1;
+    return (generation << e_GENERATION_COUNT_SHIFT) | indexState;
 }
+
+inline 
+static unsigned int decodeGenerationFromElementState(unsigned int encodedState)
+    // Return the generation count of the specified 'encodedState'.  The
+    // behavior is undefined unless 'value' was encoded by
+    // 'encodeElementState'.  Note that 'encodedState' is typically obtained
+    // from the 'd_states' array. 
+{
+    return encodedState >> e_GENERATION_COUNT_SHIFT;
+}
+
+inline 
+static ElementState decodeStateFromElementState(unsigned int encodedState)
+    // Return the generation count of the specified 'encodedState'.  The
+    // behavior is undefined unless 'encodedState' was encoded by
+    // 'encodeElementState'.  Note that 'encodedState' is typically obtained
+    // from the 'd_states' array.
+{
+    return ElementState(encodedState & e_ELEMENT_STATE_MASK);
+}
+
+
+///Index Operations
+/// - - - - - - - -
+// The following operations are used to manipulate 'd_index' and 'd_popIndex'
+// members.
+
+inline 
+static bool isDisabledFlagSet(unsigned int encodedPushIndex)
+     // Return 'true' if the specified 'encodedPushIndex' has the disabled flag
+     // set, and 'false otherwise. 
+{
+    return (encodedPushIndex & e_DISABLED_STATE_MASK);
+}
+
+inline 
+static unsigned int discardDisabledFlag(unsigned int encodedPushIndex)
+    // Return the push-index of the specified 'encodedPushIndex', discarding
+    // the disabled flag.
+{
+    return (encodedPushIndex & ~e_DISABLED_STATE_MASK);
+}
+
+}  // close unnamed namespace
+
+                     // ---------------------------------------
+                     // class bcec_AtomicRingBufferIndexManager
+                     // ---------------------------------------
 
 
 // CREATORS
 bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
-                                          bsl::size_t       capacity,
-                                          bslma::Allocator *basicAllocator)
+                                               unsigned int      capacity,
+                                               bslma::Allocator *basicAllocator)
 : d_pushIndex(0)
 , d_pushIndexPad()
 , d_popIndex(0) 
 , d_popIndexPad()
 , d_capacity(capacity)
-, d_maxGeneration(e_MAX_OP_INDEX / capacity)
-, d_rolloverIndex((e_MAX_OP_INDEX + 1) % capacity)
+, d_maxGeneration(e_MAX_REPRESENTABLE_COMBINED_INDEX / capacity)
+, d_maxCombinedIndex(d_maxGeneration * capacity)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT_OPT(capacity > 0 && e_MAX_OP_INDEX > capacity);
+    BSLS_ASSERT_OPT(0 < capacity && capacity <= e_MAX_CAPACITY);
 
     d_states = static_cast<bsls::AtomicInt*>(
                 d_allocator_p->allocate(sizeof(bsls::AtomicInt) * capacity));
 
-    // Can't invoke ArrayPrimitives::emplace here; AtomicInt doesn't have
-    // a copy constructor. What we really want to do is just memset the whole
-    // region to 0, but that assumes a certain AtomicInt implementation. We 
-    // have to loop over the array and initialize it ourselves.
-    for (bsls::AtomicInt *state = d_states; 
-         state < d_states + capacity; ++state) {
-        bslalg::ScalarPrimitives::construct(
-                                         state, 
-                                         static_cast<int>(e_INDEX_STATE_EMPTY),
-                                         d_allocator_p); // allocator unused
-    }
+    // We use default construction since the intial state, 'e_EMPTY', is the
+    // default constructed state.
+
+    bslalg::ArrayPrimitives::defaultConstruct(d_states, 
+                                              capacity, 
+                                              d_allocator_p);
 }
 
 bcec_AtomicRingBufferIndexManager::~bcec_AtomicRingBufferIndexManager()
 {
+    bslalg::ArrayDestructionPrimitives::destroy(d_states,
+                                                d_states + d_capacity);
     d_allocator_p->deallocate(d_states);
 }
 
 // MANIPULATORS
-void bcec_AtomicRingBufferIndexManager::enable() {
-    for(;;) {
-        bsl::size_t pushIndex = d_pushIndex;
-        
-        if (0 == (pushIndex & e_DISABLED_STATE_MASK)) {
-            return; // already enabled.
-        }
-        
-        if (pushIndex == d_pushIndex.testAndSwap(pushIndex, 
-                                                 pushIndex & e_MAX_OP_INDEX)) {
-            return; 
-        }
-    }
-}
-
-void bcec_AtomicRingBufferIndexManager::disable() {
-    for (;;) {
-        bsl::size_t pushIndex = d_pushIndex;
-        
-        if (0 != (pushIndex & e_DISABLED_STATE_MASK)) {
-            return; // already disabled.
-        }
-        
-        if (pushIndex == 
-            d_pushIndex.testAndSwap(pushIndex, 
-                                    pushIndex | e_DISABLED_STATE_MASK)) {
-            break; 
-        }
-    }
-}
-
-void
-bcec_AtomicRingBufferIndexManager::releasePopIndex(
-                                                  bsl::size_t currGeneration, 
-                                                  bsl::size_t index)
-{
-    bsl::size_t generation = currGeneration + 1;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxGeneration == 
-                                              generation)) {
-        if (index >= d_rolloverIndex) {
-            generation = 0;
-        }
-    }
-    else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxGeneration == 
-                                                   currGeneration)) {
-        generation = 1;
-    }
-    d_states[index] = e_INDEX_STATE_EMPTY | 
-        (generation << e_INDEX_STATE_SHIFT);
-}
-
 int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
-                                                   bsl::size_t *generation, 
-                                                   bsl::size_t *index)
+                                                      unsigned int *generation, 
+                                                      unsigned int *index)
 {
-    bsl::size_t pushIndex = d_pushIndex.loadRelaxed();
-    bsl::size_t savedPushIndex = -1;
-    bsl::size_t opIndex, currIndex, currGeneration;  
+    enum Status { e_SUCCESS = 0, e_QUEUE_FULL = 1, e_DISABLED_QUEUE = -1 };
+
+    unsigned int loadedPushIndex = d_pushIndex.loadRelaxed();
+    unsigned int savedPushIndex  = -1;
+    unsigned int combinedIndex, currIndex, currGeneration;  
+
+    // We use 'savedPushIndex' to ensure we attempt to acquire an index at
+    // least twice before returning 'e_QUEUE_FULL'.  This prevents
+    // pathological contention between reading and writing threads for a queue
+    // of length 1.
 
     for(;;) {
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pushIndex & 
-                                                  e_DISABLED_STATE_MASK)) {
-            return -1;
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                          isDisabledFlagSet(loadedPushIndex))) {
+            return e_DISABLED_QUEUE;
         }
+
+        // Attempt to swap the 'd_states' element referred to by the
+        // push-index to 'e_WRITING'.
         
-        opIndex = pushIndex & e_MAX_OP_INDEX;
-        currGeneration = *generation = opIndex / d_capacity;
-        currIndex = *index = opIndex - d_capacity * currGeneration;
+        combinedIndex  = discardDisabledFlag(loadedPushIndex);
+
+        currGeneration = combinedIndex / d_capacity;
+        currIndex      = combinedIndex - d_capacity * currGeneration;
+
+        *generation = currGeneration;
+        *index      = currIndex;
         
-        const int compare = e_INDEX_STATE_EMPTY     | 
-            (currGeneration << e_INDEX_STATE_SHIFT);
-        const int swap    = e_INDEX_STATE_WRITING | 
-            (currGeneration << e_INDEX_STATE_SHIFT);
+        const int compare = encodeElementState(currGeneration, e_EMPTY);
+        const int swap    = encodeElementState(currGeneration, e_WRITING);
         const int was     = d_states[currIndex].testAndSwap(compare, swap);
    
         if (compare == was) {
-            break; // acquired.
+            // We've successfuly changed the state and thus acquired
+            // the index.  Exit the loop.
+
+            break; 
         }    
         
-        const int markedGeneration = was >> e_INDEX_STATE_SHIFT;
-        
-        if (markedGeneration < currGeneration 
-        && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                  0 != currGeneration && 
-                                  d_maxGeneration != markedGeneration)) {
-            const int state = was & e_INDEX_STATE_MASK;
-            
-            switch (state) {
-            case e_INDEX_STATE_READING:
-                bcemt_ThreadUtil::yield();
-                pushIndex = d_pushIndex.loadRelaxed();
-                continue;
-            default:
-                if (savedPushIndex != pushIndex) {
-                    bcemt_ThreadUtil::yield();
-                    savedPushIndex = pushIndex;
-                    pushIndex = d_pushIndex.loadRelaxed();          
-                    continue;
-                }
-                else {
-                    return 1;
-                }
-            }
-        }
-    
-        bsl::size_t next = incrementIndex(opIndex, currIndex) & e_MAX_OP_INDEX;
-        
-        pushIndex = d_pushIndex.testAndSwap(opIndex, next);
-        
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pushIndex & 
-                                                  e_DISABLED_STATE_MASK)) {
-            
-            return -1;
-        }
-    }
-    
-    bsl::size_t next = incrementIndex(opIndex, currIndex);
-    
-    pushIndex = 
-        d_pushIndex.testAndSwap(opIndex, 
-                                incrementIndex(opIndex, currIndex) & 
-                                e_MAX_OP_INDEX);
+        // We've failed to acquire the index. This implies that either:
+        // 1) The previous generation has not been read
+        // 2) This index has already been acquired during this generation.
+        // In either case, we'll need to examine the marked generation.
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                      pushIndex & e_DISABLED_STATE_MASK)) {
-        bsl::size_t disabled = (pushIndex & e_MAX_OP_INDEX);
-        if(opIndex >= disabled) {
-            
-            d_states[currIndex] = 
-                e_INDEX_STATE_EMPTY | (currGeneration << e_INDEX_STATE_SHIFT);
+        const int markedGeneration = decodeGenerationFromElementState(was);
         
-            return -1;
+        if ((markedGeneration < currGeneration) &&
+             BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                  0               != currGeneration && 
+                                  d_maxGeneration != markedGeneration)) {
+            // The previous generation has not been read.  Notice that we also
+            // had to test the generation count had not rolled back to 0.
+           
+            if (e_READING == was & e_ELEMENT_STATE_MASK) {
+                // Another thread is currently reading this cell, yield the
+                // processor, reload the pushIndex, and return to the top of
+                // the loop. 
+
+                bcemt_ThreadUtil::yield();
+                loadedPushIndex = d_pushIndex.loadRelaxed();
+                continue;
+            }
+            else if (savedPushIndex != loadedPushIndex) {
+                // Another thread is not currently reading this cell, allow
+                // this to happen at most one time at a given index. Yield the
+                // processor, reload the pushIndex, and return to the top of
+                // the loop. 
+
+                bcemt_ThreadUtil::yield();
+                savedPushIndex  = loadedPushIndex;
+                loadedPushIndex = d_pushIndex.loadRelaxed();          
+                continue;
+            }
+            return e_QUEUE_FULL;        
+        }
+    
+        // Another thread has already acquired this cell. Attempt to
+        // increment the push index.
+
+        unsigned int next = nextCombinedIndex(combinedIndex);
+        loadedPushIndex  = d_pushIndex.testAndSwap(combinedIndex, next);
+    }
+
+    // We've acquired the cell, attempt to increment the push index.    
+    unsigned int next = nextCombinedIndex(combinedIndex);
+    unsigned int oldPushIndex = d_pushIndex.testAndSwap(combinedIndex, next);
+
+    if (oldPushIndex != loadedPushIndex) {
+        // The attempt to increment the push index failed, test if the queue
+        // has been disabled.
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                          isDisabledFlagSet(loadedPushIndex))) {
+            d_states[currIndex] = encodeElementState(currGeneration, e_EMPTY);
+            return e_DISABLED_QUEUE;
         }
     }
     
-    return 0;
+    return e_SUCCESS;
+}
+
+void bcec_AtomicRingBufferIndexManager::releasePushIndex(
+                                                       unsigned int generation,
+                                                       unsigned int index) 
+{
+    // Mark the pushed cell with the 'FULL' state.
+
+    d_states[index] = encodeElementState(generation, e_FULL);
 }
 
 
-    
-int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
-                                                bsl::size_t *generation, 
-                                                bsl::size_t *index)
-{
-    bsl::size_t savedPopIndex = -1;
-    
-    bsl::size_t opIndex = d_popIndex.loadRelaxed();
-    bsl::size_t currIndex; 
+int bcec_AtomicRingBufferIndexManager::acquirePopIndex(unsigned int *generation,
+                                                       unsigned int *index)
+{   
+    enum Status { e_SUCCESS = 0, e_QUEUE_EMPTY = 1, e_DISABLED_QUEUE = -1 };
+
+    unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
+
+    // We use 'savedPopIndex' to ensure we attempt to acquire an index at
+    // least twice before returning 'e_QUEUE_EMPTY'.  This prevents
+    // pathological contention between reading and writing threads for a queue
+    // of length 1.
+
+    unsigned int savedPopIndex = -1;
+    unsigned int currIndex, currGeneration; 
     
     for(;;) {
-        bsl::size_t currGeneration = *generation = opIndex / d_capacity;
-        currIndex = *index = opIndex - d_capacity * currGeneration;
+        currGeneration = loadedPopIndex / d_capacity;
+        currIndex      = loadedPopIndex - d_capacity * currGeneration;
         
-        const int compare = e_INDEX_STATE_FULL     | 
-            (currGeneration << e_INDEX_STATE_SHIFT);
-        const int swap    = e_INDEX_STATE_READING | 
-            (currGeneration << e_INDEX_STATE_SHIFT);
+        *generation = currGeneration;
+        *index      = currIndex;
+
+        
+        // Attempt to swap this cell's state from e_FULL to 'e_READING'
+        const int compare = encodeElementState(currGeneration, e_FULL);
+        const int swap    = encodeElementState(currGeneration, e_READING);
         const int was     = d_states[currIndex].testAndSwap(compare, swap);
         
         if (compare == was) {
             break;
         }
         
-        const int markedGeneration = was >> e_INDEX_STATE_SHIFT;
-        
+        // We've failed to acquire the index. This implies that:
+        // 1) We are still waiting on poppers from the previous generation
+        // 2) This index is currently waiting on a popper from this generation
+        // 3) The queue is empty
+
+        const int markedGeneration = decodeGenerationFromElementState(was);
+
         if (currGeneration != markedGeneration) {
-            return 1; 
+            // Waiting for popping threads from the previous generation.
+
+            return e_QUEUE_EMPTY;                                     // RETURN
         }
         
-        int state = was & e_INDEX_STATE_MASK;
+        int state = decodeStateFromElementState(was);
         
-        switch (state) {
-        case e_INDEX_STATE_EMPTY:
-            if (savedPopIndex != opIndex) {
+        if (e_EMPTY == state) {
+            if (savedPopIndex != loadedPopIndex) {
+                // Another thread is not currently reading this cell, allow
+                // this to happen at most one time at a given index. Yield the
+                // processor, reload the popIndex, and return to the top of
+                // the loop. 
+
                 bcemt_ThreadUtil::yield();
-                savedPopIndex = opIndex;
-                opIndex = d_popIndex.loadRelaxed();
+                savedPopIndex  = loadedPopIndex;
+                loadedPopIndex = d_popIndex.loadRelaxed();
                 continue;
             }
-            else {
-                return 1;
-            }
-        case e_INDEX_STATE_WRITING:
+            return e_QUEUE_EMPTY;                                     // RETURN
+        }
+        else if (e_WRITING == state) {
+            // Another thread is currently writing to this cell.  Re-load 
+            // the pop index and return to the top of the loop.
+
             bcemt_ThreadUtil::yield();
-            opIndex = d_popIndex.loadRelaxed();
+            loadedPopIndex = d_popIndex.loadRelaxed();
             continue;
         }
+        BSLS_ASSERT(e_FULL != state);
         
-        bsl::size_t next = incrementIndex(opIndex, currIndex);
-        bsl::size_t old  = d_popIndex.testAndSwap(opIndex, next);
-        opIndex = (opIndex == old) 
-            ? next 
-            : old;
+        // Another thread is popping this element, so attempt to increment the
+        // pop index and try again.
+
+        unsigned int next = nextCombinedIndex(loadedPopIndex);
+        loadedPopIndex   = d_popIndex.testAndSwap(loadedPopIndex, next);
     }
+
+    // Attempt to increment the operation index.
     
-    d_popIndex.testAndSwap(opIndex, incrementIndex(opIndex, currIndex));
+    d_popIndex.testAndSwap(loadedPopIndex, 
+                           nextCombinedIndex(loadedPopIndex));
     
     return 0;
 }
 
-void bcec_AtomicRingBufferIndexManager::incrementPopIndexFrom(
-                                                       bsl::size_t index) {
-    bsl::size_t opIndex = d_popIndex.loadRelaxed();
-    bsl::size_t generation = opIndex / capacity();
-    bsl::size_t currentIndex = opIndex - capacity() * generation;
-    if (currentIndex == index) {
-        bsl::size_t nextIndex = incrementIndex(opIndex, currentIndex);
-        d_popIndex.testAndSwap(opIndex, nextIndex);
+void bcec_AtomicRingBufferIndexManager::releasePopIndex(
+                                                    unsigned int currGeneration,
+                                                    unsigned int index)
+{
+    // Mark the popped cell with the subsequent generation and the EMPTY
+    // state.
+    
+    d_states[index] = encodeElementState(nextGeneration(currGeneration),
+                                         e_EMPTY);
+}
+
+
+void bcec_AtomicRingBufferIndexManager::disable() {
+
+    // Loop until we detect the disabled bit in the push index has been unset.
+
+    for (;;) {
+        unsigned int pushIndex = d_pushIndex;
+        
+        if (isDisabledFlagSet(pushIndex)) {
+            // The queue is already disabled.
+
+            return;                                                    // RETURN
+        }
+        
+        if (pushIndex == 
+            d_pushIndex.testAndSwap(pushIndex, 
+                                    pushIndex | e_DISABLED_STATE_MASK)) {
+            // The queue has been successfully disabled.
+
+            break;
+        }
+    }
+}
+    
+void bcec_AtomicRingBufferIndexManager::enable() {
+
+    // Loop until we detect the disabled bit in the push index has been unset.
+
+    for(;;) {
+        unsigned int pushIndex = d_pushIndex;
+        
+        if (!isDisabledFlagSet(pushIndex)) {
+            // The queue is already enabled.
+            
+            return;                                                    // RETURN
+        }
+        
+        if (pushIndex == 
+            d_pushIndex.testAndSwap(pushIndex, 
+                                    pushIndex & ~e_DISABLED_STATE_MASK)) {
+            // The queue has been successfully enabled.
+
+            break;
+        }
     }
 }
 
-void bcec_AtomicRingBufferIndexManager::releasePushIndex(
-                                                    bsl::size_t generation,
-                                                    bsl::size_t index) {
-    d_states[index] = e_INDEX_STATE_FULL | 
-        (generation << e_INDEX_STATE_SHIFT);
+
+void bcec_AtomicRingBufferIndexManager::incrementPopIndexFrom(
+                                                       unsigned int index) {
+    unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
+    unsigned int generation     = loadedPopIndex / d_capacity;
+    unsigned int currentIndex   = loadedPopIndex - d_capacity * generation;
+
+    if (currentIndex == index) {
+        unsigned int nextIndex = nextCombinedIndex(loadedPopIndex);
+        d_popIndex.testAndSwap(loadedPopIndex, nextIndex);
+    }
 }
 
 
 // ACCESSORS
-bsl::size_t bcec_AtomicRingBufferIndexManager::length() const {
-    const bsl::size_t w = d_pushIndex.load() & e_MAX_OP_INDEX;
-    const bsl::size_t r = d_popIndex;
-    return (w > r) 
-        ? w - r 
-        : 0;
+unsigned int bcec_AtomicRingBufferIndexManager::length() const 
+{
+    // Note: 'bcec_AtomicRingBuffer::pushBack' relies on the fact that the
+    // following atomic load has a release barrier.  If this were to change,
+    // 'bcec_AtomicRingBuffer::pusherBack' would need to be modified.
+
+    const bsls::Types::Int64 combinedPushIndex = discardDisabledFlag(
+                                                           d_pushIndex.load());
+    const bsls::Types::Int64 combinedPopIndex  = d_popIndex;
+
+    return bsl::max(combinedPushIndex - combinedPopIndex, 0ll);
 }
 
 bool bcec_AtomicRingBufferIndexManager::isEnabled() const {
-    return (0 == (d_pushIndex.load() & e_DISABLED_STATE_MASK));
+    return !isDisabledFlagSet(d_pushIndex.load());
 }
 
 } // close namespace BloombergLP
