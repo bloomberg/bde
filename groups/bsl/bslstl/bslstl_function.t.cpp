@@ -3,6 +3,7 @@
 #include "bslstl_function.h"
 
 #include <bslmf_issame.h>
+#include <bslmf_removeconst.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -245,6 +246,16 @@ public:
     BSLS_MACROREPEAT(9, VOID_INCREMENT_FUNC)
 };
 
+inline bool operator==(const IntWrapper& a, const IntWrapper& b)
+{
+    return a.value() == b.value();
+}
+
+inline bool operator!=(const IntWrapper& a, const IntWrapper& b)
+{
+    return a.value() != b.value();
+}
+
 class IntWrapperDerived : public IntWrapper
 {
     // Derived class of 'IntWrapper'
@@ -391,6 +402,152 @@ inline bool isNullPtr(const T& p) {
     return isNullPtrImp(p, bsl::integral_constant<bool, IS_POINTER>());
 }
 
+template <class T>
+class ValueGeneratorBase {
+    // Generates and values for test driver
+    typedef typename bsl::remove_const<T>::type MutableT;
+    MutableT d_value;
+
+public:
+    enum { INIT_VALUE = 0x2001 };
+
+    ValueGeneratorBase() : d_value(INIT_VALUE) { }
+
+    T& reset() { return (d_value = MutableT(INIT_VALUE)); }
+    int value() const { return d_value.value(); }
+};
+
+template <class T>
+struct ValueGenerator : ValueGeneratorBase<T> {
+    // Generate and check values for rvalues of type 'T'.
+    // Since rvalue is passed by value, it is not modified by function calls.
+    // The expected value thus is ignored when checking the value.
+    T obj() { return this->reset(); }
+    bool check(int /* exp */) const
+        { return this->value() == ValueGeneratorBase<T>::INIT_VALUE; }
+};    
+
+template <class T>
+struct ValueGenerator<T&> : ValueGeneratorBase<T> {
+    // Specialization for lvalues of type 'T'
+    T& obj() { return this->reset(); }
+    bool check(int exp) const { return this->value() == exp; }
+};
+
+template <class T>
+struct ValueGenerator<T*> : ValueGeneratorBase<T> {
+    // Specialization for pointers to 'T'
+    T* obj() { return &this->reset(); }
+    bool check(int exp) const { return this->value() == exp; }
+};
+
+template <class T>
+struct ValueGenerator<SmartPtr<T> > : ValueGeneratorBase<T> {
+    // Specialization for smart pointers to 'T'
+    SmartPtr<T> obj() { return SmartPtr<T>(&this->reset()); }
+    bool check(int exp) const { return this->value() == exp; }
+};
+
+template <class T, class RET, class ARG>
+void testPtrToMemFunc(const char *prototypeStr)
+    // Test invocation of pointer to member function wrapper.
+    // Tests using non-const member functions 'IntWrapper::increment[0-9]'
+{
+    if (veryVeryVerbose) std::printf("\t%s\n", prototypeStr);
+
+    const ARG a1(0x0002);
+    const ARG a2(0x0004);
+    const ARG a3(0x0008);
+    const ARG a4(0x0010);
+    const ARG a5(0x0020);
+    const ARG a6(0x0040);
+    const ARG a7(0x0080);
+    const ARG a8(0x0100);
+    const ARG a9(0x0200);
+
+    ValueGenerator<T> gen;
+
+    bsl::function<RET(T)> f1(&IntWrapper::increment0);
+    ASSERT(0x2001 == f1(gen.obj()));
+    ASSERT(gen.check(0x2001));
+
+    bsl::function<RET(T, ARG)> f2(&IntWrapper::increment1);
+    ASSERT(0x2003 == f2(gen.obj(), a1));
+    ASSERT(gen.check(0x2003));
+          
+    bsl::function<RET(T, ARG, ARG)> f3(&IntWrapper::increment2);
+    ASSERT(0x2007 == f3(gen.obj(), a1, a2));
+    ASSERT(gen.check(0x2007));
+          
+    bsl::function<RET(T, ARG, ARG, ARG)> f4(&IntWrapper::increment3);
+    ASSERT(0x200f == f4(gen.obj(), a1, a2, a3));
+    ASSERT(gen.check(0x200f));
+          
+    bsl::function<RET(T, ARG, ARG, ARG, ARG)> f5(&IntWrapper::increment4);
+    ASSERT(0x201f == f5(gen.obj(), a1, a2, a3, a4)); 
+    ASSERT(gen.check(0x201f));
+          
+    bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG)> f6(&IntWrapper::increment5);
+    ASSERT(0x203f == f6(gen.obj(), a1, a2, a3, a4, a5));
+    ASSERT(gen.check(0x203f));
+          
+    bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG,
+                      ARG)> f7(&IntWrapper::increment6);
+    ASSERT(0x207f == f7(gen.obj(), a1, a2, a3, a4, a5, a6));
+    ASSERT(gen.check(0x207f));
+          
+    bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG)> f8(&IntWrapper::increment7);
+    ASSERT(0x20ff == f8(gen.obj(), a1, a2, a3, a4, a5, a6, a7));
+    ASSERT(gen.check(0x20ff));
+          
+    bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG, ARG)> f9(&IntWrapper::increment8);
+    ASSERT(0x21ff == f9(gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8));
+    ASSERT(gen.check(0x21ff));
+
+    bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG, ARG, ARG)> f10(&IntWrapper::increment9);
+    ASSERT(0x23ff == f10(gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9));
+    ASSERT(gen.check(0x23ff));
+}
+
+template <class T, class RET, class ARG>
+void testPtrToConstMemFunc(const char *prototypeStr)
+    // Test invocation of pointer to const member function wrapper.
+    // Tests using const member functions 'IntWrapper::add[0-9]'
+{
+    if (veryVeryVerbose) std::printf("\t%s\n", prototypeStr);
+
+    const ARG a1(0x0002);
+    const ARG a2(0x0004);
+    const ARG a3(0x0008);
+    const ARG a4(0x0010);
+    const ARG a5(0x0020);
+    const ARG a6(0x0040);
+    const ARG a7(0x0080);
+    const ARG a8(0x0100);
+    const ARG a9(0x0200);
+
+    ValueGenerator<T> gen;
+
+    bsl::function<RET(T)> f1(&IntWrapper::add0);
+    ASSERT(0x2001 == f1(gen.obj()));
+    ASSERT(gen.check(0x2001));
+
+    bsl::function<RET(T, ARG)> f2(&IntWrapper::add1);
+    ASSERT(0x2003 == f2(gen.obj(), a1));
+    ASSERT(gen.check(0x2001));
+          
+    // No need to test 3 through 9 arguments.  That mechanism has already been
+    // tested via the 'testPtrToMemFunc' function.
+
+    bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG, ARG, ARG)> f10(&IntWrapper::add9);
+    ASSERT(0x23ff == f10(gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9));
+    ASSERT(gen.check(0x2001));
+}
+
 //=============================================================================
 //                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -430,7 +587,7 @@ int main(int argc, char *argv[])
         //
         //: 1 If 'T' is the same as 'FT' or 'FT&', invoking 'f(obj, args...)'
         //:   yields the same results as invoking '(obj.*fp)(args...)'.
-        //: 2 If 'T' is the same as 'T*' or "smart pointer" to 'T', invoking
+        //: 2 If 'T' is the same as 'FT*' or "smart pointer" to 'FT', invoking
         //:   'f(obj, args...)'  yields the same results as invoking
         //:   '((*obj).*fp)(args...)'.
         //: 3 Concerns 1 and 2 also apply if 'T' is an rvalue of, reference to,
@@ -473,32 +630,26 @@ int main(int argc, char *argv[])
         //:   both types 'IntWrapper*', and 'SmartPtr<IntWrapper>'.  Verify
         //:   that the return and side-effects from the invocations matches
         //:   the expected results.  
-        //: 4 For concern 3, create a class, 'IntWrapperDerived' derived from
-        //:   'IntWrapper' and repeat steps 2 and 3 for at least a few member
-        //:   functions using pointer to member function of
-        //:   'IntWrapperDerived' instead of pointer to member function of
-        //:   ''IntWrapper'.  It is not necessary to try every member function
-        //:   to verify that concern 3 is satisfied.
-        //: 5 For concern 4, create and invoke 'bsl::function's wrapping
+        //: 4 For concerns 6 & 7, repeat steps 2 and 3 except using a class
+        //:   'ConvertibleToInt' instead of 'int' for the arguments in 'ARGS'
+        //:   and using 'IntWrapper' instead of 'RET'.
+        //: 5 For concern 4, create and invoke 'bsl::function's that wrap
         //:   pointers to a few of the 'IntWrapper' member functions 'sum0' to
         //:   'sum9', using 'T' template parameters of types 'IntWrapper',
         //:   'IntWrapper&', 'IntWrapper*', and 'SmartPtr<IntWrapper>', as
-        //:   well as 'const' and 'const IntWrapperDerived' versions of the
-        //:   preceding.  Verify that the return value from the invocations
-        //:   matches the expected results.  (There should be no
-        //:   side-effects.)  It is not necessary to try every member function
-        //:   to verify that concern 4 is satisfied.
-        //: 6 For concern 6, repeat steps 2 and 3 except using a class
-        //:   'ConvertibleToInt' instead of 'int' for the arguments in 'ARGS'.
-        //: 7 For concern 7, repeat steps 2 and 3 for just a few argument
-        //:   combinations except using 'IntWrapper' for 'RET'.  It is not
-        //:   necessary to try every member function to verify that concern 7
-        //:   is satisfied.
-        //: 8 For concern 8, repeat steps 2 and 3 except using 'void' for
-        //:   'RET', thus discarding the return value.  Repeat steps 2 and 3
-        //:   again, except using 'void' for 'RET' and using
-        //:   'voidIncrement[0-9]' instead of 'increment[0-9]', showing that a
-        //:   'void' function can be invoked.
+        //:   well as 'const' and versions of the preceding.  Verify that the
+        //:   return value from the invocations matches the expected results.
+        //:   (There should be no side-effects.)  It is not necessary to try
+        //:   every member function to verify that concern 4 is satisfied.
+        //: 6 For concern 3, create a class, 'IntWrapperDerived' derived from
+        //:   'IntWrapper' and repeat step 5 using 'IntWrapperDerived' instead
+        //:   of 'IntWrapper' in the 'bsl::function' prototype (but still
+        //:   wrapping a pointer to member function of 'IntWrapper'.
+        //: 7 For concern 8, create a 'bsl::function' with prototype
+        //:   'void(IntWrapper, int)' and use it to invoke
+        //:   'IntWrapper::increment1', thus discarding the return value.
+        //:   Repeat this test but wrapping 'IntWrapper::voidIncrement1',
+        //:   showing that a 'voide' function can be invoked.
         //
         // Testing:
         //      RET operator()(ARGS...) const; // For pointer to member func
@@ -507,701 +658,98 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPOINTER TO MEMBER FUNCTION INVOCATION"
                             "\n=====================================\n");
 
-        IntWrapper iw(0x3001);  const IntWrapper &IW = iw;
-        IntWrapperDerived iwd(0x3001);  const IntWrapperDerived &IWD = iwd;
+        if (veryVerbose) std::printf("Plan step 2\n");
+        testPtrToMemFunc<IntWrapper, int, int>("int(IntWrapper, int...)");
+        testPtrToMemFunc<IntWrapper&, int, int>("int(IntWrapper&, int...)");
 
-        if (veryVerbose) std::printf("non-const member functions\n");
+        if (veryVerbose) std::printf("Plan step 3\n");
+        testPtrToMemFunc<IntWrapper*, int, int>("int(IntWrapper*, int...)");
+        testPtrToMemFunc<SmartPtr<IntWrapper>, int, int>(
+            "int(SmartPtr<IntWrapper>, int...)");
 
-        // Plan step 2
-        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper val\n");
-        {
-            // Note: because the 'IntWrapper' argument is pass-by-value, a
-            // temp copy is passed to the increment member function, leaving
-            // the original value of 'iw' unchanged.
+        if (veryVerbose) std::printf("Plan step 4\n");
+        testPtrToMemFunc<IntWrapper, IntWrapper, ConvertibleToInt>(
+            "IntWrapper(IntWrapper, ConvertibleToInt...");
+        testPtrToMemFunc<IntWrapper&, IntWrapper, ConvertibleToInt>(
+            "IntWrapper(IntWrapper&, ConvertibleToInt...");
+        testPtrToMemFunc<IntWrapper*, IntWrapper, ConvertibleToInt>(
+            "IntWrapper(IntWrapper*, ConvertibleToInt...");
+        testPtrToMemFunc<SmartPtr<IntWrapper>, IntWrapper, ConvertibleToInt>(
+            "IntWrapper(SmartPtr<IntWrapper>, ConvertibleToInt...");
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper)> f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(IW));
-            ASSERT(0x2001 == IW.value());
+        if (veryVerbose) std::printf("Plan step 5\n");
+        testPtrToConstMemFunc<IntWrapper, int, int>(
+            "int(IntWrapper, int...)");
+        testPtrToConstMemFunc<IntWrapper&, int, int>(
+            "int(IntWrapper&, int...)");
+        testPtrToConstMemFunc<IntWrapper*, int, int>(
+            "int(IntWrapper*, int...)");
+        testPtrToConstMemFunc<SmartPtr<IntWrapper>, int, int>(
+            "int(SmartPtr<IntWrapper>, int...)");
+        testPtrToConstMemFunc<const IntWrapper, int, int>(
+            "int(const IntWrapper, int...)");
+        testPtrToConstMemFunc<const IntWrapper&, int, int>(
+            "int(const IntWrapper&, int...)");
+        testPtrToConstMemFunc<const IntWrapper*, int, int>(
+            "int(const IntWrapper*, int...)");
+        testPtrToConstMemFunc<SmartPtr<const IntWrapper>, int, int>(
+            "int(SmartPtr<const IntWrapper>, int...)");
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(IW, 2));   // Modify a temp copy of 'iw'
-            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int,
-                              int)> f3(&IntWrapper::increment2);
-            ASSERT(0x2007 == f3(IW, 2, 4)); // Modify a temp copy of 'iw'
-            ASSERT(0x2001 == IW.value());   // Original 'iw' unmodified
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int, int,
-                              int)> f4(&IntWrapper::increment3);
-            ASSERT(0x200f == f4(IW, 2, 4, 8)); // Modify a temp copy of 'iw'
-            ASSERT(0x2001 == IW.value());      // Original 'iw' unmodified
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int, int, int,
-                              int)> f5(&IntWrapper::increment4);
-            ASSERT(0x201f == f5(IW, 2, 4, 8, 0x10)); 
-            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int, int, int, int,
-                              int)> f6(&IntWrapper::increment5);
-            ASSERT(0x203f == f6(IW, 2, 4, 8, 0x10, 0x20));
-            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int, int, int, int, int,
-                              int)> f7(&IntWrapper::increment6);
-            ASSERT(0x207f == f7(IW, 2, 4, 8, 0x10, 0x20, 0x40));
-            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int, int, int, int, int, int,
-                              int)> f8(&IntWrapper::increment7);
-            ASSERT(0x20ff == f8(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int, int, int, int, int, int,
-                              int, int)> f9(&IntWrapper::increment8);
-            ASSERT(0x21ff == f9(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
+        if (veryVerbose) std::printf("Plan step 6\n");
+        testPtrToConstMemFunc<IntWrapperDerived, int, int>(
+            "int(IntWrapperDerived, int...)");
+        testPtrToConstMemFunc<IntWrapperDerived&, int, int>(
+            "int(IntWrapperDerived&, int...)");
+        testPtrToConstMemFunc<IntWrapperDerived*, int, int>(
+            "int(IntWrapperDerived*, int...)");
+        testPtrToConstMemFunc<SmartPtr<IntWrapperDerived>, int, int>(
+            "int(SmartPtr<IntWrapperDerived>, int...)");
+        testPtrToConstMemFunc<const IntWrapperDerived, int, int>(
+            "int(const IntWrapperDerived, int...)");
+        testPtrToConstMemFunc<const IntWrapperDerived&, int, int>(
+            "int(const IntWrapperDerived&, int...)");
+        testPtrToConstMemFunc<const IntWrapperDerived*, int, int>(
+            "int(const IntWrapperDerived*, int...)");
+        testPtrToConstMemFunc<SmartPtr<const IntWrapperDerived>, int, int>(
+            "int(SmartPtr<const IntWrapperDerived>, int...)");
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x2001 == IW.value());  // Original 'iw' unmodified
-        }
+        if (veryVerbose) std::printf("Plan step 7\n");
+        IntWrapper iw(0x3001);
 
-        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ref\n");
-        {
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&)> f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(iw));
-            ASSERT(0x2001 == IW.value());
+        bsl::function<void(IntWrapper, int)> ft(&IntWrapper::increment1);
+        ft(iw, 1);                     // No return type to test
+        ASSERT(0x3001 == iw.value());  // Passed by value. Original unchanged. 
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(iw, 2));
-            ASSERT(0x2003 == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int,
-                              int)> f3(&IntWrapper::increment2);
-            ASSERT(0x2007 == f3(iw, 2, 4));
-            ASSERT(0x2007 == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int, int,
-                              int)> f4(&IntWrapper::increment3);
-            ASSERT(0x200f == f4(iw, 2, 4, 8));
-            ASSERT(0x200f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int, int, int,
-                              int)> f5(&IntWrapper::increment4);
-            ASSERT(0x201f == f5(iw, 2, 4, 8, 0x10));
-            ASSERT(0x201f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int, int, int, int,
-                              int)> f6(&IntWrapper::increment5);
-            ASSERT(0x203f == f6(iw, 2, 4, 8, 0x10, 0x20));
-            ASSERT(0x203f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int, int, int, int, int,
-                              int)> f7(&IntWrapper::increment6);
-            ASSERT(0x207f == f7(iw, 2, 4, 8, 0x10, 0x20, 0x40));
-            ASSERT(0x207f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
-                              int)> f8(&IntWrapper::increment7);
-            ASSERT(0x20ff == f8(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-            ASSERT(0x20ff == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
-                              int, int)> f9(&IntWrapper::increment8);
-            ASSERT(0x21ff == f9(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-            ASSERT(0x21ff == IW.value());
+        bsl::function<void(IntWrapper&, int)> ftr(&IntWrapper::increment1);
+        ftr(iw, 2);                    // No return type to test
+        ASSERT(0x3003 == iw.value());
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x23ff == IW.value());
-        }
+        bsl::function<void(IntWrapper*, int)> ftp(&IntWrapper::increment1);
+        ftp(&iw, 4);                   // No return type to test
+        ASSERT(0x3007 == iw.value());
 
-        // Plan step 3
-        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ptr\n");
-        {
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*)> f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(&iw));
-            ASSERT(0x2001 == IW.value());
+        bsl::function<void(SmartPtr<IntWrapper>,
+                           int)> ftsp(&IntWrapper::increment1);
+        ftsp(&iw, 8);                  // No return type to test
+        ASSERT(0x300f == iw.value());
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(&iw, 2));
-            ASSERT(0x2003 == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int,
-                              int)> f3(&IntWrapper::increment2);
-            ASSERT(0x2007 == f3(&iw, 2, 4));
-            ASSERT(0x2007 == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int, int,
-                              int)> f4(&IntWrapper::increment3);
-            ASSERT(0x200f == f4(&iw, 2, 4, 8));
-            ASSERT(0x200f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int, int, int,
-                              int)> f5(&IntWrapper::increment4);
-            ASSERT(0x201f == f5(&iw, 2, 4, 8, 0x10));
-            ASSERT(0x201f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int, int, int, int,
-                              int)> f6(&IntWrapper::increment5);
-            ASSERT(0x203f == f6(&iw, 2, 4, 8, 0x10, 0x20));
-            ASSERT(0x203f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int, int, int, int, int,
-                              int)> f7(&IntWrapper::increment6);
-            ASSERT(0x207f == f7(&iw, 2, 4, 8, 0x10, 0x20, 0x40));
-            ASSERT(0x207f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
-                              int)> f8(&IntWrapper::increment7);
-            ASSERT(0x20ff == f8(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-            ASSERT(0x20ff == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
-                              int, int)> f9(&IntWrapper::increment8);
-            ASSERT(0x21ff == f9(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-            ASSERT(0x21ff == IW.value());
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x23ff == IW.value());
-        }
+        bsl::function<void(IntWrapper, int)> vt(&IntWrapper::voidIncrement1);
+        vt(iw, 0x10);                  // No return type to test
+        ASSERT(0x300f == iw.value());  // Passed by value. Original unchanged. 
 
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via SmartPtr<IntWrapper>\n");
-        {
-            SmartPtr<IntWrapper> iw_p(&iw);
+        bsl::function<void(IntWrapper&, int)> vtr(&IntWrapper::voidIncrement1);
+        vtr(iw, 0x20);                 // No return type to test
+        ASSERT(0x302f == iw.value());
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>)>
-                f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(iw_p));
-            ASSERT(0x2001 == IW.value());
+        bsl::function<void(IntWrapper*, int)> vtp(&IntWrapper::voidIncrement1);
+        vtp(&iw, 0x40);                // No return type to test
+        ASSERT(0x306f == iw.value());
 
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>,
-                              int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(iw_p, 2));
-            ASSERT(0x2003 == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int,
-                              int)> f3(&IntWrapper::increment2);
-            ASSERT(0x2007 == f3(iw_p, 2, 4));
-            ASSERT(0x2007 == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int, int,
-                              int)> f4(&IntWrapper::increment3);
-            ASSERT(0x200f == f4(iw_p, 2, 4, 8));
-            ASSERT(0x200f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int,
-                              int)> f5(&IntWrapper::increment4);
-            ASSERT(0x201f == f5(iw_p, 2, 4, 8, 0x10));
-            ASSERT(0x201f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int)> f6(&IntWrapper::increment5);
-            ASSERT(0x203f == f6(iw_p, 2, 4, 8, 0x10, 0x20));
-            ASSERT(0x203f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int)> f7(&IntWrapper::increment6);
-            ASSERT(0x207f == f7(iw_p, 2, 4, 8, 0x10, 0x20, 0x40));
-            ASSERT(0x207f == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int, int)> f8(&IntWrapper::increment7);
-            ASSERT(0x20ff == f8(iw_p, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-            ASSERT(0x20ff == IW.value());
-          
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int, int, int)> f9(&IntWrapper::increment8);
-            ASSERT(0x21ff == f9(iw_p, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-            ASSERT(0x21ff == IW.value());
-
-            iw = IntWrapper(0x2001);
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int, int, int,
-                              int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(iw_p, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x23ff == IW.value());
-        }
-
-        // Plan step 4
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via IntWrapperDerived val\n");
-        {
-            // Note: because the 'IntWrapperDerived' argument is
-            // pass-by-value, a temp copy is passed to the increment member
-            // function, leaving the original value of 'iwd' unchanged.
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived)> f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(IWD));
-            ASSERT(0x2001 == IWD.value());
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived,
-                              int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(IWD, 2));   // Modify a temp copy of 'iwd'
-            ASSERT(0x2001 == IWD.value());  // Original 'iwd' unmodified
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(IWD, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x2001 == IWD.value());  // Original 'iwd' unmodified
-        }
-        
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via IntWrapperDerived ref\n");
-        {
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived&)> f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(iwd));
-            ASSERT(0x2001 == IWD.value());
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived&,
-                              int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(iwd, 2));
-            ASSERT(0x2003 == IWD.value());
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived&, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(iwd, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x23ff == IWD.value());
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via IntWrapperDerived ptr\n");
-        {
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived*)> f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(&iwd));
-            ASSERT(0x2001 == IWD.value());
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived*,
-                              int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(&iwd, 2));
-            ASSERT(0x2003 == IWD.value());
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived*, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(&iwd, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x23ff == IWD.value());
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via SmartPtr<IntWrapperDerived>\n");
-        {
-            SmartPtr<IntWrapperDerived> iwd_p(&iwd);
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(SmartPtr<IntWrapperDerived>)>
-                f1(&IntWrapper::increment0);
-            ASSERT(0x2001 == f1(iwd_p));
-            ASSERT(0x2001 == IWD.value());
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(SmartPtr<IntWrapperDerived>,
-                              int)> f2(&IntWrapper::increment1);
-            ASSERT(0x2003 == f2(iwd_p, 2));
-            ASSERT(0x2003 == IWD.value());
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(SmartPtr<IntWrapperDerived>, int, int, int, int,
-                              int, int, int, int,
-                              int)> f10(&IntWrapper::increment9);
-            ASSERT(0x23ff == f10(iwd_p, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-            ASSERT(0x23ff == IWD.value());
-        }
-
-        // Plan step 5
-        if (veryVerbose) std::printf("const member functions\n");
-
-        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper val\n");
-        {
-            iw = IntWrapper(0x3001);
-
-            bsl::function<int(IntWrapper)> f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(IW));
-
-            bsl::function<int(IntWrapper, int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(IW, 2));
-          
-            bsl::function<int(IntWrapper, int,
-                              int)> f3(&IntWrapper::add2);
-            ASSERT(0x3007 == f3(IW, 2, 4));
-          
-            bsl::function<int(IntWrapper, int, int,
-                              int)> f4(&IntWrapper::add3);
-            ASSERT(0x300f == f4(IW, 2, 4, 8));
-          
-            bsl::function<int(IntWrapper, int, int, int,
-                              int)> f5(&IntWrapper::add4);
-            ASSERT(0x301f == f5(IW, 2, 4, 8, 0x10));
-          
-            bsl::function<int(IntWrapper, int, int, int, int,
-                              int)> f6(&IntWrapper::add5);
-            ASSERT(0x303f == f6(IW, 2, 4, 8, 0x10, 0x20));
-          
-            bsl::function<int(IntWrapper, int, int, int, int, int,
-                              int)> f7(&IntWrapper::add6);
-            ASSERT(0x307f == f7(IW, 2, 4, 8, 0x10, 0x20, 0x40));
-          
-            bsl::function<int(IntWrapper, int, int, int, int, int, int,
-                              int)> f8(&IntWrapper::add7);
-            ASSERT(0x30ff == f8(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-          
-            bsl::function<int(IntWrapper, int, int, int, int, int, int,
-                              int, int)> f9(&IntWrapper::add8);
-            ASSERT(0x31ff == f9(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-
-            bsl::function<int(IntWrapper, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ref\n");
-        {
-            iw = IntWrapper(0x3001);
-
-            bsl::function<int(IntWrapper&)> f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(iw));
-
-            bsl::function<int(IntWrapper&, int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(iw, 2));
-          
-            bsl::function<int(IntWrapper&, int,
-                              int)> f3(&IntWrapper::add2);
-            ASSERT(0x3007 == f3(iw, 2, 4));
-          
-            bsl::function<int(IntWrapper&, int, int,
-                              int)> f4(&IntWrapper::add3);
-            ASSERT(0x300f == f4(iw, 2, 4, 8));
-          
-            bsl::function<int(IntWrapper&, int, int, int,
-                              int)> f5(&IntWrapper::add4);
-            ASSERT(0x301f == f5(iw, 2, 4, 8, 0x10));
-          
-            bsl::function<int(IntWrapper&, int, int, int, int,
-                              int)> f6(&IntWrapper::add5);
-            ASSERT(0x303f == f6(iw, 2, 4, 8, 0x10, 0x20));
-          
-            bsl::function<int(IntWrapper&, int, int, int, int, int,
-                              int)> f7(&IntWrapper::add6);
-            ASSERT(0x307f == f7(iw, 2, 4, 8, 0x10, 0x20, 0x40));
-          
-            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
-                              int)> f8(&IntWrapper::add7);
-            ASSERT(0x30ff == f8(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-          
-            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
-                              int, int)> f9(&IntWrapper::add8);
-            ASSERT(0x31ff == f9(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-
-            bsl::function<int(IntWrapper&, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper ptr\n");
-        {
-            iw = IntWrapper(0x3001);
-
-            bsl::function<int(IntWrapper*)> f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(&iw));
-
-            bsl::function<int(IntWrapper*, int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(&iw, 2));
-          
-            bsl::function<int(IntWrapper*, int,
-                              int)> f3(&IntWrapper::add2);
-            ASSERT(0x3007 == f3(&iw, 2, 4));
-          
-            bsl::function<int(IntWrapper*, int, int,
-                              int)> f4(&IntWrapper::add3);
-            ASSERT(0x300f == f4(&iw, 2, 4, 8));
-          
-            bsl::function<int(IntWrapper*, int, int, int,
-                              int)> f5(&IntWrapper::add4);
-            ASSERT(0x301f == f5(&iw, 2, 4, 8, 0x10));
-          
-            bsl::function<int(IntWrapper*, int, int, int, int,
-                              int)> f6(&IntWrapper::add5);
-            ASSERT(0x303f == f6(&iw, 2, 4, 8, 0x10, 0x20));
-          
-            bsl::function<int(IntWrapper*, int, int, int, int, int,
-                              int)> f7(&IntWrapper::add6);
-            ASSERT(0x307f == f7(&iw, 2, 4, 8, 0x10, 0x20, 0x40));
-          
-            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
-                              int)> f8(&IntWrapper::add7);
-            ASSERT(0x30ff == f8(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-          
-            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
-                              int, int)> f9(&IntWrapper::add8);
-            ASSERT(0x31ff == f9(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-
-            bsl::function<int(IntWrapper*, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(&iw, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via SmartPtr<IntWrapper>\n");
-        {
-            iw = IntWrapper(0x3001);
-            const SmartPtr<IntWrapper> IW_P(&iw);
-
-            bsl::function<int(SmartPtr<IntWrapper>)>
-                f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(IW_P));
-
-            bsl::function<int(SmartPtr<IntWrapper>,
-                              int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(IW_P, 2));
-          
-            bsl::function<int(SmartPtr<IntWrapper>, int,
-                              int)> f3(&IntWrapper::add2);
-            ASSERT(0x3007 == f3(IW_P, 2, 4));
-          
-            bsl::function<int(SmartPtr<IntWrapper>, int, int,
-                              int)> f4(&IntWrapper::add3);
-            ASSERT(0x300f == f4(IW_P, 2, 4, 8));
-          
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int,
-                              int)> f5(&IntWrapper::add4);
-            ASSERT(0x301f == f5(IW_P, 2, 4, 8, 0x10));
-          
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int)> f6(&IntWrapper::add5);
-            ASSERT(0x303f == f6(IW_P, 2, 4, 8, 0x10, 0x20));
-          
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int)> f7(&IntWrapper::add6);
-            ASSERT(0x307f == f7(IW_P, 2, 4, 8, 0x10, 0x20, 0x40));
-          
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int, int)> f8(&IntWrapper::add7);
-            ASSERT(0x30ff == f8(IW_P, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
-          
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int, int, int)> f9(&IntWrapper::add8);
-            ASSERT(0x31ff == f9(IW_P, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
-
-            bsl::function<int(SmartPtr<IntWrapper>, int, int, int, int,
-                              int, int, int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(IW_P, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf("\tInvoked via IntWrapper val\n");
-        {
-            iw = IntWrapper(0x3001);
-
-            bsl::function<int(const IntWrapper)> f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(IW));
-
-            bsl::function<int(const IntWrapper, int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(IW, 2));
-          
-            bsl::function<int(const IntWrapper, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via const IntWrapper ref\n");
-        {
-            bsl::function<int(const IntWrapper&)> f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(IW));
-
-            bsl::function<int(const IntWrapper&, int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(IW, 2));
-          
-            bsl::function<int(const IntWrapper&, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via const IntWrapper ptr\n");
-        {
-            bsl::function<int(const IntWrapper*)> f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(&IW));
-
-            bsl::function<int(const IntWrapper*, int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(&IW, 2));
-          
-            bsl::function<int(const IntWrapper*, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(&IW, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via SmartPtr<const IntWrapper>\n");
-        {
-            iw = IntWrapper(0x3001);
-            const SmartPtr<const IntWrapper> IW_P(&IW);
-
-            bsl::function<int(SmartPtr<const IntWrapper>)>
-                f1(&IntWrapper::add0);
-            ASSERT(0x3001 == f1(IW_P));
-
-            bsl::function<int(SmartPtr<const IntWrapper>,
-                              int)> f2(&IntWrapper::add1);
-            ASSERT(0x3003 == f2(IW_P, 2));
-          
-            bsl::function<int(SmartPtr<const IntWrapper>, int, int, int, int,
-                              int, int, int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x33ff == f10(IW_P, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via IntWrapperDerived val\n");
-        {
-            // Note: because the 'IntWrapperDerived' argument is
-            // pass-by-value, a temp copy is passed to the increment member
-            // function, leaving the original value of 'iwd' unchanged.
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(const IntWrapperDerived)> f1(&IntWrapper::add0);
-            ASSERT(0x2001 == f1(IWD));
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived,
-                              int)> f2(&IntWrapper::add1);
-            ASSERT(0x2003 == f2(IWD, 2));   // Modify a temp copy of 'iwd'
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x23ff == f10(IWD, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-        
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via IntWrapperDerived ref\n");
-        {
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(const IntWrapperDerived&)> f1(&IntWrapper::add0);
-            ASSERT(0x2001 == f1(IWD));
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived&,
-                              int)> f2(&IntWrapper::add1);
-            ASSERT(0x2003 == f2(iwd, 2));
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived&, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x23ff == f10(iwd, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via IntWrapperDerived ptr\n");
-        {
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(const IntWrapperDerived*)> f1(&IntWrapper::add0);
-            ASSERT(0x2001 == f1(&IWD));
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived*,
-                              int)> f2(&IntWrapper::add1);
-            ASSERT(0x2003 == f2(&iwd, 2));
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(IntWrapperDerived*, int, int, int, int, int, int,
-                              int, int, int)> f10(&IntWrapper::add9);
-            ASSERT(0x23ff == f10(&iwd, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
-
-        if (veryVeryVerbose) std::printf(
-            "\tInvoked via SmartPtr<IntWrapperDerived>\n");
-        {
-            SmartPtr<IntWrapperDerived> iwd_p(&iwd);
-            SmartPtr<const IntWrapperDerived> iwd_P(&IWD);
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(SmartPtr<const IntWrapperDerived>)>
-                f1(&IntWrapper::add0);
-            ASSERT(0x2001 == f1(iwd_P));
-
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(SmartPtr<IntWrapperDerived>,
-                              int)> f2(&IntWrapper::add1);
-            ASSERT(0x2003 == f2(iwd_p, 2));
-          
-            iwd = IntWrapperDerived(0x2001);
-            bsl::function<int(SmartPtr<IntWrapperDerived>, int, int, int, int,
-                              int, int, int, int,
-                              int)> f10(&IntWrapper::add9);
-            ASSERT(0x23ff == f10(iwd_p, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
-                                 0x200));
-        }
+        bsl::function<void(SmartPtr<IntWrapper>,
+                           int)> vtsp(&IntWrapper::voidIncrement1);
+        vtsp(&iw, 0x80);               // No return type to test
+        ASSERT(0x30ef == iw.value());
 
       } break;
 
