@@ -9,3 +9,4 @@ logs/
 coverage/
 *.xcodeproj/
 .DS_store
+*.pyc

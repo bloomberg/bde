@@ -1,0 +1,13 @@
+bdlma_autoreleaser
+bdlma_blocklist
+bdlma_bufferimputil
+bdlma_buffermanager
+bdlma_bufferedsequentialallocator
+bdlma_bufferedsequentialpool
+bdlma_infrequentdeleteblocklist
+bdlma_managedallocator
+bdlma_multipoolallocator
+bdlma_multipool
+bdlma_pool
+bdlma_sequentialallocator
+bdlma_sequentialpool
