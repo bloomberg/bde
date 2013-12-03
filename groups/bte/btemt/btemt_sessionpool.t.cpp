@@ -613,8 +613,8 @@ namespace BTEMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS {
 
 using namespace BTEMT_SESSION_POOL_TEST_NAMESPACE;
 
-bcemt_Mutex        mapMutex;
-bsl::map<int, btemt_AsyncChannel *> sourceIdToChannelMap;
+bcemt_Mutex                                           mapMutex;
+bsl::map<int, btemt_AsyncChannel *>                   sourceIdToChannelMap;
 typedef bsl::map<int, btemt_AsyncChannel *>::iterator MapIter;
 
 void sessionStateCallbackUsingChannelMapAndCounter(
@@ -648,7 +648,7 @@ void sessionStateCallbackUsingChannelMapAndCounter(
     }
 }
 
-const int NUM_BYTES = 1024 * 1024 * 10;
+const int NUM_BYTES = 1024 * 1024;
 const int NT = 5;
 
 bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *> clientSockets(NT);
@@ -730,7 +730,7 @@ void *listenFunction(void *args)
     bteso_StreamSocket<bteso_IPv4Address> *acceptSocket;
     ASSERT(!serverSocket->accept(&acceptSocket));
     ASSERT(0 ==
-            acceptSocket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE));
+            acceptSocket->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE));
 
     bsl::vector<char> buffer(NUM_BYTES);
 
@@ -766,7 +766,9 @@ void *listenFunction(void *args)
 
 bsls::AtomicInt numUpConnections(0);
 
-void runTestFunction(btemt_SessionPool                       *pool,
+void runTestFunction(bcemt_ThreadUtil::Handle                *connectThreads,
+                     bcemt_ThreadUtil::Handle                *listenThreads,
+                     btemt_SessionPool                       *pool,
                      btemt_SessionPool::SessionStateCallback *sessionStateCb,
                      TestFactory                             *sessionFactory,
                      const bcema_Blob&                        dataBlob)
@@ -780,9 +782,8 @@ void runTestFunction(btemt_SessionPool                       *pool,
                                  sessionFactory));
     }
 
-    bcemt_ThreadUtil::Handle connectThreads[NT];
-    ConnectData              connectData[NT];
-    const int                SIZE = 1024 * 1024; // 1 MB
+    ConnectData connectData[NT];
+    const int   SIZE = 1024 * 1024; // 1 MB
 
     for (int i = 0; i < NT; ++i) {
         connectData[i].d_index     = i;
@@ -803,8 +804,7 @@ void runTestFunction(btemt_SessionPool                       *pool,
 
     numUpConnections = 0;
 
-    bcemt_ThreadUtil::Handle listenThreads[NT];
-    ListenData               listenData[NT];
+    ListenData listenData[NT];
 
     for (int i = 0; i < NT; ++i) {
         listenData[i].d_index              = i;
@@ -1531,7 +1531,15 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.start());
 
-        runTestFunction(&mX, &sessionStateCb, &sessionFactory, dataBlob);
+        bcemt_ThreadUtil::Handle connectThreads[NT];
+        bcemt_ThreadUtil::Handle listenThreads[NT];
+
+        runTestFunction(connectThreads,
+                        listenThreads,
+                        &mX,
+                        &sessionStateCb,
+                        &sessionFactory,
+                        dataBlob);
 
         ASSERT(0 != mX.numSessions());
 
@@ -1541,7 +1549,12 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.start());
 
-        runTestFunction(&mX, &sessionStateCb, &sessionFactory, dataBlob);
+        runTestFunction(connectThreads,
+                        listenThreads,
+                        &mX,
+                        &sessionStateCb,
+                        &sessionFactory,
+                        dataBlob);
 
         ASSERT(0 != mX.numSessions());
 
@@ -1969,7 +1982,18 @@ int main(int argc, char *argv[])
         bcema_Blob                    dataBlob(&factory);
         dataBlob.setLength(NUM_BYTES);
 
-        runTestFunction(&mX, &sessionStateCb, &sessionFactory, dataBlob);
+        bcemt_ThreadUtil::Handle connectThreads[NT];
+        bcemt_ThreadUtil::Handle listenThreads[NT];
+
+        memset(connectThreads, 0, sizeof(connectThreads));
+        memset(listenThreads, 0, sizeof(listenThreads));
+
+        runTestFunction(connectThreads,
+                        listenThreads,
+                        &mX,
+                        &sessionStateCb,
+                        &sessionFactory,
+                        dataBlob);
 
         ASSERT(0 != mX.numSessions());
 
@@ -1977,6 +2001,11 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         ASSERT(0 == mX.numSessions());
+
+        for (int i = 0; i < NT; ++i) {
+            bcemt_ThreadUtil::join(connectThreads[i]);
+            bcemt_ThreadUtil::join(listenThreads[i]);
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
