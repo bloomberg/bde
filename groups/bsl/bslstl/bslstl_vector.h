@@ -1985,7 +1985,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position)
 {
-    BSLS_ASSERT_SAFE(size() > position);
+    BSLS_ASSERT_SAFE(this->size() > position);
 
     return d_dataBegin[position];
 }
@@ -2127,7 +2127,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position) const
 {
-    BSLS_ASSERT_SAFE(size() > position);
+    BSLS_ASSERT_SAFE(this->size() > position);
 
     return d_dataBegin[position];
 }
