@@ -70,7 +70,7 @@ class bcec_AtomicRingBufferIndexManager {
     // This class implements a circular buffer of atomic state variables.
     // These are intended to synchronize access to another (non-atomic) 
     // indexed data structure so that the other data structure can be used
-    // as a thread-enabled producer/consumer queue.
+    // as a thread-enabled fixed-size queue.
 
     // PRIVATE CONSTANTS
     enum {    
@@ -81,14 +81,16 @@ class bcec_AtomicRingBufferIndexManager {
     // DATA
     bsls::AtomicInt     d_pushIndex;
                            // index in circular buffer in which the next
-                           // element will be pushed
+                           // element will be pushed (see implementation note
+                           // in .cpp)
         
     const char          d_pushIndexPad[e_PADDING]; 
                            // padding to prevent false sharing
 
     bsls::AtomicInt     d_popIndex;
                            // index in the circular buffer from which the next
-                           // element will be popped 
+                           // element will be popped  (see implementation note
+                           // in .cpp) 
 
     const char          d_popIndexPad[e_PADDING];
                            // padding to prevent false sharing
@@ -109,12 +111,12 @@ class bcec_AtomicRingBufferIndexManager {
                            // note in the .cpp file for more detail)
 
     bsls::AtomicInt    *d_states; 
-                           // array of index state variables 
+                           // array of index state variables
 
     bslma::Allocator   *d_allocator_p;
                            // allocator, held not owned
 
-
+  private:
     // NOT IMPLEMENTED
     bcec_AtomicRingBufferIndexManager(
                                   const bcec_AtomicRingBufferIndexManager&);
@@ -128,14 +130,12 @@ class bcec_AtomicRingBufferIndexManager {
         // Return the combined index value subsequent to the specified
         // 'combinedIndex'.  Note that a "combined index" is the combination
         // of generation count and element index held in 'd_pushIndex' and
-        // 'd_popIndex', and is computed as: 
+        // 'd_popIndex', and is defined as:
         // ('generationCount * d_capacity) + index'.
         // See the implementation note in the .cpp file for more detail.
 
     unsigned int nextGeneration(unsigned int generation) const;
-        // Return the generation count subsequent to ths specified
-        // 'generation'.
-
+        // Return the generation subsequent to ths specified 'generation'.
     
   public:
 
@@ -155,88 +155,88 @@ class bcec_AtomicRingBufferIndexManager {
 
     // CREATORS
     explicit
-    bcec_AtomicRingBufferIndexManager(unsigned int       capacity,
+    bcec_AtomicRingBufferIndexManager(unsigned int      capacity,
                                       bslma::Allocator *basicAllocator = 0);
-       // Create an index manager for a circular buffer having the specified
-       // maximum 'capacity'.  Optionally specify a 'basicAllocator' used to
-       // supply memory.  If 'basicAllocator' is 0, the currently installed
-       // default allocator is used.  'isEnabled' will be 'true' for the
-       // newly created index manager.  The behavior is undefined unless 
-       // '0 < capacity' and 'capacity < e_MAX_CAPACITY'.
-
+        // Create an index manager for a circular buffer having the specified
+        // maximum 'capacity'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  'isEnabled' will be 'true' for the
+        // newly created index manager.  The behavior is undefined unless 
+        // '0 < capacity' and 'capacity < e_MAX_CAPACITY'.
+        
     ~bcec_AtomicRingBufferIndexManager();
-       // Destroy this object.
+        // Destroy this object.
 
     // MANIPULATORS
     int acquirePushIndex(unsigned int *generationCount, 
                          unsigned int *index);
-       // Reserve the next available index at which to enqueue an element
-       // in an (externally managed) circular buffer; load the specified
-       // 'index' with the reserved index and load the specified
-       // 'generationCount' with the current generation of the circular 
-       // buffer.  Return 0 on success, a negative value if the queue is
-       // disabled, and a positive value if the queue is full.  If this method
-       // succeeds, other threads using this object may spin on the 
-       // corresponding index state until 'releasePushIndex' is called 
-       // using the returned 'index' and 'generationCount' values; clients
-       // should call 'releasePushIndex' quickly after this method 
-       // returns, without performing any blocking operations.  Note that
-       // 'generationCount' is necessary for invoking
-       // 'releasePusedReservation' but should not otherwise be used by the
-       // caller;  the value reflects the of times the 'index' in the circular
-       // buffer has been used.
-
+        // Reserve the next available index at which to enqueue an element
+        // in an (externally managed) circular buffer; load the specified
+        // 'index' with the reserved index and load the specified
+        // 'generationCount' with the current generation of the circular 
+        // buffer.  Return 0 on success, a negative value if the queue is
+        // disabled, and a positive value if the queue is full.  If this method
+        // succeeds, other threads using this object may spin on the 
+        // corresponding index state until 'releasePushIndex' is called 
+        // using the returned 'index' and 'generationCount' values; clients
+        // should call 'releasePushIndex' quickly after this method 
+        // returns, without performing any blocking operations.  Note that
+        // 'generationCount' is necessary for invoking
+        // 'releasePusedReservation' but should not otherwise be used by the
+        // caller;  the value reflects the number of times the 'index' in the
+        // circular buffer has been used.
+        
     void releasePushIndex(unsigned int generation, unsigned int index);
-       // Mark the specified 'index' as occupied (full) in the specified 
-       // 'generation'.  The behavior is undefined unless 'generation' and 
-       // 'index' were populated by a previous call to 'acquirePushIndex'.
-
+        // Mark the specified 'index' as occupied (full) in the specified 
+        // 'generation'.  The behavior is undefined unless 'generation' and 
+        // 'index' match those returned by a previous successful call to
+        // 'acquirePushIndex' (that has not previously been released).
 
     int acquirePopIndex(unsigned int *generation, 
                         unsigned int *index);
-       // Reserve the next available index from which to dequeue an element
-       // from an (externally managed) circular buffer; load the specified
-       // 'index' with the reserved index and load the specified
-       // 'generationCount' with the current generation of the circular 
-       // buffer.  Return 0 on success, and a non-zero value if the queue
-       // is  empty.  If this method succeeds, other threads using this 
-       // object may spin on the corresponding index state until 
-       // 'releasePopIndex' is called using the returned 'index' 
-       // and 'generationCount' values; clients should call
-       // 'releasePopIndex' quickly after this method returns, without
-       // performing any blocking operations.  Note that 'generationCount' is
-       // necessary for invoking 'releasePopIndex' but should not  
-       // otherwise be used by the caller;  the value reflects the of times
-       // the 'index' in the circular buffer has been used.
-
-    void releasePopIndex(unsigned int currGeneration, unsigned int index);
-       // Mark the specified 'index' as available (empty) in the generation 
-       // following the specified 'currGeneration'.  The behavior is undefined
-       // unless 'generation' and  'index' were populated by a previous call
-       // to 'acquirePushIndex'.
-
+        // Reserve the next available index from which to dequeue an element
+        // from an (externally managed) circular buffer; load the specified
+        // 'index' with the reserved index and load the specified
+        // 'generation' with the current generation of the circular buffer.
+        // Return 0 on success, and a non-zero value if the queue is empty.  If
+        // this method succeeds, other threads using this object may spin on the
+        // corresponding index state until 'releasePopIndex' is called using the
+        // returned 'index' and 'generation' values; clients should call
+        // 'releasePopIndex' quickly after this method returns, without
+        // performing any blocking operations.  Note that 'generation' is
+        // necessary for invoking 'releasePopIndex' but should not otherwise be
+        // used by the caller; the value reflects the of times the 'index' in
+        // the circular buffer has been used.
+        
+    void releasePopIndex(unsigned int generation, unsigned int index);
+        // Mark the specified 'index' as available (empty) in the generation 
+        // following the specified 'generation'.  The behavior is undefined
+        // unless 'generation' and  index' match those returned by a previous
+        // successful call to 'acquirePopIndex' (that has not previously been
+        // released).
+        
     void incrementPopIndexFrom(unsigned int index);
-       // If the current pop index is the specified 'index', increment it
-       // by one position. This may be used if it is necessary to force the
-       // pop index to move regardless of the state of the cell it is 
-       // referencing. 
+        // If the current pop index is the specified 'index', increment it
+        // by one position. This may be used if it is necessary to force the
+        // pop index to move regardless of the state of the cell it is 
+        // referencing. 
    
     void disable();
-       // Mark the queue as disabled.  Future calls to 'acquirePushIndex' will
-       // fail.
-
+        // Mark the queue as disabled.  Future calls to 'acquirePushIndex' will
+        // fail.
+        
     void enable();
-       // Mark the queue as enabled.
-
+        // Mark the queue as enabled.
+        
     // ACCESSORS
     bool isEnabled() const;        
-       // Return 'true' if the queue is enabled, and 'false' if it is disabled.
-
+        // Return 'true' if the queue is enabled, and 'false' if it is disabled.
+        
     unsigned int length() const;
-       // Return a snapshot of the number of items in the queue.
+        // Return a snapshot of the number of items in the queue.
 
     unsigned int capacity() const; 
-       // Return the maximum number of items that may be stored in the queue.
+        // Return the maximum number of items that may be stored in the queue.
 };
     
 // =====================================================================
@@ -254,11 +254,11 @@ unsigned int bcec_AtomicRingBufferIndexManager::nextCombinedIndex(
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxCombinedIndex ==
                                               combinedIndex)) {        
-        // We have reached the maximum represetable combination of index and
+        // We have reached the maximum representable combination of index and
         // generation count, so we reset the generation count to 0.
 
         BSLS_ASSERT_OPT(0 == (combinedIndex + 1) % d_capacity);
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return combinedIndex + 1;
@@ -269,9 +269,8 @@ inline
 unsigned int bcec_AtomicRingBufferIndexManager::nextGeneration(
                                                   unsigned int generation) const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxGeneration == 
-                                              generation + 1)) {
-        return 0;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_maxGeneration == generation)) {
+        return 0;                                                     // RETURN
     }
     return generation + 1;
 }
@@ -279,7 +278,8 @@ unsigned int bcec_AtomicRingBufferIndexManager::nextGeneration(
 
 // ACCESSORS
 inline
-unsigned int bcec_AtomicRingBufferIndexManager::capacity() const {
+unsigned int bcec_AtomicRingBufferIndexManager::capacity() const 
+{
     return d_capacity;
 }
 

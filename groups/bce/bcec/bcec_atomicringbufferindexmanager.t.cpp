@@ -9,54 +9,106 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// ----------------------------------------------------------------------------
+// PUBLIC CONSTANTS
+// [  ] e_MAX_CAPACITY 
+// CREATORS
+// [  ] explicit
+// [  ] bcec_AtomicRingBufferIndexManager(unsigned int, bslma::Allocator *);
+// [  ] ~bcec_AtomicRingBufferIndexManager();
+// MANIPULATORS
+// [  ] int acquirePushIndex(unsigned int *, unsigned int *);
+// [  ] void releasePushIndex(unsigned int , unsigned int );
+// [  ] int acquirePopIndex(unsigned int *, unsigned int *);
+// [  ] void releasePopIndex(unsigned int , unsigned int );
+// [  ] void incrementPopIndexFrom(unsigned int );
+// [  ] void disable();
+// [  ] void enable();
+// ACCESSORS
+// [  ] bool isEnabled() const;        
+// [  ] unsigned int length() const;
+// [  ] unsigned int capacity() const; 
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
+                  << "    (failed)" << bsl::endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close anonymous namespace
 
-static int verbose;
-static int veryVerbose;
-static int veryVeryVerbose;
+#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
+                aSsErT(1, #X, __LINE__); }}
 
 #define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
+                          << #J << ": " << J << "\n"; \
+                aSsErT(1, #X, __LINE__); } }
 
 #define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
+                         << #J << ": " << J << "\t" \
+                         << #K << ": " << K << "\n";\
+               aSsErT(1, #X, __LINE__); } }
+
+#define LOOP0_ASSERT ASSERT
+#define LOOP1_ASSERT LOOP_ASSERT
+
+//=============================================================================
+//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
+//-----------------------------------------------------------------------------
+
+#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
+#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
+
+#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
+#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+
+#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
+                                              // Print identifier and value.
+#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
+                                              // Quote identifier literally.
+#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
+                                              // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define V(X) { if (verbose) P(X) }            // Print in verbose mode
-
+#define NL "\n"
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+static int verbose = 0;
+static int veryVerbose = 0;
+static int veryVeryVerbose = 0;
+static int veryVeryVeryVerbose = 0;
 
 typedef bcec_AtomicRingBufferIndexManager Obj;
 
@@ -95,9 +147,21 @@ int main(int argc, char *argv[])
       } break;
 
       case 1: {
-        // --------------------------------------------------------------------
+       // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         bcema_TestAllocator ta(veryVeryVerbose);
         {
