@@ -1985,7 +1985,8 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position)
 {
-    BSLS_ASSERT_SAFE(this->size() > position);
+    BSLS_ASSERT_SAFE((0 == this->size() && 0 == position)
+                 || (this->size() > position));
 
     return d_dataBegin[position];
 }
@@ -2007,7 +2008,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::front()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_SAFE(!this->empty());
 
     return *d_dataBegin;
 }
@@ -2017,7 +2018,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::back()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_SAFE(!this->empty());
 
     return *(d_dataEnd - 1);
 }
@@ -2127,7 +2128,8 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position) const
 {
-    BSLS_ASSERT_SAFE(this->size() > position);
+    BSLS_ASSERT_SAFE((0 == this->size() && 0 == position)
+                 || (this->size() > position));
 
     return d_dataBegin[position];
 }
@@ -2149,7 +2151,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::front() const
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_SAFE(!this->empty());
 
     return *d_dataBegin;
 }
@@ -2159,7 +2161,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::back() const
 {
-    BSLS_ASSERT_SAFE(!empty());
+    BSLS_ASSERT_SAFE(!this->empty());
 
     return *(d_dataEnd - 1);
 }
