@@ -972,19 +972,19 @@ class String_Imp {
                         // class bsl::basic_string_data_proxy
                         // ==================================
 
-template <typename STRING_TYPE>
+template <typename BSLSTL_STRING_TYPE>
 class basic_string_data_proxy
 {
     // This class acts as a pointer-semantic validating proxy for a
-    // 'STRING_TYPE' string, emulating the behavior of the
-    // 'const STRING_TYPE::CHAR_TYPE*' pointer returned by
-    // 'STRING_TYPE::c_str()' and 'STRING_TYPE::data()', and checking the
-    // internal state of the associated 'STRING_TYPE' on all operations
-    // including destruction.
+    // 'BSLSTL_STRING_TYPE' string, emulating the behavior of the 'const
+    // BSLSTL_STRING_TYPE::CHAR_TYPE*' pointer returned by
+    // 'BSLSTL_STRING_TYPE::c_str()' and 'BSLSTL_STRING_TYPE::data()', and
+    // checking the internal state of the associated 'BSLSTL_STRING_TYPE' on
+    // all operations including destruction.
 
   private:
     // DATA
-    const STRING_TYPE &d_string; // string to proxy
+    const BSLSTL_STRING_TYPE &d_string; // string to proxy
 
     // PRIVATE ACCESSOR
     void checkStringInvariants() const;
@@ -992,11 +992,11 @@ class basic_string_data_proxy
 
   public:
     // PUBLIC TYPE
-    typedef typename STRING_TYPE::value_type  CHAR_TYPE;
+    typedef typename BSLSTL_STRING_TYPE::value_type  CHAR_TYPE;
 
   public:
     // CREATORS
-    basic_string_data_proxy(const STRING_TYPE &str);
+    basic_string_data_proxy(const BSLSTL_STRING_TYPE &str);
         // Create a proxy referring to 'str' which will validate the
         // invariants of 'str' on all operations, including this construction.
 
@@ -1008,7 +1008,7 @@ class basic_string_data_proxy
     operator CHAR_TYPE*() const;
         // Return the same results as
         // 'static_cast<CHAR_TYPE*>(d_string.c_str())', after first validating
-        // the invariants of the associated 'STRING_TYPE' object.
+        // the invariants of the associated 'BSLSTL_STRING_TYPE' object.
 };
 
                         // =======================
@@ -2590,32 +2590,32 @@ const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
                         // ----------------------------------
 
 // PRIVATE ACCESSOR
-template <typename STRING_TYPE>
-void basic_string_data_proxy<STRING_TYPE>::checkStringInvariants() const
+template <typename BSLSTL_STRING_TYPE>
+void basic_string_data_proxy<BSLSTL_STRING_TYPE>::checkStringInvariants() const
 {
     BSLS_ASSERT_OPT(d_string[d_string.length()] == CHAR_TYPE());
     BSLS_ASSERT_OPT(d_string.capacity() >= d_string.length());
 }
 
 // CREATORS
-template <typename STRING_TYPE>
-basic_string_data_proxy<STRING_TYPE>::basic_string_data_proxy(
-                                                        const STRING_TYPE &str)
+template <typename BSLSTL_STRING_TYPE>
+basic_string_data_proxy<BSLSTL_STRING_TYPE>::basic_string_data_proxy(
+                                                 const BSLSTL_STRING_TYPE &str)
 : d_string(str)
 {
     checkStringInvariants();
 }
 
-template <typename STRING_TYPE>
-basic_string_data_proxy<STRING_TYPE>::~basic_string_data_proxy()
+template <typename BSLSTL_STRING_TYPE>
+basic_string_data_proxy<BSLSTL_STRING_TYPE>::~basic_string_data_proxy()
 {
     checkStringInvariants();
 }
 
 // ACCESSORS
-template <typename STRING_TYPE>
-basic_string_data_proxy<STRING_TYPE>::operator typename
-                       basic_string_data_proxy<STRING_TYPE>::CHAR_TYPE*() const
+template <typename BSLSTL_STRING_TYPE>
+basic_string_data_proxy<BSLSTL_STRING_TYPE>::operator typename
+                basic_string_data_proxy<BSLSTL_STRING_TYPE>::CHAR_TYPE*() const
 {
     checkStringInvariants();
 
