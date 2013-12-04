@@ -2417,7 +2417,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
                                                        &this->d_dataEnd,
                                                        &fromVector->d_dataEnd,
                                                        this->d_dataBegin,
-                                                       Pos,
+                                                       pos,
                                                        this->d_dataEnd,
                                                        fromVector->d_dataBegin,
                                                        fromVector->d_dataEnd,
