@@ -419,7 +419,10 @@ public:
 
 template <class T>
 struct ValueGenerator : ValueGeneratorBase<T> {
-    // Generate and check values for rvalues of type 'T'.
+    // Generate and check values for values of type 'T'.  This primary
+    // template is used when 'T' is an rvalue (i.e., not a reference or
+    // pointer type.)
+
     // Since rvalue is passed by value, it is not modified by function calls.
     // The expected value thus is ignored when checking the value.
     T obj() { return this->reset(); }
@@ -514,8 +517,11 @@ void testPtrToMemFunc(const char *prototypeStr)
 
 template <class T, class RET, class ARG>
 void testPtrToConstMemFunc(const char *prototypeStr)
-    // Test invocation of pointer to const member function wrapper.
-    // Tests using const member functions 'IntWrapper::add[0-9]'
+    // Test invocation of pointer to const member function wrapper.  Tests
+    // using const member functions 'IntWrapper::add[0-9]'.  To save compile
+    // time, since 'testPtrToMemFunc' already tests every possible
+    // argument-list length, we test only a small number of possible
+    // argument-list lengths (specifically 0, 1, and 9 arguments) here.
 {
     if (veryVeryVerbose) std::printf("\t%s\n", prototypeStr);
 
@@ -577,75 +583,87 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         //  All of the following concerns refer to an object 'f' of type
-        //  'bsl::function<RET(T, ARGS...)>' for a specified type 'T', return
-        //  type 'RET' 0 or more additional arguments 'ARGS'.  The object's
-        //  constructor argument is a pointer 'fp' to member function of type
-        //  'FRET (FT::*)(FARGS...)' for a specified return type 'FRET', class
-        //  type 'FT', and 0 or more arguments 'FARGS'.  The invocation
-        //  arguments are 'obj' of type 'T' and 'args...' of types matching
-        //  'ARGS...'.
+        //  'bsl::function<RET(T, ARGS...)>' for a specified return type
+        //  'RET', class type 'T', and 0 or more additional argument types
+        //  'ARGS...'.  f's constructor argument is a pointer 'fp' to member
+        //  function of type 'FRET (FT::*)(FARGS...)' for a specified return
+        //  type 'FRET', class type 'FT', and 0 or more argument types
+        //  'FARGS...'.  The invocation arguments are 'obj' of type 'T' and
+        //  'args...' of types matching 'ARGS...'.
         //
-        //: 1 If 'T' is the same as 'FT' or 'FT&', invoking 'f(obj, args...)'
-        //:   yields the same results as invoking '(obj.*fp)(args...)'.
-        //: 2 If 'T' is the same as 'FT*' or "smart pointer" to 'FT', invoking
-        //:   'f(obj, args...)'  yields the same results as invoking
-        //:   '((*obj).*fp)(args...)'.
-        //: 3 Concerns 1 and 2 also apply if 'T' is an rvalue of, reference to,
-        //:   pointer to, or smart-pointer to type derived from 'FT'.
-        //: 4 If 'fp' is a pointer to const member function, then 'T' can be
-        //:   rvalue of, reference to, pointer to, or smart-pointer to either
-        //:   a const or a non-const type.  All of the above concerns apply to
-        //:   both const and non-const member functions.
-        //: 5 Invocation works for zero to nine arguments, 'args...' in
+        //: 1 Invocation works for zero to nine arguments, 'args...' in
         //:   addition to the 'obj' argument and yields the expected return
         //:   value.
-        //: 6 The template argument types 'ARGS...' need not match the
+        //: 2 If 'T' is the same as 'FT&', invoking 'f(obj, args...)'
+        //:   yields the same return value and side-effect as invoking
+        //:   '(obj.*fp)(args...)'.
+        //: 3 If 'T' is the same as 'FT', invoking 'f(obj, args...)'
+        //:   yields the same return value as invoking '(obj.*fp)(args...)'
+        //:   and will have no side effect on the (pass-by-value) 'obj'.
+        //: 4 If 'T' is the same as 'FT*' or "smart pointer" to 'FT', invoking
+        //:   'f(obj, args...)'  yields the same results as invoking
+        //:   '((*obj).*fp)(args...)'.
+        //: 5 The template argument types 'ARGS...' need not match the
         //:   member-function arguments 'FARGS...' exactly, so long as the
         //:   argument lists are the same length and each type in 'ARGS' is
         //:   implicitly convertible to the corresponding argument in
         //:   'FARGS'.
-        //: 7 The return type 'RET' need not match the member-function return
+        //: 6 The return type 'RET' need not match the member-function return
         //:   type 'FRET' so long as 'RET' is implicitly convertible to
         //:   'FRET'.
-        //: 8 If 'RET' is 'void', then the return value of 'pf' is discarded,
+        //: 7 If 'fp' is a pointer to const member function, then 'T' can be
+        //:   rvalue of, reference to, pointer to, or smart-pointer to either
+        //:   a const or a non-const type.  All of the above concerns apply to
+        //:   both const and non-const member functions.
+        //: 8 Concerns 1 and 2 also apply if 'T' is an rvalue of, reference to,
+        //:   pointer to, or smart-pointer to type derived from 'FT'.
+        //: 9 If 'RET' is 'void', then the return value of 'pf' is discarded,
         //:   even if 'FRET' is non-void.
         //
         // Plan:
         //: 1 Create a class 'IntWrapper' that holds an 'int' value and has
         //:   const member functions 'add0' to 'add9' and non-const member
-        //:   functions 'increment0' to 'increment9' taking 0 to 9 'int'
-        //:   arguments.  The 'sum[0-9]' functions return the 'int' sum of the
-        //:   arguments + the wrapper's value.  The 'increment[0-9]' functions
-        //:   increment the wrapper's value by the sum of the arguments and
-        //:   returns the 'int' result.
-        //: 2 For concerns 1 and 5, create and invoke 'bsl::function's
-        //:   wrapping pointers to each of the 'IntWrapper' member functions
-        //:   'increment0' to 'increment9', using 'T' template parameters of
-        //:   both types 'IntWrapper', and 'IntWrapper&'.  Verify that the
-        //:   return and side-effects from the invocations matches the
-        //:   expected results.
-        //: 3 For concerns 2 and 5, create and invoke 'bsl::function's
-        //:   wrapping pointers to each of the 'IntWrapper' member functions
-        //:   'increment0' to 'increment9', using 'T' template parameters of
-        //:   both types 'IntWrapper*', and 'SmartPtr<IntWrapper>'.  Verify
-        //:   that the return and side-effects from the invocations matches
-        //:   the expected results.  
-        //: 4 For concerns 6 & 7, repeat steps 2 and 3 except using a class
+        //:   functions 'increment0' to 'increment9' and 'voidIncrement0' to
+        //:   'voidIncrement9' each taking 0 to 9 'int' arguments.  The
+        //:   'sum[0-9]' functions return the 'int' sum of the arguments + the
+        //:   wrapper's value.  The 'increment[0-9]' functions increment the
+        //:   wrapper's value by the sum of the arguments and returns the
+        //:   'int' result.  The 'voidIncrement[0-9]' functions increment the
+        //:   wrapper's value by the sum of the arguments and return nothing.
+        //: 2 For concern 1, implement a test function template
+        //:   'testPtrToMemFunc' that creates 10 instances of 'bsl::function'
+        //:   instantiated for the specified object type, specified return
+        //:   type, and 0 to 9 arguments of the specified argument type.  The
+        //:   test function constructs each instance with a pointer to the
+        //:   corresponding 'increment[0-9]' member function of 'IntWrapper'
+        //:   and then invokes it, verifying that the return value and
+        //:   side-effects are as expected..
+        //: 3 For concern 2, invoke 'testPtrToMemFunc' with object type
+        //:   'IntWrapper&'.
+        //: 4 For concern 3, ensure that 'testPtrToMemFunc' checks for no
+        //:   change to 'obj' if 'T' is an rvalue type.  Invoke
+        //:   'testPtrToMemFunc' with object type 'IntWrapper'.
+        //: 5 For concern 4, invoke 'testPtrToMemFunc' with object types
+        //:   'IntWrapper*', and 'SmartPtr<IntWrapper>'.
+        //: 6 For concerns 5 & 6, repeat steps 3, 4, and 5 except using a class
         //:   'ConvertibleToInt' instead of 'int' for the arguments in 'ARGS'
         //:   and using 'IntWrapper' instead of 'RET'.
-        //: 5 For concern 4, create and invoke 'bsl::function's that wrap
-        //:   pointers to a few of the 'IntWrapper' member functions 'sum0' to
-        //:   'sum9', using 'T' template parameters of types 'IntWrapper',
+        //: 7 For concern 7, implement a test function template,
+        //:   'testPtrToConstMemFunc' that works similarly to
+        //:   'testPtrToMemFunc' except that it wraps the const member
+        //:   functions 'sum[0-9]' instead of the non-const member functions
+        //:   'increment[0-9]'.  To save compile time, since concern 1 has
+        //:   already been tested, we need to test only a small number of
+        //:   possible argument-list lengths (e.g. 0, 1, and 9 arguments).
+        //:   Invoke 'testPtrToConstMemFunc' with object types 'IntWrapper',
         //:   'IntWrapper&', 'IntWrapper*', and 'SmartPtr<IntWrapper>', as
-        //:   well as 'const' and versions of the preceding.  Verify that the
-        //:   return value from the invocations matches the expected results.
-        //:   (There should be no side-effects.)  It is not necessary to try
-        //:   every member function to verify that concern 4 is satisfied.
-        //: 6 For concern 3, create a class, 'IntWrapperDerived' derived from
-        //:   'IntWrapper' and repeat step 5 using 'IntWrapperDerived' instead
-        //:   of 'IntWrapper' in the 'bsl::function' prototype (but still
-        //:   wrapping a pointer to member function of 'IntWrapper'.
-        //: 7 For concern 8, create a 'bsl::function' with prototype
+        //:   well as 'const' and versions of the preceding.
+        //: 8 For concern 8, create a class, 'IntWrapperDerived' derived from
+        //:   'IntWrapper'.  Invoke 'testPtrToConstMemFunc' with object types
+        //:   'IntWrapperDerived', 'IntWrapperDerived&', 'IntWrapperDerived*',
+        //:   and 'SmartPtr<IntWrapperDerived>', as well as 'const' and
+        //:   versions of the preceding.
+        //: 9 For concern 9, create a 'bsl::function' with prototype
         //:   'void(IntWrapper, int)' and use it to invoke
         //:   'IntWrapper::increment1', thus discarding the return value.
         //:   Repeat this test but wrapping 'IntWrapper::voidIncrement1',
@@ -658,16 +676,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPOINTER TO MEMBER FUNCTION INVOCATION"
                             "\n=====================================\n");
 
-        if (veryVerbose) std::printf("Plan step 2\n");
-        testPtrToMemFunc<IntWrapper, int, int>("int(IntWrapper, int...)");
+        if (veryVerbose) std::printf("Plan step 3\n");
         testPtrToMemFunc<IntWrapper&, int, int>("int(IntWrapper&, int...)");
 
-        if (veryVerbose) std::printf("Plan step 3\n");
+        if (veryVerbose) std::printf("Plan step 4\n");
+        testPtrToMemFunc<IntWrapper, int, int>("int(IntWrapper, int...)");
+
+        if (veryVerbose) std::printf("Plan step 5\n");
         testPtrToMemFunc<IntWrapper*, int, int>("int(IntWrapper*, int...)");
         testPtrToMemFunc<SmartPtr<IntWrapper>, int, int>(
             "int(SmartPtr<IntWrapper>, int...)");
 
-        if (veryVerbose) std::printf("Plan step 4\n");
+        if (veryVerbose) std::printf("Plan step 6\n");
         testPtrToMemFunc<IntWrapper, IntWrapper, ConvertibleToInt>(
             "IntWrapper(IntWrapper, ConvertibleToInt...");
         testPtrToMemFunc<IntWrapper&, IntWrapper, ConvertibleToInt>(
@@ -677,7 +697,7 @@ int main(int argc, char *argv[])
         testPtrToMemFunc<SmartPtr<IntWrapper>, IntWrapper, ConvertibleToInt>(
             "IntWrapper(SmartPtr<IntWrapper>, ConvertibleToInt...");
 
-        if (veryVerbose) std::printf("Plan step 5\n");
+        if (veryVerbose) std::printf("Plan step 7\n");
         testPtrToConstMemFunc<IntWrapper, int, int>(
             "int(IntWrapper, int...)");
         testPtrToConstMemFunc<IntWrapper&, int, int>(
@@ -695,7 +715,7 @@ int main(int argc, char *argv[])
         testPtrToConstMemFunc<SmartPtr<const IntWrapper>, int, int>(
             "int(SmartPtr<const IntWrapper>, int...)");
 
-        if (veryVerbose) std::printf("Plan step 6\n");
+        if (veryVerbose) std::printf("Plan step 8\n");
         testPtrToConstMemFunc<IntWrapperDerived, int, int>(
             "int(IntWrapperDerived, int...)");
         testPtrToConstMemFunc<IntWrapperDerived&, int, int>(
@@ -713,7 +733,7 @@ int main(int argc, char *argv[])
         testPtrToConstMemFunc<SmartPtr<const IntWrapperDerived>, int, int>(
             "int(SmartPtr<const IntWrapperDerived>, int...)");
 
-        if (veryVerbose) std::printf("Plan step 7\n");
+        if (veryVerbose) std::printf("Plan step 9\n");
         IntWrapper iw(0x3001);
 
         bsl::function<void(IntWrapper, int)> ft(&IntWrapper::increment1);
