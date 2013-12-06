@@ -1286,7 +1286,6 @@ void Test6_0::operator()()
 
         x.cancelAllEventsAndWait();
         microSleep(T6, 0);
-        bdet_TimeInterval elapsed = bdetu_SystemTime::now() - now;
         ASSERT( 0 == testObj1.numExecuted() );
         ASSERT( 0 == testObj2.numExecuted() );
     }
@@ -4951,7 +4950,6 @@ int main(int argc, char *argv[])
           TestClass1 testObj1;
           TestClass1 testObj2;
 
-          bdet_TimeInterval now = bdetu_SystemTime::now();
           RecurringEventHandle h1, h2;
           x.scheduleRecurringEvent(&h1, T3,
                                    bdef_MemFnUtil::memFn(&TestClass1::callback,
