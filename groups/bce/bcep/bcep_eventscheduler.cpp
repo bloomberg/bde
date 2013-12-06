@@ -17,7 +17,7 @@ BDES_IDENT_RCSID(bcep_eventscheduler_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 // Implementation note: When casting, we often cast through 'void *' or
-// 'const voit *' to avoid getting alignment warnings.
+// 'const void *' to avoid getting alignment warnings.
 
 namespace BloombergLP {
 
