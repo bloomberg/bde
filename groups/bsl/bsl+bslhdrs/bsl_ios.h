@@ -25,7 +25,21 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifdef BSLS_PLATFORM_OS_DARWIN  // on Darwin, 'num_get' comes from <locale>
+
+#ifndef INCLUDED_LOCALE
+#include <locale>
+#define INCLUDED_LOCALE
+#endif
+
+#else
+
+#ifndef INCLUDED_IOS
 #include <ios>
+#define INCLUDED_IOS
+#endif
+
+#endif
 
 namespace bsl
 {
