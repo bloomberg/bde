@@ -5130,7 +5130,7 @@ void TestDriver<TYPE,ALLOC>::testCase15Negative()
                     ASSERT_SAFE_PASS(X[i]);
                     ASSERT_SAFE_PASS(mX[i]);
                 }
-                else {
+                else if (0 != i) {
                     ASSERT_SAFE_FAIL(X[i]);
                     ASSERT_SAFE_FAIL(mX[i]);
                 }

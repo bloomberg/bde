@@ -976,11 +976,11 @@ template <typename BSLSTL_STRING_TYPE>
 class basic_string_data_proxy
 {
     // This class acts as a pointer-semantic validating proxy for a
-    // 'BSLSTL_STRING_TYPE' string, emulating the behavior of the
-    // 'const BSLSTL_STRING_TYPE::CHAR_TYPE*' pointer returned by
-    // 'BSLSTL_STRING_TYPE::c_str()' and 'BSLSTL_STRING_TYPE::data()', and checking the
-    // internal state of the associated 'BSLSTL_STRING_TYPE' on all operations
-    // including destruction.
+    // 'BSLSTL_STRING_TYPE' string, emulating the behavior of the 'const
+    // BSLSTL_STRING_TYPE::CHAR_TYPE*' pointer returned by
+    // 'BSLSTL_STRING_TYPE::c_str()' and 'BSLSTL_STRING_TYPE::data()', and
+    // checking the internal state of the associated 'BSLSTL_STRING_TYPE' on
+    // all operations including destruction.
 
   private:
     // DATA
@@ -2600,7 +2600,7 @@ void basic_string_data_proxy<BSLSTL_STRING_TYPE>::checkStringInvariants() const
 // CREATORS
 template <typename BSLSTL_STRING_TYPE>
 basic_string_data_proxy<BSLSTL_STRING_TYPE>::basic_string_data_proxy(
-                                                        const BSLSTL_STRING_TYPE &str)
+                                                 const BSLSTL_STRING_TYPE &str)
 : d_string(str)
 {
     checkStringInvariants();
@@ -2615,7 +2615,7 @@ basic_string_data_proxy<BSLSTL_STRING_TYPE>::~basic_string_data_proxy()
 // ACCESSORS
 template <typename BSLSTL_STRING_TYPE>
 basic_string_data_proxy<BSLSTL_STRING_TYPE>::operator typename
-                       basic_string_data_proxy<BSLSTL_STRING_TYPE>::CHAR_TYPE*() const
+                basic_string_data_proxy<BSLSTL_STRING_TYPE>::CHAR_TYPE*() const
 {
     checkStringInvariants();
 
