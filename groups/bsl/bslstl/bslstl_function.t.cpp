@@ -203,6 +203,18 @@ void increment(int *val)
 SUMMING_FUNC(0)
 BSLS_MACROREPEAT(10, SUMMING_FUNC)
 
+class ConvertibleToInt
+{
+    // Class of objects implicitly convertible to 'int'
+
+    int d_value;
+
+public:
+    explicit ConvertibleToInt(int v) : d_value(v) { }
+
+    operator int() const { return d_value; }
+};
+
 class IntWrapper
 {
     // Simple wrapper around an 'int' that supplies member functions (whose
@@ -212,6 +224,7 @@ class IntWrapper
 
 public:
     IntWrapper(int i = 0) : d_value(i) { } // Convertible from 'int'
+    IntWrapper(ConvertibleToInt i) : d_value(i) { }
 
     void incrementBy1() { ++d_value; }
 
@@ -264,16 +277,9 @@ public:
     IntWrapperDerived(int v) : IntWrapper(v) { }
 };
 
-class ConvertibleToInt
-{
-    // Class of objects implicitly convertible to 'int'
-
-    int d_value;
-
-public:
-    explicit ConvertibleToInt(int v) : d_value(v) { }
-
-    operator int() const { return d_value; }
+struct SmallObjectBuffer {
+    // For white-box testing: size of small-object buffer in 'function'.
+    void *d_padding[4];  // Size of 4 pointers
 };
 
 // Simple function
@@ -286,6 +292,10 @@ int simpleFunc(const IntWrapper& iw, int v)
 struct EmptyFunctor
 {
     // Stateless functor
+
+    enum { IS_STATELESS = true };
+
+    explicit EmptyFunctor(int /* ignored */ = 0) { }
 
 #define OP_PAREN(n)                                                           \
     int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
@@ -302,6 +312,11 @@ struct EmptyFunctor
 
 #undef OP_PAREN
 
+    // Invocation operator that returns void.
+    void operator()(const char*) { }
+
+    int value() const { return 0; }
+
     friend bool operator==(const EmptyFunctor&, const EmptyFunctor&)
         { return true; }
 
@@ -313,38 +328,40 @@ class SmallFunctor
 {
     // Small stateful functor.
 
-    int d_state;  // Arbitrary state to distinguish one instance from another
+    int d_value;  // Arbitrary state to distinguish one instance from another
 
 public:
-    explicit SmallFunctor(int v) : d_state(v) { }
+    enum { IS_STATELESS = false };
+
+    explicit SmallFunctor(int v) : d_value(v) { }
 
 #define OP_PAREN(n)                                                           \
     int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
     {                                                                         \
-        return d_state += iw.value() + BSLS_MACROREPEAT_SEP(n, ARGN, +);      \
+        return d_value += iw.value() + BSLS_MACROREPEAT_SEP(n, ARGN, +);      \
     }
 
     // Invocation operator with 0 to 10 arguments.  The first argument (if
     // any) is a const reference to 'IntWrapper', although it can be passed an
     // 'int'.  The remaining arguments are of type 'int'.
-    int operator()() { return d_state; }
-    int operator()(const IntWrapper& iw) { return d_state += iw.value(); }
+    int operator()() { return d_value; }
+    int operator()(const IntWrapper& iw) { return d_value += iw.value(); }
     BSLS_MACROREPEAT(9, OP_PAREN)
 
 #undef OP_PAREN
 
-    int value() const { return d_state; }
+    // Invocation operator that sets a the functor's value and returns void.
+    // To ensure unambiguous overloading resolution, the argument is passed as
+    // a null-terminated string, not as an integer.
+    void operator()(const char* s) { d_value = std::atoi(s); }
+
+    int value() const { return d_value; }
 
     friend bool operator==(const SmallFunctor& a, const SmallFunctor& b)
         { return a.value() == b.value(); }
 
     friend bool operator!=(const SmallFunctor& a, const SmallFunctor& b)
         { return a.value() != b.value(); }
-};
-
-struct SmallObjectBuffer {
-    // For white-box testing: size of small-object buffer in 'function'.
-    void *d_padding[4];  // Size of 4 pointers
 };
 
 class MediumFunctor : public SmallFunctor
@@ -554,6 +571,103 @@ void testPtrToConstMemFunc(const char *prototypeStr)
     ASSERT(gen.check(0x2001));
 }
 
+template <class FUNCTOR, class OBJ>
+bool checkValue(const OBJ& obj, int exp)
+    // Return true if the functor wrapped within the specified 'obj' has a
+    // value that matches the specified 'exp' value and false otherwise.
+{
+    if (FUNCTOR::IS_STATELESS)
+        return true;  // No state to check
+
+    const FUNCTOR& target = *obj.template target<FUNCTOR>();
+    return exp == target.value();
+}
+
+template <class FUNCTOR, class RET, class ARG>
+void testFunctor(const char *prototypeStr)
+    // Test invocation of a 'bsl::function' wrapping a functor object.
+{
+    if (veryVeryVerbose) std::printf("\t%s\n", prototypeStr);
+
+    const bool isStateless = FUNCTOR::IS_STATELESS;
+    const int  initState = isStateless ? 0 : 0x3000;
+
+    FUNCTOR ftor(initState);
+
+    const ARG a0(0x0001);
+    const ARG a1(0x0002);
+    const ARG a2(0x0004);
+    const ARG a3(0x0008);
+    const ARG a4(0x0010);
+    const ARG a5(0x0020);
+    const ARG a6(0x0040);
+    const ARG a7(0x0080);
+    const ARG a8(0x0100);
+    const ARG a9(0x0200);
+
+    bsl::function<RET()> f0(ftor);
+    ASSERT(initState + 0x0000 == f0());
+    ASSERT(checkValue<FUNCTOR>(f0, initState + 0x0000));
+
+    bsl::function<RET(ARG)> f1(ftor);
+    ASSERT(initState + 0x0001 == f1(a0));
+    ASSERT(checkValue<FUNCTOR>(f1, initState + 0x0001));
+
+    bsl::function<RET(ARG, ARG)> f2(ftor);
+    ASSERT(initState + 0x0003 == f2(a0, a1));
+    ASSERT(checkValue<FUNCTOR>(f2, initState + 0x0003));
+          
+    bsl::function<RET(ARG, ARG, ARG)> f3(ftor);
+    ASSERT(initState + 0x0007 == f3(a0, a1, a2));
+    ASSERT(checkValue<FUNCTOR>(f3, initState + 0x0007));
+          
+    bsl::function<RET(ARG, ARG, ARG, ARG)> f4(ftor);
+    ASSERT(initState + 0x000f == f4(a0, a1, a2, a3));
+    ASSERT(checkValue<FUNCTOR>(f4, initState + 0x000f));
+          
+    bsl::function<RET(ARG, ARG, ARG, ARG, ARG)> f5(ftor);
+    ASSERT(initState + 0x001f == f5(a0, a1, a2, a3, a4)); 
+          
+    bsl::function<RET(ARG, ARG, ARG, ARG, ARG, ARG)> f6(ftor);
+    ASSERT(initState + 0x003f == f6(a0, a1, a2, a3, a4, a5));
+    ASSERT(checkValue<FUNCTOR>(f6, initState + 0x003f));
+          
+    bsl::function<RET(ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG)> f7(ftor);
+    ASSERT(initState + 0x007f == f7(a0, a1, a2, a3, a4, a5, a6));
+    ASSERT(checkValue<FUNCTOR>(f7, initState + 0x007f));
+          
+    bsl::function<RET(ARG, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG)> f8(ftor);
+    ASSERT(initState + 0x00ff == f8(a0, a1, a2, a3, a4, a5, a6, a7));
+    ASSERT(checkValue<FUNCTOR>(f8, initState + 0x00ff));
+          
+    bsl::function<RET(ARG, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG, ARG)> f9(ftor);
+    ASSERT(initState + 0x01ff == f9(a0, a1, a2, a3, a4, a5, a6, a7, a8));
+    ASSERT(checkValue<FUNCTOR>(f9, initState + 0x01ff));
+
+    bsl::function<RET(ARG, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG, ARG, ARG)> f10(ftor);
+    ASSERT(initState + 0x03ff == f10(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9));
+    ASSERT(checkValue<FUNCTOR>(f10, initState + 0x03ff));
+
+    // None of the above invocations should have changed the original of
+    // 'ftor'
+    ASSERT(initState == ftor.value());
+
+    // Discard return value of functor that returns non-void
+    bsl::function<void(ARG)> fvi(ftor);
+    fvi(a0);
+    ASSERT(checkValue<FUNCTOR>(fvi, initState + 0x0001));
+
+    // Invoke a functor with a void return value
+    bsl::function<void(const char *)> fvr(ftor);
+    fvr("1234");
+    ASSERT(checkValue<FUNCTOR>(fvr, 1234)); // Wrapped copy is modified
+    ASSERT(ftor.value() == initState);      // Original is unchanged
+}
+
 //=============================================================================
 //                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -575,6 +689,93 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+
+      case 6: {
+        // --------------------------------------------------------------------
+        // FUNCTOR INVOCATION
+        //
+        // Concerns:
+        //: 1 A 'bsl::function' object that is constructed with a functor (aka
+        //:   function object) can be invoked as if it were a copy of that
+        //:   functor.
+        //: 2 Invocation works for zero to ten arguments and yields the
+        //:   expected return value and side-effects on the functor.
+        //: 3 Functions can return 'void'.
+        //: 4 If the return value of the 'bsl::function' is 'void', then the
+        //:   return value of function-pointer invocation is discarded,
+        //:   even if the return type of the pointer-to-function is non-void.
+        //: 5 The prototype for a function pointer need not be an exact match
+        //:   for the parameter type of a 'bsl::function' type -- So long as
+        //:   each formal argument to the 'bsl::function' is implicitly
+        //:   convertible to the corresponding argument to the function pointer
+        //:   and the return type of invocation through the function pointer
+        //:   is implicitly convertible to the return type of the
+        //:   'bsl::function'.
+        //: 6 Invocation works correctly whether the functor is empty, fits
+        //:   within the small-object optimization, or is allocated on the
+        //:   heap.
+        //: 7 Side effects are observed even if the 'bsl::function' is
+        //:   const. This surprising fact comes from the idea that a
+        //:   'function' object is an abstraction of a pointer to a
+        //:   function. Moreover, type erasure means that, at compile time, it
+        //:   is not possible to determine whether the invocable object 
+        //:   even cares whether or not it is const.
+        //
+        // Plan:
+        //: 1 Create a set of functor class with ten overloads of
+        //:   'operator()', taking 0 to 10 arguments.  The first argument (for
+        //:   all but the zero-argument case) is of type 'IntWrapper' and the
+        //:   remaining arguments are of type 'int'.  These invocation
+        //:   operators add all of the arguments to the integer state member
+        //:   in the functor and returns the result.
+        //: 2 For concerns 1 and 2, implement a test function template,
+        //:   'testFunctor' that constructs constructs one instance of the
+        //:   specified functor type and creates 10 instances of
+        //:   'bsl::function' instantiated for the specified object type,
+        //:   specified return type, and 0 to 9 arguments of the specified
+        //:   argument type.  The test function constructs each instance of
+        //:   'bsl::function' with a copy of the functor and then invokes
+        //:   it, verifying that the return value and side-effects are as
+        //:   expected.
+        //: 3 For concern 3, add to the functor class another 'operator()'
+        //:   taking a 'const char*' argument and returning void.  Verify that
+        //:   a 'bsl::function' object this invoker can be invoked and has the
+        //:   expected size-effect.
+        //: 4 For concern 4, create a 'bsl::function' with parameter
+        //:   'void(int)' and verify that it can be used to wrap the functor
+        //:   invoked with a single argument (discarding the return value).
+        //: 5 For concern 5, instantiate 'testFunctor' with using a class
+        //:   'ConvertibleToInt' instead of 'int' for the argument types
+        //:   and using 'IntWrapper' instead of 'int' for the return type.
+        //: 6 For concern 6, repeat each of the above steps with stateless,
+        //:   small, and large functor classes by instantiating 'testFunctor'
+        //:   with 'EmptyFunctor', 'SmallFunctor', and 'LargeFunctor'.  It is
+        //:   not necessary to test with 'MediumFunctor' as that does not test
+        //:   anything not already tested by 'SmallFunctor'.
+        //
+        // Testing:
+        //      RET operator()(ARGS...) const; // For functors
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nFUNCTOR INVOCATION"
+                            "\n==================\n");
+
+        if (veryVerbose) std::printf("Plan step 2\n");
+        testFunctor<SmallFunctor, int, int>("SmallFunctor int(int...)");
+        
+        if (veryVerbose) std::printf("Plan step 5\n");
+        testFunctor<SmallFunctor, IntWrapper, ConvertibleToInt>(
+            "SmallFunctor IntWrapper(ConvertibleToInt...)");
+
+        if (veryVerbose) std::printf("Plan step 6\n");
+        testFunctor<EmptyFunctor, int, int>("EmptyFunctor int(int...)");
+        testFunctor<EmptyFunctor, IntWrapper, ConvertibleToInt>(
+            "EmptyFunctor IntWrapper(ConvertibleToInt...)");
+        testFunctor<LargeFunctor, int, int>("LargeFunctor int(int...)");
+        testFunctor<LargeFunctor, IntWrapper, ConvertibleToInt>(
+            "LargeFunctor IntWrapper(ConvertibleToInt...)");
+
+      } break;
 
       case 5: {
         // --------------------------------------------------------------------
@@ -637,7 +838,7 @@ int main(int argc, char *argv[])
         //:   test function constructs each instance with a pointer to the
         //:   corresponding 'increment[0-9]' member function of 'IntWrapper'
         //:   and then invokes it, verifying that the return value and
-        //:   side-effects are as expected..
+        //:   side-effects are as expected.
         //: 3 For concern 2, invoke 'testPtrToMemFunc' with object type
         //:   'IntWrapper&'.
         //: 4 For concern 3, ensure that 'testPtrToMemFunc' checks for no
@@ -790,8 +991,9 @@ int main(int argc, char *argv[])
         //:   is implicitly convertible to the return type of the
         //:   'bsl::function'.
         //: 4 Functions can return 'void'.
-        //: 5 A 'bsl::function' that returns void can wrap a pointer to a
-        //:   function that returns non-void.
+        //: 5 If the return value of the 'bsl::function' is 'void', then the
+        //:   return value of function-pointer invocation is discarded,
+        //:   even if the return type of the pointer-to-function is non-void.
         //
         // Plan:
         //: 1 Create a set of functions, 'sum0' to 'sum10' taking 0 to 10

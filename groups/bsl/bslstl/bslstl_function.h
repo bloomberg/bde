@@ -5196,7 +5196,10 @@ RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
                             typename bslmf::ForwardingType<ARGS>::Type... args)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args...);
+
+    // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
+    // 'f' returns non-void.
+    return static_cast<RET>(f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -5206,7 +5209,9 @@ bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep,
                             typename bslmf::ForwardingType<ARGS>::Type... args)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args...);
+    // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
+    // 'f' returns non-void.
+    return static_cast<RET>(f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -5242,7 +5247,7 @@ template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -6144,7 +6149,8 @@ template <class FUNC>
 RET bsl::function<RET()>::inplaceFunctorInvoker(const Function_Rep *rep)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f();
+
+    return static_cast<RET>(f());
 }
 
 template <class RET, class ARGS_01>
@@ -6154,7 +6160,8 @@ RET bsl::function<RET(ARGS_01
                          typename bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01);
+
+    return static_cast<RET>(f(args_01));
 }
 
 template <class RET, class ARGS_01,
@@ -6167,8 +6174,9 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02);
+
+    return static_cast<RET>(f(args_01,
+                              args_02));
 }
 
 template <class RET, class ARGS_01,
@@ -6184,9 +6192,10 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03));
 }
 
 template <class RET, class ARGS_01,
@@ -6205,10 +6214,11 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04));
 }
 
 template <class RET, class ARGS_01,
@@ -6230,11 +6240,12 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05));
 }
 
 template <class RET, class ARGS_01,
@@ -6259,12 +6270,13 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06));
 }
 
 template <class RET, class ARGS_01,
@@ -6292,13 +6304,14 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07));
 }
 
 template <class RET, class ARGS_01,
@@ -6329,14 +6342,15 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07,
-             args_08);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07,
+                              args_08));
 }
 
 template <class RET, class ARGS_01,
@@ -6370,15 +6384,16 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07,
-             args_08,
-             args_09);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07,
+                              args_08,
+                              args_09));
 }
 
 template <class RET, class ARGS_01,
@@ -6415,16 +6430,17 @@ RET bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07,
-             args_08,
-             args_09,
-             args_10);
+
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07,
+                              args_08,
+                              args_09,
+                              args_10));
 }
 
 
@@ -6434,7 +6450,7 @@ RET
 bsl::function<RET()>::outofplaceFunctorInvoker(const Function_Rep *rep)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f();
+    return static_cast<RET>(f());
 }
 
 template <class RET, class ARGS_01>
@@ -6444,7 +6460,7 @@ bsl::function<RET(ARGS_01)>::outofplaceFunctorInvoker(const Function_Rep *rep,
                          typename bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01);
+    return static_cast<RET>(f(args_01));
 }
 
 template <class RET, class ARGS_01,
@@ -6457,8 +6473,8 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02);
+    return static_cast<RET>(f(args_01,
+                              args_02));
 }
 
 template <class RET, class ARGS_01,
@@ -6474,9 +6490,9 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03));
 }
 
 template <class RET, class ARGS_01,
@@ -6495,10 +6511,10 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04));
 }
 
 template <class RET, class ARGS_01,
@@ -6520,11 +6536,11 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05));
 }
 
 template <class RET, class ARGS_01,
@@ -6549,12 +6565,12 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06));
 }
 
 template <class RET, class ARGS_01,
@@ -6582,13 +6598,13 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07));
 }
 
 template <class RET, class ARGS_01,
@@ -6619,14 +6635,14 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07,
-             args_08);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07,
+                              args_08));
 }
 
 template <class RET, class ARGS_01,
@@ -6660,15 +6676,15 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07,
-             args_08,
-             args_09);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07,
+                              args_08,
+                              args_09));
 }
 
 template <class RET, class ARGS_01,
@@ -6705,16 +6721,16 @@ bsl::function<RET(ARGS_01,
                          typename bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args_01,
-             args_02,
-             args_03,
-             args_04,
-             args_05,
-             args_06,
-             args_07,
-             args_08,
-             args_09,
-             args_10);
+    return static_cast<RET>(f(args_01,
+                              args_02,
+                              args_03,
+                              args_04,
+                              args_05,
+                              args_06,
+                              args_07,
+                              args_08,
+                              args_09,
+                              args_10));
 }
 
 
@@ -7313,7 +7329,7 @@ template <class RET>
 template <class FUNC>
 typename bsl::function<RET()>::Invoker *
 bsl::function<RET()>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7322,7 +7338,7 @@ template <class RET, class ARGS_01>
 template <class FUNC>
 typename bsl::function<RET(ARGS_01)>::Invoker *
 bsl::function<RET(ARGS_01)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7334,7 +7350,7 @@ typename bsl::function<RET(ARGS_01,
                            ARGS_02)>::Invoker *
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7349,7 +7365,7 @@ typename bsl::function<RET(ARGS_01,
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7367,7 +7383,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
                   ARGS_04)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7388,7 +7404,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_03,
                   ARGS_04,
                   ARGS_05)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7412,7 +7428,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_04,
                   ARGS_05,
                   ARGS_06)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7439,7 +7455,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_05,
                   ARGS_06,
                   ARGS_07)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7469,7 +7485,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_06,
                   ARGS_07,
                   ARGS_08)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7502,7 +7518,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_07,
                   ARGS_08,
                   ARGS_09)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -7538,7 +7554,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_08,
                   ARGS_09,
                   ARGS_10)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -12990,7 +13006,8 @@ RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
                             typename bslmf::ForwardingType<ARGS>::Type... args)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
-    return f(args...);
+
+    return static_cast<RET>(f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -13000,7 +13017,7 @@ bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep,
                             typename bslmf::ForwardingType<ARGS>::Type... args)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return f(args...);
+    return static_cast<RET>(f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -13036,7 +13053,7 @@ template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
-                                      bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<FitsInplace>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
