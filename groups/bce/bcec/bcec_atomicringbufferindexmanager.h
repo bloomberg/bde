@@ -162,7 +162,7 @@ class bcec_AtomicRingBufferIndexManager {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  'isEnabled' will be 'true' for the
         // newly created index manager.  The behavior is undefined unless 
-        // '0 < capacity' and 'capacity < e_MAX_CAPACITY'.
+        // '0 < capacity' and 'capacity <= e_MAX_CAPACITY'.
         
     ~bcec_AtomicRingBufferIndexManager();
         // Destroy this object.

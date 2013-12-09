@@ -250,7 +250,8 @@ bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
 , d_maxCombinedIndex(d_maxGeneration * capacity)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT_OPT(0 < capacity && capacity <= e_MAX_CAPACITY);
+    BSLS_ASSERT_OPT(0        <  capacity);
+    BSLS_ASSERT_OPT(capacity <= e_MAX_CAPACITY);
 
     d_states = static_cast<bsls::AtomicInt*>(
                 d_allocator_p->allocate(sizeof(bsls::AtomicInt) * capacity));
@@ -275,6 +276,9 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
                                                      unsigned int *generation,
                                                      unsigned int *index)
 {
+    BSLS_ASSERT(0 != generation);
+    BSLS_ASSERT(0 != index);
+
     enum Status { e_SUCCESS = 0, e_QUEUE_FULL = 1, e_DISABLED_QUEUE = -1 };
 
     unsigned int loadedPushIndex = d_pushIndex.loadRelaxed();
@@ -319,7 +323,8 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
         // 2) This index has already been acquired during this generation.
         // In either case, we'll need to examine the marked generation.
 
-        const int markedGeneration = decodeGenerationFromElementState(was);
+        const unsigned int markedGeneration = 
+                                         decodeGenerationFromElementState(was);
 
         if ((markedGeneration < currGeneration) &&
              BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -380,6 +385,11 @@ void bcec_AtomicRingBufferIndexManager::releasePushIndex(
                                                        unsigned int generation,
                                                        unsigned int index)
 {
+    BSLS_ASSERT(generation <= d_maxGeneration);
+    BSLS_ASSERT(index      <= d_capacity);
+    // We cannot guarantee the full preconditions of this function, the
+    // preceding assertions are as close as we can get.
+
     // Mark the pushed cell with the 'FULL' state.
 
     d_states[index] = encodeElementState(generation, e_FULL);
@@ -390,6 +400,9 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
                                                       unsigned int *generation,
                                                       unsigned int *index)
 {
+    BSLS_ASSERT(0 != generation);
+    BSLS_ASSERT(0 != index);
+
     enum Status { e_SUCCESS = 0, e_QUEUE_EMPTY = 1, e_DISABLED_QUEUE = -1 };
 
     unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
@@ -424,7 +437,8 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
         // 2) This index is currently waiting on a popper from this generation
         // 3) The queue is empty
 
-        const int markedGeneration = decodeGenerationFromElementState(was);
+        const unsigned int markedGeneration = 
+                                         decodeGenerationFromElementState(was);
 
         if (currGeneration != markedGeneration) {
             // Waiting for popping threads from the previous generation.
@@ -477,6 +491,11 @@ void bcec_AtomicRingBufferIndexManager::releasePopIndex(
                                                     unsigned int generation,
                                                     unsigned int index)
 {
+    BSLS_ASSERT(generation <= d_maxGeneration);
+    BSLS_ASSERT(index      <= d_capacity);
+    // We cannot guarantee the full preconditions of this function, the
+    // preceding assertions are as close as we can get.
+
     // Mark the popped cell with the subsequent generation and the EMPTY
     // state.
 
@@ -491,7 +510,7 @@ void bcec_AtomicRingBufferIndexManager::disable()
     // Loop until we detect the disabled bit in the push index has been set.
 
     for (;;) {
-        unsigned int pushIndex = d_pushIndex;
+        const unsigned int pushIndex = d_pushIndex;
 
         if (isDisabledFlagSet(pushIndex)) {
             // The queue is already disabled.
@@ -499,9 +518,9 @@ void bcec_AtomicRingBufferIndexManager::disable()
             return;                                                   // RETURN
         }
 
-        if (pushIndex ==
-            d_pushIndex.testAndSwap(pushIndex,
-                                    pushIndex | e_DISABLED_STATE_MASK)) {
+        if (pushIndex == static_cast<unsigned int>(
+                d_pushIndex.testAndSwap(pushIndex,
+                                        pushIndex | e_DISABLED_STATE_MASK))) {
             // The queue has been successfully disabled.
 
             break;
@@ -515,7 +534,7 @@ void bcec_AtomicRingBufferIndexManager::enable()
     // Loop until we detect the disabled bit in the push index has been unset.
 
     for (;;) {
-        unsigned int pushIndex = d_pushIndex;
+        const unsigned int pushIndex = d_pushIndex;
 
         if (!isDisabledFlagSet(pushIndex)) {
             // The queue is already enabled.
@@ -523,9 +542,9 @@ void bcec_AtomicRingBufferIndexManager::enable()
             return;                                                   // RETURN
         }
 
-        if (pushIndex ==
-            d_pushIndex.testAndSwap(pushIndex,
-                                    pushIndex & ~e_DISABLED_STATE_MASK)) {
+        if (pushIndex == static_cast<unsigned int>(
+                d_pushIndex.testAndSwap(pushIndex,
+                                        pushIndex & ~e_DISABLED_STATE_MASK))) {
             // The queue has been successfully enabled.
 
             break;
@@ -537,7 +556,6 @@ void bcec_AtomicRingBufferIndexManager::incrementPopIndexFrom(
                                                             unsigned int index)
 {
     unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
-    unsigned int generation     = loadedPopIndex / d_capacity;
     unsigned int currentIndex   = loadedPopIndex % d_capacity;
 
     if (currentIndex == index) {
@@ -549,9 +567,11 @@ void bcec_AtomicRingBufferIndexManager::incrementPopIndexFrom(
 // ACCESSORS
 unsigned int bcec_AtomicRingBufferIndexManager::length() const
 {
-    // Note: 'bcec_AtomicRingBuffer::pushBack' relies on the fact that the
+    // Note that 'bcec_AtomicRingBuffer::pushBack' and
+    // 'bcec_AtomicRingBuffer::popFront' rely on the fact that the
     // following atomic load has a release barrier.  If this were to change,
-    // 'bcec_AtomicRingBuffer::pusherBack' would need to be modified.
+    // 'bcec_AtomicRingBuffer::tryPushBack' and
+    // 'bcec_AtomicRingBuffer::tryPopFront' would need to be modified.
 
     bsls::Types::Int64 combinedPushIndex = discardDisabledFlag(d_pushIndex);
     bsls::Types::Int64 combinedPopIndex  = d_popIndex;
@@ -559,7 +579,7 @@ unsigned int bcec_AtomicRingBufferIndexManager::length() const
     bsls::Types::Int64 difference = combinedPushIndex - combinedPopIndex;
 
     if (difference >= 0) {
-        return difference;                                            // RETURN
+        return static_cast<unsigned int>(difference);                 // RETURN
     }
 
     // If difference is negative, it may be because the push-index has gone
@@ -568,7 +588,7 @@ unsigned int bcec_AtomicRingBufferIndexManager::length() const
 
     if (combinedPopIndex  >= d_maxCombinedIndex - d_capacity &&
         combinedPushIndex <  d_capacity) {
-        return difference + d_maxCombinedIndex;        
+        return static_cast<unsigned int>(difference + d_maxCombinedIndex); 
     }
 
     // Because the push and pop indices are accessed independently 

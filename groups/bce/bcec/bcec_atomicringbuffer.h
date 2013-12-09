@@ -517,7 +517,14 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
 {
     bsl::size_t generation;
     bsl::size_t index;
-    
+
+    // SYNCHRONIZATION POINT 1
+    // The following call to 'acquirePushIndex' writes
+    // 'bcec_AtomicRingBufferIndexManaged::d_pushIndex' with full sequential
+    // consistency, which guarantees the subsequent (relaxed) read from
+    // 'd_numWaitingPoppers' sees any waiting pointers from SYNCHRONIZATION
+    // POINT 1-Prime.
+   
     int retval = d_impl.acquirePushIndex(&generation, &index);
     
     if (0 != retval) {
@@ -536,7 +543,7 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
     guard.release();
     d_impl.releasePushIndex(generation, index);
     
-    // notify poppers of available data
+    
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPoppers)) {
         d_popControlSema.post();
     }
@@ -549,6 +556,14 @@ int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE *data)
 {
     bsl::size_t generation;
     bsl::size_t index;
+
+    // SYNCHRONIZATION POINT 2
+    // The following call to 'acquirePopIndex' writes
+    // 'bcec_AtomicRingBufferIndexManaged::d_popIndex' with full sequential
+    // consistency, which guarantees the subsequent (relaxed) read from
+    // 'd_numWaitingPoppers' sees any waiting pointers from SYNCHRONIZATION
+    // POINT 2-Prime.
+
     int retval = d_impl.acquirePopIndex(&generation, &index);
     
     if (0 != retval) {
@@ -575,7 +590,14 @@ int bcec_AtomicRingBuffer<TYPE>::pushBack(const TYPE &data)
         }
         
         d_numWaitingPushers.addRelaxed(1);
-        
+
+        // SYNCHRONIZATION POINT 1-Prime
+        // The following call to 'isFull' loads
+        // 'bcec_AtomicRingBufferIndexManager::d_pushIndex' with full
+        // sequential consistency, which is required to ensure the visibilty
+        // of the preceding change to 'd_numWaitingPushers' to SYNCHRONIZATION
+        // POINT 2.
+
         if (isFull() && isEnabled()) {
             d_pushControlSema.wait();
         }
@@ -591,6 +613,13 @@ void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
 {
     while(0 != tryPopFront(data)) {
         d_numWaitingPoppers.addRelaxed(1);
+
+        // SYNCHRONIZATION POINT 2-Prime
+        // The following call to 'isEmpty' loads
+        // 'bcec_AtomicRingBufferIndexManager::d_pushIndex' with full
+        // sequential consistency, which is required to ensure the visibilty
+        // of the preceding change to 'd_numWaitingPushers' to SYNCHRONIZATION
+        // POINT 2.
 
         if (isEmpty()) {
             d_popControlSema.wait();
