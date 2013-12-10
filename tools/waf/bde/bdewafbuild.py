@@ -151,8 +151,9 @@ class BdeWafBuild(object):
         package_node = group_node.make_node(package_name)
         deps = [p + '_src' for p in self.package_dep[package_name]]
 
-        for g in group_internal_deps:
-            deps.extend([p + '_lib' for p in self.group_mem[g]])
+        deps.extend(group_internal_deps)
+        # for g in group_internal_deps:
+        #     deps.extend([p + '_lib' for p in self.group_mem[g]])
 
         cxxflags = self.ctx.env[package_name + '_cxxflags']
         linkflags = self.ctx.env[package_name + '_linkflags']
@@ -203,7 +204,6 @@ class BdeWafBuild(object):
 
         if not cpp_files:
             self.ctx(name            = package_name + '_src',
-                     group           = group_node.name,
                      path            = package_node,
                      includes        = '.',
                      export_includes = '.'
@@ -211,7 +211,6 @@ class BdeWafBuild(object):
         else:
             self.ctx(name            = package_name + '_src',
                      path            = package_node,
-                     group           = group_node.name,
                      source          = cpp_files,
                      features        = self.features,
                      cxxflags        = cxxflags,
@@ -224,7 +223,6 @@ class BdeWafBuild(object):
             self.ctx(name            = package_name + '_lib',
                      path            = package_node,
                      target          = package_name,
-                     group           = group_node.name,
                      features        = self.features + self.libtype_features,
                      linkflags       = linkflags,
                      lib             = libs,
@@ -240,7 +238,6 @@ class BdeWafBuild(object):
                     build_test = self.ctx(
                         name         = c + '.t',
                         path         = package_node,
-                        group        = group_node.name,
                         source       = c + '.t.cpp',
                         target       = c + '.t',
                         features     = test_features,
@@ -273,6 +270,7 @@ class BdeWafBuild(object):
         group_node = groups_node.make_node(group_name)
         deps = set(self.group_dep[group_name])
         internal_deps = deps - self.external_libs
+        internal_deps = [g + '_lib' for g in internal_deps]
         external_deps = deps & self.external_libs
 
         # waf uses all uppercase words to identify pkgconfig based dependencies
@@ -283,7 +281,7 @@ class BdeWafBuild(object):
         libs = self.ctx.env[group_name + '_libs']
 
         # Note that 'add_group' adds a waf build group, which is not related to a package group
-        self.ctx.add_group(group_name)
+        # self.ctx.add_group(group_name)
 
         for p in packages:
             self._build_package(p, group_node, internal_deps, external_deps)
@@ -294,19 +292,23 @@ class BdeWafBuild(object):
         else:
             install_path = None
 
-        self.ctx(name         = group_name,
+
+        print "***build_group %s" % group_name
+
+        self.ctx(name         = group_name + '_lib',
                  path         = group_node,
-                 group        = group_name,
-                 # source       = packages,
                  target       = group_name,
                  features     = self.features + self.libtype_features,
                  linkflags    = linkflags,
                  lib          = libs,
-                 use          = list(internal_deps) + [p + '_src' for p in packages] + [p + '_tst' for p in packages],
+                 use          = list(internal_deps) + [p + '_src' for p in packages],
                  uselib       = external_deps,
                  install_path = install_path,
                  )
 
+
+        self.ctx(name       = group_name,
+                 depends_on = [group_name + '_lib']  + [p + '_tst' for p in packages])
 
 
     VERSION_CHECK_TEMPLATE = '''

@@ -2,6 +2,7 @@ import optparse
 import copy
 import re
 import os
+import sys
 
 class RawOptions(object):
 
@@ -84,6 +85,7 @@ class RawOptions(object):
         except IOError:
             # skip if the option file can't be found
             # (IOError - 2.x/3.x, FileNotFoundError - 3.x)
+            # print >>sys.stderr, "Warning: can't read %s" % opts_file
             pass
 
 
