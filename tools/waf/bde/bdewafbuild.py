@@ -280,9 +280,6 @@ class BdeWafBuild(object):
         linkflags = self.ctx.env[group_name + '_linkflags']
         libs = self.ctx.env[group_name + '_libs']
 
-        # Note that 'add_group' adds a waf build group, which is not related to a package group
-        # self.ctx.add_group(group_name)
-
         for p in packages:
             self._build_package(p, group_node, internal_deps, external_deps)
 
@@ -291,9 +288,6 @@ class BdeWafBuild(object):
             self._make_pc_group(group_name, internal_deps, external_deps)
         else:
             install_path = None
-
-
-        print "***build_group %s" % group_name
 
         self.ctx(name         = group_name + '_lib',
                  path         = group_node,
