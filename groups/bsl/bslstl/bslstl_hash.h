@@ -1020,25 +1020,25 @@ std::size_t hash<bool>::operator()(bool x) const
 inline
 std::size_t hash<char>::operator()(char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<signed char>::operator()(signed char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned char>::operator()(unsigned char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<wchar_t>::operator()(wchar_t x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
@@ -1058,49 +1058,53 @@ std::size_t hash<char>::operator()(char32_t x) const
 inline
 std::size_t hash<short>::operator()(short x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned short>::operator()(unsigned short x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<int>::operator()(int x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned int>::operator()(unsigned int x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<long>::operator()(long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned long>::operator()(unsigned long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<long long>::operator()(long long x) const
 {
+    if (sizeof (x) > sizeof (std::size_t))
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    else return x;
 }
 
 inline
 std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
 {
+    if (sizeof (x) > sizeof (std::size_t))
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    else return x;
 }
 
 inline
