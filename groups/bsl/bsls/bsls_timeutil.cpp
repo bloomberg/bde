@@ -22,9 +22,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-    #include <sys/time.h>  // gethrtime()
+    #include <sys/time.h>       // gethrtime()
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
-    #include <sys/time.h>  // gettimeofday()
+    #include <stdlib.h>         // abort()
+    #include <mach/mach_time.h> // mach_absolute_time(), mach_timebase_info()
 #endif
 
 namespace BloombergLP {
@@ -449,6 +450,148 @@ bsls::Types::Int64 WindowsTimerUtil::getTimerRaw()
 
 #endif
 
+#ifdef BSLS_PLATFORM_OS_DARWIN
+
+// Define a local assert macro to serve the same function as 'BSLS_ASSERT'
+// because this component can not depend on bsls_assert.  The bsls_assert
+// component has an indirect (and testing only) dependency on this
+// component.
+//
+// TBD: Replace with BSLS_ASSERT once indirect dependency is removed.
+
+#if defined(BDE_BUILD_TARGET_SAFE_2) ||                                       \
+    defined(BDE_BUILD_TARGET_SAFE) ||                                         \
+    !defined(BDE_BUILD_TARGET_OPT)
+    #define BSLS_TIMEUTIL_ASSERT(x) do {                                      \
+        if (!(x)) {                                                           \
+            abort();                                                          \
+        }                                                                     \
+    } while (false)
+#else
+    #define BSLS_TIMEUTIL_ASSERT(x)
+#endif
+
+struct MachTimerUtil {
+    // Provides access to high-resolution Mach kernel timer
+
+  private:
+    // CLASS DATA
+    static bsls::AtomicOperations::AtomicTypes::Int  s_initRequired;
+
+    static bsls::Types::Int64                        s_initialTime;
+                                                // initial time for the
+                                                // Mach hardware
+                                                // timer
+
+    static mach_timebase_info_data_t                 s_timeBase;
+                                                // time base used to
+                                                // scale the absolute
+                                                // raw timer values
+
+  public:
+    // CLASS METHODS
+    static void initialize();
+        // Ensure all the fields are initialized (currently the 's_initialTime'
+        // and the 's_timeBase' values above).
+
+    static bsls::Types::Int64 getTimerRaw();
+        // Return a machine-dependent value representing the current time.
+        // 'timeValue' must be converted by the 'convertRawTime' method to
+        // conventional units (nanoseconds).  This method is intended to
+        // facilitate accurate timing of small segments of code, and care must
+        // be used in interpreting the results.  Note that this method is
+        // thread-safe only if 'initialize' has been called before.
+
+    static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
+        // Convert the specified 'rawTime' to a value in nanoseconds,
+        // referenced to an arbitrary but fixed origin, and return the result
+        // of the conversion.  Note that this method is thread-safe only if
+        // 'initialize' has been called before.
+};
+
+bsls::AtomicOperations::AtomicTypes::Int
+                                     MachTimerUtil::s_initRequired   = {1};
+bsls::Types::Int64                   MachTimerUtil::s_initialTime    = {-1};
+mach_timebase_info_data_t            MachTimerUtil::s_timeBase;
+
+inline
+void MachTimerUtil::initialize()
+{
+    if (bsls::AtomicOperations::getIntAcquire(&s_initRequired)) {
+
+        // There is little official documentation on 'mach_absolute_time'
+        // and 'mach_timebase_info'.  The 'mach_absolute_time' return value
+        // is declared 'uint64_t' in 'mach/mach_time.h' and it has been
+        // observed to have the high bit set on hardware with an uptime of
+        // only 18 days.  Therefore, a base value is saved in 'initialize'
+        // and all returned 'getTimerRaw' values are relative to that value.
+        //
+        // According to a technical question found on Apple's website, the
+        // value returned by 'mach_absolute_time' can be scaled correctly
+        // without a dependency on the 'CoreServices' framework by calling
+        // 'mach_timebase_info' and using the returned values.  The values
+        // do not change, so they are cached in 'initialize'.
+        //
+        //: o https://developer.apple.com/library/mac/documentation/darwin
+        //:           /conceptual/kernelprogramming/services/services.html
+        //: o https://developer.apple.com/library/mac/qa/qa1398/_index.html
+
+        s_initialTime = (bsls::Types::Int64) mach_absolute_time();
+
+        (void) mach_timebase_info(&s_timeBase);
+
+        bsls::AtomicOperations::setIntRelease(&s_initRequired, 0);
+    }
+}
+
+inline
+bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
+{
+    initialize();
+
+#ifdef __SIZEOF_INT128__
+
+    // Use the built-in '__int128' type to avoid any potential overflow.
+
+    __int128 result = (__int128) rawTime *
+                      (__int128) s_timeBase.numer /
+                      (__int128) s_timeBase.denom;
+    return (bsls::Types::Int64) result;
+
+#else // !__SIZEOF_INT128__
+
+    #if defined(BSLS_PLATFORM_CMP_CLANG) || \
+        defined(BSLS_PLATFORM_CMP_GNU)
+
+    // In practice, it is not expected that multiplying 'rawTime' by
+    // 's_timeBase.numer' will overflow an Int64.  The 'numer' and
+    // 'denom' values have been observed to both be 1 on a late model
+    // laptop.  Just to be safe, the overflow is checked in safe builds.
+    //
+    // The built-in compiler intrinsic '__builtin_clzll' is used to count
+    // the bits required to multiply the two operands without overflow.
+
+    BSLS_TIMEUTIL_ASSERT(
+        (64 - __builtin_clzll(rawTime)) +
+        (64 - __builtin_clzll((bsls::Types::Int64) s_timeBase.numer)) <= 64);
+
+    #endif
+
+    return rawTime * s_timeBase.numer / s_timeBase.denom;
+
+#endif // !__SIZEOF_INT128__
+}
+
+inline
+bsls::Types::Int64 MachTimerUtil::getTimerRaw()
+{
+    initialize();
+
+    return (bsls::Types::Int64) (mach_absolute_time() - s_initialTime);
+}
+
+#endif
+
 }  // close unnamed namespace
 
 namespace bsls {
@@ -462,6 +605,9 @@ void TimeUtil::initialize()
 {
 #if defined BSLS_PLATFORM_OS_UNIX
     UnixTimerUtil::initialize();
+    #if defined BSLS_PLATFORM_OS_DARWIN
+        MachTimerUtil::initialize();
+    #endif
 #elif defined BSLS_PLATFORM_OS_WINDOWS
     WindowsTimerUtil::initialize();
 #else
@@ -495,6 +641,10 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
     const Types::Int64 G = 1000000000;
     return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
 
+#elif defined BSLS_PLATFORM_OS_DARWIN
+
+    return MachTimerUtil::convertRawTime(rawTime.d_opaque);
+
 #elif defined BSLS_PLATFORM_OS_UNIX
 
     const Types::Int64 K = 1000;
@@ -519,9 +669,10 @@ Types::Int64 TimeUtil::getTimer()
 
     return gethrtime();
 
-#elif defined BSLS_PLATFORM_OS_AIX   || \
-      defined BSLS_PLATFORM_OS_HPUX  || \
-      defined BSLS_PLATFORM_OS_LINUX || \
+#elif defined BSLS_PLATFORM_OS_AIX    || \
+      defined BSLS_PLATFORM_OS_HPUX   || \
+      defined BSLS_PLATFORM_OS_LINUX  || \
+      defined BSLS_PLATFORM_OS_DARWIN || \
       defined BSLS_PLATFORM_OS_UNIX
 
     TimeUtil::OpaqueNativeTime rawTime;
@@ -611,6 +762,10 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     clock_gettime(CLOCK_MONOTONIC, timeValue);         // significantly slower
                                                        // ~1.8 usec
+
+#elif defined BSLS_PLATFORM_OS_DARWIN
+
+    timeValue->d_opaque = MachTimerUtil::getTimerRaw();
 
 #elif defined BSLS_PLATFORM_OS_UNIX
 
