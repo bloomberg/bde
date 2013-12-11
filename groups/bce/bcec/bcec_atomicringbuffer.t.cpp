@@ -1060,8 +1060,38 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "Basic exception guarantee test" << endl
                           << "==============================" << endl;
-        
+
         bcema_TestAllocator ta(veryVeryVerbose);
+
+        if (verbose) {
+            cout << endl
+                 << "Testing exception safety queue of size 1" << endl;
+        }
+        {
+            bcec_AtomicRingBuffer<ExceptionTester> queue(1, &ta);
+
+            ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
+                                           bcemt_ThreadUtil::selfIdAsUint64());
+
+            bool caught = false;
+            try {
+                queue.pushBack(ExceptionTester());
+            }
+            catch (...) {
+                caught = true;
+            }
+            ASSERT(caught);
+
+            ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(0);
+
+        }
+
+        
+
+        if (verbose) {
+            cout << endl
+                 << "Testing exception safety for mutiple threads" << endl;
+        }
         {        
             // b.  popping from a queue with exception operates normally.
 
@@ -1085,7 +1115,7 @@ int main(int argc, char *argv[])
             BSLS_ASSERT_OPT(0 == rc); // test invariant
             
             ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
-                                            bcemt_ThreadUtil::selfIdAsUint64());
+                                           bcemt_ThreadUtil::selfIdAsUint64());
 
             if (veryVerbose) {
                 cout << endl
@@ -1141,7 +1171,7 @@ int main(int argc, char *argv[])
             ExceptionTester test = queue.popFront();
             ASSERT(0 == 
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
-            ASSERT(1 == numCaught);
+            LOOP_ASSERT(numCaught, 1 == numCaught);
 
             LOOP_ASSERT(queue.length(), 0 == queue.length());
             ASSERT(!queue.isFull());
@@ -1166,10 +1196,8 @@ int main(int argc, char *argv[])
 
             bcemt_ThreadUtil::join(producer);
         }
-        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-        break;
-      }
+      } break;
       case 16: {
         // ---------------------------------------------------------
         // Template Requirements Test

@@ -272,7 +272,7 @@ bcec_AtomicRingBufferIndexManager::~bcec_AtomicRingBufferIndexManager()
 }
 
 // MANIPULATORS
-int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
+int bcec_AtomicRingBufferIndexManager::reservePushIndex(
                                                      unsigned int *generation,
                                                      unsigned int *index)
 {
@@ -304,8 +304,6 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
         currGeneration = combinedIndex / d_capacity;
         currIndex      = combinedIndex % d_capacity;
 
-        *generation = currGeneration;
-        *index      = currIndex;
 
         const int compare = encodeElementState(currGeneration, e_EMPTY);
         const int swap    = encodeElementState(currGeneration, e_WRITING);
@@ -315,21 +313,23 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
             // We've successfuly changed the state and thus acquired
             // the index.  Exit the loop.
 
+            *generation = currGeneration;
+            *index      = currIndex;       
             break;
         }
 
         // We've failed to acquire the index. This implies that either:
-        // 1) The previous generation has not been read
+        // 1) The previous generation has not been popped
         // 2) This index has already been acquired during this generation.
         // In either case, we'll need to examine the marked generation.
 
-        const unsigned int markedGeneration = 
+        const unsigned int elementGeneration = 
                                          decodeGenerationFromElementState(was);
 
-        if ((markedGeneration < currGeneration) &&
+        if ((elementGeneration < currGeneration) &&
              BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                   0               != currGeneration &&
-                                  d_maxGeneration != markedGeneration)) {
+                                  d_maxGeneration != elementGeneration)) {
             // The previous generation has not been read.  Notice that we also
             // had to test the generation count had not rolled back to 0.
 
@@ -355,7 +355,6 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
             }
             return e_QUEUE_FULL;                                      // RETURN
         }
-
         // Another thread has already acquired this cell. Attempt to
         // increment the push index.
         unsigned int next = nextCombinedIndex(combinedIndex);
@@ -381,12 +380,12 @@ int bcec_AtomicRingBufferIndexManager::acquirePushIndex(
     return e_SUCCESS;
 }
 
-void bcec_AtomicRingBufferIndexManager::releasePushIndex(
+void bcec_AtomicRingBufferIndexManager::commitPushIndex(
                                                        unsigned int generation,
                                                        unsigned int index)
 {
     BSLS_ASSERT(generation <= d_maxGeneration);
-    BSLS_ASSERT(index      <= d_capacity);
+    BSLS_ASSERT(index      <  d_capacity);
     // We cannot guarantee the full preconditions of this function, the
     // preceding assertions are as close as we can get.
 
@@ -396,14 +395,14 @@ void bcec_AtomicRingBufferIndexManager::releasePushIndex(
 }
 
 
-int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
+int bcec_AtomicRingBufferIndexManager::reservePopIndex(
                                                       unsigned int *generation,
                                                       unsigned int *index)
 {
     BSLS_ASSERT(0 != generation);
     BSLS_ASSERT(0 != index);
 
-    enum Status { e_SUCCESS = 0, e_QUEUE_EMPTY = 1, e_DISABLED_QUEUE = -1 };
+    enum Status { e_SUCCESS = 0, e_QUEUE_EMPTY = 1 };
 
     unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
 
@@ -419,9 +418,6 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
         currGeneration = loadedPopIndex / d_capacity;
         currIndex      = loadedPopIndex % d_capacity;
 
-        *generation = currGeneration;
-        *index      = currIndex;
-
         // Attempt to swap this cell's state from e_FULL to 'e_READING'
 
         const int compare = encodeElementState(currGeneration, e_FULL);
@@ -429,6 +425,12 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
         const int was     = d_states[currIndex].testAndSwap(compare, swap);
 
         if (compare == was) {
+            // We've successfuly changed the state and thus acquired
+            // the index.  Exit the loop.
+
+            *generation = currGeneration;
+            *index      = currIndex;
+
             break;
         }
 
@@ -462,16 +464,16 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
             }
             return e_QUEUE_EMPTY;                                     // RETURN
         }
-        else if (e_WRITING == state) {
-            // Another thread is currently writing to this cell.  Re-load
-            // the pop index and return to the top of the loop.
+        else if (e_WRITING == state || e_FULL == state) {
+            // Either another thread is currently writing to this cell, or
+            // this thread has been blocked for some time and a whole
+            // generation has passed.  Re-load the pop index and return to the
+            // top of the loop. 
 
             bcemt_ThreadUtil::yield();
             loadedPopIndex = d_popIndex.loadRelaxed();
             continue;
         }
-        BSLS_ASSERT(e_FULL != state);
-
         // Another thread is popping this element, so attempt to increment the
         // pop index and try again.
 
@@ -487,12 +489,12 @@ int bcec_AtomicRingBufferIndexManager::acquirePopIndex(
     return 0;
 }
 
-void bcec_AtomicRingBufferIndexManager::releasePopIndex(
+void bcec_AtomicRingBufferIndexManager::commitPopIndex(
                                                     unsigned int generation,
                                                     unsigned int index)
 {
     BSLS_ASSERT(generation <= d_maxGeneration);
-    BSLS_ASSERT(index      <= d_capacity);
+    BSLS_ASSERT(index      <  d_capacity);
     // We cannot guarantee the full preconditions of this function, the
     // preceding assertions are as close as we can get.
 
@@ -552,16 +554,123 @@ void bcec_AtomicRingBufferIndexManager::enable()
     }
 }
 
-void bcec_AtomicRingBufferIndexManager::incrementPopIndexFrom(
-                                                            unsigned int index)
+int bcec_AtomicRingBufferIndexManager::clearPopIndex(
+                                              unsigned int *disposedGeneration,
+                                              unsigned int *disposedIndex,
+                                              unsigned int  endGeneration,
+                                              unsigned int  endIndex)
 {
-    unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
-    unsigned int currentIndex   = loadedPopIndex % d_capacity;
+    // IMPLEMENTATION NOTE: This operation is logically equivalent to calling
+    // 'reservePopIndex' and then 'commitPopIndex' with the additional test
+    // that the index being popped is not at or beyond the supplied
+    // 'endGeneration' and 'endIndex'.
+    
+    BSLS_ASSERT(endGeneration <= d_maxGeneration);
+    BSLS_ASSERT(endIndex      <  d_capacity);
 
-    if (currentIndex == index) {
-        unsigned int nextIndex = nextCombinedIndex(loadedPopIndex);
-        d_popIndex.testAndSwap(loadedPopIndex, nextIndex);
+    enum { e_SUCCESS = 0, e_FAILURE = -1 };
+
+    unsigned int loadedCombinedIndex = d_popIndex.loadRelaxed();
+    for (;;) {
+        unsigned int endCombinedIndex = endGeneration * d_capacity + endIndex;
+
+        if (loadedCombinedIndex >= endCombinedIndex) {
+            // If the current pop index is at or after the supplied ending pop
+            // index. 
+
+            return e_FAILURE;
+        }
+
+        unsigned int currentIndex      = loadedCombinedIndex % d_capacity;
+        unsigned int currentGeneration = loadedCombinedIndex / d_capacity;
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                0 == currentGeneration && endGeneration == d_maxGeneration)) {
+            // Test for the special case where the current pop index is at or
+            // after the supplied ending pop index because the generation has
+            // looped back to 0.
+
+            return e_FAILURE;
+        }
+               
+        // Attempt to swap this cell's state from e_FULL to 'e_READING', note
+        // that we set this to 'e_EMPTY' only after we attempt to increment
+        // the popIndex, so that another popping thrread will not accidentally
+        // see this cell as empty and return that the queue is empty.
+
+        const int compare = encodeElementState(currentGeneration, e_FULL);
+        const int swap    = encodeElementState(currentGeneration, e_READING);
+        const int was     = d_states[currentIndex].testAndSwap(compare, swap);
+
+        if (compare == was) {
+            // We've successfully disposed of this index.
+
+            *disposedGeneration = currentGeneration;
+            *disposedIndex      = currentIndex;
+            break;
+        }
+
+        int state = decodeStateFromElementState(was);
+
+        // This element must not be empty, because it precedes the supplied
+        // 'endGeneration' and 'endIndex'.
+        BSLS_ASSERT(e_EMPTY != state);  
+
+        if (e_WRITING == state || e_FULL == state) {
+            // Another thread is currently writing to this cell, or this
+            // thread has been asleep for an entire generation.  Re-load
+            // the pop index and return to the top of the loop.
+
+            bcemt_ThreadUtil::yield();
+            loadedCombinedIndex = d_popIndex.loadRelaxed();
+            continue;
+        }
+
+        // The only remaining state is 'e_READING', attempt to increment the
+        // pop index to the next element.
+
+        BSLS_ASSERT(e_READING == state);
+        unsigned int next   = nextCombinedIndex(loadedCombinedIndex);
+        loadedCombinedIndex = d_popIndex.testAndSwap(loadedCombinedIndex, 
+                                                     next);
     }
+    
+    // Attempt to increment the operation index.
+    d_popIndex.testAndSwap(loadedCombinedIndex,
+                           nextCombinedIndex(loadedCombinedIndex));
+
+    // Mark the disposed cell empty.  We do this after incrememting the pop
+    // index to ensure that another popping thread does not attempt to pop the
+    // empty cell, and assume the queue is empty.
+
+    d_states[*disposedIndex] = encodeElementState(
+                                           nextGeneration(*disposedGeneration), 
+                                           e_EMPTY);
+
+    return e_SUCCESS;
+}
+
+void bcec_AtomicRingBufferIndexManager::abortPushIndexReservation(
+                                                        unsigned int generation,
+                                                        unsigned int index)
+{
+    BSLS_ASSERT(generation <= d_maxGeneration);
+    BSLS_ASSERT(index      <  d_capacity);
+    BSLS_ASSERT(d_popIndex.loadRelaxed() == generation * d_capacity + index);
+
+    // Note that the preconditions for this function -- that (1) the current
+    // thread hold a push-index reservation on 'generation' and 'index', and
+    // (2) have called 'clearPopIndex' on all the preceding generation and
+    // index values -- require that 'd_popIndex' refer to 'generation' and
+    // 'index. 
+
+    unsigned int loadedPopIndex = d_popIndex.loadRelaxed();   
+    unsigned int nextIndex = nextCombinedIndex(loadedPopIndex);
+    d_popIndex.testAndSwap(loadedPopIndex, nextIndex);
+
+    d_states[index] = encodeElementState(nextGeneration(generation), e_EMPTY);
+
+    
 }
 
 // ACCESSORS
@@ -586,8 +695,9 @@ unsigned int bcec_AtomicRingBufferIndexManager::length() const
     // past the 'd_maxCombinedIndex' and been reset to 0, in which case
     // difference must be adjusted by 'd_maxCombinedIndex'.
 
-    if (combinedPopIndex  >= d_maxCombinedIndex - d_capacity &&
-        combinedPushIndex <  d_capacity) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+            combinedPopIndex  >= d_maxCombinedIndex - d_capacity &&
+            combinedPushIndex <  d_capacity)) {
         return static_cast<unsigned int>(difference + d_maxCombinedIndex); 
     }
 

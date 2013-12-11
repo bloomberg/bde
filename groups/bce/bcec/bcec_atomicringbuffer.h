@@ -400,10 +400,10 @@ class bcec_AtomicRingBuffer_PopGuard {
                                      // object from which an element will be
                                      // popped
 
-    int                           d_generation; 
+    unsigned int                  d_generation; 
                                      // generation count of cell being popped
 
-    int                           d_index;
+    unsigned int                  d_index;
                                      // index of cell being popped
        
     // NOT IMPLEMENTED
@@ -414,15 +414,15 @@ class bcec_AtomicRingBuffer_PopGuard {
 
     // CREATORS
     bcec_AtomicRingBuffer_PopGuard(bcec_AtomicRingBuffer<VALUE> *queue, 
-                                   int                           generation, 
-                                   int                           index);
+                                   unsigned int                  generation, 
+                                   unsigned int                  index);
         // Create a guard that, upon its destruction, will update the state
         // of the specified 'queue' to remove (pop) the element at the
         // specified 'index' having the specified 'generation', and destroy
         // that popped object.  The behavior is undefined unless 'index' and
         // 'generation' refer to a valid element in 'queue' that the current
         // thread has acquired a reservation to pop (using
-        // 'bcec_AtomicRingBufferIndexManager::acquirePopIndex').
+        // 'bcec_AtomicRingBufferIndexManager::reservePopIndex').
 
     ~bcec_AtomicRingBuffer_PopGuard();
         // Update the state of the 'bcec_AtomicRingBuffer' object supplied at
@@ -447,7 +447,12 @@ class bcec_AtomicRingBuffer_PushProctor {
     bcec_AtomicRingBuffer<VALUE> *d_parent_p;
                                      // object in which an element was pushed
 
-    int                           d_index;
+    unsigned int                  d_generation;
+                                     // generation of cell being pushed when an
+                                     // exception was thrown 
+
+
+    unsigned int                  d_index;
                                      // index of cell being pushed when an
                                      // exception was thrown 
 
@@ -460,7 +465,8 @@ class bcec_AtomicRingBuffer_PushProctor {
  
     // CREATORS
     bcec_AtomicRingBuffer_PushProctor(bcec_AtomicRingBuffer<VALUE> *queue, 
-                                      int                           index);
+                                      unsigned int                  generation,
+                                      unsigned int                  index);
         // Create a proctor that manages the specified 'queue' and, unless
         // 'release' is called, will remove and destroy all the elements from
         // 'queue' starting at the specified 'index'.   The behavior is
@@ -515,17 +521,17 @@ bcec_AtomicRingBuffer<TYPE>::~bcec_AtomicRingBuffer()
 template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
 {
-    bsl::size_t generation;
-    bsl::size_t index;
+    unsigned int generation;
+    unsigned int index;
 
     // SYNCHRONIZATION POINT 1
-    // The following call to 'acquirePushIndex' writes
+    // The following call to 'reservePushIndex' writes
     // 'bcec_AtomicRingBufferIndexManaged::d_pushIndex' with full sequential
     // consistency, which guarantees the subsequent (relaxed) read from
     // 'd_numWaitingPoppers' sees any waiting pointers from SYNCHRONIZATION
     // POINT 1-Prime.
    
-    int retval = d_impl.acquirePushIndex(&generation, &index);
+    int retval = d_impl.reservePushIndex(&generation, &index);
     
     if (0 != retval) {
         return retval;
@@ -536,12 +542,12 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
     // pop and discard items until reaching this cell, then mark this cell
     // empty (without regard to its current state, which is WRITING (i.e., 
     // reserved). That will leave the queue in a valid empty state.
-    bcec_AtomicRingBuffer_PushProctor<TYPE> guard(this, index);
+    bcec_AtomicRingBuffer_PushProctor<TYPE> guard(this, generation, index);
     bslalg::ScalarPrimitives::copyConstruct(&d_elements[index], 
                                             data, 
                                             d_allocator_p);
     guard.release();
-    d_impl.releasePushIndex(generation, index);
+    d_impl.commitPushIndex(generation, index);
     
     
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPoppers)) {
@@ -554,17 +560,17 @@ int bcec_AtomicRingBuffer<TYPE>::tryPushBack(const TYPE& data)
 template <typename TYPE>
 int bcec_AtomicRingBuffer<TYPE>::tryPopFront(TYPE *data)
 {
-    bsl::size_t generation;
-    bsl::size_t index;
+    unsigned int generation;
+    unsigned int index;
 
     // SYNCHRONIZATION POINT 2
-    // The following call to 'acquirePopIndex' writes
+    // The following call to 'reservePopIndex' writes
     // 'bcec_AtomicRingBufferIndexManaged::d_popIndex' with full sequential
     // consistency, which guarantees the subsequent (relaxed) read from
     // 'd_numWaitingPoppers' sees any waiting pointers from SYNCHRONIZATION
     // POINT 2-Prime.
 
-    int retval = d_impl.acquirePopIndex(&generation, &index);
+    int retval = d_impl.reservePopIndex(&generation, &index);
     
     if (0 != retval) {
         return retval;
@@ -632,10 +638,10 @@ void bcec_AtomicRingBuffer<TYPE>::popFront(TYPE *data)
 template <typename TYPE>
 TYPE bcec_AtomicRingBuffer<TYPE>::popFront()
 {
-    bsl::size_t generation;
-    bsl::size_t index;
+    unsigned int generation;
+    unsigned int index;
     
-    while(0 != d_impl.acquirePopIndex(&generation, &index)) {
+    while(0 != d_impl.reservePopIndex(&generation, &index)) {
         d_numWaitingPoppers.addRelaxed(1);
         
         if (isEmpty()) {
@@ -659,15 +665,15 @@ void bcec_AtomicRingBuffer<TYPE>::removeAll()
     const int numItems = numElements();
     int poppedItems = 0;    
     while (poppedItems++ < numItems) {
-        bsl::size_t index;
-        bsl::size_t generation;
+        unsigned int index;
+        unsigned int generation;
 
-        if (0 != d_impl.acquirePopIndex(&generation, &index)) {
+        if (0 != d_impl.reservePopIndex(&generation, &index)) {
             break;
         }
         
         bslalg::ScalarDestructionPrimitives::destroy(d_elements + index);
-        d_impl.releasePopIndex(generation, index);
+        d_impl.commitPopIndex(generation, index);
     }
   
     int numWakeUps = bsl::min(poppedItems, (int) d_numWaitingPushers);
@@ -747,9 +753,9 @@ bool bcec_AtomicRingBuffer<TYPE>::isEnabled() const {
 template <class VALUE>
 inline
 bcec_AtomicRingBuffer_PopGuard<VALUE>::bcec_AtomicRingBuffer_PopGuard(
-                                      bcec_AtomicRingBuffer<VALUE> *parent, 
-                                      int                           generation, 
-                                      int                           index)
+                                     bcec_AtomicRingBuffer<VALUE> *parent, 
+                                     unsigned int                  generation, 
+                                     unsigned int                  index)
 : d_parent_p(parent)
 , d_generation(generation)
 , d_index(index)
@@ -766,9 +772,9 @@ bcec_AtomicRingBuffer_PopGuard<VALUE>::~bcec_AtomicRingBuffer_PopGuard()
     // thread.
     
     bslalg::ScalarDestructionPrimitives::destroy(
-                                              d_parent_p->d_elements + d_index);
+                                             d_parent_p->d_elements + d_index);
 
-    d_parent_p->d_impl.releasePopIndex(d_generation, d_index);
+    d_parent_p->d_impl.commitPopIndex(d_generation, d_index);
 
     //notify pusher of available element
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -785,9 +791,11 @@ bcec_AtomicRingBuffer_PopGuard<VALUE>::~bcec_AtomicRingBuffer_PopGuard()
 template <class VALUE>
 inline
 bcec_AtomicRingBuffer_PushProctor<VALUE>::bcec_AtomicRingBuffer_PushProctor(
-                                           bcec_AtomicRingBuffer<VALUE> *parent,
-                                           int                           index) 
+                                      bcec_AtomicRingBuffer<VALUE> *parent,
+                                      unsigned int                  generation,
+                                      unsigned int                  index) 
 : d_parent_p(parent)
+, d_generation(generation)
 , d_index(index)
 {
 }
@@ -798,41 +806,27 @@ bcec_AtomicRingBuffer_PushProctor<VALUE>::~bcec_AtomicRingBuffer_PushProctor()
 {
     if (d_parent_p) {
         // This pushing thread currently has the cell at 'd_index' reserved as
-        // WRITING. Pop and discard as many elements as we can until the pop
-        // index points at that cell, then mark the cell as OLD; this will
-        // leave the queue empty. 
+        // 'e_WRITING'.  Dispose of all the elements up to 'd_index'.
         
-        bsl::size_t generation, index;
-        bsl::size_t stopIndex = 0 == d_index
-                                ? d_parent_p->d_impl.capacity()
-                                : d_index - 1;
+        unsigned int generation, index;
 
-        int poppedItems = 1; // always at least 1 for the current cell
-        do {
-            if (0 != d_parent_p->d_impl.acquirePopIndex(&generation, 
-                                                        &index)) {
-                break;
-            }
+        // We will always have at least 1 popped item for the cell reserved
+        // for writing by the current thread.
 
+        int poppedItems = 1; 
+        while (0 == d_parent_p->d_impl.clearPopIndex(&generation,
+                                                     &index,
+                                                     d_generation,
+                                                     d_index)) {
             bslalg::ScalarDestructionPrimitives::destroy(
-                        d_parent_p->d_elements + index);
-
-            d_parent_p->d_impl.releasePopIndex(generation, index);
+                                              d_parent_p->d_elements + index);
             ++poppedItems;
-        } while (index != stopIndex);
-                
-        if (index == stopIndex) {
-            // We incremented the pop index up to d_index, the cell that is
-            // currently in the WRITING state, but we cannot advance past it
-            // using acquirePopIndex due to its state. 
-
-            d_parent_p->d_impl.incrementPopIndexFrom(d_index);
         }
-                    
-        d_parent_p->d_impl.releasePopIndex(generation, d_index);
-        int numWakeUps = bsl::min(poppedItems, 
-                                  (int)d_parent_p->d_numWaitingPushers);
-        while (numWakeUps--) {
+
+        // Release the currently held pop index. 
+        d_parent_p->d_impl.abortPushIndexReservation(d_generation, d_index);
+
+        while (poppedItems--) {
             // Wake up waiting pushers.
             d_parent_p->d_pushControlSema.post();
         }

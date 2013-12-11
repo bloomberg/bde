@@ -24,10 +24,10 @@ using namespace bsl;
 // [ 2] bcec_AtomicRingBufferIndexManager(unsigned int, bslma::Allocator *);
 // [ 2] ~bcec_AtomicRingBufferIndexManager();
 // MANIPULATORS
-// [ 3] int acquirePushIndex(unsigned int *, unsigned int *);
-// [ 3] void releasePushIndex(unsigned int , unsigned int );
-// [ 3] int acquirePopIndex(unsigned int *, unsigned int *);
-// [ 3] void releasePopIndex(unsigned int , unsigned int );
+// [ 3] int reservePushIndex(unsigned int *, unsigned int *);
+// [ 3] void commitPushIndex(unsigned int , unsigned int );
+// [ 3] int reservePopIndex(unsigned int *, unsigned int *);
+// [ 3] void commitPopIndex(unsigned int , unsigned int );
 // [  ] void incrementPopIndexFrom(unsigned int );
 // [ 4] void disable();
 // [ 4] void enable();
@@ -168,8 +168,10 @@ int main(int argc, char *argv[])
 
             ASSERTV(X.isEnabled());
 
-            ASSERT(0 == x.acquirePushIndex(&generation, &index));
-            ASSERT(0 <  x.acquirePopIndex(&generation, &index));
+            ASSERT(0 == x.reservePushIndex(&generation, &index));
+            x.commitPushIndex(generation, index);
+            ASSERT(0 == x.reservePushIndex(&generation, &index));
+            ASSERT(0 ==  x.reservePopIndex(&generation, &index));
 
       }
       case 4: {
@@ -223,8 +225,8 @@ int main(int argc, char *argv[])
 
             ASSERTV(X.isEnabled());
 
-            ASSERT(0 == x.acquirePushIndex(&generation, &index));
-            x.releasePushIndex(generation, index);
+            ASSERT(0 == x.reservePushIndex(&generation, &index));
+            x.commitPushIndex(generation, index);
         }
 
         if (verbose) cout << "\nTest that a disabled obj cannot push new "
@@ -238,12 +240,12 @@ int main(int argc, char *argv[])
             ASSERTV(X.isEnabled());
 
             // Insert 2 elements.
-            ASSERT(0 == x.acquirePushIndex(&generation, &index));
-            x.releasePushIndex(generation, index);
+            ASSERT(0 == x.reservePushIndex(&generation, &index));
+            x.commitPushIndex(generation, index);
             ASSERTV(1 == X.length());
 
-            ASSERT(0 == x.acquirePushIndex(&generation, &index));
-            x.releasePushIndex(generation, index);
+            ASSERT(0 == x.reservePushIndex(&generation, &index));
+            x.commitPushIndex(generation, index);
             ASSERTV(2 == X.length());
 
             // Disable the queue.
@@ -251,16 +253,16 @@ int main(int argc, char *argv[])
             ASSERTV(!X.isEnabled());
 
             // Test that attempting to push fails.
-            ASSERT(0 > x.acquirePushIndex(&generation, &index));
+            ASSERT(0 > x.reservePushIndex(&generation, &index));
             ASSERTV(2 == X.length());
 
             // Test that attempting to pop succeeds.
-            ASSERT(0 == x.acquirePopIndex(&generation, &index));
-            x.releasePopIndex(generation, index);
+            ASSERT(0 == x.reservePopIndex(&generation, &index));
+            x.commitPopIndex(generation, index);
             ASSERTV(1 == X.length());
 
             // Test that attempting to push still fails.
-            ASSERT(0 > x.acquirePushIndex(&generation, &index));
+            ASSERT(0 > x.reservePushIndex(&generation, &index));
             ASSERTV(1 == X.length());
 
             // Disable the queue a second time, and verify that has no effect.
@@ -268,7 +270,7 @@ int main(int argc, char *argv[])
             ASSERTV(!X.isEnabled());
 
             // Test that attempting to push still fails.
-            ASSERT(0 > x.acquirePushIndex(&generation, &index));
+            ASSERT(0 > x.reservePushIndex(&generation, &index));
             ASSERTV(1 == X.length());
 
             // Enable the queue.
@@ -276,13 +278,13 @@ int main(int argc, char *argv[])
             ASSERTV(X.isEnabled());
 
             // Test that attempting to push succeeds.
-            ASSERT(0 == x.acquirePushIndex(&generation, &index));
-            x.releasePushIndex(generation, index);
+            ASSERT(0 == x.reservePushIndex(&generation, &index));
+            x.commitPushIndex(generation, index);
             ASSERTV(2 == X.length());
 
             // Test that attempting to pop succeeds.
-            ASSERT(0 == x.acquirePopIndex(&generation, &index));
-            x.releasePopIndex(generation, index);
+            ASSERT(0 == x.reservePopIndex(&generation, &index));
+            x.commitPopIndex(generation, index);
             ASSERTV(1 == X.length());
 
             // Enable the queue a second time, and verify that has no effect.
@@ -290,8 +292,8 @@ int main(int argc, char *argv[])
             ASSERTV(X.isEnabled());
 
             // Test that attempting to push succeeds.
-            ASSERT(0 == x.acquirePushIndex(&generation, &index));
-            x.releasePushIndex(generation, index);
+            ASSERT(0 == x.reservePushIndex(&generation, &index));
+            x.commitPushIndex(generation, index);
             ASSERTV(2 == X.length());
 
         }
@@ -305,24 +307,24 @@ int main(int argc, char *argv[])
         //
         //  2 'acqurePushIndex' increments the 'length' of the queue.
         // 
-        //  3 Calling 'acquirePushIndex' multiple times will not return
+        //  3 Calling 'reservePushIndex' multiple times will not return
         //    the same index.
         //  
-        //  4 Calling 'acquirePushIndex' when the queue is full returns the
+        //  4 Calling 'reservePushIndex' when the queue is full returns the
         //    correct error.
         //
-        //  5 Calling 'acquirePopIndex' when the queue is empty returns the
+        //  5 Calling 'reservePopIndex' when the queue is empty returns the
         //    correct error.
         //
-        //  6 Calling 'acquirePopIndex' when the queue is not empty, and there
+        //  6 Calling 'reservePopIndex' when the queue is not empty, and there
         //    are released push indices, returns the oldest released push
         //    index and the generation from where it was pushed, and
         //    decrements the length.
         //
-        //  7 Calling 'releasePushIndex' permits the index to later be
+        //  7 Calling 'commitPushIndex' permits the index to later be
         //    acquired for popping.
         //
-        //  8 Calling 'releasePopIndex' permits the index to later be
+        //  8 Calling 'commitPopIndex' permits the index to later be
         //    acquired for pushing
         //
         //  9 QoI: Asserted precondition violations are detected when enabled.
@@ -330,13 +332,13 @@ int main(int argc, char *argv[])
         // Plan:
         //
         //  1 For each capcity value in a series of capacity values, call
-        //    'acquirePushIndex' to that maxmimum capacity.  At each point,
+        //    'reservePushIndex' to that maxmimum capacity.  At each point,
         //    verify the expected index, generation count, and return
         //    status. (C-1,2,3) 
         //
         //  2 For each capcity value in a series of capacity values:
         //
-        //    1 Call 'acquirePopIndex' and verify it fails.
+        //    1 Call 'reservePopIndex' and verify it fails.
         //
         //    2 Push and pop an index, and verify the expected index, length,
         //      and generation counts.  (C-5)
@@ -345,7 +347,7 @@ int main(int argc, char *argv[])
         //
         //    1 Fill the queue
         //
-        //    2 Call 'acquirePushIndex' and verify it fails.
+        //    2 Call 'reservePushIndex' and verify it fails.
         //
         //    2 Pop and then push an index, and verify the expected index,
         //      length, and generation counts.  (C-4)
@@ -357,10 +359,10 @@ int main(int argc, char *argv[])
         //  4 Use the assertion test facility to test function preconditions.
         //
         // Testing:
-        //   int acquirePushIndex(unsigned int *, unsigned int *);
-        //   void releasePushIndex(unsigned int , unsigned int );
-        //   int acquirePopIndex(unsigned int *, unsigned int *);
-        //   void releasePopIndex(unsigned int , unsigned int );
+        //   int reservePushIndex(unsigned int *, unsigned int *);
+        //   void commitPushIndex(unsigned int , unsigned int );
+        //   int reservePopIndex(unsigned int *, unsigned int *);
+        //   void commitPopIndex(unsigned int , unsigned int );
         //   unsigned int length() const;
         // --------------------------------------------------------------------
 
@@ -383,14 +385,14 @@ int main(int argc, char *argv[])
                 unsigned int generation;
                 for (unsigned int j = 0; j < CAPACITY; ++j) {
 
-                    int rc = x.acquirePushIndex(&generation, &index);
+                    int rc = x.reservePushIndex(&generation, &index);
                     ASSERTV(rc,            0 == rc);
                     ASSERTV(index, j,      j == index);
                     ASSERTV(generation,    0 == generation);
                     ASSERTV(X.length(),    j == X.length() - 1);
                 }
 
-                int rc = x.acquirePushIndex(&generation, &index);
+                int rc = x.reservePushIndex(&generation, &index);
                 ASSERTV(rc,         0 < rc);
                 ASSERTV(X.length(), CAPACITY == X.length());
                 
@@ -412,25 +414,25 @@ int main(int argc, char *argv[])
 
                 for (unsigned int gen = 0; gen < 3; ++gen) {
                     for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
-                        int rc = x.acquirePopIndex(&generation, &index);
+                        int rc = x.reservePopIndex(&generation, &index);
                         ASSERTV(rc,         0 < rc);
                                                 
-                        rc = x.acquirePushIndex(&generation, &index);
+                        rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen);
                         ASSERTV(index,      index      == idx);
                         ASSERTV(X.length(), 1 == X.length());
 
-                        x.releasePushIndex(generation, index);
+                        x.commitPushIndex(generation, index);
                         ASSERTV(X.length(), 1 == X.length());
 
-                        rc = x.acquirePopIndex(&generation, &index);
+                        rc = x.reservePopIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen);
                         ASSERTV(index,      index      == idx);
                         ASSERTV(X.length(), 0 == X.length());
 
-                        x.releasePopIndex(generation, index);
+                        x.commitPopIndex(generation, index);
                         ASSERTV(X.length(), 0 == X.length());
                     }
                 }                        
@@ -452,32 +454,32 @@ int main(int argc, char *argv[])
 
                 // Fill the queue
                 for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
-                    x.acquirePushIndex(&generation, &index);
-                    x.releasePushIndex(generation, index);
+                    x.reservePushIndex(&generation, &index);
+                    x.commitPushIndex(generation, index);
                 }
                 ASSERTV(X.length(), X.length() == CAPACITY);
 
                 for (unsigned int gen = 0; gen < 3; ++gen) {
                     for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
-                        int rc = x.acquirePushIndex(&generation, &index);
+                        int rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 < rc);
                                                 
-                        rc = x.acquirePopIndex(&generation, &index);
+                        rc = x.reservePopIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen);
                         ASSERTV(index,      index      == idx);
                         ASSERTV(X.length(), X.length() == CAPACITY - 1);
 
-                        x.releasePopIndex(generation, index);
+                        x.commitPopIndex(generation, index);
                         ASSERTV(X.length(), X.length() == CAPACITY - 1);
 
-                        rc = x.acquirePushIndex(&generation, &index);
+                        rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen + 1);
                         ASSERTV(index,      index      == idx);
                         ASSERTV(X.length(), X.length() == CAPACITY);
 
-                        x.releasePushIndex(generation, index);
+                        x.commitPushIndex(generation, index);
                         ASSERTV(X.length(), X.length() == CAPACITY);
                     }
                 }                        
@@ -499,32 +501,32 @@ int main(int argc, char *argv[])
 
                 // Fill the queue
                 for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
-                    x.acquirePushIndex(&generation, &index);
-                    x.releasePushIndex(generation, index);
+                    x.reservePushIndex(&generation, &index);
+                    x.commitPushIndex(generation, index);
                 }
                 ASSERTV(X.length(), X.length() == CAPACITY);
 
                 for (unsigned int gen = 0; gen < 3; ++gen) {
                     for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
-                        int rc = x.acquirePushIndex(&generation, &index);
+                        int rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 < rc);
                                                 
-                        rc = x.acquirePopIndex(&generation, &index);
+                        rc = x.reservePopIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen);
                         ASSERTV(index,      index      == idx);
                         ASSERTV(X.length(), X.length() == CAPACITY - 1);
 
-                        x.releasePopIndex(generation, index);
+                        x.commitPopIndex(generation, index);
                         ASSERTV(X.length(), X.length() == CAPACITY - 1);
 
-                        rc = x.acquirePushIndex(&generation, &index);
+                        rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen + 1);
                         ASSERTV(index,      index      == idx);
                         ASSERTV(X.length(), X.length() == CAPACITY);
 
-                        x.releasePushIndex(generation, index);
+                        x.commitPushIndex(generation, index);
                         ASSERTV(X.length(), X.length() == CAPACITY);
                     }
                 }                        
@@ -567,13 +569,13 @@ int main(int argc, char *argv[])
                                     ++PUSH_GEN;
                                 }
                             }
-                            int rc = x.acquirePushIndex(&gen, &index);
+                            int rc = x.reservePushIndex(&gen, &index);
                             ASSERTV(rc, SUCCESS,        SUCCESS == (0 == rc));
                             ASSERTV(LENGTH, X.length(), LENGTH  == X.length());
                             if (0 != rc) {
                                 continue;
                             }
-                            x.releasePushIndex(gen, index);
+                            x.commitPushIndex(gen, index);
                             ASSERTV(PUSH_INDEX, index, PUSH_INDEX == index);
                             ASSERTV(PUSH_GEN, gen,     PUSH_GEN == gen);
                         }
@@ -587,13 +589,13 @@ int main(int argc, char *argv[])
                                     ++POP_GEN;
                                 }
                             }
-                            int rc = x.acquirePopIndex(&gen, &index);
+                            int rc = x.reservePopIndex(&gen, &index);
                             ASSERTV(rc, SUCCESS,        SUCCESS == (0 == rc));
                             ASSERTV(LENGTH, X.length(), LENGTH  == X.length());
                             if (0 != rc) {
                                 continue;
                             }
-                            x.releasePopIndex(gen, index);
+                            x.commitPopIndex(gen, index);
                             ASSERTV(POP_INDEX, index, POP_INDEX == index);
                             ASSERTV(POP_GEN, gen,     POP_GEN == gen);
                         }
@@ -611,24 +613,24 @@ int main(int argc, char *argv[])
             unsigned int index, generation;
             
             Obj obj(10, &oa);
-            ASSERT_FAIL(obj.acquirePushIndex(&generation, 0));
-            ASSERT_FAIL(obj.acquirePushIndex(0, &index));
-            ASSERT_PASS(obj.acquirePushIndex(&generation, &index));
+            ASSERT_FAIL(obj.reservePushIndex(&generation, 0));
+            ASSERT_FAIL(obj.reservePushIndex(0, &index));
+            ASSERT_PASS(obj.reservePushIndex(&generation, &index));
             
-            ASSERT_FAIL(obj.releasePushIndex(generation, 
+            ASSERT_FAIL(obj.commitPushIndex(generation, 
                                              Obj::e_MAX_CAPACITY));
-            ASSERT_FAIL(obj.releasePushIndex(UINT_MAX, index));
-            ASSERT_PASS(obj.releasePushIndex(generation, index));
+            ASSERT_FAIL(obj.commitPushIndex(UINT_MAX, index));
+            ASSERT_PASS(obj.commitPushIndex(generation, index));
 
 
-            ASSERT_FAIL(obj.acquirePopIndex(&generation, 0));
-            ASSERT_FAIL(obj.acquirePopIndex(0, &index));
-            ASSERT_PASS(obj.acquirePopIndex(&generation, &index));
+            ASSERT_FAIL(obj.reservePopIndex(&generation, 0));
+            ASSERT_FAIL(obj.reservePopIndex(0, &index));
+            ASSERT_PASS(obj.reservePopIndex(&generation, &index));
             
-            ASSERT_FAIL(obj.releasePopIndex(generation, 
+            ASSERT_FAIL(obj.commitPopIndex(generation, 
                                              Obj::e_MAX_CAPACITY));
-            ASSERT_FAIL(obj.releasePopIndex(UINT_MAX, index));
-            ASSERT_PASS(obj.releasePopIndex(generation, index));
+            ASSERT_FAIL(obj.commitPopIndex(UINT_MAX, index));
+            ASSERT_PASS(obj.commitPopIndex(generation, index));
         }
 
         
@@ -781,35 +783,35 @@ int main(int argc, char *argv[])
             ASSERT(1 == mX.capacity());
 
             bsl::size_t generation, index;
-            ASSERT(0 == mX.acquirePushIndex(&generation, &index));
-            mX.releasePushIndex(generation, index);
+            ASSERT(0 == mX.reservePushIndex(&generation, &index));
+            mX.commitPushIndex(generation, index);
             ASSERT(1 == mX.length());
             ASSERT(0 == generation);
             ASSERT(0 == index);
-            ASSERT(0 != mX.acquirePushIndex(&generation, &index));
+            ASSERT(0 != mX.reservePushIndex(&generation, &index));
             ASSERT(1 == mX.length());
             
             generation = index = 1;
-            ASSERT(0 == mX.acquirePopIndex(&generation, &index));            
-            mX.releasePopIndex(generation, index);
+            ASSERT(0 == mX.reservePopIndex(&generation, &index));            
+            mX.commitPopIndex(generation, index);
             ASSERT(0 == mX.length());
             ASSERT(0 == generation);
             ASSERT(0 == index);
-            ASSERT(0 != mX.acquirePopIndex(&generation, &index));            
+            ASSERT(0 != mX.reservePopIndex(&generation, &index));            
             ASSERT(0 == mX.length());
             ASSERT(1 == generation);
             ASSERT(0 == index);
 
             mX.disable();
             ASSERT(!mX.isEnabled());
-            ASSERT(0 != mX.acquirePushIndex(&generation, &index));
+            ASSERT(0 != mX.reservePushIndex(&generation, &index));
             ASSERT(0 == mX.length());
 
             generation = index = 1;
             mX.enable();
             ASSERT(mX.isEnabled());
-            ASSERT(0 == mX.acquirePushIndex(&generation, &index));
-            mX.releasePushIndex(generation, index);
+            ASSERT(0 == mX.reservePushIndex(&generation, &index));
+            mX.commitPushIndex(generation, index);
             ASSERT(1 == mX.length());
             ASSERT(1 == generation);
             ASSERT(0 == index);            
