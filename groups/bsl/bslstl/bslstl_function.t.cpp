@@ -277,6 +277,36 @@ public:
     IntWrapperDerived(int v) : IntWrapper(v) { }
 };
 
+int *getAddress(int& r) { return &r; }
+const int *getConstAddress(const int& r) { return &r; }
+
+class CountCopies
+{
+    // Counts the number of times an object has been copy-constructed or
+    // move-constructed.
+
+    int d_numCopies;
+
+public:
+    CountCopies() : d_numCopies(0) { }
+    CountCopies(const CountCopies& other) : d_numCopies(other.d_numCopies+1) {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Move constructor does not bump count
+    CountCopies(CountCopies&& other) : d_numCopies(other.d_numCopies) {}
+#endif
+
+    CountCopies& operator=(const CountCopies& rhs)
+        { d_numCopies = rhs.d_numCopies + 1; return *this; }
+    
+    int numCopies() const { return d_numCopies; }
+};
+
+// Return the number of times the specified 'cc' object has been copied.  Note
+// that, since 'cc' is passed by value, there is a copy or move on every
+// call. Therefore, the return value should never be less than 1.
+int numCopies(CountCopies cc) { return cc.numCopies(); }
+
 struct SmallObjectBuffer {
     // For white-box testing: size of small-object buffer in 'function'.
     void *d_padding[4];  // Size of 4 pointers
@@ -994,6 +1024,11 @@ int main(int argc, char *argv[])
         //: 5 If the return value of the 'bsl::function' is 'void', then the
         //:   return value of function-pointer invocation is discarded,
         //:   even if the return type of the pointer-to-function is non-void.
+        //: 6 Arguments that are supposed to be passed by reference *are*
+        //:   passed by reference all the way through the invocation
+        //:   interface.
+        //: 7 Arguments that are supposed to be passed by value are copied
+        //:   exactly once when passed through the invocation interface.
         //
         // Plan:
         //: 1 Create a set of functions, 'sum0' to 'sum10' taking 0 to 10
@@ -1005,17 +1040,29 @@ int main(int argc, char *argv[])
         //:   wrapping pointers to each of the functions 'sum0' to 'sum10'.
         //:   Verify that the return from the invocations matches the expected
         //:   results.
-        //: 3 For concern 3, pass an 'int' as the first argument of the
-        //:   invocations in step 2, forcing conversion to 'IntWrapper'.
-        //:   Create a 'bsl::function' object returning an 'IntWrapper' and
-        //:   verify that it can successfully wrap a pointer to 'sum1'.
+        //: 3 For concern 3, repeat step 2 except instantiate the
+        //:   'bsl::function' objects with arguments of type
+        //:   'ConvertibleToInt' and return type 'IntWrapper'.
         //: 4 For concern 4, create a global function, 'increment' that
         //:   increments its argument (passed by address) and returns void.
-        //:   Verify that a 'bsl::function' object wrappoing a pointer to
+        //:   Verify that a 'bsl::function' object wrapping a pointer to
         //:   'increment' can be invoked and has the expected size-effect.
         //: 5 For concern 5, create a 'bsl::function' with parameter
         //:   'void(int)' and verify that it can be used to wrap 'sum1'
         //:   (discarding the return value).
+        //: 6 For concern 6, implement a set of functions, 'getAddress' and
+        //:   'getConstAddress' that return the address of their argument,
+        //:   which is passed by reference and passed by const reference,
+        //:   respectively. Wrap pointers to these functions in
+        //:   'bsl::function' objects with the same signature and verify that
+        //:   they return the address of their arguments.
+        //: 7 For concern 7, implement a class 'CountCopies' whose copy
+        //:   constructor increments a counter, so that you can keep track of
+        //:   how many copies-of-copies get made. Implement a function
+        //:   'numCopies' that takes a 'CountCopies' object by value and
+        //:   returns the number of times it was copied.  Verify that, when
+        //:   invoked through a 'bsl::function' wrapper, the argument is
+        //:   copied only once.
         //
         // Testing:
         //      RET operator()(ARGS...) const; // For pointer to function
@@ -1024,48 +1071,129 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPOINTER TO FUNCTION INVOCATION"
                             "\n==============================\n");
 
-        bsl::function<int()> f0(sum0);
-        ASSERT(0x4000 == f0());
+        if (veryVerbose) printf("Plan step 2\n");
+        {
+            bsl::function<int()> f0(sum0);
+            ASSERT(0x4000 == f0());
 
-        bsl::function<int(int)> f1(sum1);
-        ASSERT(0x4001 == f1(1));
+            bsl::function<int(int)> f1(sum1);
+            ASSERT(0x4001 == f1(1));
 
-        bsl::function<int(int, int)> f2(sum2);
-        ASSERT(0x4003 == f2(1, 2));
+            bsl::function<int(int, int)> f2(sum2);
+            ASSERT(0x4003 == f2(1, 2));
           
-        bsl::function<int(int, int, int)> f3(sum3);
-        ASSERT(0x4007 == f3(1, 2, 4));
+            bsl::function<int(int, int, int)> f3(sum3);
+            ASSERT(0x4007 == f3(1, 2, 4));
           
-        bsl::function<int(int, int, int, int)> f4(sum4);
-        ASSERT(0x400f == f4(1, 2, 4, 8));
+            bsl::function<int(int, int, int, int)> f4(sum4);
+            ASSERT(0x400f == f4(1, 2, 4, 8));
           
-        bsl::function<int(int, int, int, int, int)> f5(sum5);
-        ASSERT(0x401f == f5(1, 2, 4, 8, 0x10));
+            bsl::function<int(int, int, int, int, int)> f5(sum5);
+            ASSERT(0x401f == f5(1, 2, 4, 8, 0x10));
           
-        bsl::function<int(int, int, int, int, int, int)> f6(sum6);
-        ASSERT(0x403f == f6(1, 2, 4, 8, 0x10, 0x20));
+            bsl::function<int(int, int, int, int, int, int)> f6(sum6);
+            ASSERT(0x403f == f6(1, 2, 4, 8, 0x10, 0x20));
           
-        bsl::function<int(int, int, int, int, int, int, int)> f7(sum7);
-        ASSERT(0x407f == f7(1, 2, 4, 8, 0x10, 0x20, 0x40));
+            bsl::function<int(int, int, int, int, int, int, int)> f7(sum7);
+            ASSERT(0x407f == f7(1, 2, 4, 8, 0x10, 0x20, 0x40));
           
-        bsl::function<int(int, int, int, int, int, int, int, int)> f8(sum8);
-        ASSERT(0x40ff == f8(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+            bsl::function<int(int,int,int,int,int,int,int,int)> f8(sum8);
+            ASSERT(0x40ff == f8(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
           
-        bsl::function<int(int,int,int,int,int,int,int,int,int)> f9(sum9);
-        ASSERT(0x41ff == f9(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+            bsl::function<int(int,int,int,int,int,int,int,int,int)> f9(sum9);
+            ASSERT(0x41ff == f9(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
           
-        bsl::function<int(int,int,int,int,int,int,int,int,int,int)> f10(sum10);
-        ASSERT(0x43ff == f10(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,0x200));
+            bsl::function<int(int, int, int, int, int, int, int, int,
+                              int, int)> f10(sum10);
+            ASSERT(0x43ff == f10(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+        }
+          
+        if (veryVerbose) printf("Plan step 3\n");
+        {
+            typedef IntWrapper       Ret;
+            typedef ConvertibleToInt Arg;
+
+            const Arg a1(0x0001);
+            const Arg a2(0x0002);
+            const Arg a3(0x0004);
+            const Arg a4(0x0008);
+            const Arg a5(0x0010);
+            const Arg a6(0x0020);
+            const Arg a7(0x0040);
+            const Arg a8(0x0080);
+            const Arg a9(0x0100);
+            const Arg a10(0x0200);
+
+            bsl::function<Ret()> f0(sum0);
+            ASSERT(0x4000 == f0());
+
+            bsl::function<Ret(Arg)> f1(sum1);
+            ASSERT(0x4001 == f1(a1));
+
+            bsl::function<Ret(Arg, Arg)> f2(sum2);
+            ASSERT(0x4003 == f2(a1, a2));
+          
+            bsl::function<Ret(Arg, Arg, Arg)> f3(sum3);
+            ASSERT(0x4007 == f3(a1, a2, a3));
+          
+            bsl::function<Ret(Arg, Arg, Arg, Arg)> f4(sum4);
+            ASSERT(0x400f == f4(a1, a2, a3, a4));
+          
+            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg)> f5(sum5);
+            ASSERT(0x401f == f5(a1, a2, a3, a4, a5));
+          
+            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg)> f6(sum6);
+            ASSERT(0x403f == f6(a1, a2, a3, a4, a5, a6));
+          
+            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg)> f7(sum7);
+            ASSERT(0x407f == f7(a1, a2, a3, a4, a5, a6, a7));
+          
+            bsl::function<Ret(Arg,Arg,Arg,Arg,Arg,Arg,Arg,Arg)> f8(sum8);
+            ASSERT(0x40ff == f8(a1, a2, a3, a4, a5, a6, a7, a8));
+          
+            bsl::function<Ret(Arg,Arg,Arg,Arg,Arg,Arg,Arg,Arg,Arg)> f9(sum9);
+            ASSERT(0x41ff == f9(a1, a2, a3, a4, a5, a6, a7, a8, a9));
+          
+            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg,
+                              Arg, Arg)> f10(sum10);
+            ASSERT(0x43ff == f10(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10));
+        }
           
         // Test void return type
+        if (veryVerbose) printf("Plan step 4\n");
         bsl::function<void(int*)> fvoid(&increment);
         int v = 1;
         fvoid(&v);
         ASSERT(2 == v);
 
         // Test discarding of return value
+        if (veryVerbose) printf("Plan step 5\n");
         bsl::function<void(int)> fdiscard(&sum1);
         fdiscard(3);
+
+        // Test pass-by-reference
+        if (veryVerbose) printf("Plan step 6\n");
+        bsl::function<int*(int&)> ga(getAddress);
+        ASSERT(&v == ga(v));
+        bsl::function<const int*(const int&)> gca(getConstAddress);
+        ASSERT(&v == gca(v));
+
+        // Test pass-by-value
+        if (veryVerbose) printf("Plan step 7\n");
+        bsl::function<int(CountCopies)> nc(numCopies);
+        CountCopies cc;
+        ASSERT(1 == numCopies(cc));
+// #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+//         ASSERT(1 == nc(cc));
+//         ASSERT(0 == numCopies(CountCopies()));
+//         ASSERT(0 == nc(CountCopies()));
+// #else
+        ASSERT(2 == nc(cc));
+        ASSERT(0 == numCopies(CountCopies()));
+        ASSERT(1 == nc(CountCopies()));
+// #endif
+        ASSERT(0 == cc.numCopies());
 
       } break;
 
