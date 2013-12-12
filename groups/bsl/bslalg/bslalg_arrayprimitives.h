@@ -4392,7 +4392,7 @@ void ArrayPrimitives_Imp::insert(
 
     BSLS_ASSERT_SAFE(fromBegin + numElements == fromEnd);
     BSLS_ASSERT_SAFE(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
-    (void)fromEnd;  // quell warning when 'BSLS_ASSERT_SAFE' is compiled out
+    (void) fromEnd;  // quell warning when 'BSLS_ASSERT_SAFE' is compiled out
 
     // Key to the transformation diagrams:
     //..

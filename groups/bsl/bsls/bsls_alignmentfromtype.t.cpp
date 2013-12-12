@@ -488,6 +488,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
+    (void) veryVerbose;
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
@@ -614,6 +616,7 @@ int main(int argc, char *argv[])
             int EXP_S3_ALIGNMENT          = 8;
             int EXP_S4_ALIGNMENT          = 2;
             int EXP_S5_ALIGNMENT          = 8;
+            (void) EXP_S5_ALIGNMENT;
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
@@ -706,6 +709,10 @@ int main(int argc, char *argv[])
             long double  LD = 0.0;
             void        *V  = 0;
             long long    LL = 0;
+
+            (void) LD;
+            (void) V;
+            (void) LL;
 
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
             bsls::AlignmentImp8ByteAlignedType _8BAT;

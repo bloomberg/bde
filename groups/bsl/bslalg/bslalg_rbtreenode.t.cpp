@@ -159,7 +159,7 @@ namespace BloombergLP {
 namespace bslalg {
 
 void debugprint(const Obj& val) {
-    printf("color=%d, parent=0x%x, left=0x%x, right=0x%x",
+    printf("color=%d, parent=0x%p, left=0x%p, right=0x%p",
             val.color(), val.parent(), val.leftChild(), val.rightChild());
 }
 
@@ -718,6 +718,11 @@ int main(int argc, char *argv[])
         const T3 A3 = PTR2;
         const T4 A4 = PTR2;
 
+        // N.B. 'setColor' -- which would use 'A1' -- is not tested in this
+        // test case.
+
+        (void) A1;
+
         if (verbose) printf("\nCreate an object.\n");
 
         Obj mX;  const Obj& X = gg(&mX, D1, D2, D3, D4);
@@ -734,6 +739,15 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                  "\nApply primary manipulators and verify expected values.\n");
 
+
+        if (veryVerbose) { T_ Q(color) }
+        {
+            mX.setColor(A1);
+
+            const T1& color = mX.color();
+            ASSERTV(A1, X.color(), A1 == color);
+        }
+
         if (veryVerbose) { T_ Q(parent) }
         {
             mX.setParent(A2);
@@ -747,7 +761,7 @@ int main(int argc, char *argv[])
             mX.setLeftChild(A3);
 
             const T3& leftChild = mX.leftChild();
-            ASSERTV(A3, X.leftChild(), A3 == X.leftChild());
+            ASSERTV(A3, leftChild, A3 == leftChild);
         }
 
         if (veryVerbose) { T_ Q(rightChild) }
@@ -755,7 +769,7 @@ int main(int argc, char *argv[])
             mX.setRightChild(A4);
 
             const T4& rightChild = mX.rightChild();
-            ASSERTV(A4, X.rightChild(), A4 == X.rightChild());
+            ASSERTV(A4, rightChild, A4 == rightChild);
         }
       } break;
       case 7: {
@@ -851,7 +865,7 @@ int main(int argc, char *argv[])
 
             operatorPtr operatorAssignment = &Obj::operator=;
 
-            (void)operatorAssignment;  // quash potential compiler warning
+            (void) operatorAssignment;  // quash potential compiler warning
         }
 
         if (verbose) printf("\nUse table of distinct object values.\n");
@@ -1216,7 +1230,7 @@ int main(int argc, char *argv[])
             mX.setLeftChild(A3);
 
             const Obj *const leftChild = X.leftChild();
-            ASSERTV(A3, X.leftChild(), A3 == X.leftChild());
+            ASSERTV(A3, leftChild, A3 == leftChild);
         }
 
         if (veryVerbose) { T_ Q(rightChild) }
@@ -1224,7 +1238,7 @@ int main(int argc, char *argv[])
             mX.setRightChild(A4);
 
             const Obj *const rightChild = X.rightChild();
-            ASSERTV(A4, X.rightChild(), A4 == X.rightChild());
+            ASSERTV(A4, rightChild, A4 == rightChild);
         }
       } break;
       case 3: {

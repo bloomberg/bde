@@ -183,6 +183,6 @@ build-arch: $(foreach group,$(GROUPS),lib/$(UPLID)/$(group).stamp )
 
 binary: binary-arch binary-indep
 
-binary-indep: debian/bsl-internal-bdemeta.stamp
+binary-indep:
 
-binary-arch: $(ALL_DEV_PACKAGES) $(ALL_SO_PACKAGES)
+binary-arch: $(ALL_DEV_PACKAGES) $(ALL_SO_PACKAGES) debian/bsl-internal-bdemeta.stamp

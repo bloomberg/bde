@@ -176,7 +176,7 @@ int test_WARNING()
 void test_PRINTF(const char *pattern, ...) BSLS_ANNOTATION_PRINTF(1, 2);
 void test_PRINTF(const char *pattern, ...)
 {
-    (void)pattern;
+    (void) pattern;
 }
 
 void test_SCANF(const char *, ...) BSLS_ANNOTATION_SCANF(1, 2);
@@ -200,8 +200,8 @@ char test_ARG1_NON_NULL(void *p, void *q, void *r)
 char test_ARG1_NON_NULL(void *p, void *q, void *r)
 {
     char c = *reinterpret_cast<char *>(p);
-    (void)q;
-    (void)r;
+    (void) q;
+    (void) r;
 
     return c;
 }
@@ -210,9 +210,9 @@ char test_ARG2_NON_NULL(void *p, void *q, void *r)
                                               BSLS_ANNOTATION_ARG_NON_NULL(2);
 char test_ARG2_NON_NULL(void *p, void *q, void *r)
 {
-    (void)p;
+    (void) p;
     char c = *reinterpret_cast<char *>(q);
-    (void)r;
+    (void) r;
 
     return c;
 }

@@ -684,6 +684,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTRING
 #endif
 
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>
+#define INCLUDED_ALGORITHM
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
@@ -1066,13 +1071,29 @@ class basic_string
         // 'privateReplaceDispatch' to separate the integral type from iterator
         // types.
 
+    basic_string& privateAssign(const CHAR_TYPE *characterString,
+                                size_type        numChars);
+        // Assign characters from the specified 'characterString' array of
+        // characters of the specified 'numChars' length to this string
+        // discarding the old content of the string, and return a reference
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'numChars <= max_size()', and the 'characterString'
+        // array is at least 'numChars' long.
+
+    basic_string& privateAssign(size_type numChars,
+                                CHAR_TYPE character);
+        // Assign the specified 'numChars' copies of the specified 'character'
+        // to this string discarding the old content of the string, and return
+        // a reference providing modifiable access to this string.  The
+        // behavior is undefined unless 'numChars <= max_size()'.
+
     basic_string& privateAppendRaw(const CHAR_TYPE *characterString,
                                    size_type        numChars);
         // Append characters from the specified 'characterString' array of
         // characters of the specified 'numChars' length to this string, and
-        // return a reference to this modifiable string.  The behavior is
-        // undefined unless 'numChars <= max_size() - length()', and the
-        // 'characterString' array is at least 'numChars' long.
+        // return a reference providing modifiable access to this string.  The
+        // behavior is undefined unless 'numChars <= max_size() - length()',
+        // and the 'characterString' array is at least 'numChars' long.
 
     basic_string& privateAppendRaw(size_type numChars,
                                    CHAR_TYPE character);
@@ -1144,11 +1165,12 @@ class basic_string
         // Replace the specified 'outNumChars' characters of this object
         // starting at the specified 'outPosition' by the specified 'numChars'
         // starting at the specified 'characterString', and return a reference
-        // to this modifiable string.  The behavior is undefined unless
-        // 'outPosition <= length()', 'outNumChars <= length()',
-        // 'outPosition <= length() - outNumChars', 'numChars <= max_size()',
-        // and 'length() - outNumChars <= max_size() - numChars'.  Note that
-        // this method is alias-safe, i.e., it works correctly even if
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'outPosition <= length()',
+        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
+        // 'numChars <= max_size()', and
+        // 'length() - outNumChars <= max_size() - numChars'.  Note that this
+        // method is alias-safe, i.e., it works correctly even if
         // 'characterString' points into this string object.
 
     basic_string& privateReplaceRaw(size_type outPosition,
@@ -1157,11 +1179,11 @@ class basic_string
                                     CHAR_TYPE character);
         // Replace the specified 'outNumChars' characters of this string
         // starting at the specified 'outPosition' by the specified 'numChars'
-        // copies of the specified 'character', and return a reference to this
-        // modifiable string.  The behavior is undefined unless
-        // 'outPosition <= length()', 'outNumChars <= length()',
-        // 'outPosition <= length() - outNumChars' and
-        // 'length() <= max_size() - numChars'.
+        // copies of the specified 'character', and return a reference
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'outPosition <= length()',
+        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars'
+        // and 'length() <= max_size() - numChars'.
 
     template <typename INPUT_ITER>
     basic_string& privateReplaceDispatch(
@@ -2591,6 +2613,54 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
+                                              const CHAR_TYPE *characterString,
+                                              size_type        numChars)
+{
+    BSLS_ASSERT_SAFE(numChars <= max_size());
+
+    if (numChars <= capacity()) {
+        // no reallocation required, perform assignment in-place
+
+        this->d_length = 0;
+        return privateAppendRaw(characterString, numChars);
+    }
+    else {
+        // reallocation required, ensure strong exception-safety
+
+        basic_string cpy(get_allocator());
+        cpy.privateAppendRaw(characterString, numChars);
+        cpy.swap(*this);
+        return *this;
+    }
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
+                                                           size_type numChars,
+                                                           CHAR_TYPE character)
+{
+    BSLS_ASSERT_SAFE(numChars <= max_size());
+
+    if (numChars <= capacity()) {
+        // no reallocation required, perform assignment in-place
+
+        this->d_length = 0;
+        return privateAppendRaw(numChars, character);
+    }
+    else {
+        // reallocation required, ensure strong exception-safety
+
+        basic_string cpy(get_allocator());
+        cpy.privateAppendRaw(numChars, character);
+        cpy.swap(*this);
+        return *this;
+    }
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
@@ -3333,6 +3403,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
 {
+    // perform a validity check
+    BSLS_ASSERT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT(capacity() >= length());
+
     privateDeallocate();
     this->d_length = npos;  // invalid length
 }
@@ -3660,8 +3734,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                      "string<...>::assign(string const&...): string too long");
     }
-    this->d_length = 0;
-    return privateAppendRaw(string.data() + position, numChars);
+
+    return privateAssign(string.data() + position, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3687,8 +3761,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                              "string<...>::assign(char*...): string too long");
     }
-    this->d_length = 0;
-    return privateAppendRaw(characterString, numChars);
+
+    return privateAssign(characterString, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3701,8 +3775,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                                   "string<...>::assign(n,c): string too long");
     }
-    this->d_length = 0;
-    return privateAppendRaw(numChars, character);
+
+    return privateAssign(numChars, character);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3712,8 +3786,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    this->d_length = 0;
-    return privateAppendDispatch(first, last);
+    basic_string(first, last, get_allocator()).swap(*this);
+    return *this;
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>

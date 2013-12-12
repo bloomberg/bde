@@ -1,4 +1,10 @@
 // bslstl_hash.t.cpp                                                  -*-C++-*-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
+// One release only, while transitioning through a compile-fail error on this
+// syntax without the configuration macro.
+
+#define BSL_HASH_CSTRINGS_AS_POINTERS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 #include <bslstl_hash.h>
 
 #include <bslma_default.h>
@@ -700,19 +706,30 @@ int main(int argc, char *argv[])
         const char *C_STRING_2 = STRING_2;
         ASSERT(C_STRING_1 != C_STRING_2);
 
-//#if defined(BDE_OMIT_TRANSITIONAL) || defined(BSL_HASH_CSTRINGS_AS_POINTERS)
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
+        // This awkward-looking preprocessor logic guarantees that the test is
+        // run in the 'bsl-oss' repository, but that it runs only if the macro
+        // 'BSL_HASH_CSTRINGS_AS_POINTERS' is defined in 'bsl-internal'.  This
+        // allows for the one-release transition (BDE 2.19) from the old hash
+        // semantics treating 'const char *' as a string, to the C++ standard
+        // semantics treating 'const char *' as a pointer.  All of this
+        // pre-processor logic for the next release, along with the poisoning
+        // of 'hash<const char *>'.
+
+#if defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         const ::bsl::hash<const char *> C_STRING_HASH =
                                                    ::bsl::hash<const char *>();
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
-        ASSERT(C_STRING_HASH(C_STRING_1) == C_STRING_HASH(C_STRING_2));
-#else
-#if defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
 #endif
+#else
+        const ::bsl::hash<const char *> C_STRING_HASH =
+                                                   ::bsl::hash<const char *>();
+
+        ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 
-//#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------

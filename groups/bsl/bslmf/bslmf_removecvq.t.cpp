@@ -59,9 +59,10 @@ static void aSsErT(int c, const char *s, int i) {
 struct MyType {};
 
 template <class TYPE>
-bool isSame(TYPE& a, TYPE& b) { return true; }
+bool isSame(TYPE& /* a */, TYPE& /* b */) { return true; }
+
 template <class TYPEA, class TYPEB>
-bool isSame(TYPEA& a, TYPEB& b) { return false; }
+bool isSame(TYPEA& /* a */, TYPEB& /* b */) { return false; }
 
 template <class TYPEA, class TYPEB>
 bool isSortaSame(TYPEA& a, TYPEB& b)
@@ -145,7 +146,6 @@ int main(int argc, char *argv[])
         bslmf::RemoveCvq<int **           >::Type i5; // int **
         bslmf::RemoveCvq<int *const       >::Type i6; // int *
         bslmf::RemoveCvq<int *const *     >::Type i7; // int *const *
-        bslmf::RemoveCvq<int *const *const>::Type i8; // int *const *
         bslmf::RemoveCvq<MyType           >::Type m1; // MyType
         bslmf::RemoveCvq<MyType const     >::Type m2; // MyType
 
@@ -159,33 +159,24 @@ int main(int argc, char *argv[])
         i5 = &i4;
         i6 = &i;
         i7 = &J;
-        i8 = &J;
 
         int *pi;
         int **ppi;
         int ***pppi;
-        int *const *pcpi;
         int *const **ppcpi;
         MyType *pm;
 
-        pi    = &i1;
-        pi    = &i2;
-        pi    = &i3;
-        ppi   = &i4;
-        pppi  = &i5;
-        ppi   = &i6;
-        ppcpi = &i7;
-        ppcpi = &i8;
-        pm    = &m1;
-        pm    = &m2;
+        pi      = &i1;
+        pi      = &i2;
+        pi      = &i3;
+        ppi     = &i4;
+        pppi    = &i5;
+        ppi     = &i6;
+        ppcpi   = &i7;
+        pm      = &m1;
+        pm      = &m2;
 
         ASSERT(pi && ppi && pppi && ppcpi && pm);
-
-        const int ci = 0;
-        volatile int vi = 1;
-        int *const cpi = &i;
-        int *const *const cpcpi = &cpi;
-        const MyType cm = MyType();
 
         // References should remain unchanged.
 

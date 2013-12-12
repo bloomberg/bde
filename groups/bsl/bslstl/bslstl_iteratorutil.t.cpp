@@ -2,8 +2,6 @@
 
 #include <bslstl_iteratorutil.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -172,6 +170,8 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

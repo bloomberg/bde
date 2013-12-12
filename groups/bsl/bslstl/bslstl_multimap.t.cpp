@@ -20,6 +20,10 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 
+#include <limits.h>
+
+#include <stdlib.h> // atoi
+
 #include <algorithm>
 #include <functional>
 
@@ -217,6 +221,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -729,18 +739,23 @@ class DummyAllocator {
     // MANIPULATORS
     // DummyAllocator& operator=(const DummyAllocator& rhs) = default;
 
-    pointer allocate(size_type numElements, const void *hint = 0) { return 0; }
+    pointer allocate(size_type    /* numElements */,
+                     const void * /* hint */ = 0) {
+        return 0;
+    }
 
-    void deallocate(pointer address, size_type numElements = 1) {}
+    void deallocate(pointer /* address */, size_type /* numElements */ = 1) {
+    }
 
-    void construct(pointer address, const TYPE& value) {}
+    void construct(pointer /* address */, const TYPE& /* value */) {
+    }
 
-    void destroy(pointer address) {}
+    void destroy(pointer /* address */) {}
 
     // ACCESSORS
-    pointer address(reference object) const { return 0; }
+    pointer address(reference /* object */) const { return 0; }
 
-    const_pointer address(const_reference object) const { return 0; }
+    const_pointer address(const_reference /* object */) const { return 0; }
 
     size_type max_size() const { return 0; }
 };
@@ -762,7 +777,9 @@ struct CharToPairConverter {
         BSLS_ASSERT(address);
         BSLS_ASSERT(allocator);
         BSLS_ASSERT(0 < value);
+#if CHAR_MAX >= 128
         BSLS_ASSERT(value < 128);
+#endif
 
         // If creating the 'key' and 'value' temporary objects requires an
         // allocator, it should not be the default allocator as that will
@@ -1506,8 +1523,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const ptrdiff_t   LENGTH = strlen(DATA[ti].d_results);
         const TestValues  EXP(DATA[ti].d_results, &scratch);
+        ASSERT(0 <= LENGTH);
 
         TestValues CONT(SPEC, &scratch);
 
@@ -2270,6 +2288,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
             const TestValues VALUES;
 
             Obj mX;  const Obj& X = mX;
+
+            (void) X;            
+
             Iter it = mX.insert(mX.end(), VALUES[0]);
 
             ASSERT_SAFE_FAIL(mX.erase(X.end()));
@@ -4250,8 +4271,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
         funcPtr     memberSwap = &Obj::swap;
         freeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (verbose) printf(
@@ -4504,11 +4525,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7_1()
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
             TestValues VALUES(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -4624,10 +4645,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7()
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -4873,8 +4894,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
         operatorPtr operatorEq = operator==;
         operatorPtr operatorNe = operator!=;
 
-        (void)operatorEq;  // quash potential compiler warnings
-        (void)operatorNe;
+        (void) operatorEq;  // quash potential compiler warnings
+        (void) operatorNe;
     }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -5259,12 +5280,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -5461,7 +5482,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
 
             if (0 < LENGTH) {
                 if (verbose) {
-                    printf("\t\tOn an object of initial length %d.\n", LENGTH);
+                    printf("\t\tOn an object of initial length " ZU ".\n",
+                           LENGTH);
                 }
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {

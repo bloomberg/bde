@@ -273,6 +273,14 @@
 #   include <bslstl_allocator.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+# ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
+#   include <bslstl_allocatortraits.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_SHAREDPTR
+#   include <bslstl_sharedptr.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
 #endif
 
 // Recursively re-try this header if there are any native STL headers for which

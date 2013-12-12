@@ -260,7 +260,7 @@ class Bar {};
 //..
 template <class TYPE>
 inline
-int getIntValue(TYPE *object, bsl::false_type)
+int getIntValue(TYPE * /* object */, bsl::false_type)
 {
     // Return 0 because the specified 'object' of the (template parameter)
     // 'TYPE' is not convertible to the 'int' type.

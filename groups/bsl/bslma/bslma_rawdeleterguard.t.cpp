@@ -325,7 +325,8 @@ int main(int argc, char *argv[])
             ASSERT(INIT_SIZE + (2 * i) + 1 == counter);
 
             // Verify that memory is deallocated properly.
-            ASSERT((4 - i) * sizeof(my_Class) == Z->numBytesInUse());
+            ASSERT((4 - i) * static_cast<ptrdiff_t>(sizeof(my_Class))
+                                                        == Z->numBytesInUse());
         }
 
         ASSERT(3 * INIT_SIZE == counter);

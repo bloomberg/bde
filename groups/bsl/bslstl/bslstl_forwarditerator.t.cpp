@@ -128,7 +128,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //-----------------------------------------------------------------------------
 bool assertFailed = false;
 
-void testAssertionFailedHandler(const char *text, const char *file, int line)
+void testAssertionFailedHandler(const char * /* text */,
+                                const char * /* file */,
+                                int          /* line */)
     // A handler that sets the global flag 'assertFailed' when an assertion
     // fails.  Due to its simplicity, it isn't tested in test case 3.
 {
@@ -371,6 +373,9 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVeryVerbose;
+    (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -845,8 +850,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nRepeat the tests for const_iterators" << endl;
         const TestContainer& constContainer = testContainer;
-        const_iterator itcBegin = testContainer.begin();
-        const const_iterator itcEnd = testContainer.end();
+        const_iterator itcBegin = constContainer.begin();
+        const const_iterator itcEnd = constContainer.end();
         length = 0;
         while( itcBegin != itcEnd) {
             ++length;
@@ -854,7 +859,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(3 == length);
 
-        itcBegin = testContainer.begin();
+        itcBegin = constContainer.begin();
         ASSERT(1 == *itcBegin++);
         ASSERT(2 == *itcBegin++);
         ASSERT(3 == *itcBegin++);
@@ -913,8 +918,8 @@ int main(int argc, char *argv[])
 
         const_iterator itReader = testData;
         const int* itValidator = testData;
-        for(int i = 0; i < sizeof(testData)/sizeof(int); ++itValidator,
-                                                         ++itReader, ++i) {
+        for(size_t i = 0; i < sizeof(testData)/sizeof(int); ++itValidator,
+                                                            ++itReader, ++i) {
             LOOP2_ASSERT(*itValidator, *itReader, *itValidator == *itReader);
         }
       } break;

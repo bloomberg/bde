@@ -191,7 +191,7 @@ class NonBslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type = 1)
+    void deallocate(pointer p, size_type /* n */ = 1)
         { d_mechanism->deallocate(p); }
 
     void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
@@ -261,7 +261,7 @@ class BslmaAllocator
         return pointer(d_mechanism->allocate(n * sizeof(T)));
     }
 
-    void deallocate(pointer p, size_type = 1)
+    void deallocate(pointer p, size_type /* n */ = 1)
         { d_mechanism->deallocate(p); }
 
     void construct(T *p, const T& val)
@@ -369,7 +369,7 @@ class FunkyAllocator
         return pointer((T*) d_mechanism->allocate(n * sizeof(T)), 0);
     }
 
-    void deallocate(pointer p, size_type = 1)
+    void deallocate(pointer p, size_type /* n */ = 1)
         { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
 
     void construct(T *p, const T& val)
@@ -1355,7 +1355,7 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const int blockSize = N * sizeof(value_type);
+        const bsls::Types::Int64 blockSize = N * sizeof(value_type);
 
         g_lastHint = nonHint;
         if (useHint) {
@@ -1374,10 +1374,11 @@ void testAllocateDeallocate(const char *name)
         // Check memory allocation
         LOOP2_ASSERT(name, N, ta.lastAllocatedAddress() ==
                               bsls::Util::addressOf(*pointers[i]));
-        LOOP2_ASSERT(name, N, ta.lastAllocatedNumBytes() == blockSize);
+        LOOP2_ASSERT(name, N, static_cast<bsls::Types::Int64>(
+                                     ta.lastAllocatedNumBytes()) == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB + 1);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB + 1);
-        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB + blockSize);
+        LOOP2_ASSERT(name, N, ta.numBytesInUse() == bytesInUseB + blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);
@@ -1392,15 +1393,16 @@ void testAllocateDeallocate(const char *name)
         const int blocksInUseB = ta.numBlocksInUse();
         const int bytesInUseB  = ta.numBytesInUse();
 
-        const int blockSize = N * sizeof(value_type);
+        const bsls::Types::Int64 blockSize = N * sizeof(value_type);
 
         TraitsT::deallocate(a, pointers[i], N);
 
         // Check memory deallocation
-        LOOP2_ASSERT(name, N, ta.lastDeallocatedNumBytes() == blockSize);
+        LOOP2_ASSERT(name, N, static_cast<bsls::Types::Int64>(
+                                   ta.lastDeallocatedNumBytes()) == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB - 1);
-        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB - blockSize);
+        LOOP2_ASSERT(name, N, ta.numBytesInUse() == bytesInUseB - blockSize);
 
         // No constructors or destructors were called
         LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);

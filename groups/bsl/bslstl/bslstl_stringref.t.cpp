@@ -2,6 +2,7 @@
 
 #include <bslstl_stringref.h>
 
+#include <bsls_bsltestutil.h>
 #include <bsls_nativestd.h>
 
 #include <algorithm>
@@ -149,6 +150,12 @@ void aSsErT(int c, const char *s, int i)
                                                  // P(X) without '\n'
 #define L_ __LINE__                              // current Line number
 #define T_()  std::cout << "\t" << std::flush;   // Print tab w/o newline
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1667,7 +1674,7 @@ int main(int argc, char *argv[])
             std::size_t hash_value = hash_function(o);
 
             if (veryVerbose) {
-                printf("%4d: STR=%-20s, HASH=%x\n",LINE, STR, hash_value);
+                printf("%4d: STR=%-20s, HASH=" ZU "\n",LINE, STR, hash_value);
             }
 
             hash_results[o] = hash_value;

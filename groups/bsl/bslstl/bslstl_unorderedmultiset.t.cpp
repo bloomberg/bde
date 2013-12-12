@@ -14,6 +14,7 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_haspointersemantics.h>
 #include <bslmf_issame.h>
 
 #include <bsls_asserttest.h>
@@ -1346,8 +1347,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(SPEC);
+        const ptrdiff_t   LENGTH = strlen(SPEC);
         const TestValues  EXP(SPEC, &scratch);
+        ASSERT(0 <= LENGTH);
 
         TestValues CONT(SPEC, &scratch);
 
@@ -1446,10 +1448,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    const char *SPEC, *lastSpec = "+";
-    for (size_t ti = 0; ti < NUM_DATA; ++ti, lastSpec = SPEC) {
+    
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const size_t LINE   = DATA[ti].d_line;
-                     SPEC   = DATA[ti].d_spec;
+        const char  *SPEC   = DATA[ti].d_spec;
         const size_t LENGTH = strlen(SPEC);
 
         TestValues values(SPEC, &scratch);
@@ -2295,8 +2297,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         FuncPtr     memberSwap = &Obj::swap;
         FreeFuncPtr freeSwap   = bsl::swap;
 
-        (void)memberSwap;  // quash potential compiler warnings
-        (void)freeSwap;
+        (void) memberSwap;  // quash potential compiler warnings
+        (void) freeSwap;
     }
 
     if (veryVerbose) printf(
@@ -2615,8 +2617,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
         const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
-            const char *const SPEC        = SPECS[ti];
-            const size_t      LENGTH      = (int) strlen(SPEC);
+            const char *const SPEC   = SPECS[ti];
+            const size_t      LENGTH = strlen(SPEC);
 
             if (veryVerbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -2677,7 +2679,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
                            "with test allocator:\n");
                 }
 
-                const native_std::size_t A = oa.numBlocksTotal();
+                const bsls::Types::Int64 A = oa.numBlocksTotal();
 
                 Obj Y11(X, &oa);
 
@@ -3087,7 +3089,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
 
                 size_t count = 0, countKey = 0;
                 bool firstTime = true;
-                KEY prevKey;
+                KEY prevKey = KEY();
                 Iter endRange = end;
                 for (Iter it = begin; end != it; ++it) {
                     ++count;
@@ -3293,7 +3295,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);    const Obj& X = mX;
 

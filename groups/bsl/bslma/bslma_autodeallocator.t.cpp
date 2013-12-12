@@ -9,6 +9,7 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <stddef.h>  // ptrdiff_t
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -938,10 +939,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta1(veryVeryVeryVerbose);
         bslma::TestAllocator ta2(veryVeryVeryVerbose);
-        bslma::TestAllocator ta3(veryVeryVeryVerbose);
         const bslma::TestAllocator& TA1 = ta1;
         const bslma::TestAllocator& TA2 = ta2;
-        const bslma::TestAllocator& TA3 = ta3;
 
         static void *pointers1a[NUM_TEST];
         static void *pointers1b[NUM_TEST];
@@ -1383,6 +1382,7 @@ int main(int argc, char *argv[])
         int maxNumAllocated = 0;
 
         TestAllocator mX;    const TestAllocator &X = mX;
+        (void) X;
         for (int i = 0; i < MAX_NUM_POINTERS; ++i) {
             if (rand() & 0x10) {  // allocate
 
@@ -1470,7 +1470,8 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_TEST; ++i) {
             memory[i] = ta.allocate(sizeof(int) * (i + 1));
-            ASSERT(sizeof(int) * (i + 1) * (i + 2) / 2 == TA.numBytesInUse());
+            ASSERT(static_cast<ptrdiff_t>(sizeof(int)) * (i + 1) * (i + 2) / 2
+                                                        == TA.numBytesInUse());
         }
 
         ASSERT(sizeof(int) * NUM_TEST * (NUM_TEST + 1) / 2
@@ -1489,7 +1490,8 @@ int main(int argc, char *argv[])
         char *cmemory[NUM_TEST];
         for (int i = 0; i < NUM_TEST; ++i) {
             cmemory[i] = (char *)ta.allocate(sizeof(int) * (i + 1));
-            ASSERT(sizeof(int) * (i + 1) * (i + 2) / 2 == TA.numBytesInUse());
+            ASSERT(static_cast<ptrdiff_t>(sizeof(int)) * (i + 1) * (i + 2) / 2
+                                                        == TA.numBytesInUse());
         }
 
         ASSERT(sizeof(int) * NUM_TEST * (NUM_TEST + 1) / 2

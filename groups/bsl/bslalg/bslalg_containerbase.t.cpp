@@ -584,7 +584,8 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor tam(&ta);
 
             Obj::pointer ptr = mX.allocate(i);
-            ASSERTV(i, i * sizeof(TestType) == ta.numBytesInUse());
+            ASSERTV(i, i * static_cast<ptrdiff_t>(sizeof(TestType))
+                                                        == ta.numBytesInUse());
 
             int nc = TestType::numCopyConstruct();
             mX.construct(ptr, TestType());
@@ -603,7 +604,8 @@ int main(int argc, char *argv[])
 
             int *intPtr = 0;
             intPtr = mX.allocateN(intPtr, i);
-            ASSERTV(i, i * sizeof(int) == ta.numBytesInUse());
+            ASSERTV(i, i * static_cast<ptrdiff_t>(sizeof(int))
+                                                        == ta.numBytesInUse());
 
             mX.deallocateN(intPtr, i);
             ASSERTV(i, 0 == ta.numBytesInUse());

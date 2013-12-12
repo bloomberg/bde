@@ -1238,7 +1238,7 @@ int main(int argc, char *argv[])
         std::streamoff endPos = inout.tellg();
 
         ASSERT(inout.good());
-        ASSERT(endPos == inout.str().size());
+        ASSERT(endPos == (std::streamoff) inout.str().size());
 
         // Verify that we can seek in the empty stream
         bsl::stringstream empty;
@@ -1260,7 +1260,7 @@ int main(int argc, char *argv[])
         out2 << str2;
         std::streamoff endPos2 = out2.tellp();
 
-        ASSERT(endPos2 == str2.size());
+        ASSERT(endPos2 == (std::streamoff) str2.size());
       } break;
       case 8: {
         // --------------------------------------------------------------------
