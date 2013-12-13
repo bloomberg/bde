@@ -1094,17 +1094,27 @@ std::size_t hash<unsigned long>::operator()(unsigned long x) const
 inline
 std::size_t hash<long long>::operator()(long long x) const
 {
-    if (sizeof (x) > sizeof (std::size_t))
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-    else return x;
+    if (sizeof (x) > sizeof (std::size_t)) {
+        return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+                      // RETURN the default hash when std::size_t is too small.
+    }
+    else {
+        return x;
+         // RETURN the default hash when std::size_t can fit all the bits in x.
+    }
 }
 
 inline
 std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
 {
-    if (sizeof (x) > sizeof (std::size_t))
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-    else return x;
+    if (sizeof (x) > sizeof (std::size_t)) {
+        return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+                      // RETURN the default hash when std::size_t is too small.
+    }
+    else {
+        return x;
+         // RETURN the default hash when std::size_t can fit all the bits in x.
+    }
 }
 
 inline
