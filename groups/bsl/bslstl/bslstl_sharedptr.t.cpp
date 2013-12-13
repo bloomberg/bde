@@ -2713,10 +2713,25 @@ int main(int argc, char *argv[])
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
+            static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+            bsl::shared_ptr<MyInplaceTestObject> x =
+                                       bsl::make_shared<MyInplaceTestObject>();
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
             static const MyInplaceTestObject EXP(V1);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                                          bsl::make_shared<MyInplaceTestObject>(V1);
+                                     bsl::make_shared<MyInplaceTestObject>(V1);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2734,7 +2749,7 @@ int main(int argc, char *argv[])
             static const MyInplaceTestObject EXP(V1, V2);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                                      bsl::make_shared<MyInplaceTestObject>(V1, V2);
+                                 bsl::make_shared<MyInplaceTestObject>(V1, V2);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2752,7 +2767,7 @@ int main(int argc, char *argv[])
             static const MyInplaceTestObject EXP(V1, V2, V3);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3);
+                             bsl::make_shared<MyInplaceTestObject>(V1, V2, V3);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2770,7 +2785,7 @@ int main(int argc, char *argv[])
             static const MyInplaceTestObject EXP(V1, V2, V3, V4);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                              bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4);
+                         bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2788,7 +2803,7 @@ int main(int argc, char *argv[])
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5);
+                     bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2806,7 +2821,7 @@ int main(int argc, char *argv[])
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                      bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6);
+                 bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2824,7 +2839,8 @@ int main(int argc, char *argv[])
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6, V7);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2840,10 +2856,11 @@ int main(int argc, char *argv[])
         numDeallocations = ta.numDeallocations();
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8);
+                                                 V8);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7, V8);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2859,10 +2876,11 @@ int main(int argc, char *argv[])
         numDeallocations = ta.numDeallocations();
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9);
+                                                 V8, V9);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7, V8, V9);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2878,10 +2896,11 @@ int main(int argc, char *argv[])
         numDeallocations = ta.numDeallocations();
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10);
+                                                 V8, V9, V10);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7, V8, V9, V10);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2897,10 +2916,11 @@ int main(int argc, char *argv[])
         numDeallocations = ta.numDeallocations();
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11);
+                                                 V8, V9, V10, V11);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7, V8, V9, V10, V11);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2916,11 +2936,12 @@ int main(int argc, char *argv[])
         numDeallocations = ta.numDeallocations();
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11, V12);
+                                                 V8, V9, V10, V11, V12);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
-                    V12);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7, V8, V9, V10, V11,
+                                                        V12);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2936,11 +2957,12 @@ int main(int argc, char *argv[])
         numDeallocations = ta.numDeallocations();
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11, V12, V13);
+                                                 V8, V9, V10, V11, V12, V13);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
-                    V12, V13);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7, V8, V9, V10, V11,
+                                                        V12, V13);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -2959,8 +2981,9 @@ int main(int argc, char *argv[])
                     V8, V9, V10, V11, V12, V13, V14);
 
             bsl::shared_ptr<MyInplaceTestObject> x =
-                                          bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
-                    V12, V13, V14);
+                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
+                                                        V7, V8, V9, V10, V11,
+                                                        V12, V13, V14);
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
 
             ASSERT(++numAllocations == ta.numAllocations());
@@ -5983,10 +6006,28 @@ int main(int argc, char *argv[])
         static const MyTestArg13 V13(712);
         static const MyTestArg14 V14(1414);
 
+        if (verbose) printf("\nTesting 'createInplace' with 0 arguments"
+                            "\n----------------------------------------\n");
+
+        bslma::TestAllocator ta("Rep. allocator", veryVeryVerbose);
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+            static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+            x.createInplace(&ta);
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
         if (verbose) printf("\nTesting 'createInplace' with 1 argument"
                             "\n---------------------------------------\n");
-
-        bslma::TestAllocator ta(veryVeryVerbose);
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -6120,7 +6161,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8);
+                                                 V8);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8);
 
@@ -6139,7 +6180,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9);
+                                                 V8, V9);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9);
 
@@ -6158,7 +6199,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10);
+                                                 V8, V9, V10);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10);
 
@@ -6177,7 +6218,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11);
+                                                 V8, V9, V10, V11);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11);
 
@@ -6196,10 +6237,10 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11, V12);
+                                                 V8, V9, V10, V11, V12);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
-                    V12);
+                                 V12);
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
@@ -6216,10 +6257,10 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11, V12, V13);
+                                                 V8, V9, V10, V11, V12, V13);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10,
-                    V11, V12, V13);
+                                 V11, V12, V13);
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
@@ -6236,10 +6277,11 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11, V12, V13, V14);
+                                                 V8, V9, V10, V11, V12, V13,
+                                                 V14);
 
             x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
-                    V12, V13, V14);
+                                 V12, V13, V14);
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
@@ -6306,6 +6348,31 @@ int main(int argc, char *argv[])
                                                          verbose));
         }
 #endif
+        ASSERTV(defaultAllocator.numAllocations(),   numDefaultAllocations,
+                defaultAllocator.numAllocations() == numDefaultAllocations);
+        ASSERTV(defaultAllocator.numDeallocations(),  numDefaultDeallocations,
+               defaultAllocator.numDeallocations() == numDefaultDeallocations);
+        
+        if (verbose) printf(
+                         "\nTesting 'createInplace' with default allocator"
+                         "\n----------------------------------------------\n");
+
+
+        numAllocations = defaultAllocator.numAllocations();
+        numDeallocations = defaultAllocator.numDeallocations();
+        {
+            bsl::shared_ptr<MyInplaceTestObject> x;
+            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+            static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+            x.createInplace();
+
+            ASSERT(++numAllocations == defaultAllocator.numAllocations());
+            ASSERT(X);
+            ASSERT(EXP == *(X.ptr()));
+        }
+        ASSERT(++numDeallocations == defaultAllocator.numDeallocations());
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
