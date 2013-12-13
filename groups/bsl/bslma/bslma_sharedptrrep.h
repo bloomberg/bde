@@ -327,7 +327,7 @@ class SharedPtrRep {
 
   protected:
     // PROTECTED CREATORS
-    virtual ~SharedPtrRep();
+    ~SharedPtrRep();
         // Destroy this representation object.
 
   public:
