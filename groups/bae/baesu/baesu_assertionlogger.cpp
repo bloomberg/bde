@@ -39,8 +39,8 @@ bsls::AtomicOperations::AtomicTypes::Int s_severity = {
 
 // CLASS METHODS
 void baesu_AssertionLogger::assertionFailureHandler(const char *text,
-                                                const char *file,
-                                                int         line)
+                                                    const char *file,
+                                                    int         line)
 {
     LogSeverityCallback  callback;
     void                *closure;
