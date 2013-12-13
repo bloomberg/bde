@@ -80,62 +80,179 @@ typedef char    A [5];
 typedef char (&RA)[5];
 
 //=============================================================================
-//                     GLOBAL TYPES FOR USAGE EXAMPLE
+//                           USAGE EXAMPLES
 //-----------------------------------------------------------------------------
-
-struct MyType {};
-typedef MyType& MyTypeRef;
-
-void usageExample()
-{
 
 ///Usage
 ///-----
-// For example:
+// These examples demonstrate the expected use of this component.
+// In this section we show intended use of this component.
+//
+///Example 1: Direct look at metafunction results
+///- - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we invoke 'ForwardingType' on a variety of types and look
+// at the resulting 'Type' member:
 //..
-    typedef int                    T1;
-    typedef int&                   T2;
-    typedef const volatile double& T3;
-    typedef const double &         T4;
-    typedef const float * &        T5;
-    typedef const float * const &  T6;
-    typedef MyType                 T7;
-    typedef const MyType&          T8;
-    typedef MyType&                T9;
-    typedef MyType*                T10;
+    struct MyType {};
+    typedef MyType& MyTypeRef;
 
-    typedef int                    EXP1;
-    typedef int&                   EXP2;
-    typedef const volatile double& EXP3;
-    typedef double                 EXP4;
-    typedef const float * &        EXP5;
-    typedef const float *          EXP6;
-    typedef const MyType&          EXP7;
-    typedef const MyType&          EXP8;
-    typedef MyType&                EXP9;
-    typedef MyType*                EXP10;
+    void usageExample1()
+    {
+        typedef int                    T1;
+        typedef int&                   T2;
+        typedef const volatile double& T3;
+        typedef const double &         T4;
+        typedef const float * &        T5;
+        typedef const float * const &  T6;
+        typedef MyType                 T7;
+        typedef const MyType&          T8;
+        typedef MyType&                T9;
+        typedef MyType*                T10;
 
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T1>::Type,
-                               EXP1>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T2>::Type,
-                               EXP2>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T3>::Type,
-                               EXP3>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T4>::Type,
-                               EXP4>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T5>::Type,
-                               EXP5>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T6>::Type,
-                               EXP6>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T7>::Type,
-                               EXP7>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T8>::Type,
-                               EXP8>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T9>::Type,
-                               EXP9>::value));
-    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T10>::Type,
-                               EXP10>::value));
-}
+        typedef int                    EXP1;
+        typedef int&                   EXP2;
+        typedef const volatile double& EXP3;
+        typedef const double &         EXP4;
+        typedef const float * &        EXP5;
+        typedef const float * const &  EXP6;
+        typedef const MyType&          EXP7;
+        typedef const MyType&          EXP8;
+        typedef MyType&                EXP9;
+        typedef MyType*                EXP10;
+
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T1>::Type, EXP1>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T2>::Type, EXP2>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T3>::Type, EXP3>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T4>::Type, EXP4>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T5>::Type, EXP5>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T6>::Type, EXP6>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T7>::Type, EXP7>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T8>::Type, EXP8>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T9>::Type, EXP9>::value));
+        ASSERT((bsl::is_same<bslmf::ForwardingType<T10>::Type, EXP10>::value));
+    }
+//..
+//
+///Example 2: A logging invocation wrapper
+///- - - - - - - - - - - - - - - - - - - - - - -
+// This example illustrates the use of 'ForwardingType' to efficiently
+// implement a wrapper class that holds a function pointer and logs
+// information about each call to the pointed-to-function through the wrapper.
+// The pointed-to-function takes three arguments whose types a4re specified
+// via template arguments.  The first argument is required to be convertible
+// to 'int'.  The class definition looks as follows:
+//..
+    // Primary template is never defined
+    template <class PROTOTYPE> class LoggingWrapper;
+
+    template <class RET, class ARG1, class ARG2, class ARG3>
+    class LoggingWrapper<RET(ARG1, ARG2, ARG3)> {
+        // Specialization of wrapper for specified function prototype.
+
+        RET (*d_function_p)(ARG1, ARG2, ARG3);
+
+    public:
+        LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
+          : d_function_p(function_p) { }
+
+        RET operator()(ARG1, ARG2, ARG3) const;
+//..
+// Next, we declare a private member function that actually invokes the
+// function. This member function will be called by 'operator()' and must
+// therefore receive arguments indirectly through 'operator()'. In order to
+// avoid excessive copies of pass-by-value arguments, we use 'ForwardingType'
+// to declare a more efficient intermediate argument type for our private
+// member function:
+//..
+    private:
+        RET invoke(typename bslmf::ForwardingType<ARG1>::Type a1,
+                   typename bslmf::ForwardingType<ARG2>::Type a2,
+                   typename bslmf::ForwardingType<ARG3>::Type a3) const;
+    };
+//..
+// Next, we define logging functions that simply count the number of
+// invocations and return from invocations (e.g., to count how may invocations
+// completed without exceptions):
+//..
+    int invocations = 0, returns = 0;
+    void logInvocation(int /* ignored */) { ++invocations; }
+    void logReturn(int /* ignored */) { ++returns; }
+//..
+// Next, we implement 'operator()' to call the logging functions and call
+// 'invoke()':
+//..
+    template <class RET, class ARG1, class ARG2, class ARG3>
+    RET LoggingWrapper<RET(ARG1, ARG2, ARG3)>::operator()(ARG1 a1,
+                                                          ARG2 a2,
+                                                          ARG3 a3) const {
+        logInvocation(a1);
+        RET r = invoke(a1, a2, a3);
+        logReturn(a1);
+        return r;
+    }
+//..
+// Next, we implement 'invoke()' to actually call the function through the
+// pointer. To reconstitute the arguments to the function as close as possible
+// to the types they were passed in as, we call the 'finalForward' member of
+// 'ForwardingType':
+//..
+    template <class RET, class ARG1, class ARG2, class ARG3>
+    RET LoggingWrapper<RET(ARG1,ARG2,ARG3)>::invoke(
+        typename bslmf::ForwardingType<ARG1>::Type a1,
+        typename bslmf::ForwardingType<ARG2>::Type a2,
+        typename bslmf::ForwardingType<ARG3>::Type a3) const
+    {
+        return d_function_p(bslmf::ForwardingType<ARG1>::finalForward(a1),
+                            bslmf::ForwardingType<ARG2>::finalForward(a2),
+                            bslmf::ForwardingType<ARG3>::finalForward(a3));
+    }
+//..
+// Next, in order to see this wrapper in action, we must define the function
+// we wish to wrap.  This function will take an argument of type 'ArgType',
+// which, among other things, keeps track of whether it has been directly
+// constructed or copied from anther 'ArgType' object.  If it has been copied,
+// it keeps track of how many "generations" of copy were done:
+//..
+    class ArgType {
+        int d_value;
+        int d_copies;
+    public:
+        ArgType(int v = 0) : d_value(v), d_copies(0) { }
+        ArgType(const ArgType& other)
+          : d_value(other.d_value)
+          , d_copies(other.d_copies + 1) { }
+
+        int value() const { return d_value; }
+        int copies() const { return d_copies; }
+    };
+
+    int myFunc(const short& i, ArgType& x, ArgType y)
+        // Assign 'x' the value of 'y' and return the 'value()' of 'x'.
+    {
+        ASSERT(i == y.copies());
+        x = y;
+        return x.value();
+    }
+//..
+// Finally, we create a instance of 'LoggingWrapper' to wrap 'myFunc', and we
+// invoke it.  Note that 'y' is copied into the second argument of
+// 'operator()' and is copied again when 'myFunc' is invoked.  However, it is
+// *not* copied when 'operator()' calls 'invoke()' because the 'ForwardType'
+// of 'ArgType' is 'const ArgType&', which does not create another copy.  In
+// C++11, if 'ArgType' had a move constructor, then the number of copies would
+// be only 1, since the final forwarding would be a move instead of a copy.
+//..
+    void usageExample2() {
+        ArgType x(0);
+        ArgType y(99);
+
+        LoggingWrapper<int(const short&, ArgType&, ArgType)> lw(myFunc);
+        ASSERT(0 == invocations && 0 == returns);
+        lw(2, x, y);  // Expect two copies of 'y'
+        ASSERT(1 == invocations && 1 == returns);
+        ASSERT(99 == x.value());
+    }
+//..    
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -173,7 +290,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-        usageExample();
+        usageExample1();
+        usageExample2();
 
       } break;
       case 2: {
@@ -191,7 +309,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<int&      >::Type, int&);
         if (verbose)
             P(bslmf::ConstForwardingType<int&>::BSLMF_FORWARDING_TYPE_ID);
-        ASSERT_SAME(bslmf::ConstForwardingType<int const&>::Type, int);
+        ASSERT_SAME(bslmf::ConstForwardingType<int const&>::Type, const int&);
 
         ASSERT_SAME(bslmf::ConstForwardingType<void *>::Type, void *);
         if (verbose)
@@ -202,7 +320,7 @@ int main(int argc, char *argv[])
                     volatile void                            *&);
 
         ASSERT_SAME(bslmf::ConstForwardingType<char const *const&>::Type,
-                    char const *);
+                    char const *const &);
 
         ASSERT_SAME(bslmf::ConstForwardingType<Enum    >::Type, Enum);
         ASSERT_SAME(bslmf::ConstForwardingType<Enum&   >::Type, Enum&);
@@ -214,7 +332,6 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<Class   >::Type,const Class&);
         if (verbose)
             P(bslmf::ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
-        if (verbose) P(bslmf::ConstForwardingType<Class>::IS_BASIC_TYPE);
         ASSERT_SAME(bslmf::ConstForwardingType<const Class&>::Type,
                     const Class&);
 
@@ -224,7 +341,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<int Class:: *>::Type,
                     int Class::*);
         ASSERT_SAME(bslmf::ConstForwardingType<int Class::* const& >::Type,
-                    int                                            Class::*);
+                    int                            Class::* const&);
 
         ASSERT_SAME(bslmf::ConstForwardingType<int Class::*&>::Type,
                     int                            Class::*&);
@@ -251,7 +368,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType<int       >::Type, int);
         if (verbose) P(typeid(bslmf::ForwardingType<int>::Type).name());
         ASSERT_SAME(bslmf::ForwardingType<int&      >::Type, int&);
-        ASSERT_SAME(bslmf::ForwardingType<int const&>::Type, int);
+        ASSERT_SAME(bslmf::ForwardingType<int const&>::Type, int const&);
 
         ASSERT_SAME(bslmf::ForwardingType<void *          >::Type, void *);
         ASSERT_SAME(bslmf::ForwardingType<void *&         >::Type, void *&);
@@ -259,7 +376,7 @@ int main(int argc, char *argv[])
                     volatile void *&);
 
         ASSERT_SAME(bslmf::ForwardingType<char const *const&>::Type,
-                    char const *);
+                    char const *const &);
 
         ASSERT_SAME(bslmf::ForwardingType<Enum        >::Type, Enum);
         ASSERT_SAME(bslmf::ForwardingType<Enum&       >::Type, Enum&);
@@ -271,7 +388,6 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType<Class       >::Type, const Class&);
         if (verbose)
             P(bslmf::ForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
-        if (verbose) P(bslmf::ForwardingType<Class>::IS_BASIC_TYPE);
         ASSERT_SAME(bslmf::ForwardingType<const Class&>::Type, const Class&);
 
         ASSERT_SAME(bslmf::ForwardingType<INT >::Type, int);
@@ -279,7 +395,7 @@ int main(int argc, char *argv[])
 
         ASSERT_SAME(bslmf::ForwardingType<int Class::* >::Type, int Class::*);
         ASSERT_SAME(bslmf::ForwardingType<int Class::* const& >::Type,
-                    int                                       Class::*);
+                    int                       Class::* const&);
 
         ASSERT_SAME(bslmf::ForwardingType<int Class::*&>::Type, int Class::*&);
 
@@ -288,9 +404,9 @@ int main(int argc, char *argv[])
         || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
         // xlc-8 and MSVC 2005 seem to have problems with function types.
 
-        ASSERT_SAME(bslmf::ForwardingType<  F>::Type,  F);
+        ASSERT_SAME(bslmf::ForwardingType<  F>::Type, F&);
 #endif
-        ASSERT_SAME(bslmf::ForwardingType< RF>::Type,  RF);
+        ASSERT_SAME(bslmf::ForwardingType< RF>::Type, F&);
 
         ASSERT_SAME(bslmf::ForwardingType< PF>::Type, PF);
         ASSERT_SAME(bslmf::ForwardingType<RPF>::Type, PF&);
@@ -300,10 +416,10 @@ int main(int argc, char *argv[])
         || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
         // xlc-8 and MSVC 2005 seem to have problems with function types.
 
-        ASSERT_SAME(bslmf::ForwardingType< Fi >::Type, Fi);
-        ASSERT_SAME(bslmf::ForwardingType< FRi>::Type, FRi);
+        ASSERT_SAME(bslmf::ForwardingType< Fi >::Type, Fi&);
+        ASSERT_SAME(bslmf::ForwardingType< FRi>::Type, FRi&);
 #endif
-        ASSERT_SAME(bslmf::ForwardingType<RFi >::Type, RFi);
+        ASSERT_SAME(bslmf::ForwardingType<RFi >::Type, Fi&);
         ASSERT_SAME(bslmf::ForwardingType<RFRi>::Type, FRi&);
 
         ASSERT_SAME(bslmf::ForwardingType< A>::Type, char*);
