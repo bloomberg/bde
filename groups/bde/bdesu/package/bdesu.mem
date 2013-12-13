@@ -1,4 +1,5 @@
 bdesu_fdstreambuf
+bdesu_filecloseproctor
 bdesu_fileutil
 bdesu_memoryutil
 bdesu_osutil
