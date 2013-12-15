@@ -193,8 +193,8 @@ typedef char (&RA)[5];
 //..
 // Next, we implement 'invoke()' to actually call the function through the
 // pointer. To reconstitute the arguments to the function as close as possible
-// to the types they were passed in as, we call the 'finalForward' member of
-// 'ForwardingType':
+// to the types they were passed in as, we call the 'forwardToTarget' member
+// of 'ForwardingTypeUtil':
 //..
     template <class RET, class ARG1, class ARG2, class ARG3>
     RET LoggingWrapper<RET(ARG1,ARG2,ARG3)>::invoke(
@@ -202,9 +202,10 @@ typedef char (&RA)[5];
         typename bslmf::ForwardingType<ARG2>::Type a2,
         typename bslmf::ForwardingType<ARG3>::Type a3) const
     {
-        return d_function_p(bslmf::ForwardingType<ARG1>::finalForward(a1),
-                            bslmf::ForwardingType<ARG2>::finalForward(a2),
-                            bslmf::ForwardingType<ARG3>::finalForward(a3));
+        return d_function_p(
+            bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(a1),
+            bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(a2),
+            bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(a3));
     }
 //..
 // Next, in order to see this wrapper in action, we must define the function
@@ -349,7 +350,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType< PF>::Type, PF);
         ASSERT_SAME(bslmf::ConstForwardingType<RPF>::Type, PF&);
 
-        ASSERT_SAME(bslmf::ConstForwardingType< A>::Type, const char*);
+        ASSERT_SAME(bslmf::ConstForwardingType< A>::Type, char*);
         ASSERT_SAME(bslmf::ConstForwardingType<RA>::Type, char*);
         if (verbose)
             P(bslmf::ConstForwardingType<RA>::BSLMF_FORWARDING_TYPE_ID);
@@ -424,6 +425,28 @@ int main(int argc, char *argv[])
 
         ASSERT_SAME(bslmf::ForwardingType< A>::Type, char*);
         ASSERT_SAME(bslmf::ForwardingType<RA>::Type, char *);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT_SAME(bslmf::ForwardingType<int&&      >::Type, const int&);
+        ASSERT_SAME(bslmf::ForwardingType<int const&&>::Type, int const&);
+        ASSERT_SAME(bslmf::ForwardingType<void *&&         >::Type,
+                    void *const &);
+        ASSERT_SAME(bslmf::ForwardingType<void volatile *&&>::Type,
+                    volatile void *const &);
+        ASSERT_SAME(bslmf::ForwardingType<char const *const&&>::Type,
+                    char const *const &);
+        ASSERT_SAME(bslmf::ForwardingType<Enum&&       >::Type, const Enum&);
+        ASSERT_SAME(bslmf::ForwardingType<Struct&&     >::Type, const Struct&);
+        ASSERT_SAME(bslmf::ForwardingType<Union&&      >::Type, const Union&);
+        ASSERT_SAME(bslmf::ForwardingType<const Class&&>::Type, const Class&);
+        ASSERT_SAME(bslmf::ForwardingType<INT&&>::Type, const int&);
+        ASSERT_SAME(bslmf::ForwardingType<int Class::* const&& >::Type,
+                    int                       Class::* const&);
+        ASSERT_SAME(bslmf::ForwardingType<int Class::*&&>::Type,
+                    int Class::* const&);
+        ASSERT_SAME(bslmf::ForwardingType< A&&>::Type, char*);
+#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
