@@ -6,37 +6,20 @@ BDES_IDENT_RCSID(bdesu_filecloseproctor_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// CREATOPS
-bdesu_FileCloseProctor::~bdesu_FileCloseProctor()
-{
-    if (bdesu_FileUtil::INVALID_FD != d_descriptor) {
-        BSLS_ASSERT_OPT(0 == d_file_p);
-
-        int rc = bdesu_FileUtil::close(d_descriptor);
-        BSLS_ASSERT_OPT(0 == rc && "~bdesu_FileCloseProctor: close failed.");
-    }
-    else if (d_file_p) {
-        int rc = bsl::fclose(d_file_p);
-        BSLS_ASSERT_OPT(0 == rc && "~bdesu_FileCloseProctor: fclose failed.");
-    }
-}
-
 // MANIPULATORS
 void bdesu_FileCloseProctor::closeAndRelease()
 {
     if (bdesu_FileUtil::INVALID_FD != d_descriptor) {
-        BSLS_ASSERT_OPT(0 == d_file_p);
+        BSLS_ASSERT(0 == d_file_p);
 
-        int rc = bdesu_FileUtil::close(d_descriptor);
-        BSLS_ASSERT_OPT(0 == rc &&
-                             "bdesu_FileCloseProctor::release: close failed.");
+        int rc = bdesu_FileUtil::close(d_descriptor);    (void) rc;
+        BSLS_ASSERT(0 == rc && "close failed");
 
         d_descriptor = bdesu_FileUtil::INVALID_FD;
     }
     else if (d_file_p) {
-        int rc = bsl::fclose(d_file_p);
-        BSLS_ASSERT_OPT(0 == rc &&
-                            "bdesu_FileCloseProctor::release: fclose failed.");
+        int rc = bsl::fclose(d_file_p);                  (void) rc;
+        BSLS_ASSERT(0 == rc && "fclose failed");
 
         d_file_p = 0;
     }
