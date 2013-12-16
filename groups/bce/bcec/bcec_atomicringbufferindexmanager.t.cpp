@@ -38,6 +38,26 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
+// The 'bcec_AtomicRingBufferIndexManager' is a lock-free fully thread-safe
+// mechanism for managing array indices in an externally maintained queue of
+// objects.  There are a few elements that make this component particularly
+// difficult to test thoroughly:
+//: 1 It is fully thread-safe
+//:
+//: 2 The public interface doesn't expose state information helpful in
+//:   verifying correctness of multi-threaded code.
+//:
+//: 3 The generation count used to avoid ABA problems has boundary cases that
+//:   are impractical to test (a task would need to be running for hours or
+//:   days).
+// This test-driver applies standard BDE testing methodology to most of the
+// public interface of 'bcec_AtomicRingBufferIndexManager' for single threaded
+// tests.  To handle the practical concerns above though, this test driver also
+// defines testing mechanisms that access and manipulate private data members
+// of the object under test.  This is allows for setting the generation count 
+// to values near boundary cases that would not otherwise be reachable in a
+// reasonable period of time, and verifying the internal state of an object
+// under heavy contention (i.e., a more complete thread-safety test).
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 8] unsigned int numRepresentableGenerations(unsigned int );
