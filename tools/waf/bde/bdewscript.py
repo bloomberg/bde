@@ -54,7 +54,7 @@ def configure(ctx):
     ctx.msg('comp_type', uplid.uplid['comp_type'])
     ctx.msg('comp_ver', uplid.uplid['comp_ver'])
     ctx.msg('uplid', uplid)
-    ctx.msg('fuid', '_'.join(ufid.ufid))
+    ctx.msg('ufid', '_'.join(ufid.ufid))
     ctx.msg('prefix', ctx.options.prefix)
 
     bde_configure.configure_options(uplid)

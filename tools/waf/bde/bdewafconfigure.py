@@ -183,7 +183,7 @@ class BdeWafConfigure(object):
 
 
     def configure_external_libs(self, ufid):
-        self.ufid = ufid
+        self.ufid = copy.deepcopy(ufid)
 
         pkgconfig_args = [ '--libs', '--cflags' ]
 
