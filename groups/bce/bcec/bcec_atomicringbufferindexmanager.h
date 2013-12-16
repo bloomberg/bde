@@ -12,7 +12,9 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bcec_AtomicRingBufferIndexManager: state management for a queue
 //
-//@AUTHOR: Eric Winseman (ewinseman), Dave Schumann (dschuman)
+//@AUTHOR: Eric Winseman (ewinseman), 
+//         Dave Schumann (dschuman),
+//         Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component implements a lock-free mechanism for
 // managing the indices of a circular buffer of elements to facilitate
@@ -30,11 +32,155 @@ BDES_IDENT("$Id: $")
 // corresponding method ('commitPopIndex', 'commitPushIndex' 
 // respectively); otherwise, other threads may "spin" indefinitely with 
 // severe performance consequences.  
-// 
+//
+///Thread Safety
+///-------------
+// 'bcec_AtomicRingBufferIndexManager' is fully *thread-safe*, meaning that
+// all non-creator operations on an object can be safely invoked
+// simultaneously from multiple threads.
+//
 ///Exception safety
 ///----------------
 // All methods of the 'bcec_AtomicRingBufferIndexManager' provide a no-throw
 // exception guarantee, except for the constructor, which is exception neutral.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Thread-safe Queue of Integers
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we create a simple thread-safe queue of integers
+// using a 'bcec_AtomicRinBufferIndexManager' to synchronize the queue
+// operations
+//
+// We start by declaring the data members of an 'IntegerQueue', a vector of
+// integers, to hold the values in the queue, and an index manager to ensure
+// thread-safe access to the indices of the vector.
+// vector: 
+//..
+//  class IntegerQueue {
+//      // This class provides a fully thread-safe queue of integers with a
+//      // fixed maximum capacity. 
+//  
+//      // DATA
+//      bcec_AtomicRingBufferIndexManager d_indexManager;  // manages indices
+//                                                         // of 'd_values'
+//  
+//      bsl::vector<int>                  d_values;        // maintain values
+//  
+//    public:
+//..
+// Then, we declare the methods of an integer queue:
+//..
+//      // CREATORS
+//      IntegerQueue(unsigned int      capacity, 
+//                   bslma::Allocator *basicAllocator = 0);
+//          // Create an queue capable of holding up to the specified
+//          // 'capacity' number of integer values.
+//  
+//      ~IntegerQueue();
+//          // Destroy this queue.
+//  
+//      // MANIPULATORS
+//      int tryPushBack(int value);
+//          // Attmpt to push the specified 'value' onto the back of this
+//          // queue.  Return 0 on success, and a non-zero value if this queue
+//          // is full. 
+//  
+//      int tryPopFront(int *result);
+//          // Attempt to remove an element from the front of this queue and
+//          // load the removed value into the specified 'result'.  Return 0
+//          // on success, and a non-zero value otherwise.
+//  
+//      // ACCESSORS
+//      unsigned int length() const;
+//          // Return the number of elements currently in this queue.
+//  
+//      unsigned int capacity() const;
+//          // Return the maximum number of elements that can be added to this
+//          // queue.
+//  };
+//..
+//  Next, we define the constructor, which initializes both the index manager
+//  and vector with the supplied capacity:  
+//..
+//  // CREATORS
+//  IntegerQueue::IntegerQueue(unsigned int      capacity, 
+//                             bslma::Allocator *basicAllocator)
+//  : d_indexManager(capacity, basicAllocator)
+//  , d_values(capacity, 0, basicAllocator)
+//  {
+//  }
+//  
+//  IntegerQueue::~IntegerQueue()
+//  {
+//  }
+//..
+// Now, we define 'tryPushBack' and 'tryPopFront', which use the index manager
+// to reserve an index in the vector, operate on that index, and then commit
+// that index back to the index manager:
+//..
+//  // MANIPULATORS
+//  int IntegerQueue::tryPushBack(int value)
+//  {
+//      unsigned int generation, index;
+//      if (0 == d_indexManager.reservePushIndex(&generation, &index)) {
+//          d_values[index] = value;
+//          d_indexManager.commitPushIndex(generation, index);
+//          return 0;
+//      }
+//      return -1;
+//  }
+//  
+//  int IntegerQueue::tryPopFront(int *result)
+//  {
+//      unsigned int generation, index;
+//      if (0 == d_indexManager.reservePopIndex(&generation, &index)) {
+//          *result = d_values[index];
+//          d_indexManager.commitPopIndex(generation, index);
+//          return 0;
+//      }
+//      return -1;
+//  }
+//..
+// Notice that because none of these operations allocate memory, we do not
+// need to add code to ensure exception safety.
+//
+// The, we define the accessors to the integer queue:
+//..        
+//  // ACCESSORS
+//  unsigned int IntegerQueue::length() const
+//  {
+//      return d_indexManager.length();
+//  }
+//          
+//  unsigned int IntegerQueue::capacity() const
+//  {
+//      return d_indexManager.capacity();
+//  }
+//..
+// Finally, we create an 'IntegerQueue', and push and pop a couple elements
+// into the queue:
+//..
+//  IntegerQueue intQueue(2);
+//  int rc = intQueue.tryPushBack(1);
+//  assert(0 == rc);
+//
+//  rc = intQueue.tryPushBack(2);
+//  assert(0 == rc);
+//
+//  rc = intQueue.tryPushBack(3);
+//  assert(0 != rc);
+//    
+//  assert(2 == intQueue.length());
+//
+//  int result;
+//    
+//  rc = intQueue.tryPopFront(&result);
+//  assert(0 == rc);
+//  assert(1 == result);
+//..
 
 #ifndef INCLUDED_BCESCM_VERSION
 #include <bcescm_version.h>
@@ -58,6 +204,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -136,8 +286,23 @@ class bcec_AtomicRingBufferIndexManager {
 
     unsigned int nextGeneration(unsigned int generation) const;
         // Return the generation subsequent to ths specified 'generation'.
+
+    bsls::Types::Int64 combinedIndexDifference(unsigned int minuend,
+                                               unsigned int subtrahend);
+        // Return the difference between the specified 'minuend' and the
+        // specified 'subtrahend' (i.e., 'minuend - subtrahend') accounting
+        // for the possibility that 'minuend' may have incremented past
+        // 'd_maxCombinedIndex' and been reset to 0.  This function will
+        // return 'minuend - subtrahend' unless
+        // 'minuend < d_maxCombinedIndex *.25' and 
+        // 'subtrahend > d_maxCombinedIndex * .75'
     
   public:
+
+    // CLASS METHODS
+    static unsigned int numRepresentableGenerations(unsigned int capacity);
+        // Return the number of representable generations for a circular
+        // buffer of the specified 'capacity'.
 
     // PUBLIC CONSTANTS
     enum {
@@ -180,10 +345,13 @@ class bcec_AtomicRingBufferIndexManager {
         // corresponding index state until 'commitPushIndex' is called 
         // using the returned 'index' and 'generationCount' values; clients
         // should call 'commitPushIndex' quickly after this method 
-        // returns, without performing any blocking operations.  Note that
+        // returns, without performing any blocking operations.  If this
+        // method fails the 'generationCount' and 'index' will be unmodified.
+        // The behavior is undefined if the current thread is already holding
+        // a reservation on either a push or pop index.  Note that
         // 'generationCount' is necessary for invoking
-        // 'commitPusedReservation' but should not otherwise be used by the
-        // caller;  the value reflects the number of times the 'index' in the
+        // 'commitPushIndex' but should not otherwise be used by the
+        // caller;  the value reflects the number of times the 'index' in the 
         // circular buffer has been used.
         
     void commitPushIndex(unsigned int generation, unsigned int index);
@@ -200,13 +368,16 @@ class bcec_AtomicRingBufferIndexManager {
         // with the current generation of the circular buffer.  Return 0 on
         // success, and a non-zero value if the queue is empty.  If this method
         // succeeds, other threads using this object may spin on the
-        // corresponding index state until 'commitPopIndex' is called using
-        // the returned 'index' and 'generation' values; clients should call
+        // corresponding index state until 'commitPopIndex' is called using the
+        // returned 'index' and 'generation' values; clients should call
         // 'commitPopIndex' quickly after this method returns, without
-        // performing any blocking operations.  Note that 'generation' is
-        // necessary for invoking 'commitPopIndex' but should not otherwise be
-        // used by the caller; the value reflects the of times the 'index' in
-        // the circular buffer has been used.
+        // performing any blocking operations.  If this method fails the
+        // 'generationCount' and 'index' will be unmodified.  The behavior is
+        // undefined if the current thread is already holding a reservation on
+        // either a push or pop index.  Note that 'generation' is necessary for
+        // invoking 'commitPopIndex' but should not otherwise be used by the
+        // caller; the value reflects the of times the 'index' in the circular
+        // buffer has been used.
         
     void commitPopIndex(unsigned int generation, unsigned int index);
         // Mark the specified 'index' as available (empty) in the generation 
@@ -228,9 +399,9 @@ class bcec_AtomicRingBufferIndexManager {
                       unsigned int *disposedIndex,
                       unsigned int  endGeneration,
                       unsigned int  endIndex);
-        // If the next index that can be acquired for popping an element
-        // is before the specified 'endGeneration' and 'endIndex' then
-        // unconditionally release that next index for futher writes (i.e.,
+        // If the next available index from which an element can be popped is
+        // before the specified 'endGeneration' and 'endIndex' then
+        // unconditionally release that next index for futher writes (i.e., 
         // mark the cell empty) and load the specified 'disposedGeneration' and
         // 'disposedIndex' with the generation and index of the released cell;
         // if the next index that can be acquired for poping is at or after
@@ -241,18 +412,21 @@ class bcec_AtomicRingBufferIndexManager {
         // 'endIndex' refer to a cell that has been acquired for writing.
         // Note that this operation is used to facilitate removing all the
         // elements in a circular buffer if an exception is thrown between
-        // reserving an index for pushing, and committing that index.
+        // reserving an index for pushing, and committing that index -- the
+        // intended usage is to call 'clearPopIndex' up to the reserved index,
+        // and then call 'abortPushIndexReservation' on the reserved index.
         
     void abortPushIndexReservation(unsigned int generation,
                                    unsigned int index);
         // Release the specified 'index' and make it available for use in the
         // generation following the specified 'generation'.  The behavior is
         // undefined unless the calling thread holds a reservation on
-        // 'generation' and 'index', and 'clearPopIndex' has been called on
-        // each generation and index preceding 'generation' and 'index'.
-        // Note that this operation is used to facilitate removing all the 
-        // elements in a circular buffer if an exception is thrown between
-        // reserving an index for pushing, and committing that index.
+        // 'generation' and 'index', and 'clearPopIndex' has been called
+        // repeatedly with 'generation' and 'index' as input until no indices
+        // remain to clear.  Note that this operation is used to facilitate
+        // removing all the elements in a circular buffer if an exception is
+        // thrown between reserving an index for pushing, and committing that
+        // index.
         
     // ACCESSORS
     bool isEnabled() const;        
@@ -264,7 +438,15 @@ class bcec_AtomicRingBufferIndexManager {
 
     unsigned int capacity() const; 
         // Return the maximum number of items that may be stored in the queue.
+
+    bsl::ostream& print(bsl::ostream& stream) const;
+        // Print a formatted string describing the current state of this object
+        // to the specified 'stream'.  If 'stream' is not valid on entry, this
+        // operation has no effect.  Note that this method describes the
+        // internal state of the buffer and is provided purly for debugging
+        // purposes.
 };
+
     
 // =====================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -284,7 +466,6 @@ unsigned int bcec_AtomicRingBufferIndexManager::nextCombinedIndex(
         // We have reached the maximum representable combination of index and
         // generation count, so we reset the generation count to 0.
 
-        BSLS_ASSERT_OPT(0 == (combinedIndex + 1) % d_capacity);
         return 0;                                                     // RETURN
     }
 

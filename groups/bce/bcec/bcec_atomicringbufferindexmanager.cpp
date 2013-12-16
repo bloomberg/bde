@@ -1,14 +1,19 @@
 // bcec_atomicringbufferindexmanager.cpp                            -*-C++-*-
 #include <bcec_atomicringbufferindexmanager.h>
 
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(bcec_atomicringbufferindexmanager_cpp,"$Id$ $CSID$")
+
 #include <bcemt_threadutil.h>
 
 #include <bslalg_arraydestructionprimitives.h>
 #include <bslalg_arrayprimitives.h>
 #include <bsls_assert.h>
 
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(bcec_atomicringbufferindexmanager_cpp,"$Id$ $CSID$")
+#include <bsl_iomanip.h>
+#include <bsl_ostream.h>
+
+#include <stdio.h>
 
 namespace BloombergLP {
 
@@ -136,6 +141,19 @@ enum ElementState {
 
 };
 
+const char *toString(ElementState state)
+{
+    switch (state) {
+      case e_EMPTY:   return "EMPTY";
+      case e_WRITING: return "WRITING";
+      case e_FULL:    return "FULL";
+      case e_READING: return "READING";
+    };
+    BSLS_ASSERT(false);
+    return 0;
+}
+
+
 
 ///State Constants
 ///- - - - - - - -
@@ -153,6 +171,11 @@ static const unsigned int e_GENERATION_COUNT_SHIFT = 0x2;
                                   // to make room for 'ElementState' value --
                                   // must be base2Log(e_ELEMENT_STATE_MASK)
 
+static const unsigned int e_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS = 
+                                                     1 << (sizeof(int)*8) - 2;
+                                  // The maximum generation count that can be
+                                  // represented in a 'd_states' element.
+
 ///Push-Index Constants
 /// - - - - - - - - - -
 // The following constants are used to manipulate and modify the bits of
@@ -164,13 +187,13 @@ static const unsigned int e_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
                                       // bitmask for the disabled state bit in
                                       // 'd_pushIndex'
 
-static const unsigned int e_MAX_REPRESENTABLE_COMBINED_INDEX =
-                                                  e_DISABLED_STATE_MASK - 1;
-                                      // maximum representable combined index
-                                      // and generation count value for
-                                      // 'd_pushIndex' and 'd_popIndex' (this
-                                      // is used to determine
-                                      // 'd_maxGeneration')
+static const unsigned int e_NUM_REPRESENTABLE_COMBINED_INDICES =
+                                                         e_DISABLED_STATE_MASK;
+                                      // maximum representable number of
+                                      // combinations of index and generation
+                                      // count value for 'd_pushIndex' and
+                                      // 'd_popIndex' (this is used to
+                                      // determine 'd_maxGeneration')
 
 
 ///State Element Encoding
@@ -237,6 +260,14 @@ static unsigned int discardDisabledFlag(unsigned int encodedPushIndex)
                      // ---------------------------------------
 
 
+// CLASS METHODS
+unsigned int bcec_AtomicRingBufferIndexManager::numRepresentableGenerations(
+                                                         unsigned int capacity)
+{
+    return bsl::min(e_NUM_REPRESENTABLE_COMBINED_INDICES / capacity,
+                    e_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS);
+}
+
 // CREATORS
 bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
                                               unsigned int      capacity,
@@ -246,8 +277,8 @@ bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
 , d_popIndex(0)
 , d_popIndexPad()
 , d_capacity(capacity)
-, d_maxGeneration(e_MAX_REPRESENTABLE_COMBINED_INDEX / capacity)
-, d_maxCombinedIndex(d_maxGeneration * capacity)
+, d_maxGeneration(numRepresentableGenerations(capacity) - 1)
+, d_maxCombinedIndex(numRepresentableGenerations(capacity) * capacity - 1)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT_OPT(0        <  capacity);
@@ -323,13 +354,12 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
         // 2) This index has already been acquired during this generation.
         // In either case, we'll need to examine the marked generation.
 
-        const unsigned int elementGeneration = 
-                                         decodeGenerationFromElementState(was);
+        unsigned int elementGeneration = decodeGenerationFromElementState(was);
 
-        if ((elementGeneration < currGeneration) &&
+        if ((elementGeneration < currGeneration) ||
              BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                  0               != currGeneration &&
-                                  d_maxGeneration != elementGeneration)) {
+                                  0               == currGeneration &&
+                                  d_maxGeneration == elementGeneration)) {
             // The previous generation has not been read.  Notice that we also
             // had to test the generation count had not rolled back to 0.
 
@@ -386,6 +416,11 @@ void bcec_AtomicRingBufferIndexManager::commitPushIndex(
 {
     BSLS_ASSERT(generation <= d_maxGeneration);
     BSLS_ASSERT(index      <  d_capacity);
+    BSLS_ASSERT(e_WRITING  == decodeStateFromElementState(d_states[index]));
+    BSLS_ASSERT(generation == 
+                decodeGenerationFromElementState(d_states[index]));
+
+
     // We cannot guarantee the full preconditions of this function, the
     // preceding assertions are as close as we can get.
 
@@ -439,10 +474,7 @@ int bcec_AtomicRingBufferIndexManager::reservePopIndex(
         // 2) This index is currently waiting on a popper from this generation
         // 3) The queue is empty
 
-        const unsigned int markedGeneration = 
-                                         decodeGenerationFromElementState(was);
-
-        if (currGeneration != markedGeneration) {
+        if (currGeneration != decodeGenerationFromElementState(was)) {
             // Waiting for popping threads from the previous generation.
 
             return e_QUEUE_EMPTY;                                     // RETURN
@@ -495,6 +527,10 @@ void bcec_AtomicRingBufferIndexManager::commitPopIndex(
 {
     BSLS_ASSERT(generation <= d_maxGeneration);
     BSLS_ASSERT(index      <  d_capacity);
+    BSLS_ASSERT(e_READING  == decodeStateFromElementState(d_states[index]));
+    BSLS_ASSERT(generation == 
+                decodeGenerationFromElementState(d_states[index]));
+
     // We cannot guarantee the full preconditions of this function, the
     // preceding assertions are as close as we can get.
 
@@ -565,6 +601,8 @@ int bcec_AtomicRingBufferIndexManager::clearPopIndex(
     // that the index being popped is not at or beyond the supplied
     // 'endGeneration' and 'endIndex'.
     
+    BSLS_ASSERT(disposedGeneration);
+    BSLS_ASSERT(disposedIndex);
     BSLS_ASSERT(endGeneration <= d_maxGeneration);
     BSLS_ASSERT(endIndex      <  d_capacity);
 
@@ -574,24 +612,26 @@ int bcec_AtomicRingBufferIndexManager::clearPopIndex(
     for (;;) {
         unsigned int endCombinedIndex = endGeneration * d_capacity + endIndex;
 
-        if (loadedCombinedIndex >= endCombinedIndex) {
+        bsls::Types::Int64 difference = endCombinedIndex - loadedCombinedIndex;
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(  
+                    loadedCombinedIndex >= d_maxCombinedIndex - d_capacity &&
+                    endCombinedIndex < d_capacity)) {
+            // Test for the special case where the current pop index is at or
+            // after the supplied ending pop index because the generation has
+            // looped back to 0.
+
+            difference+= d_maxCombinedIndex + 1; 
+        } 
+        if (difference <= 0) {
             // If the current pop index is at or after the supplied ending pop
             // index. 
 
-            return e_FAILURE;
+            return e_FAILURE;                                         // RETURN
         }
 
         unsigned int currentIndex      = loadedCombinedIndex % d_capacity;
         unsigned int currentGeneration = loadedCombinedIndex / d_capacity;
 
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                0 == currentGeneration && endGeneration == d_maxGeneration)) {
-            // Test for the special case where the current pop index is at or
-            // after the supplied ending pop index because the generation has
-            // looped back to 0.
-
-            return e_FAILURE;
-        }
                
         // Attempt to swap this cell's state from e_FULL to 'e_READING', note
         // that we set this to 'e_EMPTY' only after we attempt to increment
@@ -612,10 +652,6 @@ int bcec_AtomicRingBufferIndexManager::clearPopIndex(
 
         int state = decodeStateFromElementState(was);
 
-        // This element must not be empty, because it precedes the supplied
-        // 'endGeneration' and 'endIndex'.
-        BSLS_ASSERT(e_EMPTY != state);  
-
         if (e_WRITING == state || e_FULL == state) {
             // Another thread is currently writing to this cell, or this
             // thread has been asleep for an entire generation.  Re-load
@@ -625,11 +661,6 @@ int bcec_AtomicRingBufferIndexManager::clearPopIndex(
             loadedCombinedIndex = d_popIndex.loadRelaxed();
             continue;
         }
-
-        // The only remaining state is 'e_READING', attempt to increment the
-        // pop index to the next element.
-
-        BSLS_ASSERT(e_READING == state);
         unsigned int next   = nextCombinedIndex(loadedCombinedIndex);
         loadedCombinedIndex = d_popIndex.testAndSwap(loadedCombinedIndex, 
                                                      next);
@@ -644,19 +675,24 @@ int bcec_AtomicRingBufferIndexManager::clearPopIndex(
     // empty cell, and assume the queue is empty.
 
     d_states[*disposedIndex] = encodeElementState(
-                                           nextGeneration(*disposedGeneration), 
-                                           e_EMPTY);
+                                          nextGeneration(*disposedGeneration), 
+                                          e_EMPTY);
 
     return e_SUCCESS;
 }
 
 void bcec_AtomicRingBufferIndexManager::abortPushIndexReservation(
-                                                        unsigned int generation,
-                                                        unsigned int index)
+                                                       unsigned int generation,
+                                                       unsigned int index)
 {
     BSLS_ASSERT(generation <= d_maxGeneration);
     BSLS_ASSERT(index      <  d_capacity);
-    BSLS_ASSERT(d_popIndex.loadRelaxed() == generation * d_capacity + index);
+    BSLS_ASSERT(static_cast<unsigned int>(d_popIndex.loadRelaxed()) == 
+                generation * d_capacity + index);
+    BSLS_ASSERT(e_WRITING  == decodeStateFromElementState(d_states[index]));
+    BSLS_ASSERT(generation == 
+                decodeGenerationFromElementState(d_states[index]));
+
 
     // Note that the preconditions for this function -- that (1) the current
     // thread hold a push-index reservation on 'generation' and 'index', and
@@ -678,29 +714,41 @@ unsigned int bcec_AtomicRingBufferIndexManager::length() const
 {
     // Note that 'bcec_AtomicRingBuffer::pushBack' and
     // 'bcec_AtomicRingBuffer::popFront' rely on the fact that the
-    // following atomic load has a release barrier.  If this were to change,
-    // 'bcec_AtomicRingBuffer::tryPushBack' and
+    // following atomic loads are sequentially consistent.  If this were to
+    // change, 'bcec_AtomicRingBuffer::tryPushBack' and
     // 'bcec_AtomicRingBuffer::tryPopFront' would need to be modified.
 
     bsls::Types::Int64 combinedPushIndex = discardDisabledFlag(d_pushIndex);
     bsls::Types::Int64 combinedPopIndex  = d_popIndex;
 
+    
     bsls::Types::Int64 difference = combinedPushIndex - combinedPopIndex;
-
     if (difference >= 0) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(difference > d_capacity)) {
+            // Because the pop index is acquired after the push index, its
+            // possible for the push index to be immediately before
+            // 'd_maxCombinedIndex' and then 'combinedPopIndex' to be acquired
+            // after it wraps around to 0, resulting in a very large positive
+            // value. 
+
+            return 0;                                                 // RETURN
+        }         
         return static_cast<unsigned int>(difference);                 // RETURN
     }
 
     // If difference is negative, it may be because the push-index has gone
     // past the 'd_maxCombinedIndex' and been reset to 0, in which case
-    // difference must be adjusted by 'd_maxCombinedIndex'.
+    // difference must be adjusted by 'd_maxCombinedIndex + 1'.
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
             combinedPopIndex  >= d_maxCombinedIndex - d_capacity &&
             combinedPushIndex <  d_capacity)) {
-        return static_cast<unsigned int>(difference + d_maxCombinedIndex); 
-    }
+        if (difference + d_maxCombinedIndex + 1 > d_capacity) {
+            printf("SUPRISE2");
+        }
 
+        return static_cast<unsigned int>(difference + d_maxCombinedIndex + 1); 
+    }
     // Because the push and pop indices are accessed independently 
     return 0;
 }
@@ -709,6 +757,51 @@ bool bcec_AtomicRingBufferIndexManager::isEnabled() const
 {
     return !isDisabledFlagSet(d_pushIndex.load());
 }
+
+
+bsl::ostream& bcec_AtomicRingBufferIndexManager::print(
+                                                   bsl::ostream& stream) const
+{
+    const unsigned int pushIndex = discardDisabledFlag(d_pushIndex);
+    const unsigned int popIndex  = discardDisabledFlag(d_popIndex);
+
+
+    stream << bsl::endl
+           << "        capacity: " << capacity()         << bsl::endl
+           << "         enabled: " << isEnabled()        << bsl::endl
+           << "   maxGeneration: " << d_maxGeneration    << bsl::endl
+           << "maxCombinedIndex: " << d_maxCombinedIndex << bsl::endl
+           << "  pushGeneration: " << pushIndex / capacity() << bsl::endl
+           << "       pushIndex: " << pushIndex % capacity() << bsl::endl
+           << "   popGeneration: " << popIndex / capacity()  << bsl::endl
+           << "        popIndex: " << popIndex % capacity()  << bsl::endl;
+
+    const unsigned int popIdx  = d_popIndex % d_capacity;
+    const unsigned int pushIdx = discardDisabledFlag(d_pushIndex) % d_capacity;
+
+    for (unsigned int i = 0; i < capacity(); ++i) {
+        unsigned int state = d_states[i];
+
+        unsigned int  generation = decodeGenerationFromElementState(state);
+        const char  *stateName  = toString(decodeStateFromElementState(state));
+        stream << bsl::right << bsl::setw(8) << i << ": { " 
+               << bsl::left  << bsl::setw(3) << generation << " | "
+               << bsl::left  << bsl::setw(7) << stateName << " }";
+
+        if (pushIdx == i && popIdx == i) {
+            stream << " <-- push & pop";
+        }
+        else if (pushIdx == i) {
+            stream << " <-- push";
+        }
+        else if (popIdx == i) {
+            stream << " <-- pop";
+        }        
+        stream << bsl::endl;
+    }
+    return stream;
+}
+
 
 }  // close namespace BloombergLP
 
