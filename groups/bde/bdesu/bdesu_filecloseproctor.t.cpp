@@ -3,6 +3,7 @@
 
 #include <bdesu_pathutil.h>
 
+#include <bsl_cstdlib.h>    // atoi
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
