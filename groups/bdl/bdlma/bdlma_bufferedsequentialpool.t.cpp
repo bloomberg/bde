@@ -1139,7 +1139,7 @@ int main(int argc, char *argv[])
                 cBuffer = (char *)mX.allocate(blockSize);
                 // Block + blockSize/2 - 1  bytes wasted.
 
-                buffer -= 4;
+                buffer -= blockSize / 2;
             }
 
             {
