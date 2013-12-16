@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bslmf::ForwardingType: meta-function to determine optimal forwarding type
-//  bslmf::ForwardingTypeUtil: Namespace for 'forwardToTarget' function
+//  bslmf::ForwardingTypeUtil: Namespace for forwarding functions
 //
 //@SEE_ALSO: bslmf_removecvq
 //
@@ -38,12 +38,23 @@ BSLS_IDENT("$Id: $")
 // down an arbitrarily-long chain of function calls without every calling
 // 'std::forward'. However, in order to avoid an extra copy as well as to
 // select the correct overload and instantiation of the eventual target
-// function, it should be converted to a type more closely resembling the
-// original 'T' by calling 'ForwardingTypeUtil<T>::forwardToTarget(v)'.
+// function, it should be converted back to a type that more closely resembles
+// the original 'T' by calling 'ForwardingTypeUtil<T>::forwardToTarget(v)'.
 //
 // This component is intended to be used when performance is of highest
 // concern or when creating function wrappers that are intended to minimize
 // perturbations on the interface of the functions that they wrap.
+//
+// Note that previous versions of this component forwarded const references to
+// basic types by value instead of by const reference.  This transformation
+// was an attempt to avoid an extra dereference operation, but in real use
+// cases the extra dereference happened anyway, on the call to the outermost
+// forwarding function.  Moreover, such a transformation is subtly broken
+// because, in the rare case where the target function cares about the address
+// of the reference (e.g., if it compares it to some known address), it would
+// wind up with the address of a temporary copy, rather than the address of
+// the original argument.  Thus, the current component forward references as
+// references in call cases, including for basic types.
 //
 ///Usage
 ///-----
@@ -282,7 +293,6 @@ struct ForwardingTypeUtil;
 template <class TYPE, int CATEGORY, bool IS_REFERENCE>
 struct ForwardingType_Imp;
 
-
                         // ====================
                         // class ForwardingType
                         // ====================
@@ -318,6 +328,8 @@ private:
 
     typedef ForwardingType_Imp<UnrefType, CATEGORY, IS_REFERENCE> Imp;
 
+    friend struct ForwardingTypeUtil<TYPE>;
+
 public:
 
     enum {
@@ -327,7 +339,14 @@ public:
         BSLMF_FORWARDING_TYPE_ID = (IS_REFERENCE ? -CATEGORY : CATEGORY)
     };
 
-    typedef typename Imp::Type Type;
+    typedef typename Imp::Type       Type;
+        // The type that should be used to forward 'TYPE' through a chain of
+        // function calls.
+
+    typedef typename Imp::TargetType TargetType;
+        // The closest type used to "reconstitute" 'TYPE' from
+        // 'ForwardingType<TYPE>::Type'.  This type may differ from 'TYPE'
+        // through the addition of a reference.
 };
 
                         // ========================
@@ -338,40 +357,20 @@ template <class TYPE>
 struct ForwardingTypeUtil {
     // Provide a namespace for the 'forwardToTarget' function.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-private:
-    typedef typename
-    bsl::remove_const<typename ForwardingType<TYPE>::Type>::type UnconstType;
+    typedef typename ForwardingType<TYPE>::Imp::TargetType TargetType;
 
-    typedef typename
-    bsl::conditional<ForwardingType<TYPE>::BSLMF_FORWARDING_TYPE_ID ==
-                     BSLMF_FORWARDING_TYPE_CLASS,
-                     UnconstType&&, typename ForwardingType<TYPE>::Type
-                    >::type ForwardToTargetType;
-
-public:
-    static ForwardToTargetType
+    static TargetType
     forwardToTarget(typename ForwardingType<TYPE>::Type v);
-        // C++11 and after: Return 'std::forward<TYPE>(v)' for the specified
-        // 'v' argument of type 'ForwardingType<TYPE>::Type', where 'v' is
-        // assumed to originally have been an argument of 'TYPE' after
-        // forwarding through an intermediate call chain.  Specifically, if
-        // 'TYPE' is an rvalue type, return an rvalue reference to 'v',
-        // otherwise return 'v' unchanged, thus converting an rvalue copy into
-        // an rvalue move when possible.  This function is intended to be
-        // called to forward an argument to the final target function of a
-        // forwarding call chain.
-#else
-    static typename ForwardingType<TYPE>::Type
-    forwardToTarget(typename ForwardingType<TYPE>::Type v);
-        // C++03 and before: Return the specified 'v' argument unchanged,
-        // where 'v' is assumed to originally have been an argument of 'TYPE'
-        // after forwarding through an intermediate call chain.  This
-        // forwarding function exists for C++11 compatibility and is intended
-        // to be called to forward an argument to the final target function of
-        // a forwarding call chain.
-#endif
-
+        // Return 'std::forward<TYPE>(v)' for the specified 'v' argument of
+        // type 'ForwardingType<TYPE>::Type', where 'v' is assumed to
+        // originally have been an argument of 'TYPE' after forwarding through
+        // an intermediate call chain.  Specifically, if 'TYPE' is an rvalue
+        // type, return an rvalue reference to 'v', otherwise return 'v'
+        // unchanged, thus converting an rvalue copy into an rvalue move when
+        // possible.  For compilers that do not supprt rvalue references,
+        // return 'v' unchanged.  This function is intended to be called to
+        // forward an argument to the final target function of a forwarding
+        // call chain.
 };
 
                         // =========================
@@ -392,31 +391,13 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 //                           IMPLEMENTATION
 // ===========================================================================
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
 template <class TYPE>
-inline typename ForwardingTypeUtil<TYPE>::ForwardToTargetType
+inline typename ForwardingTypeUtil<TYPE>::TargetType
 ForwardingTypeUtil<TYPE>::forwardToTarget(
                                          typename ForwardingType<TYPE>::Type v)
 {
-    // Since rvalues are forwarded as *const* lvalues, we must cast away
-    // the constness before converting to an rvalue reference.  If 'TYPE'
-    // is a const reference, then the constness will be re-instated on
-    // return.
-    return static_cast<ForwardToTargetType>(const_cast<UnconstType>(v));
+    return ForwardingType<TYPE>::Imp::forwardToTarget(v);
 }
-
-#else
-
-template <class TYPE>
-inline typename ForwardingType<TYPE>::Type
-ForwardingTypeUtil<TYPE>::forwardToTarget(
-                                         typename ForwardingType<TYPE>::Type v)
-{
-    return v;
-}
-
-#endif // ! defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
                         // ========================
                         // class ForwardingType_Imp
@@ -433,6 +414,14 @@ struct ForwardingType_Imp<UNREF_TYPE,
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     typedef const UNREF_TYPE& Type;
+    typedef UNREF_TYPE&&      TargetType;
+    static TargetType forwardToTarget(Type v) {
+        // Since rvalues are forwarded as *const* lvalues, we must cast away
+        // the constness before converting to an rvalue reference.  If 'TYPE'
+        // is a const reference, then the constness will be re-instated on
+        // return.
+        return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
+    }
 #endif
 };
 
@@ -443,6 +432,8 @@ struct ForwardingType_Imp<UNREF_TYPE,
     // Function and function reference is forwarded as function reference.
 
     typedef UNREF_TYPE& Type;
+    typedef UNREF_TYPE& TargetType;
+    static TargetType forwardToTarget(Type v) { return v; }
 };
 
 template <class UNREF_TYPE, std::size_t NUM_ELEMENTS, bool IS_REFERENCE>
@@ -452,7 +443,11 @@ struct ForwardingType_Imp<UNREF_TYPE [NUM_ELEMENTS],
     // Array of known size and reference to array of known size is forwarded
     // as pointer to array element type.
 
-    typedef UNREF_TYPE *Type;
+    typedef UNREF_TYPE  *Type;
+    typedef UNREF_TYPE (&TargetType)[NUM_ELEMENTS];
+    static TargetType forwardToTarget(Type v) {
+        return reinterpret_cast<TargetType>(*v);
+    }
 };
 
 template <class UNREF_TYPE, bool IS_REFERENCE>
@@ -462,6 +457,10 @@ struct ForwardingType_Imp<UNREF_TYPE [],
     // forwarded as pointer to array element type.
 
     typedef UNREF_TYPE *Type;
+    typedef UNREF_TYPE *TargetType;
+    static TargetType forwardToTarget(Type v) {
+        return reinterpret_cast<TargetType>(*v);
+    }
 };
 
 template <class UNREF_TYPE>
@@ -470,6 +469,8 @@ struct ForwardingType_Imp<UNREF_TYPE,
     // Rvalue of basic type is forwarded with cvq removed.
 
     typedef typename bsl::remove_cv<UNREF_TYPE>::type Type;
+    typedef UNREF_TYPE                                TargetType;
+    static TargetType forwardToTarget(Type v) { return v; }
 };
 
 template <class UNREF_TYPE>
@@ -478,6 +479,8 @@ struct ForwardingType_Imp<UNREF_TYPE,
     // Lvalue reference to basic type is forwarded unchanged.
 
     typedef UNREF_TYPE& Type;
+    typedef UNREF_TYPE& TargetType;
+    static TargetType forwardToTarget(Type v) { return v; }
 };
 
 template <class UNREF_TYPE>
@@ -487,12 +490,27 @@ struct ForwardingType_Imp<UNREF_TYPE,
     // reference.
 
     typedef const UNREF_TYPE& Type;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    typedef UNREF_TYPE&&      TargetType;
+    static TargetType forwardToTarget(Type v) {
+        // Since rvalues are forwarded as *const* lvalues, we must cast away
+        // the constness before converting to an rvalue reference.  If 'TYPE'
+        // is a const reference, then the constness will be re-instated on
+        // return.
+        return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
+    }
+#else
+    typedef const UNREF_TYPE& TargetType;
+    static TargetType forwardToTarget(Type v) { return v; }
+#endif
 };
 
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
                           BSLMF_FORWARDING_TYPE_CLASS, true> {
     typedef UNREF_TYPE& Type;
+    typedef UNREF_TYPE& TargetType;
+    static TargetType forwardToTarget(Type v) { return v; }
 };
 
 }  // close package namespace
