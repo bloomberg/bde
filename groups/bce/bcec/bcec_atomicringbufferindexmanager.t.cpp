@@ -264,6 +264,7 @@ void gg(Obj          *result,
         unsigned int generation, index;
 
         int rc = result->reservePushIndex(&generation, &index);
+        (void *)rc;   // suppress warning
         result->commitPushIndex(generation, index);
 
         rc = result->reservePopIndex(&generation, &index);
@@ -276,6 +277,7 @@ void gg(Obj          *result,
         unsigned int generation, index;
 
         int rc = result->reservePushIndex(&generation, &index);
+        (void *)rc;   // suppress warning
         BSLS_ASSERT(0     == rc);
         BSLS_ASSERT(index == i % result->capacity());
         result->commitPushIndex(generation, index);
@@ -411,7 +413,7 @@ enum ElementState {
     e_EMPTY    = 0,   // element is empty and available for writing
     e_WRITING  = 1,   // element is reserved for writing
     e_FULL     = 2,   // element has a value in it
-    e_READING  = 3,   // element is reserved for reading
+    e_READING  = 3    // element is reserved for reading
 };
 
 static const unsigned int e_ELEMENT_STATE_MASK     = 0x3;
@@ -3048,7 +3050,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.length());
             ASSERT(1 == mX.capacity());
 
-            bsl::size_t generation, index;
+            unsigned int generation, index;
             ASSERT(0 == mX.reservePushIndex(&generation, &index));
             mX.commitPushIndex(generation, index);
             ASSERT(1 == mX.length());
@@ -3119,10 +3121,25 @@ int main(int argc, char *argv[])
             { L_,  1000,    15,    15 },
             { L_,  1000,     5,    1  },
             { L_,  1000,     1,    5  },
+
+            { L_,     5,     1,    1  },
+            { L_,     5,     5,    5  },
+            { L_,     5,    15,    15 },
+            { L_,     5,     5,    1  },
+            { L_,     5,     1,    5  },
+
         };
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
         const double ELAPSED_TIME_PER_TEST =  (double)TOTAL_TIME_S / NUM_DATA;
+
+        // Note that this output format is designed to be easily imported into
+        // excel.
+
+        bsl::cout <<
+            "Capacity,  Num Readers, Num Writers,   Reads/Sec,   Writes/Sec\n"
+            "--------,-------------,------------,------------,-------------\n";
+
                                        
         for (int i = 0; i < NUM_DATA; ++i) {
             int CAPACITY       = DATA[i].d_capacity;
@@ -3167,17 +3184,15 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_THREADS; ++i) {
                 bcemt_ThreadUtil::join(handles[i]);
             }
-            bsl::cout << bsl::endl
-                      << "Num Writers: " << NUM_WRITERS << bsl::endl
-                      << "Num Readers: " << NUM_READERS << bsl::endl
-                      << "Write Count: " << writeCount.load() << bsl::endl
-                      << " Read Count: " << readCount.load()  << bsl::endl
-                      << "   Write/Sec: " 
-                      << static_cast<double>(writeCount)/s.elapsedTime() 
-                      << bsl::endl
-                      << "   Read/Sec: " 
-                      << static_cast<double>(readCount)/s.elapsedTime() 
-                      << bsl::endl;
+
+            double elapsed = s.elapsedTime();
+
+            bsl::cout
+                << bsl::setw(8) << CAPACITY << ", "
+                << bsl::setw(10) << NUM_READERS << ", "
+                << bsl::setw(11) << NUM_WRITERS << ", "
+                << bsl::setw(12) << (double)(readCount)/elapsed << ", "
+                << bsl::setw(12) << (double)(writeCount)/elapsed << bsl::endl;
         }        
       } break;
 

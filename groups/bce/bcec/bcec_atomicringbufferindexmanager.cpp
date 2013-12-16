@@ -137,8 +137,7 @@ enum ElementState {
     e_EMPTY    = 0,   // element is empty and available for writing
     e_WRITING  = 1,   // element is reserved for writing
     e_FULL     = 2,   // element has a value in it
-    e_READING  = 3,   // element is reserved for reading
-
+    e_READING  = 3    // element is reserved for reading
 };
 
 const char *toString(ElementState state)
