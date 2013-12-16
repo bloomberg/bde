@@ -18,12 +18,15 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// This component provides two meta-functions.  We simply verify that they
-// return the proper type for a list of suitably chosen arguments.
+// This component provides a meta-function.  We simply verify that it returns
+// the proper type for a list of suitably chosen arguments.  It also provides
+// a utility function for which we verify that it returns the correct type and
+// value
 //-----------------------------------------------------------------------------
 // [ 1] bslmf::ForwardingType
-// [ 2] bslmf::ConstForwardingType
-// [ 3] USAGE EXAMPLE
+// [ 2] bslmf::ForwardingTypeUtil<TYPE>::TargetType
+// [ 2] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
+// [ 3] USAGE EXAMPLES
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -55,13 +58,39 @@ static void aSsErT(int c, const char *s, int i) {
 #define ASSERT_SAME(X, Y) ASSERT(1 == (bsl::is_same<X, Y>::value))
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                  GLOBAL TYPES/OBJECTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum   Enum   {};
-struct Struct {};
-union  Union  {};
-class  Class  {};
+enum   Enum   { E_VAL1, E_VAL2 };
+
+struct Struct {
+    int d_data;
+    Struct(int v) : d_data(v) { }
+};
+
+inline bool operator==(Struct a, Struct b) {
+    return a.d_data == b.d_data;
+}
+
+union  Union  {
+    int d_data;
+    Union(int v) : d_data(v) { }
+};
+
+inline bool operator==(Union a, Union b) {
+    return a.d_data == b.d_data;
+}
+
+class  Class  {
+    int d_data;
+public:
+    Class(int v) : d_data(v) { }
+    int value() const { return d_data; }
+};
+
+inline bool operator==(Class a, Class b) {
+    return a.value() == b.value();
+}
 
 typedef int INT;
 
@@ -78,6 +107,14 @@ typedef void (&RFRi)(int&);
 
 typedef char    A [5];
 typedef char (&RA)[5];
+typedef char   AU [];
+
+typedef int Struct::*Pm;
+typedef int (Class::*Pmf)() const;
+
+void func() { }
+void funcI(int) { }
+void funcRi(int&) { }
 
 //=============================================================================
 //                           USAGE EXAMPLES
@@ -259,6 +296,49 @@ typedef char (&RA)[5];
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
+template <class TYPE>
+bool checkForwarding(const TYPE& a, const TYPE& b,
+                     bsl::true_type /*is_ref*/, bsl::false_type /*is_array*/)
+    // For pass-by-reference args, compare addresses
+{
+    return &a == &b;
+}
+
+template <class TYPE>
+bool checkForwarding(const TYPE& a, const TYPE& b,
+                     bsl::false_type /*is_ref*/, bsl::false_type /*is_array*/)
+    // For pass-by-value args, compare values
+{
+    return a == b;
+}
+
+template <class TYPE, class IS_REF>
+bool checkForwarding(const TYPE a[], const TYPE b[],
+                     IS_REF, bsl::true_type /*is_array*/)
+    // For arrays, compare addresses of first elements.
+{
+    return &a[0] == &b[0];
+}
+
+template <class TYPE>
+void testForwardToTarget(TYPE obj)
+{
+    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
+    typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
+
+    ASSERT_SAME(typename bsl::remove_const<
+                    typename bsl::remove_reference<TYPE>::type >::type,
+                typename bsl::remove_const<
+                    typename bsl::remove_reference<TargetType>::type >::type);
+
+    FwdType fwdObj = obj;
+
+    ASSERT(checkForwarding(
+               obj, bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj),
+               typename bsl::is_reference<TYPE>::type(),
+               typename bsl::is_array<TYPE>::type()));
+}
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -273,101 +353,115 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bsl::remove_reference'.
+        // USAGE EXAMPLES
         //
-        // Concerns:
+        // Concerns: The usage examples in the component doc compile and run
+        //   as promised.
         //
-        // Plan:
-        //
-        // Tactics:
-        //   - Add-Hoc Data Selection Method
-        //   - Brute-Force implementation technique
+        // Plan: Copy the usage example from the component header, replace
+        //   'assert' with 'ASSERT' and 'main' with 'usageExampleN' and verify
+        //   that it compiles and runs succesfully.
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLES
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLES"
+                          << "\n==============" << endl;
 
         usageExample1();
         usageExample2();
 
       } break;
+
       case 2: {
         // --------------------------------------------------------------------
-        // Test Plan:
-        //   Instantiate 'bslmf::ConstForwardingType' with various types and
-        //   verify that its 'Type' typedef is set to the expected type.
+        // TESTING bslmf::ForwardingTypeUtil
+        //
+        // TESTING
+        //     bslmf::ForwardingTypeUtil<TYPE>::TargetType
+        //     bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
         // --------------------------------------------------------------------
+          
+        if (verbose) cout << "\nbslmf::ForwardingTypeUtil"
+                          << "\n=========================" << endl;
 
-        if (verbose) cout << endl
-                          << "bslmf::ConstForwardingType" << endl
-                          << "==========================" << endl;
+        Enum    e = E_VAL2;
+        Struct  s(99);
+        Union   u(98);
+        Class   c(97);
+        double  d = 1.23;
+        double *p = &d;
+        char    a[5] = { '5', '4', '3', '2', '1' };
+        F      *f_p = func;
+        Pm      m_p  = &Struct::d_data;
+        Pmf     mf_p = &Class::value;
 
-        ASSERT_SAME(bslmf::ConstForwardingType<int       >::Type, int);
-        ASSERT_SAME(bslmf::ConstForwardingType<int&      >::Type, int&);
-        if (verbose)
-            P(bslmf::ConstForwardingType<int&>::BSLMF_FORWARDING_TYPE_ID);
-        ASSERT_SAME(bslmf::ConstForwardingType<int const&>::Type, const int&);
+        testForwardToTarget<Enum    >(e);
+        testForwardToTarget<Struct  >(s);
+        testForwardToTarget<Union   >(u);
+        testForwardToTarget<Class   >(c);
+        testForwardToTarget<double  >(d);
+        testForwardToTarget<double *>(p);
+        testForwardToTarget<A       >(a);
+        testForwardToTarget<PF      >(f_p);
+        testForwardToTarget<Pm      >(m_p);
+        testForwardToTarget<Pmf     >(mf_p);
+        
+        testForwardToTarget<Enum    &>(e);
+        testForwardToTarget<Struct  &>(s);
+        testForwardToTarget<Union   &>(u);
+        testForwardToTarget<Class   &>(c);
+        testForwardToTarget<double  &>(d);
+        testForwardToTarget<double *&>(p);
+        testForwardToTarget<A       &>(a);
+        testForwardToTarget<RF       >(func);
+        testForwardToTarget<RFi      >(funcI);
+        testForwardToTarget<RFRi     >(funcRi);
+        testForwardToTarget<PF      &>(f_p);
+        testForwardToTarget<Pm      &>(m_p);
+        testForwardToTarget<Pmf     &>(mf_p);
 
-        ASSERT_SAME(bslmf::ConstForwardingType<void *>::Type, void *);
-        if (verbose)
-            P(bslmf::ConstForwardingType<void *>::BSLMF_FORWARDING_TYPE_ID);
-        ASSERT_SAME(bslmf::ConstForwardingType<void *&>::Type,
-                    void *&);
-        ASSERT_SAME(bslmf::ConstForwardingType<void volatile *&>::Type,
-                    volatile void                            *&);
+        testForwardToTarget<Enum    const>(e);
+        testForwardToTarget<Struct  const>(s);
+        testForwardToTarget<Union   const>(u);
+        testForwardToTarget<Class   const>(c);
+        testForwardToTarget<double  const>(d);
+        testForwardToTarget<double *const>(p);
+        testForwardToTarget<A       const>(a);
+        testForwardToTarget<PF      const>(f_p);
+        testForwardToTarget<Pm      const>(m_p);
+        testForwardToTarget<Pmf     const>(mf_p);
 
-        ASSERT_SAME(bslmf::ConstForwardingType<char const *const&>::Type,
-                    char const *const &);
-
-        ASSERT_SAME(bslmf::ConstForwardingType<Enum    >::Type, Enum);
-        ASSERT_SAME(bslmf::ConstForwardingType<Enum&   >::Type, Enum&);
-        ASSERT_SAME(bslmf::ConstForwardingType<Struct  >::Type, const Struct&);
-        ASSERT_SAME(bslmf::ConstForwardingType<Struct& >::Type, Struct&);
-        ASSERT_SAME(bslmf::ConstForwardingType<Union   >::Type, const Union&);
-        ASSERT_SAME(bslmf::ConstForwardingType<Union&  >::Type, Union&);
-        ASSERT(0 == bsl::is_array<Class>::value);
-        ASSERT_SAME(bslmf::ConstForwardingType<Class   >::Type,const Class&);
-        if (verbose)
-            P(bslmf::ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
-        ASSERT_SAME(bslmf::ConstForwardingType<const Class&>::Type,
-                    const Class&);
-
-        ASSERT_SAME(bslmf::ConstForwardingType<INT >::Type, int);
-        ASSERT_SAME(bslmf::ConstForwardingType<INT&>::Type, int&);
-
-        ASSERT_SAME(bslmf::ConstForwardingType<int Class:: *>::Type,
-                    int Class::*);
-        ASSERT_SAME(bslmf::ConstForwardingType<int Class::* const& >::Type,
-                    int                            Class::* const&);
-
-        ASSERT_SAME(bslmf::ConstForwardingType<int Class::*&>::Type,
-                    int                            Class::*&);
-
-        ASSERT_SAME(bslmf::ConstForwardingType< PF>::Type, PF);
-        ASSERT_SAME(bslmf::ConstForwardingType<RPF>::Type, PF&);
-
-        ASSERT_SAME(bslmf::ConstForwardingType< A>::Type, char*);
-        ASSERT_SAME(bslmf::ConstForwardingType<RA>::Type, char*);
-        if (verbose)
-            P(bslmf::ConstForwardingType<RA>::BSLMF_FORWARDING_TYPE_ID);
+        testForwardToTarget<Enum    const &>(e);
+        testForwardToTarget<Struct  const &>(s);
+        testForwardToTarget<Union   const &>(u);
+        testForwardToTarget<Class   const &>(c);
+        testForwardToTarget<double  const &>(d);
+        testForwardToTarget<double *const &>(p);
+        testForwardToTarget<A       const &>(a);
+        testForwardToTarget<PF      const &>(f_p);
+        testForwardToTarget<Pm      const &>(m_p);
+        testForwardToTarget<Pmf     const &>(mf_p);
+        
       } break;
+
       case 1: {
         // --------------------------------------------------------------------
+        // TESTING bslmf::ForwardingType
+        //
         // Test Plan:
         //   Instantiate 'bslmf::ForwardingType' with various types and verify
         //   that its 'Type' typedef is set to the expected type.
+        //
+        // TESTING
+        //     bslmf::ForwardingType<TYPE>::type
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "bslmf::ForwardingType" << endl
-                          << "======================" << endl;
+        if (verbose) cout << "\nbslmf::ForwardingType"
+                          << "\n=====================" << endl;
 
         ASSERT_SAME(bslmf::ForwardingType<int       >::Type, int);
-        if (verbose) P(typeid(bslmf::ForwardingType<int>::Type).name());
         ASSERT_SAME(bslmf::ForwardingType<int&      >::Type, int&);
         ASSERT_SAME(bslmf::ForwardingType<int const&>::Type, int const&);
 
@@ -387,8 +481,6 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType<Union&      >::Type, Union&);
         ASSERT(0 == bsl::is_array<Class>::value);
         ASSERT_SAME(bslmf::ForwardingType<Class       >::Type, const Class&);
-        if (verbose)
-            P(bslmf::ForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
         ASSERT_SAME(bslmf::ForwardingType<const Class&>::Type, const Class&);
 
         ASSERT_SAME(bslmf::ForwardingType<INT >::Type, int);
