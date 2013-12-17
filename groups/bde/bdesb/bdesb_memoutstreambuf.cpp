@@ -98,14 +98,15 @@ bdesb_MemOutStreamBuf::seekpos(bdesb_MemOutStreamBuf::pos_type position,
 bsl::streamsize bdesb_MemOutStreamBuf::xsputn(const char_type *source,
                                               bsl::streamsize  numChars)
 {
-    BSLMF_ASSERT((bsl::streamsize) -1 < 0);   // verifying 'isSigned(numChars)'
+    BSLMF_ASSERT((bsl::streamsize) -1 < 0);     // verifying 'length' and
+                                                // 'numChars' are signed.
+
+    BSLS_ASSERT_OPT(numChars >= 0);
+    BSLS_ASSERT_OPT(INT_MAX - length() >= numChars);
 
     const int newLength = length() + numChars;
     if (newLength > capacity()) {
         grow(newLength);
-    }
-    else {
-        BSLS_ASSERT_OPT(newLength >= 0);
     }
 
     bsl::memcpy(pptr(), source, numChars);
