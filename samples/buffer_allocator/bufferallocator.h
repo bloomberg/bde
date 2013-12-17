@@ -90,7 +90,7 @@ class BufferAllocator : public bslma::Allocator {
         // incurred.
 
     // MANIPULATORS
-    virtual void *allocate(bsls_Types::size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of maximally-aligned memory
         // of the specified 'size' (in bytes).  If 'size' is 0 no memory is
         // allocated and 0 is returned.  If the allocation request exceeds the
@@ -118,6 +118,7 @@ BufferAllocator::BufferAllocator(char             *buffer,
                                  bslma::Allocator *basicAllocator)
 : d_buffer_p(buffer)
 , d_bufferSize(bufferSize)
+, d_cursor(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }

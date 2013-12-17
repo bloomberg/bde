@@ -12,13 +12,13 @@ namespace pkg {
                         // ---------------------
 
 // MANIPULATORS
-void *BufferAllocator::allocate(bsls_Types::size_type size)
+void *BufferAllocator::allocate(bsls::Types::size_type size)
 {
     BSLS_ASSERT_SAFE(0 <= size);
 
     // Calculate the appropriate aligned offset
 
-    const int offset = bsls_AlignmentUtil::calculateAlignmentOffset(
+    const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                   d_buffer_p + d_cursor,
                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
