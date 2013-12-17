@@ -1,0 +1,85 @@
+ bdlma.txt
+
+@PURPOSE: Provide allocators, pools, and other memory-management tools.
+
+@MNEMONIC: Basic Development Library Memory Allocators (bdlma)
+
+@DESCRIPTION: The 'bdlma' package provides an allocator protocol (i.e., a pure
+ abstract interface) and a variety of concrete allocators derived from this
+ protocol.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlma' package currently has 15 components having 6 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  6. bdlma_multipoolallocator
+
+  5. bdlma_multipool
+
+  4. bdlma_bufferedsequentialallocator
+     bdlma_sequentialallocator
+
+  3. bdlma_bufferedsequentialpool
+     bdlma_sequentialpool
+
+  2. bdlma_buffermanager
+     bdlma_pool
+
+  1. bdlma_autoreleaser
+     bdlma_blocklist
+     bdlma_bufferimputil
+     bdlma_countingallocator
+     bdlma_guardingallocator
+     bdlma_infrequentdeleteblocklist
+     bdlma_managedallocator
+..
+
+/Component Synopsis
+/------------------
+: 'bdlma_autoreleaser':
+:      Release memory to a managed allocator or pool at destruction.
+:
+: 'bdlma_blocklist':
+:      Provide allocation and management of a sequence of memory blocks.
+:
+: 'bdlma_bufferedsequentialallocator':
+:      Provide an efficient managed allocator using an external buffer.
+:
+: 'bdlma_bufferedsequentialpool':
+:      Provide sequential memory using an external buffer and a fallback.
+:
+: 'bdlma_bufferimputil':
+:      Provide pure procedures for allocating memory from a buffer.
+:
+: 'bdlma_buffermanager':
+:      Provide a memory manager that manages an external buffer.
+:
+: 'bdlma_countingallocator':
+:      Provide a memory allocator that counts allocated bytes.
+:
+: 'bdlma_guardingallocator':
+:      Provide a memory allocator that guards against buffer overruns.
+:
+: 'bdlma_infrequentdeleteblocklist':
+:      Provide allocation and management of infrequently deleted blocks.
+:
+: 'bdlma_managedallocator':
+:      Provide a protocol for memory allocators that support 'release'.
+:
+: 'bdlma_multipool':
+:      Provide a memory manager to manage pools of varying block sizes.
+:
+: 'bdlma_multipoolallocator':
+:      Provide a memory-pooling allocator of heterogeneous block sizes.
+:
+: 'bdlma_pool':
+:      Provide efficient allocation of memory blocks of uniform size.
+:
+: 'bdlma_sequentialallocator':
+:      Provide a managed allocator using dynamically-allocated buffers.
+:
+: 'bdlma_sequentialpool':
+:      Provide sequential memory using dynamically-allocated buffers.
