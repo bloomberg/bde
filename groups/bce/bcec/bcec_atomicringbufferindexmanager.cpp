@@ -312,7 +312,6 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
     enum Status { e_SUCCESS = 0, e_QUEUE_FULL = 1, e_DISABLED_QUEUE = -1 };
 
     unsigned int loadedPushIndex = d_pushIndex.loadRelaxed();
-    unsigned int savedPushIndex  = -1;
     unsigned int combinedIndex, currIndex, currGeneration;
 
     // We use 'savedPushIndex' to ensure we attempt to acquire an index at
@@ -362,7 +361,8 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
             // The previous generation has not been read.  Notice that we also
             // had to test the generation count had not rolled back to 0.
 
-            if (e_READING == decodeStateFromElementState(was)) {
+            ElementState state = decodeStateFromElementState(was);
+            if (e_READING == state) {
                 // Another thread is currently reading this cell, yield the
                 // processor, reload the pushIndex, and return to the top of
                 // the loop.
@@ -371,17 +371,7 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
                 loadedPushIndex = d_pushIndex.loadRelaxed();
                 continue;
             }
-            else if (savedPushIndex != loadedPushIndex) {
-                // Another thread is not currently reading this cell, allow
-                // this to happen at most one time at a given index before
-                // returning FULL. Yield the processor, reload the pushIndex,
-                // and return to the top of the loop.
 
-                bcemt_ThreadUtil::yield();
-                savedPushIndex  = loadedPushIndex;
-                loadedPushIndex = d_pushIndex.loadRelaxed();
-                continue;
-            }
             return e_QUEUE_FULL;                                      // RETURN
         }
         // Another thread has already acquired this cell. Attempt to
@@ -394,17 +384,6 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
 
     unsigned int next = nextCombinedIndex(combinedIndex);
     unsigned int oldPushIndex = d_pushIndex.testAndSwap(combinedIndex, next);
-
-    if (oldPushIndex != loadedPushIndex) {
-        // The attempt to increment the push index failed, test if the queue
-        // has been disabled.
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                         isDisabledFlagSet(loadedPushIndex))) {
-            d_states[currIndex] = encodeElementState(currGeneration, e_EMPTY);
-            return e_DISABLED_QUEUE;                                  // RETURN
-        }
-    }
 
     return e_SUCCESS;
 }
@@ -445,7 +424,6 @@ int bcec_AtomicRingBufferIndexManager::reservePopIndex(
     // pathological contention between reading and writing threads for a queue
     // of length 1.
 
-    unsigned int savedPopIndex = -1;
     unsigned int currIndex, currGeneration;
 
     for (;;) {
@@ -482,17 +460,6 @@ int bcec_AtomicRingBufferIndexManager::reservePopIndex(
         int state = decodeStateFromElementState(was);
 
         if (e_EMPTY == state) {
-            if (savedPopIndex != loadedPopIndex) {
-                // Another thread is not currently reading this cell, allow
-                // this to happen at most one time at a given index before
-                // returning EMPTY. Yield the processor, reload the popIndex,
-                // and return to the top of the loop.
-
-                bcemt_ThreadUtil::yield();
-                savedPopIndex  = loadedPopIndex;
-                loadedPopIndex = d_popIndex.loadRelaxed();
-                continue;
-            }
             return e_QUEUE_EMPTY;                                     // RETURN
         }
         else if (e_WRITING == state || e_FULL == state) {
