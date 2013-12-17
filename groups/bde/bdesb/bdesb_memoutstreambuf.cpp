@@ -4,9 +4,12 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesb_memoutstreambuf_cpp,"$Id$ $CSID$")
 
+#include <bslmf_assert.h>
 #include <bsls_assert.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstring.h>
+#include <bsl_limits.h>
 
 namespace BloombergLP {
 
@@ -17,16 +20,27 @@ namespace BloombergLP {
 // PRIVATE MANIPULATORS
 void bdesb_MemOutStreamBuf::grow(int newLength)
 {
-    BSLS_ASSERT(0 <= newLength);
+    enum { MAX_PRE_GROW = INT_MAX / BDESB_GROWTH_FACTOR };
+
+    BSLS_ASSERT_OPT(0 <= newLength);
 
     int newCapacity = capacity();
     if (0 == newCapacity) {
         newCapacity = BDESB_INITIAL_BUFFER_SIZE;
     }
 
-    while (newCapacity < newLength) {
-        newCapacity *= BDESB_GROWTH_FACTOR;
+    if (newCapacity < newLength) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > MAX_PRE_GROW)) {
+            newCapacity = (INT_MAX/2 + newLength/2) | 1;
+        }
+        else {
+            do {
+                newCapacity *= BDESB_GROWTH_FACTOR;
+            } while (newCapacity < newLength);
+        }
     }
+
+    BSLS_ASSERT_SAFE(newCapacity >= newLength);
 
     reserveCapacity(newCapacity);
 }
@@ -84,9 +98,14 @@ bdesb_MemOutStreamBuf::seekpos(bdesb_MemOutStreamBuf::pos_type position,
 bsl::streamsize bdesb_MemOutStreamBuf::xsputn(const char_type *source,
                                               bsl::streamsize  numChars)
 {
+    BSLMF_ASSERT((bsl::streamsize) -1 < 0);   // verifying 'isSigned(numChars)'
+
     const int newLength = length() + numChars;
     if (newLength > capacity()) {
         grow(newLength);
+    }
+    else {
+        BSLS_ASSERT_OPT(newLength >= 0);
     }
 
     bsl::memcpy(pptr(), source, numChars);

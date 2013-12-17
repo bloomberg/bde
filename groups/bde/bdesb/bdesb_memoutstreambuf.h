@@ -189,6 +189,7 @@ class bdesb_MemOutStreamBuf : public bsl::streambuf {
     bslma::Allocator *d_allocator_p;  // memory source for buffer memory
                                       // (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     bdesb_MemOutStreamBuf(const bdesb_MemOutStreamBuf&);
     bdesb_MemOutStreamBuf& operator=(const bdesb_MemOutStreamBuf&);
