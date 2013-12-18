@@ -13,7 +13,11 @@
 // implements the 'bslma::Allocator' protocol and sequentially allocates memory
 // blocks from a fixed-size buffer that is supplied by the user at
 // construction.  If an allocation request exceeds the remaining space in the
-// buffer, the optionally-supplied allocator is used:
+// buffer, the optionally-supplied allocator is used.  For maximum efficiency
+// individual deallocations of memory within the user-supplied buffer are
+// no-ops and the deallocated memory is not reused in subsequent allocation
+// requests.  Memory allocated from the user-supplied allocator (after the
+// fixed-sized buffer is exhausted) is individually deallocated:
 //..
 //   ,---------------------.
 //  (    BufferAllocator    )
@@ -34,6 +38,42 @@
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
+//
+///Example 1: Reading Data From a File
+///- - - - - - - - - - - - - - - - - -
+// Often objects that allocate memory are stored within standard containers.
+//
+// Consider the simplified function, 'readLines', that reads all the lines from
+// a small file into a 'bsl::vector<bsl::string>' before processing them.  As
+// the data read into the 'vector' is short-lived and will be discarded on the
+// return of the function, a 'BufferAllocator' with a sufficiently large buffer
+// can be used to allocate the memory.
+//..
+//  #include <bsl_istream.h>
+//  #include <bsl_string.h>
+//  #include <bsl_vector.h>
+//
+//  #include <bufferallocator.h>
+//
+//  void readLines(bsl::istream& inputStream)
+//  {
+//      const int BUFFER_SIZE = 1024;
+//      char      buffer[BUFFER_SIZE];
+//
+//      BufferAllocator          allocator(buffer, BUFFER_SIZE);
+//      bsl::vector<bsl::string> lines(&allocator);
+//
+//      while (inputStream) {
+//          bsl::string input(&allocator);
+//
+//          bsl::getline(inputStream, input);
+//
+//          lines.push_back(input);
+//      }
+//
+//      // Continue processing the read data
+//  }
+//..
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
@@ -42,10 +82,6 @@
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
-
-#include <bsls_alignmentutil.h>
-#include <bsls_assert.h>
-#include <bsls_types.h>
 
 namespace Enterprise {
 namespace pkg {
@@ -64,10 +100,12 @@ class BufferAllocator : public bslma::Allocator {
 
     // DATA
     char             *d_buffer_p;      // buffer to use for memory allocations
+                                       // (held, not owned)
     int               d_bufferSize;    // initial buffer size
     int               d_cursor;        // current cursor
-    bslma::Allocator *d_allocator_p;   // memory allocator once 'd_buffer_p'
-                                       // is exhausted
+    bslma::Allocator *d_allocator_p;   // memory allocator to use once
+                                       // 'd_buffer_p' is exhausted (held, not
+                                       // owned)
 
     // NOT IMPLEMENTED
     BufferAllocator(const BufferAllocator&);
@@ -85,9 +123,7 @@ class BufferAllocator : public bslma::Allocator {
         // default allocator is used.
 
     virtual ~BufferAllocator();
-        // Destroy this buffer allocator.  Note that if the buffer specified at
-        // construction was not exhausted then no deallocation overhead is
-        // incurred.
+        // Destroy this buffer allocator.
 
     // MANIPULATORS
     virtual void *allocate(bsls::Types::size_type size);
@@ -101,6 +137,8 @@ class BufferAllocator : public bslma::Allocator {
     virtual void deallocate(void *address);
         // Deallocate the specified 'address' if it did not come from the
         // external buffer specified at construction and do nothing otherwise.
+        // Note that if the buffer specified at construction was not exhausted
+        // then no deallocation overhead is incurred.
 };
 
 // ============================================================================

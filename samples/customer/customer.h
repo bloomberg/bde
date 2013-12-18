@@ -5,13 +5,11 @@
 //@PURPOSE: Provide an attribute class for characterizing a bank's customers.
 //
 //@CLASSES:
-//  pkg::Customer: attributes characterizing a bank customer
-//
-//@SEE_ALSO:
+//  pkg::Customer: attributes characterizing a bank's customer
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'pkg::Customer', that is used to
-// characterize the customers of a bank.
+// characterize the customers of an organization.
 //
 ///Attributes
 ///----------
@@ -34,6 +32,50 @@
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
+//
+///Example 1: Creating, Storing, and Displaying Customers
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Many organizations are required to store and display a list of their
+// customers.  The following code shows how that can be done using the
+// 'Customer' 'class'.
+//
+// First, we define a 'Customer' object that stores the information about a
+// bank customer:
+//..
+//  const char *firstName          = "John";
+//  const char *lastName           = "Smith";
+//  const int   checkingAccountNum = 12345;
+//  const int   savingsAccountNum  = 98765;
+//  const int   customerId         = 18360;
+//
+//  bsl::vector<int> accounts;
+//  accounts.push_back(checkingAccountNum);
+//  accounts.push_back(savingsAccountNum);
+//
+//  Customer customer(firstName, lastName, accounts, customerId);
+//
+//  assert(firstName  == customer.firstName());
+//  assert(lastName   == customer.lastName());
+//  assert(accounts   == customer.accounts());
+//  assert(customerId == customer.id());
+//..
+// Then, we can store this customer object.  We assume that all the customers
+// are stored in memory in a 'vector' named 'allCustomers':
+//..
+//  bsl::vector<Customer> allCustomers;
+//
+//  // Process 'allCustomers'
+//
+//  allCustomers.push_back(customer);
+//..
+// Now, we display all customers to stdout:
+//..
+//  for (bsl::vector<Customer>::const_iterator iter = allCustomers.begin();
+//       iter != allCustomers.end();
+//       ++iter) {
+//      bsl::cout << *iter << bsl::endl;
+//  }
+//..
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
@@ -227,7 +269,8 @@ void swap(Customer& a, Customer& b);
 namespace BloombergLP{
 namespace bslma {
 
-template <> struct UsesBslmaAllocator<Customer> : bsl::true_type {};
+template <> struct UsesBslmaAllocator<Enterprise::pkg::Customer>
+                                                           : bsl::true_type {};
 
 }
 }
