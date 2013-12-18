@@ -62,3 +62,25 @@ bsl_stdhdrs_epilogue.h
 bsl_stdhdrs_epilogue_recursive.h
 bsl_stdhdrs_incpaths.h
 bsl_stdhdrs_prologue.h
+
+# C or POSIX headers
+assert.h        assert.h.SUNWCCh
+ctype.h         ctype.h.SUNWCCh
+errno.h         errno.h.SUNWCCh
+float.h         float.h.SUNWCCh
+iso646.h        iso646.h.SUNWCCh
+                istream.h.SUNWCCh
+limits.h        limits.h.SUNWCCh
+locale.h        locale.h.SUNWCCh
+pthread.h
+signal.h        signal.h.SUNWCCh
+stdarg.h        stdarg.h.SUNWCCh
+stddef.h        stddef.h.SUNWCCh
+stdio.h         stdio.h.SUNWCCh
+stdlib.h        stdlib.h.SUNWCCh
+string.h        string.h.SUNWCCh
+sys/time.h      sys/time.h.SUNWCCh
+time.h          time.h.SUNWCCh
+wchar.h         wchar.h.SUNWCCh
+wctype.h        wctype.h.SUNWCCh
+setjmp.h        setjmp.h.SUNWCCh
