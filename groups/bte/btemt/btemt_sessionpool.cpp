@@ -576,6 +576,10 @@ btemt_SessionPool::~btemt_SessionPool()
 int btemt_SessionPool::start()
 {
     if (d_channelPool_p) {
+
+        // Channel pool was previously created and then 'stop'ed.  Restart the
+        // object by calling 'start' again.
+
         return d_channelPool_p->start();                              // RETURN
     }
 
