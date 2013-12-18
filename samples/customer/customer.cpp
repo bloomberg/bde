@@ -37,10 +37,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Customer& object)
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
-    printer.print(object.firstName(), 0);
-    printer.print(object.lastName(),  0);
-    printer.print(object.accounts(),  0);
-    printer.print(object.id(),        0);
+    printer.printValue(object.firstName());
+    printer.printValue(object.lastName());
+    printer.printValue(object.accounts());
+    printer.printValue(object.id());
     printer.end();
 
     return stream;
