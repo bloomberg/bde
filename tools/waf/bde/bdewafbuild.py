@@ -141,7 +141,7 @@ class BdeWafBuild(object):
         self.run_tests = self.ctx.options.test == 'run'
         self.build_tests = self.run_tests or self.ctx.options.test == 'build'
 
-        test_runner_path = self.ctx.path.make_node(os.path.join('tools', 'waf', 'run_unit_tests.py'))
+        test_runner_path = self.ctx.path.make_node(os.path.join('tools', 'run_unit_tests.py'))
         self.ctx.options.testcmd = '%s %s --verbosity %s --timeout %s %%s' % (sys.executable, test_runner_path.abspath(),
                                                                               self.ctx.options.test_verbosity,
                                                                               self.ctx.options.test_timeout)
