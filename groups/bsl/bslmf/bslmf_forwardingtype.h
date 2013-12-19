@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 // This example illustrates the use of 'ForwardingType' to efficiently
 // implement a wrapper class that holds a function pointer and logs
 // information about each call to the pointed-to-function through the wrapper.
-// The pointed-to-function takes three arguments whose types a4re specified
+// The pointed-to-function takes three arguments whose types are specified
 // via template arguments.  The first argument is required to be convertible
 // to 'int'.  The class definition looks as follows:
 //..
