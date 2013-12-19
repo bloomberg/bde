@@ -53,6 +53,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif

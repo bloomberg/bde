@@ -737,6 +737,10 @@ class btemt_SessionPool {
                          void       *userData);
         // Channel pool's blob based read callback.
 
+    void terminateSession(btemt_SessionPool_Handle *handle);
+        // Issue a session down event and stop the session associated with the
+        // specified 'handle'.
+
     void handleDeleter(btemt_SessionPool_Handle *handle);
         // Delete the specified 'handle'.
 

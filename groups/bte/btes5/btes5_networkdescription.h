@@ -84,8 +84,8 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef.h>
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
 #endif
 
 namespace BloombergLP {

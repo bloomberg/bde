@@ -341,6 +341,18 @@ void btemt_SessionPool::blobBasedReadCb(int        *numNeeded,
     handle->d_channel_p->blobBasedDataCb(numNeeded, data);
 }
 
+void btemt_SessionPool::terminateSession(btemt_SessionPool_Handle *handle)
+{
+    if (handle->d_session_p) {
+        handle->d_sessionStateCB(SESSION_DOWN,
+                                 handle->d_handleId,
+                                 handle->d_session_p,
+                                 handle->d_userData_p);
+        handle->d_session_p->stop();
+        handle->d_handleId = 0;
+    }
+}
+
 void btemt_SessionPool::handleDeleter(btemt_SessionPool_Handle *handle)
 {
     if (0 != handle->d_handleId ) {
@@ -349,12 +361,7 @@ void btemt_SessionPool::handleDeleter(btemt_SessionPool_Handle *handle)
             d_channelPool_p->close(handle->d_handleId);
         }
         else if (handle->d_session_p) {
-            handle->d_session_p->stop();
-            handle->d_sessionStateCB(SESSION_DOWN,
-                                     handle->d_handleId,
-                                     handle->d_session_p,
-                                     handle->d_userData_p);
-            handle->d_handleId = 0;
+            terminateSession(handle);
         }
         else if (btemt_SessionPool_Handle::CONNECT_SESSION ==
                                                               handle->d_type
@@ -657,6 +664,11 @@ int btemt_SessionPool::stop()
     }
 
     d_handles.removeAll();
+
+    typedef bsl::vector<HandlePtr>::const_iterator Iter;
+    for (Iter it = handles.begin(); it != handles.end(); ++it) {
+        terminateSession(it->ptr());
+    }
 
     return ret;
 }
