@@ -61,6 +61,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 8] unsigned int numRepresentableGenerations(unsigned int );
+// [ 9] unsigned int numRepresentableGenerations(unsigned int );
 // PUBLIC CONSTANTS
 // [ 2] e_MAX_CAPACITY 
 // CREATORS
@@ -80,13 +81,13 @@ using namespace bsl;
 // [ 5] bool isEnabled() const;        
 // [ 3] unsigned int length() const;
 // [ 2] unsigned int capacity() const; 
-// [ 9] bsl::ostream& print(bsl::ostream& ) const;
+// [10] bsl::ostream& print(bsl::ostream& ) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ 4] CONCERN: 'gg' generator and 'dirtyGG' generator
-// [10] CONCERN: Thread-Safety (concurrent access does not corrupt state)
-// [11] CONCERN: maxCombinedIndex
+// [11] CONCERN: Thread-Safety (concurrent access does not corrupt state)
+// [12] CONCERN: maxCombinedIndex
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -965,7 +966,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -1001,7 +1002,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == result);
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // CONCERN: maxCombinedIndex
         //
@@ -1225,7 +1226,7 @@ int main(int argc, char *argv[])
                     ASSERT(INDEX      == idx);
                     ASSERT(GENERATION == gen);
                     x.commitPopIndex(gen, idx);
-                    ASSERT(PUSH_INDEX - i - 1 == X.length());
+                    ASSERTV(X, X.length(), PUSH_INDEX - i - 1 == X.length());
                 }
             }
         }
@@ -1414,7 +1415,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // CONCERN: Thread-Safety (concurrent access does not corrupt state)
         //
@@ -1550,7 +1551,7 @@ int main(int argc, char *argv[])
             }
         }        
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING: 'print'
         //
@@ -1566,8 +1567,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl 
-                          << "TESTING: abortPushIndexReservation" << endl
-                          << "==================================" << endl;
+                          << "TESTING: print" << endl
+                          << "==============" << endl;
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
 #pragma GCC diagnostic push
@@ -1645,6 +1646,109 @@ int main(int argc, char *argv[])
 #pragma GCC diagnostic pop
 #endif
       } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING: 'circularDifference'
+        //
+        // Concerns:
+        //  1 Verify that the returned is the absolute value of the minimum
+        //    distance between two points in a circular number space of the
+        //    supplied size.
+        //
+        //  2 Verify the sign of the returned value correctly indicates
+        //    whether one must increment or decmrement that distance from the
+        //    'substrahend' to arrive at the minuend.
+        //
+        // Plan:
+        //  1 For set of interesting capacity values, call
+        //    'numRepresentableGenerations' and verify the expected mathematic
+        //    properties of the returned value.
+        //
+        // Testing:
+        //   unsigned int numRepresentableGenerations(unsigned int );
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING: numRepresentableGenerations"
+                          << endl;
+
+        if (verbose) cout << "\nTesting against pre-computed values" << endl;
+        {
+
+            const unsigned int INT_MAX_PLUS_1 = 
+                                            static_cast<unsigned>(INT_MAX) + 1;
+            const int           INT_MAX_DIV_2 = INT_MAX_PLUS_1 / 2;
+
+            struct {
+                int          d_line;
+                unsigned int d_minuend;
+                unsigned int d_subtrahend;
+                unsigned int d_maxSize;
+                int          d_expectedValue;
+            } DATA[] = {
+                // capacity 1
+                { L_, 0,  0,  1,  0 },
+
+                // capacity 2
+                { L_, 1,  1,  2,  0 },
+                { L_, 1,  0,  2,  1 },
+                { L_, 0,  1,  2, -1 },
+
+                // capacity 3
+                { L_, 2,  0,  3, -1 },
+                { L_, 2,  1,  3,  1 },
+                { L_, 2,  2,  3,  0 },
+                { L_, 1,  0,  3,  1 },
+                { L_, 1,  1,  3,  0 },
+                { L_, 1,  2,  3, -1 },
+                { L_, 0,  0,  3,  0 },
+                { L_, 0,  1,  3, -1 }, 
+                { L_, 0,  2,  3,  1 },
+
+                // capacity 4
+                { L_, 3,  0,  4, -1 },
+                { L_, 3,  1,  4,  2 },
+                { L_, 3,  2,  4,  1 },
+                { L_, 3,  3,  4,  0 },
+                { L_, 0,  3,  4,  1 },
+                { L_, 1,  3,  4, -2 },
+                { L_, 2,  3,  4, -1 },
+                { L_, 3,  3,  4,  0 },
+
+                // capacity INT_MAX
+          { L_,       INT_MAX,             0, INT_MAX_PLUS_1,             -1 },
+          { L_,             0,       INT_MAX, INT_MAX_PLUS_1,              1 },
+          { L_, INT_MAX_DIV_2,             0, INT_MAX_PLUS_1,  INT_MAX_DIV_2 },
+          { L_,             0, INT_MAX_DIV_2, INT_MAX_PLUS_1, -INT_MAX_DIV_2 },
+
+                // Examples
+                // circularDifference(   0, 359, 360) ==    1
+                // circularDifference( 359,   0, 360) ==   -1
+                // circularDifference( 180,   0, 360) ==  180
+                // circularDifference(   0, 180, 360) == -180
+
+                { L_,   0, 359,  360,    1 },
+                { L_, 359,   0,  360,   -1 },
+                { L_, 180,   0,  360,  180 },
+                { L_,   0, 180,  360, -180 },
+
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int          LINE       = DATA[i].d_line;
+                const unsigned int MINUEND    = DATA[i].d_minuend;
+                const unsigned int SUBTRAHEND = DATA[i].d_subtrahend;
+                const unsigned int SIZE       = DATA[i].d_maxSize;
+                const int          EXPECTED   = DATA[i].d_expectedValue;
+
+                ASSERTV(LINE, 
+                        Obj::circularDifference(MINUEND, SUBTRAHEND, SIZE),
+                        EXPECTED == 
+                        Obj::circularDifference(MINUEND, SUBTRAHEND, SIZE));
+            }
+
+        }
+      } break;        
       case 8: {
         // --------------------------------------------------------------------
         // TESTING: 'numRepresentableGenerations'

@@ -171,7 +171,7 @@ static const unsigned int e_GENERATION_COUNT_SHIFT = 0x2;
                                   // must be base2Log(e_ELEMENT_STATE_MASK)
 
 static const unsigned int e_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS = 
-                                                     1 << (sizeof(int)*8) - 2;
+                                                      1 << (sizeof(int)*8 - 2);
                                   // The maximum generation count that can be
                                   // represented in a 'd_states' element.
 
@@ -266,6 +266,26 @@ unsigned int bcec_AtomicRingBufferIndexManager::numRepresentableGenerations(
     return bsl::min(e_NUM_REPRESENTABLE_COMBINED_INDICES / capacity,
                     e_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS);
 }
+
+int bcec_AtomicRingBufferIndexManager::circularDifference(
+                                                 unsigned int minuend,
+                                                 unsigned int subtrahend,
+                                                 unsigned int modulo)
+{
+    BSLS_ASSERT_OPT(modulo     <= static_cast<unsigned int>(INT_MAX) + 1);
+    BSLS_ASSERT_OPT(minuend    <  modulo);
+    BSLS_ASSERT_OPT(subtrahend <  modulo);
+
+    int difference = minuend - subtrahend;
+    if (difference > static_cast<int>(modulo / 2)) {
+        return difference - modulo;
+    }
+    if (difference < -static_cast<int>(modulo / 2)) {
+        return difference + modulo;
+    }
+    return difference;
+}
+
 
 // CREATORS
 bcec_AtomicRingBufferIndexManager::bcec_AtomicRingBufferIndexManager(
@@ -684,11 +704,26 @@ unsigned int bcec_AtomicRingBufferIndexManager::length() const
     // change, 'bcec_AtomicRingBuffer::tryPushBack' and
     // 'bcec_AtomicRingBuffer::tryPopFront' would need to be modified.
 
-    bsls::Types::Int64 combinedPushIndex = discardDisabledFlag(d_pushIndex);
-    bsls::Types::Int64 combinedPopIndex  = d_popIndex;
+    unsigned int combinedPushIndex = discardDisabledFlag(d_pushIndex);
+    unsigned int combinedPopIndex  = d_popIndex;
 
-    
-    bsls::Types::Int64 difference = combinedPushIndex - combinedPopIndex;
+    // Note that the following is logically equivalent to:
+    //..
+    // int difference = circularDifference(combinedPushIndex, 
+    //                                     combinedPopIndex,
+    //                                     d_maxCombinedIndex + 1);
+    //
+    // if      (difference <  0)          { return 0; }
+    // else if (difference >= d_capacity) { return d_capacity; }
+    // return difference;
+    //..
+    // However we can perform some minor optimization knowing that
+    // 'combinedPushIndex' was loaded (with sequential consistency) *before*
+    // 'combinedPopIndex' so it is not possible for the 'difference' to be
+    // greater than 'd_capacity' unless 'combinedPopIndex' has wrapped around
+    // 'd_maxCombinedIndex' and the length is 0.
+
+    int difference = combinedPushIndex - combinedPopIndex;
     if (difference >= 0) {
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(difference > d_capacity)) {
             // Because the pop index is acquired after the push index, its
@@ -696,28 +731,27 @@ unsigned int bcec_AtomicRingBufferIndexManager::length() const
             // 'd_maxCombinedIndex' and then 'combinedPopIndex' to be acquired
             // after it wraps around to 0, resulting in a very large positive
             // value. 
+            BSLS_ASSERT_OPT(0 > circularDifference(combinedPushIndex,
+                                                   combinedPopIndex,
+                                                   d_maxCombinedIndex + 1));
 
             return 0;                                                 // RETURN
         }         
         return static_cast<unsigned int>(difference);                 // RETURN
     }
-
-    // If difference is negative, it may be because the push-index has gone
-    // past the 'd_maxCombinedIndex' and been reset to 0, in which case
-    // difference must be adjusted by 'd_maxCombinedIndex + 1'.
-
+    
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-            combinedPopIndex  >= d_maxCombinedIndex - d_capacity &&
-            combinedPushIndex <  d_capacity)) {
-        if (difference + d_maxCombinedIndex + 1 > d_capacity) {
-            printf("SUPRISE2");
-        }
+            difference < -static_cast<int>(d_maxCombinedIndex / 2))) {
+        BSLS_ASSERT_OPT(0 < circularDifference(combinedPushIndex,
+                                               combinedPopIndex,
+                                               d_maxCombinedIndex + 1));
 
-        return static_cast<unsigned int>(difference + d_maxCombinedIndex + 1); 
+        difference += d_maxCombinedIndex + 1;
+        return bsl::min(static_cast<unsigned int>(difference), d_capacity);
     }
-    // Because the push and pop indices are accessed independently 
     return 0;
 }
+
 
 bool bcec_AtomicRingBufferIndexManager::isEnabled() const
 {

@@ -210,6 +210,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+
+#ifndef INCLUDED_BSL_CSTDLIB
+#include <bsl_cstdlib.h>
+#endif
+
 namespace BloombergLP {
 
                      // =======================================
@@ -287,15 +292,6 @@ class bcec_AtomicRingBufferIndexManager {
     unsigned int nextGeneration(unsigned int generation) const;
         // Return the generation subsequent to ths specified 'generation'.
 
-    bsls::Types::Int64 combinedIndexDifference(unsigned int minuend,
-                                               unsigned int subtrahend);
-        // Return the difference between the specified 'minuend' and the
-        // specified 'subtrahend' (i.e., 'minuend - subtrahend') accounting
-        // for the possibility that 'minuend' may have incremented past
-        // 'd_maxCombinedIndex' and been reset to 0.  This function will
-        // return 'minuend - subtrahend' unless
-        // 'minuend < d_maxCombinedIndex *.25' and 
-        // 'subtrahend > d_maxCombinedIndex * .75'
     
   public:
 
@@ -303,6 +299,31 @@ class bcec_AtomicRingBufferIndexManager {
     static unsigned int numRepresentableGenerations(unsigned int capacity);
         // Return the number of representable generations for a circular
         // buffer of the specified 'capacity'.
+
+    static int circularDifference(unsigned int minuend,
+                                  unsigned int subtrahend,
+                                  unsigned int modulo);
+        // Return the difference between the specified 'minuend' and the
+        // specified 'subtrahend' (typically 'minuend - subtrahend')
+        // where minuend and subtrahend are both "circular values", meaning
+        // they participate in a (1-dimensional) non-euclidiean space where
+        // the value subsequent to 'modulo-1' wraps around to 0.  The
+        // difference between two circular values is the minimum of either the
+        // number of increments or the number of decrements to 'subtrahend'
+        // that results in 'minuend' (i.e., the minimum "distance" between the
+        // points on the number cirle), where increments are a positive
+        // difference, and decrements are a negative difference.  If the number
+        // of increments and number of decrements between 'minuend' and
+        // 'subtrahend' are equal, 'minuend - subtrahend' is returned.  For
+        // example, for a hypothetical compass, [0, 360):
+        //..
+        //  circularDifference(   0, 359, 360) ==    1
+        //  circularDifference( 359,   0, 360) ==   -1
+        //  circularDifference( 180,   0, 360) ==  180
+        //  circularDifference(   0, 180, 360) == -180
+        //..
+        // The behavior is undefined unless 'minuend < modulo', 
+        // 'subtrahend < modulo', and 'modulo <= INT_MAX + 1'.
 
     // PUBLIC CONSTANTS
     enum {
@@ -456,6 +477,7 @@ class bcec_AtomicRingBufferIndexManager {
                      // class bcec_AtomicRingBufferIndexManager
                      // ---------------------------------------
 
+
 // PRIVATE ACCESSORS
 inline
 unsigned int bcec_AtomicRingBufferIndexManager::nextCombinedIndex(
@@ -482,7 +504,6 @@ unsigned int bcec_AtomicRingBufferIndexManager::nextGeneration(
     }
     return generation + 1;
 }
-
 
 // ACCESSORS
 inline
