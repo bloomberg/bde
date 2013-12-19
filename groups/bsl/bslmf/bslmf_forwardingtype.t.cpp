@@ -23,7 +23,7 @@ using namespace std;
 // a utility function for which we verify that it returns the correct type and
 // value
 //-----------------------------------------------------------------------------
-// [ 1] bslmf::ForwardingType
+// [ 1] bslmf::ForwardingType<TYPE>::Type
 // [ 2] bslmf::ForwardingTypeUtil<TYPE>::TargetType
 // [ 2] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
 // [ 3] USAGE EXAMPLES
@@ -91,8 +91,6 @@ public:
 inline bool operator==(Class a, Class b) {
     return a.value() == b.value();
 }
-
-typedef int INT;
 
 typedef void      F ();
 typedef void ( & RF)();
@@ -448,98 +446,272 @@ int main(int argc, char *argv[])
 
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING bslmf::ForwardingType
+        // TESTING bslmf::ForwardingType<TYPE>::Type
+        //
+        // Concerns:
+        //: 1 The forwarding type for "*basic* type cvq 'T'" is the same as
+        //:   'T' with the cv-qualification removed.
+        //: 2 The forwarding type for "*class* *or* *union* type cvq 'T'" is
+        //:   'const vq T&', where 'vq' is 'volatile' if 'T' is
+        //:   volatile-qualified and is empty otherwise.
+        //: 3 The forwarding type for "function of type 'F'" or "reference to
+        //:   function of type 'F'" is "reference to function of type
+        //:   'F'". The forwarding type for "pointer to function of type 'F'"
+        //:   is the same pointer type, 'F*'.
+        //: 4 The forwarding type for "array of cvq 'T'" or "(lvalue or
+        //:   rvalue) reference to
+        //:   array of cvq 'T'" is "cvq 'T*'", regardless of whether
+        //:   the array size is known.
+        //: 5 The forwarding type for "lvalue reference to type cvq 'T'" is
+        //:   the same "lvalue reference to cvq 'T', for non-function and
+        //:   non-array types.
+        //: 6 (C++11 and newer only) The forwarding type for "rvalue reference
+        //:   to cvq type 'T'" for non-function and non-array 'T' is 'const vq
+        //:   T&', where 'vq' is 'volatile' if 'T' is volatile-qualified and
+        //:   'vq' is empty otherwise.
         //
         // Test Plan:
-        //   Instantiate 'bslmf::ForwardingType' with various types and verify
-        //   that its 'Type' typedef is set to the expected type.
+        //: 1 For concern 1, instantiate 'ForwardingType' for fundamental,
+        //:   pointer, and enumeration types, both cv-qualified and
+        //:   unqualified, and verify  that the resulting 'Type' member is
+        //:   the parameter type without cv qualification.
+        //: 2 For concern 2, instantiate 'ForwardingType' for class and union
+        //:   type, both unqualified and cv-qualified, and verify that the
+        //:   resulting 'Type' member is the expected const lvalue reference
+        //:   type. 
+        //: 3 For concern 3, instantiate 'ForwardingType' for a small number
+        //:   of function, reference-to-function, and pointer-to-function
+        //:   parameters and verify that the resulting 'Type' member is the
+        //:   expected type.
+        //: 3 For concern 4, instantiate 'ForwadingType' for a small number of
+        //:   array types, lvalue-reference-to-array types, and
+        //:   rvalue-reference-to-array types, both sized and unsized, and
+        //:   both cv-qualified and unqualified, and verify that the resulting
+        //:   'Type' member is the expected pointer type.
+        //: 5 For concern 5, instantiate 'ForwardingType' for *lvalue*
+        //:   reference to fundamental, pointer, enumeration, class, and union
+        //:   types, both cv-qualified and unqualified, and verify that the
+        //:   resulting 'Type' member is the same as the parameter type.
+        //: 6 For concern 6, instantiate 'ForwardingType' for *rvalue* reference
+        //:   to fundamental, pointer, enumeration, class, and union
+        //:   types, both cv-qualified and unqualified, and
+        //:   verify that the resulting 'Type' member is the expected const
+        //:   lvalue reference type.
         //
         // TESTING
-        //     bslmf::ForwardingType<TYPE>::type
+        //     bslmf::ForwardingType<TYPE>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nbslmf::ForwardingType"
-                          << "\n=====================" << endl;
+        if (verbose) cout << "\nbslmf::ForwardingType<TYPE>::Type"
+                          << "\n=================================" << endl;
 
-        ASSERT_SAME(bslmf::ForwardingType<int       >::Type, int);
-        ASSERT_SAME(bslmf::ForwardingType<int&      >::Type, int&);
-        ASSERT_SAME(bslmf::ForwardingType<int const&>::Type, int const&);
+#define TEST_FWD_TYPE(T, EXP) ASSERT_SAME(bslmf::ForwardingType<T>::Type, EXP)
+#define TEST_FWD_TYPE_UNCHANGED(T) TEST_FWD_TYPE(T, T)
 
-        ASSERT_SAME(bslmf::ForwardingType<void *          >::Type, void *);
-        ASSERT_SAME(bslmf::ForwardingType<void *&         >::Type, void *&);
-        ASSERT_SAME(bslmf::ForwardingType<void volatile *&>::Type,
-                    volatile void *&);
+        if (veryVerbose) cout << "Basic types" << endl;
 
-        ASSERT_SAME(bslmf::ForwardingType<char const *const&>::Type,
-                    char const *const &);
+        TEST_FWD_TYPE(int                        , int);
+        TEST_FWD_TYPE(int *                      , int *);
+        TEST_FWD_TYPE(int Class::*               , int Class::*);
+        TEST_FWD_TYPE(int (*)(float)             , int (*)(float));
+        TEST_FWD_TYPE(int (Class::*)(char)       , int (Class::*)(char));
+        TEST_FWD_TYPE(Enum                       , Enum);
 
-        ASSERT_SAME(bslmf::ForwardingType<Enum        >::Type, Enum);
-        ASSERT_SAME(bslmf::ForwardingType<Enum&       >::Type, Enum&);
-        ASSERT_SAME(bslmf::ForwardingType<Struct      >::Type, const Struct&);
-        ASSERT_SAME(bslmf::ForwardingType<Struct&     >::Type, Struct&);
-        ASSERT_SAME(bslmf::ForwardingType<Union       >::Type, const Union&);
-        ASSERT_SAME(bslmf::ForwardingType<Union&      >::Type, Union&);
-        ASSERT(0 == bsl::is_array<Class>::value);
-        ASSERT_SAME(bslmf::ForwardingType<Class       >::Type, const Class&);
-        ASSERT_SAME(bslmf::ForwardingType<const Class&>::Type, const Class&);
+        TEST_FWD_TYPE(const int                  , int);
+        TEST_FWD_TYPE(int *const                 , int *);
+        TEST_FWD_TYPE(const int *                , const int *);
+        TEST_FWD_TYPE(int Class::* const         , int Class::*);
+        TEST_FWD_TYPE(int (* const)(float)       , int (*)(float));
+        TEST_FWD_TYPE(int (Class::* const)(char) , int (Class::*)(char));
+        TEST_FWD_TYPE(const Enum                 , Enum);
 
-        ASSERT_SAME(bslmf::ForwardingType<INT >::Type, int);
-        ASSERT_SAME(bslmf::ForwardingType<INT&>::Type, int&);
+        TEST_FWD_TYPE(volatile int               , int);
+        TEST_FWD_TYPE(int *volatile              , int *);
+        TEST_FWD_TYPE(volatile int *             , volatile int *);
+        TEST_FWD_TYPE(int Class::* volatile      , int Class::*);
+        TEST_FWD_TYPE(int (* volatile)(float)    , int (*)(float));
+        TEST_FWD_TYPE(volatile Enum              , Enum);
 
-        ASSERT_SAME(bslmf::ForwardingType<int Class::* >::Type, int Class::*);
-        ASSERT_SAME(bslmf::ForwardingType<int Class::* const& >::Type,
-                    int                       Class::* const&);
+        TEST_FWD_TYPE(const volatile int         , int);
+        TEST_FWD_TYPE(int *const volatile        , int *);
+        TEST_FWD_TYPE(const volatile int *       , const volatile int *);
+        TEST_FWD_TYPE(int Class::* const volatile, int Class::*);
+        TEST_FWD_TYPE(const volatile Enum        , Enum);
 
-        ASSERT_SAME(bslmf::ForwardingType<int Class::*&>::Type, int Class::*&);
+        if (veryVerbose) cout << "Class and union types" << endl;
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)    \
-    && (!defined(BSLS_PLATFORM_CMP_IBM) \
-        || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
+        TEST_FWD_TYPE(Class                 , const Class&);
+        TEST_FWD_TYPE(Struct                , const Struct&);
+        TEST_FWD_TYPE(Union                 , const Union&);
+
+        TEST_FWD_TYPE(const Class           , const Class&);
+        TEST_FWD_TYPE(const Struct          , const Struct&);
+        TEST_FWD_TYPE(const Union           , const Union&);
+
+        TEST_FWD_TYPE(volatile Class        , const volatile Class&);
+        TEST_FWD_TYPE(volatile Struct       , const volatile Struct&);
+        TEST_FWD_TYPE(volatile Union        , const volatile Union&);
+
+        TEST_FWD_TYPE(const volatile Class  , const volatile Class&);
+        TEST_FWD_TYPE(const volatile Struct , const volatile Struct&);
+        TEST_FWD_TYPE(const volatile Union  , const volatile Union&);
+
+        if (veryVerbose) cout << "Function types" << endl;
+
+#if !defined(BSLS_PLATFORM_CMP_MSVC) && \
+    (!defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
         // xlc-8 and MSVC 2005 seem to have problems with function types.
-
-        ASSERT_SAME(bslmf::ForwardingType<  F>::Type, F&);
+        // Skip these tests for those compilers
+        TEST_FWD_TYPE(void()        , void(&)());
+        TEST_FWD_TYPE(int(int)      , int(&)(int));
+        TEST_FWD_TYPE(void(int&)    , void(&)(int&));
 #endif
-        ASSERT_SAME(bslmf::ForwardingType< RF>::Type, F&);
 
-        ASSERT_SAME(bslmf::ForwardingType< PF>::Type, PF);
-        ASSERT_SAME(bslmf::ForwardingType<RPF>::Type, PF&);
-
-#if !defined(BSLS_PLATFORM_CMP_MSVC)    \
-    && (!defined(BSLS_PLATFORM_CMP_IBM) \
-        || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
-        // xlc-8 and MSVC 2005 seem to have problems with function types.
-
-        ASSERT_SAME(bslmf::ForwardingType< Fi >::Type, Fi&);
-        ASSERT_SAME(bslmf::ForwardingType< FRi>::Type, FRi&);
-#endif
-        ASSERT_SAME(bslmf::ForwardingType<RFi >::Type, Fi&);
-        ASSERT_SAME(bslmf::ForwardingType<RFRi>::Type, FRi&);
-
-        ASSERT_SAME(bslmf::ForwardingType< A>::Type, char*);
-        ASSERT_SAME(bslmf::ForwardingType<RA>::Type, char *);
+        TEST_FWD_TYPE(void(&)()     , void(&)());
+        TEST_FWD_TYPE(int(&)(int)   , int(&)(int));
+        TEST_FWD_TYPE(void(&)(int&) , void(&)(int&));
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT_SAME(bslmf::ForwardingType<int&&      >::Type, const int&);
-        ASSERT_SAME(bslmf::ForwardingType<int const&&>::Type, int const&);
-        ASSERT_SAME(bslmf::ForwardingType<void *&&         >::Type,
-                    void *const &);
-        ASSERT_SAME(bslmf::ForwardingType<void volatile *&&>::Type,
-                    volatile void *const &);
-        ASSERT_SAME(bslmf::ForwardingType<char const *const&&>::Type,
-                    char const *const &);
-        ASSERT_SAME(bslmf::ForwardingType<Enum&&       >::Type, const Enum&);
-        ASSERT_SAME(bslmf::ForwardingType<Struct&&     >::Type, const Struct&);
-        ASSERT_SAME(bslmf::ForwardingType<Union&&      >::Type, const Union&);
-        ASSERT_SAME(bslmf::ForwardingType<const Class&&>::Type, const Class&);
-        ASSERT_SAME(bslmf::ForwardingType<INT&&>::Type, const int&);
-        ASSERT_SAME(bslmf::ForwardingType<int Class::* const&& >::Type,
-                    int                       Class::* const&);
-        ASSERT_SAME(bslmf::ForwardingType<int Class::*&&>::Type,
-                    int Class::* const&);
-        ASSERT_SAME(bslmf::ForwardingType< A&&>::Type, char*);
+        TEST_FWD_TYPE(void(&&)()    , void(&)());
+        TEST_FWD_TYPE(int(&&)(int)  , int(&)(int));
+        TEST_FWD_TYPE(void(&&)(int&), void(&)(int&));
+#endif
+
+        TEST_FWD_TYPE(void(*)()     , void(*)());
+        TEST_FWD_TYPE(int(*)(int)   , int(*)(int));
+        TEST_FWD_TYPE(void(*)(int&) , void(*)(int&));
+
+        if (veryVerbose) cout << "Array types" << endl;
+
+        TEST_FWD_TYPE(int[5]                   , int*                    );
+        TEST_FWD_TYPE(int*[5]                  , int**                   );
+        TEST_FWD_TYPE(int[5][6]                , int(*)[6]               );
+        TEST_FWD_TYPE(Class[]                  , Class*                  );
+        TEST_FWD_TYPE(Struct[][6]              , Struct(*)[6]            );
+        TEST_FWD_TYPE(int(&)[5]                , int*                    );
+        TEST_FWD_TYPE(int *const(&)[5]         , int *const *            );
+        TEST_FWD_TYPE(int(&)[5][6]             , int(*)[6]               );
+        TEST_FWD_TYPE(Class(&)[]               , Class*                  );
+        TEST_FWD_TYPE(Struct(&)[][6]           , Struct(*)[6]            );
+        TEST_FWD_TYPE(int *const[5]            , int *const *            );
+        TEST_FWD_TYPE(const int[5][6]          , const int(*)[6]         );
+        TEST_FWD_TYPE(const int[]              , const int*              );
+        TEST_FWD_TYPE(const int[][6]           , const int(*)[6]         );
+        TEST_FWD_TYPE(const int(&)[5]          , const int*              );
+        TEST_FWD_TYPE(volatile int[5]          , volatile int*           );
+        TEST_FWD_TYPE(volatile int[5][6]       , volatile int(*)[6]      );
+        TEST_FWD_TYPE(volatile int[]           , volatile int*           );
+        TEST_FWD_TYPE(volatile int[][6]        , volatile int(*)[6]      );
+        TEST_FWD_TYPE(volatile int(&)[5]       , volatile int*           );
+        TEST_FWD_TYPE(const volatile int[5]    , const volatile int*     );
+        TEST_FWD_TYPE(const volatile int[5][6] , const volatile int(*)[6]);
+        TEST_FWD_TYPE(const volatile int[]     , const volatile int*     );
+        TEST_FWD_TYPE(const volatile int[][6]  , const volatile int(*)[6]);
+        TEST_FWD_TYPE(const volatile int(&)[5] , const volatile int*     );
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        TEST_FWD_TYPE(int *const(&&)[5]        , int *const *            );
+        TEST_FWD_TYPE(int(&&)[5]               , int*                    );
+        TEST_FWD_TYPE(int(&&)[5][6]            , int(*)[6]               );
+        TEST_FWD_TYPE(Class(&&)[]              , Class*                  );
+        TEST_FWD_TYPE(Struct(&&)[][6]          , Struct(*)[6]            );
+        TEST_FWD_TYPE(const int(&&)[5]         , const int*              );
+        TEST_FWD_TYPE(volatile int(&&)[5]      , volatile int*           );
+        TEST_FWD_TYPE(const volatile int(&&)[5], const volatile int*     );
+#endif
+
+        if (veryVerbose) cout << "Lvalue references" << endl;
+
+        TEST_FWD_TYPE_UNCHANGED(int&                        );
+        TEST_FWD_TYPE_UNCHANGED(int *&                      );
+        TEST_FWD_TYPE_UNCHANGED(int Class::*&               );
+        TEST_FWD_TYPE_UNCHANGED(int (*&)(float)             );
+        TEST_FWD_TYPE_UNCHANGED(int (Class::*&)(char)       );
+        TEST_FWD_TYPE_UNCHANGED(Enum&                       );
+        TEST_FWD_TYPE_UNCHANGED(Class&                      );
+        TEST_FWD_TYPE_UNCHANGED(Struct&                     );
+        TEST_FWD_TYPE_UNCHANGED(Union&                      );
+
+        TEST_FWD_TYPE_UNCHANGED(const int&                  );
+        TEST_FWD_TYPE_UNCHANGED(int *const&                 );
+        TEST_FWD_TYPE_UNCHANGED(const int *&                );
+        TEST_FWD_TYPE_UNCHANGED(int Class::* const&         );
+        TEST_FWD_TYPE_UNCHANGED(int (* const&)(float)       );
+        TEST_FWD_TYPE_UNCHANGED(int (Class::* const&)(char) );
+        TEST_FWD_TYPE_UNCHANGED(const Enum&                 );
+        TEST_FWD_TYPE_UNCHANGED(const Class&                );
+        TEST_FWD_TYPE_UNCHANGED(const Struct&               );
+        TEST_FWD_TYPE_UNCHANGED(const Union&                );
+
+        TEST_FWD_TYPE_UNCHANGED(volatile int&               );
+        TEST_FWD_TYPE_UNCHANGED(int *volatile&              );
+        TEST_FWD_TYPE_UNCHANGED(volatile int *&             );
+        TEST_FWD_TYPE_UNCHANGED(int Class::* volatile&      );
+        TEST_FWD_TYPE_UNCHANGED(int (* volatile&)(float)    );
+        TEST_FWD_TYPE_UNCHANGED(volatile Enum&              );
+        TEST_FWD_TYPE_UNCHANGED(volatile Class&             );
+        TEST_FWD_TYPE_UNCHANGED(volatile Struct&            );
+        TEST_FWD_TYPE_UNCHANGED(volatile Union&             );
+
+        TEST_FWD_TYPE_UNCHANGED(const volatile int&         );
+        TEST_FWD_TYPE_UNCHANGED(int *const volatile&        );
+        TEST_FWD_TYPE_UNCHANGED(const volatile int *&       );
+        TEST_FWD_TYPE_UNCHANGED(int Class::* const volatile&);
+        TEST_FWD_TYPE_UNCHANGED(const volatile Enum&        );
+        TEST_FWD_TYPE_UNCHANGED(const volatile Class&       );
+        TEST_FWD_TYPE_UNCHANGED(const volatile Struct&      );
+        TEST_FWD_TYPE_UNCHANGED(const volatile Union&       );
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        if (veryVerbose) cout << "Rvalue references" << endl;
+
+        TEST_FWD_TYPE(int&&                  , const int&);
+        TEST_FWD_TYPE(int *&&                , int *const &);
+        TEST_FWD_TYPE(const int *&&          , const int *const &);
+        TEST_FWD_TYPE(volatile int *&&       , volatile int *const &);
+        TEST_FWD_TYPE(const volatile int *&& , const volatile int *const &);
+        TEST_FWD_TYPE(int Class::*&&         , int Class::* const&);
+        TEST_FWD_TYPE(int (*&&)(float)       , int (*const &)(float));
+        TEST_FWD_TYPE(int (Class::*&&)(char) , int (Class::*const &)(char));
+        TEST_FWD_TYPE(Enum&&                 , const Enum&);
+        TEST_FWD_TYPE(Class&&                , const Class&);
+        TEST_FWD_TYPE(Struct&&               , const Struct&);
+        TEST_FWD_TYPE(Union&&                , const Union&);
+
+        TEST_FWD_TYPE(const int&&            , const int&);
+        TEST_FWD_TYPE(int *const&&           , int *const &);
+        TEST_FWD_TYPE(const int *const &&    , const int *const &);
+        TEST_FWD_TYPE(int Class::* const&&   , int Class::* const &);
+        TEST_FWD_TYPE(int (* const&&)(float) , int (* const&)(float));
+        TEST_FWD_TYPE(int (Class::* const&&)(char)
+                                             , int (Class::* const&)(char));
+        TEST_FWD_TYPE(const Enum&&           , const Enum&);
+        TEST_FWD_TYPE(const Class&&          , const Class&);
+        TEST_FWD_TYPE(const Struct&&         , const Struct&);
+        TEST_FWD_TYPE(const Union&&          , const Union&);
+
+        TEST_FWD_TYPE(volatile int&&         , const volatile int&);
+        TEST_FWD_TYPE(int *volatile&&        , int *const volatile&);
+        TEST_FWD_TYPE(int Class::* volatile&&, int Class::* const volatile&);
+        TEST_FWD_TYPE(int (* volatile&&)(float)
+                                             , int (* const volatile&)(float));
+        TEST_FWD_TYPE(volatile Enum&&        , const volatile Enum&);
+        TEST_FWD_TYPE(volatile Class&&       , const volatile Class&);
+        TEST_FWD_TYPE(volatile Struct&&      , const volatile Struct&);
+        TEST_FWD_TYPE(volatile Union&&       , const volatile Union&);
+
+        TEST_FWD_TYPE(const volatile int&&   , const volatile int&);
+        TEST_FWD_TYPE(int *const volatile&&  , int *const volatile&);
+        TEST_FWD_TYPE(int Class::* const volatile&&
+                                             , int Class::* const volatile&);
+        TEST_FWD_TYPE(const volatile Enum&&  , const volatile Enum&);
+        TEST_FWD_TYPE(const volatile Class&& , const volatile Class&);
+        TEST_FWD_TYPE(const volatile Struct&&, const volatile Struct&);
+        TEST_FWD_TYPE(const volatile Union&& , const volatile Union&);
+
 #endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
       } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
