@@ -374,12 +374,28 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
 
         unsigned int elementGeneration = decodeGenerationFromElementState(was);
 
-        if ((elementGeneration < currGeneration) ||
-             BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                  0               == currGeneration &&
-                                  d_maxGeneration == elementGeneration)) {
-            // The previous generation has not been read.  Notice that we also
-            // had to test the generation count had not rolled back to 0.
+        int difference = static_cast<int>(currGeneration - 
+                                          elementGeneration);
+
+        
+        // If the 'currentGeneration' is *one* past the 'elementGeneration'
+        // then the queue is full.  Note that following test is a more
+        // efficient expression of:
+        //..
+        //  if (1 == circularDifference(currGeneration, 
+        //                              elementGeneration,
+        //                              d_maxGeneration + 1)
+        //..
+        // Note also that its possible that 'difference' is a large positive
+        // value, if 'elementGeneration' has wrapped past 0 and
+        // 'currGeneration' has not.
+
+        if (1 == difference || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                          -d_maxGeneration == difference)) {
+
+            BSLS_ASSERT_OPT(1 == circularDifference(currGeneration,
+                                                    elementGeneration,
+                                                    d_maxGeneration+1));
 
             ElementState state = decodeStateFromElementState(was);
             if (e_READING == state) {
@@ -394,8 +410,10 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
 
             return e_QUEUE_FULL;                                      // RETURN
         }
+
         // Another thread has already acquired this cell. Attempt to
         // increment the push index.
+
         unsigned int next = nextCombinedIndex(combinedIndex);
         loadedPushIndex   = d_pushIndex.testAndSwap(combinedIndex, next);
     }
@@ -476,7 +494,6 @@ int bcec_AtomicRingBufferIndexManager::reservePopIndex(
 
             return e_QUEUE_EMPTY;                                     // RETURN
         }
-
         int state = decodeStateFromElementState(was);
 
         if (e_EMPTY == state) {
