@@ -334,7 +334,8 @@ void testForwardToTarget(TYPE obj)
     ASSERT(checkForwarding(
                obj, bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj),
                typename bsl::is_reference<TYPE>::type(),
-               typename bsl::is_array<TYPE>::type()));
+               typename bsl::is_array<
+                   typename bsl::remove_reference<TYPE>::type>::type()));
 }
 
 int main(int argc, char *argv[])
@@ -391,6 +392,7 @@ int main(int argc, char *argv[])
         double  d = 1.23;
         double *p = &d;
         char    a[5] = { '5', '4', '3', '2', '1' };
+        char   (&au)[] = reinterpret_cast<AU&>(a);
         F      *f_p = func;
         Pm      m_p  = &Struct::d_data;
         Pmf     mf_p = &Class::value;
@@ -402,6 +404,7 @@ int main(int argc, char *argv[])
         testForwardToTarget<double  >(d);
         testForwardToTarget<double *>(p);
         testForwardToTarget<A       >(a);
+        testForwardToTarget<AU      >(au);
         testForwardToTarget<PF      >(f_p);
         testForwardToTarget<Pm      >(m_p);
         testForwardToTarget<Pmf     >(mf_p);
@@ -413,9 +416,10 @@ int main(int argc, char *argv[])
         testForwardToTarget<double  &>(d);
         testForwardToTarget<double *&>(p);
         testForwardToTarget<A       &>(a);
-        testForwardToTarget<RF       >(func);
-        testForwardToTarget<RFi      >(funcI);
-        testForwardToTarget<RFRi     >(funcRi);
+        testForwardToTarget<AU      &>(au);
+        testForwardToTarget<F       &>(func);
+        testForwardToTarget<Fi      &>(funcI);
+        testForwardToTarget<FRi     &>(funcRi);
         testForwardToTarget<PF      &>(f_p);
         testForwardToTarget<Pm      &>(m_p);
         testForwardToTarget<Pmf     &>(mf_p);
@@ -427,6 +431,7 @@ int main(int argc, char *argv[])
         testForwardToTarget<double  const>(d);
         testForwardToTarget<double *const>(p);
         testForwardToTarget<A       const>(a);
+        testForwardToTarget<AU      const>(au);
         testForwardToTarget<PF      const>(f_p);
         testForwardToTarget<Pm      const>(m_p);
         testForwardToTarget<Pmf     const>(mf_p);
@@ -438,10 +443,25 @@ int main(int argc, char *argv[])
         testForwardToTarget<double  const &>(d);
         testForwardToTarget<double *const &>(p);
         testForwardToTarget<A       const &>(a);
+        testForwardToTarget<AU      const &>(au);
         testForwardToTarget<PF      const &>(f_p);
         testForwardToTarget<Pm      const &>(m_p);
         testForwardToTarget<Pmf     const &>(mf_p);
         
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        testForwardToTarget<Enum    &&>(std::move(e));
+        testForwardToTarget<Struct  &&>(std::move(s));
+        testForwardToTarget<Union   &&>(std::move(u));
+        testForwardToTarget<Class   &&>(std::move(c));
+        testForwardToTarget<double  &&>(std::move(d));
+        testForwardToTarget<double *&&>(std::move(p));
+        testForwardToTarget<A       &&>(std::move(a));
+        testForwardToTarget<AU      &&>(std::move(au));
+        testForwardToTarget<PF      &&>(std::move(f_p));
+        testForwardToTarget<Pm      &&>(std::move(m_p));
+        testForwardToTarget<Pmf     &&>(std::move(mf_p));
+#endif
+
       } break;
 
       case 1: {
