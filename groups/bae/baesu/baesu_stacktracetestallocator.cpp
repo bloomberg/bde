@@ -501,8 +501,8 @@ void baesu_StackTraceTestAllocator::reportBlocksInUse(
     int numBlocksInUse = 0;
     for (BlockHeader *blockHdr = d_blocks; blockHdr;
                                                blockHdr = blockHdr->d_next_p) {
-        if (!blockHdr || ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
-            if (blockHdr && DEALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
+        if (ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
+            if (DEALLOCATED_BLOCK_MAGIC == blockHdr->d_magic) {
                 *ostream << "baesu_StackTraceTestAllocator: freed block at "
                          << (blockHdr + 1) << " in allocated list\n";
             }
