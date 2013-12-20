@@ -428,7 +428,7 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
 // The 'EXPECTED_GOT' macro compresses a great deal of testing and output in a
 // small space, especially for compound types that support comparison and
 // printing.  It is written as an expression so that it may in turn be the
-// condition of an if() (which may control subsequent test execution or
+// condition of an if () (which may control subsequent test execution or
 // v{eryV}*erbose printing).  It evaluates to 1 on success, 0 on failure.  It
 // requires that the two parameters be comparable (via ==) and printable (via
 // ostream<<).
@@ -2213,7 +2213,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                           verbose,
                                           veryVerbose);
 
-    for(int bufSize = 0; bufSize < (int) characterCount; ++bufSize) {
+    for (int bufSize = 0; bufSize < (int) characterCount; ++bufSize) {
         unsigned short outputBuffer[256] = { 0 };
         bsl::size_t charsWritten = 0;
 
@@ -4811,8 +4811,8 @@ int main(int argc, char**argv)
         enum { NUM_DATA = sizeof DATA / (3 * sizeof(wchar_t)) };
 
         bsl::vector<unsigned short> srcVec;
-        bsl::vector<char> dstVec;
-        bsl::string       dstStr;
+        bsl::vector<char> dstVec, dstVecB;
+        bsl::string       dstStr, dstStrB;
         bsl::size_t       nc, nc2, nw, nw2;
 
         for (int ii = 0; ii < NUM_DATA; ++ii) {
@@ -4824,12 +4824,12 @@ int main(int argc, char**argv)
 
                     bsl::wstring WSTRING;
                     WSTRING = WSTRING + IISTRING + JJSTRING + KKSTRING;
+                    WSTRING.push_back(0);
 
-                    const wchar_t *START = WSTRING.c_str();
-                    const wchar_t *END   = START + WSTRING.length();
-                    for (const wchar_t *start = START; start < END; ++start) {
-                        for (const wchar_t *end = start + 1; end <= END;
-                                                                       ++end) {
+                    wchar_t *START = WSTRING.begin();
+                    wchar_t *END   = START + WSTRING.length() - 1;
+                    for (wchar_t *start = START; start < END; ++start) {
+                        for (wchar_t *end = start; end <= END; ++end) {
                             for (int e = 0; e < 2; ++e) {
                                 const char errorChar = 0 == e ? '?' : 0;
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
@@ -4869,6 +4869,29 @@ int main(int argc, char**argv)
         LOOP2_ASSERT(nc2, nc, nc2 == nc);
 
         bsl::size_t dstCap = dstVec.size();
+
+        wchar_t save = *end;
+        *end = 0;
+
+        nc2 = (bsl::size_t) -1;
+        rc2 = Util::utf16ToUtf8(&dstVecB,
+                                bslstl::StringRefWide(start, END),
+                                &nc2,
+                                errorChar);
+        ASSERT(rc2 == rc);
+        ASSERT(dstVec == dstVecB);
+        LOOP2_ASSERT(nc2, nc, nc2 == nc);
+
+        nc2 = (bsl::size_t) -1;
+        rc2 = Util::utf16ToUtf8(&dstStrB,
+                                bslstl::StringRefWide(start, END),
+                                &nc2,
+                                errorChar);
+        ASSERT(rc2 == rc);
+        ASSERT(dstStr == dstStrB);
+        LOOP2_ASSERT(nc2, nc, nc2 == nc);
+
+        *end = save;
 
         srcVec.clear();
         for (const wchar_t *pw = start; pw < end; ++pw) {
@@ -5015,9 +5038,8 @@ int main(int argc, char**argv)
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        bsl::vector<unsigned short> dst;
-        bsl::vector<wchar_t>        dstW;
-        bsl::wstring                wStr;
+        bsl::vector<unsigned short> dst,  dstB;
+        bsl::wstring                wStr, wStrB;
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const char *ISTRING = DATA[i].d_string;
@@ -5031,14 +5053,13 @@ int main(int argc, char**argv)
                     for (int m = 0; m < NUM_DATA; ++m) {
                         const char *MSTRING = DATA[m].d_string;
 
-                        const bsl::string INPUT = bsl::string("") +
-                                                   ISTRING + KSTRING + MSTRING;
+                        bsl::string INPUT = bsl::string("") +
+                                             ISTRING + KSTRING + MSTRING + 'a';
 
-                        const char *END = INPUT.c_str() + INPUT.length();
-                        for (const char *start = INPUT.c_str();
-                                                    start < END; ++start) {
-                            for (const char *end = start + 1; end <= END;
-                                                                       ++end) {
+                        char *END = INPUT.begin() + INPUT.length() - 1;
+                        for (char *start = INPUT.begin();
+                                                        start < END; ++start) {
+                            for (char *end = start; end <= END; ++end) {
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
         bsl::size_t nc, nc2, nw, nw2;
@@ -5070,6 +5091,29 @@ int main(int argc, char**argv)
         for (bsl::size_t ii = 0; ii < wStr.length(); ++ii) {
             ASSERT(wStr[ii] == (wchar_t) dst[ii]);
         }
+
+        char save = *end;
+        *end = 0;
+
+        nc2 = (bsl::size_t) -1;
+        rc2 = Util::utf8ToUtf16(&dstB,
+                                bslstl::StringRef(start, END),
+                                &nc2,
+                                errorChar);
+        ASSERT(rc2 == rc);
+        ASSERT(nc2 == nc);
+        ASSERT(dstB == dst);
+
+        nc2 = (bsl::size_t) -1;
+        rc2 = Util::utf8ToUtf16(&wStrB,
+                                bslstl::StringRef(start, END),
+                                &nc2,
+                                errorChar);
+        ASSERT(rc2 == rc);
+        ASSERT(nc2 == nc);
+        ASSERT(wStrB == wStr);
+
+        *end = save;
 
         bsl::size_t dstCap = dst.size();
         dst.push_back(0);
@@ -5852,7 +5896,7 @@ int main(int argc, char**argv)
                              << "       [" << u8CodingCases[ic] << "]" << endl;
                     }
 
-                    for(const char* ccase = u8CodingCases[ic]; *ccase; ++ccase)
+                    for (const char *ccase=u8CodingCases[ic]; *ccase; ++ccase)
                     {
                         // Create both the source and check arrays.
                         switch (*ccase) {
@@ -6031,7 +6075,7 @@ int main(int argc, char**argv)
                     }
                 }
             }  // 'OdomIter' loop over header contents
-        } while(ptx5.advance());  // 'Permuter' loop over continuation contents
+        } while (ptx5.advance()); // 'Permuter' loop over continuation contents
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -6889,7 +6933,7 @@ MARK
           }
         };
 
-        for(int iOctSet = 0 ; iOctSet < (int) (sizeof(reservedRangeOctetSets)/
+        for (int iOctSet = 0 ; iOctSet < (int) (sizeof(reservedRangeOctetSets)/
                                             sizeof(reservedRangeOctetSets[0]));
                                                              ++iOctSet) {
             ReservedRangeOctetSet& octSet = reservedRangeOctetSets[iOctSet];
@@ -7104,7 +7148,7 @@ MARK
           }
         };
 
-        for(int iTwoWordCase = 0 ; iTwoWordCase <
+        for (int iTwoWordCase = 0 ; iTwoWordCase <
                          (int) (sizeof(twoWordCases)/sizeof(twoWordCases[0]));
                                                              ++iTwoWordCase) {
             TwoWordCase& testCase = twoWordCases[iTwoWordCase];
@@ -8109,7 +8153,7 @@ cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
             AvCharList *outerIters[2] = { &casesTwo, &casesContin };
             OdomIter<AvCharList::iterator, 2> c2C(outerIters);
 
-            for( ; c2C ; c2C.next() ) {
+            for ( ; c2C ; c2C.next() ) {
                 AvCharList::iterator c2i = c2C[0];
                 AvCharList::iterator cCi = c2C[1];
 
@@ -8167,7 +8211,7 @@ cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
             AvCharList *outerIters[2] = { &casesThree, &casesContin };
             OdomIter<AvCharList::iterator, 2> c3C2(outerIters);
 
-            for( ; c3C2 ; c3C2.next() ) {
+            for ( ; c3C2 ; c3C2.next() ) {
                 AvCharList::iterator c3i = c3C2[0];
                 AvCharList::iterator cC2i = c3C2[1];
 
@@ -8245,7 +8289,7 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
             AvCharList *outerIters[2] = { &casesFour, &casesContin };
             OdomIter<AvCharList::iterator, 2> c4C2(outerIters);
 
-            for( ; c4C2 ; c4C2.next() ) {
+            for ( ; c4C2 ; c4C2.next() ) {
                 AvCharList::iterator c4i = c4C2[0];
                 AvCharList::iterator cC2i = c4C2[1];
 
@@ -8254,7 +8298,7 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
                         continue;
                     }
                 }
-                else if(*c4i == 4) {
+                else if (*c4i == 4) {
                     if (*cC2i >= FOUR_BYTE_FOUR_MAX) {
                         continue;
                     }
@@ -8262,7 +8306,7 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
 
                 OdomIter<AvCharList::iterator, 2> c3C4(outerIters);
 
-                for( ; c3C4 ; c3C4.next() ) {
+                for ( ; c3C4 ; c3C4.next() ) {
                     AvCharList::iterator cC3i = c3C4[0];
                     AvCharList::iterator cC4i = c3C4[1];
                         u8[0] = *c4i | 0xf0;
@@ -8284,7 +8328,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                                           source,
                                                           u8ToU16,
                                                           expected);
-                        if(! RUN_FOUR_WAYS(runner) ) {
+                        if (! RUN_FOUR_WAYS(runner) ) {
                             if (veryVerbose) {
                                 ArrayRange<char> a(u8);
                                 cout << "==========" << endl << hex
@@ -8394,7 +8438,7 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
             AvCharList *outerIters[2] = { &casesTwo, &casesContin };
             OdomIter<AvCharList::iterator, 2> c2C(outerIters);
 
-            for( ; c2C ; c2C.next() ) {
+            for ( ; c2C ; c2C.next() ) {
                 AvCharList::iterator c2i = c2C[0];
                 AvCharList::iterator cCi = c2C[1];
 // cout << hex << "*c2i " << deChar(*c2i) << "  *cCi "
@@ -8453,7 +8497,7 @@ cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
             AvCharList *outerIters[2] = { &casesThree, &casesContin };
             OdomIter<AvCharList::iterator, 2> c3C2(outerIters);
 
-            for( ; c3C2 ; c3C2.next() ) {
+            for ( ; c3C2 ; c3C2.next() ) {
                 AvCharList::iterator c3i = c3C2[0];
                 AvCharList::iterator cC2i = c3C2[1];
 
@@ -8537,7 +8581,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
             AvCharList *outerIters[2] = { &casesFour, &casesContin };
             OdomIter<AvCharList::iterator, 2> c4C2(outerIters);
 
-            for( ; c4C2 ; c4C2.next() ) {
+            for ( ; c4C2 ; c4C2.next() ) {
                 AvCharList::iterator c4i = c4C2[0];
                 AvCharList::iterator cC2i = c4C2[1];
 
@@ -8546,7 +8590,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                         continue;
                     }
                 }
-                else if(*c4i == 4) {
+                else if (*c4i == 4) {
                     if (*cC2i >= FOUR_BYTE_FOUR_MAX) {
                         continue;
                     }
@@ -8555,7 +8599,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                 AvCharList *innerIters[2] = { &casesContin, &casesContin };
                 OdomIter<AvCharList::iterator, 2> c3C4(innerIters);
 
-                for( ; c3C4 ; c3C4.next() ) {
+                for ( ; c3C4 ; c3C4.next() ) {
                     AvCharList::iterator cC3i = c3C4[0];
                     AvCharList::iterator cC4i = c3C4[1];
 
@@ -8899,7 +8943,7 @@ ostream &operator <<(ostream &os, const hexPrImpl<T> &t)
     const ios_base::fmtflags flags = os.flags();
     const char fill = os.fill();
     os << hex << bsl::internal << "[";
-    for(int i = 0; i < (int) t.d_av.size(); ++i) {
+    for (int i = 0; i < (int) t.d_av.size(); ++i) {
         os << " "
            << bsl::setw(6)
            << deChar(t.d_av[i]);
@@ -8916,7 +8960,7 @@ ostream &operator <<(ostream &os, const hexPrImpl<char> &t)
     const ios_base::fmtflags flags = os.flags();
     const char fill = os.fill();
     os << hex << bsl::internal << "[";
-    for(int i = 0; i < t.d_av.size(); ++i) {
+    for (int i = 0; i < t.d_av.size(); ++i) {
         os << " "
            << bsl::setw(6)
            << unsigned((unsigned char)t.d_av[i]);
@@ -9187,7 +9231,7 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
 {
     FixedVector<FixedVector<int, N_WAY>, N_WAY >& eqClasses = *retVal;
     eqClasses.resize(N_WAY);
-    for(int i = 0; i < (int) N_WAY; ++i) {
+    for (int i = 0; i < (int) N_WAY; ++i) {
         eqClasses[i].resize(0);
     }
     eqClasses.resize(0);
@@ -9256,7 +9300,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
         return;                                                       // RETURN
     }
 
-    for(int bufSize = 0; bufSize < (int) totalOutputLength; ++bufSize) {
+    for (int bufSize = 0; bufSize < (int) totalOutputLength; ++bufSize) {
         char outputBuffer[256] = { 0 };
         bsl::size_t bytesWritten = 0;
         bsl::size_t charsWritten = 0;
@@ -9345,7 +9389,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
 
     characterSizes[characterCount++] = d.d_utf8CharacterLength;
 
-    for(int i = 0; i < (int) precomputedDataCount; ++i) {
+    for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU2ToU8(i,
                                     depth - 1,
                                     inputBuffer,
@@ -10588,7 +10632,7 @@ template< typename CHAR_TYPE, typename ITER >
 int checkFill(ITER first, ITER last, CHAR_TYPE ch)
 {
     for ( ; first != last; ++first) {
-        if(ch != *first) {
+        if (ch != *first) {
             return 0;                                                 // RETURN
         }
     }
@@ -10651,7 +10695,7 @@ ostream& operator<<(ostream&                     os,
     // end.  ('graphic' means ( 'printable' and not the space character ).)
 
     for (const CHAR_TYPE* cp = sv.d_arrayr; *cp;) {
-        for(; *cp
+        for (; *cp
            && static_cast<unsigned int>(*cp) < 0x80
            && isgraph(*cp); ++cp) {
             os << ' ' << setw(4) << static_cast<signed char>(*cp);
@@ -10794,7 +10838,7 @@ bool testOneErrorCharConversion(
     else if (! allAnd(EXPECTED_GOT((TO_CHAR) 'A',window[0]),
                       EXPECTED_GOT((TO_CHAR) 'B',window[1]),
                       EXPECTED_GOT((TO_CHAR) 0,window[2]))) {
-        if( veryVerbose) {
+        if (veryVerbose) {
             cout << prHexRange(window, winEnd) << endl;
         }
 
@@ -10899,7 +10943,7 @@ bool testOneErrorCharConversion(
                       EXPECTED_GOT((TO_CHAR) '#',window[1]),
                       EXPECTED_GOT((TO_CHAR) 'B',window[2]),
                       EXPECTED_GOT((TO_CHAR) 0,window[3]))) {
-        if( veryVerbose) {
+        if (veryVerbose) {
              cout << prHexRange(window, winEnd) << endl;
          }
 
@@ -11349,8 +11393,8 @@ Permuter<N>::print(ostream& os) const
 //      }
 //      }
 //
-//      for(int i = 0; i < nChar; ++i) {
-//      for(int j = 0; j < nChar; ++j) {
+//      for (int i = 0; i < nChar; ++i) {
+//      for (int j = 0; j < nChar; ++j) {
 //          DigraphRec* dgr = d_table[i][j];
 //
 //          for (int k = 0; k < nChar; ++k) {
@@ -11425,7 +11469,7 @@ Permuter<N>::print(ostream& os) const
 //          os << (char)( dgr->d_next[k].d_step ? tolower(nm)
 //                                              : toupper(nm));
 //          os << setw(4) << dgr->d_next[k].d_next->d_nextsFree;
-//          for(int l = 4; l < printwidth; ++l)
+//          for (int l = 4; l < printwidth; ++l)
 //              os << " " ;
 //      }
 //
@@ -11463,7 +11507,7 @@ Permuter<N>::print(ostream& os) const
 //      while(getline(is, s)) {
 //      istringstream iss( s );
 //
-//      if(iss >> d_ref)
+//      if (iss >> d_ref)
 //          break;
 //      }
 //

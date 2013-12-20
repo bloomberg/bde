@@ -709,6 +709,7 @@ bsl::size_t utf16BufferLength(const StringRef& srcStringRef)
             ++wordsNeeded;
         }
     }
+    BSLS_ASSERT(0 == inputLen || 0 == *octets);
 
     return wordsNeeded + 1;
 }
@@ -755,7 +756,7 @@ bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer,
             ++bytesNeeded;    // error char
         }
     }
-    BSLS_ASSERT(0 == inputLen);
+    BSLS_ASSERT(0 == inputLen || 0 == *srcBuffer);
 
     return bytesNeeded + 1;
 }
