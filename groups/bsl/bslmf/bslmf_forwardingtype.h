@@ -457,7 +457,7 @@ struct ForwardingType_Imp<UNREF_TYPE [],
     // forwarded as pointer to array element type.
 
     typedef UNREF_TYPE *Type;
-    typedef UNREF_TYPE *TargetType;
+    typedef UNREF_TYPE (&TargetType)[];
     static TargetType forwardToTarget(Type v) {
         return reinterpret_cast<TargetType>(*v);
     }
