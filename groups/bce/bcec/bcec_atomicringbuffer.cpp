@@ -1,4 +1,4 @@
-// bcec_atomicringbuffer.cpp     -*-C++-*-
+// bcec_atomicringbuffer.cpp                                          -*-C++-*-
 
 #include <bcec_atomicringbuffer.h>
 
@@ -9,8 +9,8 @@ namespace BloombergLP {
 
 // CREATORS
 
-    
-} // close namespace BloombergLP
+
+}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

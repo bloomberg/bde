@@ -411,10 +411,10 @@ void* popFrontTestThread(void *ptr)
 }
 
 void case9pusher(bcec_AtomicRingBuffer<int> *queue,
-                 volatile bool *done)
+                 volatile bool              *done)
 {
     while (!*done) {
-        queue->pushBack(bcemt_ThreadUtil::selfIdAsInt());
+        queue->pushBack(static_cast<int>(bcemt_ThreadUtil::selfIdAsInt()));
     }
 }
 
@@ -894,11 +894,9 @@ struct Control {
 
 void pusherThread(Control *control)
 {
-    int threadId;
-
     bcec_AtomicRingBuffer<void *> *queue = control->d_queue;
 
-    threadId = control->d_numPushers++;
+    control->d_numPushers++;
 
     control->d_barrier->wait();
 
@@ -1145,7 +1143,7 @@ int main(int argc, char *argv[])
 
             caught = false;
             try {
-                ExceptionTester test = queue.popFront();
+                queue.popFront();
             } catch (...) {
                 caught = true;
             }
@@ -1397,7 +1395,7 @@ int main(int argc, char *argv[])
             mX.disable();
             ASSERT(0 == da.numBytesInUse());
 
-            int numBytes = ta.numBytesInUse();
+            bsls::Types::Int64 numBytes = ta.numBytesInUse();
 
             ASSERT(0 != mX.pushBack(cd));
             ASSERT(0 == da.numBytesInUse());
@@ -1781,8 +1779,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONCERN: REMOVE_ALL
         //   We want to ensure that 'removeAll' behaves correctly for both
-        //  'bcec_AtomicRingBuffer<T>' and its specialization 'bcec_AtomicRingBuffer<T*>'
-        //   in a single threaded environment.
+        //  'bcec_AtomicRingBuffer<T>' and its specialization
+        //  'bcec_AtomicRingBuffer<T*>' in a single threaded environment.
         //
         // Single-Threaded Test Plan:
         //   Instantiate a queue.  Push a known number of elements on to the
@@ -1887,7 +1885,7 @@ int main(int argc, char *argv[])
                            << "==================" << endl;
 
           bcec_AtomicRingBuffer<StressNode> *queue =
-                                            new bcec_AtomicRingBuffer<StressNode>(4);
+                                      new bcec_AtomicRingBuffer<StressNode>(4);
           StressNode sn;
           queue->pushBack(sn);
           queue->pushBack(sn);
@@ -2071,7 +2069,17 @@ int main(int argc, char *argv[])
           args.d_goCond.broadcast();
           args.d_mutex.unlock();
 
+#if defined(BSLS_PLATFORM_CMP_GNU)
+// disable the larger than warning for this buffer
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
           char reserved[NITERATIONS+1];
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+#pragma GCC diagnostic pop
+#endif
 
           for (int i=0; i<NITERATIONS; ++i) {
               //bcemt_LockGuard<bcemt_Mutex> lock(&args.d_mutex);
@@ -2179,13 +2187,13 @@ int main(int argc, char *argv[])
                      << elapsed_us/1000              << " ms, "
                      << elapsed_usCPU*100/elapsed_us << " CPU%, "
                      << totalMessages                << " msg, "
-                     << fmt(throughput)              << " msg/s, "
-                     << fmt(throughputCPU)           << " msg/CPUs"
+                     << fmt((int)throughput)         << " msg/s, "
+                     << fmt((int)throughputCPU)      << " msg/CPUs"
                      << endl;
             }
             cout << "====== final:"
-                 << fmt(throughput)    << " msg/s, "
-                 << fmt(throughputCPU) << " msg/CPUs\n"
+                 << fmt((int)throughput)    << " msg/s, "
+                 << fmt((int)throughputCPU) << " msg/CPUs\n"
                  << endl;
         }
         cout << "stopping: " << flush;

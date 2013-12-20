@@ -54,7 +54,7 @@ using namespace bsl;
 // public interface of 'bcec_AtomicRingBufferIndexManager' for single threaded
 // tests.  To handle the practical concerns above though, this test driver also
 // defines testing mechanisms that access and manipulate private data members
-// of the object under test.  This is allows for setting the generation count 
+// of the object under test.  This is allows for setting the generation count
 // to values near boundary cases that would not otherwise be reachable in a
 // reasonable period of time, and verifying the internal state of an object
 // under heavy contention (i.e., a more complete thread-safety test).
@@ -63,7 +63,7 @@ using namespace bsl;
 // [ 8] unsigned int numRepresentableGenerations(unsigned int );
 // [ 9] unsigned int numRepresentableGenerations(unsigned int );
 // PUBLIC CONSTANTS
-// [ 2] e_MAX_CAPACITY 
+// [ 2] e_MAX_CAPACITY
 // CREATORS
 // [ 2] bcec_AtomicRingBufferIndexManager(unsigned int, bslma::Allocator *);
 // [ 2] ~bcec_AtomicRingBufferIndexManager();
@@ -72,15 +72,15 @@ using namespace bsl;
 // [ 3] void commitPushIndex(unsigned int , unsigned int );
 // [ 3] int reservePopIndex(unsigned int *, unsigned int *);
 // [ 3] void commitPopIndex(unsigned int , unsigned int );
-// [ 6] int clearPopIndex(unsigned *, unsigned *, unsigned, unsigned);
+// [ 6] int reservePopIndexForClear(unsigned *,unsigned *,unsigned,unsigned);
 // [ 7] void abortPushIndexReservation(unsigned int, unsigned int);
 // [ 5] void disable();
 // [ 5] void enable();
 // [ 7] void abortPushIndexReservation(unsigned int, unsigned int);
 // ACCESSORS
-// [ 5] bool isEnabled() const;        
+// [ 5] bool isEnabled() const;
 // [ 3] unsigned int length() const;
-// [ 2] unsigned int capacity() const; 
+// [ 2] unsigned int capacity() const;
 // [10] bsl::ostream& print(bsl::ostream& ) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -105,7 +105,7 @@ void aSsErT(int c, const char *s, int i)
     }
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -194,7 +194,7 @@ typedef bcec_AtomicRingBufferIndexManager Obj;
 //-----------------------------------------------------------------------------
 
 
-bsl::ostream& operator<<(bsl::ostream&                            stream, 
+bsl::ostream& operator<<(bsl::ostream&                            stream,
                          const bcec_AtomicRingBufferIndexManager& indexManager)
 {
     indexManager.print(stream);
@@ -235,7 +235,7 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
 //     3          0              [ {0|F} {0|F} {0|F) ]
 //                                   ^-popIndex
 //
-//     4          0              ! INVALID ! 
+//     4          0              ! INVALID !
 //
 //                                         v-pushIndex
 //     4          1              [ {1|F} {0|E} {0|F) ]
@@ -246,17 +246,17 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
 //                                               ^-popIndex
 //..
 
-void gg(Obj          *result, 
-        unsigned int  pushCombinedIndex, 
+void gg(Obj          *result,
+        unsigned int  pushCombinedIndex,
         unsigned int  popCombinedIndex)
     // Initialize the specified 'result' to have the specified
     // 'pushCombinedIndex' and the specified 'popCombinedIndex'.  The behavior
     // is undefined unless 'result' is empty, the push and pop index refer
     // to the first cell in the circular buffer,
-    // 'pushCombinedIndex >= popCombinedIndex' and 
+    // 'pushCombinedIndex >= popCombinedIndex' and
     // 'pushCombinedIndex - popCombinedIndex <= result->capacity()'.  Note that
     // a combined index is the combination of generation count and index, as
-    // 'combined index = generation * capacity + index'.  
+    // 'combined index = generation * capacity + index'.
 {
     BSLS_ASSERT(pushCombinedIndex >= popCombinedIndex);
     BSLS_ASSERT(pushCombinedIndex - popCombinedIndex <= result->capacity());
@@ -292,7 +292,7 @@ void gg(Obj          *result,
 
 class IntegerQueue {
     // This class provides a fully thread-safe queue of integers with a fixed
-    // maximum capacity. 
+    // maximum capacity.
 
     // DATA
     bcec_AtomicRingBufferIndexManager d_indexManager;  // manages 'd_values'
@@ -303,7 +303,8 @@ class IntegerQueue {
   public:
 
     // CREATORS
-    IntegerQueue(unsigned int capacity, bslma::Allocator *basicAllocator = 0);
+    explicit IntegerQueue(unsigned int      capacity, 
+                          bslma::Allocator *basicAllocator = 0);
         // Create an queue capable of holding up to the specified 'capacity'
         // number of integer values.
 
@@ -330,7 +331,7 @@ class IntegerQueue {
 };
 
 // CREATORS
-IntegerQueue::IntegerQueue(unsigned int      capacity, 
+IntegerQueue::IntegerQueue(unsigned int      capacity,
                            bslma::Allocator *basicAllocator)
 : d_indexManager(capacity, basicAllocator)
 , d_values(capacity, 0, basicAllocator)
@@ -363,13 +364,13 @@ int IntegerQueue::tryPopFront(int *result)
     }
     return -1;
 }
-        
+
 // ACCESSORS
 unsigned int IntegerQueue::length() const
 {
     return d_indexManager.length();
 }
-        
+
 unsigned int IntegerQueue::capacity() const
 {
     return d_indexManager.capacity();
@@ -380,7 +381,7 @@ unsigned int IntegerQueue::capacity() const
 //-----------------------------------------------------------------------------
 
 // The following tools flagarently make use of implementation details and
-// platform specific behavior (i.e., 'reinterpret_cast').  Extraordinary 
+// platform specific behavior (i.e., 'reinterpret_cast').  Extraordinary
 // measures are taken in this test-driver  to allow testing that would
 // otherwise not be possible.  Specifically, this enables:  (1) testing
 // generation counts beyond the range that could be tested in a reasonable
@@ -394,19 +395,19 @@ struct AtomicRingBufferIndexManagerDataMembers {
     // 'bcec_AtomicRingBufferIndexManager' is necessary.
 
     // PRIVATE CONSTANTS
-    enum {    
+    enum {
         e_PADDING = bces_Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
     };
 
     // DATA
     bsls::AtomicInt     d_pushIndex;
-    const char          d_pushIndexPad[e_PADDING]; 
+    const char          d_pushIndexPad[e_PADDING];
     bsls::AtomicInt     d_popIndex;
     const char          d_popIndexPad[e_PADDING];
-    const unsigned int  d_capacity;  
-    const unsigned int  d_maxGeneration; 
+    const unsigned int  d_capacity;
+    const unsigned int  d_maxGeneration;
     const unsigned int  d_maxCombinedIndex;
-    bsls::AtomicInt    *d_states; 
+    bsls::AtomicInt    *d_states;
     bslma::Allocator   *d_allocator_p;
 };
 
@@ -421,43 +422,43 @@ static const unsigned int e_ELEMENT_STATE_MASK     = 0x3;
 static const unsigned int e_GENERATION_COUNT_SHIFT = 0x2;
 static const unsigned int e_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
 
-BSLMF_ASSERT(sizeof(AtomicRingBufferIndexManagerDataMembers) == 
+BSLMF_ASSERT(sizeof(AtomicRingBufferIndexManagerDataMembers) ==
              sizeof(bcec_AtomicRingBufferIndexManager));
 
 class AtomicRingBufferState {
     // This class provides access to the internal state of a
-    // 'bcec_AtomicRingBufferIndexManager', and is used for debugging and 
+    // 'bcec_AtomicRingBufferIndexManager', and is used for debugging and
     // extreme white box testing, where verifying the internal state of the
     // 'bcec_AtomicRingBufferIndexManager' is necessary.
 
     // DATA
-    const AtomicRingBufferIndexManagerDataMembers *d_data;    
+    const AtomicRingBufferIndexManagerDataMembers *d_data;
 
 
   public:
 
     // CREATORS
-    AtomicRingBufferState(
+    explicit AtomicRingBufferState(
                         const bcec_AtomicRingBufferIndexManager *indexManager);
         // Create an an 'AtomicRingBufferState' object to access the state of
         // the specified 'indexManager'.
 
-    // ACCESSORS    
+    // ACCESSORS
     unsigned int pushIndex() const;
         // Return the current push index for the index manager supplied at
-        // construction. 
+        // construction.
 
     unsigned int pushGeneration() const;
         // Return the current push generation for the index manager supplied at
-        // construction. 
+        // construction.
 
     unsigned int popIndex() const;
         // Return the current pop index for the index manager supplied at
-        // construction. 
+        // construction.
 
     unsigned int popGeneration() const;
         // Return the current pop generation for the index manager supplied at
-        // construction. 
+        // construction.
 
     unsigned int elementGeneration(unsigned int index) const;
         // Return the generation of the element at the specified 'index'.
@@ -543,9 +544,9 @@ void dirtyAdjustGeneration(Obj          *result,
     // behavior in order to allow the assignment of combined indices with vary
     // large values.
 {
-   AtomicRingBufferIndexManagerDataMembers *data = 
+   AtomicRingBufferIndexManagerDataMembers *data =
         reinterpret_cast<AtomicRingBufferIndexManagerDataMembers *>(result);
-                  
+
     unsigned int capacity = result->capacity();
     for (unsigned int i = 0; i < capacity; ++i) {
         data->d_states[i] = generation << e_GENERATION_COUNT_SHIFT;
@@ -556,11 +557,11 @@ void dirtyAdjustGeneration(Obj          *result,
 }
 
 
-void dirtyGG(Obj          *result, 
-             unsigned int  pushCombinedIndex, 
+void dirtyGG(Obj          *result,
+             unsigned int  pushCombinedIndex,
              unsigned int  popCombinedIndex)
     // Initialize the specified 'result' to have the specified
-    // 'pushCombinedIndex' and the specified 'popCombinedIndex'. 
+    // 'pushCombinedIndex' and the specified 'popCombinedIndex'.
 {
     BSLS_ASSERT(pushCombinedIndex >= popCombinedIndex);
     BSLS_ASSERT(pushCombinedIndex - popCombinedIndex <= result->capacity());
@@ -568,7 +569,7 @@ void dirtyGG(Obj          *result,
     unsigned int startGeneration = popCombinedIndex / result->capacity();
 
     dirtyAdjustGeneration(result, startGeneration);
-    gg(result, 
+    gg(result,
        pushCombinedIndex - startGeneration * result->capacity(),
        popCombinedIndex  - startGeneration * result->capacity());
 }
@@ -577,19 +578,19 @@ void dirtyGG(Obj          *result,
 //  TESTING: THREAD SAFETY (NO STATE CORRUPTION)
 //-----------------------------------------------------------------------------
 
-class TestThreadStateBarrier {        
+class TestThreadStateBarrier {
      bcemt_Barrier   d_barrier;
      bsls::AtomicInt d_state;
 
   public:
-     enum State { 
+     enum State {
          WAIT     = 0,
          CONTINUE = 1,
          EXIT     = 2
      };
 
      // CREATORS
-     TestThreadStateBarrier(int numTestThreads);
+     explicit TestThreadStateBarrier(int numTestThreads);
         // Create a state barrier for the specified 'numTestThreads'.  Note
         // that the test threads are meant to be controlled by an additional
         // thread.
@@ -599,11 +600,12 @@ class TestThreadStateBarrier {
 
     // MANIPULATORS
                          // Test Thread State Functions
+
     State state();
         // Return the state of the current test.  If the resulting state is
         // 'WAIT' the calling thread must call 'blockUntilStateChange' before
         // continuining, and if the state is 'EXIT' the calling thread must
-        // terminate. 
+        // terminate.
 
     void blockUntilStateChange();
         // Block the calling thread until the test administrating thread has
@@ -674,7 +676,7 @@ void TestThreadStateBarrier::exitTest()
 }
 
 inline
-void performDelay(int period) 
+void performDelay(int period)
    // If the number of times this function has been called is an even multiple
    // of 'period', then put the current thread to sleep before returning,
    // otherwise this function has no effect.
@@ -689,7 +691,7 @@ void performDelay(int period)
     }
 }
 
-void writerThread(Obj                    *x, 
+void writerThread(Obj                    *x,
                   TestThreadStateBarrier *testState,
                   int                     delayPeriod)
     // Simulate a client pushing elements from the specified 'x' test object,
@@ -700,7 +702,7 @@ void writerThread(Obj                    *x,
     const unsigned int CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
-    
+
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::EXIT) {
@@ -722,7 +724,7 @@ void writerThread(Obj                    *x,
             }
         }
     }
-    
+
 }
 
 void readerThread(Obj                    *x,
@@ -736,7 +738,7 @@ void readerThread(Obj                    *x,
     const unsigned int CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
-    
+
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::EXIT) {
@@ -760,7 +762,7 @@ void readerThread(Obj                    *x,
     }
 }
 
-void exceptionThread(Obj                    *x, 
+void exceptionThread(Obj                    *x,
                      TestThreadStateBarrier *testState,
                      int                     delayPeriod)
     // Simulate a series of exceptions being handled by a client pushing
@@ -773,7 +775,7 @@ void exceptionThread(Obj                    *x,
     const unsigned int CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
-    
+
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::EXIT) {
@@ -788,15 +790,17 @@ void exceptionThread(Obj                    *x,
         ASSERTV(length, length <= CAPACITY);
 
 
-        unsigned int endGeneration, endIndex;        
+        unsigned int endGeneration, endIndex;
         int rc = x->reservePushIndex(&endGeneration, &endIndex);
         performDelay(delayPeriod);
         if (0 == rc) {
             unsigned int generation, index;
-            while (0 == x->clearPopIndex(&generation,
+            while (0 == x->reservePopIndexForClear(&generation,
                                          &index,
                                          endGeneration,
                                          endIndex)) {
+                performDelay(delayPeriod);
+                x->commitPopIndex(generation, index);
                 performDelay(delayPeriod);
             }
             performDelay(delayPeriod);
@@ -804,7 +808,7 @@ void exceptionThread(Obj                    *x,
         }
     }
 }
-    
+
 void assertValidState(Obj *x)
     // Use 'ASSERT' to verify the properties of the specified 'x' test object.
 {
@@ -840,19 +844,19 @@ void assertValidState(Obj *x)
     unsigned int zone1EndIndex   = bsl::min(popIndex, pushIndex);
     unsigned int zone1Generation = popGeneration + 1;
     ElementState zone1State      = (popIndex < pushIndex || EMPTY)
-                                   ? e_EMPTY 
+                                   ? e_EMPTY
                                    : e_FULL;
 
 
     unsigned int zone2EndIndex   = bsl::max(popIndex, pushIndex);
-    unsigned int zone2Generation = popIndex < pushIndex 
-                                   ? popGeneration 
+    unsigned int zone2Generation = popIndex < pushIndex
+                                   ? popGeneration
                                    : popGeneration + 1;
     ElementState zone2State      = popIndex <  pushIndex ? e_FULL  : e_EMPTY;
 
     unsigned int zone3Generation = popGeneration;
     ElementState zone3State      = (popIndex < pushIndex || EMPTY)
-                                   ? e_EMPTY 
+                                   ? e_EMPTY
                                    : e_FULL;
 
 
@@ -888,7 +892,7 @@ void writerThread(Obj                    *x,
     const unsigned int CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
-    
+
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::EXIT) {
@@ -911,7 +915,7 @@ void writerThread(Obj                    *x,
             }
         }
     }
-    
+
 }
 
 void readerThread(Obj                    *x,
@@ -926,7 +930,7 @@ void readerThread(Obj                    *x,
     const unsigned int CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
-    
+
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::EXIT) {
@@ -950,7 +954,7 @@ void readerThread(Obj                    *x,
     }
 }
 
-}
+}  // close PERFORMANCE_TEST namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -982,7 +986,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
                                   << "=====================" << endl;
-        
+
         IntegerQueue intQueue(2);
         int rc = intQueue.tryPushBack(1);
         ASSERT(0 == rc);
@@ -992,11 +996,11 @@ int main(int argc, char *argv[])
 
         rc = intQueue.tryPushBack(3);
         ASSERT(0 != rc);
-        
+
         ASSERT(2 == intQueue.length());
 
         int result;
-        
+
         rc = intQueue.tryPopFront(&result);
         ASSERT(0 == rc);
         ASSERT(1 == result);
@@ -1018,8 +1022,8 @@ int main(int argc, char *argv[])
         //  3 That length returns the correct length when the combined push
         //    index has gone past maxCombinedIndex.
         //
-        //  4 That 'clearPopIndex' and 'abortPushIndexReservation' clear the
-        //     correct element and increment the push and pop ind
+        //  4 That 'reservePopIndexForClear' and 'abortPushIndexReservation'
+        //    clear the correct element and increment the push and pop ind
         //
         //  5 Manipulating the index manager near the maximum combined
         //    index on multiple threads simulatenously does not corrupted the
@@ -1034,30 +1038,31 @@ int main(int argc, char *argv[])
         //    manipulate an index buffer to the maximum generation value, and
         //    push and pop elements according to the push index and pop index
         //    for the test.  At each step validate the results of the
-        //    operation. 
+        //    operation.
         //
         //  3 For a series of valid combined push index and pop index values,
         //    manipulate an index buffer to the maximum generation value, use
-        //    'gg' to populate the buffer, and then call 'clearPopIndex' and
-        //    'abortPushIndexGeneration' to empty the queue.  At each step
-        //    validate the results of the operation..
+        //    'gg' to populate the buffer, and then call
+        //    'reservePopIndexForClear' and 'abortPushIndexGeneration' to
+        //    empty the queue.  At each step validate the results of the
+        //    operation.
         //
         //  4 For a table driven number of reading threads, writing threads,
-        //    "exception" threads (threads calling 'clearPopIndex' and
-        //    'abortPushIndexResevation'), and injected delay value:
-        // 
+        //    "exception" threads (threads calling 'reservePopIndexForClear'
+        //    and 'abortPushIndexResevation'), and injected delay value:
+        //
         //    1 Create the described set of threads and supply the periodic
         //      delay value.
         //
         //    2 Repeatedly initialize a index manager to near the maximum
         //      commbined index, allow the threads to run into they reset the
         //      combined index back to 0, validate the state of the index
-        //      buffer. 
-        //    
+        //      buffer.
+        //
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "CONCERN: maxCombinedIndex" << endl
                           << "=========================" << endl;
 
@@ -1067,15 +1072,15 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa;
             Obj x(1, &oa); const Obj &X = x;
-            
+
             AtomicRingBufferState state(&x);
 
             const unsigned int MAX_COMBINED_INDEX = UINT_MAX >> 2;
             const unsigned int MAX_GENERATION     = UINT_MAX >> 2;
 
-            const unsigned int maxGeneration = 
+            const unsigned int maxGeneration =
                                  AtomicRingBufferState(&x).maxGeneration();
-            const unsigned int maxCombinedIndex = 
+            const unsigned int maxCombinedIndex =
                               AtomicRingBufferState(&x).maxCombinedIndex();
 
             ASSERTV(MAX_GENERATION, maxGeneration,
@@ -1085,7 +1090,7 @@ int main(int argc, char *argv[])
                     MAX_COMBINED_INDEX == maxCombinedIndex);
 
             dirtyGG(&x, MAX_COMBINED_INDEX, MAX_COMBINED_INDEX);
-       
+
             if (veryVerbose) {
                 P(X);
             }
@@ -1108,7 +1113,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == index);
             x.commitPushIndex(generation, index);
             ASSERT(1 == X.length());
-            
+
             ASSERT(0 == x.reservePopIndex(&generation, &index));
             ASSERT(0 == generation);
             ASSERT(0 == index);
@@ -1231,7 +1236,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTest clearPopIndex and "
+        if (verbose) cout << "\nTest reservePopIndexForClear and "
                           << "abortPusIndexReservation"
                           << endl;
         {
@@ -1297,12 +1302,15 @@ int main(int argc, char *argv[])
                     unsigned int GENERATION = (MAX_GENERATION + i/CAPACITY) %
                                               NUM_GENERATIONS;
 
-                    ASSERT(0 == x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                    ASSERT(0 == x.reservePopIndexForClear(
+                                   &gen, &idx, endGen, endIdx));
                     ASSERT(INDEX      == idx);
                     ASSERT(GENERATION == gen);
-                
+                    x.commitPopIndex(gen, idx);
+
                 }
-                ASSERT(0 != x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                ASSERT(0 != x.reservePopIndexForClear(
+                                   &gen, &idx, endGen, endIdx));
                 x.abortPushIndexReservation(endGen, endIdx);
                 ASSERT(0 == X.length());
             }
@@ -1339,13 +1347,13 @@ int main(int argc, char *argv[])
                 { L_,  5,    5,     5,    5 },
 
             };
-            const int NUM_DATA = COMPLETE 
+            const int NUM_DATA = COMPLETE
                              ? sizeof(DATA)/sizeof(*DATA)
                              : 5;
 
-            const double ELAPSED_TIME_PER_TEST = (double)TOTAL_TIME_S / 
+            const double ELAPSED_TIME_PER_TEST = (double)TOTAL_TIME_S /
                                                          NUM_DATA;
-                                       
+
             for (int i = 0; i < NUM_DATA; ++i) {
 
                 int DELAY          = DATA[i].d_delayPeriod;
@@ -1360,11 +1368,11 @@ int main(int argc, char *argv[])
                 unsigned NUM_GENERATIONS =
                                     Obj::numRepresentableGenerations(CAPACITY);
                 unsigned MAX_GENERATION = NUM_GENERATIONS - 1;
-          
+
                 bsl::vector<bcemt_ThreadUtil::Handle> handles;
                 handles.reserve(NUM_THREADS);
                 int thread = 0;
-                
+
                 for (int i = 0; i < NUM_WRITERS; ++i) {
                     int rc = bcemt_ThreadUtil::create(
                         &handles[thread],
@@ -1397,9 +1405,9 @@ int main(int argc, char *argv[])
                     state.continueTest();
                     while (1) {
                         bcemt_ThreadUtil::yield();
-                        unsigned int popGeneration = 
+                        unsigned int popGeneration =
                                      AtomicRingBufferState(&x).popGeneration();
-                        if (popGeneration > 10 && 
+                        if (popGeneration > 10 &&
                             popGeneration <= MAX_GENERATION / 2)
                             break;
                     }
@@ -1425,26 +1433,26 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //  1 For a table driven number of reading threads, writing threads,
-        //    "exception" threads (threads calling 'clearPopIndex' and
-        //    'abortPushIndexResevation'), and injected delay value:
-        // 
+        //    "exception" threads (threads calling 'reservePopIndexForClear'
+        //    and 'abortPushIndexResevation'), and injected delay value:
+        //
         //    1 Create the described set of threads and supply the periodic
         //      delay value.
-        //    
+        //
         //    2 Execute those threads for a period of time, interuppting them
-        //      periodically to validate their state with 'assertValidState'. 
+        //      periodically to validate their state with 'assertValidState'.
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "CONCERN: Thread-Safety (concurrent modification)"
                           << endl
                           << "================================================"
                           << endl;
 
-        bool COMPLETE = argc > 2 && 
+        bool COMPLETE = argc > 2 &&
                         bsl::string("--complete") == argv[2];
 
         // Configure this test to periodically delay threads.
@@ -1487,13 +1495,15 @@ int main(int argc, char *argv[])
             { L_,  15,  0,     2,  5,     5,    0 },
             { L_,  15,  0,     2,  5,     5,    1 },
             { L_,  15,  0,     2,  5,     5,    5 },
+
         };
-        const int NUM_DATA = COMPLETE 
+
+        const int NUM_DATA = COMPLETE
                              ? sizeof(DATA)/sizeof(*DATA)
                              : 5;
 
         const double ELAPSED_TIME_PER_TEST =  (double)TOTAL_TIME_S / NUM_DATA;
-                                       
+
         for (int i = 0; i < NUM_DATA; ++i) {
             int CAPACITY       = DATA[i].d_capacity;
             int DELAY          = DATA[i].d_delayPeriod;
@@ -1502,7 +1512,7 @@ int main(int argc, char *argv[])
             int NUM_EXCEPTIONS = DATA[i].d_numExceptions;
             int NUM_THREADS    = NUM_READERS + NUM_WRITERS + NUM_EXCEPTIONS;
 
-           
+
             TestThreadStateBarrier state(NUM_THREADS);
             Obj x(CAPACITY);  const Obj& X = x;
 
@@ -1531,7 +1541,7 @@ int main(int argc, char *argv[])
                 BSLS_ASSERT_OPT(0 == rc); // test invariant
                 ++thread;
             }
-            
+
             state.continueTest();
 
             double delayPerIter = ELAPSED_TIME_PER_TEST / NUM_PROBES;
@@ -1543,13 +1553,13 @@ int main(int argc, char *argv[])
                     P(X);
                 }
                 state.continueTest();
-            }            
+            }
             state.exitTest();
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 bcemt_ThreadUtil::join(handles[i]);
             }
-        }        
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1566,7 +1576,7 @@ int main(int argc, char *argv[])
         //   bsl::ostream& print(bsl::ostream& stream) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "TESTING: print" << endl
                           << "==============" << endl;
 
@@ -1607,7 +1617,7 @@ int main(int argc, char *argv[])
             X.print(stream);
             ASSERTV(stream.str(), EXPECTED, stream.str() == EXPECTED);
         }
-        
+
         {
             bslma::TestAllocator oa;
             Obj x(11, &oa); const Obj &X = x;
@@ -1674,7 +1684,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting against pre-computed values" << endl;
         {
 
-            const unsigned int INT_MAX_PLUS_1 = 
+            const unsigned int INT_MAX_PLUS_1 =
                                             static_cast<unsigned>(INT_MAX) + 1;
             const int           INT_MAX_DIV_2 = INT_MAX_PLUS_1 / 2;
 
@@ -1701,7 +1711,7 @@ int main(int argc, char *argv[])
                 { L_, 1,  1,  3,  0 },
                 { L_, 1,  2,  3, -1 },
                 { L_, 0,  0,  3,  0 },
-                { L_, 0,  1,  3, -1 }, 
+                { L_, 0,  1,  3, -1 },
                 { L_, 0,  2,  3,  1 },
 
                 // capacity 4
@@ -1741,14 +1751,14 @@ int main(int argc, char *argv[])
                 const unsigned int SIZE       = DATA[i].d_maxSize;
                 const int          EXPECTED   = DATA[i].d_expectedValue;
 
-                ASSERTV(LINE, 
+                ASSERTV(LINE,
                         Obj::circularDifference(MINUEND, SUBTRAHEND, SIZE),
-                        EXPECTED == 
+                        EXPECTED ==
                         Obj::circularDifference(MINUEND, SUBTRAHEND, SIZE));
             }
 
         }
-      } break;        
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING: 'numRepresentableGenerations'
@@ -1775,21 +1785,21 @@ int main(int argc, char *argv[])
         {
 
             unsigned int DATA[] = {
-                1, 
-                2, 
-                3, 
+                1,
+                2,
+                3,
                 4,
                 15,
-                16, 
-                17, 
-                Obj::e_MAX_CAPACITY - 1, 
-                Obj::e_MAX_CAPACITY 
+                16,
+                17,
+                Obj::e_MAX_CAPACITY - 1,
+                Obj::e_MAX_CAPACITY
             };
             const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const unsigned int CAPACITY = DATA[i];
-                const unsigned int numRepGen = 
+                const unsigned int numRepGen =
                                Obj::numRepresentableGenerations(CAPACITY);
 
 
@@ -1807,17 +1817,17 @@ int main(int argc, char *argv[])
                 // (32 bit integer with 2 bits used for state), or is the
                 // maximum value that can fit into a push index (32 bit
                 // integer with 1 bit used for disabled).
-                
+
 
                 ASSERTV(numRepGen, numRepGen >= 2);
                 ASSERTV(CAPACITY, numRepGen,
                         MAX_ELEM_STATE_GEN == numRepGen - 1 ||
                         ((numRepGen * CAPACITY - 1      <= MAX_COMB_INDEX) &&
                         ((numRepGen + 1) * CAPACITY - 1 >  MAX_COMB_INDEX)));
-                        
+
             }
         }
-      } break;        
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING: 'abortPushIndexReservation'
@@ -1837,16 +1847,17 @@ int main(int argc, char *argv[])
         //
         //  2 For a table driven set of possible queue states, initialize a
         //    queue to that state, call 'reservePushIndex' and then
-        //    'clearPopIndex' until 'clearPopIndex' returns failure.  Call
-        //    'abortPushIndexReservation', then call 'reservePushIndex'
-        //    repeatedly to verify that the push index was correctly
-        //    implemented and all the cells were marked empty.  (C-1,2).
+        //    'reservePopIndexForClear' until 'reservePopIndexForClear'
+        //    returns failure.  Call 'abortPushIndexReservation', then call
+        //    'reservePushIndex' repeatedly to verify that the push index was
+        //    correctly implemented and all the cells were marked empty.
+        //    (C-1,2).
         //
         // Testing:
         //   void abortPushIndexReservation(unsigned int, unsigned int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "TESTING: abortPushIndexReservation" << endl
                           << "==================================" << endl;
 
@@ -1942,11 +1953,14 @@ int main(int argc, char *argv[])
                 ASSERT(endIdx == idx);
 
                 for (unsigned int j = 0; j < NUM_CLEARS; ++j) {
-                    ASSERT(0 == x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                    ASSERT(0 == x.reservePopIndexForClear(
+                                      &gen, &idx, endGen, endIdx));
                     ASSERT((POP_INDEX + j) / CAPACITY == gen);
                     ASSERT((POP_INDEX + j) % CAPACITY == idx);
+                    x.commitPopIndex(gen, idx);
                 }
-                ASSERT(0 != x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                ASSERT(0 != x.reservePopIndexForClear(
+                                  &gen, &idx, endGen, endIdx));
 
                 // Call abort push index.
                 x.abortPushIndexReservation(endGen, endIdx);
@@ -1977,10 +1991,10 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             unsigned int resultGen, resultIdx, index, generation;
-                        
+
             Obj obj(10, &oa);
             obj.reservePushIndex(&generation, &index);
-            
+
             ASSERT_FAIL(obj.abortPushIndexReservation(generation, UINT_MAX));
             ASSERT_FAIL(obj.abortPushIndexReservation(UINT_MAX, index));
             ASSERT_FAIL(obj.abortPushIndexReservation(generation, index + 1));
@@ -1993,9 +2007,15 @@ int main(int argc, char *argv[])
             obj.reservePushIndex(&generation, &index);
 
             ASSERT_FAIL(obj.abortPushIndexReservation(generation, index));
-            
-            obj.clearPopIndex(&resultGen, &resultIdx, generation, index);
-            obj.clearPopIndex(&resultGen, &resultIdx, generation, index);
+
+            obj.reservePopIndexForClear(&resultGen,
+                                        &resultIdx,
+                                        generation,
+                                        index);
+            obj.reservePopIndexForClear(&resultGen,
+                                        &resultIdx,
+                                        generation,
+                                        index);
 
             ASSERT_PASS(obj.abortPushIndexReservation(generation, index));
         }
@@ -2003,50 +2023,52 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING: 'clearPopIndex'
+        // TESTING: 'reservePopIndexForClear'
         //
         // Concerns:
         //  1 An error status is returned when the head of the queue refers to
         //    the generation and index supplied to 'endGeneration' and
-        //    'endIndex' 
+        //    'endIndex'
         //
-        //  2 'clearPopIndex' returns success, clears the head of the queue if
-        //     the current combined pop index is not 'endGeneration' and
-        //     'endIndex'.
+        //  2 'reservePopIndexForClear' returns success, clears the head of
+        //     the queue if the current combined pop index is not
+        //     'endGeneration' and 'endIndex'.
         //
-        //  3 'clearPopIndex' will not clear an index acquired for popping.
+        //  3 'reservePopIndexForClear' will not clear an index acquired for popping.
         //
         //  4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //
-        //  1 For a queue of capacity 1, attempt to call 'clearPopIndex' and
-        //    verify that it fails. (C-1,3)
-        // 
+        //  1 For a queue of capacity 1, attempt to call
+        //    'reservePopIndexForClear' and verify that it fails. (C-1,3)
+        //
         //  2 For a queue of capacity 2, perform several iterations, pushing
-        //    an item onto the queue, and calling 'clearPopIndex'.   (C-1,2,3)
+        //    an item onto the queue, and calling 'reservePopIndexForClear'.
+        //    (C-1,2,3)
         //
         //  3 For a table driven set of possible initial queue states: call
-        //    'clearPopIndex' repeatedly unto it returns failure, and verify
+        //    'reservePopIndexForClear' repeatedly unto it returns failure, and verify
         //    that it succeeds the expected number of times, returns the
         //    correct cleared indices, and leaves those indicies empty.
-        //    (C-1,2,3) 
+        //    (C-1,2,3)
         //
         //  4 For an arbitrary full queue, iterate through the possible
         //    capacity values calling 'reservePopIndex' that number of times,
-        //    prior to calling 'clearPopIndex'.  Verify 'clearPopIndex' does
-        //    not attempt to clear a index reserved for popping.  (C-1,2,3)
-        // 
+        //    prior to calling 'reservePopIndexForClear'.  Verify
+        //    'reservePopIndexForClear' does not attempt to clear a index
+        //    reserved for popping.  (C-1,2,3)
+        //
         //  5 Use the assertion test facility to test function
-        //    preconditions. ( C-4)
+        //    preconditions. (C-4)
         //
         // Testing:
-        //   int clearPopIndex(unsigned *, unsigned *, unsigned, unsigned);
+        //   int reservePopIndexForClear
         // --------------------------------------------------------------------
-          
-        if (verbose) cout << endl 
-                          << "TESTING: clearPopIndex" << endl
-                          << "======================" << endl;
+
+        if (verbose) cout << endl
+                          << "TESTING: reservePopIndexForClear" << endl
+                          << "================================" << endl;
 
 
         if (verbose) cout << "\nTest with a buffer of capacity 1"
@@ -2063,7 +2085,10 @@ int main(int argc, char *argv[])
             Obj x(1, &oa); const Obj &X = x;
 
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
-            ASSERT(0 != x.clearPopIndex(&resultGen, &resultIdx, 0, 0));
+            ASSERT(0 != x.reservePopIndexForClear(&resultGen,
+                                                  &resultIdx,
+                                                  0,
+                                                  0));
             ASSERT(13 == resultGen);
             ASSERT(13 == resultIdx);
             ASSERT(1 == X.length());
@@ -2071,7 +2096,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest with a buffer of capacity 2"
                           << endl;
-          
+
         {
             unsigned int gen, idx;
             unsigned int resultGen = 13;
@@ -2082,7 +2107,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
 
             if (veryVerbose) { P(L_); P(X); }
-            ASSERT(0 != x.clearPopIndex(&resultGen, &resultIdx, gen, idx));
+            ASSERT(0 != x.reservePopIndexForClear(
+                                &resultGen, &resultIdx, gen, idx));
             ASSERT(13 == resultGen);
             ASSERT(13 == resultIdx);
             x.commitPushIndex(gen, idx);
@@ -2090,38 +2116,48 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
             if (veryVerbose) { P(L_); P(X); }
-            ASSERT(0 == x.clearPopIndex(&resultGen, &resultIdx, gen, idx));
+            ASSERT(0 == x.reservePopIndexForClear(
+                                &resultGen, &resultIdx, gen, idx));
             ASSERT(0 == resultGen);
             ASSERT(0 == resultIdx);
+            x.commitPopIndex(resultGen, resultIdx);
 
             x.commitPushIndex(gen, idx);
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
             if (veryVerbose) { P(L_); P(X); }
-            ASSERT(0 == x.clearPopIndex(&resultGen, &resultIdx, gen, idx));
+            ASSERT(0 == x.reservePopIndexForClear(
+                                &resultGen, &resultIdx, gen, idx));
             ASSERT(0 == resultGen);
             ASSERT(1 == resultIdx);
+            x.commitPopIndex(resultGen, resultIdx);
             x.commitPushIndex(gen, idx);
 
 
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
             if (veryVerbose) { P(L_); P(X); }
-            ASSERT(0 == x.clearPopIndex(&resultGen, &resultIdx, gen, idx));
+            ASSERT(0 == x.reservePopIndexForClear(
+                                 &resultGen, &resultIdx, gen, idx));
             ASSERT(1 == resultGen);
             ASSERT(0 == resultIdx);
+            x.commitPopIndex(resultGen, resultIdx);
             x.commitPushIndex(gen, idx);
 
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
             if (veryVerbose) { P(L_); P(X); }
-            ASSERT(0 == x.clearPopIndex(&resultGen, &resultIdx, gen, idx));
+            ASSERT(0 == x.reservePopIndexForClear(
+                                 &resultGen, &resultIdx, gen, idx));
             ASSERT(1 == resultGen);
             ASSERT(1 == resultIdx);
+            x.commitPopIndex(resultGen, resultIdx);
             x.commitPushIndex(gen, idx);
-            
+
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
             if (veryVerbose) { P(L_); P(X); }
-            ASSERT(0 == x.clearPopIndex(&resultGen, &resultIdx, gen, idx));
+            ASSERT(0 == x.reservePopIndexForClear(
+                                 &resultGen, &resultIdx, gen, idx));
             ASSERT(2 == resultGen);
             ASSERT(0 == resultIdx);
+            x.commitPopIndex(resultGen, resultIdx);
             x.commitPushIndex(gen, idx);
         }
 
@@ -2195,11 +2231,14 @@ int main(int argc, char *argv[])
                 ASSERT(endIdx == idx);
 
                 for (unsigned int j = 0; j < NUM_CLEARS; ++j) {
-                    ASSERT(0 == x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                    ASSERT(0 == x.reservePopIndexForClear(
+                                       &gen, &idx, endGen, endIdx));
                     ASSERT((POP_INDEX + j) / CAPACITY == gen);
                     ASSERT((POP_INDEX + j) % CAPACITY == idx);
+                    x.commitPopIndex(gen, idx);
                 }
-                ASSERT(0 != x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                ASSERT(0 != x.reservePopIndexForClear(
+                                       &gen, &idx, endGen, endIdx));
                 x.commitPushIndex(endGen, endIdx);
                 ASSERT(1 == X.length());
             }
@@ -2215,7 +2254,7 @@ int main(int argc, char *argv[])
             const unsigned int POP_INDEX  = static_cast<unsigned int>(
                                             PUSH_INDEX - (CAPACITY - 1));
 
-            for (unsigned int numPoppers = 0; 
+            for (unsigned int numPoppers = 0;
                  numPoppers < CAPACITY - 1;
                  ++numPoppers) {
                 bslma::TestAllocator oa;
@@ -2223,7 +2262,7 @@ int main(int argc, char *argv[])
 
                 gg(&x, PUSH_INDEX, POP_INDEX);
 
-                if (veryVerbose) { P(L_); P(X); } 
+                if (veryVerbose) { P(L_); P(X); }
 
                 const unsigned int endGen = PUSH_INDEX / CAPACITY;
                 const unsigned int endIdx = PUSH_INDEX % CAPACITY;
@@ -2232,7 +2271,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == x.reservePushIndex(&gen, &idx));
                 ASSERT(endGen == gen);
                 ASSERT(endIdx == idx);
-                
+
                 for (unsigned int i = 0; i < numPoppers; ++i) {
                     ASSERT(0 == x.reservePopIndex(&gen, &idx));
                     ASSERT((POP_INDEX + i) / CAPACITY == gen);
@@ -2240,11 +2279,14 @@ int main(int argc, char *argv[])
                 }
 
                 for (unsigned int i = 0; i < CAPACITY-numPoppers-1; ++i) {
-                    ASSERT(0 == x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                    ASSERT(0 == x.reservePopIndexForClear(
+                                            &gen, &idx, endGen, endIdx));
                     ASSERT((POP_INDEX + numPoppers + i) / CAPACITY == gen);
                     ASSERT((POP_INDEX + numPoppers + i) % CAPACITY == idx);
+                    x.commitPopIndex(gen, idx);
                 }
-                ASSERT(0 != x.clearPopIndex(&gen, &idx, endGen, endIdx));
+                ASSERT(0 != x.reservePopIndexForClear(
+                                            &gen, &idx, endGen, endIdx));
                 ASSERT(1 == X.length());
             }
         }
@@ -2256,15 +2298,20 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             unsigned int resultGen, resultIdx, index, generation;
-            
+
             Obj obj(10, &oa);
             obj.reservePushIndex(&generation, &index);
 
-            ASSERT_FAIL(obj.clearPopIndex(&resultGen, &resultIdx, 0, 11));
-            ASSERT_FAIL(obj.clearPopIndex(&resultGen, &resultIdx, UINT_MAX,0));
-            ASSERT_FAIL(obj.clearPopIndex(&resultGen, 0, 0, 0));
-            ASSERT_FAIL(obj.clearPopIndex(0, &resultIdx, 0, 0));
-            ASSERT_PASS(obj.clearPopIndex(&resultGen, &resultIdx, 0, 0));
+            ASSERT_FAIL(obj.reservePopIndexForClear(
+                            &resultGen, &resultIdx, 0, 11));
+            ASSERT_FAIL(obj.reservePopIndexForClear(
+                            &resultGen, &resultIdx, UINT_MAX,0));
+            ASSERT_FAIL(obj.reservePopIndexForClear(
+                            &resultGen, 0, 0, 0));
+            ASSERT_FAIL(obj.reservePopIndexForClear(
+                            0, &resultIdx, 0, 0));
+            ASSERT_PASS(obj.reservePopIndexForClear(
+                            &resultGen, &resultIdx, 0, 0));
         }
 
       } break;
@@ -2280,9 +2327,9 @@ int main(int argc, char *argv[])
         //
         //  3 Calling 'enabled' on a disabled queue allows additional elements
         //    to be pushed.
-        // 
+        //
         //  4 Calling 'enable' on an enabled queue has no effect.
-        //  
+        //
         //  5 Calling 'disable' on a disabled queue has no effect.
         //
         //  6 Calling 'isEnabled' returns 'true' if either (1) neither
@@ -2301,10 +2348,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   void disable();
         //   void enable();
-        //   bool isEnabled() const;        
+        //   bool isEnabled() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "TESTING: enabled & disabled" << endl
                           << "===========================" << endl;
 
@@ -2429,7 +2476,7 @@ int main(int argc, char *argv[])
             { L_,  1,  1,  0,   false,  true },
             { L_,  1,  1,  1,    true, false },
             { L_,  1,  2,  1,   false,  true },
-            
+
             { L_,  2,  0,  0,    true, false },
             { L_,  2,  1,  0,    true,  true },
             { L_,  2,  1,  1,    true, false },
@@ -2442,8 +2489,8 @@ int main(int argc, char *argv[])
             { L_,  2,  4,  2,   false,  true },
             { L_,  2,  4,  3,    true,  true },
             { L_,  2,  4,  4,    true, false },
-            
-            
+
+
             { L_,  7, 14, 14,    true, false },
             { L_,  7, 15, 14,    true,  true },
             { L_,  7, 16, 15,    true,  true },
@@ -2513,7 +2560,7 @@ int main(int argc, char *argv[])
                         ASSERT(INDEX      == index);
                     }
                 }
-              
+
             }
         }
 
@@ -2578,18 +2625,18 @@ int main(int argc, char *argv[])
                         ASSERT(GENERATION == generation);
                         ASSERT(INDEX      == index);
                     }
-                }               
+                }
             }
         }
 
         if (verbose) cout << "\nTest 'assertValidState'" << endl;
         {
             for (unsigned int capacity = 0; capacity < 5; ++capacity) {
-                for (unsigned int startIdx = 0; 
-                                  startIdx < capacity * 3; 
+                for (unsigned int startIdx = 0;
+                                  startIdx < capacity * 3;
                                   ++startIdx) {
-                    for (unsigned int length = 0; 
-                                      length <= capacity; 
+                    for (unsigned int length = 0;
+                                      length <= capacity;
                                       ++length) {
                         bslma::TestAllocator oa;
                         Obj x(capacity, &oa); const Obj& X = x;
@@ -2600,7 +2647,7 @@ int main(int argc, char *argv[])
                             P(X);
                         }
                     }
-                    
+
                 }
             }
         }
@@ -2613,10 +2660,10 @@ int main(int argc, char *argv[])
         //  1  'length' on a newly constructed queue returns 0.
         //
         //  2  'acqurePushIndex' increments the 'length' of the queue.
-        // 
+        //
         //  3  Calling 'reservePushIndex' multiple times will not return
         //     the same index.
-        //  
+        //
         //  4  Calling 'reservePushIndex' when the queue is full returns the
         //     correct error.
         //
@@ -2644,7 +2691,7 @@ int main(int argc, char *argv[])
         //  1 For each capcity value in a series of capacity values, call
         //    'reservePushIndex' to that maxmimum capacity.  At each point,
         //    verify the expected index, generation count, and return
-        //    status. (C-1,2,3) 
+        //    status. (C-1,2,3)
         //
         //  2 For each capcity value in a series of capacity values:
         //
@@ -2676,7 +2723,7 @@ int main(int argc, char *argv[])
         //   unsigned int length() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS AND ACCESSORS" << endl
                           << "==================================" << endl;
 
@@ -2706,7 +2753,7 @@ int main(int argc, char *argv[])
                 int rc = x.reservePushIndex(&generation, &index);
                 ASSERTV(rc,         0 < rc);
                 ASSERTV(X.length(), CAPACITY == X.length());
-                
+
             }
         }
 
@@ -2727,7 +2774,7 @@ int main(int argc, char *argv[])
                     for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
                         int rc = x.reservePopIndex(&generation, &index);
                         ASSERTV(rc,         0 < rc);
-                                                
+
                         rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen);
@@ -2746,7 +2793,7 @@ int main(int argc, char *argv[])
                         x.commitPopIndex(generation, index);
                         ASSERTV(X.length(), 0 == X.length());
                     }
-                }                        
+                }
             }
         }
 
@@ -2774,7 +2821,7 @@ int main(int argc, char *argv[])
                     for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
                         int rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 < rc);
-                                                
+
                         rc = x.reservePopIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen);
@@ -2793,7 +2840,7 @@ int main(int argc, char *argv[])
                         x.commitPushIndex(generation, index);
                         ASSERTV(X.length(), X.length() == CAPACITY);
                     }
-                }                        
+                }
             }
         }
 
@@ -2821,7 +2868,7 @@ int main(int argc, char *argv[])
                     for (unsigned int idx = 0; idx < CAPACITY; ++idx) {
                         int rc = x.reservePushIndex(&generation, &index);
                         ASSERTV(rc,         0 < rc);
-                                                
+
                         rc = x.reservePopIndex(&generation, &index);
                         ASSERTV(rc,         0 == rc);
                         ASSERTV(generation, generation == gen);
@@ -2840,17 +2887,17 @@ int main(int argc, char *argv[])
                         x.commitPushIndex(generation, index);
                         ASSERTV(X.length(), X.length() == CAPACITY);
                     }
-                }                        
+                }
             }
         }
-        
+
         if (verbose) cout << "\nIterate over all possible sequences of 12"
                           << "push and pop operations"
                           << endl;
         // The following test iterates through all 12 bit integers using the
         // values of the 12 bits to encode whether the operation is a push or
         // pop, then performs a push or pop and verify results against an
-        // oracle. 
+        // oracle.
         {
             int maxOp = bdes_BitUtil::base2Log(4096);
             ASSERT(12 == maxOp);
@@ -2863,10 +2910,10 @@ int main(int argc, char *argv[])
                     unsigned int POP_INDEX  = -1;
                     unsigned int POP_GEN    =  0;
                     unsigned int LENGTH     =  0;
-                    
+
                     bslma::TestAllocator oa;
                     Obj x(CAPACITY, &oa); const Obj &X = x;
-                    
+
                     for (int op = 0; op < maxOp; ++op) {
                         bool isPush = bdes_BitUtil::isSetOne(opSequence, op);
                         unsigned int index, gen;
@@ -2890,7 +2937,7 @@ int main(int argc, char *argv[])
                             ASSERTV(PUSH_INDEX, index, PUSH_INDEX == index);
                             ASSERTV(PUSH_GEN, gen,     PUSH_GEN == gen);
                         }
-                        else { 
+                        else {
                             // Pop.
                             if (SUCCESS) {
                                 --LENGTH;
@@ -2912,7 +2959,7 @@ int main(int argc, char *argv[])
                         }
                    }
                 }
-            }        
+            }
         }
 
         if (verbose) cout << "\nTest that function args are unmodified on "
@@ -2966,7 +3013,7 @@ int main(int argc, char *argv[])
 
                 Obj obj(10, &oa);
                 obj.reservePushIndex(&generation, &index);
-                ASSERT_FAIL(obj.commitPushIndex(generation, 
+                ASSERT_FAIL(obj.commitPushIndex(generation,
                                                 Obj::e_MAX_CAPACITY));
                 ASSERT_FAIL(obj.commitPushIndex(UINT_MAX, index));
                 ASSERT_PASS(obj.commitPushIndex(generation, index));
@@ -2975,7 +3022,7 @@ int main(int argc, char *argv[])
                 obj.reservePopIndex(&generation, &index);
                 ASSERT_FAIL(obj.commitPushIndex(generation, index));
             }
-            
+
             {
                 // test reserve pop index.
                 Obj obj(10, &oa);
@@ -2983,7 +3030,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(obj.reservePopIndex(&generation, 0));
                 ASSERT_FAIL(obj.reservePopIndex(0, &index));
                 ASSERT_PASS(obj.reservePopIndex(&generation, &index));
-           
+
             }
 
             {
@@ -2994,7 +3041,7 @@ int main(int argc, char *argv[])
                 obj.commitPushIndex(generation, index);
 
                 obj.reservePopIndex(&generation, &index);
-                ASSERT_FAIL(obj.commitPopIndex(generation, 
+                ASSERT_FAIL(obj.commitPopIndex(generation,
                                                Obj::e_MAX_CAPACITY));
                 ASSERT_FAIL(obj.commitPopIndex(UINT_MAX, index));
                 ASSERT_PASS(obj.commitPopIndex(generation, index));
@@ -3005,7 +3052,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_FAIL(obj.commitPopIndex(generation, index));
             }
-        }        
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -3014,7 +3061,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // 1 The 'capacity' accessor returns the capacity supplied at
-        //   construction 
+        //   construction
         //
         // 2 The ARB uses the supplied allocator to allocate memory
         //
@@ -3025,7 +3072,7 @@ int main(int argc, char *argv[])
         //
         // 5 e_MAX_CAPACITY is the maximum capacity the allows for at least 2
         //   generations and a disabled status to be represented in a 32bit
-        //   integer. 
+        //   integer.
         //
         // 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -3042,7 +3089,7 @@ int main(int argc, char *argv[])
         //   allocator, verify memory is allocated from the default
         //   allocator. Verify allocated memory is released on destruction.
         //   (C-3,4)
-        // 
+        //
         // 4 Verify that representing 'e_MAX_CAPACITY' in an unsigned int
         //   leaves 2 bits to represent the disabled state and 2 complete
         //   generations. (C-5).
@@ -3052,10 +3099,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   bcec_AtomicRingBufferIndexManager(unsigned int, Allocator *);
         //   ~bcec_AtomicRingBufferIndexManager();
-        //   unsigned int capacity() const; 
+        //   unsigned int capacity() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "DEFAULT CTOR" << endl
                           << "============" << endl;
 
@@ -3063,17 +3110,17 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa;
 
-            const unsigned int VALUES[] = { 
-                1, 
-                2, 
-                8, 
-                100, 
+            const unsigned int VALUES[] = {
+                1,
+                2,
+                8,
+                100,
                 10000,
 
                 // Note that the following test cases are not enabled as they
                 // exhaust memory on many platforms.
                 // Obj::e_MAX_CAPACITY - 1,
-                // Obj::e_MAX_CAPACITY 
+                // Obj::e_MAX_CAPACITY
             };
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
@@ -3087,7 +3134,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa, da;
             bslma::DefaultAllocatorGuard dag(&da);
-            
+
             {
                 Obj x(5, &oa);
                 ASSERTV(da.numBytesInUse(), 0 == da.numBytesInUse());
@@ -3101,9 +3148,9 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator da;
             bslma::DefaultAllocatorGuard dag(&da);
-            
+
             {
-                Obj x(5); 
+                Obj x(5);
                 ASSERTV(da.numBytesInUse(), 0 < da.numBytesInUse());
             }
             ASSERTV(da.numBytesInUse(), 0 == da.numBytesInUse());
@@ -3162,14 +3209,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == index);
             ASSERT(0 != mX.reservePushIndex(&generation, &index));
             ASSERT(1 == mX.length());
-            
+
             generation = index = 1;
-            ASSERT(0 == mX.reservePopIndex(&generation, &index));            
+            ASSERT(0 == mX.reservePopIndex(&generation, &index));
             mX.commitPopIndex(generation, index);
             ASSERT(0 == mX.length());
             ASSERT(0 == generation);
             ASSERT(0 == index);
-            ASSERT(0 != mX.reservePopIndex(&generation, &index));            
+            ASSERT(0 != mX.reservePopIndex(&generation, &index));
             ASSERT(0 == mX.length());
 
             mX.disable();
@@ -3184,7 +3231,7 @@ int main(int argc, char *argv[])
             mX.commitPushIndex(generation, index);
             ASSERT(1 == mX.length());
             ASSERT(1 == generation);
-            ASSERT(0 == index);            
+            ASSERT(0 == index);
         }
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -3218,7 +3265,7 @@ int main(int argc, char *argv[])
                 int d_numWriters;         // number of writer threads
         } DATA[] = {
 
-//           Line Cap     Rdrs  Wrtrs 
+//           Line Cap     Rdrs  Wrtrs
 //           =========================
             { L_,  1000,     1,    1  },
             { L_,  1000,     5,    5  },
@@ -3244,14 +3291,14 @@ int main(int argc, char *argv[])
             "Capacity,  Num Readers, Num Writers,   Reads/Sec,   Writes/Sec\n"
             "--------,-------------,------------,------------,-------------\n";
 
-                                       
+
         for (int i = 0; i < NUM_DATA; ++i) {
             int CAPACITY       = DATA[i].d_capacity;
             int NUM_READERS    = DATA[i].d_numReaders;
             int NUM_WRITERS    = DATA[i].d_numWriters;
             int NUM_THREADS    = NUM_READERS + NUM_WRITERS;
 
-           
+
             TestThreadStateBarrier state(NUM_THREADS);
             Obj x(CAPACITY);
 
@@ -3274,14 +3321,14 @@ int main(int argc, char *argv[])
                 BSLS_ASSERT_OPT(0 == rc); // test invariant
                 ++thread;
             }
-            
+
 
             state.continueTest();
             bsls::Stopwatch s;
             s.start();
 
             bcemt_ThreadUtil::sleep(bdet_TimeInterval(ELAPSED_TIME_PER_TEST));
-            
+
             s.stop();
             state.exitTest();
 
@@ -3297,7 +3344,49 @@ int main(int argc, char *argv[])
                 << bsl::setw(11) << NUM_WRITERS << ", "
                 << bsl::setw(12) << (double)(readCount)/elapsed << ", "
                 << bsl::setw(12) << (double)(writeCount)/elapsed << bsl::endl;
-        }        
+        }
+      } break;
+      case -2: {
+
+        if (verbose) cout << endl
+                          << "PRINT INTERESTING STATES" << endl
+                          << "========================" << endl;
+
+        // The following negative test case is used to help visualize various
+        // states of an index manager.
+
+        struct {
+            int          d_line;
+            unsigned int d_capacity;
+            unsigned int d_pushIndex;
+            unsigned int d_popIndex;
+        } VALUES[] = {
+            { L_,  3,  0,  0 },
+            { L_,  3,  1,  0 },
+            { L_,  3,  2,  0 },
+            { L_,  3,  3,  0 },
+            { L_,  3,  3,  1 },
+            { L_,  3,  4,  2 },
+            { L_,  3,  4,  3 },
+            { L_,  3,  4,  4 },
+        };
+        const int NUM_VALUES = sizeof(VALUES)/sizeof(*VALUES);
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            const unsigned int CAPACITY   = VALUES[i].d_capacity;
+            const unsigned int PUSH_INDEX = VALUES[i].d_pushIndex;
+            const unsigned int POP_INDEX  = VALUES[i].d_popIndex;
+            const unsigned int LINE       = VALUES[i].d_line;
+
+            if (veryVerbose) { P(LINE); }
+
+            Obj x(CAPACITY); const Obj& X = x;
+
+            gg(&x, PUSH_INDEX, POP_INDEX);
+
+            X.print(bsl::cout);
+        }
+
       } break;
 
       default: {
@@ -3319,4 +3408,3 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-
