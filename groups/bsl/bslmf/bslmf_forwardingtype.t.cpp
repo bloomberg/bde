@@ -295,47 +295,78 @@ void funcRi(int&) { }
 //-----------------------------------------------------------------------------
 
 template <class TYPE>
-bool checkForwarding(const TYPE& a, const TYPE& b,
-                     bsl::true_type /*is_ref*/, bsl::false_type /*is_array*/)
-    // For pass-by-reference args, compare addresses
+bool sameAddress(const TYPE& a, const TYPE& b)
+    // Return true if address of the specified 'a' object matches the address
+    // of the specified 'b' object.  Unlike a direct test, this function can
+    // be called even if 'a' or 'b' is an rvalue or rvalue refearence.
 {
     return &a == &b;
 }
 
 template <class TYPE>
-bool checkForwarding(const TYPE& a, const TYPE& b,
-                     bsl::false_type /*is_ref*/, bsl::false_type /*is_array*/)
-    // For pass-by-value args, compare values
+void testForwardToTargetVal(TYPE obj)
 {
-    return a == b;
-}
+    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
+    typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
 
-template <class TYPE, class IS_REF>
-bool checkForwarding(const TYPE a[], const TYPE b[],
-                     IS_REF, bsl::true_type /*is_array*/)
-    // For arrays, compare addresses of first elements.
-{
-    return &a[0] == &b[0];
+    ASSERT_SAME(typename bsl::remove_const<TYPE>::type,
+                typename bsl::remove_const<
+                    typename bsl::remove_reference<TargetType>::type>::type);
+
+    FwdType fwdObj = obj;
+
+    // For pass-by-value, compare original and final value.
+    ASSERT(obj == bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj));
 }
 
 template <class TYPE>
-void testForwardToTarget(TYPE obj)
+void testForwardToTargetRef(TYPE ref)
 {
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
 
     ASSERT_SAME(typename bsl::remove_const<
-                    typename bsl::remove_reference<TYPE>::type >::type,
+                    typename bsl::remove_reference<TYPE>::type>::type,
                 typename bsl::remove_const<
-                    typename bsl::remove_reference<TargetType>::type >::type);
+                    typename bsl::remove_reference<TargetType>::type>::type);
+
+    FwdType fwdRef = ref;
+
+    // For pass-by-reference, compare addresses of original and final
+    // references.
+    ASSERT(sameAddress(ref,
+                    bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdRef)));
+}
+
+template <class TYPE>
+void testForwardToTargetSizedArray(TYPE obj)
+{
+    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
+    typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
+
+    ASSERT_SAME(typename bsl::remove_reference<TYPE>::type,
+                typename bsl::remove_reference<TargetType>::type);
 
     FwdType fwdObj = obj;
 
-    ASSERT(checkForwarding(
-               obj, bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj),
-               typename bsl::is_reference<TYPE>::type(),
-               typename bsl::is_array<
-                   typename bsl::remove_reference<TYPE>::type>::type()));
+    // For arrays,j compare address of first element of original and final
+    // arrays.
+    ASSERT(&obj[0] ==
+           &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
+}
+
+template <class TYPE>
+void testForwardToTargetUnsizedArray(TYPE obj)
+{
+    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
+    typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
+
+    FwdType fwdObj = obj;
+
+    // For arrays,j compare address of first element of original and final
+    // arrays.
+    ASSERT(&obj[0] ==
+           &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
 }
 
 int main(int argc, char *argv[])
@@ -397,69 +428,122 @@ int main(int argc, char *argv[])
         Pm      m_p  = &Struct::d_data;
         Pmf     mf_p = &Class::value;
 
-        testForwardToTarget<Enum    >(e);
-        testForwardToTarget<Struct  >(s);
-        testForwardToTarget<Union   >(u);
-        testForwardToTarget<Class   >(c);
-        testForwardToTarget<double  >(d);
-        testForwardToTarget<double *>(p);
-        testForwardToTarget<A       >(a);
-        testForwardToTarget<AU      >(au);
-        testForwardToTarget<PF      >(f_p);
-        testForwardToTarget<Pm      >(m_p);
-        testForwardToTarget<Pmf     >(mf_p);
+        testForwardToTargetVal<Enum    >(e);
+        testForwardToTargetVal<Struct  >(s);
+        testForwardToTargetVal<Union   >(u);
+        testForwardToTargetVal<Class   >(c);
+        testForwardToTargetVal<double  >(d);
+        testForwardToTargetVal<double *>(p);
+        testForwardToTargetVal<PF      >(f_p);
+        testForwardToTargetVal<Pm      >(m_p);
+        testForwardToTargetVal<Pmf     >(mf_p);
         
-        testForwardToTarget<Enum    &>(e);
-        testForwardToTarget<Struct  &>(s);
-        testForwardToTarget<Union   &>(u);
-        testForwardToTarget<Class   &>(c);
-        testForwardToTarget<double  &>(d);
-        testForwardToTarget<double *&>(p);
-        testForwardToTarget<A       &>(a);
-        testForwardToTarget<AU      &>(au);
-        testForwardToTarget<F       &>(func);
-        testForwardToTarget<Fi      &>(funcI);
-        testForwardToTarget<FRi     &>(funcRi);
-        testForwardToTarget<PF      &>(f_p);
-        testForwardToTarget<Pm      &>(m_p);
-        testForwardToTarget<Pmf     &>(mf_p);
+        testForwardToTargetVal<Enum    const>(e);
+        testForwardToTargetVal<Struct  const>(s);
+        testForwardToTargetVal<Union   const>(u);
+        testForwardToTargetVal<Class   const>(c);
+        testForwardToTargetVal<double  const>(d);
+        testForwardToTargetVal<double *const>(p);
+        testForwardToTargetVal<PF      const>(f_p);
+        testForwardToTargetVal<Pm      const>(m_p);
+        testForwardToTargetVal<Pmf     const>(mf_p);
 
-        testForwardToTarget<Enum    const>(e);
-        testForwardToTarget<Struct  const>(s);
-        testForwardToTarget<Union   const>(u);
-        testForwardToTarget<Class   const>(c);
-        testForwardToTarget<double  const>(d);
-        testForwardToTarget<double *const>(p);
-        testForwardToTarget<A       const>(a);
-        testForwardToTarget<AU      const>(au);
-        testForwardToTarget<PF      const>(f_p);
-        testForwardToTarget<Pm      const>(m_p);
-        testForwardToTarget<Pmf     const>(mf_p);
+        // Do note test volatile rvalues of class types. They have no real use
+        // and require strange copy constructors and comparison operators to
+        // test correctly.
+        testForwardToTargetVal<Enum    volatile>(e);
+        testForwardToTargetVal<double  volatile>(d);
+        testForwardToTargetVal<double *volatile>(p);
+        testForwardToTargetVal<A       volatile>(a);
+        testForwardToTargetVal<AU      volatile>(au);
+        testForwardToTargetVal<PF      volatile>(f_p);
+        testForwardToTargetVal<Pm      volatile>(m_p);
+        testForwardToTargetVal<Pmf     volatile>(mf_p);
 
-        testForwardToTarget<Enum    const &>(e);
-        testForwardToTarget<Struct  const &>(s);
-        testForwardToTarget<Union   const &>(u);
-        testForwardToTarget<Class   const &>(c);
-        testForwardToTarget<double  const &>(d);
-        testForwardToTarget<double *const &>(p);
-        testForwardToTarget<A       const &>(a);
-        testForwardToTarget<AU      const &>(au);
-        testForwardToTarget<PF      const &>(f_p);
-        testForwardToTarget<Pm      const &>(m_p);
-        testForwardToTarget<Pmf     const &>(mf_p);
+        testForwardToTargetSizedArray<  A           >(a);
+        testForwardToTargetUnsizedArray<AU          >(au);
+        testForwardToTargetSizedArray<  A  const    >(a);
+        testForwardToTargetUnsizedArray<AU const    >(au);
+        testForwardToTargetSizedArray<  A          &>(a);
+        testForwardToTargetUnsizedArray<AU         &>(au);
+        testForwardToTargetSizedArray<  A  const   &>(a);
+        testForwardToTargetUnsizedArray<AU const   &>(au);
+        testForwardToTargetSizedArray<  A  volatile&>(a);
+        testForwardToTargetUnsizedArray<AU volatile&>(au);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        testForwardToTargetSizedArray<  A          &&>(std::move(a));
+        testForwardToTargetUnsizedArray<AU         &&>(std::move(au));
+        testForwardToTargetSizedArray<  A  const   &&>(std::move(a));
+        testForwardToTargetUnsizedArray<AU const   &&>(std::move(au));
+#endif
+
+        testForwardToTargetRef<Enum    &>(e);
+        testForwardToTargetRef<Struct  &>(s);
+        testForwardToTargetRef<Union   &>(u);
+        testForwardToTargetRef<Class   &>(c);
+        testForwardToTargetRef<double  &>(d);
+        testForwardToTargetRef<double *&>(p);
+        testForwardToTargetRef<F       &>(func);
+        testForwardToTargetRef<Fi      &>(funcI);
+        testForwardToTargetRef<FRi     &>(funcRi);
+        testForwardToTargetRef<PF      &>(f_p);
+        testForwardToTargetRef<Pm      &>(m_p);
+        testForwardToTargetRef<Pmf     &>(mf_p);
+
+        testForwardToTargetRef<Enum    const&>(e);
+        testForwardToTargetRef<Struct  const&>(s);
+        testForwardToTargetRef<Union   const&>(u);
+        testForwardToTargetRef<Class   const&>(c);
+        testForwardToTargetRef<double  const&>(d);
+        testForwardToTargetRef<double *const&>(p);
+        testForwardToTargetRef<PF      const&>(f_p);
+        testForwardToTargetRef<Pm      const&>(m_p);
+        testForwardToTargetRef<Pmf     const&>(mf_p);
+        
+        testForwardToTargetRef<Enum    volatile&>(e);
+        testForwardToTargetRef<Struct  volatile&>(s);
+        testForwardToTargetRef<Union   volatile&>(u);
+        testForwardToTargetRef<Class   volatile&>(c);
+        testForwardToTargetRef<double  volatile&>(d);
+        testForwardToTargetRef<double *volatile&>(p);
+        testForwardToTargetRef<PF      volatile&>(f_p);
+        testForwardToTargetRef<Pm      volatile&>(m_p);
+        testForwardToTargetRef<Pmf     volatile&>(mf_p);
+        
+        testForwardToTargetRef<Enum    const volatile&>(e);
+        testForwardToTargetRef<Struct  const volatile&>(s);
+        testForwardToTargetRef<Union   const volatile&>(u);
+        testForwardToTargetRef<Class   const volatile&>(c);
+        testForwardToTargetRef<double  const volatile&>(d);
+        testForwardToTargetRef<double *const volatile&>(p);
+        testForwardToTargetRef<PF      const volatile&>(f_p);
+        testForwardToTargetRef<Pm      const volatile&>(m_p);
+        testForwardToTargetRef<Pmf     const volatile&>(mf_p);
         
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        testForwardToTarget<Enum    &&>(std::move(e));
-        testForwardToTarget<Struct  &&>(std::move(s));
-        testForwardToTarget<Union   &&>(std::move(u));
-        testForwardToTarget<Class   &&>(std::move(c));
-        testForwardToTarget<double  &&>(std::move(d));
-        testForwardToTarget<double *&&>(std::move(p));
-        testForwardToTarget<A       &&>(std::move(a));
-        testForwardToTarget<AU      &&>(std::move(au));
-        testForwardToTarget<PF      &&>(std::move(f_p));
-        testForwardToTarget<Pm      &&>(std::move(m_p));
-        testForwardToTarget<Pmf     &&>(std::move(mf_p));
+        testForwardToTargetRef<Enum    &&>(std::move(e));
+        testForwardToTargetRef<Struct  &&>(std::move(s));
+        testForwardToTargetRef<Union   &&>(std::move(u));
+        testForwardToTargetRef<Class   &&>(std::move(c));
+        testForwardToTargetRef<double  &&>(std::move(d));
+        testForwardToTargetRef<double *&&>(std::move(p));
+        testForwardToTargetRef<PF      &&>(std::move(f_p));
+        testForwardToTargetRef<Pm      &&>(std::move(m_p));
+        testForwardToTargetRef<Pmf     &&>(std::move(mf_p));
+
+        testForwardToTargetRef<Enum     const&&>(std::move(e));
+        testForwardToTargetRef<Struct   const&&>(std::move(s));
+        testForwardToTargetRef<Union    const&&>(std::move(u));
+        testForwardToTargetRef<Class    const&&>(std::move(c));
+        testForwardToTargetRef<double   const&&>(std::move(d));
+        testForwardToTargetRef<double * const&&>(std::move(p));
+        testForwardToTargetRef<PF       const&&>(std::move(f_p));
+        testForwardToTargetRef<Pm       const&&>(std::move(m_p));
+        testForwardToTargetRef<Pmf      const&&>(std::move(mf_p));
+
+        // Do not test volatile rvalue references.  They have no real uses and
+        // would require distortions in the test that could result in missing
+        // actual errors.
 #endif
 
       } break;
