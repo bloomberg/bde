@@ -4925,6 +4925,10 @@ int main(int argc, char**argv)
 
         dstVec.push_back(0);
         dstVec.push_back(0);
+
+        dstVecB.push_back(0);
+        dstVecB.push_back(0);
+
         for (bsl::size_t cap = 0; cap <= dstCap + 1; ++cap) {
             nc = nw = (bsl::size_t) -1;
             bsl::memset(dstVec.begin(), (char) -1, dstVec.size());
@@ -4971,6 +4975,26 @@ int main(int argc, char**argv)
             }
             else {
                 ASSERT(found == dstVec.begin() + nw2);
+            }
+
+            if (cap + 4 >= dstCap) {
+                save = *end;
+                *end = 0;
+
+                nc2 = nw2 = (bsl::size_t) -1;
+                bsl::memset(dstVecB.begin(), (char) -1, dstVecB.size());
+                int rc3 = Util::utf16ToUtf8(&dstVecB[0],
+                                            cap,
+                                            bslstl::StringRefWide(start, END),
+                                            &nc2,
+                                            &nw2,
+                                            errorChar);
+                ASSERT(rc3 == rc2);
+                ASSERT(nc2 == nc);
+                ASSERT(nw2 == nw);
+                ASSERT(0 == bsl::memcmp(&dstVec[0], &dstVecB[0], nw));
+
+                *end = save;
             }
         }
 //      |>>>>>>>>>>>>>>>>>>>>>>>|
@@ -5123,6 +5147,13 @@ int main(int argc, char**argv)
         wStr.push_back(0);
         wStr.push_back(0);
 
+        dstB.push_back(0);
+        dstB.push_back(0);
+
+        wStrB.push_back(0);
+        wStrB.push_back(0);
+        wStrB.push_back(0);
+
         ASSERT(wStr.length() == dst.size());
 
         for (bsl::size_t cap = 1; cap <= dstCap + 1; ++cap) {
@@ -5164,6 +5195,41 @@ int main(int argc, char**argv)
 
             for (bsl::size_t ii = 0; ii < nw; ++ii) {
                 ASSERT((wchar_t) dst[ii] == wStr[ii]);
+            }
+
+            if (cap + 2 >= dstCap) {
+                save = *end;
+                *end = 0;
+
+                bsl::fill(dstB.begin(), dstB.end(), (unsigned short) -1);
+                nc2 = nw2 = (bsl::size_t) -1;
+                rc2 = Util::utf8ToUtf16(&dstB[0],
+                                        cap,
+                                        bslstl::StringRef(start, END),
+                                        &nc2,
+                                        &nw2,
+                                        errorChar);
+                ASSERT(rc2 == rc);
+                ASSERT(nc2 == nc);
+                ASSERT(nw2 == nw);
+                LOOP_ASSERT(dstB[cap], (unsigned short) -1 == dstB[cap]);
+                ASSERT(0 == bsl::memcmp(&dst[0], &dstB[0], nw*sizeof(short)));
+
+                bsl::fill(wStrB.begin(), wStrB.end(), (wchar_t) -1);
+                nc2 = nw2 = (bsl::size_t) -1;
+                rc2 = Util::utf8ToUtf16(&wStrB[0],
+                                        cap,
+                                        bslstl::StringRef(start, END),
+                                        &nc2,
+                                        &nw2,
+                                        errorChar);
+                ASSERT(rc2 == rc);
+                ASSERT(nc2 == nc);
+                ASSERT(nw2 == nw);
+                ASSERT((wchar_t) -1 == wStrB[cap]);
+                ASSERT(! bsl::memcmp(&wStr[0], &wStrB[0], nw*sizeof(wchar_t)));
+
+                *end = save;
             }
         }
 //      |>>>>>>>>>>>>>>>>>>>>>>>|
