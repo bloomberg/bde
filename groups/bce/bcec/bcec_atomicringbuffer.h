@@ -16,86 +16,36 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component implements an efficient, thread-enabled
 // fixed-size queue of values.  This class is ideal for synchronization and
-// communication between threads in a producer-consumer model.  Its API is
-// largely identical to that of 'bcec_FixedQueue'.  In comparison with that
-// type, it has a less strict exception safety guarantee, but performs faster
-// in benchmarks.
+// communication between threads in a producer-consumer model.
 //
-// A ring buffer is a fixed size buffer that logically wraps around itself.
-// It is the ideal container for a fixed sized queue, since this structure
-// imposes a strict upper bound on it's internal capacity.
+// The queue provides 'pushBack' and 'popFront' methods for pushing data into
+// the queue and popping it from the queue.  In case of overflow (queue full
+// when pushing), or underflow (queue empty when popping), the methods block
+// until data or free space in the queue appears.  Non-blocking methods
+// 'tryPushBack' and 'tryPushFront' are also provided, which fail immediately
+// returning a non-zero value in case of overflow or underflow.
 //
-// Here is an illustration representing a ring buffer that can hold at most
-// twenty items at any instant.
-//..
-// +---------------------------------------------------------------------+
-// | 0| 1| 2| 3| 4| 5| 6| 7| 8| 9| 10| 11| 12| 13| 14| 15| 16| 17| 18| 19|
-// +---------------------------------------------------------------------+
-//                                 |
-//                                 |
-//                                 V
-//                            +-------+
-//                        +---|  9| 10|---+
-//                    +---|  8|---+---| 11|---+
-//                    |  7|---+       +---| 12|
-//                   +----                +------+
-//                   |  6|                   | 13|
-//                  +----+                   +----+
-//                  |  5|                     | 14|
-//                  +---+                     +---+
-//                  |  4|                     | 15|
-//                  +----+                    ----+
-//                   |  3|                   | 16|
-//                   +-----               +------+
-//                    |  2|---+       +---| 17|
-//                    +---|  1|---+---| 18|---+
-//                        +---|  0| 19|---+
-//                            +-------+
-//..
-// The Atomic Ring Buffer (ARB) is an implementation of a ring buffer that
-// allows concurrent access from multiple reader and writer threads.  The
-// component was designed to minimize contention between threads.
+// The queue may be placed into a "disabled" state using the 'disable' method.
+// When disabled, 'pushBack' and 'tryPushBack' fail immediately (they do not
+// block).  The queue may be restored to normal operation with the 'enable'
+// method.
 //
-// Conceptually, the ARB could be thought of as two concentric ring buffers.
-// Cells of the outer ring hold an atomic integer which facilitates a state
-// machine (sn) whose purpose is to protect access to a value (vn) contained
-// at the homogeneous inner cell.
-//..
-//
-//                            +-------+
-//                        +---| s9|s10|---+
-//                     ---| s8+-------+s11|---
-//                  ------|---| v9|v10|---|-------
-//                +-------| v8|--- ---|v11|-------+
-//                | s7| v7|---+       +---|v12|s12|
-//              +---------+               +---------+
-//              | s6| v6|                   |v13|s13|
-//             +--------+                   +--------+
-//             | s5| s5|                     |v14|s14|
-//             +-------+                     +-------+
-//             | s4| v4|                     |v15|s15|
-//             +--------+                    +-------+
-//              | s3| v3|                   |v16|s16|
-//              +---------                +---------+
-//                | s2| v2|---        +---|v17|s17|
-//                +--- ---| v1|---+---|v18|-------+
-//                  ------|---| v0|v19|---|------
-//                     ---| s1|-------|s18|---
-//                        +---| s0|s19|---+
-//                            +-------+
-//..
-// The outer ring implemented in the class 'bcec_AtomicRingBufferIndexManager'.
-// The inner ring is implemented in the class 'bcec_AtomicRingBuffer'.  Objects
-// of this class have an instance of bcec_AtomicRinBufferIndexManager.
+// Unlike 'bcec_Queue', a fixed queue is not double-ended, there is no timed
+// API like 'timedPushBack' and 'timedPopFront', and no 'forcePush' methods, as
+// the queue capacity is fixed.  Also, this component is not based on
+// 'bdec_Queue', so there is no API for direct access to the underlying queue.
+// These limitations are a trade-off for significant gain in performance
+// compared to 'bcec_Queue'.
 //
 ///Template Requirements
 ///---------------------
-// 'bcec_AtomicRingBuffer' is a template which stores items of a parameterized
-// 'TYPE'.  'TYPE' must supply default and copy constructors and the assignment
-//  operator; if the default constructors accept a 'bslma::Allocator*',
-// 'TYPE' must declare the Uses Allocator trait (see
-// 'bslma_usesbslmaallocator') so that the allocator of the queue is
-// propagated to the elements.
+// 'bcec_AtomicRingBuffer' is a template that is parameterized on the type of
+// element contained within the queue.  The supplied template argument, 'TYPE',
+// must provide both a default constructor and a copy constructors as well as
+// an assignment operator.  If the default constructor accepts a
+// 'bslma::Allocator*', 'TYPE' must declare the uses 'bslma::Allocator' trait
+// (see 'bslma_usesbslmaallocator') so that the allocator of the queue is
+// propagated to the elements contained in the queue.
 //
 ///Exception safety
 ///----------------
@@ -272,24 +222,39 @@ class bcec_AtomicRingBuffer {
 
 
     // DATA
-    TYPE             *d_elements;  // element storage
+    TYPE             *d_elements;          // array of elements that comprise
+                                           // the fixed queue (array elements
+                                           // are manually constructed and 
+                                           // destroyed, and empty elements
+                                           // hold uninitialized memory)
 
     const char        d_elementsPad[e_PADDING];
+                                           // padding to prevent false sharing
     bcec_AtomicRingBufferIndexManager
-                      d_impl;      // state variables
+                      d_impl;              // index manager for managing the
+                                           // state of 'd_elements'
 
-    bsls::AtomicInt   d_numWaitingPoppers;
-    bcemt_Semaphore   d_popControlSema;    // pop threads wait on this
-                                           // when the queue is empty
+    bsls::AtomicInt   d_numWaitingPoppers; // number of threads waiting on
+                                           // 'd_popControlSema' to pop an
+                                           // element
+
+    bcemt_Semaphore   d_popControlSema;    // semaphore on which threads
+                                           // waiting to pop 'wait'
 
     const char        d_popControlSemaPad[e_PADDING];
-    bsls::AtomicInt   d_numWaitingPushers;
+                                           // padding to prevent false sharing
 
-    bcemt_Semaphore   d_pushControlSema;
+    bsls::AtomicInt   d_numWaitingPushers; // number of threads waiting on
+                                           // 'd_pushControlSema' to push an
+                                           // element
+
+    bcemt_Semaphore   d_pushControlSema;   // semaphore on which threads
+                                           // waiting to push 'wait'
 
     const char        d_pushControlSemaPad[e_PADDING];
+                                           // padding to prevent false sharing
 
-    bslma::Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;       // allocator, held not owned
 
   private:
     // NOT IMPLEMENTED
@@ -475,8 +440,9 @@ class bcec_AtomicRingBuffer_PushProctor {
                                       unsigned int                  index);
         // Create a proctor that manages the specified 'queue' and, unless
         // 'release' is called, will remove and destroy all the elements from
-        // 'queue' starting at the specified 'index'.   The behavior is
-        // undefined unless 'index' refers to a valid element in 'queue'.
+        // 'queue' starting at the specified 'index' in the specified
+        // 'generation'.  The behavior is undefined unless 'index' and
+        // 'generation' refers to a valid element in 'queue'.
 
     ~bcec_AtomicRingBuffer_PushProctor();
         // Destroy this proctor and, if 'release' was not called on this
@@ -494,6 +460,8 @@ class bcec_AtomicRingBuffer_PushProctor {
 // =====================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // =====================================================================
+
+// See the .cpp for an implementatin note.
 
                            // ----------------------
                            // class AtomicRingBuffer
