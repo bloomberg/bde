@@ -979,7 +979,11 @@ int local::StackTraceResolver::findLineNumber(int       *outLineNumber,
     zprintf("Detected lineNumber=%d, lineNumberOffset=%lu\n",
                                            lineNumber, lineNumberOffset);
 
-    *outLineNumber       = lineNumber;
+    // Aix seems to start line numbers at 0, disagreeing with __LINE__, vi,
+    // and emacs.  It's VERY consistently off by one, so it's easy for us
+    // to correct by subtracting one here.
+
+    *outLineNumber       = lineNumber - 1;
     *outLineNumberOffset = lineNumberOffset;
 
     return 0;
