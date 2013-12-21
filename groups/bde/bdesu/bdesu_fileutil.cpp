@@ -766,7 +766,7 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
 
          struct dirent& entry = entryHolder.d_entry;
          struct dirent *entry_p;
-         struct stat dummy;
+         struct stat64 dummy;
          int rc;
          do {
             rc = readdir_r(dir, &entry, &entry_p);
@@ -779,7 +779,7 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
             }
 
             bdesu_PathUtil::appendRaw(&path, entry.d_name);
-            if (0 == lstat(path.c_str(), &dummy) &&
+            if (0 == lstat64(path.c_str(), &dummy) &&
                 0 != remove(path.c_str(), true)) {
                return -1;                                             // RETURN
             }
