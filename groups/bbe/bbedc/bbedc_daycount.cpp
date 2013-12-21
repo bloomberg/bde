@@ -1,9 +1,9 @@
 // bbedc_daycount.cpp           -*-C++-*-
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(bbedc_daycount_cpp,"$Id$ $CSID$")
-
 
 #include <bbedc_daycount.h>
+
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(bbedc_daycount_cpp,"$Id$ $CSID$")
 
 #include <bbedc_actual360.h>
 #include <bbedc_actual365fixed.h>
@@ -15,6 +15,8 @@ BDES_IDENT_RCSID(bbedc_daycount_cpp,"$Id$ $CSID$")
 #include <bbedc_sia30360neom.h>
 
 #include <bsls_assert.h>
+
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -37,6 +39,13 @@ int bbedc_DayCount::daysDiff(const bdet_Date&               beginDate,
         numDays = bbedc_Actual365Fixed::daysDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ICMA_ACTUAL_ACTUAL: {
+        static bool firstTime = true;
+        if (firstTime) {
+            firstTime = false;
+            bsl::cout << "ERROR: deprecated 'bbedc_DayCount::daysDiff'"
+                         " called with ICMA Actual/Actual.\n";
+        }
+
         numDays = bbedc_IcmaActualActual::daysDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ISDA_ACTUAL_ACTUAL: {
@@ -83,6 +92,12 @@ double bbedc_DayCount::yearsDiff(const bdet_Date&               beginDate,
         numYears = bbedc_Actual365Fixed::yearsDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ICMA_ACTUAL_ACTUAL: {
+        static bool firstTime = true;
+        if (firstTime) {
+            firstTime = false;
+            bsl::cout << "ERROR: deprecated 'bbedc_DayCount::yearsDiff'"
+                         " called with ICMA Actual/Actual.\n";
+        }
         numYears = bbedc_IcmaActualActual::yearsDiff(beginDate, endDate);
       } break;
       case bbedc_DayCountConvention::BBEDC_ISDA_ACTUAL_ACTUAL: {
