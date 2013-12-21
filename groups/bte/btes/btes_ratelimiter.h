@@ -258,7 +258,7 @@ BDES_IDENT("$Id: $")
 //  bsls::Types::Uint64 bytesSent  = 0;
 //..
 // Now, we send the chunks of data using a loop.  For each iteration, we
-// checked whether submitting another byte would exceed the rate limiter's
+// check whether submitting another byte would exceed the rate limiter's
 // bandwidth limits.  If not, we send an additional chunk of data and submit
 // the number of bytes sent to the leaky bucket.  Note that 'submit' is invoked
 // only after the data has been sent.
@@ -344,10 +344,6 @@ class btes_RateLimiter {
     // A rate limiter keeps some statistics, including the number of submitted
     // units, that can be accessed using the 'getStatistics' and reset using
     // the 'resetStatistics' method.
-    //
-    // The class invariants are:
-    //: o 'capacity() > 0'
-    //: o 'drainRate() > 0'
     //
     // This class:
     //: o is *exception* *neutral* (agnostic)
