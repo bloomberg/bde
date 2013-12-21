@@ -76,6 +76,8 @@ const baetzo_Zoneinfo *baetzo_ZoneinfoCache::getZoneinfo(
         result = it->second;
     }
     else {
+        BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
+
         // Create a proctor for the new time zone value.
 
         baetzo_Zoneinfo *newTimeZonePtr =
@@ -86,16 +88,22 @@ const baetzo_Zoneinfo *baetzo_ZoneinfoCache::getZoneinfo(
 
         *rc = d_loader_p->loadTimeZone(newTimeZonePtr, timeZoneId);
         if (0 != *rc) {
+            if (baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID != *rc) {
+                BAEL_LOG_ERROR << "Unexpected error code loading time zone "
+                               << timeZoneId << ": " << *rc
+                               << BAEL_LOG_END;
+            }
             return 0;                                                 // RETURN
         }
-
         if (!baetzo_ZoneinfoUtil::isWellFormed(*newTimeZonePtr)) {
+            BAEL_LOG_ERROR << "Loaded zone info object for "
+                           << timeZoneId << " is not well-formed"
+                           << BAEL_LOG_END;
             *rc = FAILURE;
             return 0;                                                 // RETURN
         }
 
         if (newTimeZonePtr->identifier() != timeZoneId) {
-            BAEL_LOG_SET_CATEGORY(LOG_CATEGORY);
             BAEL_LOG_ERROR << "Loaded time zone id "
                            << newTimeZonePtr->identifier() << " does not match"
                            << " requested id: " << timeZoneId
