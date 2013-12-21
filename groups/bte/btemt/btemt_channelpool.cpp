@@ -898,8 +898,8 @@ btemt_Connector::btemt_Connector(
                 const bteso_IPv4Address        *localAddress,
                 bslma::Allocator               *basicAllocator)
 : d_socket(socket)
-, d_serverName(basicAllocator)
 , d_manager_p(manager)
+, d_serverName(basicAllocator)
 , d_creationTime(bdetu_SystemTime::now())
 , d_period(interval)
 , d_start(d_creationTime)
