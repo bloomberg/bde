@@ -55,7 +55,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-#define ASSERT_SAME(X, Y) ASSERT(1 == (bsl::is_same<X, Y>::value))
+#define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPES/OBJECTS FOR TESTING
@@ -309,9 +309,14 @@ void testForwardToTargetVal(TYPE obj)
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
 
-    ASSERT_SAME(typename bsl::remove_const<TYPE>::type,
-                typename bsl::remove_const<
-                    typename bsl::remove_reference<TargetType>::type>::type);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    ASSERT_SAME(TYPE, typename bsl::remove_reference<TargetType>::type);
+#else
+    ASSERT((bsl::is_same<TYPE,
+                    typename bsl::remove_reference<TargetType>::type>::value ||
+            bsl::is_same<const TYPE,
+                    typename bsl::remove_reference<TargetType>::type>::value));
+#endif
 
     FwdType fwdObj = obj;
 
@@ -320,15 +325,28 @@ void testForwardToTargetVal(TYPE obj)
 }
 
 template <class TYPE>
+void testForwardToTargetArray(TYPE obj)
+{
+    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
+    typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
+
+    ASSERT_SAME(TYPE&, TargetType);
+
+    FwdType fwdObj = obj;
+
+    // For arrays,j compare address of first element of original and final
+    // arrays.
+    ASSERT(&obj[0] ==
+           &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
+}
+
+template <class TYPE>
 void testForwardToTargetRef(TYPE ref)
 {
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
 
-    ASSERT_SAME(typename bsl::remove_const<
-                    typename bsl::remove_reference<TYPE>::type>::type,
-                typename bsl::remove_const<
-                    typename bsl::remove_reference<TargetType>::type>::type);
+    ASSERT_SAME(TYPE, TargetType);
 
     FwdType fwdRef = ref;
 
@@ -336,37 +354,6 @@ void testForwardToTargetRef(TYPE ref)
     // references.
     ASSERT(sameAddress(ref,
                     bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdRef)));
-}
-
-template <class TYPE>
-void testForwardToTargetSizedArray(TYPE obj)
-{
-    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
-    typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
-
-    ASSERT_SAME(typename bsl::remove_reference<TYPE>::type,
-                typename bsl::remove_reference<TargetType>::type);
-
-    FwdType fwdObj = obj;
-
-    // For arrays,j compare address of first element of original and final
-    // arrays.
-    ASSERT(&obj[0] ==
-           &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
-}
-
-template <class TYPE>
-void testForwardToTargetUnsizedArray(TYPE obj)
-{
-    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
-    typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
-
-    FwdType fwdObj = obj;
-
-    // For arrays,j compare address of first element of original and final
-    // arrays.
-    ASSERT(&obj[0] ==
-           &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
 }
 
 int main(int argc, char *argv[])
@@ -408,9 +395,72 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING bslmf::ForwardingTypeUtil
         //
-        // TESTING
-        //     bslmf::ForwardingTypeUtil<TYPE>::TargetType
-        //     bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
+        // Concerns:
+        //: 1 For types that are neither references not arrays,
+        //:   'ForwardingTypeUtil<TYPE>::TargetType' is similar to
+        //:   'TYPE' except that 'TargetType' might be a const reference
+        //:   (C++03) or rvalue reference (C++11+). An object of 'TYPE'
+        //:   converted to 'ForwardingType<TYPE>::Type', then forwarded using
+        //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a value
+        //:   equal to the original object.
+        //: 2 For array types of (known or unknown) size,
+        //:   'ForwardingTypeUtil<TYPE>::TargetType' yields a reference to
+        //:   'TYPE'. An array object of 'TYPE' converted to
+        //:   'ForwardingType<TYPE>::Type' then forwarded using 
+        //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a
+        //:   reference to the original array.
+        //: 3 For reference types, 'ForwardingTypeUtil<TYPE>::TargetType'
+        //:   yields 'TYPE'.  A reference of 'TYPE' converted to
+        //:   'ForwardingType<TYPE>::Type' then forwarded using 
+        //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a
+        //:   a reference identical to the original.
+        //: 4 All of the above concerns apply when 'TYPE' is
+        //:   cv-qualified. Note that passing volatile-qualified objects by
+        //:   value or by rvalue-reference does not really happen in real code
+        //:   and need not be tested.
+        //
+        // Plan:
+        //: 1 For concern 1, implement a function template,
+        //:   'testForwardToTargetVal' that can be instantiated with a 'TYPE'
+        //:   and which takes an argument 'obj' of 'TYPE'.  Instantiated
+        //:   on a variety of basic and non-basic types,
+        //:   'testForwardToTargetVal' performs the following operations: 
+        //:   a Verify that 'TargetType' is the expected transformation of
+        //:     'TYPE'
+        //:   b Initialize a temporary variable of type
+        //:     'ForwardingType<TYPE>::Type' using 'obj.
+        //:   c Call 'forwardToTarget' on the temporary variable and verify
+        //:     that the resulting object compares equal to 'obj'.
+        //: 2 For concern 2, implement a function template,
+        //    'testForwardToTargetArray' that can be instantiated with an
+        //:   an array 'TYPE' (or reference-to-array 'TYPE') and which takes
+        //:   an argument 'obj' of 'TYPE'.  Instantiated on a variety of array
+        //:   types of known and unknown size as well a lvalue and rvalues to
+        //:   such types, 'testForwardToTargetArray' performs the following
+        //:   operations:
+        //:   a Verify that 'TargetType' is the expected transformation of
+        //:     'TYPE'
+        //:   b Initialize a temporary variable of type
+        //:     'ForwardingType<TYPE>::Type' using 'obj.
+        //:   c Call 'forwardToTarget' on the temporary variable and verify
+        //:     that the resulting object has the same address as 'obj'.
+        //: 3 For concern 3, implement a function template,
+        //:   'testForwardToTargetRef' that can be instantiated with a
+        //:   reference 'TYPE' and which takes an argument 'ref' of 'TYPE'.
+        //:   Instantiated on a variety of lvalue and rvalue reference types,
+        //:   'testForwardToTargetRef' performs the following operations:
+        //:   a Verify that 'TargetType' is the expected transformation of
+        //:     'TYPE'
+        //:   b Initialize a temporary variable of type
+        //:     'ForwardingType<TYPE>::Type' using 'obj.
+        //:   c Call 'forwardToTarget' on the temporary variable and verify
+        //:     that the resulting object has the same address as 'obj'.
+        //: 4 For concern 4, instantiate the templates defined in the previous
+        //:   steps using cv-qualified template parameters.
+        // 
+        // Testing:
+        //      bslmf::ForwardingTypeUtil<TYPE>::TargetType
+        //      bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
         // --------------------------------------------------------------------
           
         if (verbose) cout << "\nbslmf::ForwardingTypeUtil"
@@ -423,7 +473,7 @@ int main(int argc, char *argv[])
         double  d = 1.23;
         double *p = &d;
         char    a[5] = { '5', '4', '3', '2', '1' };
-        char   (&au)[] = reinterpret_cast<AU&>(a);
+        char  (&au)[] = reinterpret_cast<AU&>(a);
         F      *f_p = func;
         Pm      m_p  = &Struct::d_data;
         Pmf     mf_p = &Class::value;
@@ -460,21 +510,21 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Pm      volatile>(m_p);
         testForwardToTargetVal<Pmf     volatile>(mf_p);
 
-        testForwardToTargetSizedArray<  A           >(a);
-        testForwardToTargetUnsizedArray<AU          >(au);
-        testForwardToTargetSizedArray<  A  const    >(a);
-        testForwardToTargetUnsizedArray<AU const    >(au);
-        testForwardToTargetSizedArray<  A          &>(a);
-        testForwardToTargetUnsizedArray<AU         &>(au);
-        testForwardToTargetSizedArray<  A  const   &>(a);
-        testForwardToTargetUnsizedArray<AU const   &>(au);
-        testForwardToTargetSizedArray<  A  volatile&>(a);
-        testForwardToTargetUnsizedArray<AU volatile&>(au);
+        testForwardToTargetArray<A           >(a);
+        testForwardToTargetArray<A  const    >(a);
+        testForwardToTargetArray<A          &>(a);
+        testForwardToTargetArray<A  const   &>(a);
+        testForwardToTargetArray<A  volatile&>(a);
+        testForwardToTargetArray<AU          >(au);
+        testForwardToTargetArray<AU const    >(au);
+        testForwardToTargetArray<AU         &>(au);
+        testForwardToTargetArray<AU const   &>(au);
+        testForwardToTargetArray<AU volatile&>(au);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        testForwardToTargetSizedArray<  A          &&>(std::move(a));
-        testForwardToTargetUnsizedArray<AU         &&>(std::move(au));
-        testForwardToTargetSizedArray<  A  const   &&>(std::move(a));
-        testForwardToTargetUnsizedArray<AU const   &&>(std::move(au));
+        testForwardToTargetArray<A          &&>(std::move(a));
+        testForwardToTargetArray<A  const   &&>(std::move(a));
+        testForwardToTargetArray<AU         &&>(std::move(au));
+        testForwardToTargetArray<AU const   &&>(std::move(au));
 #endif
 
         testForwardToTargetRef<Enum    &>(e);
@@ -602,7 +652,7 @@ int main(int argc, char *argv[])
         //:   verify that the resulting 'Type' member is the expected const
         //:   lvalue reference type.
         //
-        // TESTING
+        // Testing:
         //     bslmf::ForwardingType<TYPE>::Type
         // --------------------------------------------------------------------
 
