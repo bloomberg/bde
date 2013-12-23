@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 # ----------------------------------------------------------------------------
 
-# Usage: (python2.6) run_unit_tests.py test_driver.t test_driver_flag_file [--abi=<bits>] [--libs=<static or shared>] [--junit=junitoutput.xml]
+# Usage: (python2.6) run_unit_tests.py test_driver.t [--abi=<bits>] [--libs=<static or shared>] [--junit=junitoutput.xml]
 # Arguments: test (*.t) and target (*.t.ran)
 # Options  : --abi=<ABI_bits setting>
 #            --libs=<static_library|shared_library>
@@ -510,8 +510,8 @@ if __name__ == '__main__':
     if commandLineOptions.timeout:
         timeout = commandLineOptions.timeout
 
-    out.startTestSuite(sys.argv[-1], verbosityLevel, timeout)
-    returncode = TestRunner.runTest(sys.argv[-1], verbosityLevel, timeout, commandLineOptions.valgrind)
+    out.startTestSuite(sys.argv[1], verbosityLevel, timeout)
+    returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout, commandLineOptions.valgrind)
     returncode = out.endTestSuite(returncode)
 
     sys.exit(returncode)
