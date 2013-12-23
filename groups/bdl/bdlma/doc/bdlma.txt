@@ -4,9 +4,8 @@
 
 @MNEMONIC: Basic Development Library Memory Allocators (bdlma)
 
-@DESCRIPTION: The 'bdlma' package provides an allocator protocol (i.e., a pure
- abstract interface) and a variety of concrete allocators derived from this
- protocol.
+@DESCRIPTION: The 'bdlma' package provides concrete allocators derived from the
+ 'bslma::Allocator' protocol.
 
 /Hierarchical Synopsis
 /---------------------
