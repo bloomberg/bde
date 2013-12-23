@@ -360,7 +360,7 @@ namespace UsageExamples {
 //
 // First, we define 'UseEntireValueAsKey', a class template we can use to
 // configure 'bslstl::HashTable' to use its entire elements as keys for its
-// hasher, a policy suitable for a set container.  (Later, in {Example2}, we
+// hasher, a policy suitable for a set container.  (Later, in {Example 2}, we
 // will define 'UseFirstValueOfPairAsKey' for use in a map container.  Note
 // that, in practice, developers can use the existing classes in
 // {'bslstl_unorderedmapkeyconfiguration'} and
