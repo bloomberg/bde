@@ -312,6 +312,7 @@ class bael_FileObserver2 : public bael_Observer {
 
     bdet_DatetimeInterval  d_localTimeOffset;          // differential between
                                                        // local and UTC times
+                                                       // at construction
 
     bool                   d_publishInLocalTime;       // 'true' if timestamp
                                                        // attribute published
