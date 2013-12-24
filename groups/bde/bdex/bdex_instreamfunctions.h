@@ -1089,7 +1089,7 @@ namespace bdex_InStreamFunctions {
     template <typename STREAM, typename TYPE>
     inline
     STREAM& streamInVersionAndObject(STREAM& stream, TYPE& object)
-        // !DEPRECATED!: Use ’streamIn’ instead.
+        // !DEPRECATED!: Use 'streamIn' instead.
         //
         // Assign to the specified 'object' the value read from the specified
         // input 'stream' and return a reference to the modifiable 'stream'.
