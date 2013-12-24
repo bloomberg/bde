@@ -163,7 +163,7 @@ struct btes5_TestServerArgs {
         //: o 'd_expectedDestination' unset
         //: o 'd_expectedCredentials' unset
         // Optionally specify an 'allocator' used to supply memory. If
-        // 'allocator' is 0, the currently installed default allocator is used. 
+        // 'allocator' is 0, the currently installed default allocator is used.
 
 };
 
