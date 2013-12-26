@@ -3,6 +3,7 @@
 
 #include <bdesu_pathutil.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>    // atoi
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -218,16 +219,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'closeAndRelease'\n"
                              "=========================\n";
 
-        Obj fileProctor(bsl::fopen(txtPath.c_str(), "w"));
-        ASSERT(fileProctor.file_p());
+        Util::FileDescriptor fd = Util::open(txtPath,
+                                             true,        // writable
+                                             false);      // doesn't exist
+        ASSERT(Util::INVALID_FD != fd);
 
-        // Note no \n, no flush
+        Obj fileProctor(fd);
+        ASSERT(fileProctor.descriptor());
 
-        int rc = fprintf(fileProctor.file_p(), "meow meow");
+        int rc = Util::write(fd, "meow meow", 9);
         ASSERT(9 == rc);
 
         fileProctor.closeAndRelease();
-        ASSERT(0 == fileProctor.file_p());
         ASSERT(Util::INVALID_FD == fileProctor.descriptor());
 
         // Now read the file and verify that it was written, which will shows
@@ -236,11 +239,10 @@ int main(int argc, char *argv[])
 
         char buffer[100];
 
-        Obj fdProctor(Util::open(txtPath,
-                               false,    // not writable
-                               true));   // already exists
+        Obj fdProctor(fd = Util::open(txtPath,
+                                      false,        // not writable
+                                      true));       // already exists
         ASSERT(Util::INVALID_FD != fdProctor.descriptor());
-        Util::FileDescriptor desc = fdProctor.descriptor();
 
         bsl::memset(buffer, 0, sizeof(buffer));
         rc = Util::read(fdProctor.descriptor(), buffer, sizeof(buffer));
@@ -253,11 +255,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == off);
 
         fdProctor.closeAndRelease();
-        ASSERT(0 == fdProctor.file_p());
         ASSERT(Util::INVALID_FD == fdProctor.descriptor());
 
         bsl::memset(buffer, 0, sizeof(buffer));
-        rc = Util::read(desc, buffer, sizeof(buffer));
+        rc = Util::read(fd, buffer, sizeof(buffer));
         ASSERT(rc < 0);     // A negative value will show that read failed
                             // since 'fdProctor' closed 'desc'.
 #if BSLS_PLATFORM_OS_UNIX
@@ -280,37 +281,43 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'release'\n"
                              "================\n";
 
-        bsl::FILE *fp = bsl::fopen(txtPath.c_str(), "w");
-        ASSERT(fp);
+        Util::FileDescriptor fd = Util::open(txtPath,
+                                             true,     // writable
+                                             false);   // doesn't exist
+        ASSERT(Util::INVALID_FD != fd);
+
         {
-            Obj proctor(fp);
-            ASSERT(proctor.file_p() == fp);
+            Obj proctor(fd);
+            ASSERT(proctor.descriptor() == fd);
 
             proctor.release();
-            ASSERT(0 == proctor.file_p());
             ASSERT(Util::INVALID_FD == proctor.descriptor());
         }
 
-        // Observe we can still write to 'fp'.
+        // Observe we can still write to 'fd'.
 
-        int rc = bsl::fprintf(fp, "Arf arf!");
+        int rc = Util::write(fd, "Arf arf!", 8);
         ASSERT(8 == rc);
 
-        rc = bsl::fclose(fp);
+        Util::Offset off = Util::seek(fd,
+                                      0,
+                                      Util::BDESU_SEEK_FROM_BEGINNING);
+        ASSERT(0 == off);
+
+        rc = Util::close(fd);
         ASSERT(0 == rc);
 
         ASSERT(8 == Util::getFileSize(txtPath));
 
-        Util::FileDescriptor fd = Util::open(txtPath,
-                                             false,    // not writable
-                                             true);    // already exists
+        fd = Util::open(txtPath,
+                        false,    // not writable
+                        true);    // already exists
         ASSERT(Util::INVALID_FD != fd);
         {
             Obj proctor(fd);
             ASSERT(proctor.descriptor() == fd);
 
             proctor.release();
-            ASSERT(0 == proctor.file_p());
             ASSERT(Util::INVALID_FD == proctor.descriptor());
         }
 
@@ -335,60 +342,64 @@ int main(int argc, char *argv[])
         //   That proctors properly close files upon destruction.
         //
         // Plan:
-        //: 1 Create a proctor that manages a 'FILE *' file pointer. write some
-        //:   bufferred output to the file with no '\n' so it won't be flushed.
-        //:   Then have the proctor go out of scope, and open the file with
-        //:   another proctor, this time managing a
-        //:   'bdesu_FileUtil::FileDescriptor', and read the file, verifying
-        //:   that all the output is there, which will show that it was flushed
-        //:   by the first proctor closing the 'FILE *' pointer.
-        //: 2 Save the descriptor from the second proctor and have that proctor
-        //:   go out of scope.  Try to read from the saved descriptor and
-        //:   observe that the read fails because the descriptor was closed
-        //:   by the second proctor.
+        //   Open files, create proctors with them, do I/O, have the proctor
+        //   go out of scope, attempt further I/O, and observe that it fails.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Breathing Test\n"
                              "==============\n";
 
+        int rc;
+        Util::FileDescriptor fd;
+
         {
-            Obj proctor(bsl::fopen(txtPath.c_str(), "w"));
-            ASSERT(proctor.file_p());
+            fd = Util::open(txtPath,
+                            true,        // writable
+                            false);      // doesn't exist
+            Obj proctor(fd);
 
-            // Note no \n, no flush
+            ASSERT(Util::INVALID_FD != proctor.descriptor());
 
-            int rc = fprintf(proctor.file_p(), "woof woof");
+            rc = Util::write(fd, "woof woof", 9);
             ASSERT(9 == rc);
         }
+
+        // Attempt a write using 'fd' and observe that it fails since 'fd' is
+        // closed.
+
+        rc = Util::write(fd, "meow meow", 9);
+        ASSERT(rc < 0);
+
+#if BSLS_PLATFORM_OS_UNIX
+        ASSERT(EBADF == errno);
+#endif
 
         // Now read the file and verify that it was written, which will shows
         // that a flush happened, which will tell us the file has been
         // properly closed.
 
         char buffer[100];
-        Util::FileDescriptor desc;
         {
-            Obj proctor(Util::open(txtPath,
-                                   false,    // not writable
-                                   true));   // already exists
-            ASSERT(Util::INVALID_FD != proctor.descriptor());
-            desc = proctor.descriptor();
+            fd = Util::open(txtPath,
+                            false,    // not writable
+                            true);    // already exists
+            ASSERT(Util::INVALID_FD != fd);
+            Obj proctor(fd);
 
             bsl::memset(buffer, 0, sizeof(buffer));
             int rc = Util::read(proctor.descriptor(), buffer, sizeof(buffer));
             ASSERT(9 == rc);
             ASSERT(!bsl::strcmp(buffer, "woof woof"));
 
-            Util::Offset off = Util::seek(proctor.descriptor(),
+            Util::Offset off = Util::seek(fd,
                                           0,
                                           Util::BDESU_SEEK_FROM_BEGINNING);
             ASSERT(0 == off);
         }
 
-        bsl::memset(buffer, 0, sizeof(buffer));
-        int rc = Util::read(desc, buffer, sizeof(buffer));
-        ASSERT(rc < 0);     // A negative value will show that read failed
-                            // since 'proctor' closed 'desc'.
+        rc = Util::read(fd, buffer, sizeof(buffer));
+        ASSERT(rc < 0);
+
 #if BSLS_PLATFORM_OS_UNIX
         ASSERT(EBADF == errno);
 #endif

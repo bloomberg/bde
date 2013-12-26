@@ -10,18 +10,10 @@ namespace BloombergLP {
 void bdesu_FileCloseProctor::closeAndRelease()
 {
     if (bdesu_FileUtil::INVALID_FD != d_descriptor) {
-        BSLS_ASSERT(0 == d_file_p);
-
         int rc = bdesu_FileUtil::close(d_descriptor);    (void) rc;
         BSLS_ASSERT(0 == rc && "close failed");
 
         d_descriptor = bdesu_FileUtil::INVALID_FD;
-    }
-    else if (d_file_p) {
-        int rc = bsl::fclose(d_file_p);                  (void) rc;
-        BSLS_ASSERT(0 == rc && "fclose failed");
-
-        d_file_p = 0;
     }
 }
 

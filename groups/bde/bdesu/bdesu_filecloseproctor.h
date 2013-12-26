@@ -116,10 +116,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSL_CSTDIO
-#include <bsl_cstdio.h>
-#endif
-
 namespace BloombergLP {
 
                      // =============================
@@ -134,7 +130,6 @@ struct bdesu_FileCloseProctor {
     // this proctor type can manage only one file at a time, through one of
     // the two types of file handles that can be supplied at construction.
 
-    bsl::FILE                      *d_file_p;
     bdesu_FileUtil::FileDescriptor  d_descriptor;
 
   private:
@@ -144,12 +139,6 @@ struct bdesu_FileCloseProctor {
 
   public:
     // CREATORS
-    explicit
-    bdesu_FileCloseProctor(bsl::FILE *file_p);
-        // Create a proctor object that will manage the specified 'file_p',
-        // closing it upon destruction.  The behavior is undefined unless
-        // 'file_p' refers to a file opened with 'bsl::fopen'.
-
     explicit
     bdesu_FileCloseProctor(bdesu_FileUtil::FileDescriptor descriptor);
         // Create a proctor object that will manage the specified 'descriptor',
@@ -169,10 +158,6 @@ struct bdesu_FileCloseProctor {
         // management by this object.
 
     // ACCESSORS
-    bsl::FILE *file_p() const;
-        // If this proctor manages a 'FILE *' pointer, return that pointer and
-        // return 0 otherwise.
-
     bdesu_FileUtil::FileDescriptor descriptor() const;
         // If this proctor manages a 'bdesu_FileUtil::FileDescriptor', return
         // that file descriptor, and return 'bdesu_FileUtil::INVALID_FD'
@@ -189,18 +174,9 @@ struct bdesu_FileCloseProctor {
 
 // CREATORS
 inline
-bdesu_FileCloseProctor::bdesu_FileCloseProctor(bsl::FILE *file_p)
-: d_file_p(file_p)
-, d_descriptor(bdesu_FileUtil::INVALID_FD)
-{
-    BSLS_ASSERT_OPT(file_p);
-}
-
-inline
 bdesu_FileCloseProctor::bdesu_FileCloseProctor(
                                      bdesu_FileUtil::FileDescriptor descriptor)
-: d_file_p(0)
-, d_descriptor(descriptor)
+: d_descriptor(descriptor)
 {
     BSLS_ASSERT_OPT(bdesu_FileUtil::INVALID_FD != descriptor);
 }
@@ -215,17 +191,10 @@ bdesu_FileCloseProctor::~bdesu_FileCloseProctor()
 inline
 void bdesu_FileCloseProctor::release()
 {
-    d_file_p = 0;
     d_descriptor = bdesu_FileUtil::INVALID_FD;
 }
 
 // ACCESSORS
-inline
-bsl::FILE *bdesu_FileCloseProctor::file_p() const
-{
-    return d_file_p;
-}
-
 inline
 bdesu_FileUtil::FileDescriptor bdesu_FileCloseProctor::descriptor() const
 {
