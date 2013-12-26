@@ -1076,6 +1076,10 @@ int main(int argc, char *argv[])
         // Test that the queue provides the Strong exception safety
         // guarantee.
         // ---------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CONCERN: Exception Safety" << endl
+                          << "=========================" << endl;
         
         bcema_TestAllocator ta(veryVeryVerbose);
         {        
@@ -1146,6 +1150,10 @@ int main(int argc, char *argv[])
         // constructor and a 1-arg copy constructor.
         // ---------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "CONCERN: Template Requirements" << endl
+                          << "==============================" << endl;
+
         bcec_FixedQueue<TestType> q(10);
 
         TestType t(1, 2);
@@ -1163,6 +1171,11 @@ int main(int argc, char *argv[])
         // the real length of the queue will always be between 0 and N,
         // so verify that the reported length is always in this range.
         // ---------------------------------------------------------
+
+
+        if (verbose) cout << endl
+                          << "CONCERN: length Stress-Test" << endl
+                          << "===========================" << endl;
 
         enum {
             NUM_PUSHPOP_THREADS = 6,
