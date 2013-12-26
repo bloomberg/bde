@@ -13,7 +13,7 @@ BDES_IDENT_RCSID(bcec_fixedqueue_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_limits.h>
 
-#ifndef BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION 
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
 
 ///IMPLEMENTATION NOTES
 ///--------------------
@@ -409,7 +409,7 @@ bool bcec_FixedQueue_IndexQueue::isEnabled() const
 
 }  // close namespace BloombergLP
 
-#endif
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
