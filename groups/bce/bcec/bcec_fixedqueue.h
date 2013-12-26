@@ -291,7 +291,7 @@ class bcec_FixedQueue_IndexQueue {
     bsl::vector<bces_AtomicInt>
                    d_data;
 
-    const char     d_dataPad[e_PADDING];  
+    const char     d_dataPad[e_PADDING];
                                      // keep 'd_data'  and 'd_back' on
                                      // separate cache lines
                                      // (performance only)
@@ -299,7 +299,7 @@ class bcec_FixedQueue_IndexQueue {
     bces_AtomicInt d_back;           // index of the back of the queue
                                      // ORed with a generation count
 
-    const char     d_indexPad[e_PADDING]; 
+    const char     d_indexPad[e_PADDING];
                                      // keep 'd_back'  and 'd_front' on
                                      // separate cache lines
                                      // (performance only)

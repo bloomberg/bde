@@ -121,7 +121,7 @@ typedef bcec_FixedQueue<Element*> Obj;
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
-class ExceptionTester 
+class ExceptionTester
 {
 public:
     static bces_AtomicInt s_throwFrom;
@@ -141,7 +141,7 @@ public:
 bces_AtomicInt ExceptionTester::s_throwFrom = 1;
 
 void exceptionProducer(bcec_FixedQueue<ExceptionTester> *tester,
-                       bcemt_TimedSemaphore             *sema, 
+                       bcemt_TimedSemaphore             *sema,
                        bces_AtomicInt                   *numCaught) {
     enum { NUM_ITERATIONS = 2 };
 
@@ -1086,13 +1086,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "CONCERN: Exception Safety" << endl
                           << "=========================" << endl;
-        
+
         bcema_TestAllocator ta(veryVeryVerbose);
-        {        
+        {
             // a.  popping from a full queue with exception leaves a non-full
             //     queue and unblocks a pusher
             enum {QUEUE_LENGTH = 3};
-            bcec_FixedQueue<ExceptionTester> queue(QUEUE_LENGTH, 
+            bcec_FixedQueue<ExceptionTester> queue(QUEUE_LENGTH,
                                                          &ta);
             ASSERT(0 == queue.pushBack(ExceptionTester()));
             ASSERT(0 == queue.pushBack(ExceptionTester()));
@@ -1106,10 +1106,10 @@ int main(int argc, char *argv[])
             int rc = bcemt_ThreadUtil::create(&producer,
                                               bdef_BindUtil::bind(
                                                          &exceptionProducer,
-                                                         &queue, &sema, 
+                                                         &queue, &sema,
                                                          &numCaught));
             BSLS_ASSERT_OPT(0 == rc); // test invariant
-            
+
             ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsInt();
             bool caught = false;
             try {
@@ -1118,7 +1118,7 @@ int main(int argc, char *argv[])
                 caught = true;
             }
             ASSERT(caught);
-            ASSERT(0 == 
+            ASSERT(0 ==
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
 
             ASSERT(QUEUE_LENGTH == queue.length());
@@ -1127,13 +1127,13 @@ int main(int argc, char *argv[])
             // length of the queue
             ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsInt(
                                     bcemt_ThreadUtil::handleToId(producer));
-            
+
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
-            ASSERT(0 == 
+            ASSERT(0 ==
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
             ASSERT(1 == numCaught);
-\
+
             ASSERT(QUEUE_LENGTH - 1 == queue.length());
             ASSERT(!queue.isFull());
             ASSERT(0 == queue.tryPushBack(ExceptionTester()));
