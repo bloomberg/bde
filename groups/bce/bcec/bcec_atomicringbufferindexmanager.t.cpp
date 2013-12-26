@@ -20,13 +20,13 @@
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wconversion"
 #endif
 #include <bsl_sstream.h>
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
 #pragma GCC diagnostic pop
 #endif
 
@@ -1580,7 +1580,7 @@ int main(int argc, char *argv[])
                           << "TESTING: print" << endl
                           << "==============" << endl;
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -1652,7 +1652,7 @@ int main(int argc, char *argv[])
             X.print(stream);
             ASSERTV(stream.str(), EXPECTED, stream.str() == EXPECTED);
         }
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
 #pragma GCC diagnostic pop
 #endif
       } break;

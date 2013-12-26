@@ -2071,7 +2071,7 @@ int main(int argc, char *argv[])
           args.d_goCond.broadcast();
           args.d_mutex.unlock();
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
 // disable the larger than warning for this buffer
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
@@ -2079,7 +2079,7 @@ int main(int argc, char *argv[])
 
           char reserved[NITERATIONS+1];
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
 #pragma GCC diagnostic pop
 #endif
 
