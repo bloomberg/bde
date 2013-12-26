@@ -16,14 +16,20 @@ BDES_IDENT("$Id: $")
 //         Dave Schumann (dschuman),
 //         Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component implements a lock-free mechanism for
-// managing the indices of a circular buffer of elements to facilitate
-// the implementation of a fixed-size thread-enabled single-ended queue.
-// A 'bcec_AtomicRingBufferIndexManager' is supplied the size of a
-// circular buffer on construction, and provides the methods to reserve
-// indices for enqueing and dequeing elements in that buffer.  The actual
-// buffer is held in some other (external) data structure managed by the user
-// of this component.
+//@DESCRIPTION: [!WARNING!] This component should not be used directly!
+// Clients should include 'bcec_fixedqueue.h' and define the compilation flag
+// 'BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION' to replace 'bcec_FixedQueue'
+// with this new implementation.  The existing implementation of
+// 'bcec_FixedQueue' will be replaced for all users in a future release, and
+// this component will be removed.
+//
+// This component implements a lock-free mechanism for managing the indices of
+// a circular buffer of elements to facilitate the implementation of a
+// fixed-size thread-enabled single-ended queue.  A
+// 'bcec_AtomicRingBufferIndexManager' is supplied the size of a circular
+// buffer on construction, and provides the methods to reserve indices for
+// enqueing and dequeing elements in that buffer.  The actual buffer is held in
+// some other (external) data structure managed by the user of this component.
 //
 // This component is not *itself* a general-purpose queue data structure.  For
 // example, no user data of any kind is stored in this data structure (it is
@@ -208,7 +214,6 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
-
 
 #ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>

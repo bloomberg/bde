@@ -238,6 +238,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifdef BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION 
+
+#define BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
+#include <bcec_atomicringbuffer.h>
+#undef BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
+
+#define bcec_FixedQueue bcec_AtomicRingBuffer
+
+#else
+
 namespace BloombergLP {
 
                    // ======================================
@@ -853,6 +863,8 @@ bool bcec_FixedQueue<TYPE>::isEnabled() const
 }
 
 }  // close namespace BloombergLP
+
+#endif
 
 #endif
 

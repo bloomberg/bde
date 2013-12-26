@@ -1,6 +1,9 @@
 // bcec_atomicringbuffer.t.cpp       -*-C++-*-
 
+#define BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
 #include <bcec_atomicringbuffer.h>
+#undef BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
+
 #include <bcec_queue.h>
 #include <bcec_skiplist.h>
 

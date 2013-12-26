@@ -9,14 +9,23 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-enabled fixed-size queue of values.
 //
+//@DEPRECATED: Use 'bcec_fixedqueue'.
+//
 //@CLASSES:
 //  bcec_AtomicRingBuffer: thread-enabled fixed-size queue of 'TYPE' values
 //
 //@AUTHOR: Eric Winseman (ewinseman), Dave Schumann (dschuman)
 //
-//@DESCRIPTION: This component implements an efficient, thread-enabled
-// fixed-size queue of values.  This class is ideal for synchronization and
-// communication between threads in a producer-consumer model.
+//@DESCRIPTION: [!WARNING!] This component should not be used directly!
+// Clients should include 'bcec_fixedqueue.h' and define the compilation flag
+// 'BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION' to replace 'bcec_FixedQueue'
+// with this new implementation.  The existing implementation of
+// 'bcec_FixedQueue' will be replaced for all users in a future release, and
+// this component will be removed.
+//
+// This component implements an efficient, thread-enabled fixed-size queue of
+// values.  This class is ideal for synchronization and communication between
+// threads in a producer-consumer model.
 //
 // The queue provides 'pushBack' and 'popFront' methods for pushing data into
 // the queue and popping it from the queue.  In case of overflow (queue full
@@ -200,6 +209,13 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
+#endif
+
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION) &&                  \
+    !defined(BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE)
+#error "bcec_AtomicRingBuffer should not be used directly. "                 \
+       "Include <bcec_fixedqueue.h> and define "                             \
+       "'BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION'."
 #endif
 
 namespace BloombergLP {

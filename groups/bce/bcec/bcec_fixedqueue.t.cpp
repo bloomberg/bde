@@ -857,6 +857,8 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
 namespace indexqueue_zerotst {
 
 struct Control {
@@ -972,6 +974,9 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
+
 namespace zerotst {
 
 struct Control {
@@ -1069,7 +1074,8 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 21: {
-#ifdef BDE_BUILD_TARGET_EXC
+#if defined(BDE_BUILD_TARGET_EXC) && \
+    !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
         // ---------------------------------------------------------
         // Exception safety test
         //
@@ -1127,7 +1133,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == 
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
             ASSERT(1 == numCaught);
-
+\
             ASSERT(QUEUE_LENGTH - 1 == queue.length());
             ASSERT(!queue.isFull());
             ASSERT(0 == queue.tryPushBack(ExceptionTester()));
@@ -1138,7 +1144,9 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-#endif //  BDE_BUILD_TARGET_EXC
+#endif //  #if defined(BDE_BUILD_TARGET_EXC) && \
+           !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
         break;
       }
 
@@ -1314,6 +1322,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 16: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
         // ---------------------------------------------------------
         // Pushing zeros through the IndexQueue
         // ---------------------------------------------------------
@@ -1333,7 +1342,7 @@ int main(int argc, char *argv[])
                     NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
-
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
       } break;
       case 15: {
         // ---------------------------------------------------------
@@ -1368,7 +1377,7 @@ int main(int argc, char *argv[])
             mX.disable();
             ASSERT(!X.isEnabled());
             int data = D1;
-            ASSERT(-2 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == da.numBytesInUse());
             ASSERT(0 == mX.length());
 
@@ -1383,24 +1392,24 @@ int main(int argc, char *argv[])
             data = D3;
             ASSERT(0 == mX.tryPushBack(data));
             ASSERT(3 == mX.length());
-            ASSERT(-1 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == da.numBytesInUse());
             ASSERT(3 == mX.length());
 
             mX.disable();
             ASSERT(!X.isEnabled());
-            ASSERT(-1 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
 
             ASSERT(0 == mX.tryPopFront(&data));
             ASSERT(D1 == data);
 
-            ASSERT(-2 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == mX.tryPopFront(&data));
             ASSERT(D2 == data);
             ASSERT(0 == mX.tryPopFront(&data));
             ASSERT(D3 == data);
 
-            ASSERT(-1 == mX.tryPopFront(&data));
+            ASSERT(0 != mX.tryPopFront(&data));
         }
 
         ASSERT(0 == da.numBytesInUse());
@@ -1450,7 +1459,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == mX.length());
             ASSERT(1 == mX.size());
             data = D1;
-            ASSERT(-1 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == da.numBytesInUse());
             ASSERT(1 == mX.length());
             ASSERT(1 == mX.size());
@@ -1543,6 +1552,8 @@ int main(int argc, char *argv[])
       } break;
 
       case 10: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
         // ---------------------------------------------------------
         // TESTING CONCERN: Memory leak if pushing while disabled
         //
@@ -1585,6 +1596,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
 
       } break;
       case 9: {
@@ -2490,6 +2502,7 @@ int main(int argc, char *argv[])
       } break;
 
       case -6: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
         // --------------------------------------------------------------------
         // STRESS TEST
         // --------------------------------------------------------------------
@@ -2529,6 +2542,7 @@ int main(int argc, char *argv[])
                           << "NUM PUSHERS: " << numPushers << endl;
 
         disabletst::runtest(numPushers, 4099, false);
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
       } break;
       case -8: {
         // --------------------------------------------------------------------
@@ -2690,6 +2704,9 @@ int main(int argc, char *argv[])
       } break;
 
       case -10: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+// Note that backoff level is not used in opengrok.
+
         // ---------------------------------------------------------
         // tuning backoff
         // ---------------------------------------------------------
@@ -2746,6 +2763,7 @@ int main(int argc, char *argv[])
              << " (" << user << "U, " << system << " S)"
              << endl;
         cout << "Elapsed wall time: " << wall << endl;
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

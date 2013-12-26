@@ -1,6 +1,8 @@
 // bcec_atomicringbuffer.cpp                                          -*-C++-*-
 
+#define BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
 #include <bcec_atomicringbuffer.h>
+#undef BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcec_atomicringbuffer_cpp,"$Id$ $CSID$")
