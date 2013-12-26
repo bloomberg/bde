@@ -1069,6 +1069,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 21: {
+#ifdef BDE_BUILD_TARGET_EXC
         // ---------------------------------------------------------
         // Exception safety test
         //
@@ -1133,6 +1134,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+#endif //  BDE_BUILD_TARGET_EXC
         break;
       }
 

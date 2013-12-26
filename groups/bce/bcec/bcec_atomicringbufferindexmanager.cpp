@@ -1,4 +1,4 @@
-// bcec_atomicringbufferindexmanager.cpp                            -*-C++-*-
+// bcec_atomicringbufferindexmanager.cpp                              -*-C++-*-
 #include <bcec_atomicringbufferindexmanager.h>
 
 #include <bdes_ident.h>
@@ -24,7 +24,7 @@ namespace BloombergLP {
 // of atomic integers, 'd_states', that encode the states of the corresponding
 // elements in an external circular buffer (e.g.,'bcec_AtomicRingBuffer').
 // The bits in the atomic integers of the 'd_states' array, as well as both
-// 'd_pushIndex' and 'd_popIndex' encode multiple pieces of information, as
+// 'd_pushIndex' and 'd_popIndex', encode multiple pieces of information, as
 // described below.
 //
 // Test case -2 in this component's test-driver renders various states of a
@@ -125,12 +125,12 @@ namespace BloombergLP {
 // A *complete* generation is a generation value that can be represented by
 // every element in the 'd_states' array.
 //
-// Note there's a possibility that the final generation could be incomplete.
-// If 'd_capacity' is not a power of 2, the last representable combined index
-// in that generation would fall in the middle of the buffer.
+// Note that there is a possibility that the final generation could be
+// incomplete.  If 'd_capacity' is not a power of 2, the last representable
+// combined index in that generation would fall in the middle of the buffer.
 //
-///Defining of Full and Empty Queues
-///---------------------------------
+///Definition of Full and Empty Queues
+///----------==-----------------------
 // 'reservePushBack' and 'reservePopIndex' both return an error status
 // indicating the queue is either full or empty respectively.  Although the
 // meaning of full or empty is intuitive, in a lock-free context where
@@ -165,7 +165,7 @@ enum ElementState {
 };
 
 const char *toString(ElementState state)
-    // Return a 0 terminated description of the specified 'state'.
+    // Return a 0-terminated description of the specified 'state'.
 {
     switch (state) {
       case e_EMPTY:   return "EMPTY";
@@ -437,7 +437,7 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
             }
 
             // It should now be possible for an empty cell to be in the
-            // previous generation (as emptying the cell, increments its
+            // previous generation (as emptying the cell increments its
             // generation).
 
             BSLS_ASSERT(e_EMPTY != state);
@@ -463,7 +463,7 @@ int bcec_AtomicRingBufferIndexManager::reservePushIndex(
         loadedPushIndex   = d_pushIndex.testAndSwap(combinedIndex, next);
     }
 
-    // We've acquired the cell, attempt to increment the push index.
+    // We've acquired the cell; attempt to increment the push index.
 
     unsigned int next = nextCombinedIndex(combinedIndex);
     d_pushIndex.testAndSwap(combinedIndex, next);
@@ -482,7 +482,7 @@ void bcec_AtomicRingBufferIndexManager::commitPushIndex(
                 decodeGenerationFromElementState(d_states[index]));
 
 
-    // We cannot guarantee the full pre-conditions of this function, the
+    // We cannot guarantee the full pre-conditions of this function.  The
     // preceding assertions are as close as we can get.
 
     // Mark the pushed cell with the 'FULL' state.
@@ -614,7 +614,7 @@ void bcec_AtomicRingBufferIndexManager::commitPopIndex(
     BSLS_ASSERT(generation ==
                 decodeGenerationFromElementState(d_states[index]));
 
-    // We cannot guarantee the full preconditions of this function, the
+    // We cannot guarantee the full preconditions of this function.  The
     // preceding assertions are as close as we can get.
 
     // Mark the popped cell with the subsequent generation and the EMPTY
@@ -628,7 +628,8 @@ void bcec_AtomicRingBufferIndexManager::commitPopIndex(
 void bcec_AtomicRingBufferIndexManager::disable()
 {
 
-    // Loop until we detect the disabled bit in the push index has been set.
+    // Loop until we detect that the disabled bit in the push index has been
+    // set.
 
     for (;;) {
         const unsigned int pushIndex = d_pushIndex;
@@ -652,7 +653,8 @@ void bcec_AtomicRingBufferIndexManager::disable()
 void bcec_AtomicRingBufferIndexManager::enable()
 {
 
-    // Loop until we detect the disabled bit in the push index has been unset.
+    // Loop until we detect that the disabled bit in the push index has been
+    // cleared.
 
     for (;;) {
         const unsigned int pushIndex = d_pushIndex;
@@ -707,7 +709,7 @@ int bcec_AtomicRingBufferIndexManager::reservePopIndexForClear (
         unsigned int currentGeneration = loadedCombinedIndex / d_capacity;
 
 
-        // Attempt to swap this cell's state from e_FULL to 'e_READING', note
+        // Attempt to swap this cell's state from e_FULL to 'e_READING'.  Note
         // that we set this to 'e_EMPTY' only after we attempt to increment
         // the popIndex, so that another popping thread will not accidentally
         // see this cell as empty and return that the queue is empty.
@@ -763,9 +765,9 @@ void bcec_AtomicRingBufferIndexManager::abortPushIndexReservation(
 
     unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
 
-    // Note that the preconditions for this function -- that (1) the current
-    // thread hold a push-index reservation on 'generation' and 'index', and
-    // (2) have called 'clearPopIndex' on all the preceding generation and
+    // Note that the preconditions for this function -- that the current
+    // thread (1) holds a push-index reservation on 'generation' and 'index',
+    // and (2) has called 'clearPopIndex' on all the preceding generation and
     // index values -- require that 'd_popIndex' refer to 'generation' and
     // 'index.
 
@@ -823,11 +825,11 @@ unsigned int bcec_AtomicRingBufferIndexManager::length() const
     if (difference >= 0) {
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                 difference > static_cast<int>(d_capacity))) {
-            // Because the pop index is acquired after the push index, its
+            // Because the pop index is acquired after the push index, it's
             // possible for the push index to be immediately before
-            // 'd_maxCombinedIndex' and then 'combinedPopIndex' to be acquired
-            // after it wraps around to 0, resulting in a very large positive
-            // value.
+            // 'd_maxCombinedIndex' and then for 'combinedPopIndex' to be
+            // acquired after it wraps around to 0, resulting in a very large
+            // positive value.
 
             BSLS_ASSERT(0 > circularDifference(combinedPushIndex,
                                                combinedPopIndex,

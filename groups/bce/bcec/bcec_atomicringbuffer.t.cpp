@@ -236,7 +236,7 @@ void pushpopThread(bcec_AtomicRingBuffer<int> *queue,
     }
 }
 
-class ExceptionTester 
+class ExceptionTester
 {
 public:
     static bsls::AtomicInt64 s_throwFrom;
@@ -245,7 +245,7 @@ public:
 
     ExceptionTester(const ExceptionTester&) {
         if (s_throwFrom &&
-            bcemt_ThreadUtil::selfIdAsUint64() == 
+            bcemt_ThreadUtil::selfIdAsUint64() ==
             static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
             throw 1;
         }
@@ -253,7 +253,7 @@ public:
 
     ExceptionTester& operator=(const ExceptionTester&) {
         if (s_throwFrom &&
-            bcemt_ThreadUtil::selfIdAsUint64() == 
+            bcemt_ThreadUtil::selfIdAsUint64() ==
             static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
 
             throw 1;
@@ -265,7 +265,7 @@ public:
 bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 
 void exceptionProducer(bcec_AtomicRingBuffer<ExceptionTester> *tester,
-                       bcemt_TimedSemaphore                   *sema, 
+                       bcemt_TimedSemaphore                   *sema,
                        bces_AtomicInt                         *numCaught) {
     enum { NUM_ITERATIONS = 3 };
 
@@ -965,7 +965,7 @@ struct my_WorkRequest {
         WORK = 1
         , STOP = 2
     };
-    
+
     RequestType d_type;
     my_WorkData d_data;
     // Work data...
@@ -1033,10 +1033,10 @@ int main(int argc, char *argv[])
       case 18: {
         // ---------------------------------------------------------
         // Usage example test
-        // 
+        //
         // Test that the usage example compiles and runs as provided.
         // ---------------------------------------------------------
-          
+
         if (verbose) cout << endl
                           << "Usage example test" << endl
                           << "==================" << endl;
@@ -1045,14 +1045,15 @@ int main(int argc, char *argv[])
         myProducer(NUM_THREADS);
         break;
       }
-          
+
       case 17: {
+#ifdef BDE_BUILD_TARGET_EXC
         // ---------------------------------------------------------
         // Exception safety test
         //
         // Test that the queue provides the Basic exception safety
         // guarantee. After an exception on pushBack, the queue is emptied.
-        // After an exception on popFront, the object is removed and the 
+        // After an exception on popFront, the object is removed and the
         // queue behaves normally.
         // ---------------------------------------------------------
         if (verbose) cout << endl
@@ -1084,17 +1085,17 @@ int main(int argc, char *argv[])
 
         }
 
-        
+
 
         if (verbose) {
             cout << endl
                  << "Testing exception safety for mutiple threads" << endl;
         }
-        {        
+        {
             // b.  popping from a queue with exception operates normally.
 
             enum {QUEUE_LENGTH = 3};
-            bcec_AtomicRingBuffer<ExceptionTester> queue(QUEUE_LENGTH, 
+            bcec_AtomicRingBuffer<ExceptionTester> queue(QUEUE_LENGTH,
                                                          &ta);
             ASSERT(0 == queue.pushBack(ExceptionTester()));
             ASSERT(0 == queue.pushBack(ExceptionTester()));
@@ -1108,10 +1109,10 @@ int main(int argc, char *argv[])
             int rc = bcemt_ThreadUtil::create(&producer,
                                               bdef_BindUtil::bind(
                                                          &exceptionProducer,
-                                                         &queue, &sema, 
+                                                         &queue, &sema,
                                                          &numCaught));
             BSLS_ASSERT_OPT(0 == rc); // test invariant
-            
+
             ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
                                            bcemt_ThreadUtil::selfIdAsUint64());
 
@@ -1131,7 +1132,7 @@ int main(int argc, char *argv[])
 
             // Now the queue should become non-full and the pusher should
             // be woken up and able to push into it
-            ASSERT(0 == 
+            ASSERT(0 ==
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
 
             ASSERT(QUEUE_LENGTH == queue.length());
@@ -1151,11 +1152,11 @@ int main(int argc, char *argv[])
 
             // Now the queue should become non-full and the pusher should
             // be woken up and able to push into it
-            ASSERT(0 == 
+            ASSERT(0 ==
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
 
             ASSERT(QUEUE_LENGTH == queue.length());
-            
+
             if (veryVerbose) {
                 cout << endl
                      << "Exception during copy constructor (push)" << endl;
@@ -1164,10 +1165,10 @@ int main(int argc, char *argv[])
             // b.  pushing into a queue with exception empties the queue.
             ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsUint64(
                                        bcemt_ThreadUtil::handleToId(producer));
-            
+
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
-            ASSERT(0 == 
+            ASSERT(0 ==
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
             LOOP_ASSERT(numCaught, 1 == numCaught);
 
@@ -1195,12 +1196,13 @@ int main(int argc, char *argv[])
             bcemt_ThreadUtil::join(producer);
         }
         ASSERT(0 == ta.numBytesInUse());
+#endif //  BDE_BUILD_TARGET_EXC
       } break;
       case 16: {
         // ---------------------------------------------------------
         // Template Requirements Test
         //
-        // bcec_AtomicRingBuffer<T> should work for types T that have no 
+        // bcec_AtomicRingBuffer<T> should work for types T that have no
         // default constructor and a 1-arg copy constructor.
         // ---------------------------------------------------------
 
@@ -1210,18 +1212,18 @@ int main(int argc, char *argv[])
 
         bcec_AtomicRingBuffer<TestType> q(10);
 
-        int count = 0; 
+        int count = 0;
         {
             TestType t(&count);
             q.pushBack(t);
-            
+
             TestType t2 = q.popFront();
         }
         ASSERT(0 == count);
         {
             TestType t(&count);
             q.pushBack(t);
-            
+
             TestType t2(&count);
             q.popFront(&t2);
         }

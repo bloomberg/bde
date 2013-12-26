@@ -19,7 +19,7 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component implements a lock-free mechanism for
 // managing the indices of a circular buffer of elements to facilitate
 // the implementation of a fixed-size thread-enabled single-ended queue.
-// A 'bcec_AtomicRingBufferIndexManager' is supplied the size of an
+// A 'bcec_AtomicRingBufferIndexManager' is supplied the size of a
 // circular buffer on construction, and provides the methods to reserve
 // indices for enqueing and dequeing elements in that buffer.  The actual
 // buffer is held in some other (external) data structure managed by the user
@@ -48,16 +48,15 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating a Thread-safe Queue of Integers
+///Example 1: Creating a Thread-Safe Queue of Integers
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a simple thread-safe queue of integers
 // using a 'bcec_AtomicRinBufferIndexManager' to synchronize the queue
-// operations
+// operations.
 //
 // We start by declaring the data members of an 'IntegerQueue', a vector of
 // integers, to hold the values in the queue, and an index manager to ensure
-// thread-safe access to the indices of the vector.
-// vector:
+// thread-safe access to the indices of the vector:
 //..
 //  class IntegerQueue {
 //      // This class provides a fully thread-safe queue of integers with a
@@ -76,7 +75,7 @@ BDES_IDENT("$Id: $")
 //      // CREATORS
 //      explicit IntegerQueue(unsigned int      capacity,
 //                            bslma::Allocator *basicAllocator = 0);
-//          // Create an queue capable of holding up to the specified
+//          // Create a queue capable of holding up to the specified
 //          // 'capacity' number of integer values.
 //
 //      ~IntegerQueue();
@@ -95,11 +94,11 @@ BDES_IDENT("$Id: $")
 //
 //      // ACCESSORS
 //      unsigned int length() const;
-//          // Return the number of elements currently in this queue.
+//          // Return a snapshot of the number of elements currently in this
+//          // queue. 
 //
 //      unsigned int capacity() const;
-//          // Return the maximum number of elements that can be added to this
-//          // queue.
+//          // Return the maximum number of elements that this queue can hold.
 //  };
 //..
 //  Next, we define the constructor, which initializes both the index manager
@@ -147,7 +146,7 @@ BDES_IDENT("$Id: $")
 // Notice that because none of these operations allocate memory, we do not
 // need to add code to ensure exception safety.
 //
-// The, we define the accessors to the integer queue:
+// Then, we define the accessors to the integer queue:
 //..
 //  // ACCESSORS
 //  unsigned int IntegerQueue::length() const
@@ -160,7 +159,7 @@ BDES_IDENT("$Id: $")
 //      return d_indexManager.capacity();
 //  }
 //..
-// Finally, we create an 'IntegerQueue', and push and pop a couple elements
+// Finally, we create an 'IntegerQueue', and push and pop a couple of elements
 // into the queue:
 //..
 //  IntegerQueue intQueue(2);
@@ -274,9 +273,9 @@ class bcec_AtomicRingBufferIndexManager {
   private:
     // NOT IMPLEMENTED
     bcec_AtomicRingBufferIndexManager(
-                                  const bcec_AtomicRingBufferIndexManager&);
+                        const bcec_AtomicRingBufferIndexManager&); // = delete;
     bcec_AtomicRingBufferIndexManager& operator=(
-                                  const bcec_AtomicRingBufferIndexManager&);
+                        const bcec_AtomicRingBufferIndexManager&); // = delete;
 
   private:
 
@@ -448,7 +447,7 @@ class bcec_AtomicRingBufferIndexManager {
         // generation following the specified 'generation'.  The behavior is
         // undefined unless the calling thread holds a reservation on
         // 'generation' and 'index', and 'clearPopIndex' and then
-        // 'commitPushIndex' has been repeatedly invoked  with 'generation'
+        // 'commitPushIndex' have been repeatedly invoked with 'generation'
         // and 'index' as input until no indices remain to clear.  Note that
         // this operation is used to facilitate removing all the elements in a
         // circular buffer if an exception is thrown between reserving an
