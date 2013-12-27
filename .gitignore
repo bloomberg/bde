@@ -10,3 +10,5 @@ coverage/
 *.xcodeproj/
 .DS_store
 *.pyc
+.lock-waf*
+.waf-*
