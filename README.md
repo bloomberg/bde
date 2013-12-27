@@ -1,17 +1,16 @@
-Basic Standard Library (BSL)
-============================
+BDE Libraries
+=============
 
-This is the Basic Standard Library, part of Bloomberg's Basic Development Environment (BDE). For more information about BSL and BDE,
-follow the links below:
+This repository contains the BDE libraries, currently BSL (BDE Standard Library) and BDL (BDE Develment Library).  For more information about BSL, BDL, and BDE, follow the links below:
 
-* [BSL wiki](http://github.com/bloomberg/bsl/wiki)
-* [Quick-Start Guide](http://github.com/bloomberg/bsl/wiki/Getting-Started)
-* [Online Library Documentation](http://bloomberg.github.com/bsl)
-* [BDE Mission Statement](http://github.com/bloomberg/bsl/wiki/Mission-Statement)
+* [BDE wiki](http://github.com/bloomberg/bde/wiki)
+* [Quick-Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started)
+* [Online Library Documentation](http://bloomberg.github.com/bde)
+* [BDE Mission Statement](http://github.com/bloomberg/bde/wiki/Mission-Statement)
 
 License
 -------
-BSL is distributed under a simple MIT-style license; see the LICENSE file at the top of the source tree for more information.
+The BDE libraries are distributed under a simple MIT-style license; see the LICENSE file at the top of the source tree for more information.
 
 Question, Comments and Feedback
 ===============================
