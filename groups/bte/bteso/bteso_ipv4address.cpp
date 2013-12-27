@@ -32,7 +32,7 @@ int bteso_IPv4Address::isValid(const char *address)
     BSLS_ASSERT(address);
 
     int addr;
-    if (!machineIndependentInetPtonIPv4(address, &addr)) {
+    if (!machineIndependentInetPtonIPv4(&addr, address)) {
         return -1;                                                    // RETURN
     }
     return 0;
@@ -69,8 +69,8 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *addr)
     return memcmp(segs, minusOne[numSeg - 1], sizeof segs) == 0;
 }
 
-int bteso_IPv4Address::machineIndependentInetPtonIPv4(const char *address,
-                                                      int        *addr)
+int bteso_IPv4Address::machineIndependentInetPtonIPv4(int        *addr,
+                                                      const char *address)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
@@ -108,7 +108,7 @@ bteso_IPv4Address::bteso_IPv4Address(const char *address,
     BSLS_ASSERT_SAFE(0 == isValid(address));
     BSLS_ASSERT(0 <= portNumber && portNumber <= 65535);
 
-    machineIndependentInetPtonIPv4(address, &d_address);
+    machineIndependentInetPtonIPv4(&d_address, address);
 }
 
                             // ------------
@@ -121,7 +121,7 @@ int bteso_IPv4Address::setIpAddress(const char *address)
 
     int addr;
 
-    if (!machineIndependentInetPtonIPv4(address, &addr)) {
+    if (!machineIndependentInetPtonIPv4(&addr, address)) {
         d_address = 0;
         return -1;                                                    // RETURN
     }

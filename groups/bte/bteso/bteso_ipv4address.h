@@ -197,8 +197,8 @@ class bteso_IPv4Address {
         // to detect all cases in which a valid address of 255.255.255.255 is
         // wrongfully detected as an invalid address by inet_addr.
 
-    static int machineIndependentInetPtonIPv4(const char *address,
-                                              int        *addr);
+    static int machineIndependentInetPtonIPv4(int        *addr,
+                                              const char *address);
         // Convert the specified Internet host 'address' from the IPv4
         // numbers-and-dots notation into binary form (in network byte order)
         // and store it in the location the specified 'addr' points to. Return
