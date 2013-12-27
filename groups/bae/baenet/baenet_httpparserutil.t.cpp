@@ -74,6 +74,8 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+typedef bsls::Types::Int64 Int64;
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -442,7 +444,7 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) {
                 T_ P_(L_) P(c)
             }
-            int            result = 0;
+            Int64          result = 0;
             int            consumed = 0;
             bsl::stringbuf input(buf);
             int            inputPos = input.pubseekoff(0,
@@ -460,7 +462,7 @@ int main(int argc, char *argv[])
             }
 
             bsl::istringstream in(buf);
-            int n;
+            Int64 n;
             in >> bsl::hex;
 
             if (in >> n) {
@@ -475,7 +477,7 @@ int main(int argc, char *argv[])
         static struct {
             int         d_lineNum;          // line number
             const char *d_string;           // test string
-            int         d_expectedResult;   // expected result
+            Int64       d_expectedResult;   // expected result
             int         d_expectedReturn;   // expected return value
             int         d_expectedConsumed; // expected consumed
         } DATA[] = {
@@ -495,29 +497,30 @@ int main(int argc, char *argv[])
             { L_, "0\r\n",                        0,         SUCCESS,     3  },
             { L_, "z\r\n",                        0,         FAILURE,     -1 },
             { L_, "1abcdef; ignorestuffhere\r\n", 0x1abcdef, SUCCESS,     26 },
-            { L_, "123456789",                    0,         FAILURE,     -1 },
+            { L_, "123456789",                    0,         END_OF_FILE, -1 },
 
             // test hex numbers of varying length
-            { L_, "1\r\n",                        1,         SUCCESS,     3  },
-            { L_, "23\r\n",                       0x23,      SUCCESS,     4  },
-            { L_, "456789AB\r\n",                 0x456789AB,SUCCESS,     10 },
-            { L_, "456789ABC\r\n",                0,         FAILURE,     -1 },
+            { L_, "1\r\n",                        1,              SUCCESS,     3 },
+            { L_, "23\r\n",                       0x23,           SUCCESS,     4 },
+            { L_, "456789AB\r\n",                 0x456789AB,     SUCCESS,    10 },
+            { L_, "456789ABC\r\n",                0x456789ABCULL, SUCCESS,    11 },
+            { L_, "12345678901234567\r\n",        0,              FAILURE,     0 },
 
             // test hex numbers of varying length and trailing options
-            { L_, "1;\r\n",                       1,         SUCCESS,     4  },
-            { L_, "1; foo=bar\r\n",               1,         SUCCESS,     12 },
-            { L_, "23;\r\n",                      0x23,      SUCCESS,     5  },
+            { L_, "1;\r\n",                        1,           SUCCESS,   4 },
+            { L_, "1; foo=bar\r\n",                1,           SUCCESS,  12 },
+            { L_, "23;\r\n",                       0x23,        SUCCESS,   5 },
             { L_, "23; somelongoption=somelongvalue\r\n", 0x23, SUCCESS,  34 },
-            { L_, "456789AB;\r\n",                0x456789AB,SUCCESS,     11 },
-            { L_, "456789AB; FOO=BAR\r\n",        0x456789AB,SUCCESS,     19 },
-            { L_, "456789ABC;\r\n",               0,         FAILURE,     -1 },
-            { L_, "456789ABC; BAR=FOO\r\n",       0,         FAILURE,     -1 },
+            { L_, "456789AB;\r\n",                 0x456789AB,  SUCCESS,  11 },
+            { L_, "456789AB; FOO=BAR\r\n",         0x456789AB,  SUCCESS,  19 },
+            { L_, "12345678901234567;\r\n",        0,           FAILURE,  -1 },
+            { L_, "12345678901234567; BAR=FOO\r\n",0,           FAILURE,  -1 },
 
             // test entries will trailing content
             { L_, "1\r\nsome content",            1,         SUCCESS,     3  },
             { L_, "23\r\n\r\n",                   0x23,      SUCCESS,     4  },
             { L_, "456789AB\r\n;abcd",            0x456789AB,SUCCESS,     10 },
-            { L_, "456789ABC\r\n123\r\n",         0,         FAILURE,     -1 },
+            { L_, "12345678901234567\r\n123\r\n", 0,         FAILURE,     -1 },
             { L_, "1;\r\n;;",                     1,         SUCCESS,     4  },
             { L_, "1; foo=bar\r\nxyzzy",          1,         SUCCESS,     12 },
             { L_, "23;\r\nall good",              0x23,      SUCCESS,     5  },
@@ -526,8 +529,8 @@ int main(int argc, char *argv[])
             { L_, "456789AB;\r\none more",        0x456789AB,SUCCESS,     11 },
             { L_, "456789AB; FOO=BAR\r\n; and anotther",
                                                   0x456789AB,SUCCESS,     19 },
-            { L_, "456789ABC;\r\n; but at last",  0,         FAILURE,     -1 },
-            { L_, "456789ABC; BAR=FOO\r\ndone",   0,         FAILURE,     -1 },
+            { L_, "12345678901234567;\r\n; but at last",  0, FAILURE,     -1 },
+            { L_, "12345678901234567; BAR=FOO\r\ndone",   0, FAILURE,     -1 },
         };
 
         if (veryVerbose) {
@@ -539,7 +542,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             const int      LINE              = DATA[i].d_lineNum;
             const string   STRING            = DATA[i].d_string;
-            const int      EXPECTED_RESULT   = DATA[i].d_expectedResult;
+            const Int64    EXPECTED_RESULT   = DATA[i].d_expectedResult;
             const int      EXPECTED_RETURN   = DATA[i].d_expectedReturn;
             const int      EXPECTED_CONSUMED = DATA[i].d_expectedConsumed;
 
@@ -547,7 +550,8 @@ int main(int argc, char *argv[])
                 T_ P_(LINE) P_(STRING) P_(EXPECTED_RESULT)
                    P_(EXPECTED_RETURN) P_(EXPECTED_CONSUMED)
             }
-            int            result = 0, consumed = 0;
+            Int64          result = 0;
+            int            consumed = 0;
             bsl::stringbuf input(STRING);
             int            inputPos = input.pubseekoff(0,
                                                        bsl::ios_base::cur,

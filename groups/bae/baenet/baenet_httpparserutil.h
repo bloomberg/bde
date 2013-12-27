@@ -87,6 +87,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 
 namespace BloombergLP {
 
@@ -130,9 +134,9 @@ struct baenet_HttpParserUtil {
     };
 
     // FUNCTIONS
-    static int parseChunkHeader(int            *result,
-                                int            *numBytesConsumed,
-                                bsl::streambuf *buffer);
+    static int parseChunkHeader(bsls::Types::Int64 *result,
+                                int                *numBytesConsumed,
+                                bsl::streambuf     *buffer);
         // Parse the chunk header contained in the specified 'buffer' and load
         // into the specified 'result' the non-negative size of the chunk (in
         // bytes).  Load into the specified 'numBytesConsumed' the number of
@@ -215,6 +219,8 @@ struct baenet_HttpParserUtil {
     static int parseFieldValue(TYPE                   *result,
                                const bdeut_StringRef&  str);
     static int parseFieldValue(int                    *result,
+                               const bdeut_StringRef&  str);
+    static int parseFieldValue(bsls::Types::Int64      *result,
                                const bdeut_StringRef&  str);
     static int parseFieldValue(bsl::string            *result,
                                const bdeut_StringRef&  str);
