@@ -130,8 +130,16 @@ int baejsn_Tokenizer::extractStringValue()
     while (true) {
         while (d_valueIter < d_stringBuffer.length()
             && '"' != d_stringBuffer[d_valueIter]) {
+
+            if ('\\' == d_stringBuffer[d_valueIter]
+             && '\\' == previousChar) {
+                previousChar = 0;
+            }
+            else {
+                previousChar = d_stringBuffer[d_valueIter];
+            }
+
             ++d_valueIter;
-            previousChar = d_stringBuffer[d_valueIter - 1];
         }
 
         if (d_valueIter >= d_stringBuffer.length()) {
