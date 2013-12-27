@@ -1,3 +1,8 @@
+!!! We're MOVING !!!
+==================
+
+We will be releasing more of BDE in the next few days, and the BSL library will be incorporated into the new project at: https://github.com/bloomberg/bde.
+
 Basic Standard Library (BSL)
 ============================
 
