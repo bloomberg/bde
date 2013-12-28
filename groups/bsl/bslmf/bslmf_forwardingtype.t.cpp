@@ -26,7 +26,8 @@ using namespace std;
 // [ 1] bslmf::ForwardingType<TYPE>::Type
 // [ 2] bslmf::ForwardingTypeUtil<TYPE>::TargetType
 // [ 2] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
-// [ 3] USAGE EXAMPLES
+// [ 3] END-TO-END OVERLOADING
+// [ 4] USAGE EXAMPLES
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -113,6 +114,22 @@ typedef int (Class::*Pmf)() const;
 void func() { }
 void funcI(int) { }
 void funcRi(int&) { }
+
+struct OverloadCheck
+{
+    // Check overloading 
+        Enum    e = E_VAL2;
+        Struct  s(99);
+        Union   u(98);
+        Class   c(97);
+        double  d = 1.23;
+        double *p = &d;
+        char    a[5] = { '5', '4', '3', '2', '1' };
+        char  (&au)[] = reinterpret_cast<AU&>(a);
+        F      *f_p = func;
+        Pm      m_p  = &Struct::d_data;
+        Pmf     mf_p = &Class::value;
+};
 
 //=============================================================================
 //                           USAGE EXAMPLES
@@ -368,7 +385,8 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -388,6 +406,58 @@ int main(int argc, char *argv[])
 
         usageExample1();
         usageExample2();
+
+      } break;
+
+      case 3: {
+        // --------------------------------------------------------------------
+        // Concerns:
+        //: 1 An argument of type 'T' that is passed to one function as 'T',
+        //:   forwarded through a second function as 'ForwardingType<T>::Type'
+        //:   and passed to a third (target) function by calling
+        //:   'ForwardingTypeUtil<T>::forwardToTarget()' will be seen by the
+        //:   target function almost exactly as if the original argument had
+        //:   been passed directly to it, including selecting the correct
+        //:   overload and instantiation of the target function.
+        //: 2 Rvalue types are forwarded to the target function without
+        //:   cv-qualification, regardless of whether an rvalue type is
+        //:   primitive or of class type
+        //: 3 Lvalue reference types are forwarded to the target with the
+        //:   original cv-qualification.
+        //: 4 Rvalue reference types (C++11 and newer) are forwarded to the
+        //:   target with the original cv-qualification.
+        //: 5 Sized array types are forwarded to the target with the original
+        //:   array size.
+        //: 6 Unsized array types are forwarded to the target as pointer types.
+        //
+        // Plan:
+        //: 1 For concern 1, create a small set of functor classes with
+        //:   several overloads of 'operator()'.  Each overload verifies
+        //:   correct invocation by returning a different enumerated
+        //:   value.  Call each functor via an intermediary function that
+        //:   takes a 'T' argument and passes it to a second intermediary
+        //:   function taking a 'ForwardingType<T>::Type' argument which, in
+        //:   turn, calls the functor.  Verify that the functor returns the
+        //:   same value as would be returned if it were called directly.
+        //: 2 For concern 2, perform step 1 with a functor class whose
+        //:   'operator()' takes 'const', 'volatile', and 'const
+        //:   volatile' lvalue reference types (C++03 and before) or
+        //:   unqualified, 'const', 'volatile', and 'const volatile' rvalue
+        //:   reference types (C++11 and newer).  Instantiate with a variety
+        //:   of primitive and non-primitive rvalue types of different
+        //:   cv-qualifications.
+        //: 3 For concern 3, repeat step 2, except instantiate with lvalue
+        //:   reference types.
+        //: 4 For concern 4, repeat step 2, except instantiate with rvalue
+        //:   reference types.
+        //: 5 For concerns 5 and 6, perform step 1 with a functor class whose
+        //:   'operator()' returns the size of the array on which it is
+        //:   called, or zero for pointer types.  Instantiate with a variety
+        //:   of array types and reference-to-array types.
+        //
+        // TESTING
+        //      END-TO-END OVERLOADING
+        // --------------------------------------------------------------------
 
       } break;
 
