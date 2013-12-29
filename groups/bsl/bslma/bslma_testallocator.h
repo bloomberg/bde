@@ -514,7 +514,7 @@ class TestAllocator : public Allocator {
         // errors is suppressed, and the functions simply return.  Diagnostics
         // are not affected.  Note that the default mode is to abort.  Also
         // note that this function is provided primarily to enable visual
-        // testing of bizarre error messages in this component.
+        // testing of diagnostic messages produced by this component.
 
     void setQuiet(bool flagValue);
         // Set the quiet mode for this test allocator to the specified

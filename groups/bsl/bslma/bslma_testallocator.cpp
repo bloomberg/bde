@@ -496,10 +496,6 @@ void *TestAllocator::allocate(size_type size)
     d_lastAllocatedNumBytes.storeRelaxed(
                                         static_cast<bsls::Types::Int64>(size));
 
-    // Set to 0 in case of premature returns.
-
-    d_lastAllocatedAddress_p.storeRelaxed(0);
-
 #ifdef BDE_BUILD_TARGET_EXC
     if (0 <= allocationLimit()) {
         if (0 > d_allocationLimit.addRelaxed(-1)) {
@@ -509,6 +505,7 @@ void *TestAllocator::allocate(size_type size)
 #endif
 
     if (0 == size) {
+        d_lastAllocatedAddress_p.storeRelaxed(0);
         return 0;                                                     // RETURN
     }
 
@@ -598,11 +595,8 @@ void TestAllocator::deallocate(void *address)
     d_numDeallocations.addRelaxed(1);
     d_lastDeallocatedAddress_p.storeRelaxed(reinterpret_cast<int *>(address));
 
-    // Set to 0 in case of premature returns.
-
-    d_lastDeallocatedNumBytes.storeRelaxed(0);
-
     if (0 == address) {
+        d_lastDeallocatedNumBytes.storeRelaxed(0);
         return;                                                       // RETURN
     }
 
