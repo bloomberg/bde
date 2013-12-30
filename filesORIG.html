@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bsl__P__bslhdrs.html">bsl+bslhdrs</a> | <a class="qindex" href="group__bsl__P__stdhdrs.html">bsl+stdhdrs</a> | <a class="qindex" href="group__bslalg.html">bslalg</a> | <a class="qindex" href="group__bsldoc.html">bsldoc</a> | <a class="qindex" href="group__bslim.html">bslim</a> | <a class="qindex" href="group__bslma.html">bslma</a> | <a class="qindex" href="group__bslmf.html">bslmf</a> | <a class="qindex" href="group__bsls.html">bsls</a> | <a class="qindex" href="group__bslscm.html">bslscm</a> | <a class="qindex" href="group__bslstl.html">bslstl</a> | <a class="qindex" href="group__bsltf.html">bsltf</a>
+<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
  </td>
  </tr>
  </table>
@@ -63,8 +63,28 @@
 </div>
 <div class="contents">
 Here is a list of all files with brief descriptions:<table>
-  <tr><td class="indexkey"><a class="el" href="bsl_09bslhdrs_8h.html">bsl+bslhdrs.h</a> <a href="bsl_09bslhdrs_8h_source.html">[code]</a></td><td class="indexvalue">Provide a compatibility layer to enable BDE-STL mode in Bloomberg </td></tr>
-  <tr><td class="indexkey"><a class="el" href="bsl_09stdhdrs_8h.html">bsl+stdhdrs.h</a> <a href="bsl_09stdhdrs_8h_source.html">[code]</a></td><td class="indexvalue">Provide a compatibility layer to enable BDE-STL mode in Bloomberg </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdl_8h.html">bdl.h</a> <a href="bdl_8h_source.html">[code]</a></td><td class="indexvalue">Provide vocabulary types, messaging, containers, and parsers </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma_8h.html">bdlma.h</a> <a href="bdlma_8h_source.html">[code]</a></td><td class="indexvalue">Provide allocators, pools, and other memory-management tools </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__autoreleaser_8h.html">bdlma_autoreleaser.h</a> <a href="bdlma__autoreleaser_8h_source.html">[code]</a></td><td class="indexvalue">Release memory to a managed allocator or pool at destruction </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__blocklist_8h.html">bdlma_blocklist.h</a> <a href="bdlma__blocklist_8h_source.html">[code]</a></td><td class="indexvalue">Provide allocation and management of a sequence of memory blocks </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__bufferedsequentialallocator_8h.html">bdlma_bufferedsequentialallocator.h</a> <a href="bdlma__bufferedsequentialallocator_8h_source.html">[code]</a></td><td class="indexvalue">Provide an efficient managed allocator using an external buffer </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__bufferedsequentialpool_8h.html">bdlma_bufferedsequentialpool.h</a> <a href="bdlma__bufferedsequentialpool_8h_source.html">[code]</a></td><td class="indexvalue">Provide sequential memory using an external buffer and a fallback </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__bufferimputil_8h.html">bdlma_bufferimputil.h</a> <a href="bdlma__bufferimputil_8h_source.html">[code]</a></td><td class="indexvalue">Provide pure procedures for allocating memory from a buffer </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__buffermanager_8h.html">bdlma_buffermanager.h</a> <a href="bdlma__buffermanager_8h_source.html">[code]</a></td><td class="indexvalue">Provide a memory manager that manages an external buffer </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__countingallocator_8h.html">bdlma_countingallocator.h</a> <a href="bdlma__countingallocator_8h_source.html">[code]</a></td><td class="indexvalue">Provide a memory allocator that counts allocated bytes </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__guardingallocator_8h.html">bdlma_guardingallocator.h</a> <a href="bdlma__guardingallocator_8h_source.html">[code]</a></td><td class="indexvalue">Provide a memory allocator that guards against buffer overruns </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__infrequentdeleteblocklist_8h.html">bdlma_infrequentdeleteblocklist.h</a> <a href="bdlma__infrequentdeleteblocklist_8h_source.html">[code]</a></td><td class="indexvalue">Provide allocation and management of infrequently deleted blocks </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__managedallocator_8h.html">bdlma_managedallocator.h</a> <a href="bdlma__managedallocator_8h_source.html">[code]</a></td><td class="indexvalue">Provide a protocol for memory allocators that support <code>release</code> </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__multipool_8h.html">bdlma_multipool.h</a> <a href="bdlma__multipool_8h_source.html">[code]</a></td><td class="indexvalue">Provide a memory manager to manage pools of varying block sizes </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__multipoolallocator_8h.html">bdlma_multipoolallocator.h</a> <a href="bdlma__multipoolallocator_8h_source.html">[code]</a></td><td class="indexvalue">Provide a memory-pooling allocator of heterogeneous block sizes </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__pool_8h.html">bdlma_pool.h</a> <a href="bdlma__pool_8h_source.html">[code]</a></td><td class="indexvalue">Provide efficient allocation of memory blocks of uniform size </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__sequentialallocator_8h.html">bdlma_sequentialallocator.h</a> <a href="bdlma__sequentialallocator_8h_source.html">[code]</a></td><td class="indexvalue">Provide a managed allocator using dynamically-allocated buffers </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlma__sequentialpool_8h.html">bdlma_sequentialpool.h</a> <a href="bdlma__sequentialpool_8h_source.html">[code]</a></td><td class="indexvalue">Provide sequential memory using dynamically-allocated buffers </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdls_8h.html">bdls.h</a> <a href="bdls_8h_source.html">[code]</a></td><td class="indexvalue">Provide system-level utilities for BDL </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdls__testutil_8h.html">bdls_testutil.h</a> <a href="bdls__testutil_8h_source.html">[code]</a></td><td class="indexvalue">Provide test utilities for components in <code>bdl</code> and above </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlscm_8h.html">bdlscm.h</a> <a href="bdlscm_8h_source.html">[code]</a></td><td class="indexvalue">Provide versioning information for BDL library components </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlscm__version_8h.html">bdlscm_version.h</a> <a href="bdlscm__version_8h_source.html">[code]</a></td><td class="indexvalue">Provide source control management (versioning) information </td></tr>
+  <tr><td class="indexkey"><a class="el" href="bdlscm__versiontag_8h.html">bdlscm_versiontag.h</a> <a href="bdlscm__versiontag_8h_source.html">[code]</a></td><td class="indexvalue">Provide versioning information for the <code>bdl</code> package group </td></tr>
   <tr><td class="indexkey"><a class="el" href="bsl_8h.html">bsl.h</a> <a href="bsl_8h_source.html">[code]</a></td><td class="indexvalue">Provide a comprehensive foundation for component-based development </td></tr>
   <tr><td class="indexkey"><a class="el" href="bslalg_8h.html">bslalg.h</a> <a href="bslalg_8h_source.html">[code]</a></td><td class="indexvalue">Provide algorithms and traits used by the BDE STL implementation </td></tr>
   <tr><td class="indexkey"><a class="el" href="bslalg__arraydestructionprimitives_8h.html">bslalg_arraydestructionprimitives.h</a> <a href="bslalg__arraydestructionprimitives_8h_source.html">[code]</a></td><td class="indexvalue">Provide primitive algorithms that destroy arrays </td></tr>
@@ -320,7 +340,7 @@ Here is a list of all files with brief descriptions:<table>
   <tr><td class="indexkey"><a class="el" href="bsltf__uniontesttype_8h.html">bsltf_uniontesttype.h</a> <a href="bsltf__uniontesttype_8h_source.html">[code]</a></td><td class="indexvalue">Provide an union test type </td></tr>
 </table>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:26 for BSL Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:22:03 for BDE Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

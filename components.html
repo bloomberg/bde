@@ -29,6 +29,25 @@ var CELL_IDX_PKG_NAME   = 3;
 var CELL_IDX_CMP_NAME   = 4;
 var CELL_IDX_PURPOSE    = 5;
 
+function bdedox_isGrpRow(rowObj)
+{
+    var grpButtonCellObj = rowObj.cells[CELL_IDX_GRP_BUTTON];
+    var              obj = grpButtonCellObj.childNodes[0];
+    return bdedox_isButtonObj(obj);
+}
+
+function bdedox_isPkgRow(rowObj)
+{
+    var pkgButtonCellObj = rowObj.cells[CELL_IDX_PKG_BUTTON];
+    var              obj = pkgButtonCellObj.childNodes[0];
+    return bdedox_isButtonObj(obj);
+}
+
+function bdedox_isCmpRow(rowObj)
+{
+    return !bdedox_isPkgRow(rowObj) && !bdedox_isGrpRow(rowObj)
+}
+
 function bdedox_showRow(rowObj)
 {
     rowObj.style.display = 'table-row';
@@ -214,21 +233,17 @@ function bdedox_grpButtonOnClick(grpButtonObj)
                  rowObj != null;
                  rowObj  = bdedox_getNextRow(rowObj))
         {
-            var grpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 1]
-
-            if (!bdedox_isEmptyNameCell(grpNameCellObj)) {
+            if (bdedox_isGrpRow(rowObj)) {
                 break;
             }
 
-            var pkgNameCellObj = rowObj.cells[cellIdxOfClickedButton + 3]
-            if (bdedox_isEmptyNameCell(pkgNameCellObj)) {
+            if (!bdedox_isPkgRow(rowObj)) {
                 continue;
             }
 
             rowObjsOfInterest.push(rowObj);
             returnedRowObj = rowObj;
         }
-
 
         while (0 < rowObjsOfInterest.length) {
             var           rowObj = rowObjsOfInterest.pop();
@@ -247,17 +262,11 @@ function bdedox_grpButtonOnClick(grpButtonObj)
                  rowObj != null;
                  rowObj  = bdedox_getNextRow(rowObj))
         {
-            var grpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 1]
-
-            if (!bdedox_isEmptyNameCell(grpNameCellObj)) {
+            if (bdedox_isGrpRow(rowObj)) {
                 break;
             }
 
-            var pkgButtonColumnCellObj =
-                                    rowObj.cells[ cellIdxOfClickedButton + 2];
-            var obj                    = pkgButtonColumnCellObj.childNodes[0];
-
-            if (bdedox_isButtonObj(obj)) {
+            if (bdedox_isPkgRow(rowObj)) {
                 bdedox_showRow(rowObj);
             }
             returnedRowObj = rowObj;
@@ -298,11 +307,10 @@ function bdedox_pkgButtonOnClick(pkgButtonObj)
                  rowObj != null;
                  rowObj  = bdedox_getNextRow(rowObj))
         {
-            var cmpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 2]
-
-            if (bdedox_isEmptyNameCell(cmpNameCellObj)) {
+            if (!bdedox_isCmpRow(rowObj)) {
                 break;
             }
+
             returnedRowObj = rowObj;
         }
 
@@ -322,14 +330,12 @@ function bdedox_pkgButtonOnClick(pkgButtonObj)
                  rowObj != null;
                  rowObj  = bdedox_getNextRow(rowObj))
         {
-            var cmpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 2]
+              if (!bdedox_isCmpRow(rowObj)) {
+                  break;
+              }
 
-            if (bdedox_isEmptyNameCell(cmpNameCellObj)) {
-                bdedox_showRow(rowObj);
-                break;
-            }
-            bdedox_showRow(rowObj);
-            returnedRowObj = rowObj;
+              bdedox_showRow(rowObj);
+              returnedRowObj = rowObj;
         }
     }
 
@@ -425,7 +431,7 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bsl__P__bslhdrs.html">bsl+bslhdrs</a> | <a class="qindex" href="group__bsl__P__stdhdrs.html">bsl+stdhdrs</a> | <a class="qindex" href="group__bslalg.html">bslalg</a> | <a class="qindex" href="group__bsldoc.html">bsldoc</a> | <a class="qindex" href="group__bslim.html">bslim</a> | <a class="qindex" href="group__bslma.html">bslma</a> | <a class="qindex" href="group__bslmf.html">bslmf</a> | <a class="qindex" href="group__bsls.html">bsls</a> | <a class="qindex" href="group__bslscm.html">bslscm</a> | <a class="qindex" href="group__bslstl.html">bslstl</a> | <a class="qindex" href="group__bsltf.html">bsltf</a>
+<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
  </td>
  </tr>
  </table>
@@ -477,21 +483,61 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
 <p>&nbsp;</p>
 <table id="bdedox_componentsTable">
 <tr>
-<th class="cmpTableHeader">&nbsp</th>        <!-- grp button -->
-<th class="cmpTableHeader">Group</th>        <!-- grp name   -->
-<th class="cmpTableHeader">&nbsp</th>        <!-- pkg button -->
-<th class="cmpTableHeader">Package</th>      <!-- pkg name   -->
-<th class="cmpTableHeader">Component</th>    <!-- cmp name   -->
-<th class="cmpTableHeader">Purpose</th>      <!-- purpose    -->
+<th class="cmpTableHeader">&nbsp</th>              <!-- grp button -->
+<th class="cmpTableHeader">Group</th>              <!-- grp name   -->
+<th class="cmpTableHeader">&nbsp</th>              <!-- pkg button -->
+<th class="cmpTableHeader">Package</th>            <!-- pkg name   -->
+<th class="cmpTableHeader">Mnemonic/Component</th> <!-- cmp name   -->
+<th class="cmpTableHeader">Purpose</th>            <!-- purpose    -->
 </tr>
 
-<tr style="display: table-row;"><td class="indexkey" style="padding: 2px 2px;" style="background-color:#CAC589;"><button class="out"     onClick="bdedox_grpButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#CAC589;"><a class="el" href="group__bsl.html" target="_blank">bsl</a></td><td style="background-color:#CAC589;">&nbsp;</td><td style="background-color:#CAC589;">&nbsp;</td><td style="background-color:#CAC589;">&nbsp;</td><td class="indexvalue" style="background-color:#CAC589;">Provide a comprehensive foundation for component-based development</td></tr>
+<tr style="display: table-row;"><td class="indexkey" style="padding: 2px 2px;" style="background-color:#CAC589;"><button class="out"     onClick="bdedox_grpButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#CAC589;"><a class="el" href="group__bdl.html" target="_blank">bdl</a></td><td style="background-color:#CAC589;">&nbsp;</td><td style="background-color:#CAC589;">&nbsp;</td><td class="indexkey" style="background-color:#CAC589;"><span style="font-weight:normal;">Basic Development Library</span></td><td class="indexvalue" style="background-color:#CAC589;">Provide vocabulary types, messaging, containers, and parsers</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)" style="background-color:#BEBEBE;">.</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsl__P__bslhdrs.html" target="_blank">bsl+bslhdrs</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide a compatibility layer to enable BDE-STL mode in Bloomberg</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bdlma.html" target="_blank">bdlma</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Development Library Memory Allocators</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide allocators, pools, and other memory-management tools</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)" style="background-color:#BEBEBE;">.</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsl__P__stdhdrs.html" target="_blank">bsl+stdhdrs</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide a compatibility layer to enable BDE-STL mode in Bloomberg</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__autoreleaser.html" target="_blank">bdlma_autoreleaser</a></td><td class="indexvalue">Release memory to a managed allocator or pool at destruction</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslalg.html" target="_blank">bslalg</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide algorithms and traits used by the BDE STL implementation</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__blocklist.html" target="_blank">bdlma_blocklist</a></td><td class="indexvalue">Provide allocation and management of a sequence of memory blocks</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__bufferedsequentialallocator.html" target="_blank">bdlma_bufferedsequentialallocator</a></td><td class="indexvalue">Provide an efficient managed allocator using an external buffer</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__bufferedsequentialpool.html" target="_blank">bdlma_bufferedsequentialpool</a></td><td class="indexvalue">Provide sequential memory using an external buffer and a fallback</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__bufferimputil.html" target="_blank">bdlma_bufferimputil</a></td><td class="indexvalue">Provide pure procedures for allocating memory from a buffer</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__buffermanager.html" target="_blank">bdlma_buffermanager</a></td><td class="indexvalue">Provide a memory manager that manages an external buffer</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__countingallocator.html" target="_blank">bdlma_countingallocator</a></td><td class="indexvalue">Provide a memory allocator that counts allocated bytes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__guardingallocator.html" target="_blank">bdlma_guardingallocator</a></td><td class="indexvalue">Provide a memory allocator that guards against buffer overruns</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__infrequentdeleteblocklist.html" target="_blank">bdlma_infrequentdeleteblocklist</a></td><td class="indexvalue">Provide allocation and management of infrequently deleted blocks</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__managedallocator.html" target="_blank">bdlma_managedallocator</a></td><td class="indexvalue">Provide a protocol for memory allocators that support <code>release</code></td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__multipool.html" target="_blank">bdlma_multipool</a></td><td class="indexvalue">Provide a memory manager to manage pools of varying block sizes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__multipoolallocator.html" target="_blank">bdlma_multipoolallocator</a></td><td class="indexvalue">Provide a memory-pooling allocator of heterogeneous block sizes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__pool.html" target="_blank">bdlma_pool</a></td><td class="indexvalue">Provide efficient allocation of memory blocks of uniform size</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__sequentialallocator.html" target="_blank">bdlma_sequentialallocator</a></td><td class="indexvalue">Provide a managed allocator using dynamically-allocated buffers</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlma__sequentialpool.html" target="_blank">bdlma_sequentialpool</a></td><td class="indexvalue">Provide sequential memory using dynamically-allocated buffers</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bdls.html" target="_blank">bdls</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Development Library System-level utilities</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide system-level utilities for BDL</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdls__testutil.html" target="_blank">bdls_testutil</a></td><td class="indexvalue">Provide test utilities for components in <code>bdl</code> and above</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bdlscm.html" target="_blank">bdlscm</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Development Library Source Control Management</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide versioning information for BDL library components</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlscm__version.html" target="_blank">bdlscm_version</a></td><td class="indexvalue">Provide source control management (versioning) information</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bdlscm__versiontag.html" target="_blank">bdlscm_versiontag</a></td><td class="indexvalue">Provide versioning information for the <code>bdl</code> package group</td></tr>
+
+<tr style="display: table-row;"><td class="indexkey" style="padding: 2px 2px;" style="background-color:#CAC589;"><button class="out"     onClick="bdedox_grpButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#CAC589;"><a class="el" href="group__bsl.html" target="_blank">bsl</a></td><td style="background-color:#CAC589;">&nbsp;</td><td style="background-color:#CAC589;">&nbsp;</td><td class="indexkey" style="background-color:#CAC589;"><span style="font-weight:normal;">Basic Standard Library</span></td><td class="indexvalue" style="background-color:#CAC589;">Provide a comprehensive foundation for component-based development</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslalg.html" target="_blank">bslalg</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library ALgorithms</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide algorithms and traits used by the BDE STL implementation</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__arraydestructionprimitives.html" target="_blank">bslalg_arraydestructionprimitives</a></td><td class="indexvalue">Provide primitive algorithms that destroy arrays</td></tr>
 
@@ -567,15 +613,15 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraitusesbslmaallocator.html" target="_blank">bslalg_typetraitusesbslmaallocator</a></td><td class="indexvalue">Provide a primitive trait for types that use <code>bslma</code> allocators</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsldoc.html" target="_blank">bsldoc</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide documentation of terms and concepts used throughout BDE</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsldoc.html" target="_blank">bsldoc</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library DOCumentation</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide documentation of terms and concepts used throughout BDE</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsldoc__glossary.html" target="_blank">bsldoc_glossary</a></td><td class="indexvalue">Provide definitions for terms used throughout BDE documentation</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslim.html" target="_blank">bslim</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide implementation mechanisms</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslim.html" target="_blank">bslim</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library Implementation Mechanisms</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide implementation mechanisms</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslim__printer.html" target="_blank">bslim_printer</a></td><td class="indexvalue">Provide a mechanism to implement standard <code>print</code> methods</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslma.html" target="_blank">bslma</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide allocators, guards, and other memory-management tools</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslma.html" target="_blank">bslma</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library Memory Allocators</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide allocators, guards, and other memory-management tools</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__allocator.html" target="_blank">bslma_allocator</a></td><td class="indexvalue">Provide a pure abstract interface for memory-allocation mechanisms</td></tr>
 
@@ -633,7 +679,7 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__usesbslmaallocator.html" target="_blank">bslma_usesbslmaallocator</a></td><td class="indexvalue">Provide a metafunction that indicates the use of bslma allocators</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslmf.html" target="_blank">bslmf</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide meta-function versions of useful coding constructs</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslmf.html" target="_blank">bslmf</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library Meta-Functions</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide meta-function versions of useful coding constructs</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addconst.html" target="_blank">bslmf_addconst</a></td><td class="indexvalue">Provide a meta-function for adding a top-level <code>const</code>-qualifier</td></tr>
 
@@ -757,7 +803,7 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__typelist.html" target="_blank">bslmf_typelist</a></td><td class="indexvalue">Provide a typelist component</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsls.html" target="_blank">bsls</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide system-level utilities for <code>bsl</code></td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsls.html" target="_blank">bsls</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library System utilities</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide system-level utilities for <code>bsl</code></td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__alignedbuffer.html" target="_blank">bsls_alignedbuffer</a></td><td class="indexvalue">Provide raw buffers with user-specified size and alignment</td></tr>
 
@@ -849,13 +895,13 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__util.html" target="_blank">bsls_util</a></td><td class="indexvalue">Provide essential, low-level support for portable generic code</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslscm.html" target="_blank">bslscm</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide versioning information for BDE library components</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslscm.html" target="_blank">bslscm</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library Source Control Management</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide versioning information for BDE library components</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslscm__version.html" target="_blank">bslscm_version</a></td><td class="indexvalue">Provide source control management (versioning) information</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslscm__versiontag.html" target="_blank">bslscm_versiontag</a></td><td class="indexvalue">Provide versioning information for the <code>bsl</code> package group</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslstl.html" target="_blank">bslstl</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide replacement classes for STL constructs</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslstl.html" target="_blank">bslstl</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library STL</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide replacement classes for STL constructs</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__algorithmworkaround.html" target="_blank">bslstl_algorithmworkaround</a></td><td class="indexvalue">Provide a namespace for work arounds for the standard algorithms</td></tr>
 
@@ -957,7 +1003,7 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__vector.html" target="_blank">bslstl_vector</a></td><td class="indexvalue">Provide an STL-compliant vector class</td></tr>
 
-<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsltf.html" target="_blank">bsltf</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide a set of utilities and types to help with testing</td></tr>
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsltf.html" target="_blank">bsltf</a></td><td class="indexkey" style="background-color:#DAD6AC;"><span style="font-weight:normal;">Basic Standard Library Test Facility</span></td><td class="indexvalue" style="background-color:#DAD6AC;">Provide a set of utilities and types to help with testing</td></tr>
 
 <tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__allocbitwisemoveabletesttype.html" target="_blank">bsltf_allocbitwisemoveabletesttype</a></td><td class="indexvalue">Provide a class that allocates memory and is bitwise-moveable</td></tr>
 
@@ -1023,7 +1069,7 @@ function bdedox_pageLoaded(tableInitiallyCollapsed)
   </tbody>
  </table>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:06 for BSL Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:49 for BDE Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

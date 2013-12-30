@@ -21,45 +21,36 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslma&#39; package currently has 28 components having 7 levels of physical
+ The &#39;bslma&#39; package currently has 20 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. bslma_autorawdeleter
+  6. bslma_autorawdeleter
      bslma_destructorproctor
-     bslma_sharedptrinplacerep
-     bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
 
-  6. bslma_autodeallocator
+  5. bslma_autodeallocator
      bslma_autodestructor
      bslma_deallocatorguard
      bslma_deallocatorproctor
      bslma_defaultallocatorguard
      bslma_destructorguard
      bslma_exceptionguard
-     bslma_managedptr
      bslma_rawdeleterguard
      bslma_rawdeleterproctor
-     bslma_sharedptrrep
 
-  5. bslma_default
+  4. bslma_default
      bslma_testallocator
 
-  4. bslma_mallocfreeallocator
+  3. bslma_mallocfreeallocator
      bslma_newdeleteallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
 
-  3. bslma_allocator
+  2. bslma_allocator
 
-  2. bslma_deleterhelper
-     bslma_managedptrdeleter
-
-  1. bslma_managedptr_factorydeleter
-     bslma_managedptr_members
-     bslma_managedptr_pairproxy
+  1. bslma_deleterhelper
 ..
 
 /Component Synopsis
@@ -103,12 +94,6 @@
 : &#39;bslma_mallocfreeallocator&#39;:
 :      Provide malloc/free adaptor to &#39;bslma::Allocator&#39; protocol.
 :
-: &#39;bslma_managedptr&#39;:
-:      Provide a managed pointer class.
-:
-: &#39;bslma_managedptrdeleter&#39;:
-:      Provide an in-core value semantic class to call a delete function.
-:
 : &#39;bslma_newdeleteallocator&#39;:
 :      Provide singleton new/delete adaptor to &#39;bslma::Allocator&#39; protocol.
 :
@@ -117,15 +102,6 @@
 :
 : &#39;bslma_rawdeleterproctor&#39;:
 :      Provide a proctor to conditionally manage an object.
-:
-: &#39;bslma_sharedptrinplacerep&#39;:
-:      Provide an in-place implementation of &#39;bslma::SharedPtrRep&#39;.
-:
-: &#39;bslma_sharedptroutofplacerep&#39;:
-:      Provide an out-of-place implementation of &#39;bslma::SharedPtrRep&#39;.
-:
-: &#39;bslma_sharedptrrep&#39;:
-:      Provide an abstract class for a shared object manager.
 :
 : &#39;bslma_testallocator&#39;:
 :      Provide instrumented malloc/free allocator to track memory usage.

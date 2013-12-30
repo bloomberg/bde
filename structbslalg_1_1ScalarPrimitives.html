@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bsl__P__bslhdrs.html">bsl+bslhdrs</a> | <a class="qindex" href="group__bsl__P__stdhdrs.html">bsl+stdhdrs</a> | <a class="qindex" href="group__bslalg.html">bslalg</a> | <a class="qindex" href="group__bsldoc.html">bsldoc</a> | <a class="qindex" href="group__bslim.html">bslim</a> | <a class="qindex" href="group__bslma.html">bslma</a> | <a class="qindex" href="group__bslmf.html">bslmf</a> | <a class="qindex" href="group__bsls.html">bsls</a> | <a class="qindex" href="group__bslscm.html">bslscm</a> | <a class="qindex" href="group__bslstl.html">bslstl</a> | <a class="qindex" href="group__bsltf.html">bsltf</a>
+<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
  </td>
  </tr>
  </table>
@@ -181,7 +181,7 @@ template&lt;typename TARGET_TYPE &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ac566be54b1f1ae06454a5e51aff3da4b">bslalg::ScalarPrimitives_Imp::defaultConstruct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8ae9e60253ac5a6e0dc8baeca23a9d1b3f">bslalg::ScalarPrimitives_Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ac566be54b1f1ae06454a5e51aff3da4b">bslalg::ScalarPrimitives_Imp::defaultConstruct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8ae9e60253ac5a6e0dc8baeca23a9d1b3f">bslalg::ScalarPrimitives_Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -213,7 +213,7 @@ template&lt;typename TARGET_TYPE &gt; </div>
 <div class="memdoc">
 <p>Build a default-initialized object of the parameterized <code>TARGET_TYPE</code> in the uninitialized memory at the specified <code>address</code>, as if by using the <code>TARGET_TYPE</code> default constructor. If the specified <code>allocator</code> is based on <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> and <code>TARGET_TYPE</code> takes an allocator constructor argument, then <code>allocator</code> is passed to the default constructor. If the constructor throws, the <code>address</code> is left in an uninitialized state. Note that this operation may bypass the constructor and simply fill memory with 0 if <code>TARGET_TYPE</code> has the trivial default constructor trait and does not use <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>. </p>
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ac566be54b1f1ae06454a5e51aff3da4b">bslalg::ScalarPrimitives_Imp::defaultConstruct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8ae9e60253ac5a6e0dc8baeca23a9d1b3f">bslalg::ScalarPrimitives_Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ac566be54b1f1ae06454a5e51aff3da4b">bslalg::ScalarPrimitives_Imp::defaultConstruct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8ae9e60253ac5a6e0dc8baeca23a9d1b3f">bslalg::ScalarPrimitives_Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -250,7 +250,7 @@ template&lt;typename TARGET_TYPE &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a6a1791c2bed40e1cbac92f4a2abe50e6">bslalg::ScalarPrimitives_Imp::BITWISE_COPYABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ad2afbb6a4a665759b62b2751866c9f57">bslalg::ScalarPrimitives_Imp::copyConstruct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a6a1791c2bed40e1cbac92f4a2abe50e6">bslalg::ScalarPrimitives_Imp::BITWISE_COPYABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ad2afbb6a4a665759b62b2751866c9f57">bslalg::ScalarPrimitives_Imp::copyConstruct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -288,7 +288,7 @@ template&lt;typename TARGET_TYPE &gt; </div>
 <div class="memdoc">
 <p>Build an object of the parameterized <code>TARGET_TYPE</code> from the specified <code>original</code> object of the same <code>TARGET_TYPE</code> in the uninitialized memory at the specified <code>address</code>, as if by using the copy constructor of <code>TARGET_TYPE</code>. If the specified <code>allocator</code> is based on <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> and <code>TARGET_TYPE</code> takes an allocator constructor argument, then <code>allocator</code> is passed to the copy constructor. If the constructor throws, the <code>address</code> is left in an uninitialized state. Note that bit-wise copy will be used if <code>TARGET_TYPE</code> has the bit-wise copyable trait. </p>
 
-<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a6a1791c2bed40e1cbac92f4a2abe50e6">bslalg::ScalarPrimitives_Imp::BITWISE_COPYABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ad2afbb6a4a665759b62b2751866c9f57">bslalg::ScalarPrimitives_Imp::copyConstruct()</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>.</p>
+<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a6a1791c2bed40e1cbac92f4a2abe50e6">bslalg::ScalarPrimitives_Imp::BITWISE_COPYABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ad2afbb6a4a665759b62b2751866c9f57">bslalg::ScalarPrimitives_Imp::copyConstruct()</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -326,7 +326,7 @@ template&lt;typename TARGET_TYPE , typename ALLOCATOR &gt; </div>
 <div class="memdoc">
 <p>Move the state of the object of the parameterized <code>TARGET_TYPE</code> from the object at the specified <code>original</code> address to the uninitialized memory at the specified <code>address</code>, as if by constructing a copy and then destroying the original. If the parameterized <code>ALLOCATOR</code> is based on <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> and <code>TARGET_TYPE</code> takes an allocator constructor argument, then the moved object uses the specified <code>allocator</code> to supply memory. If the move constructor throws, the <code>address</code> is left in an uninitialized state. The behavior is undefined unless the <code>original</code> object also uses the <code>allocator</code>. Note that bit-wise copy will be used if TARGET_TYPE' has the bit-wise moveable trait. </p>
 
-<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a760a4c01aec19785742e178c4afd8512">bslalg::ScalarPrimitives_Imp::BITWISE_MOVEABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a114fa5626771c3b80fc560edbc92ebc0">bslalg::ScalarPrimitives_Imp::destructiveMove()</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>.</p>
+<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a760a4c01aec19785742e178c4afd8512">bslalg::ScalarPrimitives_Imp::BITWISE_MOVEABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a114fa5626771c3b80fc560edbc92ebc0">bslalg::ScalarPrimitives_Imp::destructiveMove()</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -357,7 +357,7 @@ template&lt;typename TARGET_TYPE &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -425,7 +425,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a6a1791c2bed40e1cbac92f4a2abe50e6">bslalg::ScalarPrimitives_Imp::BITWISE_COPYABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a6a1791c2bed40e1cbac92f4a2abe50e6">bslalg::ScalarPrimitives_Imp::BITWISE_COPYABLE_TRAITS</a>, <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -505,7 +505,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a491fa12bab696d8855b41958641455bd">bslalg::ScalarPrimitives_Imp::PAIR_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -597,7 +597,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -701,7 +701,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -817,7 +817,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -945,7 +945,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -1085,7 +1085,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -1237,7 +1237,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -1401,7 +1401,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -1577,7 +1577,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -1765,7 +1765,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -1965,7 +1965,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -2177,7 +2177,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -2401,7 +2401,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 , typename ARG2 , typename ARG3
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp::construct()</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">bslalg::ScalarPrimitives_Imp::USES_BSLMA_ALLOCATOR_TRAITS</a>.</p>
 
 </div>
 </div>
@@ -2549,7 +2549,7 @@ template&lt;typename LHS_TYPE , typename RHS_TYPE &gt; </div>
 <div class="memdoc">
 <p>Swap the contents of the specified <code>lhs</code> modifiable reference of the parameterized <code>LHS_TYPE</code> with those of the specified <code>rhs</code> modifiable reference of the parameterized <code>RHS_TYPE</code>. Note that, if <code>LHS_TYPE</code> and <code>RHS_TYPE</code> are the same type and that type has the bit-wise moveable trait but does not use <code>bslma</code> allocators, the swap can be performed using a three-way bit-wise move. </p>
 
-<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a760a4c01aec19785742e178c4afd8512">bslalg::ScalarPrimitives_Imp::BITWISE_MOVEABLE_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9ccaa732aeb88fafc10a3880388023a8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a2ac32a6da57327a482a789201825e3b7">bslalg::ScalarPrimitives_Imp::swap()</a>.</p>
+<p>References <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a760a4c01aec19785742e178c4afd8512">bslalg::ScalarPrimitives_Imp::BITWISE_MOVEABLE_TRAITS</a>, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">bslalg::ScalarPrimitives_Imp::NIL_TRAITS</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a2ac32a6da57327a482a789201825e3b7">bslalg::ScalarPrimitives_Imp::swap()</a>.</p>
 
 </div>
 </div>
@@ -2557,7 +2557,7 @@ template&lt;typename LHS_TYPE , typename RHS_TYPE &gt; </div>
 <li><a class="el" href="bslalg__scalarprimitives_8h_source.html">bslalg_scalarprimitives.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:12 for BSL Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:55 for BDE Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

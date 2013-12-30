@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bsl__P__bslhdrs.html">bsl+bslhdrs</a> | <a class="qindex" href="group__bsl__P__stdhdrs.html">bsl+stdhdrs</a> | <a class="qindex" href="group__bslalg.html">bslalg</a> | <a class="qindex" href="group__bsldoc.html">bsldoc</a> | <a class="qindex" href="group__bslim.html">bslim</a> | <a class="qindex" href="group__bslma.html">bslma</a> | <a class="qindex" href="group__bslmf.html">bslmf</a> | <a class="qindex" href="group__bsls.html">bsls</a> | <a class="qindex" href="group__bslscm.html">bslscm</a> | <a class="qindex" href="group__bslstl.html">bslstl</a> | <a class="qindex" href="group__bsltf.html">bsltf</a>
+<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
  </td>
  </tr>
  </table>
@@ -351,10 +351,9 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslstl</code> package currently has 50 components having 7 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslstl</code> package currently has 47 components having 7 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  7. bslstl_queue
-     bslstl_sharedptr
      bslstl_stack
 
   6. bslstl_deque
@@ -386,8 +385,7 @@ Components</h2></td></tr>
      bslstl_stringref
      bslstl_treenode
 
-  3. bslstl_algorithmworkaround
-     bslstl_bidirectionalnodepool
+  3. bslstl_bidirectionalnodepool
      bslstl_forwarditerator
      bslstl_iteratorutil
      bslstl_list
@@ -400,7 +398,6 @@ Components</h2></td></tr>
 
   1. bslstl_allocator
      bslstl_allocatortraits
-     bslstl_badweakptr
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
@@ -416,14 +413,10 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_synopsis"></a> <a class="anchor" id="description.component_synopsis"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Component Synopsis: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_algorithmworkaround</code>: <br/>
- Provide a namespace for work arounds for the standard algorithms</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_allocator</code>: <br/>
  Provide an STL-compatible proxy for <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> objects.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_allocatortraits</code>: <br/>
  Provide a uniform interface to standard allocator types.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_badweakptr</code>: <br/>
- Provide an exception class to indicate a <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> has expired.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_bidirectionaliterator</code>: <br/>
  Provide a template to create STL-compliant bidirectional iterators.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_bidirectionalnodepool</code>: <br/>
@@ -476,8 +469,6 @@ Components</h2></td></tr>
  Provide an STL-compliant set class.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_setcomparator</code>: <br/>
  Provide a comparator for <code>TreeNode</code> objects and a lookup key.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_sharedptr</code>: <br/>
- Provide a generic reference-counted shared pointer wrapper.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_simplepool</code>: <br/>
  Provide efficient allocation of memory blocks for a specific type.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_sstream</code>: <br/>
@@ -519,7 +510,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:04 for BSL Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:48 for BDE Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

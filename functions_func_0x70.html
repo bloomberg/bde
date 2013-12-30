@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bsl__P__bslhdrs.html">bsl+bslhdrs</a> | <a class="qindex" href="group__bsl__P__stdhdrs.html">bsl+stdhdrs</a> | <a class="qindex" href="group__bslalg.html">bslalg</a> | <a class="qindex" href="group__bsldoc.html">bsldoc</a> | <a class="qindex" href="group__bslim.html">bslim</a> | <a class="qindex" href="group__bslma.html">bslma</a> | <a class="qindex" href="group__bslmf.html">bslmf</a> | <a class="qindex" href="group__bsls.html">bsls</a> | <a class="qindex" href="group__bslscm.html">bslscm</a> | <a class="qindex" href="group__bslstl.html">bslstl</a> | <a class="qindex" href="group__bsltf.html">bsltf</a>
+<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
  </td>
  </tr>
  </table>
@@ -120,16 +120,19 @@
 <li>pointer()
 : <a class="el" href="classbslma_1_1ManagedPtr__Members.html#aae9e1a93e0b34f9353c1fa704f7ad7e3">bslma::ManagedPtr_Members</a>
 </li>
+<li>Pool()
+: <a class="el" href="classbdlma_1_1Pool.html#a6caff085e2b850c85316875eb5b68eac">bdlma::Pool</a>
+</li>
 <li>pop()
-: <a class="el" href="classbsl_1_1priority__queue.html#a3b38bc52410a7c648b505176c697c2ce">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a>
-, <a class="el" href="classbsl_1_1queue.html#a1f230b0c5d391d33a7ec87108af20bca">bsl::queue&lt; VALUE, CONTAINER &gt;</a>
+: <a class="el" href="classbsl_1_1queue.html#a1f230b0c5d391d33a7ec87108af20bca">bsl::queue&lt; VALUE, CONTAINER &gt;</a>
 , <a class="el" href="group__bslstl__stack.html#ga9441bfa0f0291b1802e0eff45681ef0b">bsl::stack&lt; VALUE, CONTAINER &gt;</a>
+, <a class="el" href="classbsl_1_1priority__queue.html#a3b38bc52410a7c648b505176c697c2ce">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a>
 </li>
 <li>pop_back()
-: <a class="el" href="group__bslstl__list.html#gab2fb73df84ac2640d87e9a29eac289f3">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__deque.html#ga45f80b9ac8c77bde1fd065e6f0031c23">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__list.html#gab2fb73df84ac2640d87e9a29eac289f3">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__string.html#gab7139f8e4a967c1865e0e1f76397351a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga8fbe1d9aac697597bce2b527b8208003">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#ga45f80b9ac8c77bde1fd065e6f0031c23">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 </li>
 <li>pop_front()
 : <a class="el" href="group__bslstl__deque.html#ga4768eb160c95f6199e95c89946189c14">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
@@ -152,7 +155,8 @@
 : <a class="el" href="classbslalg_1_1BidirectionalLink.html#a7a5d1adc3bbbbec180ac9cb0a60f45a2">bslalg::BidirectionalLink</a>
 </li>
 <li>print()
-: <a class="el" href="structbslim_1_1Printer__Helper.html#a0d9774ad4ed88a19ad48a65938a611fc">bslim::Printer_Helper</a>
+: <a class="el" href="classbdlma_1_1CountingAllocator.html#ac821ba4c3bdca0f6b752a2401968fd37">bdlma::CountingAllocator</a>
+, <a class="el" href="structbslim_1_1Printer__Helper.html#a0d9774ad4ed88a19ad48a65938a611fc">bslim::Printer_Helper</a>
 , <a class="el" href="classbslma_1_1TestAllocator.html#a86fb90ca67fd81a3ae834e7077206d66">bslma::TestAllocator</a>
 </li>
 <li>printAttribute()
@@ -171,7 +175,7 @@
 : <a class="el" href="classbslim_1_1Printer.html#a1314974a967f16b0abfa57416236740a">bslim::Printer</a>
 </li>
 <li>printRaw()
-: <a class="el" href="structbslim_1_1Printer__Helper.html#a886b6af55dbb37bedb2be3c92a3f99c3">bslim::Printer_Helper</a>
+: <a class="el" href="structbslim_1_1Printer__Helper.html#a4d635d4d778b17137fd18f212248b429">bslim::Printer_Helper</a>
 </li>
 <li>printStringNoFlush()
 : <a class="el" href="structbsls_1_1BslTestUtil.html#a737db2fd6755529f77c168e24d22d1f5">bsls::BslTestUtil</a>
@@ -183,10 +187,10 @@
 : <a class="el" href="structbslalg_1_1RbTreeUtil.html#a95a70b5384e8efc9a35eba2ab0a6edda">bslalg::RbTreeUtil</a>
 </li>
 <li>printValue()
-: <a class="el" href="classbslim_1_1Printer.html#a4f91c6c54a57498529e3751c5696539f">bslim::Printer</a>
+: <a class="el" href="classbslim_1_1Printer.html#a8a2620d8518e4cd79ba4eb511c656f56">bslim::Printer</a>
 </li>
 <li>priority_queue()
-: <a class="el" href="classbsl_1_1priority__queue.html#a5c8abc2db15ee8cda895cc4ea76b2b5e">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a>
+: <a class="el" href="classbsl_1_1priority__queue.html#a6e566fd738c487efefd0b026faa084af">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a>
 </li>
 <li>ProtocolTest()
 : <a class="el" href="classbsls_1_1ProtocolTest.html#a723795fd334fd6cc8606615d861066fa">bsls::ProtocolTest&lt; BSLS_TESTIMP &gt;</a>
@@ -198,10 +202,10 @@
 : <a class="el" href="classbsls_1_1ProtocolTestImp.html#aef5e962defc250a71ff47f0258297b51">bsls::ProtocolTestImp&lt; BSLS_PROTOCOL &gt;</a>
 </li>
 <li>ptr()
-: <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a068ed64318ce1aad177b34cf704708b5">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>
-, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a5deea008e38abdd9f0e838c137254e59">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>
-, <a class="el" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">bslma::ManagedPtr&lt; TARGET_TYPE &gt;</a>
+: <a class="el" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">bslma::ManagedPtr&lt; TARGET_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__sharedptr.html#gab307824fde26db221e749450e1cef713">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+, <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a068ed64318ce1aad177b34cf704708b5">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>
+, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a5deea008e38abdd9f0e838c137254e59">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>
 </li>
 <li>push()
 : <a class="el" href="classbsl_1_1priority__queue.html#ac2d1582e7c4a48ac56bfcd032ed5104c">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a>
@@ -209,20 +213,20 @@
 , <a class="el" href="classbsl_1_1queue.html#a5feed90f9879b8427be25a2ef7218722">bsl::queue&lt; VALUE, CONTAINER &gt;</a>
 </li>
 <li>push_back()
-: <a class="el" href="group__bslstl__string.html#ga6cf77eba8e1c6889f82179256b876446">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#gad4b087bd66d82c406c68ec31a054ee4c">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__vector.html#gaa1d6a35af66d87307ee9a48be96644a5">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__deque.html#ga5be1a8bbb0476e82b273c473539ab754">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#gad4b087bd66d82c406c68ec31a054ee4c">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__list.html#ga59917442fec6f3bf2b3f2a8738a7f3e3">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#gaa1d6a35af66d87307ee9a48be96644a5">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga728a77555f5235b5197ba697837c2cff">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#ga6cf77eba8e1c6889f82179256b876446">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 </li>
 <li>push_front()
-: <a class="el" href="group__bslstl__list.html#ga17708602439730f5c84e1638036a0292">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#gaea8c2a375d44d4848f01a7a54fe727c5">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__deque.html#gaea8c2a375d44d4848f01a7a54fe727c5">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__list.html#ga17708602439730f5c84e1638036a0292">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Oct 9 2013 14:50:06 for BSL Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:50 for BDE Release 2.19 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
