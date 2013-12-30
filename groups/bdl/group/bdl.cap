@@ -1,0 +1,16 @@
+# BDE capabilities
+
+*                       _    OPTS_FILE = bdl.cap
+*                       _    ASSET_OBJECT_NAME = libbdl
+*                       _    ASSET_OBJECT_DESC = Core Bloomberg development library
+*                       _    ASSET_DEPT_GROUP      = 101  # BDE
+*                       _    ASSET_CONTACT_PROG_1  = Clay Wilson
+*                       _    ASSET_CONTACT_PROG_2  = Pablo Halpern
+*                       _    ASSET_PRODUCTION_LOCN = /bbsrc/bdl
+
+#==============================================================================
+
+# bdl builds on everything, in every way
+*			_	CAPABILITY	= ALWAYS
+
+#==============================================================================
