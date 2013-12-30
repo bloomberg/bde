@@ -1,0 +1,533 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BSL 2.19 OSS</title>
+<html>
+<pre>
+// bsls_bsllock.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLS_BSLLOCK
+#define INCLUDED_BSLS_BSLLOCK
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a platform-independent mutex for use below &#39;bslmt&#39;.
+//
+//@CLASSES:
+//  bsls::BslLock: platform-independent mutex
+//  bsls::BslLockGuard: RAII mechanism for locking/unlocking a &#39;BslLock&#39;
+//
+//@SEE_ALSO: bslmt_mutex
+//
+//@DESCRIPTION: This component provides a mutually exclusive lock primitive
+// (&quot;mutex&quot;) by wrapping a suitable platform-specific mechanism.  The
+// &#39;bsls::BslLock&#39; class provides &#39;lock&#39; and &#39;unlock&#39; operations.  Note that
+// &#39;bsls::BslLock&#39; is not intended for direct client use; see &#39;bslmt_mutex&#39;
+// instead.
+//
+// The behavior is undefined if &#39;lock&#39; is called twice on a &#39;bsls::BslLock&#39;
+// object from a thread without an intervening call to &#39;unlock&#39; (i.e.,
+// &#39;bsls::BslLock&#39; is non-recursive), or if &#39;unlock&#39; is invoked from a thread
+// that does not hold the lock.  In particular, a call to &#39;lock&#39; *may* deadlock
+// if the calling thread already holds the lock.
+//
+// This component also provides the &#39;bsls::BslLockGuard&#39; class, a mechanism
+// that follows the RAII idiom for automatically acquiring and releasing the
+// lock on an associated &#39;bsls::BslLock&#39; object.  To ensure exception safety,
+// client code should make use of a &#39;bsls::BslLockGuard&#39; object wherever
+// appropriate rather than calling the methods on the associated
+// &#39;bsls::BslLock&#39; object directly.
+//
+///Usage
+///-----
+// The following snippets of code illustrate the use of &#39;bsls::BslLock&#39; and
+// &#39;bsls::BslLockGuard&#39; to write a thread-safe class, &#39;my_SafeAccount&#39;, given
+// a thread-unsafe class, &#39;my_Account&#39;.  The simple &#39;my_Account&#39; class is
+// defined as follows:
+//..
+//  class my_Account {
+//      // This &#39;class&#39; represents a bank account with a single balance.  It
+//      // is not thread-safe.
+//
+//      // DATA
+//      double d_money;  // amount of money in the account
+//
+//    public:
+//      // CREATORS
+//      my_Account();
+//          // Create an account having a zero balance.
+//
+//      my_Account(const my_Account&amp; original);
+//          // Create an account having the value of the specified &#39;original&#39;
+//          // account.
+//
+//      ~my_Account();
+//          // Destroy this account.
+//
+//      // MANIPULATORS
+//      my_Account&amp; operator=(const my_Account&amp; rhs);
+//          // Assign to this account the value of the specified &#39;rhs&#39; account,
+//          // and return a reference providing modifiable access to this
+//          // account.
+//
+//      void deposit(double amount);
+//          // Deposit the specified &#39;amount&#39; of money into this account.
+//          // The behavior is undefined unless &#39;amount &gt;= 0.0&#39;.
+//
+//      void withdraw(double amount);
+//          // Withdraw the specified &#39;amount&#39; of money from this account.
+//          // The behavior is undefined unless &#39;amount &gt;= 0.0&#39;.
+//
+//      // ACCESSORS
+//      double balance() const;
+//          // Return the amount of money that is available for withdrawal
+//          // from this account.
+//  };
+//..
+// The implementation of &#39;my_Account&#39; is straightforward and omitted here for
+// brevity.
+//
+// Next, we use a &#39;bsls::BslLock&#39; data member to render atomic the function
+// calls of a new thread-safe class that uses the thread-unsafe class in its
+// implementation.  Note the typical use of &#39;mutable&#39; for declaring the lock:
+//..
+//  class my_SafeAccountHandle {
+//      // This &#39;class&#39; provides a thread-safe handle to the thread-unsafe
+//      // account that is supplied at construction.
+//
+//      // DATA
+//      my_Account            *d_account_p;  // held, not owned
+//      mutable bsls::BslLock  d_lock;       // guard access to &#39;d_account_p&#39;
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      my_SafeAccountHandle(const my_SafeAccountHandle&amp;);
+//      my_SafeAccountHandle&amp; operator=(const my_SafeAccountHandle&amp;);
+//
+//    public:
+//      // CREATORS
+//      my_SafeAccountHandle(my_Account *account);
+//          // Create a thread-safe handle to the specified modifiable
+//          // &#39;account&#39;.
+//
+//      ~my_SafeAccountHandle();
+//          // Destroy this handle.  Note that the held account is unaffected
+//          // by this operation.
+//
+//      // MANIPULATORS
+//      my_Account *account();
+//          // Return an address providing modifiable access to the account
+//          // held by this handle.
+//
+//      void deposit(double amount);
+//          // Atomically deposit the specified &#39;amount&#39; of money into the
+//          // account held by this handle.  The behavior is undefined unless
+//          // the calling thread does not hold the lock on this handle and
+//          // &#39;amount &gt;= 0.0&#39;.  Note that this operation is thread-safe.
+//
+//      void lock();
+//          // Acquire the lock that provides exclusive access to the
+//          // underlying account held by this object.  The behavior is
+//          // undefined unless the calling thread does not already hold the
+//          // lock on this handle.
+//
+//      void unlock();
+//          // Release the lock that provides exclusive access to the
+//          // underlying account held by this object.  The behavior is
+//          // undefined unless the calling thread holds the lock on this
+//          // handle.
+//
+//      void withdraw(double amount);
+//          // Atomically withdraw the specified &#39;amount&#39; of money from the
+//          // account held by this handle.  The behavior is undefined unless
+//          // the calling thread does not hold the lock on this handle and
+//          // &#39;amount &gt;= 0.0&#39;.  Note that this operation is thread-safe.
+//
+//      // ACCESSORS
+//      const my_Account *account() const;
+//          // Return an address providing non-modifiable access to the account
+//          // held by this handle.
+//
+//      double balance() const;
+//          // Atomically return the amount of money that is available for
+//          // withdrawal from the account held by this handle.  The behavior
+//          // is undefined unless the calling thread does not hold the lock
+//          // on this handle.
+//  };
+//..
+// The implementation of &#39;my_SafeAccountHandle&#39; show-casing the use of
+// &#39;bsls::BslLock&#39;, &#39;bsls::BslLockGuard&#39;, and &#39;my_Account&#39; follows:
+//..
+//  // CREATORS
+//  my_SafeAccountHandle::my_SafeAccountHandle(my_Account *account)
+//  : d_account_p(account)
+//  {
+//  }
+//
+//  my_SafeAccountHandle::~my_SafeAccountHandle()
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  my_Account *my_SafeAccountHandle::account()
+//  {
+//      return d_account_p;
+//  }
+//
+//  void my_SafeAccountHandle::deposit(double amount)
+//  {
+//..
+// In this method we make direct use of the interface of &#39;bsls::BslLock&#39;.
+// However, wherever appropriate, clients should use a &#39;bsls::BslLockGuard&#39;
+// object to ensure that an acquired mutex is always properly released, even if
+// an exception is thrown:
+//..
+//      d_lock.lock();  // consider using &#39;bsls::BslLockGuard&#39;
+//      d_account_p-&gt;deposit(amount);
+//      d_lock.unlock();
+//  }
+//
+//  void my_SafeAccountHandle::lock()
+//  {
+//      d_lock.lock();
+//  }
+//
+//  void my_SafeAccountHandle::unlock()
+//  {
+//      d_lock.unlock();
+//  }
+//..
+// In the implementation of &#39;withdraw&#39; we make use of the &#39;lock&#39; and &#39;unlock&#39;
+// methods provided by &#39;my_SafeAccountHandle&#39;:
+//..
+//  void my_SafeAccountHandle::withdraw(double amount)
+//  {
+//      lock();         // consider using &#39;bsls::BslLockGuard&#39;
+//      d_account_p-&gt;withdraw(amount);
+//      unlock();
+//  }
+//
+//  // ACCESSORS
+//  const my_Account *my_SafeAccountHandle::account() const
+//  {
+//      return d_account_p;
+//  }
+//..
+// The implementation of &#39;balance&#39; uses a &#39;bsls::BslLockGuard&#39; to automatically
+// acquire and release the lock.  The lock is acquired as a side-effect of the
+// construction of &#39;guard&#39;, and released when the guard object is destroyed
+// upon returning from the function:
+//..
+//  double my_SafeAccountHandle::balance() const
+//  {
+//      bsls::BslLockGuard guard(&amp;d_lock);  // a very good practice
+//
+//      return d_account_p-&gt;balance();
+//  }
+//..
+// The handle&#39;s atomic methods are used just as the corresponding methods in
+// &#39;my_Account&#39;:
+//..
+//  my_Account account;
+//  account.deposit(100.50);
+//  const double paycheck = 50.25;
+//  my_SafeAccountHandle handle(&amp;account);
+//
+//                             assert(100.50 == handle.balance());
+//  handle.deposit(paycheck);  assert(150.75 == handle.balance());
+//..
+// Client code can also directly use the handle&#39;s &#39;lock&#39; and &#39;unlock&#39; methods
+// to effect non-primitive atomic transactions on the account:
+//..
+//  const double check[5] = { 25.0, 100.0, 99.95, 75.0, 50.0 };
+//
+//  handle.lock();
+//
+//  const double originalBalance = handle.account()-&gt;balance();
+//  for (int i = 0; i &lt; 5; ++i) {
+//      handle.account()-&gt;deposit(check[i]);
+//  }
+//  assert(originalBalance + 349.95 == handle.account()-&gt;balance());
+//
+//  handle.unlock();
+//..
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+// Rather than setting &#39;WINVER&#39; or &#39;NTDDI_VERSION&#39;, just forward-declare the
+// Windows 2000 functions that are used.
+
+struct _RTL_CRITICAL_SECTION;
+
+typedef struct _RTL_CRITICAL_SECTION *LPCRITICAL_SECTION;
+
+typedef int           BOOL;
+typedef unsigned long DWORD;
+
+extern &quot;C&quot; {
+    __declspec(dllimport) BOOL __stdcall InitializeCriticalSectionAndSpinCount(
+                                         LPCRITICAL_SECTION lpCriticalSection,
+                                         DWORD              dwSpinCount);
+
+    __declspec(dllimport) void __stdcall DeleteCriticalSection(
+                                         LPCRITICAL_SECTION lpCriticalSection);
+
+    __declspec(dllimport) void __stdcall EnterCriticalSection(
+                                         LPCRITICAL_SECTION lpCriticalSection);
+
+    __declspec(dllimport) void __stdcall LeaveCriticalSection(
+                                         LPCRITICAL_SECTION lpCriticalSection);
+
+}  // extern &quot;C&quot;
+
+#else
+
+#ifndef INCLUDED_PTHREAD
+#include &lt;pthread.h&gt;
+#define INCLUDED_PTHREAD
+#endif
+
+#endif
+
+namespace BloombergLP {
+namespace bsls {
+
+                             // =============
+                             // class BslLock
+                             // =============
+
+class BslLock {
+    // This &#39;class&#39; implements a light-weight, portable wrapper of an OS-level
+    // mutex to support intra-process synchronization.  The mutex implemented
+    // by this class is *not* error checking, and is *non*-recursive.  Note
+    // that &#39;BslLock&#39; is *not* intended for direct use by client code; it is
+    // meant for internal use only.
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+  private:
+    // PRIVATE TYPES
+    enum {
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+        CRITICAL_SECTION_BUFFER_SIZE = 5 * sizeof(void *)
+#else
+        CRITICAL_SECTION_BUFFER_SIZE = 6 * sizeof(void *)
+#endif
+    };
+#endif
+
+    // DATA
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    void *d_lock[CRITICAL_SECTION_BUFFER_SIZE];  // &#39;CriticalSection&#39; buffer
+#else
+    pthread_mutex_t d_lock;                      // pthreads mutex object
+#endif
+
+  private:
+    // NOT IMPLEMENTED
+    BslLock(const BslLock&amp;);             // = delete
+    BslLock&amp; operator=(const BslLock&amp;);  // = delete
+
+  public:
+    // CREATORS
+    BslLock();
+        // Create a lock object initialized to the unlocked state.
+
+    ~BslLock();
+        // Destroy this lock object.  The behavior is undefined unless this
+        // object is in the unlocked state.
+
+    // MANIPULATORS
+    void lock();
+        // Acquire the lock on this object.  If the lock on this object is
+        // currently held by another thread, then suspend execution of the
+        // calling thread until the lock can be acquired.  The behavior is
+        // undefined unless the calling thread does not already hold the lock
+        // on this object.  Note that deadlock may result if this method is
+        // invoked while the calling thread holds the lock on the object.
+
+    void unlock();
+        // Release the lock on this object that was previously acquired
+        // through a call to &#39;lock&#39;, enabling another thread to acquire the
+        // lock.  The behavior is undefined unless the calling thread holds the
+        // lock on this object.
+};
+
+                             // ==================
+                             // class BslLockGuard
+                             // ==================
+
+class BslLockGuard {
+    // This &#39;class&#39; implements a guard for automatically acquiring and
+    // releasing the lock on an associated &#39;bsls::BslLock&#39; object.  This
+    // mechanism follows the RAII idiom whereby the lock on the &#39;BslLock&#39;
+    // associated with a guard object is acquired upon construction and
+    // released upon destruction.
+
+    // DATA
+    BslLock *d_lock_p;  // lock guarded by this object (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    BslLockGuard(const BslLockGuard&amp;);             // = delete
+    BslLockGuard&amp; operator=(const BslLockGuard&amp;);  // = delete
+
+  public:
+    // CREATORS
+    explicit BslLockGuard(BslLock *lock);
+        // Create a guard object that conditionally manages the specified
+        // &#39;lock&#39;, and acquires the lock on &#39;lock&#39; by invoking its &#39;lock&#39;
+        // method.  The behavior is undefined unless the calling thread does
+        // not already hold the lock on &#39;lock&#39;.  Note that deadlock may result
+        // if a guard is created for &#39;lock&#39; while the calling thread holds the
+        // lock on &#39;lock&#39;.  Also note that &#39;lock&#39; must remain valid throughout
+        // the lifetime of this guard, or until &#39;release&#39; is called.
+
+    ~BslLockGuard();
+        // Destroy this guard object and release the lock on the object it
+        // manages (if any) by invoking the &#39;unlock&#39; method of the object that
+        // was supplied at construction of this guard.  If no lock is currently
+        // being managed, this method has no effect.  The behavior is undefined
+        // unless the calling thread holds the lock on the object managed by
+        // this guard (if any).
+
+    // MANIPULATORS
+    void release();
+        // Release from management the object currently managed by this guard,
+        // if any.  If no object is currently being managed, this method has no
+        // effect.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                             // -------------
+                             // class BslLock
+                             // -------------
+
+// CREATORS
+inline
+BslLock::BslLock()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    enum {
+        // A Windows critical section has a configurable spin count.  A lock
+        // operation spins this many iterations (on, presumably, some atomic
+        // integer) before sleeping on the underlying primitive.
+
+        BSLS_SPIN_COUNT = 30
+    };
+
+    InitializeCriticalSectionAndSpinCount(
+                          reinterpret_cast&lt;_RTL_CRITICAL_SECTION *&gt;(d_lock),
+                          BSLS_SPIN_COUNT);
+#else
+    const int status = pthread_mutex_init(&amp;d_lock, 0);
+    (void)status;
+    BSLS_ASSERT_SAFE(0 == status);
+#endif
+}
+
+inline
+BslLock::~BslLock()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    DeleteCriticalSection(reinterpret_cast&lt;_RTL_CRITICAL_SECTION *&gt;(d_lock));
+#else
+    const int status = pthread_mutex_destroy(&amp;d_lock);
+    BSLS_ASSERT(0 == status);
+#endif
+}
+
+// MANIPULATORS
+inline
+void BslLock::lock()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    EnterCriticalSection( reinterpret_cast&lt;_RTL_CRITICAL_SECTION *&gt;(d_lock));
+#else
+    const int status = pthread_mutex_lock(&amp;d_lock);
+    (void)status;
+    BSLS_ASSERT_SAFE(0 == status);
+#endif
+}
+
+inline
+void BslLock::unlock()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    LeaveCriticalSection( reinterpret_cast&lt;_RTL_CRITICAL_SECTION *&gt;(d_lock));
+#else
+    const int status = pthread_mutex_unlock(&amp;d_lock);
+    (void)status;
+    BSLS_ASSERT_SAFE(0 == status);
+#endif
+}
+
+                             // ------------------
+                             // class BslLockGuard
+                             // ------------------
+
+// CREATORS
+inline
+BslLockGuard::BslLockGuard(BslLock *lock)
+: d_lock_p(lock)
+{
+    BSLS_ASSERT_SAFE(lock);
+
+    d_lock_p-&gt;lock();
+}
+
+inline
+BslLockGuard::~BslLockGuard()
+{
+    if (d_lock_p) {
+        d_lock_p-&gt;unlock();
+    }
+}
+
+// MANIPULATORS
+inline
+void BslLockGuard::release()
+{
+    d_lock_p = 0;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

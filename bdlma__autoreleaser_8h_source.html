@@ -1,0 +1,261 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BSL 2.19 OSS</title>
+<html>
+<pre>
+// bdlma_autoreleaser.h                                               -*-C++-*-
+#ifndef INCLUDED_BDLMA_AUTORELEASER
+#define INCLUDED_BDLMA_AUTORELEASER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Release memory to a managed allocator or pool at destruction.
+//
+//@CLASSES:
+//  bdlma::AutoReleaser: proctor to release memory to a managed allocator/pool
+//
+//@SEE_ALSO: bslma_deallocatorproctor, bdlma_managedallocator
+//
+//@DESCRIPTION: This component provides a proctor object to manage memory
+// allocated from a managed allocator or pool.  The proctor&#39;s destructor
+// invokes the &#39;release&#39; method of its managed allocator or pool unless the
+// proctor&#39;s own &#39;release&#39; method has been called.  Note that after a proctor
+// releases management of its managed allocator or pool, the proctor can be
+// reused by invoking its &#39;reset&#39; method with another allocator or pool object
+// (of the same (template parameter) type &#39;ALLOCATOR&#39;).
+//
+///REQUIREMENTS
+///------------
+// The object of the (template parameter) type &#39;ALLOCATOR&#39; must provide a
+// method having the following signature:
+//..
+//  void release();
+//..
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using a &#39;bdlma::AutoReleaser&#39; to Preserve Exception Neutrality
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// A &#39;bdlma::AutoReleaser&#39; proctor is often used to preserve exception
+// neutrality for containers that allocate their elements using a managed
+// allocator or pool.  For operations that may potentially throw an exception,
+// a proctor can be used to (temporarily) manage the container&#39;s allocator or
+// pool and its associated memory.  If an exception is thrown, the proctor&#39;s
+// destructor invokes the &#39;release&#39; method of its held allocator or pool,
+// deallocating memory for all of the container&#39;s elements, thereby preventing
+// a memory leak and restoring the container to the empty state.
+//
+// In this example, we illustrate use of a &#39;bdlma::AutoReleaser&#39; proctor within
+// the &#39;operator=&#39; method of &#39;my_FastStrArray&#39;, a class that implements an
+// array of C string elements.  Note that a &#39;my_FastStrArray&#39; object allocates
+// memory for its C string elements using a string pool, &#39;my_StrPool&#39;, the
+// definition of which is elided.
+//
+// First, we define the interface of our &#39;my_FastStrArray&#39; class:
+//..
+//  // my_fastcstrarray.h
+//
+//  class my_FastCstrArray {
+//      // This class implements an array of C string elements.  Each C string
+//      // is allocated using the &#39;my_StrPool&#39; member for fast memory
+//      // allocation and deallocation.
+//
+//      // DATA
+//      char             **d_array_p;      // dynamically allocated array
+//      int                d_capacity;     // physical capacity of this array
+//      int                d_length;       // logical length of this array
+//      my_StrPool         d_strPool;      // memory manager to supply memory
+//      bslma::Allocator  *d_allocator_p;  // held, not owned
+//
+//    private:
+//      // PRIVATE MANIPULATORS
+//      void increaseSize();
+//
+//    public:
+//      // CREATORS
+//      my_FastCstrArray(bslma::Allocator *basicAllocator = 0);
+//      ~my_FastCstrArray();
+//
+//      // MANIPULATORS
+//      my_FastCstrArray&amp; operator=(const my_FastCstrArray&amp; rhs);
+//      void append(const char *item);
+//
+//      // ACCESSORS
+//      const char *operator[](int index) const { return d_array_p[index]; }
+//      int length() const { return d_length; }
+//  };
+//
+//  // ...
+//..
+// Finally, we implement &#39;my_FastCstrArray::operator=&#39; using a
+// &#39;bdlma::AutoReleaser&#39; proctor to preserve exception neutrality:
+//..
+//  // my_fastcstrarray.cpp
+//  #include &lt;my_fastcstrarray.h&gt;
+//
+//  // ...
+//
+//  // MANIPULATORS
+//  my_FastCstrArray&amp;
+//  my_FastCstrArray::operator=(const my_FastCstrArray&amp; rhs)
+//  {
+//      if (&amp;rhs != this) {
+//          d_strPool.release();
+//          d_length = 0;
+//
+//          if (rhs.d_length &gt; d_capacity) {
+//              char **tmp = d_array_p;
+//              d_array_p = (char **)d_allocator_p-&gt;allocate(
+//                                           rhs.d_length * sizeof *d_array_p);
+//              d_capacity = rhs.d_length;
+//              d_allocator_p-&gt;deallocate(tmp);
+//          }
+//
+//          bdlma::AutoReleaser&lt;my_StrPool&gt; autoReleaser(&amp;d_strPool);
+//
+//          for (int i = 0; i &lt; rhs.d_length; ++i) {
+//              const int size = bsl::strlen(rhs.d_array_p[i]) + 1;
+//              d_array_p[i] = (char *)d_strPool.allocate(size);
+//              bsl::memcpy(d_array_p[i], rhs.d_array_p[i], size);
+//          }
+//
+//          d_length = rhs.d_length;
+//          autoReleaser.release();
+//      }
+//
+//      return *this;
+//  }
+//
+//  // ...
+//..
+// Note that a &#39;bdlma::AutoReleaser&#39; proctor is used to manage the array&#39;s C
+// string memory pool while allocating memory for the individual elements.  If
+// an exception is thrown during the &#39;for&#39; loop, the proctor&#39;s destructor
+// releases memory for all elements allocated through the pool, thus ensuring
+// that no memory is leaked.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlma {
+
+                        // ==================
+                        // class AutoReleaser
+                        // ==================
+
+template &lt;class ALLOCATOR&gt;
+class AutoReleaser {
+    // This class implements a proctor that invokes the &#39;release&#39; method of its
+    // managed allocator or pool at destruction unless the proctor&#39;s &#39;release&#39;
+    // method is invoked.
+
+    // DATA
+    ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    AutoReleaser(const AutoReleaser&amp;);
+    AutoReleaser&amp; operator=(const AutoReleaser&amp;);
+
+  public:
+    // CREATORS
+    AutoReleaser(ALLOCATOR *originalAllocator);
+        // Create a proctor object to manage the specified &#39;originalAllocator&#39;.
+        // Unless the &#39;release&#39; method of this proctor is invoked, the
+        // &#39;release&#39; method of &#39;originalAllocator&#39; is automatically invoked
+        // upon destruction of this proctor.
+
+    ~AutoReleaser();
+        // Destroy this proctor object and, unless the &#39;release&#39; method has
+        // been invoked on this object with no subsequent call to &#39;reset&#39;,
+        // invoke the &#39;release&#39; method of the held allocator or pool.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the allocator or pool currently managed by
+        // this proctor.  If no allocator or pool is currently being managed,
+        // this method has no effect.
+
+    void reset(ALLOCATOR *newAllocator);
+        // Set the specified &#39;newAllocator&#39; as the allocator or pool to be
+        // managed by this proctor.  Note that this method releases from
+        // management any previously held allocator or pool, and so may be
+        // invoked with or without having called &#39;release&#39; when reusing this
+        // object.
+};
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ------------------
+                        // class AutoReleaser
+                        // ------------------
+
+// CREATORS
+template &lt;class ALLOCATOR&gt;
+inline
+AutoReleaser&lt;ALLOCATOR&gt;::AutoReleaser(ALLOCATOR *originalAllocator)
+: d_allocator_p(originalAllocator)
+{
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+AutoReleaser&lt;ALLOCATOR&gt;::~AutoReleaser()
+{
+    if (d_allocator_p) {
+        d_allocator_p-&gt;release();
+    }
+}
+
+// MANIPULATORS
+template &lt;class ALLOCATOR&gt;
+inline
+void AutoReleaser&lt;ALLOCATOR&gt;::release()
+{
+    d_allocator_p = 0;
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+void AutoReleaser&lt;ALLOCATOR&gt;::reset(ALLOCATOR *newAllocator)
+{
+    d_allocator_p = newAllocator;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>
