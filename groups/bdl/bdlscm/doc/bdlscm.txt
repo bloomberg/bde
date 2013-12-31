@@ -1,35 +1,32 @@
- bslscm.txt
+ bdlscm.txt
 
-@PURPOSE: Provide versioning information for BDE library components.
+@PURPOSE: Provide versioning information for BDL library components.
 
-@MNEMONIC: Basic Standard Library Source Control Management (bslscm)
+@MNEMONIC: Basic Development Library Source Control Management (bdlscm)
 
-@SEE_ALSO: bdescm
-
-@AUTHOR: Tom Marshall (tmarshal)
+@SEE_ALSO: bslscm
 
 @DESCRIPTION: This package provides versioning information that is incorporated
  into every release of the 'bsl' Package Group Library.  This versioning
  information is in turn available to all clients of 'bsl' both at run-time and
  by inspection of appropriate '.o' files.  Note that, except for the package
  name, this version functionality is repeated in every package group within the
- BDE library suite.
+ BDL library suite.
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslscm' package currently has 2 components having 2 levels of physical
+ The 'bdlscm' package currently has 2 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
 ..
-  2. bslscm_version
+  2. bdlscm_version
 
-  1. bslscm_versiontag
+  1. bdlscm_versiontag
 ..
 
 /Component Synopsis
 /------------------
-: 'bslscm_version':
+: 'bdlscm_version':
 :      Provide source control management (versioning) information.
 :
-: 'bslscm_versiontag':
-:      Provide versioning information for the 'bsl' package group.
-
+: 'bdlscm_versiontag':
+:      Provide versioning information for the 'bdl' package group.

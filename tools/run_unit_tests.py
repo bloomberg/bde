@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 # ----------------------------------------------------------------------------
 
-# Usage: (python2.6) run_unit_tests.py test_driver.t test_driver_flag_file [--abi=<bits>] [--libs=<static or shared>] [--junit=junitoutput.xml]
+# Usage: (python2.6) run_unit_tests.py test_driver.t [--abi=<bits>] [--libs=<static or shared>] [--junit=junitoutput.xml]
 # Arguments: test (*.t) and target (*.t.ran)
 # Options  : --abi=<ABI_bits setting>
 #            --libs=<static_library|shared_library>
@@ -46,12 +46,13 @@ def parseOptions():
     parser.add_option("--lib", dest="lib")
     parser.add_option("--junit", dest="junit")
     parser.add_option("--valgrind", dest="valgrind")
+    parser.add_option("--verbosity", type='int', default=None, dest='verbosity')
+    parser.add_option("--timeout", type='int', default=None, dest='timeout')
     (options, args) = parser.parse_args()
 
     return options
 
 commandLineOptions = parseOptions()
-out = None
 
 class TextOutputGenerator:
     msbuildErrorMarker = re.compile("Error([^:]*):")
@@ -97,7 +98,7 @@ class TextOutputGenerator:
         if self.verbose:
             print "Skipping '%s'\n" % (command)
         return
-                    
+
     def runTestCase(self, command):
         if self.verbose:
             print "Running '%s'\n" % (command)
@@ -124,7 +125,7 @@ class TextOutputGenerator:
     def reportTestCaseFailure(self, returncode):
         print >>sys.stderr, "Abnormal test failure: %d" % (returncode)
         return
-                        
+
     def reportExpectedTestCaseFailure(self, test, testNumber, returncode):
         print >>sys.stderr, "Test failure for case %d of test %s was expected."\
                                                  % (testNumber, test)
@@ -133,7 +134,7 @@ class TextOutputGenerator:
     def reportTestCaseTimeout(self):
         print >>sys.stderr, "Aborting test due to timeout"
         return
-    
+
 class JUnitOutputGenerator:
     def __init__(self, fileName):
         self.fileName = fileName
@@ -217,7 +218,7 @@ class JUnitOutputGenerator:
         ET.SubElement(self.currentCase, 'skipped')
         self.skipCount += 1
         return
-                    
+
     def runTestCase(self, command):
         return
 
@@ -251,7 +252,7 @@ class JUnitOutputGenerator:
         self.currentCase.set('status', 'failed')
         self.failureCount += 1
         return
-                        
+
     def reportExpectedTestCaseFailure(self, test, testNumber, returncode):
         self.currentCase.set('status', 'expected failure')
         return
@@ -263,7 +264,7 @@ class JUnitOutputGenerator:
         self.currentCase.set('status', 'failed')
         self.failureCount += 1
         return
-    
+
 def selectOutputType(options):
     if options.junit:
         return JUnitOutputGenerator(options.junit)
@@ -398,7 +399,7 @@ class TimeoutControl:
 
 class TestRunner:
     testOver = re.compile("^WARNING: CASE `[0-9]+' NOT FOUND.")
-    
+
     @staticmethod
     def isLastLine(line):
         return TestRunner.testOver.match(line)
@@ -414,9 +415,9 @@ class TestRunner:
                 program = test + '.exe'
             else:
                 program = test
-                
+
             policy = PolicyFilter.getTestPolicy(test, testNumber)
-                
+
             args = []
 
             if (valgrind):
@@ -433,9 +434,9 @@ class TestRunner:
                 out.skipTestCase(' '.join(args))
             else:
                 out.runTestCase(' '.join(args))
-                        
+
                 try:
-                    
+
                     child = subprocess.Popen(args, \
                                                  stdout=subprocess.PIPE, \
                                                  stderr=subprocess.STDOUT)
@@ -447,7 +448,7 @@ class TestRunner:
                     # Empty line is represented as "\n"
                     if output:
                         out.startTestCaseOutput()
-                        
+
                         while output:
                             if not TestRunner.isLastLine(output):
                                 out.printTestCaseOutput(output)
@@ -460,7 +461,7 @@ class TestRunner:
 
                     if timer.timedOut():
                         returncode = 126
-                    
+
                 except OSError, e:
                     # Couldn't start process, probably missing file
                     out.reportTestCaseError("Failed to run", sys.argv[1], testNumber, e)
@@ -472,14 +473,14 @@ class TestRunner:
                 except Exception, e:
                     out.reportTestCaseError("ERROR while executing", sys.argv[1], testNumber, e)
                     return -1
-                
+
                 # On Linux, at least, returncode is always forced to unsigned,
                 # but on Windows, at least, returncode is signed.
                 # Cygwin, bless its heart, sees a -1 return code as 127!
                 if returncode == -1 or returncode == 255 or returncode == 127:
                     # Missing test.  We're done.
                     return failures
-                
+
                 if returncode == 126:
                     out.reportTestCaseTimeout()
                     failures += 1
@@ -495,32 +496,22 @@ class TestRunner:
             # Next test
             testNumber += 1
 
-out = selectOutputType(commandLineOptions)
 
-verbosityLevel = -1
-if 'V' in os.environ:
-    try:
-        verbosityLevel = int(os.environ['V'])
-    except ValueError:
-        out.reportTestSuiteError("V", os.environ['V'])
+if __name__ == '__main__':
+    out = None
+    out = selectOutputType(commandLineOptions)
 
-# Timeout is specified in seconds
-timeout = 0
-if 'TIMEOUT' in os.environ:
-    try:
-        timeout = int(os.environ['TIMEOUT'])
-    except ValueError:
-        out.reportTestSuiteError("TIMEOUT", os.environ['TIMEOUT'])
+    verbosityLevel = -1
+    if commandLineOptions.verbosity:
+        verbosityLevel = commandLineOptions.verbosity
 
-out.startTestSuite(sys.argv[1], verbosityLevel, timeout)
+    # Timeout is specified in seconds
+    timeout = 0
+    if commandLineOptions.timeout:
+        timeout = commandLineOptions.timeout
 
-returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout, commandLineOptions.valgrind)
+    out.startTestSuite(sys.argv[1], verbosityLevel, timeout)
+    returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout, commandLineOptions.valgrind)
+    returncode = out.endTestSuite(returncode)
 
-returncode = out.endTestSuite(returncode)
-
-if returncode == 0:
-    # We passed the test, mark the target
-    target = open(sys.argv[2], 'w')
-    target.close()
-
-sys.exit(returncode)
+    sys.exit(returncode)

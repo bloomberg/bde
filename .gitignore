@@ -28,3 +28,6 @@ lib/
 build/
 coverage/
 TAGS
+*.pyc
+.lock-waf*
+.waf-*
