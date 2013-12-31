@@ -1370,7 +1370,7 @@ int main(int argc, char *argv[])
                 unsigned MAX_GENERATION = NUM_GENERATIONS - 1;
 
                 bsl::vector<bcemt_ThreadUtil::Handle> handles;
-                handles.reserve(NUM_THREADS);
+                handles.resize(NUM_THREADS);
                 int thread = 0;
 
                 for (int i = 0; i < NUM_WRITERS; ++i) {
@@ -1517,7 +1517,7 @@ int main(int argc, char *argv[])
             Obj x(CAPACITY);  const Obj& X = x;
 
             bsl::vector<bcemt_ThreadUtil::Handle> handles;
-            handles.reserve(NUM_THREADS);
+            handles.resize(NUM_THREADS);
             int thread = 0;
 
             for (int i = 0; i < NUM_WRITERS; ++i) {
@@ -3303,7 +3303,7 @@ int main(int argc, char *argv[])
             Obj x(CAPACITY);
 
             bsl::vector<bcemt_ThreadUtil::Handle> handles;
-            handles.reserve(NUM_THREADS);
+            handles.resize(NUM_THREADS);
             int thread = 0;
 
             bsls::AtomicInt64 writeCount, readCount;

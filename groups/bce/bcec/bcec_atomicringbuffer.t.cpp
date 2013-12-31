@@ -23,6 +23,7 @@
 #include <bdeu_random.h>
 
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocatormonitor.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
@@ -310,19 +311,6 @@ public:
     }
 };
 
-struct CountedDelete
-{
-    static bces_AtomicInt s_numDeletes;
-
-public:
-    ~CountedDelete()
-    { ++s_numDeletes; }
-
-    static int numDeletes()
-    { return s_numDeletes; }
-};
-
-bces_AtomicInt CountedDelete::s_numDeletes = 0;
 
 struct ThreadArgs {
     bcemt_Condition  d_startCond;
@@ -1356,17 +1344,17 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
 
         {
-            bcec_AtomicRingBuffer<CountedDelete> mX(100);
+            bcec_AtomicRingBuffer<int> mX(100);
             V(mX.size());
             ASSERT(mX.size() == 100);
         }
         {
-            bcec_AtomicRingBuffer<CountedDelete> mX(0x7FFF);
+            bcec_AtomicRingBuffer<int> mX(0x7FFF);
             V(mX.size());
             ASSERT(mX.size() == (0x7FFF));
         }
         {
-            bcec_AtomicRingBuffer<CountedDelete> mX(2070);
+            bcec_AtomicRingBuffer<int> mX(2070);
             V(mX.size());
             ASSERT(mX.size() == 2070);
         }
@@ -1381,43 +1369,60 @@ int main(int argc, char *argv[])
         //
         // ---------------------------------------------------------
 
-        bcema_TestAllocator ta(veryVeryVerbose);
-        bcema_TestAllocator da(veryVeryVerbose);
+        bsl::vector<int> a; const bsl::vector<int> &A = a;
+        a.resize(1);
+
+        bslma::TestAllocator oa(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         {
-            CountedDelete cd;
 
-            bcec_AtomicRingBuffer<CountedDelete> mX(100, &ta);
+            bcec_AtomicRingBuffer<bsl::vector<int> > mX(100, &oa);
             ASSERT(0 == da.numBytesInUse());
+            ASSERT(0 != oa.numBytesInUse());
 
-            ASSERT(0 == mX.pushBack(cd));
-            ASSERT(0 == da.numBytesInUse());
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
-            cd = mX.popFront();
-            ASSERT(0 == da.numBytesInUse());
+                ASSERT(0 == mX.pushBack(A));
+
+                ASSERT(oam.isInUseUp());
+                ASSERT(dam.isInUseSame());
+            }
+
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
+                mX.popFront();
+
+                ASSERT(oam.isInUseDown());
+                ASSERT(dam.isInUseSame());
+            }
 
             mX.disable();
             ASSERT(0 == da.numBytesInUse());
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
-            bsls::Types::Int64 numBytes = ta.numBytesInUse();
+                ASSERT(0 != mX.pushBack(A));
+                ASSERT(oam.isInUseSame());
+                ASSERT(dam.isInUseSame());
 
-            ASSERT(0 != mX.pushBack(cd));
-            ASSERT(0 == da.numBytesInUse());
-            V(CountedDelete::numDeletes());
-            ASSERT(2 == CountedDelete::numDeletes());
-            ASSERT(0 == da.numBytesInUse());
+            }
 
-            ASSERT(numBytes == ta.numBytesInUse());
             mX.enable();
-            ASSERT(0 == mX.pushBack(cd));
-        }
-        V(CountedDelete::numDeletes());
-        ASSERT(4 == CountedDelete::numDeletes());
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
+                ASSERT(0 == mX.pushBack(A));
+                ASSERT(oam.isInUseUp());
+                ASSERT(dam.isInUseSame());
+            }
+
+        }
         ASSERT(0 == da.numBytesInUse());
-        ASSERT(0 < ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
+        ASSERT(0 == oa.numBytesInUse());
 
       } break;
       case 9: {

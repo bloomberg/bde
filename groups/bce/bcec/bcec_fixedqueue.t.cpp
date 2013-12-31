@@ -1,4 +1,4 @@
-// bcec_fixedqueue.t.cpp       -*-C++-*-
+// bcec_fixedqueue.t.cpp                                              -*-C++-*-
 
 #include <bcec_fixedqueue.h>
 #include <bcec_queue.h>
@@ -136,6 +136,7 @@ public:
     }
 
     ExceptionTester& operator=(const ExceptionTester& rhs) {
+        return *this;
     }
 };
 bces_AtomicInt ExceptionTester::s_throwFrom = 1;

@@ -765,7 +765,6 @@ bcec_AtomicRingBuffer_PopGuard<VALUE>::bcec_AtomicRingBuffer_PopGuard(
 }
 
 template <class VALUE>
-inline
 bcec_AtomicRingBuffer_PopGuard<VALUE>::~bcec_AtomicRingBuffer_PopGuard()
 {
     // This popping thread currently has the cell at 'd_index' (in
@@ -804,7 +803,6 @@ bcec_AtomicRingBuffer_PushProctor<VALUE>::bcec_AtomicRingBuffer_PushProctor(
 }
 
 template <class VALUE>
-inline
 bcec_AtomicRingBuffer_PushProctor<VALUE>::~bcec_AtomicRingBuffer_PushProctor()
 {
     if (d_parent_p) {

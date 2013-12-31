@@ -1,4 +1,4 @@
-// bcec_atomicringbufferindexmanager.h                               -*-C++-*-
+// bcec_atomicringbufferindexmanager.h                                -*-C++-*-
 #ifndef INCLUDED_BCEC_ATOMICRINGBUFFERINDEXMANAGER
 #define INCLUDED_BCEC_ATOMICRINGBUFFERINDEXMANAGER
 
@@ -360,26 +360,24 @@ class bcec_AtomicRingBufferIndexManager {
     // MANIPULATORS
                          // Pushing Elements
 
-    int reservePushIndex(unsigned int *generationCount,
+    int reservePushIndex(unsigned int *generation,
                          unsigned int *index);
-        // Reserve the next available index at which to enqueue an element
-        // in an (externally managed) circular buffer; load the specified
-        // 'index' with the reserved index and load the specified
-        // 'generationCount' with the current generation of the circular
-        // buffer.  Return 0 on success, a negative value if the queue is
-        // disabled, and a positive value if the queue is full.  If this method
-        // succeeds, other threads using this object may spin on the
-        // corresponding index state until 'commitPushIndex' is called
-        // using the returned 'index' and 'generationCount' values; clients
-        // should call 'commitPushIndex' quickly after this method
-        // returns, without performing any blocking operations.  If this
-        // method fails the 'generationCount' and 'index' will be unmodified.
-        // The behavior is undefined if the current thread is already holding
-        // a reservation on either a push or pop index.  Note that
-        // 'generationCount' is necessary for invoking
-        // 'commitPushIndex' but should not otherwise be used by the
-        // caller;  the value reflects the number of times the 'index' in the
-        // circular buffer has been used.
+        // Reserve the next available index at which to enqueue an element in
+        // an (externally managed) circular buffer; load the specified 'index'
+        // with the reserved index and load the specified 'generation' with the
+        // current generation of the circular buffer.  Return 0 on success, a
+        // negative value if the queue is disabled, and a positive value if the
+        // queue is full.  If this method succeeds, other threads using this
+        // object may spin on the corresponding index state until
+        // 'commitPushIndex' is called using the returned 'index' and
+        // 'generation' values; clients should call 'commitPushIndex' quickly
+        // after this method returns, without performing any blocking
+        // operations.  If this method fails the 'generation' and 'index' will
+        // be unmodified.  The behavior is undefined if the current thread is
+        // already holding a reservation on either a push or pop index.  Note
+        // that 'generation' is necessary for invoking 'commitPushIndex' but
+        // should not otherwise be used by the caller; the value reflects the
+        // number of times the 'index' in the circular buffer has been used.
 
     void commitPushIndex(unsigned int generation, unsigned int index);
         // Mark the specified 'index' as occupied (full) in the specified
@@ -401,7 +399,7 @@ class bcec_AtomicRingBufferIndexManager {
         // returned 'index' and 'generation' values; clients should call
         // 'commitPopIndex' quickly after this method returns, without
         // performing any blocking operations.  If this method fails the
-        // 'generationCount' and 'index' will be unmodified.  The behavior is
+        // 'generation' and 'index' will be unmodified.  The behavior is
         // undefined if the current thread is already holding a reservation on
         // either a push or pop index.  Note that 'generation' is necessary for
         // invoking 'commitPopIndex' but should not otherwise be used by the
