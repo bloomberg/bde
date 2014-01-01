@@ -4,9 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_exceptionutil.h>
-
-#include <new>   // 'std::bad_alloc'
+#include <bsls_bslexceptionutil.h>
 
 namespace BloombergLP {
 
@@ -16,11 +14,13 @@ namespace bslma {
                         // class Allocator
                         // ---------------
 
+#ifndef BDE_OMIT_DEPRECATED
 // CLASS METHODS
 void Allocator::throwBadAlloc()
 {
-    BSLS_THROW(std::bad_alloc());
+    bsls::BslExceptionUtil::throwBadAlloc();
 }
+#endif  // BDE_OMIT_DEPRECATED
 
 // CREATORS
 Allocator::~Allocator()

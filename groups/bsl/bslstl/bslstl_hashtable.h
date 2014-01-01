@@ -1529,6 +1529,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_BSLEXCEPTIONUTIL
+#include <bsls_bslexceptionutil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -3086,7 +3090,7 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     // assumption to pre-empt other allocators too.
 
     if (ArrayAllocatorTraits::max_size(reboundAllocator) < bucketArraySize) {
-        bslma::Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     // Conversion to exactly the correct type resolves compiler warnings.
