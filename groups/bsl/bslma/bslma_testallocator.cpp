@@ -10,6 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_alignment.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
 
 #include <cstdio>   // print messages
@@ -514,7 +515,7 @@ void *TestAllocator::allocate(size_type size)
     if (! align) {
         // We cannot satisfy this request.  Throw 'std::bad_alloc'.
 
-        Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     // Note that we don't initialize the user portion of the segment because
