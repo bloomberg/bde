@@ -3404,7 +3404,7 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
 {
     // perform a validity check
-    BSLS_ASSERT((*this)[this->d_length] == CHAR_TYPE());
+    BSLS_ASSERT(CHAR_TRAITS::eq((*this)[this->d_length], CHAR_TYPE()));
     BSLS_ASSERT(capacity() >= length());
 
     privateDeallocate();
