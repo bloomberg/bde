@@ -399,7 +399,7 @@ typedef bslma::Default Obj;
         // of the global allocator.
 
         // CLASS DATA
-        static my_Singleton *d_singleton_p;  // pointer to singleton object
+        static my_Singleton *s_singleton_p;  // pointer to singleton object
 
         // PRIVATE DATA
         my_Id d_id;  // allocating
@@ -444,7 +444,7 @@ typedef bslma::Default Obj;
     inline
     const my_Singleton& my_Singleton::singleton()
     {
-        return *d_singleton_p;
+        return *s_singleton_p;
     }
 
     // CREATORS
@@ -474,14 +474,14 @@ typedef bslma::Default Obj;
 //  #include <my_singleton.h>
 //  #include <bsls_alignedbuffer.h>
 
-    my_Singleton *my_Singleton::d_singleton_p;
+    my_Singleton *my_Singleton::s_singleton_p;
 
     // CLASS METHODS
     void my_Singleton::initSingleton(const char       *id,
                                      bslma::Allocator *basicAllocator)
     {
         static bsls::AlignedBuffer<sizeof(my_Singleton)> singleton;
-        d_singleton_p = new (singleton.buffer()) my_Singleton(id,
+        s_singleton_p = new (singleton.buffer()) my_Singleton(id,
                                                               basicAllocator);
     }
 //..
