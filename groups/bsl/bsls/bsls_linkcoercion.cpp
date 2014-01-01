@@ -1,30 +1,7 @@
-// bslscm_version.cpp                                                 -*-C++-*-
-#include <bslscm_version.h>
-
+// bsls_linkcoercion.cpp                                              -*-C++-*-
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
 
-namespace BloombergLP {
-
-#define BSL_VERSION_PATCH 0
-
-#define STRINGIFY2(a) #a
-#define STRINGIFY(a) STRINGIFY2(a)
-
-#define BSLSCM_VERSION_STRING "BLP_LIB_BSL_BSL_" STRINGIFY(BSL_VERSION_MAJOR) \
-                                             "." STRINGIFY(BSL_VERSION_MINOR) \
-                                             "." STRINGIFY(BSL_VERSION_PATCH)
-
-const char *bslscm::Version::s_ident = "$Id: " BSLSCM_VERSION_STRING " $";
-const char *bslscm::Version::s_what  = "@(#)"  BSLSCM_VERSION_STRING;
-
-const char *bslscm::Version::BSLSCM_S_VERSION    = BSLSCM_VERSION_STRING;
-const char *bslscm::Version::s_dependencies      = "";
-const char *bslscm::Version::s_buildInfo         = "";
-const char *bslscm::Version::s_timestamp         = "";
-const char *bslscm::Version::s_sourceControlInfo = "";
-
-}  // close enterprise namespace
+BSLS_IDENT("$Id: $")
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.

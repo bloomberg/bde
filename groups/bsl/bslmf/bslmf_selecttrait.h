@@ -72,8 +72,8 @@ BSLS_IDENT("$Id: $")
 // traits used above:
 //..
 //  template <class TYPE> struct UsesBslmaAllocator : bsl::false_type { };
-//  template <class TYPE> struct IsBitwiseCopyable  : bsl::false_type { };
-//  template <class TYPE> struct IsPair             : bsl::false_type { };
+//  template <class TYPE> struct IsBitwiseCopyable : bsl::false_type { };
+//  template <class TYPE> struct IsPair : bsl::false_type { };
 //..
 // Note that these definitions are simplified to avoid excess dependencies; A
 // proper traits definition would inherit from 'bslmf::DetectNestedTrait'
@@ -102,16 +102,16 @@ BSLS_IDENT("$Id: $")
 //  struct Imp {
 //
 //      // Counters for counting overload calls
-//      static int d_noTraitsCounter;
-//      static int d_usesBslmaAllocatorCounter;
-//      static int d_isPairCounter;
-//      static int d_isBitwiseCopyableCounter;
+//      static int s_noTraitsCounter;
+//      static int s_usesBslmaAllocatorCounter;
+//      static int s_isPairCounter;
+//      static int s_isBitwiseCopyableCounter;
 //
 //      static void clearCounters() {
-//          d_noTraitsCounter = 0;
-//          d_usesBslmaAllocatorCounter = 0;
-//          d_isPairCounter = 0;
-//          d_isBitwiseCopyableCounter = 0;
+//          s_noTraitsCounter = 0;
+//          s_usesBslmaAllocatorCounter = 0;
+//          s_isPairCounter = 0;
+//          s_isBitwiseCopyableCounter = 0;
 //      }
 //
 //      template <class TARGET_TYPE>
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //                    bslmf::SelectTraitCase<UsesBslmaAllocator>)
 //      {
 //          new (address) TARGET_TYPE(original, allocator);
-//          ++d_usesBslmaAllocatorCounter;
+//          ++s_usesBslmaAllocatorCounter;
 //      }
 //
 //      template <class TARGET_TYPE>
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //                                          allocator);
 //          ScalarPrimitives::copyConstruct(&address->second, original.second,
 //                                          allocator);
-//          ++d_isPairCounter;
+//          ++s_isPairCounter;
 //      }
 //
 //      template <class TARGET_TYPE>
@@ -146,8 +146,8 @@ BSLS_IDENT("$Id: $")
 //                    bslma::Allocator                        *,
 //                    bslmf::SelectTraitCase<IsBitwiseCopyable>)
 //      {
-//          std::memcpy(address, &original, sizeof(original));
-//          ++d_isBitwiseCopyableCounter;
+//          memcpy(address, &original, sizeof(original));
+//          ++s_isBitwiseCopyableCounter;
 //      }
 //
 //      template <class TARGET_TYPE>
@@ -158,14 +158,14 @@ BSLS_IDENT("$Id: $")
 //                    bslmf::SelectTraitCase<>)
 //      {
 //          new (address) TARGET_TYPE(original);
-//          ++d_noTraitsCounter;
+//          ++s_noTraitsCounter;
 //      }
 //  };
 //
-//  int Imp::d_noTraitsCounter = 0;
-//  int Imp::d_usesBslmaAllocatorCounter = 0;
-//  int Imp::d_isPairCounter = 0;
-//  int Imp::d_isBitwiseCopyableCounter = 0;
+//  int Imp::s_noTraitsCounter = 0;
+//  int Imp::s_usesBslmaAllocatorCounter = 0;
+//  int Imp::s_isPairCounter = 0;
+//  int Imp::s_isBitwiseCopyableCounter = 0;
 //..
 // Then, we implement 'ScalarPrimitives::copyConstruct':
 //..
@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 // verify that the most efficient copy operation that is valid for each type
 // is applied:
 //..
-//  int main()
+//  int usageExample1()
 //  {
 //      using bslalg::Imp;
 //
@@ -287,7 +287,7 @@ BSLS_IDENT("$Id: $")
 //      TypeWithAllocator  twa(1, a1);
 //      TypeWithAllocator *twaptr = (TypeWithAllocator*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(twaptr, twa, a2);
-//      assert(1 == Imp::d_usesBslmaAllocatorCounter);
+//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
 //      assert(1 == twaptr->value());
 //      assert(a2 == twaptr->allocator());
 //      twaptr->~TypeWithAllocator();
@@ -300,7 +300,7 @@ BSLS_IDENT("$Id: $")
 //      BitwiseCopyableType  bct(2);
 //      BitwiseCopyableType *bctptr = (BitwiseCopyableType*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(bctptr, bct, a2);
-//      assert(1 == Imp::d_isBitwiseCopyableCounter);
+//      assert(1 == Imp::s_isBitwiseCopyableCounter);
 //      assert(2 == bctptr->value());
 //      bctptr->~BitwiseCopyableType();
 //..
@@ -314,9 +314,9 @@ BSLS_IDENT("$Id: $")
 //      PairType  pt(3, 4);
 //      PairType *ptptr = (PairType*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(ptptr, pt, a2);
-//      assert(1 == Imp::d_isPairCounter);
-//      assert(1 == Imp::d_usesBslmaAllocatorCounter);
-//      assert(1 == Imp::d_usesBslmaAllocatorCounter);
+//      assert(1 == Imp::s_isPairCounter);
+//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
+//      assert(1 == Imp::s_usesBslmaAllocatorCounter);
 //      assert(3 == ptptr->first.value());
 //      assert(a2 == ptptr->first.allocator());
 //      assert(4 == ptptr->second.value());
@@ -334,8 +334,8 @@ BSLS_IDENT("$Id: $")
 //      BitwiseCopyablePairType *bcptbcptr = (BitwiseCopyablePairType*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(bcptbcptr, bcpt, a2);
 //      // Prefer IsBitwiseCopyable over IsPair trait
-//      assert(1 == Imp::d_isBitwiseCopyableCounter);
-//      assert(0 == Imp::d_isPairCounter);
+//      assert(1 == Imp::s_isBitwiseCopyableCounter);
+//      assert(0 == Imp::s_isPairCounter);
 //      assert(5 == bcptbcptr->first.value());
 //      assert(6 == bcptbcptr->second.value());
 //      bcptbcptr->~BitwiseCopyablePairType();
@@ -348,7 +348,7 @@ BSLS_IDENT("$Id: $")
 //      TypeWithNoTraits  twnt(7);
 //      TypeWithNoTraits *twntptr = (TypeWithNoTraits*) buffer;
 //      bslalg::ScalarPrimitives::copyConstruct(twntptr, twnt, a2);
-//      assert(1 == Imp::d_noTraitsCounter);
+//      assert(1 == Imp::s_noTraitsCounter);
 //      assert(7 == twntptr->value());
 //      twntptr->~TypeWithNoTraits();
 //
@@ -357,7 +357,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that using 'SelectTraits' for dispatching using overloading imposes
 // little or no overhead, since the compiler typically generates no code for
-// the constructor or copy constructor of the 'SelectTraitCase' argument to
+// the constructor or copy constructor of the trait argument to
 // the overloaded functions.  When inlining is in effect, the result is very
 // efficient.
 

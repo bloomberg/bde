@@ -44,6 +44,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LINKCOERCION
+#include <bsls_linkcoercion.h>
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
 #endif
@@ -58,8 +62,8 @@ namespace BloombergLP {
 namespace bslscm {
 
 struct Version {
-    static const char *d_ident;
-    static const char *d_what;
+    static const char *s_ident;
+    static const char *s_what;
 
 #define BSLSCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
 #define BSLSCM_CONCAT(a,b,c,d,e,f)  BSLSCM_CONCAT2(a,b,c,d,e,f)
@@ -69,17 +73,17 @@ struct Version {
 // present in this version coercion symbol.  Tools may look for this pattern to
 // warn users of mismatches.
 
-#define BSLSCM_D_VERSION BSLSCM_CONCAT(d_version_BSL_,       \
+#define BSLSCM_S_VERSION BSLSCM_CONCAT(s_version_BSL_,       \
                                        BSL_VERSION_MAJOR, _, \
                                        BSL_VERSION_MINOR, _, \
                                        compiled_this_object)
 
-    static const char *BSLSCM_D_VERSION;
+    static const char *BSLSCM_S_VERSION;
 
-    static const char *d_dependencies;
-    static const char *d_buildInfo;
-    static const char *d_timestamp;
-    static const char *d_sourceControlInfo;
+    static const char *s_dependencies;
+    static const char *s_buildInfo;
+    static const char *s_timestamp;
+    static const char *s_sourceControlInfo;
 
     static const char *version();
 };
@@ -87,23 +91,16 @@ struct Version {
 inline
 const char *Version::version()
 {
-    return BSLSCM_D_VERSION;
+    return BSLSCM_S_VERSION;
 }
 
 }  // close package namespace
 
 // Force linker to pull in this component's object file.
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-static const char **bslscm_version_assertion =
-                                            &bslscm::Version::BSLSCM_D_VERSION;
-#else
-namespace {
-    extern const char **const bslscm_version_assertion =
-                                            &bslscm::Version::BSLSCM_D_VERSION;
-}
-#endif
-
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+                                          bslscm_version_assertion,
+                                          bslscm::Version::BSLSCM_S_VERSION);
 
 }  // close enterprise namespace
 
