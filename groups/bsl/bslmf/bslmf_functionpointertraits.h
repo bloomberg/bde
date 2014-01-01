@@ -312,6 +312,68 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+// Microsoft Visual C++ has a problem matching 'T * const' pointers to the
+// appropriate partial specialization, whereas it will match a 'T const'
+// specialization.  We could use the Microsoft fix on all platforms, but why
+// instantiate more traits than necessary when testing pointer traits of
+// cv-qualified types that are not function pointers?
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<PROTOTYPE const>
+     : FunctionPointerTraits<PROTOTYPE> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<PROTOTYPE volatile>
+     : FunctionPointerTraits<PROTOTYPE> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<PROTOTYPE const volatile>
+     : FunctionPointerTraits<PROTOTYPE> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+#else
+template <class PROTOTYPE>
+struct FunctionPointerTraits<PROTOTYPE * const>
+     : FunctionPointerTraits<PROTOTYPE *> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<PROTOTYPE * volatile>
+     : FunctionPointerTraits<PROTOTYPE *> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+
+template <class PROTOTYPE>
+struct FunctionPointerTraits<PROTOTYPE * const volatile>
+     : FunctionPointerTraits<PROTOTYPE *> {
+    // This class gives information about the specified 'PROTOTYPE'.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types 'ResultType',
+    // 'ArgumentList', and 'Linkage'.
+};
+#endif
+
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY

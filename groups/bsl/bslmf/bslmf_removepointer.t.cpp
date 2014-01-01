@@ -92,6 +92,82 @@ void testFuncPtrType(TYPE)
 #endif
 }
 
+template <class TYPE>
+void testConstFuncPtrType(TYPE const)
+    // Removing a pointer from some function pointer types can be problematic
+    // for some compilers (e.g., AIX xlC).
+{
+    // First we ensure that we are using the 'const'-qualified TYPE.
+    // Unusually, we place the 'const' on the right, to reflect its placement
+    // after the pointer '*' in intended use, and to avoid any concern about
+    // subtle compiler bugs.
+
+    typedef TYPE const ConstType;
+
+    // Next, remove the pointer from the function pointer type and make sure it
+    // compiles.
+    typedef typename bsl::remove_pointer<ConstType>::type FUNC_TYPE;
+
+    // Now add the pointer back and verify that we end up with the same type,
+    // unless on a compiler that where removing the pointer didn't produce the
+    // expected result.
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+    ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
+    ASSERT((bsl::is_same<TYPE const, FUNC_TYPE *const>::value));
+#endif
+}
+
+template <class TYPE>
+void testVolatileFuncPtrType(TYPE volatile)
+    // Removing a pointer from some function pointer types can be problematic
+    // for some compilers (e.g., AIX xlC).
+{
+    // First we ensure that we are using the 'const'-qualified TYPE.
+    // Unusually, we place the 'const' on the right, to reflect its placement
+    // after the pointer '*' in intended use, and to avoid any concern about
+    // subtle compiler bugs.
+
+    typedef TYPE volatile ConstType;
+
+    // Next, remove the pointer from the function pointer type and make sure it
+    // compiles.
+    typedef typename bsl::remove_pointer<ConstType>::type FUNC_TYPE;
+
+    // Now add the pointer back and verify that we end up with the same type,
+    // unless on a compiler that where removing the pointer didn't produce the
+    // expected result.
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+    ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
+    ASSERT((bsl::is_same<TYPE volatile, FUNC_TYPE *volatile>::value));
+#endif
+}
+
+template <class TYPE>
+void testConstVolatileFuncPtrType(TYPE const volatile)
+    // Removing a pointer from some function pointer types can be problematic
+    // for some compilers (e.g., AIX xlC).
+{
+    // First we ensure that we are using the 'const'-qualified TYPE.
+    // Unusually, we place the 'const' on the right, to reflect its placement
+    // after the pointer '*' in intended use, and to avoid any concern about
+    // subtle compiler bugs.
+
+    typedef TYPE const volatile ConstType;
+
+    // Next, remove the pointer from the function pointer type and make sure it
+    // compiles.
+    typedef typename bsl::remove_pointer<ConstType>::type FUNC_TYPE;
+
+    // Now add the pointer back and verify that we end up with the same type,
+    // unless on a compiler that where removing the pointer didn't produce the
+    // expected result.
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+    ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
+    ASSERT((bsl::is_same<TYPE const volatile,
+                         FUNC_TYPE *const volatile>::value));
+#endif
+}
+
 void funcWithDefaultArg(int /* arg */)
 {
 }
@@ -192,10 +268,18 @@ int main(int argc, char *argv[])
 
         // C-2
         ASSERT((is_same<remove_pointer<int>::type, int>::value));
+        ASSERT((is_same<remove_pointer<const int>::type, const int>::value));
+        ASSERT((is_same<remove_pointer<volatile int>::type,
+                        volatile int>::value));
+        ASSERT((is_same<remove_pointer<const volatile int>::type,
+                        const volatile int>::value));
         ASSERT((is_same<remove_pointer<int *&>::type, int *&>::value));
 
         // Test removing a pointer from some function pointer types.
         testFuncPtrType(&funcWithDefaultArg);
+        testConstFuncPtrType(&funcWithDefaultArg);
+        testVolatileFuncPtrType(&funcWithDefaultArg);
+        testConstVolatileFuncPtrType(&funcWithDefaultArg);
 
       } break;
       default: {
