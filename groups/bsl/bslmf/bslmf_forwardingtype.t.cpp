@@ -21,7 +21,9 @@ using namespace std;
 // This component provides a meta-function.  We simply verify that it returns
 // the proper type for a list of suitably chosen arguments.  It also provides
 // a utility function for which we verify that it returns the correct type and
-// value
+// value.  Finally, we perform and end-to-end test that exercises the intended
+// use of the component in order to verify that it is actually useful as
+// specified.
 //-----------------------------------------------------------------------------
 // [ 1] bslmf::ForwardingType<TYPE>::Type
 // [ 2] bslmf::ForwardingTypeUtil<TYPE>::TargetType
@@ -62,11 +64,15 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPES/OBJECTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum   Enum   { E_VAL1, E_VAL2 };
+enum   Enum   { e_VAL1 = 1, e_VAL2 };
 
 struct Struct {
     int d_data;
     Struct(int v) : d_data(v) { }
+    Struct(Struct& other) : d_data(other.d_data) { }
+    Struct(const Struct& other) : d_data(other.d_data) { }
+    Struct(volatile Struct& other) : d_data(other.d_data) { }
+    Struct(const volatile Struct& other) : d_data(other.d_data) { }
 };
 
 inline bool operator==(Struct a, Struct b) {
@@ -76,6 +82,10 @@ inline bool operator==(Struct a, Struct b) {
 union  Union  {
     int d_data;
     Union(int v) : d_data(v) { }
+    Union(Union& other) : d_data(other.d_data) { }
+    Union(const Union& other) : d_data(other.d_data) { }
+    Union(volatile Union& other) : d_data(other.d_data) { }
+    Union(const volatile Union& other) : d_data(other.d_data) { }
 };
 
 inline bool operator==(Union a, Union b) {
@@ -86,6 +96,10 @@ class  Class  {
     int d_data;
 public:
     Class(int v) : d_data(v) { }
+    Class(Class& other) : d_data(other.d_data) { }
+    Class(const Class& other) : d_data(other.d_data) { }
+    Class(volatile Class& other) : d_data(other.d_data) { }
+    Class(const volatile Class& other) : d_data(other.d_data) { }
     int value() const { return d_data; }
 };
 
@@ -115,21 +129,64 @@ void func() { }
 void funcI(int) { }
 void funcRi(int&) { }
 
-struct OverloadCheck
-{
-    // Check overloading 
-        Enum    e = E_VAL2;
-        Struct  s(99);
-        Union   u(98);
-        Class   c(97);
-        double  d = 1.23;
-        double *p = &d;
-        char    a[5] = { '5', '4', '3', '2', '1' };
-        char  (&au)[] = reinterpret_cast<AU&>(a);
-        F      *f_p = func;
-        Pm      m_p  = &Struct::d_data;
-        Pmf     mf_p = &Class::value;
+enum {
+    k_LVALUE,
+    k_CONST_LVALUE,
+    k_VOLATILE_LVALUE,
+    k_CONST_VOLATILE_LVALUE,
+    k_RVALUE,
+    k_CONST_RVALUE,
+    k_VOLATILE_RVALUE,
+    k_CONST_VOLATILE_RVALUE
 };
+
+template <class T>
+T toRvalue(T v)
+    // Return a copy of the specified 'v' object.  If 'T' has a cv-qualifier,
+    // then the compiler might discard it in the return type.  For testing
+    // purposes, what is important is that we get exactly what we would
+    // get when returning an object of type 'T'.
+{
+    return v;
+}
+
+template <class T>
+struct CvRefMatch {
+    int operator()(T&) const { return k_LVALUE; }
+    int operator()(const T&) const { return k_CONST_LVALUE; }
+    int operator()(volatile T&) const { return k_VOLATILE_LVALUE; }
+    int operator()(const volatile T&) const { return k_CONST_VOLATILE_LVALUE; }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    int operator()(T&&) const { return k_RVALUE; }
+    int operator()(const T&&) const { return k_CONST_RVALUE; }
+    int operator()(volatile T&&) const { return k_VOLATILE_RVALUE; }
+    int operator()(const volatile T&&) const
+        { return k_CONST_VOLATILE_RVALUE; }
+#endif
+};
+
+    template <class T>
+struct CvArrayMatch {
+
+    template <std::size_t SZ>
+    int operator()(T (&)[SZ]) const { return int(SZ); }
+
+    int operator()(T *const&) const { return 0; }
+};
+
+template <class T, class INVOCABLE>
+int endToEndIntermediary(typename bslmf::ForwardingType<T>::Type arg,
+                         const INVOCABLE& target)
+{
+    return target(bslmf::ForwardingTypeUtil<T>::forwardToTarget(arg));
+}
+
+template <class T, class INVOCABLE>
+int testEndToEnd(T arg, const INVOCABLE& target)
+{
+    return endToEndIntermediary<T>(arg, target);
+}
 
 //=============================================================================
 //                           USAGE EXAMPLES
@@ -411,6 +468,8 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
+        // END-TO-END OVERLOADING
+        //
         // Concerns:
         //: 1 An argument of type 'T' that is passed to one function as 'T',
         //:   forwarded through a second function as 'ForwardingType<T>::Type'
@@ -458,6 +517,120 @@ int main(int argc, char *argv[])
         // TESTING
         //      END-TO-END OVERLOADING
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nEND-TO-END OVERLOADING"
+                          << "\n======================" << endl;
+
+        int     i = 5;
+        Enum    e = e_VAL2;
+        Struct  s(99);
+        Union   u(98);
+        Class   c(97);
+        double  d = 1.23;
+        double *p = &d;
+        F      *f_p = func;
+        Pm      m_p  = &Struct::d_data;
+        Pmf     mf_p = &Class::value;
+
+        char a[5]    = { '5', '4', '3', '2', '1' };
+        char (&au)[] = reinterpret_cast<AU&>(a);
+
+// Volatile rvalue types are not useful and have strange rules.
+// Do not test them.
+#define TEST_ENDTOEND_RVALUE(TP, v) {                                         \
+            typedef TP T;                                                     \
+            typedef const T CT;                                               \
+            CvRefMatch<T> target;                                             \
+            ASSERT(testEndToEnd<T>(v, target)   == target(toRvalue<T>(v)));   \
+            ASSERT(testEndToEnd<CT>(v, target)  == target(toRvalue<CT>(v)));  \
+        }
+
+        if (veryVerbose) cout << "rvalue types" << endl;
+        TEST_ENDTOEND_RVALUE(int      , i);
+        TEST_ENDTOEND_RVALUE(Enum     , e);
+        TEST_ENDTOEND_RVALUE(Struct   , s);
+        TEST_ENDTOEND_RVALUE(Union    , u);
+        TEST_ENDTOEND_RVALUE(Class    , c);
+        TEST_ENDTOEND_RVALUE(double   , d);
+        TEST_ENDTOEND_RVALUE(double * , p);
+        TEST_ENDTOEND_RVALUE(F      * , f_p);
+        TEST_ENDTOEND_RVALUE(Pm       , m_p);
+        TEST_ENDTOEND_RVALUE(Pmf      , mf_p);
+
+#undef TEST_ENDTOEND_RVALUE
+
+#define TEST_ENDTOEND_LVALUE_REF(TP, v) {                                         \
+            typedef TP T;                                                     \
+            typedef const T CT;                                               \
+            typedef volatile T VT;                                            \
+            typedef const volatile T CVT;                                     \
+            CT& cv = v;                                                       \
+            VT& vv = v;                                                       \
+            CVT& cvv = v;                                                     \
+            CvRefMatch<T> target;                                             \
+            ASSERT(testEndToEnd<T&>(v, target)     == target(v));             \
+            ASSERT(testEndToEnd<CT&>(cv, target)   == target(cv));            \
+            ASSERT(testEndToEnd<VT&>(vv, target)   == target(vv));            \
+            ASSERT(testEndToEnd<CVT&>(cvv, target) == target(cvv));           \
+        }
+
+        if (veryVerbose) cout << "lvalue reference types" << endl;
+        TEST_ENDTOEND_LVALUE_REF(int      , i);
+        TEST_ENDTOEND_LVALUE_REF(Enum     , e);
+        TEST_ENDTOEND_LVALUE_REF(Struct   , s);
+        TEST_ENDTOEND_LVALUE_REF(Union    , u);
+        TEST_ENDTOEND_LVALUE_REF(Class    , c);
+        TEST_ENDTOEND_LVALUE_REF(double   , d);
+        TEST_ENDTOEND_LVALUE_REF(double * , p);
+        TEST_ENDTOEND_LVALUE_REF(F      * , f_p);
+        TEST_ENDTOEND_LVALUE_REF(Pm       , m_p);
+        TEST_ENDTOEND_LVALUE_REF(Pmf      , mf_p);
+
+#undef TEST_ENDTOEND_LVALUE_REF
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+#define TEST_ENDTOEND_RVALUE_REF(TP, v) {                                     \
+            typedef TP T;                                                     \
+            typedef const T CT;                                               \
+            typedef volatile T VT;                                            \
+            typedef const volatile T CVT;                                     \
+            CvRefMatch<T> target;                                             \
+            ASSERT(testEndToEnd<T&&>(std::move(v), target) ==                 \
+                   target(std::move(v)));                                     \
+            ASSERT(testEndToEnd<CT&&>(static_cast<CT&&>(v), target) ==        \
+                   target(static_cast<CT&&>(v)));                             \
+            ASSERT(testEndToEnd<VT&&>(static_cast<VT&&>(v), target) ==        \
+                   target(static_cast<VT&&>(v)));                             \
+            ASSERT(testEndToEnd<CVT&&>(static_cast<CVT&&>(v), target) ==      \
+                   target(static_cast<CVT&&>(v)));                            \
+        }
+
+        if (veryVerbose) cout << "rvalue reference types" << endl;
+        TEST_ENDTOEND_RVALUE_REF(int      , i);
+        TEST_ENDTOEND_RVALUE_REF(Enum     , e);
+        TEST_ENDTOEND_RVALUE_REF(Struct   , s);
+        TEST_ENDTOEND_RVALUE_REF(Union    , u);
+        TEST_ENDTOEND_RVALUE_REF(Class    , c);
+        TEST_ENDTOEND_RVALUE_REF(double   , d);
+        TEST_ENDTOEND_RVALUE_REF(double * , p);
+        TEST_ENDTOEND_RVALUE_REF(F      * , f_p);
+        TEST_ENDTOEND_RVALUE_REF(Pm       , m_p);
+        TEST_ENDTOEND_RVALUE_REF(Pmf      , mf_p);
+
+#undef TEST_ENDTOEND_RVALUE_REF
+
+#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+        if (veryVerbose) cout << "array types" << endl;
+        CvArrayMatch<char> am;
+        ASSERT(testEndToEnd<char[5]>(a, am)    == am(a));
+        ASSERT(testEndToEnd<char[]>(au, am)    == am(au));
+        ASSERT(testEndToEnd<char(&)[5]>(a, am) == am(a));
+        ASSERT(testEndToEnd<char(&)[]>(au, am) == am(au));
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(testEndToEnd<char *&&>(au, am)  == am(std::move(au)));
+#endif
 
       } break;
 
@@ -536,7 +709,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nbslmf::ForwardingTypeUtil"
                           << "\n=========================" << endl;
 
-        Enum    e = E_VAL2;
+        Enum    e = e_VAL2;
         Struct  s(99);
         Union   u(98);
         Class   c(97);

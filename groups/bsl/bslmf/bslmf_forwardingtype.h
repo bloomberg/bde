@@ -309,35 +309,28 @@ private:
     typedef typename bsl::remove_reference<TYPE>::type UnrefType;
 
     enum {
-        IS_REFERENCE = bsl::is_reference<TYPE>::value,
+        k_IS_REFERENCE = bsl::is_reference<TYPE>::value,
 
-        CATEGORY = (bsl::is_function<UnrefType>::value    ?
+        k_CATEGORY = (bsl::is_function<UnrefType>::value    ?
                                              BSLMF_FORWARDING_TYPE_FUNCTION   :
-                    bsl::is_array<UnrefType>::value       ?
+                      bsl::is_array<UnrefType>::value       ?
                                              BSLMF_FORWARDING_TYPE_ARRAY      :
-                    bsl::is_rvalue_reference<TYPE>::value ?
+                      bsl::is_rvalue_reference<TYPE>::value ?
                                              BSLMF_FORWARDING_TYPE_RVALUE_REF :
-                    bsl::is_fundamental<TYPE>::value ||
-                    bsl::is_pointer<TYPE>::value ||
-                    bsl::is_member_pointer<TYPE>::value ||
-                    IsFunctionPointer<TYPE>::value ||
-                    bsl::is_enum<TYPE>::value             ?
+                      bsl::is_fundamental<TYPE>::value ||
+                      bsl::is_pointer<TYPE>::value ||
+                      bsl::is_member_pointer<TYPE>::value ||
+                      IsFunctionPointer<TYPE>::value ||
+                      bsl::is_enum<TYPE>::value             ?
                                              BSLMF_FORWARDING_TYPE_BASIC      :
                                              BSLMF_FORWARDING_TYPE_CLASS)
     };
 
-    typedef ForwardingType_Imp<UnrefType, CATEGORY, IS_REFERENCE> Imp;
+    typedef ForwardingType_Imp<UnrefType, k_CATEGORY, k_IS_REFERENCE> Imp;
 
     friend struct ForwardingTypeUtil<TYPE>;
 
 public:
-
-    enum {
-        // 'BSLMF_FORWARDING_TYPE_ID' is the composed of the type category for
-        // non-reference types and the negation of the type category for
-        // reference types.
-        BSLMF_FORWARDING_TYPE_ID = (IS_REFERENCE ? -CATEGORY : CATEGORY)
-    };
 
     typedef typename Imp::Type       Type;
         // The type that should be used to forward 'TYPE' through a chain of
