@@ -20,5 +20,5 @@ The BDE libraries are distributed under a simple MIT-style license; see the LICE
 
 Question, Comments and Feedback
 ===============================
-If you have questions, comments, suggestions for improvement or any other inquiries regarding BSL, feel free to open an issue
+If you have questions, comments, suggestions for improvement or any other inquiries regarding BDE, feel free to open an issue
 in the [issue tracker](https://github.com/bloomberg/bde/issues).
