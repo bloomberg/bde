@@ -7,7 +7,7 @@ Libraries are hosted at: https://github.com/bloomberg/bde
 BDE Libraries
 =============
 
-This repository contains the BDE libraries, currently BSL (BDE Standard Library) and BDL (BDE Develment Library).  For more information about BSL, BDL, and BDE, follow the links below:
+This repository contains the BDE libraries, currently BSL (BDE Standard Library) and BDL (BDE Development Library).  For more information about BSL, BDL, and BDE, follow the links below:
 
 * [BDE wiki](http://github.com/bloomberg/bde/wiki)
 * [Quick-Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started)
