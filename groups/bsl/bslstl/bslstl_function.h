@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // Prevent this header from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_function.h> instead of <bslstl_function.h> in \
+#error "include <bsl_functional.h> instead of <bslstl_function.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
 
@@ -226,22 +226,25 @@ struct Function_ObjAlignment<void> {
                         // ================================
 
 class Function_ObjPairBufferDesc {
-    // Descriptor for a memory buffer that can hold two objects.
-    // TBD: Needs more description.
-    // TBD: Is this worthy of being in its own component?
+    // Descriptor for a maximally-aligned memory buffer that can hold two
+    // objects.  It provides sufficient information to access the first and
+    // second data members.  In order to generate a descriptor, we need only
+    // the size of the two objects being stored, thus allowing a descriptor to
+    // be created at for objects whose types are not known until runtime.
+    // Note that the layout may not be identical to a 'std::pair' containing
+    // the same data members.
 
-    std::size_t d_firstSize;
-    std::size_t d_firstAlign;
-    std::size_t d_secondSize;
-    std::size_t d_secondAlign;
-    std::size_t d_secondOffset;
-    std::size_t d_totalSize;
-    std::size_t d_totalAlign;
+    std::size_t d_totalSize;    // Total size of the buffer
+    std::size_t d_secondOffset; // Offset within the buffer of the 2nd object
 
 public:
-    // MANIPULATORS
-    template <class TYPE1, class TYPE2>
-    void setDescriptor();
+    // Creators
+    Function_ObjPairBufferDesc(std::size_t t1Size, std::size_t t2Size);
+
+    //! Function_ObjPairBufferDesc(const Function_ObjPairBufferDesc&);
+    //! ~Function_ObjPairBufferDesc();
+    //! Function_ObjPairBufferDesc& operator=(
+    //!                             const Function_ObjPairBufferDesc&);
 
     // ACCESSORS
     void       *first(void       *buffer);
@@ -250,12 +253,6 @@ public:
     void const *second(void const *buffer);
 
     std::size_t totalSize() const;
-    std::size_t totalAlign() const;
-    std::size_t firstSize() const;
-//    std::size_t firstAlign() const;
-    std::size_t secondSize() const;
-//    std::size_t secondAlign() const;
-//    std::size_t secondOffset() const;
 };
 
                         // ==================
@@ -286,27 +283,21 @@ class Function_Rep {
         // This enumeration provide values to identify operations to be
         // performed by an object manager function (below).
 
-        MOVE_CONSTRUCT
-      , COPY_CONSTRUCT
-      , DESTROY
-      , INPLACE_DETECTION
-      , GET_TARGET
-      , GET_TYPE_ID
-    };
-
-    enum FuncType {
-        EMPTY_FUNC
-      , FUNCTION_POINTER
-      , MEMBER_FUNCTION_POINTER
-      , IN_PLACE_FUNCTOR
-      , OUT_OF_PLACE_FUNCTOR
+        e_MOVE_CONSTRUCT
+      , e_COPY_CONSTRUCT
+      , e_DESTROY
+      , e_GET_SIZE
+      , e_GET_TARGET
+      , e_GET_TYPE_ID
     };
 
     enum AllocType {
-        BSLMA_ALLOC_PTR
-      , BSL_ALLOCATOR
-      , ERASED_ALLOC
-      , ERASED_EMPTY_ALLOC
+        // Type of allocator supplied to a constructor.
+
+        e_BSLMA_ALLOC_PTR        // Ptr to type derived from 'bslma::Allocator'
+      , e_BSL_ALLOCATOR          // Instantiation of 'bsl::allocator'
+      , e_ERASED_STATEFUL_ALLOC  // C++03 STL-style stateful allocator
+      , e_ERASED_STATELESS_ALLOC // C++03 STL-style stateless allocator
     };
 
     typedef const void *(*Manager)(ManagerOpCode  opCode,
@@ -333,7 +324,7 @@ class Function_Rep {
         // the 'InplaceBuffer'.  Anything bigger than 'sizeof(InplaceBuffer)'
         // will be stored out-of-place and its address will be stored in
         // 'd_object_p'.  Discriminating between the two representations can
-        // be done by the manager with the opcode 'INPLACE_DETECTION'.
+        // be done by the manager with the opcode 'e_GET_SIZE'.
         //
         // Note that union members other than 'd_object_p' are just fillers to
         // make sure that a function or member function pointer can fit
@@ -369,16 +360,20 @@ class Function_Rep {
 
     template <class FUNC>
     void initRep(FUNC& func, bslma::Allocator* alloc,
-                 integral_constant<AllocType, BSLMA_ALLOC_PTR>);
+                 integral_constant<AllocType, e_BSLMA_ALLOC_PTR>);
     template <class FUNC, class T>
     void initRep(FUNC& func, const bsl::allocator<T>& alloc,
-                 integral_constant<AllocType, BSL_ALLOCATOR>);
+                 integral_constant<AllocType, e_BSL_ALLOCATOR>);
     template <class FUNC, class ALLOC>
     void initRep(FUNC& func, const ALLOC& alloc,
-                 integral_constant<AllocType, ERASED_ALLOC>);
+                 integral_constant<AllocType, e_ERASED_STATEFUL_ALLOC>);
     template <class FUNC, class ALLOC>
     void initRep(FUNC& func, const ALLOC& alloc,
-                 integral_constant<AllocType, ERASED_EMPTY_ALLOC>);
+                 integral_constant<AllocType, e_ERASED_STATELESS_ALLOC>);
+
+    template <class ALLOC>
+    void copyRep(const Function_Rep& other, const ALLOC& alloc,
+                 integral_constant<AllocType, e_ERASED_STATEFUL_ALLOC>);
 
     template <class FUNC>
     static Manager getFuncManager(const FUNC&, true_type /* inplace */);
@@ -585,8 +580,6 @@ class function<RET(ARGS...)> :
 
     typedef RET Invoker(const Function_Rep* rep,
                         typename bslmf::ForwardingType<ARGS>::Type... args);
-
-    typedef Function_Rep::FuncType FuncType;
 
     Invoker *d_invoker_p;
 
@@ -4835,25 +4828,18 @@ bsl::bad_function_call::bad_function_call() BSLS_NOTHROW_SPEC
                         // class Function_ObjPairBufferDesc
                         // --------------------------------
 
-// MANIPULATORS
-template <class TYPE1, class TYPE2>
-void bsl::Function_ObjPairBufferDesc::setDescriptor()
+// CREATORS
+inline
+bsl::Function_ObjPairBufferDesc::Function_ObjPairBufferDesc(std::size_t t1Size,
+                                                            std::size_t t2Size)
 {
-    d_firstSize   = Function_ObjSize<TYPE1>::VALUE;
-    d_firstAlign  = Function_ObjAlignment<TYPE1>::VALUE;
-    d_secondSize  = Function_ObjSize<TYPE2>::VALUE;
-    d_secondAlign = Function_ObjAlignment<TYPE2>::VALUE;
+    static const std::size_t k_MAX_ALIGNMENT =
+        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
-    d_secondOffset = d_firstSize;
-    d_secondOffset += d_secondAlign;
-    d_secondOffset &= ~(d_secondAlign - 1);
+    d_totalSize = ((t1Size + t2Size + k_MAX_ALIGNMENT - 1) &
+                   ~(k_MAX_ALIGNMENT - 1));
 
-    d_totalSize = d_secondOffset + d_secondSize;
-    d_totalSize += d_firstAlign;
-    d_totalSize &= ~(d_firstAlign - 1);
-
-    d_totalAlign = (d_firstAlign < d_secondAlign ?
-                    d_secondAlign : d_firstAlign);
+    d_secondOffset = d_totalSize - t2Size;
 }
 
 // ACCESSORS
@@ -4882,36 +4868,6 @@ inline std::size_t bsl::Function_ObjPairBufferDesc::totalSize() const
     return d_totalSize;
 }
 
-inline std::size_t bsl::Function_ObjPairBufferDesc::totalAlign() const
-{
-    return d_totalAlign;
-}
-
-inline std::size_t bsl::Function_ObjPairBufferDesc::firstSize() const
-{
-    return d_firstSize;
-}
-
-// inline std::size_t bsl::Function_ObjPairBufferDesc::firstAlign() const
-// {
-//     return d_firstAlign;
-// }
-
-inline std::size_t bsl::Function_ObjPairBufferDesc::secondSize() const
-{
-    return d_secondSize;
-}
-
-// inline std::size_t bsl::Function_ObjPairBufferDesc::secondAlign() const
-// {
-//     return d_secondAlign;
-// }
-
-// inline std::size_t bsl::Function_ObjPairBufferDesc::secondOffset() const
-// {
-//     return d_secondOffset;
-// }
-
                         // -----------------------
                         // class bsl::Function_Rep
                         // -----------------------
@@ -4938,7 +4894,7 @@ const void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode  opCode,
                                                   Function_Rep  *rep)
 {
     switch (opCode) {
-      case MOVE_CONSTRUCT: {
+      case e_MOVE_CONSTRUCT: {
           // There is no point to optimizing this operation for bitwise
           // moveable types.  If the type is trivially moveable, then the move
           // operation below will do it trivially.
@@ -4951,7 +4907,7 @@ const void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode  opCode,
 #endif
       } break;
 
-      case COPY_CONSTRUCT: {
+      case e_COPY_CONSTRUCT: {
           // There is no point to optimizing this operation for bitwise
           // copyable types.  If the type is trivially moveable, then the copy
           // operation below will do it trivially.
@@ -4959,19 +4915,19 @@ const void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode  opCode,
           ::new (&rep->d_objbuf) FUNC(srcFunc);
       } break;
 
-      case DESTROY: {
+      case e_DESTROY: {
           reinterpret_cast<FUNC&>(rep->d_objbuf).~FUNC();
       } break;
 
-      case INPLACE_DETECTION: {
-          return rep;  // Evaluates true in a boolean context
+      case e_GET_SIZE: {
+          return reinterpret_cast<const void*>(Function_ObjSize<FUNC>::VALUE);
       } break;
 
-      case GET_TARGET: {
+      case e_GET_TARGET: {
           return &rep->d_objbuf;
       } break;
 
-      case GET_TYPE_ID: {
+      case e_GET_TYPE_ID: {
           return &typeid(FUNC);
       } break;
 
@@ -4987,7 +4943,7 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
 {
     switch (opCode) {
 
-      case MOVE_CONSTRUCT: {
+      case e_MOVE_CONSTRUCT: {
           // There is no point to optimizing this operation for bitwise
           // moveable types.  If the type is trivially moveable, then the move
           // operation below will do it trivially.
@@ -5000,7 +4956,7 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
 #endif
       } break;
 
-      case COPY_CONSTRUCT: {
+      case e_COPY_CONSTRUCT: {
           // There is no point to optimizing this operation for bitwise
           // copyable types.  If the type is trivially moveable, then the copy
           // operation below will do it trivially.
@@ -5008,20 +4964,20 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
           ::new (rep->d_objbuf.d_object_p) FUNC(srcFunc);
       } break;
 
-      case DESTROY: {
+      case e_DESTROY: {
           reinterpret_cast<FUNC&>(rep->d_objbuf.d_object_p).~FUNC();
           rep->d_allocator_p->deallocate(rep->d_objbuf.d_object_p);
       } break;
 
-      case INPLACE_DETECTION: {
-          return NULL;  // Evaluates false in a boolean context
+      case e_GET_SIZE: {
+          return reinterpret_cast<const void*>(Function_ObjSize<FUNC>::VALUE);
       } break;
 
-      case GET_TARGET: {
+      case e_GET_TARGET: {
           return rep->d_objbuf.d_object_p;
       } break;
 
-      case GET_TYPE_ID: {
+      case e_GET_TYPE_ID: {
           return &typeid(FUNC);
       } break;
 
@@ -5033,7 +4989,7 @@ const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
 
 template <class FUNC>
 void bsl::Function_Rep::initRep(FUNC& func, bslma::Allocator* alloc,
-                                integral_constant<AllocType, BSLMA_ALLOC_PTR>)
+                                integral_constant<AllocType, e_BSLMA_ALLOC_PTR>)
 {
     typedef FitsInplace<FUNC> IsInplaceFunc;
 
@@ -5061,33 +5017,35 @@ void bsl::Function_Rep::initRep(FUNC& func, bslma::Allocator* alloc,
 
 template <class FUNC, class T>
 void bsl::Function_Rep::initRep(FUNC& func, const bsl::allocator<T>& alloc,
-                                integral_constant<AllocType, BSL_ALLOCATOR>)
+                                integral_constant<AllocType, e_BSL_ALLOCATOR>)
 {
     initRep(func, alloc.mechanism(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 }
 
 template <class FUNC, class ALLOC>
 void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
-                                integral_constant<AllocType, ERASED_ALLOC>)
+                         integral_constant<AllocType, e_ERASED_STATEFUL_ALLOC>)
 {
     typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
 
-    // Object big enough to hold both function and adapted allocator
-    typedef bsl::pair<FUNC, Adaptor> Pair;
+    static const std::size_t funcSize  = Function_ObjSize<FUNC>::VALUE;
+    static const std::size_t allocSize = Function_ObjSize<Adaptor>::VALUE;
+    Function_ObjPairBufferDesc pairDesc(funcSize, allocSize);
 
-    typedef FitsInplace<FUNC> IsInplaceFunc;
-    typedef FitsInplace<Pair> IsInplacePair;
+    static const bool isInplaceFunc = funcSize <= sizeof(InplaceBuffer);
+    static const bool isInplacePair =
+        (funcSize + allocSize) <= sizeof(InplaceBuffer);
 
     void *function_p;
     void *allocator_p;
 
     // Whether or not the function object is in-place is not dependent on
-    // whether the allocator also fits object buffer.  This design avoids the
-    // function manager having to handle the cross product of all possible
-    // allocators and all possible function types.  If the function object is
-    // in-place and the allocator happens to fit as well, then it will be
-    // squeezed in as well, otherwise the allocator will be allocated
+    // whether the allocator also fits in the object buffer.  This design
+    // avoids the function manager having to handle the cross product of all
+    // possible allocators and all possible function types.  If the function
+    // object is in-place and the allocator happens to fit as well, then it
+    // will be squeezed in as well, otherwise the allocator will be allocated
     // out-of-place.
     //
     // Although this is a run-time 'if' statement, the compiler will usually
@@ -5096,33 +5054,28 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
     // managers will be instantiated, but that's OK because they are both
     // needed in the assignment operators, where size determinations really
     // are made at run time.
-    if (IsInplaceFunc::value) {
-        // Function object will be allocated in-place.
-        if (IsInplacePair::value) {
-            // Both Function object and allocator fit in-place.
-            Pair *pair_p = reinterpret_cast<Pair*>(&d_objbuf);
-            function_p = &pair_p->first;
-            allocator_p = &pair_p->second;
-            d_allocManager_p = &pairedAllocManager<ALLOC>;
-        }
-        else {
-            // Function object fits in-place, but allocator is out-of-place
-            function_p = &d_objbuf;
-            // Allocate allocator adaptor from allocator itself
-            allocator_p = Adaptor(alloc).allocate(sizeof(ALLOC));
-            d_allocManager_p = &separateAllocManager<ALLOC>;
-        }
+    if (isInplacePair) {
+        // Both Function object and allocator fit in-place.
+        function_p = pairDesc.first(&d_objbuf);
+        allocator_p = pairDesc.second(&d_objbuf);
+        d_allocManager_p = &pairedAllocManager<Adaptor>;
+    }
+    else if (isInplaceFunc) {
+        // Function object fits in-place, but allocator is out-of-place
+        function_p = &d_objbuf;
+        // Allocate allocator adaptor from allocator itself
+        allocator_p = Adaptor(alloc).allocate(allocSize);
+        d_allocManager_p = &separateAllocManager<Adaptor>;
     }
     else {
         // Not in-place
 
         // Allocate function and allocator adaptor from the allocator
-        Pair *pair_p =
-            static_cast<Pair*>(Adaptor(alloc).allocate(sizeof(Pair)));
-        function_p = &pair_p->first;
-        allocator_p = &pair_p->second;
-        d_allocManager_p = &pairedAllocManager<ALLOC>;
-        d_objbuf.d_func_p = function_p;
+        void *pair_p = Adaptor(alloc).allocate(pairDesc.totalSize());
+        d_objbuf.d_object_p = pair_p;
+        function_p = pairDesc.first(pair_p);
+        allocator_p = pairDesc.second(pair_p);
+        d_allocManager_p = &pairedAllocManager<Adaptor>;
     }
 
     // Construct Function int its correct location
@@ -5132,7 +5085,8 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
     ::new(function_p) FUNC(func);
 #endif
 
-    d_funcManager_p = getFuncManager(func, IsInplaceFunc());
+    typedef bsl::integral_constant<bool, isInplaceFunc> IsInplaceFuncType;
+    d_funcManager_p = getFuncManager(func, IsInplaceFuncType());
 
     // Construct allocator adaptor in its correct location
     d_allocator_p = ::new(allocator_p) Adaptor(alloc);
@@ -5140,14 +5094,79 @@ void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
 
 template <class FUNC, class ALLOC>
 void bsl::Function_Rep::initRep(FUNC& func, const ALLOC& alloc,
-                              integral_constant<AllocType, ERASED_EMPTY_ALLOC>)
+                        integral_constant<AllocType, e_ERASED_STATELESS_ALLOC>)
 {
     // Since ALLOC is an empty type, we need only one instance of it.
     // This single instance is wrapped in an adaptor
     static bslma::AllocatorAdaptor<ALLOC> allocInstance(alloc);
 
     initRep(func, &allocInstance,
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
+}
+
+template <class ALLOC>
+void bsl::Function_Rep::copyRep(const Function_Rep& other, const ALLOC& alloc,
+                         integral_constant<AllocType, e_ERASED_STATEFUL_ALLOC>)
+{
+    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+
+    // Compute function size, allocator Adaptor size, and offset of allocator
+    // in a conceptural pair<FUNC, Adaptor>.
+    std::size_t funcSize = (std::size_t) other.d_funcManager_p(e_GET_SIZE,
+                                                               NULL, NULL);
+    static const std::size_t allocSize = sizeof(Adaptor);
+    Function_ObjPairBufferDesc pairDesc(funcSize, allocSize);
+
+    // Determine whether the function, or pair of function+allocator fit
+    // within the object buffer.
+    bool isInplaceFunc = funcSize             <= sizeof(InplaceBuffer);
+    bool isInplacePair = pairDesc.totalSize() <= sizeof(InplaceBuffer);
+
+    void *function_p;
+    void *allocator_p;
+    void *otherFunction_p;
+
+    // Whether or not the function object is in-place is not dependent on
+    // whether the allocator also fits in the object buffer.  This design
+    // avoids the function manager having to handle the cross product of all
+    // possible allocators and all possible function types.  If the function
+    // object is in-place and the allocator happens to fit as well, then it
+    // will be squeezed in as well, otherwise the allocator will be allocated
+    // out-of-place.
+
+    if (isInplacePair) {
+        // Both Function object and allocator fit in-place.
+        function_p = pairDesc.first(&d_objbuf);
+        allocator_p = pairDesc.second(&d_objbuf);
+        d_allocManager_p = &pairedAllocManager<Adaptor>;
+        otherFunction_p = &other.d_objbuf;
+    }
+    else if (isInplaceFunc) {
+        // Function object fits in-place, but allocator is out-of-place
+        function_p = &d_objbuf;
+        // Allocate allocator adaptor from allocator itself
+        allocator_p = Adaptor(alloc).allocate(allocSize);
+        d_allocManager_p = &separateAllocManager<Adaptor>;
+        otherFunction_p = &other.d_objbuf;
+    }
+    else {
+        // Not in-place
+        // Allocate function and allocator adaptor from the allocator
+        void *pair_p = Adaptor(alloc).allocate(pairDesc.totalSize());
+        d_objbuf.d_object_p = pair_p;
+        function_p = pairDesc.first(pair_p);
+        allocator_p = pairDesc.second(pair_p);
+        d_allocManager_p = &pairedAllocManager<Adaptor>;
+        otherFunction_p = other.d_objbuf.d_object_p;
+    }
+
+    d_funcManager_p = other.d_funcManager_p;
+
+    // Construct a copy of the function int its correct location
+    d_funcManager_p(e_COPY_CONSTRUCT, otherFunction_p, this);
+
+    // Construct allocator adaptor in its correct location
+    d_allocator_p = ::new(allocator_p) Adaptor(alloc);
 }
 
 inline
@@ -5175,12 +5194,10 @@ RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-// #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // TBD: Correct forwarding
-//     return static_cast<RET>(f(std::forward<ARGS>(args)...));
-// #else
+//     typedef bslmf::ForwardingTypeUtil<ARGS> FTUtil;
+//     return static_cast<RET>(f(FTUtil::forwardToTarget(args)...));
     return static_cast<RET>(f(args...));
-// #endif
 }
 
 template <class RET, class... ARGS>
@@ -5297,7 +5314,7 @@ template<class FUNC>
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -5331,7 +5348,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
 template <class RET, class... ARGS>
 template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC&,
-                                    const function&)
+                                      const function&)
 {
 }
 
@@ -5360,11 +5377,11 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -5450,7 +5467,7 @@ bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -5462,7 +5479,7 @@ T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -8342,7 +8359,7 @@ template<class FUNC>
 bsl::function<RET()>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8357,7 +8374,7 @@ template<class FUNC>
 bsl::function<RET(ARGS_01)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8374,7 +8391,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8393,7 +8410,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_03)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8414,7 +8431,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_04)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8437,7 +8454,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_05)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8462,7 +8479,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_06)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8489,7 +8506,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_07)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8518,7 +8535,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_08)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8549,7 +8566,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_09)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -8582,7 +8599,7 @@ bsl::function<RET(ARGS_01,
                   ARGS_10)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -9742,11 +9759,11 @@ template <class RET>
 bsl::function<RET()>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9754,11 +9771,11 @@ template <class RET, class ARGS_01>
 bsl::function<RET(ARGS_01)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9768,11 +9785,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_02)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9784,11 +9801,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_03)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9802,11 +9819,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_04)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9822,11 +9839,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_05)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9844,11 +9861,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_06)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9868,11 +9885,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_07)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9894,11 +9911,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_08)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9922,11 +9939,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_09)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -9952,11 +9969,11 @@ bsl::function<RET(ARGS_01,
                   ARGS_10)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -11621,7 +11638,7 @@ bsl::function<RET()>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11633,7 +11650,7 @@ bsl::function<RET(ARGS_01)>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11647,7 +11664,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11663,7 +11680,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11681,7 +11698,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11701,7 +11718,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11723,7 +11740,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11747,7 +11764,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11773,7 +11790,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11801,7 +11818,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11831,7 +11848,7 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -11844,7 +11861,7 @@ T* bsl::function<RET()>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11856,7 +11873,7 @@ T* bsl::function<RET(ARGS_01)>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11870,7 +11887,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11886,7 +11903,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11904,7 +11921,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11924,7 +11941,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11946,7 +11963,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11970,7 +11987,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -11996,7 +12013,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -12024,7 +12041,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -12054,7 +12071,7 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
@@ -13101,7 +13118,7 @@ template<class FUNC>
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
     initRep(func, bslma::Default::defaultAllocator(),
-            integral_constant<AllocType, BSLMA_ALLOC_PTR>());
+            integral_constant<AllocType, e_BSLMA_ALLOC_PTR>());
 
     typedef typename bslmf::SelectTrait<FUNC,
                                        bslmf::IsFunctionPointer,
@@ -13164,11 +13181,11 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::~function()
 {
     if (d_funcManager_p) {
-        d_funcManager_p(DESTROY, NULL, this);
+        d_funcManager_p(e_DESTROY, NULL, this);
     }
 
     if (d_allocManager_p) {
-        d_allocManager_p(DESTROY, NULL, this);
+        d_allocManager_p(e_DESTROY, NULL, this);
     }
 }
 
@@ -13244,7 +13261,7 @@ bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(GET_TYPE_ID, this, NULL);
+    const void *ret = d_funcManager_p(e_GET_TYPE_ID, this, NULL);
     return *static_cast<const std::type_info*>(ret);
 }
 
@@ -13256,7 +13273,7 @@ T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(GET_TARGET, NULL, this);
+    const void *target_p = d_funcManager_p(e_GET_TARGET, NULL, this);
     return static_cast<T*>(const_cast<void*>(target_p));
 }
 
