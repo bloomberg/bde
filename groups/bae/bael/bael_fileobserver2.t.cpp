@@ -523,6 +523,8 @@ struct TestSystemTimeCallback {
         // behavior is undefined unless 'bdetu_Epoch::epoch() <= utcTime'.
 };
 
+bdet_TimeInterval TestSystemTimeCallback::s_utcTime;
+
 void TestSystemTimeCallback::load(bdet_TimeInterval *result)
 {
     ASSERT(result);
