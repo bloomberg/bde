@@ -80,7 +80,10 @@ class utest(Task.Task):
 
         testcmd = getattr(Options.options, 'testcmd', False)
         if testcmd:
-            self.ut_exec = (testcmd % self.ut_exec[0]).split(' ')
+            ut_exec = self.ut_exec[0]
+            self.ut_exec = (testcmd % ut_exec).split(' ')
+            if Options.options.test_junit:
+                self.ut_exec += ('--junit=%s-junit.xml' % ut_exec).split(' ')
 
         proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.PIPE, stdout=Utils.subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
@@ -184,6 +187,10 @@ def options(opt):
 
     grp.add_option('--test-timeout', type='int', default=200, help='test driver timeout [default: %default]',
                    dest='test_timeout')
+
+    grp.add_option('--test-junit', action='store_true', default=False,
+                   help='create jUnit-style test results files for test drivers that are executed',
+                   dest='test_junit')
 
 
     testcmd = sys.executable + ' ' + opt.path.make_node(os.path.join('tools', 'waf', 'run_unit_tests.py')).abspath() + ' %s'
