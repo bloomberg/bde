@@ -675,19 +675,43 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // LINE    VALUE   HASHCODE
             {  L_,     0,       0 },
+            {  L_,     5,       5 },
             {  L_,     13,     13 },
             {  L_,     42,     42 },
+            {  L_,     127,   127 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        const hash<int> callHash = hash<int>();
 
         for (int i = 0; i != NUM_DATA; ++i) {
             const int     LINE      = DATA[i].d_line;
             const int     VALUE     = DATA[i].d_value;
             const size_t  HASHCODE  = DATA[i].d_hashCode;
 
-            LOOP_ASSERT(LINE, callHash(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed char>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<wchar_t>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE,
+                             bsl::hash<unsigned wchar_t>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed wchar_t>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<unsigned short>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed short>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<unsigned int>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed int>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<unsigned long>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed long>()(VALUE) == HASHCODE);
+
+            if (sizeof (unsigned long long) <= sizeof (std::size_t))
+            {
+                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
+                        == (unsigned long long) HASHCODE);
+                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
+                        == (signed long long) HASHCODE);
+            }
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());

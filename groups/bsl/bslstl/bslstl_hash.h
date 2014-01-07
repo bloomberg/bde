@@ -394,6 +394,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
@@ -1091,31 +1095,46 @@ std::size_t hash<unsigned long>::operator()(unsigned long x) const
     return x;
 }
 
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 inline
 std::size_t hash<long long>::operator()(long long x) const
 {
-    if (sizeof (x) > sizeof (std::size_t)) {
-        return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-                      // RETURN the default hash when std::size_t is too small.
-    }
-    else {
-        return x;
-         // RETURN the default hash when std::size_t can fit all the bits in x.
-    }
+    BSLMF_ASSERT(sizeof (long long) <= sizeof (std::size_t));
+    // RETURN the default hash when std::size_t can fit all the bits in x.
+    return x;
 }
 
 inline
 std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
 {
-    if (sizeof (x) > sizeof (std::size_t)) {
-        return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-                      // RETURN the default hash when std::size_t is too small.
-    }
-    else {
-        return x;
-         // RETURN the default hash when std::size_t can fit all the bits in x.
-    }
+    BSLMF_ASSERT(sizeof (long long) <= sizeof (std::size_t));
+    // RETURN the default hash when std::size_t can fit all the bits in x.
+    return x;
 }
+
+#else // BSLS_PLATFORM_CPU_32_BIT
+
+inline
+std::size_t hash<long long>::operator()(long long x) const
+{
+    BSLMF_ASSERT(sizeof (long long) > sizeof (std::size_t));
+    BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
+    BSLMF_ASSERT(sizeof (long long) * 8 == 64);
+    // RETURN a bit mangling for 32-bits when std::size_t is 32-bits
+    return static_cast<std::size_t>((x ^ (x >> 32)) & 0xFFFFFFFF);
+}
+
+inline
+std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
+{
+    BSLMF_ASSERT(sizeof (long long) > sizeof (std::size_t));
+    BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
+    BSLMF_ASSERT(sizeof (unsigned long long) * 8 == 64);
+    // RETURN a bit mangling for 32-bits when std::size_t is 32-bits
+    return static_cast<std::size_t>((x ^ (x >> 32)) & 0xFFFFFFFF);
+}
+#endif
 
 inline
 std::size_t hash<float>::operator()(float x) const
