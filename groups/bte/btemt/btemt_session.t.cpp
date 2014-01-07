@@ -125,13 +125,13 @@ class TestSessionFactory : public btemt_SessionFactory
   public:
 
     TestSessionFactory (int *funcCode) : d_funcCode_p (funcCode)
-                                             { *d_funcCode_p = 0; };
+                                             { *d_funcCode_p = 0; }
 
     ~TestSessionFactory() { *d_funcCode_p = 1; }
 
     // MANIPULATORS
     void allocate(btemt_AsyncChannel *channel,
-                         btemt_SessionFactory::Callback const &callback)
+                  btemt_SessionFactory::Callback const &callback)
     {
        *d_funcCode_p = 2;
     }
@@ -220,6 +220,28 @@ int main(int argc, char *argv[])
            btemt_Session *session = 0;
 
            factory.allocate(channel, &MyCallback);     ASSERT(2 == opCode);
+           factory.deallocate(session);                ASSERT(3 == opCode);
+        }
+
+        {
+           if (veryVerbose) bsl::cout
+            << "\tTesting 'btemt_SessionFactory': "
+                    "managed-pointer protocol."<< bsl::endl;
+
+           int opCode = -1;
+
+           TestSessionFactory mX1(&opCode);    ASSERT(0 == opCode);
+
+           btemt_SessionFactory& factory = mX1;
+
+           // must intialize these poiinters, as copying an uninitialized value
+           // as a function argument is undefined behaviour, even if it is not
+           // used within the function.  This is a real problem on Windows in
+           // debug builds.
+           bdema_ManagedPtr<btemt_AsyncChannel> mpChannel;
+           btemt_Session *session = 0;
+
+           factory.allocate(mpChannel, &MyCallback);   ASSERT(2 == opCode);
            factory.deallocate(session);                ASSERT(3 == opCode);
         }
 

@@ -149,7 +149,7 @@ void btemt_SessionPool::channelStateCb(int   channelId,
           HandlePtr handle;
 
           if (d_handles.find(handlePtr->d_handleId, &handle)) {
-              return;
+              return;                                                 // RETURN
           }
 
           int handleId = handle->d_handleId;
@@ -170,6 +170,7 @@ void btemt_SessionPool::channelStateCb(int   channelId,
                   handle->d_session_p->stop();
               }
           }
+
           d_handles.remove(handleId);
       } break;
 
@@ -217,8 +218,9 @@ void btemt_SessionPool::channelStateCb(int   channelId,
 
               d_channelPool_p->shutdown(channelId,
                                         btemt_ChannelPool::BTEMT_IMMEDIATE);
-              return;
+              return;                                                 // RETURN
           }
+
           d_channelPool_p->setChannelContext(channelId, handle.ptr());
 
           handle->d_channel_p = new (*d_allocator_p)

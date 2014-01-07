@@ -1061,6 +1061,414 @@ btemt_AsyncChannel *TestSessionFactory::channel() const
 
 }  // close namespace BTEMT_SESSION_POOL_DRQS_20535695
 
+namespace BTEMT_SESSION_POOL_DRQS_44879376 {
+
+                            // ===================
+                            // class TesterSession
+                            // ===================
+
+class TesterSession : public btemt_Session {
+    // This class is a concrete implementation of the 'btemt_Session' protocol
+    // to use along with 'Tester' objects.
+
+    // DATA
+    bcema_SharedPtr<btemt_AsyncChannel>  d_channel_sp;
+    bcemt_Barrier                       *d_barrier_p;
+
+    // PRIVATE MANIPULATORS
+    void delayedChannelAccessor(
+                          bcema_SharedPtr<btemt_AsyncChannel> spChannel,
+                          bteso_IPv4Address                   referenceAddress)
+    {
+        d_barrier_p->wait();
+
+        ASSERT(spChannel);
+
+        if (veryVerbose) {
+            MTCOUT << "Late access of Async Channel, peerAddress = " <<
+                    spChannel->peerAddress() << MTENDL;
+        }
+
+        ASSERT(spChannel->peerAddress() == referenceAddress);
+    }
+
+    void readCb(int                  state,
+                int                 *numConsumed,
+                int                 *numNeeded,
+                const btemt_DataMsg& msg);
+        // Read callback for session pool.
+
+  private:
+    // NOT IMPLEMENTED
+    TesterSession(const TesterSession&);
+    TesterSession& operator=(const TesterSession&);
+
+  public:
+    // CREATORS
+    TesterSession(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                  bcemt_Barrier *barrier);
+        // Create a new 'TesterSession' object for the specified 'channel'.
+
+    ~TesterSession();
+        // Destroy this object.
+
+    // MANIPULATORS
+    virtual int start();
+        // Begin the asynchronous operation of this session.
+
+    virtual int stop();
+        // Stop the operation of this session.
+
+    // ACCESSORS
+    virtual btemt_AsyncChannel *channel() const;
+        // Return the channel associate with this session.
+};
+
+                    // ===================
+                    // class TesterFactory
+                    // ===================
+
+class TesterFactory : public btemt_SessionFactory {
+    // This class is a concrete implementation of the 'btemt_SessionFactory'
+    // that simply allocates 'TesterSession' objects.  No specific allocation
+    // strategy (such as pooling) is implemented.
+
+    // DATA
+    int                              d_mode;
+
+    bcemt_Barrier                   *d_barrier_p;   // held not owned
+
+    TesterSession                   *d_session_p;   // held not owned
+
+    bslma::Allocator                *d_allocator_p; // memory allocator (held,
+                                                    // not owned)
+
+  public:
+
+    enum { LISTENER = 0, CONNECTOR };
+
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    TesterFactory(int               mode,
+                  bcemt_Barrier    *barrier,
+                  bslma::Allocator *basicAllocator = 0);
+        // Create a new 'TesterFactory' object of the specified 'mode'.
+        // Optionally specify 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    virtual ~TesterFactory();
+        // Destroy this factory.
+
+    // MANIPULATORS
+    virtual void allocate(bdema_ManagedPtr<btemt_AsyncChannel>& channel,
+                          const btemt_SessionFactory::Callback& callback);
+        // Asynchronously allocate a 'btemt_Session' object for the
+        // specified 'channel', and invoke the specified 'callback' with
+        // this session.
+
+    virtual void allocate(btemt_AsyncChannel                   *channel,
+                          const btemt_SessionFactory::Callback& callback);
+        // Asynchronously allocate a 'btemt_Session' object for the
+        // specified 'channel', and invoke the specified 'callback' with
+        // this session.
+
+    virtual void deallocate(btemt_Session *session);
+        // Deallocate the specified 'session'.
+
+    TesterSession *session() const;
+        // Return the session managed by this factory.
+};
+
+                            // -------------------
+                            // class TesterSession
+                            // -------------------
+
+// CREATORS
+TesterSession::TesterSession(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                             bcemt_Barrier *barrier)
+: d_channel_sp(channel)
+, d_barrier_p(barrier)
+{
+}
+
+TesterSession::~TesterSession()
+{
+}
+
+// MANIPULATORS
+void TesterSession::readCb(int                  state,
+                           int                 *numConsumed,
+                           int                 *numNeeded,
+                           const btemt_DataMsg& msg)
+{
+    if (veryVerbose) {
+        MTCOUT << "Read callback called with: " << state << MTENDL;
+    }
+
+    if (state)
+    {
+        d_channel_sp->close();
+        return;
+    }
+
+    ASSERT(0 == d_channel_sp->write(msg));
+
+    *numConsumed = msg.data()->length();
+    *numNeeded   = 1;
+
+    bcemt_ThreadUtil::Handle handle(bcemt_ThreadUtil::invalidHandle());
+    ASSERT(0 == bcemt_ThreadUtil::create(
+                &handle,
+                bdef_BindUtil::bind(&TesterSession::delayedChannelAccessor,
+                                    this,
+                                    d_channel_sp,
+                                    d_channel_sp->peerAddress())));
+    bcemt_ThreadUtil::detach(handle);
+}
+
+int TesterSession::start()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session started" << MTENDL;
+    }
+
+    bdef_Function<void (*)(int,
+                           int*,
+                           int*,
+                           const BloombergLP::btemt_DataMsg&)> f =
+                              bdef_MemFnUtil::memFn(&TesterSession::readCb,
+                                                    this);
+
+    return d_channel_sp->read(1, f);
+}
+
+int TesterSession::stop()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session stopped" << MTENDL;
+    }
+
+    d_channel_sp->close();
+    d_channel_sp.reset();
+
+    d_barrier_p->wait();
+
+    return 0;
+}
+
+// ACCESSORS
+btemt_AsyncChannel *TesterSession::channel() const
+{
+    return d_channel_sp.ptr();
+}
+
+                        // -------------------
+                        // class TesterFactory
+                        // -------------------
+
+// CREATORS
+TesterFactory::TesterFactory(int mode,
+                             bcemt_Barrier *barrier,
+                             bslma::Allocator *basicAllocator)
+: d_mode(mode)
+, d_session_p(0)
+, d_barrier_p(barrier)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+TesterFactory::~TesterFactory()
+{
+    
+}
+
+// MANIPULATORS
+void TesterFactory::allocate(bdema_ManagedPtr<btemt_AsyncChannel>& channel,
+                          const btemt_SessionFactory::Callback&    callback)
+{
+    if (veryVerbose) {
+        MTCOUT << "TesterFactory::allocate called: " << MTENDL;
+        if (LISTENER == d_mode) {
+            MTCOUT << "LISTENER" << MTENDL;
+        }
+        else {
+            MTCOUT << "CONNECTOR" << MTENDL;
+        }
+    }
+
+    bcema_SharedPtr<btemt_AsyncChannel> spChannel(channel, d_allocator_p);
+
+    d_session_p = new (*d_allocator_p) TesterSession(spChannel, d_barrier_p);
+
+    callback(0, d_session_p);
+}
+
+void TesterFactory::allocate(btemt_AsyncChannel                    *channel,
+                             const btemt_SessionFactory::Callback&  callback)
+{
+    ASSERT(false); // shouldn't get called
+}
+
+void TesterFactory::deallocate(btemt_Session *session)
+{
+    d_allocator_p->deleteObject(session);
+}
+
+TesterSession *TesterFactory::session() const
+{
+    return d_session_p;
+}
+
+                        // ------------
+                        // class Tester
+                        // ------------
+
+class Tester {
+    btemt_ChannelPoolConfiguration  d_config;          // pool configuration
+
+    btemt_SessionPool              *d_sessionPool_p;   // managed pool (owned)
+
+    TesterFactory                   d_sessionFactory;  // factory
+
+    int                             d_portNumber;      // port on which this
+                                                       // echo server is
+                                                       // listening
+
+    bslma::Allocator               *d_allocator_p;     // memory allocator
+                                                       // (held)
+
+  public:
+
+    enum { LISTENER = 0, CONNECTOR };
+
+    // CREATORS
+    Tester(int                       mode,
+           bcemt_Barrier            *barrier,
+           const bteso_IPv4Address&  endPointAddr,
+           bool                      useBlobBasedReads = false,
+           bslma::Allocator         *basicAllocator = 0);
+    ~Tester();
+
+    void poolStateCb(int reason, int source, void *userData);
+        // Indicates the status of the whole pool.
+
+    void sessionStateCb(int            state,
+                        int            handle,
+                        btemt_Session *session,
+                        void          *userData);
+        // Per-session state.
+
+    int portNumber() const;
+
+    TesterSession *session() const { return d_sessionFactory.session(); }
+};
+
+// CREATORS
+Tester::Tester(int                       mode,
+               bcemt_Barrier            *barrier,
+               const bteso_IPv4Address&  endPointAddr,
+               bool                      useBlobBasedReads,
+               bslma::Allocator         *basicAllocator)
+: d_config()
+, d_sessionPool_p()
+, d_sessionFactory(mode, barrier, basicAllocator)
+, d_portNumber(bteso_IPv4Address::BTESO_ANY_PORT)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_config.setMaxThreads(4);                  // 4 I/O threads
+    d_config.setMaxConnections(5);
+    d_config.setReadTimeout(5.0);               // in seconds
+    d_config.setMetricsInterval(10.0);          // seconds
+    d_config.setMaxWriteCache(1<<10);           // 1Mb
+    d_config.setIncomingMessageSizes(1, 100, 1024);
+
+    typedef btemt_SessionPool::SessionPoolStateCallback SessionPoolStateCb;
+
+    SessionPoolStateCb poolStateCb = bdef_MemFnUtil::memFn(
+                                          &Tester::poolStateCb,
+                                          this);
+
+    d_sessionPool_p = new (*d_allocator_p)
+                             btemt_SessionPool(d_config,
+                                               poolStateCb,
+                                               useBlobBasedReads,
+                                               basicAllocator);
+
+    btemt_SessionPool::SessionStateCallback sessionStateCb =
+                 bdef_MemFnUtil::memFn(&Tester::sessionStateCb,
+                                       this);
+
+    ASSERT(0 == d_sessionPool_p->start());
+    int handle;
+    if (LISTENER == mode) {
+        ASSERT(0 == d_sessionPool_p->listen(&handle,
+                                            sessionStateCb,
+                                            d_portNumber,
+                                            5,
+                                            &d_sessionFactory));
+
+        d_portNumber = d_sessionPool_p->portNumber(handle);
+    }
+    else {
+        ASSERT(0 == d_sessionPool_p->connect(&handle,
+                                             sessionStateCb,
+                                             endPointAddr,
+                                             5,
+                                             bdet_TimeInterval(1),
+                                             &d_sessionFactory));
+        d_portNumber = endPointAddr.portNumber();
+    }
+}
+
+Tester::~Tester()
+{
+    d_sessionPool_p->stop();
+    d_allocator_p->deleteObject(d_sessionPool_p);
+}
+
+void Tester::poolStateCb(int reason, int source, void *userData)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state changed: (" << reason << ", " << source << ") "
+               << MTENDL;
+    }
+}
+
+void Tester::sessionStateCb(int            state,
+                            int            handle,
+                            btemt_Session *session,
+                            void          *userData)
+{
+    switch (state) {
+      case btemt_SessionPool::SESSION_DOWN: {
+          if (veryVerbose) {
+              MTCOUT << "Client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+      } break;
+      case btemt_SessionPool::SESSION_UP: {
+          if (veryVerbose) {
+              MTCOUT << "Client connected from "
+                     << session->channel()->peerAddress()
+                     << MTENDL;
+          }
+      } break;
+    }
+}
+
+int Tester::portNumber() const
+{
+    return d_portNumber;
+}
+
+}  // end namespace BTEMT_SESSION_POOL_DRQS_44879376
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1495,7 +1903,7 @@ int main(int argc, char *argv[])
     bcema_TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -1515,6 +1923,73 @@ int main(int argc, char *argv[])
         usageExample(&ta);
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'allocate' with shared async channel
+        //   Ensure that the 'channel' passed to the session objects remains
+        //   valid following the session pool's deallocation of it.
+        //
+        // Concerns:
+        //   1. The async channel remains valid for access after the session
+        //      pool has deallocated it.
+        //
+        // Plan:
+        //   1. For concern 1, invoke 'allocate' with a managed pointer to the
+        //      channel. Coordinate access to the underlying btemt_AsyncChannel
+        //      at a later point in time than would have been possible prior to
+        //      the addition of the introduction of channel sharing.
+        //
+        // Testing:
+        //   void SessionFactory::allocate with shared btemt_AsyncChannel
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING 'allocate' with shared channel"
+                               << bsl::endl
+                               << "======================================"
+                               << bsl::endl;
+
+        using namespace BTEMT_SESSION_POOL_DRQS_44879376;
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+
+        bteso_IPv4Address address("127.0.0.1",
+                                  bteso_IPv4Address::BTESO_ANY_PORT);
+
+        bcemt_Barrier barrier(3);
+
+        Tester tester(Tester::LISTENER,
+                      &barrier,
+                      address,
+                      false,
+                      &ta);
+
+        int portNumber = tester.portNumber();
+
+        address.setPortNumber(portNumber);
+
+        ASSERT(0 == socket->connect(address));
+
+        const char STRING[] = "Hello World!";
+
+        ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+
+        char readBuffer[sizeof(STRING)];
+        ASSERT(sizeof(STRING) == socket->read(readBuffer, sizeof(STRING)));
+
+        ASSERT(0 == bsl::strcmp(readBuffer, STRING));
+
+        if (veryVerbose) {
+            MTCOUT << "Bringing down the channel" << MTENDL;
+        }
+
+        socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+
+        factory.deallocate(socket);
+
+        barrier.wait();
 
       } break;
       case 13: {
