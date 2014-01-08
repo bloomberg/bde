@@ -1,6 +1,9 @@
-// bcec_fixedqueue.t.cpp                                              -*-C++-*-
+// bcec_atomicringbuffer.t.cpp       -*-C++-*-
 
-#include <bcec_fixedqueue.h>
+#define BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
+#include <bcec_atomicringbuffer.h>
+#undef BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
+
 #include <bcec_queue.h>
 #include <bcec_skiplist.h>
 
@@ -8,9 +11,9 @@
 #include <bcemt_configuration.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_qlock.h>
-#include <bcemt_timedsemaphore.h>
 #include <bcema_sharedptr.h>
 #include <bcema_testallocator.h>
+#include <bcemt_timedsemaphore.h>
 #include <bcemt_threadgroup.h>
 #include <bcemt_turnstile.h>
 
@@ -20,6 +23,7 @@
 #include <bdeu_random.h>
 
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocatormonitor.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
@@ -115,48 +119,11 @@ static int veryVeryVerbose;
 //-----------------------------------------------------------------------------
 
 typedef void Element;
-typedef bcec_FixedQueue<Element*> Obj;
+typedef bcec_AtomicRingBuffer<Element*> Obj;
 
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
-
-class ExceptionTester
-{
-public:
-    static bces_AtomicInt64 s_throwFrom;
-
-    ExceptionTester() {}
-
-    ExceptionTester(const ExceptionTester& rhs) {
-        if (s_throwFrom &&
-            bcemt_ThreadUtil::selfIdAsUint64() == s_throwFrom) {
-            throw 1;
-        }
-    }
-
-    ExceptionTester& operator=(const ExceptionTester& rhs) {
-        return *this;
-    }
-};
-
-bces_AtomicInt64 ExceptionTester::s_throwFrom = -1;
-
-void exceptionProducer(bcec_FixedQueue<ExceptionTester> *tester,
-                       bcemt_TimedSemaphore             *sema,
-                       bces_AtomicInt                   *numCaught) {
-    enum { NUM_ITERATIONS = 2 };
-
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
-        try {
-            tester->pushBack(ExceptionTester());
-        } catch (...) {
-            ++(*numCaught);
-        }
-        sema->post();
-    }
-}
-
 namespace Backoff {
 
 void hardwork(int* item, int spin)
@@ -166,7 +133,7 @@ void hardwork(int* item, int spin)
     }
 }
 
-void pushpopThread(bcec_FixedQueue<int> *queue,
+void pushpopThread(bcec_AtomicRingBuffer<int> *queue,
                    bcemt_Barrier *barrier,
                    int numIterations,
                    int workSpin)
@@ -184,14 +151,14 @@ void pushpopThread(bcec_FixedQueue<int> *queue,
 
         for (int j = 0; j < 100; ++j) {
             hardwork(&value, workSpin);
-            int queuedValue = queue->popFront();
+            queue->popFront();
         }
     }
 }
 
 } // close namespace Backoff
 
-void rolloverPusher(bcec_FixedQueue<int> *queue,
+void rolloverPusher(bcec_AtomicRingBuffer<int> *queue,
                     bces_AtomicInt *doneFlag,
                     bcemt_Turnstile *turnstile,
                     int threadId)
@@ -210,7 +177,7 @@ void rolloverPusher(bcec_FixedQueue<int> *queue,
     (*doneFlag)++;
 }
 
-void rolloverLengthChecker(bcec_FixedQueue<int> *queue,
+void rolloverLengthChecker(bcec_AtomicRingBuffer<int> *queue,
                            bces_AtomicInt *doneFlag)
 {
     const int minLength = queue->size() / 2;
@@ -226,7 +193,7 @@ void rolloverLengthChecker(bcec_FixedQueue<int> *queue,
     }
 }
 
-void rolloverPopper(bcec_FixedQueue<int> *queue,
+void rolloverPopper(bcec_AtomicRingBuffer<int> *queue,
                     bces_AtomicInt *doneFlag,
                     bcemt_Turnstile *turnstile)
 {
@@ -258,7 +225,7 @@ void rolloverPopper(bcec_FixedQueue<int> *queue,
     ASSERTT(lastSeen2 > minLength);
 }
 
-void pushpopThread(bcec_FixedQueue<int> *queue,
+void pushpopThread(bcec_AtomicRingBuffer<int> *queue,
                    bces_AtomicInt *stop)
 {
     while (!stop->relaxedLoad()) {
@@ -273,34 +240,77 @@ void pushpopThread(bcec_FixedQueue<int> *queue,
     }
 }
 
-class TestType
+class ExceptionTester
 {
 public:
+    static bsls::AtomicInt64 s_throwFrom;
 
-    TestType(int arg1, int arg2)
-    {}
+    ExceptionTester() {}
 
-    TestType(const TestType& rhs)
-    {}
+    ExceptionTester(const ExceptionTester&) {
+        if (s_throwFrom &&
+            bcemt_ThreadUtil::selfIdAsUint64() ==
+            static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
+            throw 1;
+        }
+    }
 
-    TestType& operator=(const TestType& rhs) {
+    ExceptionTester& operator=(const ExceptionTester&) {
+        if (s_throwFrom &&
+            bcemt_ThreadUtil::selfIdAsUint64() ==
+            static_cast<bsls::Types::Uint64>(s_throwFrom.load())) {
+
+            throw 1;
+        }
         return *this;
     }
 };
 
-struct CountedDelete
+bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
+
+void exceptionProducer(bcec_AtomicRingBuffer<ExceptionTester> *tester,
+                       bcemt_TimedSemaphore                   *sema,
+                       bces_AtomicInt                         *numCaught) {
+    enum { NUM_ITERATIONS = 3 };
+
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        try {
+            tester->pushBack(ExceptionTester());
+        } catch (...) {
+            ++(*numCaught);
+        }
+        sema->post();
+    }
+}
+
+class TestType
 {
-    static bces_AtomicInt s_numDeletes;
+    int *d_arg_p;
 
 public:
-    ~CountedDelete()
-    { ++s_numDeletes; }
 
-    static int numDeletes()
-    { return s_numDeletes; }
+    TestType(int *arg1) : d_arg_p(arg1)
+    {
+        ++(*d_arg_p);
+    }
+
+    TestType(const TestType& rhs) : d_arg_p(rhs.d_arg_p)
+    {
+        ++(*d_arg_p);
+    }
+
+    TestType& operator=(const TestType& rhs) {
+        --(*d_arg_p);
+        d_arg_p = rhs.d_arg_p;
+        ++(*d_arg_p);
+        return *this;
+    }
+
+    ~TestType() {
+        --(*d_arg_p);
+    }
 };
 
-bces_AtomicInt CountedDelete::s_numDeletes = 0;
 
 struct ThreadArgs {
     bcemt_Condition  d_startCond;
@@ -391,15 +401,15 @@ void* popFrontTestThread(void *ptr)
 
 }
 
-void case9pusher(bcec_FixedQueue<int> *queue,
-                 volatile bool *done)
+void case9pusher(bcec_AtomicRingBuffer<int> *queue,
+                 volatile bool              *done)
 {
     while (!*done) {
-        queue->pushBack(bcemt_ThreadUtil::selfIdAsInt());
+        queue->pushBack(static_cast<int>(bcemt_ThreadUtil::selfIdAsInt()));
     }
 }
 
-void case9drainer(bcec_FixedQueue<int> *queue,
+void case9drainer(bcec_AtomicRingBuffer<int> *queue,
                   bcemt_Barrier *drainDoneBarrier)
 {
     int result;
@@ -409,7 +419,7 @@ void case9drainer(bcec_FixedQueue<int> *queue,
     drainDoneBarrier->wait();
 }
 
-void case9disabler(bcec_FixedQueue<int> *queue,
+void case9disabler(bcec_AtomicRingBuffer<int> *queue,
                    bcemt_Barrier *drainDoneBarrier,
                    bcemt_Barrier *reEnableBarrier)
 {
@@ -439,7 +449,7 @@ struct StressNode {
 
 struct StressData {
     bcemt_ThreadUtil::Handle            handle;
-    bcec_FixedQueue<StressNode>        *queue;
+    bcec_AtomicRingBuffer<StressNode>        *queue;
     int                                *counts;
     int                                *checksums;
     int                                 maxCount;
@@ -507,7 +517,7 @@ extern "C" void* stressProducer2(void* arg) {
 
 struct BenchData {
     bcemt_ThreadUtil::Handle    handle;
-    bcec_FixedQueue<void*>     *queue;
+    bcec_AtomicRingBuffer<void*>     *queue;
     int                         count;
     bool                        stop;
 };
@@ -546,7 +556,7 @@ static const char* fmt(int n) {
     return buf;
 }
 
-void test9PushBack(bcec_FixedQueue<int> *queue,
+void test9PushBack(bcec_AtomicRingBuffer<int> *queue,
                    double                rate,
                    int                   threshold,
                    bool                 *stop,
@@ -574,7 +584,7 @@ void sleepAndWait(int numMicroseconds, bcemt_Barrier *barrier)
 }
 
 void abaThread(char *firstValue, char *lastValue,
-               bcec_FixedQueue<char*> *queue, bcemt_Barrier *barrier,
+               bcec_AtomicRingBuffer<char*> *queue, bcemt_Barrier *barrier,
                bool sendSentinal)
 {
     barrier->wait();
@@ -602,7 +612,7 @@ struct Item {
 struct Control {
     bcemt_Barrier         *d_barrier;
 
-    bcec_FixedQueue<Item> *d_queue;
+    bcec_AtomicRingBuffer<Item> *d_queue;
 
     int                    d_numExpectedThreads;
     int                    d_iterations;
@@ -628,7 +638,7 @@ void workerThread(Control *control)
 
     bsl::vector<int> seq(control->d_numExpectedThreads, -1);
 
-    bcec_FixedQueue<Item> *queue = control->d_queue;
+    bcec_AtomicRingBuffer<Item> *queue = control->d_queue;
 
     int iterations = control->d_iterations;
     int pushCount = control->d_pushCount;
@@ -666,7 +676,7 @@ void workerThread(Control *control)
 
 void runtest(int numIterations, int numThreads, int queueSize, int pushCount)
 {
-    bcec_FixedQueue<Item> queue(queueSize);
+    bcec_AtomicRingBuffer<Item> queue(queueSize);
 
     ASSERT(queue.isEnabled());
 
@@ -701,12 +711,12 @@ namespace disabletst {
 
 struct Control {
     bcemt_Barrier         *d_barrier;
-    bcec_FixedQueue<int>  *d_queue;
+    bcec_AtomicRingBuffer<int>  *d_queue;
 };
 
 void pusherThread(Control *control)
 {
-    bcec_FixedQueue<int> *queue = control->d_queue;
+    bcec_AtomicRingBuffer<int> *queue = control->d_queue;
     control->d_barrier->wait();
 
     while (queue->pushBack(123) == 0) {}
@@ -714,7 +724,7 @@ void pusherThread(Control *control)
 
 void runtest(int numPushers, int queueSize, bool doDrain)
 {
-    bcec_FixedQueue<int> queue(queueSize);
+    bcec_AtomicRingBuffer<int> queue(queueSize);
 
     ASSERT(queueSize == queue.size());
     ASSERT(queue.isEnabled());
@@ -769,7 +779,7 @@ struct Item {
 struct Control {
     bcemt_Barrier         *d_barrier;
 
-    bcec_FixedQueue<Item> *d_queue;
+    bcec_AtomicRingBuffer<Item> *d_queue;
 
     int                    d_numExpectedPushers;
     int                    d_iterations;
@@ -789,7 +799,7 @@ void pusherThread(Control *control)
 
     bdef_Function<void(*)()> funct = bdef_BindUtil::bind(&f, sp);
 
-    bcec_FixedQueue<Item> *queue = control->d_queue;
+    bcec_AtomicRingBuffer<Item> *queue = control->d_queue;
 
     int threadId = control->d_numPushers++;
 
@@ -808,7 +818,7 @@ void popperThread(Control *control)
 {
     bsl::vector<int> seq(control->d_numExpectedPushers, -1);
 
-    bcec_FixedQueue<Item> *queue = control->d_queue;
+    bcec_AtomicRingBuffer<Item> *queue = control->d_queue;
 
     int totalToPop = control->d_numExpectedPushers * control->d_iterations;
 
@@ -830,7 +840,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
         QUEUE_SIZE = 2047
     };
 
-    bcec_FixedQueue<Item> queue(QUEUE_SIZE);
+    bcec_AtomicRingBuffer<Item> queue(QUEUE_SIZE);
 
     ASSERT(QUEUE_SIZE == queue.size());
     ASSERT(queue.isEnabled());
@@ -859,132 +869,12 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
-#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-
-namespace indexqueue_zerotst {
-
-struct Control {
-    bcemt_Barrier              *d_barrier;
-
-    bcec_FixedQueue_IndexQueue *d_queue;
-
-    int                    d_numExpectedPushers;
-    int                    d_iterations;
-
-    bces_AtomicInt         d_numPushers;
-
-    bces_AtomicInt         d_numPopped;
-    bces_AtomicInt         d_numOverflow;
-    bces_AtomicInt         d_numUnderflow;
-};
-
-void pusherThread(Control *control)
-{
-
-    bcec_FixedQueue_IndexQueue *queue = control->d_queue;
-    bces_AtomicInt& numOverflow = control->d_numOverflow;
-
-    control->d_numPushers++;
-
-    control->d_barrier->wait();
-
-    for (int i=0; i<control->d_iterations; i++) {
-        for(;;) {
-            int ret = queue->tryPushBack(0);
-            if (ret) {
-                numOverflow++;
-                bcemt_ThreadUtil::yield();
-            }
-            else {
-                break;
-            }
-        }
-    }
-}
-
-void popperThread(Control *control)
-{
-    bcec_FixedQueue_IndexQueue *queue = control->d_queue;
-    bces_AtomicInt& numPopped = control->d_numPopped;
-    bces_AtomicInt& numUnderflow = control->d_numUnderflow;
-
-    int totalToPop = control->d_numExpectedPushers * control->d_iterations;
-
-    control->d_barrier->wait();
-
-    int p;
-    while((p = numPopped++) < totalToPop) {
-
-        for (;;) {
-            int data;
-            int ret = queue->tryPopFront(&data);
-            if (ret) {
-                numUnderflow++;
-                bcemt_ThreadUtil::yield();
-            }
-            else {
-                ASSERT(data == 0);
-                break;
-            }
-        }
-    }
-}
-
-void runtest(int numIterations, int numPushers, int numPoppers)
-{
-    if (verbose) cout << endl
-        << "NUM ITERATIONS: " << numIterations << endl
-            << "NUM PUSHERS: " << numPushers << endl
-            << "NUM POPPERS: " << numPoppers << endl;
-
-    enum {
-        QUEUE_SIZE = 256,
-        INDEX_RANGE = 8
-    };
-
-    bcec_FixedQueue_IndexQueue queue(QUEUE_SIZE, INDEX_RANGE);
-
-    ASSERT(queue.isEnabled());
-
-    bcemt_Barrier barrier(numPushers + numPoppers);
-
-    Control control;
-
-    control.d_numExpectedPushers = numPushers;
-    control.d_iterations = numIterations;
-    control.d_queue = &queue;
-
-    control.d_numPushers = 0;
-    control.d_numPopped = 0;
-    control.d_numOverflow = 0;
-    control.d_numUnderflow = 0;
-
-    control.d_barrier = &barrier;
-
-    bcemt_ThreadGroup tg;
-    tg.addThreads(bdef_BindUtil::bind(&pusherThread,&control),
-            numPushers);
-    tg.addThreads(bdef_BindUtil::bind(&popperThread,&control),
-            numPoppers);
-
-    tg.joinAll();
-    ASSERT(queue.length() == 0);
-
-    V(control.d_numOverflow);
-    V(control.d_numUnderflow);
-
-}
-}
-
-#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-
-
 namespace zerotst {
 
 struct Control {
     bcemt_Barrier           *d_barrier;
 
-    bcec_FixedQueue<void *> *d_queue;
+    bcec_AtomicRingBuffer<void *> *d_queue;
 
     int                    d_numExpectedPushers;
     int                    d_iterations;
@@ -995,11 +885,9 @@ struct Control {
 
 void pusherThread(Control *control)
 {
-    int threadId;
+    bcec_AtomicRingBuffer<void *> *queue = control->d_queue;
 
-    bcec_FixedQueue<void *> *queue = control->d_queue;
-
-    threadId = control->d_numPushers++;
+    control->d_numPushers++;
 
     control->d_barrier->wait();
 
@@ -1010,7 +898,7 @@ void pusherThread(Control *control)
 
 void popperThread(Control *control)
 {
-    bcec_FixedQueue<void *> *queue = control->d_queue;
+    bcec_AtomicRingBuffer<void *> *queue = control->d_queue;
 
     int totalToPop = control->d_numExpectedPushers * control->d_iterations;
 
@@ -1029,7 +917,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
         QUEUE_SIZE = 2047
     };
 
-    bcec_FixedQueue<void *> queue(QUEUE_SIZE);
+    bcec_AtomicRingBuffer<void *> queue(QUEUE_SIZE);
 
     ASSERT(QUEUE_SIZE == queue.size());
     ASSERT(queue.isEnabled());
@@ -1056,6 +944,64 @@ void runtest(int numIterations, int numPushers, int numPoppers)
     tg.joinAll();
     ASSERT(queue.isEmpty());
 }
+}
+
+
+struct my_WorkData {
+    // Work data...
+};
+
+struct my_WorkRequest {
+    enum RequestType {
+        WORK = 1
+        , STOP = 2
+    };
+
+    RequestType d_type;
+    my_WorkData d_data;
+    // Work data...
+};
+
+void myDoWork(my_WorkData& )
+{
+    // do some stuff...
+}
+
+void myConsumer(bcec_AtomicRingBuffer<my_WorkRequest> *queue)
+{
+    while (1) {
+        // 'popFront()' will wait for a 'my_WorkRequest' until available.
+        my_WorkRequest item = queue->popFront();
+        if (item.d_type == my_WorkRequest::STOP) { break; }
+        myDoWork(item.d_data);
+    }
+}
+
+void myProducer(int numThreads)
+{
+    enum {
+       MAX_QUEUE_LENGTH = 100,
+       NUM_WORK_ITEMS = 1000
+    };
+
+    bcec_AtomicRingBuffer<my_WorkRequest> queue(MAX_QUEUE_LENGTH);
+
+    bcemt_ThreadGroup consumerThreads;
+    consumerThreads.addThreads(bdef_BindUtil::bind(&myConsumer, &queue),
+                               numThreads);
+
+    for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
+        my_WorkRequest item;
+        item.d_type = my_WorkRequest::WORK;
+        item.d_data = my_WorkData(); // some stuff to do
+        queue.pushBack(item);
+    }
+
+    for (int i = 0; i < numThreads; ++i) {
+        my_WorkRequest item;
+        item.d_type = my_WorkRequest::STOP;
+        queue.pushBack(item);
+    }
 }
 
 //=============================================================================
@@ -1075,27 +1021,72 @@ int main(int argc, char *argv[])
                      bcemt_Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 21: {
-#if defined(BDE_BUILD_TARGET_EXC) && \
-    !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+      case 18: {
         // ---------------------------------------------------------
-        // Exception safety test
+        // Usage example test
         //
-        // Test that the queue provides the Strong exception safety
-        // guarantee.
+        // Test that the usage example compiles and runs as provided.
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CONCERN: Exception Safety" << endl
-                          << "=========================" << endl;
+                          << "Usage example test" << endl
+                          << "==================" << endl;
+
+        enum { NUM_THREADS = 4 };
+        myProducer(NUM_THREADS);
+        break;
+      }
+
+      case 17: {
+#ifdef BDE_BUILD_TARGET_EXC
+        // ---------------------------------------------------------
+        // Exception safety test
+        //
+        // Test that the queue provides the Basic exception safety
+        // guarantee. After an exception on pushBack, the queue is emptied.
+        // After an exception on popFront, the object is removed and the
+        // queue behaves normally.
+        // ---------------------------------------------------------
+        if (verbose) cout << endl
+                          << "Basic exception guarantee test" << endl
+                          << "==============================" << endl;
 
         bcema_TestAllocator ta(veryVeryVerbose);
+
+        if (verbose) {
+            cout << endl
+                 << "Testing exception safety queue of size 1" << endl;
+        }
         {
-            // a.  popping from a full queue with exception leaves a non-full
-            //     queue and unblocks a pusher
+            bcec_AtomicRingBuffer<ExceptionTester> queue(1, &ta);
+
+            ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
+                                           bcemt_ThreadUtil::selfIdAsUint64());
+
+            bool caught = false;
+            try {
+                queue.pushBack(ExceptionTester());
+            }
+            catch (...) {
+                caught = true;
+            }
+            ASSERT(caught);
+
+            ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(0);
+
+        }
+
+
+
+        if (verbose) {
+            cout << endl
+                 << "Testing exception safety for mutiple threads" << endl;
+        }
+        {
+            // b.  popping from a queue with exception operates normally.
 
             enum {QUEUE_LENGTH = 3};
-            bcec_FixedQueue<ExceptionTester> queue(QUEUE_LENGTH,
+            bcec_AtomicRingBuffer<ExceptionTester> queue(QUEUE_LENGTH,
                                                          &ta);
             ASSERT(0 == queue.pushBack(ExceptionTester()));
             ASSERT(0 == queue.pushBack(ExceptionTester()));
@@ -1113,67 +1104,123 @@ int main(int argc, char *argv[])
                                                          &numCaught));
             BSLS_ASSERT_OPT(0 == rc); // test invariant
 
-            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsUint64();
+            ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
+                                           bcemt_ThreadUtil::selfIdAsUint64());
+
+            if (veryVerbose) {
+                cout << endl
+                     << "Exception during assignment" << endl;
+            }
+
             bool caught = false;
             try {
-                ExceptionTester test = queue.popFront();
+                ExceptionTester test;
+                queue.popFront(&test);
             } catch (...) {
                 caught = true;
             }
             ASSERT(caught);
+
+            // Now the queue should become non-full and the pusher should
+            // be woken up and able to push into it
             ASSERT(0 ==
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
 
             ASSERT(QUEUE_LENGTH == queue.length());
 
-            // b.  pushing into a queue with exception does not increase the
-            // length of the queue
+            if (veryVerbose) {
+                cout << endl
+                     << "Exception during copy constructor (pop)" << endl;
+            }
+
+            caught = false;
+            try {
+                queue.popFront();
+            } catch (...) {
+                caught = true;
+            }
+            ASSERT(caught);
+
+            // Now the queue should become non-full and the pusher should
+            // be woken up and able to push into it
+            ASSERT(0 ==
+                   sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
+
+            ASSERT(QUEUE_LENGTH == queue.length());
+
+            if (veryVerbose) {
+                cout << endl
+                     << "Exception during copy constructor (push)" << endl;
+            }
+
+            // b.  pushing into a queue with exception empties the queue.
             ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsUint64(
-                                    bcemt_ThreadUtil::handleToId(producer));
+                                       bcemt_ThreadUtil::handleToId(producer));
 
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
             ASSERT(0 ==
                    sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
-            ASSERT(1 == numCaught);
+            LOOP_ASSERT(numCaught, 1 == numCaught);
 
-            ASSERT(QUEUE_LENGTH - 1 == queue.length());
+            LOOP_ASSERT(queue.length(), 0 == queue.length());
             ASSERT(!queue.isFull());
-            ASSERT(0 == queue.tryPushBack(ExceptionTester()));
 
-            queue.disable();
-            queue.removeAll();
+            // c.  after a push exception, the queue is still functional.
+            // run two generations through it.
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 != queue.tryPushBack(ExceptionTester()));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 != queue.tryPushBack(ExceptionTester()));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(0 == queue.tryPopFront(&test));
+            ASSERT(queue.isEmpty());
+
             bcemt_ThreadUtil::join(producer);
         }
-        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-#endif //  #if defined(BDE_BUILD_TARGET_EXC) && \
-           !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-
-        break;
-      }
-
-      case 20: {
+#endif //  BDE_BUILD_TARGET_EXC
+      } break;
+      case 16: {
         // ---------------------------------------------------------
         // Template Requirements Test
         //
-        // bcec_FixedQueue<T> should work for types T that have no default
-        // constructor and a 1-arg copy constructor.
+        // bcec_AtomicRingBuffer<T> should work for types T that have no
+        // default constructor and a 1-arg copy constructor.
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CONCERN: Template Requirements" << endl
-                          << "==============================" << endl;
+                          << "Template Requirements Test" << endl
+                          << "==========================" << endl;
 
-        bcec_FixedQueue<TestType> q(10);
+        bcec_AtomicRingBuffer<TestType> q(10);
 
-        TestType t(1, 2);
-        q.pushBack(t);
+        int count = 0;
+        {
+            TestType t(&count);
+            q.pushBack(t);
 
-         TestType t2 = q.popFront();
+            TestType t2 = q.popFront();
+        }
+        ASSERT(0 == count);
+        {
+            TestType t(&count);
+            q.pushBack(t);
+
+            TestType t2(&count);
+            q.popFront(&t2);
+        }
+        ASSERT(0 == count);
       } break;
-
-      case 19: {
+      case 15: {
         // ---------------------------------------------------------
         // length() stress-test
         //
@@ -1183,17 +1230,17 @@ int main(int argc, char *argv[])
         // so verify that the reported length is always in this range.
         // ---------------------------------------------------------
 
-
         if (verbose) cout << endl
-                          << "CONCERN: length Stress-Test" << endl
-                          << "===========================" << endl;
+                          << "'length()' Stress Test" << endl
+                          << "======================" << endl;
+
 
         enum {
             NUM_PUSHPOP_THREADS = 6,
             TEST_DURATION = 3 // in seconds
         };
 
-        bcec_FixedQueue<int> queue (NUM_PUSHPOP_THREADS*2);
+        bcec_AtomicRingBuffer<int> queue (NUM_PUSHPOP_THREADS*2);
 
         bces_AtomicInt stop = 0;
 
@@ -1227,83 +1274,7 @@ int main(int argc, char *argv[])
         tg.joinAll();
       } break;
 
-      case 18: {
-        // ---------------------------------------------------------
-        // IndexQueue size and range test
-        // ---------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "IndexQueue size and range test" << endl
-                          << "==============================" << endl;
-
-        bcema_TestAllocator ta(veryVeryVerbose);
-        bcema_TestAllocator da(veryVeryVerbose);
-        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
-
-        {
-            enum {
-                QUEUE_SIZE = 6
-            };
-
-            bcec_FixedQueue<int> mX(QUEUE_SIZE, &ta);
-            ASSERT(0 == da.numBytesInUse());
-            V(mX.size());
-            V(mX.length());
-            ASSERT(0 == mX.length());
-            ASSERT(6 == mX.size());
-
-            ASSERT(!mX.isFull());
-            ASSERT(0 == mX.tryPushBack(0));
-            ASSERT(!mX.isFull());
-            ASSERT(0 == mX.tryPushBack(1));
-            ASSERT(!mX.isFull());
-            ASSERT(0 == mX.tryPushBack(2));
-            ASSERT(!mX.isFull());
-            ASSERT(0 == mX.tryPushBack(3));
-            ASSERT(!mX.isFull());
-            ASSERT(0 == mX.tryPushBack(4));
-            ASSERT(!mX.isFull());
-            ASSERT(0 == mX.tryPushBack(5));
-            ASSERT(mX.isFull());
-            ASSERT(0 != mX.tryPushBack(6));
-        }
-
-        {
-            enum {
-                QUEUE_SIZE = 6
-            };
-
-            bcec_FixedQueue<int> mX(QUEUE_SIZE, &ta);
-            ASSERT(0 == da.numBytesInUse());
-            V(mX.size());
-            V(mX.length());
-            ASSERT(0 == mX.length());
-            ASSERT(6 == mX.size());
-
-            ASSERT(0 == mX.tryPushBack(0));
-            ASSERT(0 == mX.tryPushBack(1));
-            ASSERT(0 == mX.tryPushBack(0));
-            ASSERT(0 == mX.tryPushBack(1));
-            int val;
-            ASSERT(0 == mX.tryPopFront(&val));
-            ASSERT(0 == val);
-            ASSERT(0 == mX.tryPopFront(&val));
-            ASSERT(1 == val);
-            ASSERT(0 == mX.tryPopFront(&val));
-            ASSERT(0 == val);
-            ASSERT(0 == mX.tryPopFront(&val));
-            ASSERT(1 == val);
-        }
-
-        ASSERT(0 == da.numBytesInUse());
-        ASSERT(0 < ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == da.numBytesInUse());
-        ASSERT(0 < ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-      } break;
-
-      case 17: {
+      case 14: {
         // ---------------------------------------------------------
         // Disable while pushing into a full queue
         // ---------------------------------------------------------
@@ -1324,171 +1295,6 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 16: {
-#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-        // ---------------------------------------------------------
-        // Pushing zeros through the IndexQueue
-        // ---------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "Pushing zeros through the IndexQueue" << endl
-                          << "====================================" << endl;
-        enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50000
-        };
-
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
-        for(int numPoppers=1; numPoppers<=NUM_THREADS; numPoppers++) {
-
-            indexqueue_zerotst::runtest(
-                    NUM_ITERATIONS, numPushers, numPoppers);
-        }
-        }
-#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-      } break;
-      case 15: {
-        // ---------------------------------------------------------
-        // IndexQueue disable/enable test
-        // ---------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "IndexQueue disable/enable test" << endl
-                          << "==============================" << endl;
-
-        bcema_TestAllocator ta(veryVeryVerbose);
-        bcema_TestAllocator da(veryVeryVerbose);
-        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
-
-        {
-            enum {
-                QUEUE_SIZE = 3
-            };
-
-            bcec_FixedQueue<int> mX(QUEUE_SIZE, &ta);
-            const bcec_FixedQueue<int>& X = mX;
-
-            ASSERT(0 == da.numBytesInUse());
-            V(X.size());
-            V(X.length());
-            ASSERT(0 == mX.length());
-            ASSERT(3 == mX.size());
-            ASSERT(X.isEnabled());
-
-            enum { D1 = 5, D2 = 8, D3 = 3 };
-
-            mX.disable();
-            ASSERT(!X.isEnabled());
-            int data = D1;
-            ASSERT(0 != mX.tryPushBack(data));
-            ASSERT(0 == da.numBytesInUse());
-            ASSERT(0 == mX.length());
-
-            mX.enable();
-            ASSERT(X.isEnabled());
-            data = D1;
-            ASSERT(0 == mX.tryPushBack(data));
-            ASSERT(1 == mX.length());
-            data = D2;
-            ASSERT(0 == mX.tryPushBack(data));
-            ASSERT(2 == mX.length());
-            data = D3;
-            ASSERT(0 == mX.tryPushBack(data));
-            ASSERT(3 == mX.length());
-            ASSERT(0 != mX.tryPushBack(data));
-            ASSERT(0 == da.numBytesInUse());
-            ASSERT(3 == mX.length());
-
-            mX.disable();
-            ASSERT(!X.isEnabled());
-            ASSERT(0 != mX.tryPushBack(data));
-
-            ASSERT(0 == mX.tryPopFront(&data));
-            ASSERT(D1 == data);
-
-            ASSERT(0 != mX.tryPushBack(data));
-            ASSERT(0 == mX.tryPopFront(&data));
-            ASSERT(D2 == data);
-            ASSERT(0 == mX.tryPopFront(&data));
-            ASSERT(D3 == data);
-
-            ASSERT(0 != mX.tryPopFront(&data));
-        }
-
-        ASSERT(0 == da.numBytesInUse());
-        ASSERT(0 < ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-      } break;
-
-      case 14: {
-        // ---------------------------------------------------------
-        // IndexQueue breathing test
-        // ---------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "IndexQueue breathing test" << endl
-                          << "=========================" << endl;
-
-        bcema_TestAllocator ta(veryVeryVerbose);
-        bcema_TestAllocator da(veryVeryVerbose);
-        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
-
-        {
-            enum {
-                QUEUE_SIZE = 1
-            };
-
-            bcec_FixedQueue<int> mX(QUEUE_SIZE, &ta);
-            ASSERT(0 == da.numBytesInUse());
-            V(mX.size());
-            V(mX.length());
-            ASSERT(0 == mX.length());
-            ASSERT(1 == mX.size());
-
-            enum { D1 = 5, D2 = 8 };
-
-            int data = D1;
-            ASSERT(0 == mX.tryPushBack(data));
-            ASSERT(0 == da.numBytesInUse());
-
-            ASSERT(0 == mX.tryPopFront(&data));
-            ASSERT(0 == da.numBytesInUse());
-            V(data);
-            ASSERT(D1 == data);
-
-            data = D2;
-            ASSERT(0 == mX.tryPushBack(data));
-            ASSERT(0 == da.numBytesInUse());
-            ASSERT(1 == mX.length());
-            ASSERT(1 == mX.size());
-            data = D1;
-            ASSERT(0 != mX.tryPushBack(data));
-            ASSERT(0 == da.numBytesInUse());
-            ASSERT(1 == mX.length());
-            ASSERT(1 == mX.size());
-
-            ASSERT(0 == mX.tryPopFront(&data));
-            ASSERT(0 == da.numBytesInUse());
-            V(data);
-            ASSERT(D2 == data);
-
-            data = D1;
-            ASSERT(0 == mX.tryPushBack(data));
-            ASSERT(0 == da.numBytesInUse());
-            ASSERT(1 == mX.length());
-            ASSERT(1 == mX.size());
-
-            ASSERT(0 == mX.tryPopFront(&data));
-            ASSERT(0 == da.numBytesInUse());
-            V(data);
-            ASSERT(D1 == data);
-        }
-
-        ASSERT(0 == da.numBytesInUse());
-        ASSERT(0 < ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-      } break;
-
       case 13: {
         // ---------------------------------------------------------
         // TESTING sequence constraints
@@ -1538,25 +1344,23 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
 
         {
-            bcec_FixedQueue<CountedDelete> mX(100);
+            bcec_AtomicRingBuffer<int> mX(100);
             V(mX.size());
             ASSERT(mX.size() == 100);
         }
         {
-            bcec_FixedQueue<CountedDelete> mX(0x7FFF);
+            bcec_AtomicRingBuffer<int> mX(0x7FFF);
             V(mX.size());
             ASSERT(mX.size() == (0x7FFF));
         }
         {
-            bcec_FixedQueue<CountedDelete> mX(2070);
+            bcec_AtomicRingBuffer<int> mX(2070);
             V(mX.size());
             ASSERT(mX.size() == 2070);
         }
       } break;
 
       case 10: {
-#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-
         // ---------------------------------------------------------
         // TESTING CONCERN: Memory leak if pushing while disabled
         //
@@ -1565,41 +1369,60 @@ int main(int argc, char *argv[])
         //
         // ---------------------------------------------------------
 
-        bcema_TestAllocator ta(veryVeryVerbose);
-        bcema_TestAllocator da(veryVeryVerbose);
+        bsl::vector<int> a; const bsl::vector<int> &A = a;
+        a.resize(1);
+
+        bslma::TestAllocator oa(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         {
-            CountedDelete cd;
 
-            bcec_FixedQueue<CountedDelete> mX(100, &ta);
+            bcec_AtomicRingBuffer<bsl::vector<int> > mX(100, &oa);
             ASSERT(0 == da.numBytesInUse());
+            ASSERT(0 != oa.numBytesInUse());
 
-            ASSERT(0 == mX.pushBack(cd));
-            ASSERT(0 == da.numBytesInUse());
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
-            cd = mX.popFront();
-            ASSERT(0 == da.numBytesInUse());
+                ASSERT(0 == mX.pushBack(A));
+
+                ASSERT(oam.isInUseUp());
+                ASSERT(dam.isInUseSame());
+            }
+
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
+                mX.popFront();
+
+                ASSERT(oam.isInUseDown());
+                ASSERT(dam.isInUseSame());
+            }
 
             mX.disable();
             ASSERT(0 == da.numBytesInUse());
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
-            int numBytes = ta.numBytesInUse();
+                ASSERT(0 != mX.pushBack(A));
+                ASSERT(oam.isInUseSame());
+                ASSERT(dam.isInUseSame());
 
-            ASSERT(0 != mX.pushBack(cd));
-            ASSERT(0 == da.numBytesInUse());
-            V(CountedDelete::numDeletes());
-            ASSERT(4 == CountedDelete::numDeletes() ||
-                   3 == CountedDelete::numDeletes());
-            ASSERT(0 == da.numBytesInUse());
+            }
 
-            ASSERT(numBytes == ta.numBytesInUse());
+            mX.enable();
+            {
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
+                ASSERT(0 == mX.pushBack(A));
+                ASSERT(oam.isInUseUp());
+                ASSERT(dam.isInUseSame());
+            }
+
         }
-
         ASSERT(0 == da.numBytesInUse());
-        ASSERT(0 < ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+        ASSERT(0 == oa.numBytesInUse());
 
       } break;
       case 9: {
@@ -1644,7 +1467,7 @@ int main(int argc, char *argv[])
             EMPTY_VERIFY_MS = 1500
         };
 
-        bcec_FixedQueue<int> queue(QUEUE_SIZE_SINGLETHREAD);
+        bcec_AtomicRingBuffer<int> queue(QUEUE_SIZE_SINGLETHREAD);
         ASSERT(queue.isEnabled());
         ASSERT(0 == queue.tryPushBack(1));
         ASSERT(0 == queue.pushBack(2));
@@ -1663,7 +1486,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "...Full-queue disable test" << endl;
 
-        bcec_FixedQueue<int> mtQueue(QUEUE_SIZE_MT);
+        bcec_AtomicRingBuffer<int> mtQueue(QUEUE_SIZE_MT);
         for (int i = 0; i < NUM_FULL_ITERATIONS; ++i) {
             if (veryVerbose && (0 == i % 100)) {
                 cout << "     ...filling(" << i << ")...";
@@ -1723,7 +1546,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "...Non-full-queue test (less)" << endl;
         {
             volatile bool done = false;
-            bcec_FixedQueue<int> queue(QUEUE_SIZE_LARGE);
+            bcec_AtomicRingBuffer<int> queue(QUEUE_SIZE_LARGE);
 
             bcemt_ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdef_BindUtil::bind(&case9pusher,
@@ -1768,7 +1591,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "...Non-full-queue test (more)" << endl;
         {
             volatile bool done = false;
-            bcec_FixedQueue<int> queue(QUEUE_SIZE_LARGE);
+            bcec_AtomicRingBuffer<int> queue(QUEUE_SIZE_LARGE);
 
             bcemt_ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdef_BindUtil::bind(&case9pusher,
@@ -1849,7 +1672,7 @@ int main(int argc, char *argv[])
         bcemt_Barrier barrier(NUM_PUSHER_THREADS+1);
 
         {
-            bcec_FixedQueue<char*> mX(3, &ta);
+            bcec_AtomicRingBuffer<char*> mX(3, &ta);
             bcemt_ThreadGroup tg;
 
             char* nextValue[NUM_PUSHER_THREADS];
@@ -1924,7 +1747,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
             bcemt_Barrier barrier(NUM_PUSHER_THREADS+1);
 
-            bcec_FixedQueue<char*> mX(NUM_ENTRIES+1, &ta);
+            bcec_AtomicRingBuffer<char*> mX(NUM_ENTRIES+1, &ta);
             bcemt_ThreadGroup tg;
 
             char* nextValue[NUM_PUSHER_THREADS];
@@ -1966,8 +1789,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONCERN: REMOVE_ALL
         //   We want to ensure that 'removeAll' behaves correctly for both
-        //  'bcec_FixedQueue<T>' and its specialization 'bcec_FixedQueue<T*>'
-        //   in a single threaded environment.
+        //  'bcec_AtomicRingBuffer<T>' and its specialization
+        //  'bcec_AtomicRingBuffer<T*>' in a single threaded environment.
         //
         // Single-Threaded Test Plan:
         //   Instantiate a queue.  Push a known number of elements on to the
@@ -1993,7 +1816,7 @@ int main(int argc, char *argv[])
 
         {
             enum { NUM_ELEMENTS = 100 };
-            bcec_FixedQueue<int> mX(NUM_ELEMENTS);
+            bcec_AtomicRingBuffer<int> mX(NUM_ELEMENTS);
 
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
 
@@ -2009,7 +1832,7 @@ int main(int argc, char *argv[])
 
         {
             enum { NUM_ELEMENTS = 100 };
-            bcec_FixedQueue<int*> mX(NUM_ELEMENTS);
+            bcec_AtomicRingBuffer<int*> mX(NUM_ELEMENTS);
 
             int element = 0;
 
@@ -2029,7 +1852,7 @@ int main(int argc, char *argv[])
             const int    THRESHOLD = 200;
             const int    MAX_QUEUE_SIZE = THRESHOLD;
 
-            bcec_FixedQueue<int> mX(MAX_QUEUE_SIZE);
+            bcec_AtomicRingBuffer<int> mX(MAX_QUEUE_SIZE);
 
             bool stop = false;
 
@@ -2071,8 +1894,8 @@ int main(int argc, char *argv[])
                            << "Stress test 2" << endl
                            << "==================" << endl;
 
-          bcec_FixedQueue<StressNode> *queue =
-                                            new bcec_FixedQueue<StressNode>(4);
+          bcec_AtomicRingBuffer<StressNode> *queue =
+                                      new bcec_AtomicRingBuffer<StressNode>(4);
           StressNode sn;
           queue->pushBack(sn);
           queue->pushBack(sn);
@@ -2100,7 +1923,7 @@ int main(int argc, char *argv[])
         StressData* consumerData = new StressData[numConsumers];
         memset(producerData, 0, sizeof(StressData)*numProducers);
         memset(consumerData, 0, sizeof(StressData)*numConsumers);
-        bcec_FixedQueue<StressNode> queue(queueSize);
+        bcec_AtomicRingBuffer<StressNode> queue(queueSize);
         bool stopProducers = false;
         for(int i=0; i<numProducers; i++) {
             producerData[i].counts = new int[1];
@@ -2256,7 +2079,17 @@ int main(int argc, char *argv[])
           args.d_goCond.broadcast();
           args.d_mutex.unlock();
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
+// disable the larger than warning for this buffer
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
           char reserved[NITERATIONS+1];
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700
+#pragma GCC diagnostic pop
+#endif
 
           for (int i=0; i<NITERATIONS; ++i) {
               //bcemt_LockGuard<bcemt_Mutex> lock(&args.d_mutex);
@@ -2321,7 +2154,7 @@ int main(int argc, char *argv[])
                           << "queue size=" << queueSize << endl;
         BenchData* producerData = new BenchData[numProducers];
         BenchData* consumerData = new BenchData[numConsumers];
-        bcec_FixedQueue<void*> queue(queueSize);
+        bcec_AtomicRingBuffer<void*> queue(queueSize);
         //bsls::Types::Int64 timeStart = bsls::TimeUtil::getTimer();
         for(int i=0; i<numConsumers; i++) {
             consumerData[i].queue = &queue;
@@ -2364,13 +2197,13 @@ int main(int argc, char *argv[])
                      << elapsed_us/1000              << " ms, "
                      << elapsed_usCPU*100/elapsed_us << " CPU%, "
                      << totalMessages                << " msg, "
-                     << fmt(throughput)              << " msg/s, "
-                     << fmt(throughputCPU)           << " msg/CPUs"
+                     << fmt((int)throughput)         << " msg/s, "
+                     << fmt((int)throughputCPU)      << " msg/CPUs"
                      << endl;
             }
             cout << "====== final:"
-                 << fmt(throughput)    << " msg/s, "
-                 << fmt(throughputCPU) << " msg/CPUs\n"
+                 << fmt((int)throughput)    << " msg/s, "
+                 << fmt((int)throughputCPU) << " msg/CPUs\n"
                  << endl;
         }
         cout << "stopping: " << flush;
@@ -2408,7 +2241,7 @@ int main(int argc, char *argv[])
         for (int a = 0; a < numIterations; ++a)
         {
             volatile bool done = false;
-            bcec_FixedQueue<int> queue(QUEUE_SIZE_LARGE);
+            bcec_AtomicRingBuffer<int> queue(QUEUE_SIZE_LARGE);
 
             bcemt_ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdef_BindUtil::bind(&case9pusher,
@@ -2504,30 +2337,6 @@ int main(int argc, char *argv[])
         zerotst::runtest(numIterations, numPushers, numPoppers);
       } break;
 
-      case -6: {
-#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-        // --------------------------------------------------------------------
-        // STRESS TEST
-        // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "STRESS TEST -6" << endl
-                          << "==============" << endl;
-        enum {
-            NUM_THREADS = 6,
-            NUM_ITERATIONS = 1000000
-        };
-
-        int numIterations = argc > 2 ? atoi(argv[2]) : NUM_ITERATIONS;
-        int numPushers = argc > 3 ? atoi(argv[3]) : NUM_THREADS;
-        int numPoppers = argc > 4 ? atoi(argv[4]) : NUM_THREADS;
-
-        if (verbose) cout << endl
-                          << "NUM ITERATIONS: " << numIterations << endl
-                          << "NUM PUSHERS: " << numPushers << endl
-                          << "NUM POPPERS: " << numPoppers << endl;
-
-        indexqueue_zerotst::runtest(numIterations, numPushers, numPoppers);
-      } break;
       case -7: {
         // --------------------------------------------------------------------
         // DISABLE TEST
@@ -2545,7 +2354,6 @@ int main(int argc, char *argv[])
                           << "NUM PUSHERS: " << numPushers << endl;
 
         disabletst::runtest(numPushers, 4099, false);
-#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
       } break;
       case -8: {
         // --------------------------------------------------------------------
@@ -2601,7 +2409,7 @@ int main(int argc, char *argv[])
         bsl::cout << "Testing newly created queue..." << bsl::endl;
         bcemt_ThreadGroup workThreads;
         bces_AtomicInt doneFlag = 0;
-        bcec_FixedQueue<int> youngQueue(QUEUE_SIZE);
+        bcec_AtomicRingBuffer<int> youngQueue(QUEUE_SIZE);
         // Fill the queue up halfway.
         for (unsigned i = QUEUE_SIZE/2; i < QUEUE_SIZE; ++i) {
             youngQueue.pushBack(i);
@@ -2638,7 +2446,7 @@ int main(int argc, char *argv[])
 
         bsl::cout << "\nIncrementing";
 
-        bcec_FixedQueue<int> queue (QUEUE_SIZE);
+        bcec_AtomicRingBuffer<int> queue (QUEUE_SIZE);
         for (unsigned i = 0; i < 0xFFFFFFFF - QUEUE_SIZE; i += 5) {
             queue.pushBack(i);
             queue.pushBack(i);
@@ -2706,68 +2514,6 @@ int main(int argc, char *argv[])
         bsl::cout << "Done.  testStatus = " << testStatus << bsl::endl;
       } break;
 
-      case -10: {
-#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-// Note that backoff level is not used in opengrok.
-
-        // ---------------------------------------------------------
-        // tuning backoff
-        // ---------------------------------------------------------
-        cout << endl
-             << "Tuning Backoff" << endl
-             << "==============" << endl;
-        enum {
-            DEFAULT_PUSHPOP_THREADS=4,
-            DEFAULT_ITERATIONS=20000,
-            DEFAULT_WORKSPIN=75,
-            DEFAULT_BACKOFF=2,
-            QUEUE_SIZE = 2000
-        };
-
-        int numPushpopThreads = argc > 2 ? atoi(argv[2]) :
-                                                DEFAULT_PUSHPOP_THREADS;
-        int numIterations = argc > 3 ? atoi(argv[3]) :
-                                                DEFAULT_ITERATIONS;
-        int workSpin = argc > 4 ? atoi(argv[4]) :
-                                                DEFAULT_WORKSPIN;
-        int backoff = argc > 5 ? atoi(argv[5]) :
-                                                DEFAULT_BACKOFF;
-
-        bsl::cout << "Parameters:\n"
-                  << "numPushPopThreads: " << numPushpopThreads << endl
-                  << "numIterations: " << numIterations << endl
-                  << "workSpin: " << workSpin << endl
-                  << "backoff: " << backoff << endl;
-
-        bcemt_Barrier barrier(numPushpopThreads + 1);
-
-        bcemt_ThreadGroup tg;
-
-        bcec_FixedQueue<int> queue(QUEUE_SIZE);
-        queue.setBackoffLevel(backoff);
-
-        tg.addThreads(bdef_BindUtil::bind(&Backoff::pushpopThread,
-                                          &queue,
-                                          &barrier,
-                                          numIterations,
-                                          workSpin),
-                      numPushpopThreads);
-        bsls::Stopwatch timer;
-
-        barrier.wait();
-        timer.start(true);
-        tg.joinAll();
-        timer.stop();
-
-        double wall, user, system;
-        timer.accumulatedTimes(&system, &user, &wall);
-
-        cout << "Elapsed CPU time: " << user + system
-             << " (" << user << "U, " << system << " S)"
-             << endl;
-        cout << "Elapsed wall time: " << wall << endl;
-#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
-      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

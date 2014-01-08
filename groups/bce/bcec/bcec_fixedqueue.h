@@ -238,6 +238,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#if defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
+#define BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
+#include <bcec_atomicringbuffer.h>
+#undef BCE_INCLUDED_FROM_BCEC_FIXED_QUEUE
+
+#define bcec_FixedQueue bcec_AtomicRingBuffer
+
+#else // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
 namespace BloombergLP {
 
                    // ======================================
@@ -249,48 +259,13 @@ class bcec_FixedQueue_IndexQueue {
     // the range from zero to a configurable upper limit.  It provides the
     // underlying implementation for 'bcec_FixedQueue'.
 
-    // PUBLIC CONSTANTS
-  public:
-    enum {
-        // We'll pad certain data members so they're stored on different
-        // cache lines to prevent false sharing.
-        //
-        // For POWER cpus:
-        // http://www.ibm.com/developerworks/power/library/pa-memory/index.html
-        // has a simple program to determine the cache line size of the CPU.
-        // Current Power cpus have 128-byte cache lines.
-        //
-        // On Solaris, to determine the cache line size on the local cpu, run:
-        // ..
-        //   prtconf -pv | grep -i l1-dcache-line-size | sort -u
-        // ..
-        // Older sparc cpus have 32-byte cache lines, newer 64-byte cache
-        // lines.  We'll assume 64-byte cache lines here.
-        //
-        // On Linux with 'sysfs' support,
-        //..
-        //  cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size
-        //..
-        // or
-        //..
-        //  cat /proc/cpuinfo | grep cache
-        //..
-        // Post SSE2 cpus have the clflush instruction which can be used to
-        // write a program similar to the one mentioned above for POWER cpus.
-        // Current x86/x86_64 have 64-byte cache lines.
-        //
-        // It is obviously suboptimal to determine this at compile time.  We
-        // might want to do this at runtime, but this would add at least one
-        // level of indirection.
+  private:
 
-#ifdef BSLS_PLATFORM_CPU_POWERPC
-        BCEC_PAD = 128 - sizeof(bces_AtomicInt)
-#else
-        BCEC_PAD = 64 - sizeof(bces_AtomicInt)
-#endif
+    // PRIVATE CONSTANTS
+    enum {
+        e_PADDING = bces_Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
     };
 
-  private:
     // DATA
     const unsigned d_indexBits;      // Mask of the bits containing the
                                      // index stored in 'd_front' and
@@ -316,20 +291,22 @@ class bcec_FixedQueue_IndexQueue {
     bsl::vector<bces_AtomicInt>
                    d_data;
 
-    const char     d_dataPad[BCEC_PAD];  // keep 'd_data'  and 'd_back' on
-                                         // separate cache lines
-                                         // (performance only)
+    const char     d_dataPad[e_PADDING];
+                                     // keep 'd_data'  and 'd_back' on
+                                     // separate cache lines
+                                     // (performance only)
 
-    bces_AtomicInt d_back;               // index of the back of the queue
-                                         // ORed with a generation count
+    bces_AtomicInt d_back;           // index of the back of the queue
+                                     // ORed with a generation count
 
-    const char     d_indexPad[BCEC_PAD]; // keep 'd_back'  and 'd_front' on
-                                         // separate cache lines
-                                         // (performance only)
+    const char     d_indexPad[e_PADDING];
+                                     // keep 'd_back'  and 'd_front' on
+                                     // separate cache lines
+                                     // (performance only)
 
-    bces_AtomicInt d_front;              // index of the front of the queue
-                                         // in 'd_data' ORed with a generation
-                                         // count
+    bces_AtomicInt d_front;          // index of the front of the queue
+                                     // in 'd_data' ORed with a generation
+                                     // count
 
   private:
     // NOT IMPLEMENTED
@@ -419,15 +396,22 @@ class bcec_FixedQueue {
     // This class provides a thread-enabled implementation of a very efficient
     // fixed-size queue of templatized 'TYPE' values.
 
+  private:
+
+    // PRIVATE CONSTANTS
+    enum {
+        e_PADDING = bces_Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
+    };
+
     // PRIVATE TYPES
     typedef bcec_FixedQueue_IndexQueue IndexQ;
 
     // DATA
     IndexQ            d_queue;
 
-    const char        d_semaPad[IndexQ::BCEC_PAD];  // keep 'd_queue' separate
-                                                    // from semaphores' cache
-                                                    // line (performance only)
+    const char        d_semaPad[e_PADDING];  // keep 'd_queue' separate
+                                             // from semaphores' cache
+                                             // line (performance only)
 
     bcemt_Semaphore   d_semaWaitingPushers;
     bces_AtomicInt    d_numWaitingPushers;
@@ -879,6 +863,8 @@ bool bcec_FixedQueue<TYPE>::isEnabled() const
 }
 
 }  // close namespace BloombergLP
+
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
 
 #endif
 
