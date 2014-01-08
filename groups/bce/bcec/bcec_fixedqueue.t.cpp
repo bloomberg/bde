@@ -124,13 +124,13 @@ typedef bcec_FixedQueue<Element*> Obj;
 class ExceptionTester
 {
 public:
-    static bces_AtomicInt s_throwFrom;
+    static bces_AtomicInt64 s_throwFrom;
 
     ExceptionTester() {}
 
     ExceptionTester(const ExceptionTester& rhs) {
         if (s_throwFrom &&
-            bcemt_ThreadUtil::selfIdAsInt() == s_throwFrom) {
+            bcemt_ThreadUtil::selfIdAsUint64() == s_throwFrom) {
             throw 1;
         }
     }
@@ -139,7 +139,8 @@ public:
         return *this;
     }
 };
-bces_AtomicInt ExceptionTester::s_throwFrom = 1;
+
+bces_AtomicInt64 ExceptionTester::s_throwFrom = -1;
 
 void exceptionProducer(bcec_FixedQueue<ExceptionTester> *tester,
                        bcemt_TimedSemaphore             *sema,
@@ -1092,6 +1093,7 @@ int main(int argc, char *argv[])
         {
             // a.  popping from a full queue with exception leaves a non-full
             //     queue and unblocks a pusher
+
             enum {QUEUE_LENGTH = 3};
             bcec_FixedQueue<ExceptionTester> queue(QUEUE_LENGTH,
                                                          &ta);
@@ -1111,7 +1113,7 @@ int main(int argc, char *argv[])
                                                          &numCaught));
             BSLS_ASSERT_OPT(0 == rc); // test invariant
 
-            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsInt();
+            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsUint64();
             bool caught = false;
             try {
                 ExceptionTester test = queue.popFront();
@@ -1126,7 +1128,7 @@ int main(int argc, char *argv[])
 
             // b.  pushing into a queue with exception does not increase the
             // length of the queue
-            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsInt(
+            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsUint64(
                                     bcemt_ThreadUtil::handleToId(producer));
 
             // pop an item to unblock the pusher
