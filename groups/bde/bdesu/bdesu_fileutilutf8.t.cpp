@@ -144,7 +144,11 @@ static const char *const NAMES[] = {
     "\x24\xc2\xa2\xe2\x82\xac\xf0\xa4\xad\xa2",  // utf-8
     "\xf1\xe5m\xea",                             // not utf-8
 };
-static const int NUM_NAMES  = sizeof NAMES / sizeof *NAMES;
+static const size_t NUM_NAMES  = sizeof NAMES / sizeof *NAMES;
+
+// 'NAME_ANSI' is not utf8.
+
+static const size_t NUM_VALID_NAMES = NUM_NAMES - 1;
 
 //=============================================================================
 //                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
@@ -650,7 +654,7 @@ int main(int argc, char *argv[])
             L"a\u0303a\u030ae\u0300e\u0301i\u0302i\u0308o\u0302o\u0303u"
                                                             L"\u0300u\u0301",
         };
-        static const int NUM_FILES = sizeof filenames / sizeof *filenames;
+        static const size_t NUM_FILES = sizeof filenames / sizeof *filenames;
 
         // make sure there isn't an unfortunately named file in the way
 
@@ -662,7 +666,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == Obj::createDirectories(logPath.c_str(), true));
 
-        for (int fi = 0; fi < NUM_FILES; ++fi) {
+        for (size_t fi = 0; fi < NUM_FILES; ++fi) {
             const wchar_t *const NAME = filenames[fi];
             bsl::string          narrow;
             bsl::wstring         wide;
@@ -704,7 +708,7 @@ int main(int argc, char *argv[])
             Obj::close(fd);
         }
 
-        for (int ni = 0; ni < NUM_NAMES; ++ni) {
+        for (size_t ni = 0; ni < NUM_NAMES; ++ni) {
             const char *const NAME = NAMES[ni];
 
             bsl::string name = logPath;
@@ -735,13 +739,14 @@ int main(int argc, char *argv[])
         bdesu_PathUtil::appendRaw(&pattern, "*.log");
         Obj::findMatchingPaths(&results, pattern.c_str());
 
-        LOOP_ASSERT(results.size(), NUM_FILES + NUM_NAMES == results.size());
+        LOOP_ASSERT(results.size(),
+                                NUM_FILES + NUM_VALID_NAMES == results.size());
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         // Use the Windows 'wchar_t' interface to find the files, showing that
         // they have the correct 16-bit filenames.
 
-        for (int i = 0; i < NUM_FILES; ++i) {
+        for (size_t i = 0; i < NUM_FILES; ++i) {
             WIN32_FIND_DATAW   findDataW;
             const bsl::wstring name = bsl::wstring(filenames[i]) + L".log";
             const bsl::wstring path = L"temp.2\\logs2\\" + name;
@@ -764,7 +769,7 @@ int main(int argc, char *argv[])
         // Use the Windows 'A' interface to find the files, showing that they
         // have the correct 8-bit filenames.
 
-        for (int i = 0; i < NUM_NAMES; ++i) {
+        for (size_t i = 0; i < NUM_NAMES; ++i) {
             WIN32_FIND_DATAA findDataA;
             const bsl::string name = bsl::string(NAMES[i]) + ".log";
             const bsl::string path = "temp.2" PS "logs2" PS + name;
@@ -777,10 +782,10 @@ int main(int argc, char *argv[])
             // 'NAME_ANSI' will have failed on the 'open' call above, so the
             // file will not exist at all.
 
-            LOOP_ASSERT(handle, i,
+            LOOP2_ASSERT(handle, i,
                         (i == NAME_ASCII) == (INVALID_HANDLE_VALUE != handle));
 
-            if (INVALID_HANDLE_VALUE == handle) {
+            if (INVALID_HANDLE_VALUE != handle) {
                 FindClose(handle);
             }
         }
@@ -792,7 +797,7 @@ int main(int argc, char *argv[])
         typedef bsl::map<bsl::string, int> FileSet;
         FileSet fileset;
 
-        for (int i = 0; i < NUM_FILES; ++i) {
+        for (size_t i = 0; i < NUM_FILES; ++i) {
             // Increment count for each file found.
 
             ++fileset[results[i]];
@@ -812,7 +817,7 @@ int main(int argc, char *argv[])
             --fileset[path];
         }
 
-        for (int i = NUM_FILES; i < NUM_FILES + NUM_NAMES; ++i) {
+        for (size_t i = NUM_FILES; i < results.size(); ++i) {
             // Increment count for each file found.
 
             ++fileset[results[i]];
@@ -853,11 +858,11 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(itr->first, itr->second, 0 == itr->second);
         }
 
-        ASSERT(0 == Obj::remove(dir, true));
+        LOOP_ASSERT(dir, 0 == Obj::remove(dir, true));
 
         // Check narrow and wide lookups.
 
-        for (int i = 0; i < NUM_NAMES; ++i) {
+        for (size_t i = 0; i < NUM_NAMES; ++i) {
             const char *const NAME = NAMES[i];
 
             Obj::FileDescriptor fd = Obj::open(NAME,
@@ -865,9 +870,9 @@ int main(int argc, char *argv[])
                                                Obj::e_IO_READ_WRITE);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            LOOP_ASSERT(fd, i, (NAME_ANSI == i) == (Obj::INVALID_FD == fd));
+            LOOP2_ASSERT(fd, i, (NAME_ANSI == i) == (Obj::INVALID_FD == fd));
 
-            if (Obj::INVALID_FD == fd) {
+            if (Obj::INVALID_FD != fd) {
                 Obj::close(fd);
             }
 #else
@@ -884,7 +889,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             if (NAME_ANSI == i) {
-                LOOP_ASSERT(results.size(), 0    == results.size());
+                LOOP_ASSERT(results.size(), 0 == results.size());
 
                 ASSERT(0 != Obj::remove(NAME, false));
             }
@@ -892,13 +897,13 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(results.size(), 1    == results.size());
                 LOOP_ASSERT(results[0],     NAME == results[0]);
 
-                ASSERT(0 == Obj::remove(NAME, false));
+                LOOP_ASSERT(NAME, 0 == Obj::remove(NAME, false));
             }
 #else
             LOOP_ASSERT(results.size(), 1    == results.size());
             LOOP_ASSERT(results[0],     NAME == results[0]);
 
-            ASSERT(0 == Obj::remove(NAME, false));
+            LOOP_ASSERT(NAME, 0 == Obj::remove(NAME, false));
 #endif
         }
       } break;
@@ -4298,7 +4303,7 @@ int main(int argc, char *argv[])
                           << "\n==========================" << endl;
 
 
-        for (int ni = 0; ni < NUM_NAMES; ++ni) {
+        for (size_t ni = 0; ni < NUM_VALID_NAMES; ++ni) {
             const char *const NAME = NAMES[ni];
 
             if (veryVerbose) { T_() P_(ni) P(NAME) }
@@ -4316,13 +4321,19 @@ int main(int argc, char *argv[])
             bsl::string oldPath(logPath), newPath(logPath);
             bdesu_PathUtil::appendRaw(&oldPath, "old");
             bdesu_PathUtil::appendRaw(&newPath, "new");
-            ASSERT(0 == Obj::createDirectories(oldPath.c_str(), true));
-            ASSERT(0 == Obj::createDirectories(newPath.c_str(), true));
+            LOOP_ASSERT(oldPath,
+                           0 == Obj::createDirectories(oldPath.c_str(), true));
+            LOOP_ASSERT(newPath,
+                           0 == Obj::createDirectories(newPath.c_str(), true));
 
             ASSERT(Obj::exists(oldPath));
             ASSERT(Obj::exists(newPath));
 
-            char filenameBuffer[20];
+            enum {
+                k_FILENAME_BUFFER_SIZE = 32
+            };
+
+            char filenameBuffer[k_FILENAME_BUFFER_SIZE];
 
             // TBD: When SetFileInformationByHandle() is available, then
             // we should write a setModificationTime() method and use it

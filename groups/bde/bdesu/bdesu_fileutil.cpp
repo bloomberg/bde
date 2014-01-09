@@ -24,8 +24,6 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <io.h>
 #include <direct.h>
 #undef MIN
-#define getcwd _getcwd
-#define chdir _chdir
 #define snprintf _snprintf
 #else
 
@@ -52,6 +50,10 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bsl_algorithm.h>
+
+namespace BloombergLP {
+
+namespace {
 
 // STATIC HELPER FUNCTIONS
 static
@@ -175,8 +177,12 @@ int makeDirectory(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    // 755 octal = RWX by user, RX by group, RX by all
-    return mkdir(path, 0755);
+    // Permissions of created dir will by 'drwxrwxrwx', anded with '~umask'.
+
+    enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
+                   S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
+                   S_IROTH | S_IWOTH | S_IXOTH };   // others rwx
+    return mkdir(path, PERMS);
 }
 
 static inline
@@ -199,7 +205,7 @@ int removeFile(const char *path)
 
 #endif
 
-namespace BloombergLP {
+}  // close unnamed namespace
 
                               // ---------------------
                               // struct bdesu_FileUtil
@@ -377,7 +383,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
                      bdesu_MemoryUtil::pageSize());
 
 
@@ -421,7 +427,7 @@ int bdesu_FileUtil::move(const char *oldName, const char *newName)
     BSLS_ASSERT(newName);
 
     if (exists(newName)) {
-        DeleteFile(newName);
+        removeFile(newName);
     }
     return MoveFile(oldName, newName) ? 0 : -1;
 }
@@ -493,6 +499,7 @@ void bdesu_FileUtil::visitPaths(
         while (bdesu_PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
             int rc = bdesu_PathUtil::getLeaf(&leaves.back(), pattern);
+            (void) rc;  // Used only in assert.
             BSLS_ASSERT(0 == rc);
             bdesu_PathUtil::popLeaf(&pattern);
         }
@@ -544,8 +551,8 @@ void bdesu_FileUtil::visitPaths(
                 // Do nothing
             }
             else if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath,
-                                                        findData.cFileName)) {
-                //TBD
+                                                         findData.cFileName)) {
+                // skip "can't happen" case
             }
             else {
                 visitor(dirNamePath.c_str());
@@ -577,11 +584,11 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
 
-    __int64 avail;
+    ULARGE_INTEGER avail;
     if (!GetDiskFreeSpaceEx(path, (PULARGE_INTEGER)&avail, NULL, NULL)) {
         return -1;                                                    // RETURN
     }
-    return avail;
+    return static_cast<bdesu_FileUtil::Offset>(avail.QuadPart);
 }
 
 bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
@@ -834,7 +841,8 @@ int bdesu_FileUtil::map(FileDescriptor   fd,
     if (*addr == MAP_FAILED) {
         *addr = NULL;
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         return 0;                                                     // RETURN
     }
 }
@@ -853,7 +861,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr % 
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
                      bdesu_MemoryUtil::pageSize());
 
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
@@ -987,7 +995,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 #endif
     if (rc) {
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields
         // can be 32-bits, leading to overflow on even small disks.
         return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
@@ -1006,7 +1015,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
 #endif
     if (rc) {
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields
         // can be 32-bits, leading to overflow on even small disks.
         return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
@@ -1050,9 +1060,11 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 
     if (rc) {
         return -1;                                                    // RETURN
-    } else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
+    }
+    else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
         return OFFSET_MAX;                                            // RETURN
-    } else {
+    }
+    else {
         return rl.rlim_cur;                                           // RETURN
     }
 }

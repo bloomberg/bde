@@ -81,7 +81,6 @@ bool WidePath(bsl::wstring* wide, const bsl::string& path)
     // 'wide' string and return true if successful, or false otherwise.
 {
     BSLS_ASSERT_SAFE(wide);
-    BSLS_ASSERT_SAFE(path.isBound());
 
     return bdede_CharConvertUtf16::utf8ToUtf16(wide, path.data()) == 0;
 }
@@ -103,13 +102,13 @@ int makeDirectory(const char *path)
     BSLS_ASSERT_SAFE(path);
 
     bsl::wstring wide;
-    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
+    BOOL         succeeded = 0;
 
     if (WidePath(&wide, path)) {
-        winStatus = CreateDirectoryW(wide.c_str(), 0);
+        succeeded = CreateDirectoryW(wide.c_str(), 0);
     }
 
-    return winStatus ? 0 : -1;
+    return succeeded ? 0 : -1;
 }
 
 static inline
@@ -120,10 +119,11 @@ int removeDirectory(const char *path)
     BSLS_ASSERT_SAFE(path);
 
     bsl::wstring wide;
-    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
-    bool         isWide;
+    BOOL         succeeded = 0;
 
-    isWide = WidePath(&wide, path);
+    if (!WidePath(&wide, path)) {
+        return -1;                                                    // RETURN
+    }
 
     // Occasionally, recursive directory deletes fail with a "not empty" error
     // code, only to succeed a bit later.  Retry on such failures a few times.
@@ -132,19 +132,17 @@ int removeDirectory(const char *path)
     const int RMDIR_NOT_EMPTY_RETRIES = 5;
     const int RMDIR_RETRY_SLEEP_MS    = 500;
 
-    if (isWide) {
-        for (int i = 0; i < RMDIR_NOT_EMPTY_RETRIES; ++i) {
-            winStatus = RemoveDirectoryW(wide.c_str());
+    for (int i = 0; i < RMDIR_NOT_EMPTY_RETRIES; ++i) {
+        succeeded = RemoveDirectoryW(wide.c_str());
 
-            if (winStatus || GetLastError() != ERROR_DIR_NOT_EMPTY) {
-                break;
-            }
-
-            Sleep(RMDIR_RETRY_SLEEP_MS);
+        if (succeeded || GetLastError() != ERROR_DIR_NOT_EMPTY) {
+            break;
         }
+
+        Sleep(RMDIR_RETRY_SLEEP_MS);
     }
 
-    return winStatus ? 0 : -1;
+    return succeeded ? 0 : -1;
 }
 
 static inline
@@ -155,13 +153,13 @@ int removeFile(const char *path)
     BSLS_ASSERT_SAFE(path);
 
     bsl::wstring wide;
-    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
+    BOOL         succeeded = 0;
 
     if (WidePath(&wide, path)) {
-        winStatus = DeleteFileW(wide.c_str());
+        succeeded = DeleteFileW(wide.c_str());
     }
 
-    return winStatus ? 0 : -1;
+    return succeeded ? 0 : -1;
 }
 
 #else
@@ -556,13 +554,13 @@ int bdesu::FileUtilUtf8::move(const char *oldName, const char *newName)
 
     bsl::wstring oldWide;
     bsl::wstring newWide;
-    BOOL         winStatus = 0;  // 0 indicates failure of Windows API call.
+    BOOL         succeeded = 0;
 
     if (WidePath(&oldWide, oldName) && WidePath(&newWide, newName)) {
-        winStatus = MoveFileW(oldWide.c_str(), newWide.c_str());
+        succeeded = MoveFileW(oldWide.c_str(), newWide.c_str());
     }
 
-    return winStatus ? 0 : -1;
+    return succeeded ? 0 : -1;
 }
 
 bool bdesu::FileUtilUtf8::exists(const char *pathName)
@@ -668,7 +666,7 @@ void bdesu::FileUtilUtf8::visitPaths(
             for (bsl::vector<bsl::string>::iterator it = paths.begin();
                                                      it != paths.end(); ++it) {
                 bdesu_PathUtil::appendRaw(&(*it), leaves.back().c_str(),
-                                          leaves.back().length(), -1);
+                                                   leaves.back().length(), -1);
             }
             if (bsl::string::npos != leaves.back().find_first_of("*?")) {
                 // We just put a leaf pattern onto each path.  Need to expand
@@ -680,8 +678,8 @@ void bdesu::FileUtilUtf8::visitPaths(
                 for (it = workingPaths.begin(); it != workingPaths.end();
                                                                         ++it) {
                     visitPaths(it->c_str(), bdef_BindUtil::bind(
-                                          &pushBackWrapper,
-                                          &paths, bdef_PlaceHolders::_1));
+                                               &pushBackWrapper,
+                                               &paths, bdef_PlaceHolders::_1));
                 }
             }
             leaves.pop_back();
@@ -697,7 +695,6 @@ void bdesu::FileUtilUtf8::visitPaths(
 
         bsl::string      dirNamePath = dirName;
         WIN32_FIND_DATAW findDataW;
-        WIN32_FIND_DATAA findDataA;
         HANDLE           handle;
         bsl::wstring     widePattern;
         bsl::string      narrowName;
@@ -822,7 +819,7 @@ bdesu::FileUtilUtf8::getAvailableSpace(FileDescriptor fd)
     static HMODULE hNtDll = LoadLibrary("ntdll.dll");
     static NTQUERYVOLUMEINFORMATIONFILE *pNQVIF =
         hNtDll ? (NTQUERYVOLUMEINFORMATIONFILE*)
-                        GetProcAddress(hNtDll, "NtQueryVolumeInformationFile")
+                         GetProcAddress(hNtDll, "NtQueryVolumeInformationFile")
                : 0;
     if (!pNQVIF) {
         return -1;                                                    // RETURN
