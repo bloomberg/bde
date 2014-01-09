@@ -712,6 +712,17 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
                         == (signed long long) HASHCODE);
             }
+            else
+            {
+                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
+                        == ((std::size_t)
+                                    ((unsigned long long) HASHCODE) ^
+                                   (((unsigned long long) HASHCODE) >> 32)));
+                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
+                        == ((std::size_t)
+                                    ((signed long long) HASHCODE) ^
+                                   (((signed long long) HASHCODE) >> 32)));
+            }
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
