@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//  bdesu::FileUtilUtf8: struct which scopes file system utilities
+//  bdesu_FileUtilUtf8: struct which scopes file system utilities
 //
 //@SEE_ALSO: bdesu_fileutil, bdesu_pathutil
 //
@@ -34,7 +34,7 @@ BDES_IDENT("$Id: $")
 //
 ///Platform-Specific Atomicity Caveats
 ///-----------------------------------
-// The 'bdesu::FileUtilUtf8::read' and 'bdesu::FileUtilUtf8::write' methods add
+// The 'bdesu_FileUtilUtf8::read' and 'bdesu_FileUtilUtf8::write' methods add
 // no atomicity guarantees for reading and writing to those provided (if any)
 // by the underlying platform's methods for reading and writing (see
 // 'http://lwn.net/Articles/180387/').
@@ -44,7 +44,7 @@ BDES_IDENT("$Id: $")
 // File-name encodings have the following caveats for the following operating
 // systems:
 //
-//: o On Windows, methods of 'bdesu::FileUtilUtf8' that take a file or
+//: o On Windows, methods of 'bdesu_FileUtilUtf8' that take a file or
 //:   directory name or pattern as a 'char*' or 'bsl::string' type assume that
 //:   the name is encoded in UTF-8.  The routines attempt to convert the name
 //:   to a UTF-16 'wchar_t' string via 'bdede_CharConvertUtf16::utf8ToUtf16',
@@ -64,7 +64,7 @@ BDES_IDENT("$Id: $")
 //:   but are treated as different names by the file system.
 //:
 //: o On Posix, a file name or pattern supplied to methods of
-//:   'bdesu::FileUtilUtf8' as a 'char*' or 'bsl::string' type is passed
+//:   'bdesu_FileUtilUtf8' as a 'char*' or 'bsl::string' type is passed
 //:   unchanged to the underlying system file APIs.
 ///Usage
 ///-----
@@ -86,9 +86,9 @@ BDES_IDENT("$Id: $")
 //  bsl::string oldPath(logPath), newPath(logPath);
 //  bdesu_PathUtil::appendRaw(&oldPath, "old");
 //  bdesu_PathUtil::appendRaw(&newPath, "new");
-//  int rc = bdesu::FileUtilUtf8::createDirectories(oldPath.c_str(), true);
+//  int rc = bdesu_FileUtilUtf8::createDirectories(oldPath.c_str(), true);
 //  assert(0 == rc);
-//  rc = bdesu::FileUtilUtf8::createDirectories(newPath.c_str(), true);
+//  rc = bdesu_FileUtilUtf8::createDirectories(newPath.c_str(), true);
 //  assert(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
@@ -96,7 +96,7 @@ BDES_IDENT("$Id: $")
 //..
 //  bdesu_PathUtil::appendRaw(&logPath, "*.log");
 //  bsl::vector<bsl::string> logFiles;
-//  bdesu::FileUtilUtf8::findMatchingPaths(&logFiles, logPath.c_str());
+//  bdesu_FileUtilUtf8::findMatchingPaths(&logFiles, logPath.c_str());
 //..
 // Now for each of these files, we will get the modification time.  Files that
 // are older than 2 days will be moved to "old", and the rest will be moved to
@@ -106,21 +106,21 @@ BDES_IDENT("$Id: $")
 //  bsl::string   fileName;
 //  for (bsl::vector<bdesu_Path>::iterator it = logFiles.begin();
 //                                               it != logFiles.end(); ++it) {
-//    assert(0 == bdesu::FileUtilUtf8::getLastModificationTime(&modTime, *it));
+//    assert(0 == bdesu_FileUtilUtf8::getLastModificationTime(&modTime, *it));
 //    assert(0 == bdesu_PathUtil::getLeaf(&fileName, *it));
 //    bsl::string *whichDirectory =
 //               2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
 //                ? &oldPath
 //                : &newPath;
 //    bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
-//    assert(0 == bdesu::FileUtilUtf8::move(it->c_str(),
+//    assert(0 == bdesu_FileUtilUtf8::move(it->c_str(),
 //                                          whichDirectory->c_str()));
 //    bdesu_PathUtil::popLeaf(whichDirectory);
 //  }
 //..
-///Example 2: Using 'bdesu::FileUtilUtf8::visitPaths'
+///Example 2: Using 'bdesu_FileUtilUtf8::visitPaths'
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu::FileUtilUtf8::visitPaths' enables clients to define a functor to
+// 'bdesu_FileUtilUtf8::visitPaths' enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last
 // modified time within a particular time frame.
@@ -133,7 +133,7 @@ BDES_IDENT("$Id: $")
 //                               const bdet_Datetime&      end)
 //  {
 //      bdet_Datetime datetime;
-//      int ret = bdesu::FileUtilUtf8::getLastModificationTime(&datetime,
+//      int ret = bdesu_FileUtilUtf8::getLastModificationTime(&datetime,
 //                                                             item);
 //
 //      if (ret) {
@@ -147,7 +147,7 @@ BDES_IDENT("$Id: $")
 //      vector->push_back(item);
 //  }
 //..
-// Then, with the help of 'bdesu::FileUtilUtf8::visitPaths' and
+// Then, with the help of 'bdesu_FileUtilUtf8::visitPaths' and
 // 'bdef_BindUtil::bind', we create a function for finding all file paths that
 // match a specified pattern and have a last modified time within a specified
 // start and end time (both specified as a 'bdet_Datetime'):
@@ -158,7 +158,7 @@ BDES_IDENT("$Id: $")
 //                                    const bdet_Datetime&      end)
 //  {
 //      result->clear();
-//      bdesu::FileUtilUtf8::visitPaths(
+//      bdesu_FileUtilUtf8::visitPaths(
 //                                pattern,
 //                                bdef_BindUtil::bind(&getFilesWithinTimeframe,
 //                                                    result,
@@ -211,13 +211,11 @@ namespace BloombergLP {
 
 class bdet_Datetime;
 
-namespace bdesu {
+                         // =========================
+                         // struct bdesu_FileUtilUtf8
+                         // =========================
 
-                            // ===================
-                            // struct FileUtilUtf8
-                            // ===================
-
-struct FileUtilUtf8 {
+struct bdesu_FileUtilUtf8 {
     // The static methods of this structure provide platform-independent
     // mechanisms for file system access.
 
@@ -371,12 +369,10 @@ struct FileUtilUtf8 {
     // TBD: write setModificationTime() when SetFileInformationByHandle()
     // becomes available on our standard Windows platforms.
 
-    static int createDirectories(
-                                  const bsl::string&  path,
-                                  bool                leafIsDirectory = false);
-    static int createDirectories(
-                                  const char         *path,
-                                  bool                leafIsDirectory = false);
+    static int createDirectories(const bsl::string&  path,
+                                 bool                leafIsDirectory = false);
+    static int createDirectories(const char         *path,
+                                 bool                leafIsDirectory = false);
         // Create any directories in 'path' which do not exist.  If the
         // optionally specified 'leafIsDirectory' is 'true', then treat the
         // last filename in the path as a directory and attempt to create it.
@@ -592,20 +588,20 @@ struct FileUtilUtf8 {
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                              // -------------------
-                              // struct FileUtilUtf8
-                              // -------------------
+                         // -------------------------
+                         // struct bdesu_FileUtilUtf8
+                         // -------------------------
 
 // CLASS METHODS
 inline
-int bdesu::FileUtilUtf8::createDirectories(const bsl::string& path,
-                                           bool               isLeafDirectory)
+int bdesu_FileUtilUtf8::createDirectories(const bsl::string& path,
+                                          bool               isLeafDirectory)
 {
     return createDirectories(path.c_str(), isLeafDirectory);
 }
 
 inline
-void bdesu::FileUtilUtf8::visitPaths(
+void bdesu_FileUtilUtf8::visitPaths(
                        const bsl::string&                              pattern,
                        const bdef_Function<void(*)(const char *path)>& visitor)
 {
@@ -613,38 +609,38 @@ void bdesu::FileUtilUtf8::visitPaths(
 }
 
 inline
-bdesu::FileUtilUtf8::FileDescriptor
-bdesu::FileUtilUtf8::open(const bsl::string&        path,
-                          enum FileOpenPolicies     openPolicy,
-                          enum FileIOPolicies       ioPolicy,
-                          enum FileTruncatePolicies truncatePolicy)
+bdesu_FileUtilUtf8::FileDescriptor
+bdesu_FileUtilUtf8::open(const bsl::string&        path,
+                         enum FileOpenPolicies     openPolicy,
+                         enum FileIOPolicies       ioPolicy,
+                         enum FileTruncatePolicies truncatePolicy)
 {
     return open(path.c_str(), openPolicy, ioPolicy, truncatePolicy);
 }
 
 inline
-bool bdesu::FileUtilUtf8::exists(const bsl::string& path)
+bool bdesu_FileUtilUtf8::exists(const bsl::string& path)
 {
     return exists(path.c_str());
 }
 
 inline
-bool bdesu::FileUtilUtf8::isRegularFile(const bsl::string& path,
-                                        bool               followLinks)
+bool bdesu_FileUtilUtf8::isRegularFile(const bsl::string& path,
+                                       bool               followLinks)
 {
     return isRegularFile(path.c_str(), followLinks);
 }
 
 inline
-bool bdesu::FileUtilUtf8::isDirectory(const bsl::string& path,
-                                      bool               followLinks)
+bool bdesu_FileUtilUtf8::isDirectory(const bsl::string& path,
+                                     bool               followLinks)
 {
     return isDirectory(path.c_str(), followLinks);
 }
 
 inline
-int bdesu::FileUtilUtf8::getLastModificationTime(bdet_Datetime      *time,
-                                                 const bsl::string&  path)
+int bdesu_FileUtilUtf8::getLastModificationTime(bdet_Datetime      *time,
+                                                const bsl::string&  path)
 {
     BSLS_ASSERT_SAFE(time);
 
@@ -652,44 +648,43 @@ int bdesu::FileUtilUtf8::getLastModificationTime(bdet_Datetime      *time,
 }
 
 inline
-int bdesu::FileUtilUtf8::remove(const bsl::string& path, bool recursive)
+int bdesu_FileUtilUtf8::remove(const bsl::string& path, bool recursive)
 {
     return remove(path.c_str(), recursive);
 }
 
 inline
-int bdesu::FileUtilUtf8::rollFileChain(const bsl::string& path, int maxSuffix)
+int bdesu_FileUtilUtf8::rollFileChain(const bsl::string& path, int maxSuffix)
 {
     return rollFileChain(path.c_str(), maxSuffix);
 }
 
 inline
-int bdesu::FileUtilUtf8::move(const bsl::string& oldPath,
-                              const bsl::string& newPath)
+int bdesu_FileUtilUtf8::move(const bsl::string& oldPath,
+                             const bsl::string& newPath)
 {
     return move(oldPath.c_str(), newPath.c_str());
 }
 
 inline
-int bdesu::FileUtilUtf8::setWorkingDirectory(const bsl::string& path)
+int bdesu_FileUtilUtf8::setWorkingDirectory(const bsl::string& path)
 {
     return setWorkingDirectory(path.c_str());
 }
 
 inline
-bdesu::FileUtilUtf8::Offset bdesu::FileUtilUtf8::getFileSize(
+bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getFileSize(
                                                        const bsl::string& path)
 {
     return getFileSize(path.c_str());
 }
 
 inline
-bdesu::FileUtilUtf8::Offset getAvailableSpace(const bsl::string& path)
+bdesu_FileUtilUtf8::Offset getAvailableSpace(const bsl::string& path)
 {
     return getAvailableSpace(path.c_str());
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 #endif
