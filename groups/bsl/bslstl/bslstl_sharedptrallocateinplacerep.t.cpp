@@ -1,12 +1,18 @@
 // bslstl_sharedptrallocateinplacerep.t.cpp                           -*-C++-*-
 #include <bslstl_sharedptrallocateinplacerep.h>
 
+#include <bslstl_allocator.h>
+#include <bslstl_allocatortraits.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_types.h>
+
+#include <bsltf_stdstatefulallocator.h>
 
 #include <stdio.h>
 #include <stdlib.h>             // 'atoi'
@@ -31,24 +37,11 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // bslstl::SharedPtrAllocateInplaceRep
 //------------------------
-// [ 2] SharedPtrAllocateInplaceRep(Allocator basicAllocator);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1& a1);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a2);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a3);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a4);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a5);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a6);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a7);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a8);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a9);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a10);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a11);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a12);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a13);
-// [ 3] SharedPtrAllocateInplaceRep(Allocator allocator, const A1&...a14);
+// [ 2] SharedPtrAllocateInplaceRep<T> makeRep(Allocator basicAllocator);
 // [ 2] TYPE *ptr();
 // [ 2] void disposeRep();
 // [ 4] void disposeObject();
+// [  ] void *getDeleter(const std::type_info& type);
 // [ 2] void *originalPtr() const;
 // [ 5] void releaseRef();
 // [ 5] void releaseWeakRef();
@@ -124,10 +117,13 @@ class MyTestObject;
 class MyInplaceTestObject;
 
 // TYPEDEFS
-typedef bslstl::SharedPtrAllocateInplaceRep<MyTestObject> Obj;
+typedef bslstl::SharedPtrAllocateInplaceRep<MyTestObject,
+                                            bsl::allocator<MyTestObject> > Obj;
 
-typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject> TCObj;
-                                                    // For testing constructors
+typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject,
+                                            bsl::allocator<MyInplaceTestObject>
+                                           > TCObj; // For testing constructors
+
 typedef MyTestObject TObj;
 
 //=============================================================================
@@ -505,7 +501,403 @@ bdet_Datetime *MySharedDatetime::ptr() const {
     return d_ptr_p;
 }
 #endif
+template <class ALLOCATOR>
+struct TestHarness {
+    static void testCase2(bool verbose,
+                          bool veryVerbose,
+                          bool veryVeryVerbose,
+                          bool veryVeryVeryVerbose);
 
+    static void testCase3(bool verbose,
+                          bool veryVerbose,
+                          bool veryVeryVerbose,
+                          bool veryVeryVeryVerbose);
+
+    static void testCase4(bool verbose,
+                          bool veryVerbose,
+                          bool veryVeryVerbose,
+                          bool veryVeryVeryVerbose);
+
+    static void testCase5(bool verbose,
+                          bool veryVerbose,
+                          bool veryVeryVerbose,
+                          bool veryVeryVeryVerbose);
+};
+
+template <class ALLOCATOR>
+void TestHarness<ALLOCATOR>::testCase2(bool verbose,
+                                       bool veryVerbose,
+                                       bool veryVeryVerbose,
+                                       bool veryVeryVeryVerbose)
+{
+    // --------------------------------------------------------------------
+    // TESTING BASIC CONSTRUCTOR
+    //
+    // Concerns:
+    //   Verify that upon construction the object is properly initialized,
+    //
+    // Plan:
+    //   Construct object using basic constructor and verify that that
+    //   accessors return the expected values.
+    //
+    // Testing:
+    //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *basicAllocator);
+    //   TYPE *ptr();
+    //   void disposeRep();
+    //   void *originalPtr() const;
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting Constructor"
+                        "\n-------------------\n");
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                          template rebind_traits<MyTestObject> Obj_AllocTraits;
+    typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyTestObject, Obj_Alloc> Obj;
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                 template rebind_traits<MyInplaceTestObject> TCObj_AllocTraits;
+    typedef typename TCObj_AllocTraits::allocator_type TCObj_ElementAlloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject,
+                                                    TCObj_ElementAlloc> TCObj;
+
+    typedef typename TCObj::ReboundAllocator TCObj_Alloc;
+
+    bslma::TestAllocator ta("Tese case 2", veryVeryVeryVerbose);
+    ALLOCATOR alloc_base(&ta);
+
+    Obj_Alloc alloc1(alloc_base);
+    TCObj_Alloc alloc2(&ta);
+
+    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP;
+
+        // Dynamically allocate object as the destructor is declared as
+        // private.
+        
+        TCObj *xPtr = TCObj::makeRep(alloc_base);
+
+//        TCObj* xPtr = new(ta) TCObj(&ta);
+        TCObj& x = *xPtr;
+        const TCObj& X = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+//        ASSERT(EXP == *(x.ptr()));
+        ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
+
+        // Manually deallocate the representation using 'disposeRep'.
+
+        x.disposeRep();
+
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+}
+
+template <class ALLOCATOR>
+void TestHarness<ALLOCATOR>::testCase3(bool verbose,
+                                       bool veryVerbose,
+                                       bool veryVeryVerbose,
+                                       bool veryVeryVeryVerbose)
+{
+    // --------------------------------------------------------------------
+    // TESTING CONSTRUCTOR
+    //
+    // Concerns:
+    //   All constructor is able to initialize the object correctly.
+    //
+    // Plan:
+    //   Call all 14 different constructors and supply it with the
+    //   appropriate arguments.  Then verify that the object created inside
+    //   the representation is initialized using the arguments supplied.
+    //
+    // Testing:
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a2);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a3);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a4);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a5);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a6);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a7);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a8);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a9);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a10);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a11);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a12);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a13);
+    //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a14);
+    // --------------------------------------------------------------------
+    if (verbose) printf("\nTesting constructor\n"
+                        "\n===================\n");
+
+    // TBD rewrite this test case
+    if (verbose) printf("\nTBD\n");
+
+#if 0
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                          template rebind_traits<MyTestObject> Obj_AllocTraits;
+    typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyTestObject, Obj_Alloc>
+                                                                           Obj;
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                 template rebind_traits<MyInplaceTestObject> TCObj_AllocTraits;
+    typedef typename TCObj_AllocTraits::allocator_type TCObj_ElementAlloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject,
+                                                    TCObj_ElementAlloc> TCObj;
+
+    typedef typename TCObj::ReboundAllocator TCObj_Alloc;
+
+    static const MyTestArg1 V1(1);
+    static const MyTestArg2 V2(20);
+    static const MyTestArg3 V3(23);
+    static const MyTestArg4 V4(44);
+    static const MyTestArg5 V5(66);
+    static const MyTestArg6 V6(176);
+    static const MyTestArg7 V7(878);
+    static const MyTestArg8 V8(8);
+    static const MyTestArg9 V9(912);
+    static const MyTestArg10 V10(102);
+    static const MyTestArg11 V11(111);
+    static const MyTestArg12 V12(333);
+    static const MyTestArg13 V13(712);
+    static const MyTestArg14 V14(1414);
+
+    bslma::TestAllocator ta("Tese case 3", veryVeryVeryVerbose);
+    ALLOCATOR alloc_base(&ta);
+
+    Obj_Alloc alloc1(alloc_base);
+    TCObj_Alloc alloc2(&ta);
+
+    if (verbose) printf("\nTesting constructor with no arguments"
+                        "\n-------------------------------------\n");
+
+    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP = MyInplaceTestObject();
+        TCObj* xPtr = alloc2.allocate(1);
+        bsl::allocator_traits<TCObj_Alloc>::construct(alloc2, xPtr, alloc2);
+        TCObj& x = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(EXP == *(x.ptr()));
+        x.disposeRep();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+
+    if (verbose) printf("\nTesting constructor with 14 arguments"
+                        "\n-------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10);
+        TCObj* xPtr = new(ta) TCObj(alloc2, V1, V2, V3, V4, V5, V6, V7, V8,
+                                                  V9, V104);
+        TCObj& x = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(EXP == *(x.ptr()));
+        x.disposeRep();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+#endif
+}
+
+template <class ALLOCATOR>
+void TestHarness<ALLOCATOR>::testCase4(bool verbose,
+                                       bool veryVerbose,
+                                       bool veryVeryVerbose,
+                                       bool veryVeryVeryVerbose)
+{
+    // --------------------------------------------------------------------
+    // TESTING 'disposeObject'
+    //
+    // Concerns:
+    //   The destructor of the object is called when 'disposeObject' is
+    //   called.
+    //
+    // Plan:
+    //   Call 'disposeObject' and verify that the destructor is called.
+    //
+    // Testing:
+    //   void disposeObject();
+    //
+    // --------------------------------------------------------------------
+    if (verbose) printf("\nTesting disposeObject"
+                        "\n---------------------\n");
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                          template rebind_traits<MyTestObject> Obj_AllocTraits;
+    typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyTestObject, Obj_Alloc> Obj;
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                 template rebind_traits<MyInplaceTestObject> TCObj_AllocTraits;
+    typedef typename TCObj_AllocTraits::allocator_type TCObj_ElementAlloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject,
+                                                    TCObj_ElementAlloc> TCObj;
+
+    typedef typename TCObj::ReboundAllocator TCObj_Alloc;
+
+    bslma::TestAllocator ta("Tese case 4", veryVeryVeryVerbose);
+    ALLOCATOR alloc_base(&ta);
+
+    Obj_Alloc alloc1(alloc_base);
+    TCObj_Alloc alloc2(&ta);
+
+    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+    {
+        int numDeletes = 0;
+        Obj *xPtr = Obj::makeRep(alloc_base);
+//        Obj* xPtr = new(ta) Obj(&ta, &numDeletes);
+        Obj& x = *xPtr;
+        const Obj& X = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(0 == numDeletes);
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.disposeObject();
+        ASSERT(1 == numDeletes);
+
+        x.disposeRep();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+}
+
+template <class ALLOCATOR>
+void TestHarness<ALLOCATOR>::testCase5(bool verbose,
+                                       bool veryVerbose,
+                                       bool veryVeryVerbose,
+                                       bool veryVeryVeryVerbose)
+{
+    // --------------------------------------------------------------------
+    // TESTING 'releaseRef' and 'releaseWeakRef'
+    //
+    // Concerns:
+    //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
+    //      count correctly.
+    //   2) disposeObject() is called when there is no shared reference.
+    //   3) disposeRep() is called only when there is no shared reference
+    //      and no weak reference.
+    //
+    // Plan:
+    //   1) Call 'acquireRef' then 'releaseRef' and verify 'numReference'
+    //      did not change.  Call 'acquireWeakRef' then 'releaseWeakRef'
+    //      and verify 'numWeakReference' did not change.
+    //   2) Call 'releaseRef' when there is only one reference remaining.
+    //      Then verify that both 'disposeObject' and 'disposeRep' is
+    //      called.
+    //   3) Create another object and call 'acquireWeakRef' before calling
+    //      'releaseRef'.  Verify that only 'disposeObject' is called.
+    //      Then call 'releaseWeakRef' and verify that 'disposeRep' is
+    //      called.
+    //
+    // Testing:
+    //   void releaseRef();
+    //   void releaseWeakRef();
+    // --------------------------------------------------------------------
+    if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+                        "\n=========================================\n");
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                          template rebind_traits<MyTestObject> Obj_AllocTraits;
+    typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyTestObject, Obj_Alloc> Obj;
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                 template rebind_traits<MyInplaceTestObject> TCObj_AllocTraits;
+    typedef typename TCObj_AllocTraits::allocator_type TCObj_ElementAlloc;
+
+    typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject,
+                                                    TCObj_ElementAlloc> TCObj;
+
+    typedef typename TCObj::ReboundAllocator TCObj_Alloc;
+
+    bslma::TestAllocator ta("Tese case 5", veryVeryVeryVerbose);
+    ALLOCATOR alloc_base(&ta);
+
+    Obj_Alloc alloc1(alloc_base);
+    TCObj_Alloc alloc2(&ta);
+
+    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+    {
+        int numDeletes = 0;
+        Obj *xPtr = Obj::makeRep(alloc_base);
+//        Obj* xPtr = new(ta) Obj(&ta, &numDeletes);
+        Obj& x = *xPtr;
+        const Obj& X = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.acquireRef();
+        x.releaseRef();
+
+        ASSERT(1 == X.numReferences());
+        ASSERT(0 == X.numWeakReferences());
+        ASSERT(true == X.hasUniqueOwner());
+
+        x.acquireWeakRef();
+        x.releaseWeakRef();
+
+        ASSERT(1 == X.numReferences());
+        ASSERT(0 == X.numWeakReferences());
+        ASSERT(true == X.hasUniqueOwner());
+
+        if (verbose) printf(
+                           "\nTesting 'releaseRef' with no weak reference'"
+                           "\n--------------------------------------------\n");
+
+        x.releaseRef();
+
+        ASSERT(1 == numDeletes);
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+                        "\n-----------------------------------------\n");
+    {
+        int numDeletes = 0;
+        Obj *xPtr = Obj::makeRep(alloc_base);
+//        Obj* xPtr = new(ta) Obj(&ta, &numDeletes);
+        Obj& x = *xPtr;
+        const Obj& X = *xPtr;
+
+        ASSERT(++numAllocations == ta.numAllocations());
+
+        new(x.ptr()) MyTestObject(&numDeletes);
+
+        x.acquireWeakRef();
+        x.releaseRef();
+
+        ASSERT(0 == X.numReferences());
+        ASSERT(1 == X.numWeakReferences());
+        ASSERT(false == X.hasUniqueOwner());
+        ASSERT(1 == numDeletes);
+        ASSERT(numDeallocations == ta.numDeallocations());
+
+        x.releaseWeakRef();
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+}
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -606,6 +998,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
                             "\n=========================================\n");
 
+#if 0
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
@@ -662,6 +1055,30 @@ int main(int argc, char *argv[])
             x.releaseWeakRef();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
+#else
+        using BloombergLP::bsltf::StdStatefulAllocator;
+
+        typedef bsl::allocator<int> ALLOC_1;
+        typedef StdStatefulAllocator<int, true, true, true, true> ALLOC_2;
+        typedef StdStatefulAllocator<int, false, false, false, false> ALLOC_3;
+
+        typedef TestHarness<ALLOC_1> T1;
+        typedef TestHarness<ALLOC_2> T2;
+        typedef TestHarness<ALLOC_3> T3;
+            
+        T1::testCase5(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T2::testCase5(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T3::testCase5(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -681,6 +1098,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting disposeObject"
                             "\n---------------------\n");
 
+#if 0
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
@@ -698,6 +1116,30 @@ int main(int argc, char *argv[])
             x.disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
+#else
+        using BloombergLP::bsltf::StdStatefulAllocator;
+
+        typedef bsl::allocator<int> ALLOC_1;
+        typedef StdStatefulAllocator<int, true, true, true, true> ALLOC_2;
+        typedef StdStatefulAllocator<int, false, false, false, false> ALLOC_3;
+
+        typedef TestHarness<ALLOC_1> T1;
+        typedef TestHarness<ALLOC_2> T2;
+        typedef TestHarness<ALLOC_3> T3;
+            
+        T1::testCase4(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T2::testCase4(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T3::testCase4(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -712,291 +1154,44 @@ int main(int argc, char *argv[])
         //   the representation is initialized using the arguments supplied.
         //
         // Testing:
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a1);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a2);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a3);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a4);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a5);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a6);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a7);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a8);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a9);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a10);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a11);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a12);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a13);
-        //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *allocator, ...a14);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a1);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a2);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a3);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a4);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a5);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a6);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a7);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a8);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a9);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a10);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a11);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a12);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a13);
+        //   bslstl::SharedPtrAllocateInplaceRep(const ALLOCATOR& a, ...a14);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting constructor\n"
-                            "\n===================\n");
 
-        static const MyTestArg1 V1(1);
-        static const MyTestArg2 V2(20);
-        static const MyTestArg3 V3(23);
-        static const MyTestArg4 V4(44);
-        static const MyTestArg5 V5(66);
-        static const MyTestArg6 V6(176);
-        static const MyTestArg7 V7(878);
-        static const MyTestArg8 V8(8);
-        static const MyTestArg9 V9(912);
-        static const MyTestArg10 V10(102);
-        static const MyTestArg11 V11(111);
-        static const MyTestArg12 V12(333);
-        static const MyTestArg13 V13(712);
-        static const MyTestArg14 V14(1414);
+        using BloombergLP::bsltf::StdStatefulAllocator;
 
-        if (verbose) printf("\nTesting constructor with 1 argument"
-                            "\n-----------------------------------\n");
+        typedef bsl::allocator<int> ALLOC_1;
+        typedef StdStatefulAllocator<int, true, true, true, true> ALLOC_2;
+        typedef StdStatefulAllocator<int, false, false, false, false> ALLOC_3;
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting contructor with 2 arguments"
-                            "\n-----------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 3 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 4 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 5 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 6 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 7 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 8 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                           V8);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 9 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                       V8, V9);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
-                                                                           V9);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 10 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                  V8, V9, V10);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
-                                                                      V9, V10);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 11 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                             V8, V9, V10, V11);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
-                                                                 V9, V10, V11);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 12 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                        V8, V9, V10, V11, V12);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
-                                                            V9, V10, V11, V12);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 13 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                   V8, V9, V10, V11, V12, V13);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
-                                                       V9, V10, V11, V12, V13);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 14 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                              V8, V9, V10, V11, V12, V13, V14);
-            TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
-                                                  V9, V10, V11, V12, V13, V14);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-
+        typedef TestHarness<ALLOC_1> T1;
+        typedef TestHarness<ALLOC_2> T2;
+        typedef TestHarness<ALLOC_3> T3;
+            
+        T1::testCase3(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T2::testCase3(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T3::testCase3(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1019,6 +1214,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Constructor"
                             "\n-------------------\n");
 
+#if 0
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
@@ -1041,7 +1237,30 @@ int main(int argc, char *argv[])
 
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
+#else
+        using BloombergLP::bsltf::StdStatefulAllocator;
 
+        typedef bsl::allocator<int> ALLOC_1;
+        typedef StdStatefulAllocator<int, true, true, true, true> ALLOC_2;
+        typedef StdStatefulAllocator<int, false, false, false, false> ALLOC_3;
+
+        typedef TestHarness<ALLOC_1> T1;
+        typedef TestHarness<ALLOC_2> T2;
+        typedef TestHarness<ALLOC_3> T3;
+            
+        T1::testCase2(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T2::testCase2(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T3::testCase2(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

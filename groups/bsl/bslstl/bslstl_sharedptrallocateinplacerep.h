@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslstl::SharedPtrAllocateInplaceRep: in-place shared ptr implementation
 //
-//@AUTHOR: Alisdair Meredith (ameredit) 
+//@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO: bslma_sharedptr, bslma_sharedptrrep, bslma_SharedPtrAllocateInplaceRep
 //
@@ -34,12 +34,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
 #endif
 
 #ifndef INCLUDED_TYPEINFO
@@ -55,9 +51,9 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslstl {
 
-                 // ====================================
+                 // =================================
                  // class SharedPtrAllocateInplaceRep
-                 // ====================================
+                 // =================================
 
 template <class TYPE, class ALLOCATOR>
 class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
@@ -66,14 +62,20 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
     // destruction of this object, the parameterized 'DELETER' type is invoked
     // on the pointer to the shared object.
 
-    typedef typename ALLOCATOR::template
-                                     rebind<SharedPtrAllocateInplaceRep>::other
-                                                              ReboundAllocator;
+    // PRIVATE TYPES
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                            template rebind_traits<SharedPtrAllocateInplaceRep>
+                                                                 ReboundTraits;
 
+  public:
+    typedef typename ReboundTraits::allocator_type ReboundAllocator;
+    
+  private:
     // DATA
     ReboundAllocator d_allocator; // copy of the allocator for this object
 
-    TYPE             d_instance;  // beginning of the in-place buffer
+    bsls::ObjectBuffer<TYPE> d_instance;
+                                  // beginning of the in-place buffer
                                   // Note that this must be last in this layout
                                   // to allow for the possibility of creating
                                   // in-place uninitialized buffer, where it is
@@ -83,13 +85,15 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
                                   // createInplaceUninitializedBuffer' for
                                   // sample usage)
 
-
-  private:
-    // NOT IMPLEMENTED
-    SharedPtrAllocateInplaceRep(const SharedPtrAllocateInplaceRep&);
-    SharedPtrAllocateInplaceRep& operator=(const SharedPtrAllocateInplaceRep&);
-
     // PRIVATE CREATORS
+    explicit SharedPtrAllocateInplaceRep(
+                                       const ReboundAllocator& basicAllocator);
+        // Create a 'SharedPtrAllocateInplaceRep' object having an "in-place"
+        // default-constructed instance of the parameterized 'TYPE'.  Use the
+        // specified 'basicAllocator' to supply memory and, upon a call to
+        // 'disposeRep', to destroy this representation (and the "in-place"
+        // shared object) .
+
     ~SharedPtrAllocateInplaceRep();
         // Destroy this representation object and if the shared object has not
         // been deleted, delete the shared object using the associated deleter.
@@ -97,192 +101,30 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // 'disposeObject' destroys the shared object object and 'disposeRep'
         // deallocates this representation object.
 
+  private:
+    // NOT IMPLEMENTED
+    SharedPtrAllocateInplaceRep(const SharedPtrAllocateInplaceRep&);
+    SharedPtrAllocateInplaceRep& operator=(const SharedPtrAllocateInplaceRep&);
+
   public:
-    // CREATORS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    template <class... ARGS>
-    explicit SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                                 ARGS&&...  args);
-        // Create a 'SharedPtrAllocateInplaceRep' object having an "in-place" instance
-        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
-        // the specified arguments, 'args...'.  Use the specified
-        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
-        // to destroy this representation (and the "in-place" shared object).
-# else
-    template <class... ARGS>
-    explicit SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                                 const ARGS&...          args);
-        // Create a 'SharedPtrAllocateInplaceRep' object having an "in-place" instance
-        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
-        // the specified arguments, 'args...'.  Use the specified
-        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
-        // to destroy this representation (and the "in-place" shared object).
-
-# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#else
-    explicit SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator);
+    static SharedPtrAllocateInplaceRep *makeRep(
+                                              ReboundAllocator basicAllocator);
         // Create a 'SharedPtrAllocateInplaceRep' object having an "in-place"
-        // default-constructed instance of the parameterized 'TYPE'.  Use the
-        // specified 'basicAllocator' to supply memory and, upon a call to
-        // 'disposeRep', to destroy this representation (and the "in-place"
-        // shared object) .
-
-    template <class A1>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator, const A1& a1);
-    template <class A1, class A2>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2);
-    template <class A1, class A2, class A3>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3);
-    template <class A1, class A2, class A3, class A4>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4);
-    template <class A1, class A2, class A3, class A4, class A5>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5);
-    template <class A1, class A2, class A3, class A4, class A5, class A6>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-             class A7>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11, class A12>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11,
-                        const A12&        a12);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11, class A12,
-              class A13>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11,
-                        const A12&        a12,
-                        const A13&        a13);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11, class A12,
-              class A13, class A14>
-    SharedPtrAllocateInplaceRep(const ReboundAllocator& basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11,
-                        const A12&        a12,
-                        const A13&        a13,
-                        const A14&        a14);
-        // Create a 'SharedPtrAllocateInplaceRep' object having an "in-place" instance
-        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
-        // the specified arguments, 'a1' up to 'aN', where 'N' (at most 14) is
-        // the number of arguments passed to this method.  Use the specified
-        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
-        // to destroy this representation (and the "in-place" shared object).
-#endif
-
+        // default-constructed instance of the parameterized 'TYPE', and return
+        // its address.  Use the specified 'basicAllocator' to supply memory
+        // and, upon a call to 'disposeRep', to destroy this representation
+        // (and the "in-place" shared object).  Note that the function members
+        // 'ptr' and 'originalPtr' will return the address of an uninitialized
+        // object.  This object should be explicitly initialized by the caller,
+        // and it is undefined behavior to call 'disposeRep' until this object
+        // has been successfully constructed.
 
     // MANIPULATORS
     TYPE *ptr();
         // Return the address of the modifiable shared object to which this
-        // object refers.
+        // object refers.  Note that in order to return a pointer to a
+        // modifiable object, this function cannot be 'const' qualified as the
+        // referenced object is stored internally as a data member.
 
     virtual void disposeRep();
         // Destroy this representation object and deallocate the associated
@@ -316,283 +158,20 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
 //                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
-                  // ------------------------------------
+                  // ---------------------------------
                   // class SharedPtrAllocateInplaceRep
-                  // ------------------------------------
+                  // ---------------------------------
 
 // CREATORS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class TYPE, class ALLOCATOR>
-template <class... ARGS>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        ARGS&&...               args)
-: d_allocator(basicAllocator)
-, d_instance(::std::forward<ARGS>(args)...)
-{
-}
-# else
-template <class TYPE, class ALLOCATOR>
-template <class... ARGS>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const ARGS&...  args)
-: d_allocator(basicAllocator)
-, d_instance(args...)
-{
-}
-# endif  
-#else
 template <class TYPE, class ALLOCATOR>
 inline
 SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
                                         const ReboundAllocator& basicAllocator)
 : d_allocator(basicAllocator)
+// do NOT waste cycles zero-initializing the object buffer
 {
 }
 
-template <class TYPE, class ALLOCATOR>
-template <class A1>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1)
-: d_allocator(basicAllocator)
-, d_instance(a1)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7,
-                                        const A8&  a8)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7,
-                                        const A8&  a8,
-                                        const A9&  a9)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7,
-                                        const A8&  a8,
-                                        const A9&  a9,
-                                        const A10& a10)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7,
-                                        const A8&  a8,
-                                        const A9&  a9,
-                                        const A10& a10,
-                                        const A11& a11)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7,
-                                        const A8&  a8,
-                                        const A9&  a9,
-                                        const A10& a10,
-                                        const A11& a11,
-                                        const A12& a12)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7,
-                                        const A8&  a8,
-                                        const A9&  a9,
-                                        const A10& a10,
-                                        const A11& a11,
-                                        const A12& a12,
-                                        const A13& a13)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
-{
-}
-
-template <class TYPE, class ALLOCATOR>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::SharedPtrAllocateInplaceRep(
-                                        const ReboundAllocator& basicAllocator,
-                                        const A1&  a1,
-                                        const A2&  a2,
-                                        const A3&  a3,
-                                        const A4&  a4,
-                                        const A5&  a5,
-                                        const A6&  a6,
-                                        const A7&  a7,
-                                        const A8&  a8,
-                                        const A9&  a9,
-                                        const A10& a10,
-                                        const A11& a11,
-                                        const A12& a12,
-                                        const A13& a13,
-                                        const A14& a14)
-: d_allocator(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
-{
-}
-#endif
 
 template <class TYPE, class ALLOCATOR>
 SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::
@@ -615,7 +194,7 @@ void SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::disposeRep()
 template <class TYPE, class ALLOCATOR>
 void SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::disposeObject()
 {
-    d_instance.~TYPE();
+    ReboundTraits::destroy(d_allocator, ptr());
 }
 
 template <class TYPE, class ALLOCATOR>
@@ -630,7 +209,7 @@ template <class TYPE, class ALLOCATOR>
 inline
 TYPE *SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::ptr()
 {
-    return &d_instance;
+    return reinterpret_cast<TYPE *>(d_instance.buffer());
 }
 
 // ACCESSORS
@@ -639,7 +218,19 @@ inline
 void *
 SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::originalPtr() const
 {
-    return const_cast<void *>(static_cast<const void *>(&d_instance));
+    return const_cast<void *>(static_cast<const void *>(
+                         reinterpret_cast<const TYPE *>(d_instance.buffer())));
+}
+
+template <class TYPE, class ALLOCATOR>
+SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR> *
+SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::makeRep(
+                                               ReboundAllocator basicAllocator)
+{
+    SharedPtrAllocateInplaceRep *rep_p =
+                                    ReboundTraits::allocate(basicAllocator, 1);
+    new(rep_p) SharedPtrAllocateInplaceRep(basicAllocator);
+    return rep_p;
 }
 
 }  // close namespace bslstl

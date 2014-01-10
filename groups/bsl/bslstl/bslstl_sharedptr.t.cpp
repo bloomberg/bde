@@ -153,6 +153,9 @@ using namespace BloombergLP;
 // [ 9] shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>&);
 // [ 9] shared_ptr<TO_TYPE> dynamic_pointer_cast(const shared_ptr<FROM_TYPE>&);
 // [ 9] shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>&);
+//*[32] shared_ptr<T> make_shared<T>(args...);
+//*[33] shared_ptr<T> allocate_shared<T, ALLOCATOR>(ALLOCATOR, ARGS...);
+//*[34] shared_ptr<T> allocate_shared<T, ALLOCATOR>(ALLOCATOR *, ARGS...);
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -207,9 +210,9 @@ using namespace BloombergLP;
 // [29] bool owner_before(const weak_ptr<OTHER_TYPE>& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [33] USAGE TEST
-// [34] USAGE TEST
 // [35] USAGE TEST
+// [36] USAGE TEST
+// [37] USAGE TEST
 //
 // ============================================================================
 //                                   TEST PLAN (Utility struct SharedPtrUtil)
@@ -1256,6 +1259,7 @@ struct PerformanceTester;
 // TYPEDEFS
 typedef bsl::shared_ptr<MyTestObject> Obj;
 typedef bsl::shared_ptr<const MyTestObject> ConstObj;
+typedef bsl::shared_ptr<MyInplaceTestObject> TCObj;
 typedef MyTestObject TObj;
 
 //=============================================================================
@@ -1309,6 +1313,7 @@ class MyTestBaseObject {
     MyTestBaseObject() {}
     virtual ~MyTestBaseObject() {}
 };
+
 
                              // ==================
                              // class MyTestObject
@@ -1373,9 +1378,9 @@ class MyPDTestObject {
     ~MyPDTestObject() {}
 };
 
-                         // =========================
-                         // class MyInplaceTestObject
-                         // =========================
+                         // ====================
+                         // class MyTestArg<int>
+                         // ====================
 
 template <int N>
 class MyTestArg {
@@ -1426,6 +1431,10 @@ class MyInplaceTestObject {
     // passed for creating a shared pointer with an in-place representation are
     // of the correct types and values.
 
+    // This class provides a test object used to check that the arguments
+    // passed for creating a shared pointer with an in-place representation are
+    // of the correct types and values.
+
     // DATA
     MyTestArg1  d_a1;
     MyTestArg2  d_a2;
@@ -1441,6 +1450,7 @@ class MyInplaceTestObject {
     MyTestArg12 d_a12;
     MyTestArg13 d_a13;
     MyTestArg14 d_a14;
+    static int  s_numDeletes;
 
   public:
     // CREATORS
@@ -1542,6 +1552,8 @@ class MyInplaceTestObject {
         , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
         , d_a11(a11), d_a12(a12), d_a13(a13), d_a14(a14) {}
 
+    ~MyInplaceTestObject() { ++s_numDeletes; };
+
     // ACCESSORS
     bool operator == (const MyInplaceTestObject& rhs) const
     {
@@ -1561,7 +1573,11 @@ class MyInplaceTestObject {
                d_a13 == rhs.d_a13 &&
                d_a14 == rhs.d_a14;
     }
+
+    int getNumDeletes() { return s_numDeletes; }
 };
+
+int MyInplaceTestObject::s_numDeletes = 0;
 
                        // *** TEST DELETERS SECTION ***
 
@@ -2468,10 +2484,342 @@ std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
     return std::auto_ptr<TObj>(new TObj(counter));
 }
 
+//=============================================================================
+//                           TEST CASE TEMPLATES
+//-----------------------------------------------------------------------------
+
 namespace TestDriver {
 template <class TYPE>
 void doNotDelete(TYPE *) {} // Do nothing
 }  // close namespace TestDriver
+
+
+template <class ALLOCATOR>
+struct TestHarness {
+    static void testCase3(bool verbose,
+                          bool veryVerbose,
+                          bool veryVeryVerbose,
+                          bool veryVeryVeryVerbose);
+};
+
+template <class ALLOCATOR>
+void TestHarness<ALLOCATOR>::testCase3(bool verbose,
+                                       bool veryVerbose,
+                                       bool veryVeryVerbose,
+                                       bool veryVeryVeryVerbose)
+{
+    // --------------------------------------------------------------------
+    // TESTING 'allocate_shared<T>(A, ...)'
+    //
+    // Concerns:
+    //   All constructor is able to initialize the object correctly.
+    //
+    // Plan:
+    //   Call all 14 different constructors and supply it with the
+    //   appropriate arguments.  Then verify that the object created inside
+    //   the representation is initialized using the arguments supplied.
+    //
+    // Testing:
+    //   shared_ptr<T> allocate_shared<T, A>(A);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1)
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a2);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a3);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a4);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a5);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a6);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a7);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a8);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a9);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a10);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a11);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a12);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a13);
+    //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a14);
+    // --------------------------------------------------------------------
+    if (verbose) printf("\nTesting constructor\n"
+                        "\n===================\n");
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                          template rebind_traits<MyTestObject> Obj_AllocTraits;
+    typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::
+                 template rebind_traits<MyInplaceTestObject> TCObj_AllocTraits;
+    typedef typename TCObj_AllocTraits::allocator_type TCObj_Alloc;
+
+    static const MyTestArg1 V1(1);
+    static const MyTestArg2 V2(20);
+    static const MyTestArg3 V3(23);
+    static const MyTestArg4 V4(44);
+    static const MyTestArg5 V5(66);
+    static const MyTestArg6 V6(176);
+    static const MyTestArg7 V7(878);
+    static const MyTestArg8 V8(8);
+    static const MyTestArg9 V9(912);
+    static const MyTestArg10 V10(102);
+    static const MyTestArg11 V11(111);
+    static const MyTestArg12 V12(333);
+    static const MyTestArg13 V13(712);
+    static const MyTestArg14 V14(1414);
+
+    bslma::TestAllocator ta("Tese case 3", veryVeryVeryVerbose);
+    ALLOCATOR alloc_base(&ta);
+
+    Obj_Alloc alloc1(alloc_base);
+    TCObj_Alloc alloc2(&ta);
+
+    if (verbose) printf("\nTesting constructor with no arguments"
+                        "\n-------------------------------------\n");
+
+    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 1 argument"
+                        "\n-----------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting contructor with 2 arguments"
+                        "\n-----------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 3 arguments"
+                        "\n------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 4 arguments"
+                        "\n------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 5 arguments"
+                        "\n------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 6 arguments"
+                        "\n------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 7 arguments"
+                        "\n------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 8 arguments"
+                        "\n------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7, V8);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7, V8);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 9 arguments"
+                        "\n------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                                       V8, V9);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 10 arguments"
+                        "\n-------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                                  V8, V9, V10);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 11 arguments"
+                        "\n-------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                             V8, V9, V10, V11);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10, V11);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 12 arguments"
+                        "\n-------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                        V8, V9, V10, V11, V12);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10, V11, V12);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 13 arguments"
+                        "\n-------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                   V8, V9, V10, V11, V12, V13);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10, V11, V12, V13);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+
+    if (verbose) printf("\nTesting constructor with 14 arguments"
+                        "\n-------------------------------------\n");
+
+    numAllocations = ta.numAllocations();
+    numDeallocations = ta.numDeallocations();
+    {
+        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10, V11, V12, V13, V14);
+
+        {
+            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10, V11, V12, V13, V14);
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(EXP == *x);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+    }
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -2517,7 +2865,7 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
-      case 35: {
+      case 37: {
 //..
 // Example 3 - SEE ABOVE
 // - - - - - - - - - - -
@@ -2530,7 +2878,7 @@ int main(int argc, char *argv[])
             search(&result, peerCache, keywords);
         }
       } break;
-      case 34: {
+      case 36: {
         // We know this example demonstrates a memory leak, so put the default
         // allocator into quiet mode for regular (non-verbose) testing, while
         // making the (expected) leak clear for veryVerbose or higher detail
@@ -2583,7 +2931,7 @@ int main(int argc, char *argv[])
 
         // No memory leak now
       } break;
-      case 33: {
+      case 35: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE (weak_ptr)
         //   The usage example provided in the component header file must
@@ -2661,30 +3009,382 @@ int main(int argc, char *argv[])
     ASSERT(!intWeakPtr2.acquireSharedPtr());
         }
       } break;
-      case 32: {
+      case 34: {
         // --------------------------------------------------------------------
-        // TESTING 'createInplace'
+        // TESTING 'allocate_shared<T>(A *, ...)'
+        //
+        // Concerns:
+        //   All constructor is able to initialize the object correctly.
+        //
+        // Plan:
+        //   Call all 14 different constructors and supply it with the
+        //   appropriate arguments.  Then verify that the object created inside
+        //   the representation is initialized using the arguments supplied.
+        //
+        // Testing:
+        //   shared_ptr<T> allocate_shared<T, A>(A *);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1)
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a2);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a3);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a4);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a5);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a6);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a7);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a8);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a9);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a10);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a11);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a12);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a13);
+        //   shared_ptr<T> allocate_shared<T, A>(A *, const A1& a1,..&a14);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTesting allocate_shared<T>(A *, ...)\n"
+                            "\n====================================\n");
+
+        static const MyTestArg1 V1(1);
+        static const MyTestArg2 V2(20);
+        static const MyTestArg3 V3(23);
+        static const MyTestArg4 V4(44);
+        static const MyTestArg5 V5(66);
+        static const MyTestArg6 V6(176);
+        static const MyTestArg7 V7(878);
+        static const MyTestArg8 V8(8);
+        static const MyTestArg9 V9(912);
+        static const MyTestArg10 V10(102);
+        static const MyTestArg11 V11(111);
+        static const MyTestArg12 V12(333);
+        static const MyTestArg13 V13(712);
+        static const MyTestArg14 V14(1414);
+
+        bslma::TestAllocator ta("allocate_shared", veryVeryVeryVerbose);
+
+        if (verbose) printf("\nTesting constructor with no arguments"
+                            "\n-------------------------------------\n");
+
+        bsls::Types::Int64 numAllocations = ta.numAllocations();
+        bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 1 argument"
+                            "\n-----------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting contructor with 2 arguments"
+                            "\n-----------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 3 arguments"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 4 arguments"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 5 arguments"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 6 arguments"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 7 arguments"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 8 arguments"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7, V8);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7, V8);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 9 arguments"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                                           V8, V9);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7,
+                                                  V8, V9);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 10 arguments"
+                            "\n-------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                                  V8, V9, V10);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7,
+                                                  V8, V9, V10);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 11 arguments"
+                            "\n-------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                             V8, V9, V10, V11);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7,
+                                                  V8, V9, V10, V11);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 12 arguments"
+                            "\n-------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                        V8, V9, V10, V11, V12);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7,
+                                                  V8, V9, V10, V11, V12);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 13 arguments"
+                            "\n-------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                                   V8, V9, V10, V11, V12, V13);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7,
+                                                  V8, V9, V10, V11, V12, V13);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+
+        if (verbose) printf("\nTesting constructor with 14 arguments"
+                            "\n-------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10, V11, V12, V13, V14);
+
+            {
+                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1, V2, V3, V4, V5, V6, V7,
+                                              V8, V9, V10, V11, V12, V13, V14);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(EXP == *x);
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+        }
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING 'allocate_shared'
         //
         // Concerns:
         //
         // Plan: TBD
         //
         // Testing:
-        //   shared_ptr make_shared<T>();
-        //   shared_ptr make_shared<T>(const A1& a1)
-        //   shared_ptr make_shared<T>(const A1& a1,..&a2);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a3);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a4);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a5);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a6);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a7);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a8);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a9);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a10);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a11);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a12);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a13);
-        //   shared_ptr make_shared<T>(const A1& a1,..&a14);
+        //   shared_ptr<T> allocate_shared<T, A>(A);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1)
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a2);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a3);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a4);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a5);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a6);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a7);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a8);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a9);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a10);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a11);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a12);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a13);
+        //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a14);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTesting 'allocate_shared'\n"
+                            "\n=========================\n");
+
+        using BloombergLP::bsltf::StdStatefulAllocator;
+
+        typedef bsl::allocator<int> ALLOC_1;
+        typedef StdStatefulAllocator<int, true, true, true, true> ALLOC_2;
+        typedef StdStatefulAllocator<int, false, false, false, false> ALLOC_3;
+
+        typedef TestHarness<ALLOC_1> T1;
+        typedef TestHarness<ALLOC_2> T2;
+        typedef TestHarness<ALLOC_3> T3;
+            
+        T1::testCase3(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T2::testCase3(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+        T3::testCase3(verbose,
+                      veryVerbose,
+                      veryVeryVerbose,
+                      veryVeryVeryVerbose);
+      } break;
+      case 32: {
+        // --------------------------------------------------------------------
+        // TESTING 'make_shared'
+        //
+        // Concerns:
+        //
+        // Plan: TBD
+        //
+        // Testing:
+        //   shared_ptr<T> make_shared<T>();
+        //   shared_ptr<T> make_shared<T>(const A1& a1)
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a2);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a3);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a4);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a5);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a6);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a7);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a8);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a9);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a10);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a11);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a12);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a13);
+        //   shared_ptr<T> make_shared<T>(const A1& a1,..&a14);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'make_shared'\n"
                             "\n=======================\n");
