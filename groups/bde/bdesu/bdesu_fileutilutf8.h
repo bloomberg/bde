@@ -595,9 +595,9 @@ struct bdesu_FileUtilUtf8 {
 // CLASS METHODS
 inline
 int bdesu_FileUtilUtf8::createDirectories(const bsl::string& path,
-                                          bool               isLeafDirectory)
+                                          bool               leafIsDirectory)
 {
-    return createDirectories(path.c_str(), isLeafDirectory);
+    return createDirectories(path.c_str(), leafIsDirectory);
 }
 
 inline
@@ -680,7 +680,8 @@ bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getFileSize(
 }
 
 inline
-bdesu_FileUtilUtf8::Offset getAvailableSpace(const bsl::string& path)
+bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getAvailableSpace(
+                                                       const bsl::string& path)
 {
     return getAvailableSpace(path.c_str());
 }

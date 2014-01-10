@@ -239,7 +239,6 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == bdesu_FileUtil::close(fd));
 }
 
-inline
 bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
     // Return a temporary file name.  Optionally specify 'fnTemplate' to serve
     // as a part of the resulting name.  On Windows, optionally specify a non-
@@ -601,7 +600,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj::INVALID_FD != fd);
 
             const char *str = "To be or not to be\n";
-            const int len   = bsl::strlen(str);
+            const int len   = static_cast<int>(bsl::strlen(str));
             ASSERT(len == Obj::write(fd, str, len));
 
             ASSERT(0 == Obj::close(fd));

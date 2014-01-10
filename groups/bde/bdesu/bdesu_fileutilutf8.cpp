@@ -902,7 +902,7 @@ int bdesu_FileUtilUtf8::setWorkingDirectory(const char *path)
 const bdesu_FileUtilUtf8::FileDescriptor bdesu_FileUtilUtf8::INVALID_FD = -1;
 
 bdesu_FileUtilUtf8::FileDescriptor
-bdesu_FileUtilUtf8::open(const char               *pathName,
+bdesu_FileUtilUtf8::open(const char               *path,
                          enum FileOpenPolicies     openPolicy,
                          enum FileIOPolicies       ioPolicy,
                          enum FileTruncatePolicies truncatePolicy)
@@ -912,7 +912,7 @@ bdesu_FileUtilUtf8::open(const char               *pathName,
         && (   e_IO_READ_ONLY   == ioPolicy
             || e_IO_APPEND_ONLY == ioPolicy
             || e_IO_READ_APPEND == ioPolicy)) {
-        return INVALID_FD;
+        return INVALID_FD;                                            // RETURN
     }
 
     int oflag = 0;
@@ -970,24 +970,24 @@ bdesu_FileUtilUtf8::open(const char               *pathName,
     if (useExtendedOpen) {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
-        return ::open(pathName, oflag, extendedFlags);                // RETURN
+        return ::open(path, oflag, extendedFlags);                    // RETURN
 #else
-        return open64(pathName, oflag, extendedFlags);                // RETURN
+        return open64(path, oflag, extendedFlags);                    // RETURN
 #endif
     }
     else {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
-        return ::open(pathName, oflag);                               // RETURN
+        return ::open(path, oflag);                                   // RETURN
 #else
-        return open64(pathName, oflag);                               // RETURN
+        return open64(path, oflag);                                   // RETURN
 #endif
     }
 }
 
-int bdesu_FileUtilUtf8::close(FileDescriptor fd)
+int bdesu_FileUtilUtf8::close(FileDescriptor descriptor)
 {
-    return ::close(fd);
+    return ::close(descriptor);
 }
 
 bdesu_FileUtilUtf8::Offset
@@ -1015,36 +1015,34 @@ bdesu_FileUtilUtf8::seek(FileDescriptor fd, Offset offset, int whence)
     }
 }
 
-int bdesu_FileUtilUtf8::remove(const char *fileToRemove, bool recursive)
+int bdesu_FileUtilUtf8::remove(const char *path, bool recursive)
 {
-   BSLS_ASSERT(fileToRemove);
+   BSLS_ASSERT(path);
 
-   if (isDirectory(fileToRemove)) {
+   if (isDirectory(path)) {
       if (recursive) {
-         // What we'd LIKE to do here is findMatchingPaths("fileToRemove/*")
-         // and delete each one.  But glob(), on which findMatchingPaths()
-         // is built, will not include the name of a symbolic link if there
-         // is no file attached.  Thus a bad link would prevent a directory
-         // from being removed.  So instead we must open and read the
-         // directory ourselves and remove everything that's not "." or
-         // "..", checking for directories (*without* following links) and
-         // recursing as necessary.
-         DIR *dir = opendir(fileToRemove);
+         // What we'd LIKE to do here is findMatchingPaths("path/*") and delete
+         // each one.  But glob(), on which findMatchingPaths() is built, will
+         // not include the name of a symbolic link if there is no file
+         // attached.  Thus a bad link would prevent a directory from being
+         // removed.  So instead we must open and read the directory ourselves
+         // and remove everything that's not "." or "..", checking for
+         // directories (*without* following links) and recursing as necessary.
+         DIR *dir = opendir(path);
          if (0 == dir) {
             return -1;                                                // RETURN
          }
          bdema_ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
-         bsl::string path = fileToRemove;
+         bsl::string workingPath = path;
 
-         // The amount of space available in the 'd_name' member of
-         // the dirent struct is apparently "implementation-defined" and
-         // in particular is allowed to be less than the maximum
-         // path length (!).  The very C-style way to fix this is to make
-         // sure that there's lots of extra space available at the end of the
-         // struct (d_name is always the last member) so that strcpy can
-         // happily copy into it without instigating a buffer overrun attack
-         // against us =)
+         // The amount of space available in the 'd_name' member of the dirent
+         // struct is apparently "implementation-defined" and in particular is
+         // allowed to be less than the maximum path length (!).  The very
+         // C-style way to fix this is to make sure that there's lots of extra
+         // space available at the end of the struct (d_name is always the last
+         // member) so that strcpy can happily copy into it without instigating
+         // a buffer overrun attack against us =)
 
          enum {OVERFLOW_SIZE = 2048}; //probably excessive, but it's just stack
          union {
@@ -1066,40 +1064,40 @@ int bdesu_FileUtilUtf8::remove(const char *fileToRemove, bool recursive)
                continue;
             }
 
-            bdesu_PathUtil::appendRaw(&path, entry.d_name);
-            if (0 == lstat(path.c_str(), &dummy) &&
-                0 != remove(path.c_str(), true)) {
+            bdesu_PathUtil::appendRaw(&workingPath, entry.d_name);
+            if (0 == lstat(workingPath.c_str(), &dummy) &&
+                0 != remove(workingPath.c_str(), true)) {
                return -1;                                             // RETURN
             }
-            bdesu_PathUtil::popLeaf(&path);
+            bdesu_PathUtil::popLeaf(&workingPath);
          } while (entry_p == &entry);
       }
 
-      return removeDirectory(fileToRemove);                           // RETURN
+      return removeDirectory(path);                                   // RETURN
    }
    else {
-      return removeFile(fileToRemove);                                // RETURN
+      return removeFile(path);                                        // RETURN
    }
 }
 
 int bdesu_FileUtilUtf8::read(FileDescriptor  fd,
                              void           *buf,
-                             int             numBytesToRead)
+                             int             numBytes)
 {
     BSLS_ASSERT(buf);
-    BSLS_ASSERT(0 <= numBytesToRead);
+    BSLS_ASSERT(0 <= numBytes);
 
-    return static_cast<int>(::read(fd, buf, numBytesToRead));
+    return static_cast<int>(::read(fd, buf, numBytes));
 }
 
 int bdesu_FileUtilUtf8::write(FileDescriptor  fd,
                               const void     *buf,
-                              int             numBytesToWrite)
+                              int             numBytes)
 {
     BSLS_ASSERT(buf);
-    BSLS_ASSERT(0 <= numBytesToWrite);
+    BSLS_ASSERT(0 <= numBytes);
 
-    return static_cast<int>(::write(fd, buf, numBytesToWrite));
+    return static_cast<int>(::write(fd, buf, numBytes));
 }
 
 int bdesu_FileUtilUtf8::map(FileDescriptor   fd,
@@ -1132,12 +1130,12 @@ int bdesu_FileUtilUtf8::map(FileDescriptor   fd,
     }
 }
 
-int  bdesu_FileUtilUtf8::unmap(void *addr, int len)
+int  bdesu_FileUtilUtf8::unmap(void *addr, int size)
 {
     BSLS_ASSERT(addr);
-    BSLS_ASSERT(0 <= len);
+    BSLS_ASSERT(0 <= size);
 
-    int rc = munmap((char *)addr, len);
+    int rc = munmap(static_cast<char *>(addr), size);
     return rc;
 }
 
@@ -1146,7 +1144,7 @@ int bdesu_FileUtilUtf8::sync(char *addr, int numBytes, bool sync)
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
+    BSLS_ASSERT(0 == (bsls::Types::UintPtr) addr %
                      bdesu_MemoryUtil::pageSize());
 
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
@@ -1179,19 +1177,19 @@ int bdesu_FileUtilUtf8::unlock(FileDescriptor fd)
     return localFcntlLock(fd, F_SETLK, F_UNLCK) == -1 ? -1 : 0;
 }
 
-int bdesu_FileUtilUtf8::move(const char *oldName, const char *newName)
+int bdesu_FileUtilUtf8::move(const char *oldPath, const char *newPath)
 {
-    BSLS_ASSERT(oldName);
-    BSLS_ASSERT(newName);
+    BSLS_ASSERT(oldPath);
+    BSLS_ASSERT(newPath);
 
-    return rename(oldName, newName);
+    return rename(oldPath, newPath);
 }
 
-bool bdesu_FileUtilUtf8::exists(const char *pathName)
+bool bdesu_FileUtilUtf8::exists(const char *path)
 {
-    BSLS_ASSERT(pathName);
+    BSLS_ASSERT(path);
 
-    return access(pathName, F_OK) == 0;
+    return access(path, F_OK) == 0;
 }
 
 bool bdesu_FileUtilUtf8::isRegularFile(const char *path, bool followLinks)
@@ -1387,7 +1385,7 @@ int bdesu_FileUtilUtf8::setWorkingDirectory(const char *path)
 // NON-PLATFORM-SPECIFIC FUNCTIONS //
 /////////////////////////////////////
 
-int bdesu_FileUtilUtf8::createDirectories(const char *nativePath,
+int bdesu_FileUtilUtf8::createDirectories(const char *path,
                                           bool        leafIsDirectory)
 {
     // Implementation note: some Unix platforms may have mkdirp, which does
@@ -1401,32 +1399,32 @@ int bdesu_FileUtilUtf8::createDirectories(const char *nativePath,
     // Let's first give at least a nod to efficiency and see if we don't need
     // to do anything at all.
 
-    BSLS_ASSERT(nativePath);
+    BSLS_ASSERT(path);
 
-    if (exists(nativePath)) {
+    if (exists(path)) {
         return 0;                                                     // RETURN
     }
 
-    bsl::string path(nativePath);
+    bsl::string workingPath(path);
     bsl::vector<bsl::string> directoryStack;
-    if (!leafIsDirectory && bdesu_PathUtil::hasLeaf(path)) {
-        bdesu_PathUtil::popLeaf(&path);
+    if (!leafIsDirectory && bdesu_PathUtil::hasLeaf(workingPath)) {
+        bdesu_PathUtil::popLeaf(&workingPath);
     }
 
-    while (bdesu_PathUtil::hasLeaf(path)) {
+    while (bdesu_PathUtil::hasLeaf(workingPath)) {
         directoryStack.push_back(bsl::string());
-        int rc = bdesu_PathUtil::getLeaf(&directoryStack.back(), path);
+        int rc = bdesu_PathUtil::getLeaf(&directoryStack.back(), workingPath);
         BSLS_ASSERT(0 == rc);
-        bdesu_PathUtil::popLeaf(&path);
+        bdesu_PathUtil::popLeaf(&workingPath);
     }
 
     while (!directoryStack.empty()) {
-        bdesu_PathUtil::appendRaw(&path,
+        bdesu_PathUtil::appendRaw(&workingPath,
                                   directoryStack.back().c_str(),
                                   static_cast<int>(
                                       directoryStack.back().length()));
-        if (!exists(path.c_str())) {
-            if (0 != makeDirectory(path.c_str())) {
+        if (!exists(workingPath.c_str())) {
+            if (0 != makeDirectory(workingPath.c_str())) {
                 return -1;                                            // RETURN
             }
         }
@@ -1462,12 +1460,12 @@ int bdesu_FileUtilUtf8::grow(FileDescriptor              fd,
         return 0;                                                     // RETURN
     }
     if (reserve) {
-        char *buf = (char*)allocator_p->allocate(bufferSize);
+        char *buf = static_cast<char*>(allocator_p->allocate(bufferSize));
         bsl::memset(buf, 1, bufferSize);
         Offset bytesToGrow = size - currentSize;
         while (bytesToGrow > 0) {
             int nBytes = static_cast<int>(
-                                   bsl::min(bytesToGrow, (Offset)bufferSize));
+                       bsl::min(bytesToGrow, static_cast<Offset>(bufferSize)));
             int rc = write(fd, buf, nBytes);
             if (rc != nBytes) {
                 allocator_p->deallocate(buf);
@@ -1479,7 +1477,7 @@ int bdesu_FileUtilUtf8::grow(FileDescriptor              fd,
         return 0;                                                     // RETURN
     }
     Offset res = seek(fd, size-1, e_SEEK_FROM_BEGINNING);
-    if (-1 == res || 1 != write(fd, (const void *)"", 1))
+    if (-1 == res || 1 != write(fd, static_cast<const void *>(""), 1))
     {
         return -1;                                                    // RETURN
     }
@@ -1496,7 +1494,7 @@ int bdesu_FileUtilUtf8::rollFileChain(const char *path, int maxSuffix)
 
     // Use a single allocation to insure exception neutrality.
 
-    char *buf      = (char*)allocator_p->allocate(2 * length);
+    char *buf      = static_cast<char*>(allocator_p->allocate(2 * length));
     char *fromName = buf;
     char *toName   = buf + length;
     snprintf(toName, length, "%s.%d", path, maxSuffix);

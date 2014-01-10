@@ -266,7 +266,6 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == Obj::close(fd));
 }
 
-inline
 bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
     // Return a temporary file name.  Optionally specify 'fnTemplate' to serve
     // as a part of the resulting name.  On Windows, optionally specify a non-
@@ -934,7 +933,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'createDirectories'\n";
         {
             const bsl::string& testBaseDir = tempFileName(
-                                           "tmp.bdesu_fileutilutf8_14.mkdir1");
+                                           "tmp.bdesu_fileutilutf8_16.mkdir1");
             bsl::string fullPath = testBaseDir;
             bdesu_PathUtil::appendRaw(&fullPath, "dir2");
 
@@ -1022,7 +1021,7 @@ int main(int argc, char *argv[])
             typedef Obj::FileDescriptor FD;
 
             const bsl::string& testFile = tempFileName(
-                                         "tmp.bdesu_fileutilutf8_14.open.txt");
+                                         "tmp.bdesu_fileutilutf8_15.open.txt");
             if (veryVerbose) P(testFile);
 
             (void) Obj::remove(testFile, false);
@@ -1229,9 +1228,9 @@ int main(int argc, char *argv[])
 
         typedef Obj::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdesu_fileutilutf8_12.append.txt.";
-        const char *tag1     = "tmp.bdesu_fileUtil_12.tag.1.txt";
-        const char *success  = "tmp.bdesu_fileUtil_12.success.txt";
+        const char *testFile = "tmp.bdesu_fileutilutf8_13.append.txt.";
+        const char *tag1     = "tmp.bdesu_fileUtil_13.tag.1.txt";
+        const char *success  = "tmp.bdesu_fileUtil_13.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -1624,9 +1623,9 @@ int main(int argc, char *argv[])
         // It is important not to use 'tempFileName' here because otherwise
         // the parent and child will have different file names.
 
-        bsl::string fileNameWrite   = "tmp.bdesu_fileutilutf8_10.write.txt";
-        bsl::string fileNameRead    = "tmp.bdesu_fileutilutf8_10.read.txt";
-        bsl::string fileNameSuccess = "tmp.bdesu_fileutilutf8_10.success.txt";
+        bsl::string fileNameWrite   = "tmp.bdesu_fileutilutf8_11.write.txt";
+        bsl::string fileNameRead    = "tmp.bdesu_fileutilutf8_11.read.txt";
+        bsl::string fileNameSuccess = "tmp.bdesu_fileutilutf8_11.success.txt";
 
         if (veryVerbose) {
             P_(fileNameWrite);    P_(fileNameRead);    P(fileNameSuccess);

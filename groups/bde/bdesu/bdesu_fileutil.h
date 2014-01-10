@@ -551,9 +551,9 @@ struct bdesu_FileUtil {
 // CLASS METHODS
 inline
 int bdesu_FileUtil::createDirectories(const bsl::string& path,
-                                      bool               isLeafDirectory)
+                                      bool               leafIsDirectory)
 {
-    return createDirectories(path.c_str(), isLeafDirectory);
+    return createDirectories(path.c_str(), leafIsDirectory);
 }
 
 inline
@@ -633,7 +633,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const bsl::string& path)
 }
 
 inline
-bdesu_FileUtil::Offset getAvailableSpace(const bsl::string& path)
+bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(
+                                                       const bsl::string& path)
 {
     return getAvailableSpace(path.c_str());
 }
