@@ -5,6 +5,33 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+const void *bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
+                                                   Function_Rep  *rep,
+                                                   const void    *source)
+{
+    switch (opCode) {
+      case e_MOVE_CONSTRUCT:
+      case e_COPY_CONSTRUCT: {
+        // Allocator pointer was simply copied. 
+        // No copy/move construction needed.
+        BSLS_ASSERT(rep->d_allocator_p == source);
+      } break;
+
+      case e_DESTROY: {
+        std::size_t funcSize = reinterpret_cast<std::size_t>(source);
+        if (funcSize > sizeof(InplaceBuffer)) {
+            rep->d_allocator_p->deallocate(rep->d_objbuf.d_object_p);
+        }
+      } break;
+
+      case e_GET_SIZE:    return NULL;
+      case e_GET_TARGET:  return rep->d_allocator_p;
+      case e_GET_TYPE_ID: return &typeid(bslma::Allocator);
+    } // end switch
+
+    return NULL;
+}
+
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.
 //
