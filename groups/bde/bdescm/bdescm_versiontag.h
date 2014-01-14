@@ -51,16 +51,8 @@ BDES_IDENT("$Id: $")
 #define BDE_VERSION_MAJOR     2
     // Provide the major version number of the current (latest) BDE release.
 
-#define BDE_VERSION_MINOR     19
+#define BDE_VERSION_MINOR     20
     // Provide the minor version number of the current (latest) BDE release.
-
-#ifndef BDE_VERSION_RELEASETYPE
-#define BDE_VERSION_RELEASETYPE        "_GIT_MASTER"
-#define BDE_VERSION_RELEASETYPE_SYMBOL  _GIT_MASTER
-#endif
-    // Provide the "type" of the release, indicating whether the libs were
-    // built for development, a particular beta, or for release.  A release
-    // build is indicated by _PROD and "_PROD".
 
 #define BDE_MAKE_VERSION(major, minor) ((major) * 10000 \
                                       + (minor) *   100)
