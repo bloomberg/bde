@@ -13,17 +13,16 @@ namespace BloombergLP {
 
 #define BDLSCM_VERSION_STRING "BLP_LIB_BDL_BDL_" STRINGIFY(BDL_VERSION_MAJOR) \
                                              "." STRINGIFY(BDL_VERSION_MINOR) \
-                                             "." STRINGIFY(BDL_VERSION_PATCH) \
-                                             BDL_VERSION_RELEASETYPE
+                                             "." STRINGIFY(BDL_VERSION_PATCH)
 
-const char *bdlscm::Version::d_ident = "$Id: "BDLSCM_VERSION_STRING" $";
-const char *bdlscm::Version::d_what  = "@(#)"BDLSCM_VERSION_STRING;
+const char *bdlscm::Version::s_ident = "$Id: "BDLSCM_VERSION_STRING" $";
+const char *bdlscm::Version::s_what  = "@(#)"BDLSCM_VERSION_STRING;
 
-const char *bdlscm::Version::BDLSCM_D_VERSION    = BDLSCM_VERSION_STRING;
-const char *bdlscm::Version::d_dependencies      = "";
-const char *bdlscm::Version::d_buildInfo         = "";
-const char *bdlscm::Version::d_timestamp         = "";
-const char *bdlscm::Version::d_sourceControlInfo = "";
+const char *bdlscm::Version::BDLSCM_S_VERSION    = BDLSCM_VERSION_STRING;
+const char *bdlscm::Version::s_dependencies      = "";
+const char *bdlscm::Version::s_buildInfo         = "";
+const char *bdlscm::Version::s_timestamp         = "";
+const char *bdlscm::Version::s_sourceControlInfo = "";
 
 }  // close namespace BloombergLP
 
