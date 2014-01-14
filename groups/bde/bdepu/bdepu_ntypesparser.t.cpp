@@ -205,8 +205,8 @@ typedef bsls::Types::Int64 Int64;
 //                  FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <typename TYPE>
-TYPE myabs(const TYPE& x)
+template <typename VALUE_TYPE>
+VALUE_TYPE myabs(const VALUE_TYPE& x)
 {
     return x < 0 ? -x : x;
 }
@@ -215,8 +215,8 @@ TYPE myabs(const TYPE& x)
 #undef near
 #endif
 
-template <typename TYPE>
-bool near(const TYPE& lhs, const TYPE& rhs)
+template <typename VALUE_TYPE>
+bool near(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs)
 {
     return myabs(lhs - rhs) / (myabs(lhs) + myabs(rhs)) < 0.001;
 }
