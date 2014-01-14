@@ -2823,83 +2823,186 @@ shared_ptr<ELEMENT_TYPE> make_shared(
     // last argument).
 
 template <class ELEMENT_TYPE, class ALLOC>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a);
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a, const A1& a1);
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, const A1& a1);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
-                                         const A1& a1, const A2& a2);
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, const A1& a1, const A2& a2);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
-                                     const A1& a1, const A2& a2, const A3& a3);
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, const A1& a1, const A2& a2, const A3& a3);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a,
                        const A1& a1, const A2& a2, const A3& a3, const A4& a4);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a,
                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7, const A8& a8);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a,
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a, 
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a, 
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a, 
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a, 
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12, const A13& a13);
+
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13, class A14>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a, 
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        shared_ptr<ELEMENT_TYPE> >::type
+#else
+shared_ptr<ELEMENT_TYPE>
+#endif
+allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12, const A13& a13, const A14& a14);
+
 
 template <class ELEMENT_TYPE, class ALLOC>
 shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a);
@@ -2979,6 +3082,7 @@ shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12, const A13& a13, const A14& a14);
+
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
                         // ==============
@@ -5329,7 +5433,12 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
 }
 
 template <class ELEMENT_TYPE, class ALLOC>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a)
 {
     typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
@@ -5342,7 +5451,12 @@ bsl::allocate_shared(ALLOC a)
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, const A1& a1)
 {
     typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
@@ -5355,7 +5469,12 @@ bsl::allocate_shared(ALLOC a, const A1& a1)
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, const A1& a1, const A2& a2)
 {
     typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
@@ -5368,7 +5487,12 @@ bsl::allocate_shared(ALLOC a, const A1& a1, const A2& a2)
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, const A1& a1, const A2& a2, const A3& a3)
 {
     typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
@@ -5382,7 +5506,12 @@ bsl::allocate_shared(ALLOC a, const A1& a1, const A2& a2, const A3& a3)
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
@@ -5397,7 +5526,12 @@ bsl::allocate_shared(ALLOC a,
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5)
@@ -5419,7 +5553,12 @@ bsl::allocate_shared(ALLOC a,
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6)
@@ -5442,7 +5581,12 @@ bsl::allocate_shared(ALLOC a,
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7)
@@ -5466,7 +5610,12 @@ bsl::allocate_shared(ALLOC a,
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a,
                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7, const A8& a8)
@@ -5491,7 +5640,12 @@ bsl::allocate_shared(ALLOC a,
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
@@ -5519,7 +5673,12 @@ bsl::allocate_shared(ALLOC a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
@@ -5548,7 +5707,12 @@ bsl::allocate_shared(ALLOC a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
@@ -5578,7 +5742,12 @@ bsl::allocate_shared(ALLOC a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
@@ -5610,7 +5779,12 @@ bsl::allocate_shared(ALLOC a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
@@ -5643,7 +5817,12 @@ bsl::allocate_shared(ALLOC a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13, class A14>
+#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                        bsl::shared_ptr<ELEMENT_TYPE> >::type
+#else
 bsl::shared_ptr<ELEMENT_TYPE>
+#endif
 bsl::allocate_shared(ALLOC a, 
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
@@ -5677,7 +5856,8 @@ bsl::allocate_shared(ALLOC a,
 
 
 template <class ELEMENT_TYPE, class ALLOC>
-bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC *a)
+bsl::shared_ptr<ELEMENT_TYPE>
+bsl::allocate_shared(ALLOC *a)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     BloombergLP::bslma::Allocator *basicAllocator =
