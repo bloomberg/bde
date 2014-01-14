@@ -10,6 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_issame.h>
 #include <bsls_assert.h>
 
+#include <bsl_algorithm.h>  // 'min'
 #include <bsl_climits.h>    // 'CHAR_BIT', 'INT_MAX'
 
 ///IMPLEMENTATION NOTES
