@@ -97,6 +97,7 @@ class Options(object):
     '''Parser for the BDE build opts files.'''
 
     OPT_INLINE_COMMAND_RE = re.compile(r'\\"`([^`]+)`\\"')
+    OPT_INLINE_COMMAND_RE2 = re.compile(r'\$\(shell([^\)]+)\)')
 
     class Option:
         '''Empty class representing the option value.
@@ -110,7 +111,13 @@ class Options(object):
     def want_option(self, option):
         '''Find out if option matches the current platform.'''
 
-        ignore_keys = ('RETRY', 'RETRY_ON_EXIT', 'RETRY_ON_SIGNAL', 'SET_TMPDIR')
+        ignore_keys = ('XLC_INTERNAL_PREFIX1',
+                       'XLC_INTERNAL_PREFIX2',
+                       'AIX_GCC_PREFIX',
+                       'SUN_CC_INTERNAL_PREFIX',
+                       'SUN_GCC_INTERNAL_PREFIX',
+                       'LINUX_GCC_PREFIX',
+                       'WINDOWS_CC_PREFIX')
 
         if option.key in ignore_keys:
             return False;
@@ -130,6 +137,11 @@ class Options(object):
                 v = option.value
                 cmd_out = ctx.cmd_and_log(mc.group(1)).rstrip()
                 option.value = v[:mc.start(1) - 3] + '"' + cmd_out + '"'+ v[mc.end(1) + 3:]
+
+            mc2 = Options.OPT_INLINE_COMMAND_RE2.match(option.value)
+            if mc2:
+                cmd_out = ctx.cmd_and_log(mc2.group(1).split()).rstrip()
+                option.value = cmd_out
 
             if option.modifier == '--':
                 # prepend
@@ -152,7 +164,6 @@ class Options(object):
                     self.options[option.key] += ' ' + option.value
                 else:
                     self.options[option.key] = option.value
-
 
         if debug_opt_keys:
             if option.key in debug_opt_keys:
@@ -366,3 +377,25 @@ def get_windows_osinfo(ctx):
     os_ver = '.'.join(uname[3].split('.')[0:2])
 
     return (os_type, os_name, os_ver)
+
+# ----------------------------------------------------------------------------
+# Copyright (C) 2013-2014 Bloomberg Finance L.P.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+# ----------------------------- END-OF-FILE ----------------------------------

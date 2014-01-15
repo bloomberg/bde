@@ -1,4 +1,5 @@
 # This is a fork of waf_unit_test.py containing BDE specific commands and options
+# Thomas Nagy, 2005-2012
 
 import os, sys
 from waflib.TaskGen import feature, after_method
@@ -163,9 +164,8 @@ def set_exit_code(bld):
 
 def options(opt):
     """
-    Provide the ``--alltests``, ``--notests`` and ``--testcmd`` command-line options.
+    Provide the command-line options.
     """
-
 
     grp = opt.get_option_group('build and install options')
 
@@ -187,3 +187,25 @@ def options(opt):
 
 
     testcmd = sys.executable + ' ' + opt.path.make_node(os.path.join('tools', 'waf', 'run_unit_tests.py')).abspath() + ' %s'
+
+# ----------------------------------------------------------------------------
+# Copyright (C) 2013-2014 Bloomberg Finance L.P.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+# ----------------------------- END-OF-FILE ----------------------------------
