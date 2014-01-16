@@ -10,6 +10,7 @@ bsls_asserttest
 bsls_asserttestexception
 bsls_atomic
 bsls_atomicoperations
+bsls_atomicoperations_arm_all_gcc
 bsls_atomicoperations_default
 bsls_atomicoperations_ia64_hp_acc
 bsls_atomicoperations_powerpc32_aix_xlc
