@@ -78,6 +78,13 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
                     const weak_ptr<ELEMENT_TYPE>&   b) const;
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,
                     const shared_ptr<ELEMENT_TYPE>& b) const;
+        // Return 'true' if the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
+        // is ordered before the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified
+        // 'b' under the total ordering supplied by 
+        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
+        // otherwise.
 };
 
 template<class ELEMENT_TYPE>
@@ -112,6 +119,13 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
                     const weak_ptr<ELEMENT_TYPE>&   b) const;
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,
                     const shared_ptr<ELEMENT_TYPE>& b) const;
+        // Return 'true' if the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
+        // is ordered before the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified
+        // 'b' under the total ordering supplied by 
+        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
+        // otherwise.
 };
 
 

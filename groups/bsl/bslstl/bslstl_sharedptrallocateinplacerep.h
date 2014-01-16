@@ -142,10 +142,11 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // shared references reaches zero and should not be explicitly invoked
         // otherwise.
 
-    void *getDeleter(const std::type_info& type);
-        // Return a null pointer.  Note that an in-place representation for a
-        // shared pointer can never store a user-supplied deleter, as there is
-        // no function that might try to create one.
+    void *getDeleter(const std::type_info& /*type*/);
+        // Return a null pointer.  The specified 'type' is not used.  Note that
+        // an in-place representation for a shared pointer can never store a
+        // user-supplied deleter, as there is no function that might try to
+        // create one.
 
     // ACCESSORS
     virtual void *originalPtr() const;

@@ -1531,11 +1531,11 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_SHAREDPTRALLOCATEINPLACEREP
+#ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEINPLACEREP
 #include <bslstl_sharedptrallocateinplacerep.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_SHAREDPTRALLOCATEOUTOFPLACEREP
+#ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEOUTOFPLACEREP
 #include <bslstl_sharedptrallocateoutofplacerep.h>
 #endif
 
@@ -1796,16 +1796,17 @@ class shared_ptr {
     template <class COMPATIBLE_TYPE>
     explicit shared_ptr(COMPATIBLE_TYPE *ptr);
         // Create a shared pointer that manages a modifiable object of
-        // (template parameter) type 'COMPATIBLE_TYPE' and refers to
-        // '(ELEMENT_TYPE *)ptr'.  The currently installed default allocator is
-        // used to allocate and deallocate the internal representation of the
-        // shared pointer and to destroy the shared object when all references
-        // have been released.  If 'COMPATIBLE_TYPE *' is not implicitly
-        // convertible to 'ELEMENT_TYPE *' then a compiler diagnostic will be
-        // emitted indicating the error.  If 'ptr' is 0, an empty shared
-        // pointer is created and no memory is allocated.  Note that as
-        // mentioned in the "CAVEAT" in the "C++ Standard Compliance" section
-        // of the component-level documentation, to comply with C++ standard
+        // (template parameter) type 'COMPATIBLE_TYPE' and refers to the
+        // specified '(ELEMENT_TYPE *)ptr'.  The currently installed default
+        // allocator is used to allocate and deallocate the internal
+        // representation of the shared pointer and to destroy the shared
+        // object when all references have been released.  If
+        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
+        // 'ELEMENT_TYPE *' then a compiler diagnostic will be emitted
+        // indicating the error.  If 'ptr' is 0, an empty shared pointer is
+        // created and no memory is allocated.  Note that as mentioned in the
+        // "CAVEAT" in the "C++ Standard Compliance" section of the
+        // component-level documentation, to comply with C++ standard
         // specifications, future implementations of 'shared_ptr' may destroy
         // the shared object using '::operator delete'.
 
@@ -1890,21 +1891,22 @@ class shared_ptr {
                const DELETER&                 deleter,
                BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create a shared pointer that manages a modifiable object of
-        // (template parameter) type 'COMPATIBLE_TYPE' and refers to
-        // '(ELEMENT_TYPE *)ptr', using the specified 'deleter' to delete the
-        // shared object when all references have been released and the
-        // specified 'basicAllocator' to allocate and deallocate the internal
-        // representation of the shared pointer.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.  If 'DELETER' is a
-        // reference type, then 'deleter' is assumed to be a function-like
-        // deleter that may be invoked to destroy the object referred to by a
-        // single argument of type 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)'
-        // will be called to destroy the shared object).  (See the "Deleters"
-        // section in the component- level documentation.)  If 'COMPATIBLE_TYPE
-        // *' is not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
-        // diagnostic will be emitted indicating the error.  Also note that if
-        // 'ptr' is 0, then the null pointer will be reference counted, and the
-        // deleter will be called when the last reference is destroyed.
+        // (template parameter) type 'COMPATIBLE_TYPE' and refers to the
+        // specified '(ELEMENT_TYPE *)ptr', using the specified 'deleter' to
+        // delete the shared object when all references have been released.
+        // Optionally specify 'basicAllocator' to allocate and deallocate the
+        // internal representation of the shared pointer.  If 'basicAllocator'
+        // is 0, the currently installed default allocator is used.  If
+        // 'DELETER' is a reference type, then 'deleter' is assumed to be a
+        // function-like deleter that may be invoked to destroy the object
+        // referred to by a single argument of type 'COMPATIBLE_TYPE *' (i.e.,
+        // 'deleter(ptr)' will be called to destroy the shared object).  (See
+        // the "Deleters" section in the component- level documentation.)  If
+        // 'COMPATIBLE_TYPE *' is not implicitly convertible to 'ELEMENT_TYPE
+        // *' then a compiler diagnostic will be emitted indicating the error.
+        // Also note that if 'ptr' is 0, then the null pointer will be
+        // reference counted, and the deleter will be called when the last
+        // reference is destroyed.
 
 #if defined(AJM_THINKS_THIS_IS_NO_LONGER_NEEDED)
     template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
@@ -1927,7 +1929,7 @@ class shared_ptr {
         // 'ptr' is 0, then the null pointer will be reference counted, and the
         // deleter will be called when the last reference is destroyed.
 #endif
-    
+
     template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
     shared_ptr(COMPATIBLE_TYPE *ptr,
                const DELETER&   deleter,
@@ -1955,9 +1957,9 @@ class shared_ptr {
                BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create an empty shared pointer.  Note that for conformance with the
         // C++ Standard specification for 'shared_ptr', a future version of
-        // this component may reference count the deleter, and uses the
-        // specified 'basicAllocator' to create the storage area for the
-        // reference counts and a copy of the specified 'deleter'.
+        // this component may reference count the specified 'deleter', and use
+        // the optionally specified 'basicAllocator' to create the storage area
+        // for the reference counts and a copy of the specified 'deleter'.
 
     shared_ptr(nullptr_t                      nullPointerLiteral,
                BloombergLP::bslma::Allocator *basicAllocator);
@@ -2082,8 +2084,8 @@ class shared_ptr {
         // pointer is already managing a (possibly shared) object, then release
         // the reference to that shared object, and destroy it using it
         // associated deleter if this shared pointer held the last shared
-        // reference to that object.  Note that if 'rhs' is null, then this
-        // shared pointer will also be empty after the assignment.
+        // reference to that object.  Note that if the specified 'rhs' is null,
+        // then this shared pointer will also be empty after the assignment.
 
     // MANIPULATORS
     template <class COMPATIBLE_TYPE>
@@ -2939,7 +2941,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, 
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10);
@@ -2953,7 +2955,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, 
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11);
@@ -2967,7 +2969,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, 
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -2982,7 +2984,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, 
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -2997,7 +2999,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, 
+allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -3047,21 +3049,21 @@ shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a, 
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a, 
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a, 
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -3069,7 +3071,7 @@ shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a, 
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -3077,7 +3079,7 @@ shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13, class A14>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a, 
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -3435,7 +3437,7 @@ class SharedPtr_RepProctor {
 
   public:
     // CREATORS
-    explicit SharedPtr_RepProctor(bslma::SharedPtrRep *rep);
+    explicit SharedPtr_RepProctor(bslma::SharedPtrRep *rep_p);
         // TBD Describe how creating this proctor guards a resource.
 
     ~SharedPtr_RepProctor();
@@ -5679,7 +5681,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 bsl::shared_ptr<ELEMENT_TYPE>
 #endif
-bsl::allocate_shared(ALLOC a, 
+bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10)
@@ -5713,7 +5715,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 bsl::shared_ptr<ELEMENT_TYPE>
 #endif
-bsl::allocate_shared(ALLOC a, 
+bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11)
@@ -5748,7 +5750,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 bsl::shared_ptr<ELEMENT_TYPE>
 #endif
-bsl::allocate_shared(ALLOC a, 
+bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -5785,7 +5787,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 bsl::shared_ptr<ELEMENT_TYPE>
 #endif
-bsl::allocate_shared(ALLOC a, 
+bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -5823,7 +5825,7 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 bsl::shared_ptr<ELEMENT_TYPE>
 #endif
-bsl::allocate_shared(ALLOC a, 
+bsl::allocate_shared(ALLOC a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -6072,7 +6074,7 @@ template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10>
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, 
+bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10)
@@ -6102,7 +6104,7 @@ template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11>
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, 
+bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11)
@@ -6133,7 +6135,7 @@ template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12>
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, 
+bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -6166,7 +6168,7 @@ template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13>
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, 
+bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,
@@ -6200,7 +6202,7 @@ template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13, class A14>
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, 
+bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11,

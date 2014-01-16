@@ -426,13 +426,13 @@ namespace NAMESPACE_USAGE_EXAMPLE_1 {
 
       public:
         // CREATORS
-        MyUser(bslma::Allocator *alloc = 0) : d_name(alloc), d_id(0) {}
+        explicit MyUser(bslma::Allocator *alloc = 0) : d_name(alloc), d_id(0) {}
         MyUser(const bsl::string& name, int id, bslma::Allocator *alloc = 0)
         : d_name(name, alloc)
         , d_id(id)
         {
         }
-        MyUser(const MyUser& original, bslma::Allocator *alloc = 0)
+        MyUser(const MyUser& original, bslma::Allocator *alloc = 0) // IMPLICIT
         : d_name(original.d_name, alloc)
         , d_id(original.d_id)
         {
@@ -3347,7 +3347,7 @@ int main(int argc, char *argv[])
         typedef TestHarness<ALLOC_1> T1;
         typedef TestHarness<ALLOC_2> T2;
         typedef TestHarness<ALLOC_3> T3;
-            
+
         T1::testCase3(verbose,
                       veryVerbose,
                       veryVeryVerbose,
@@ -3759,7 +3759,7 @@ int main(int argc, char *argv[])
     } break;
     case 30: {
       // --------------------------------------------------------------------
-      // TEST number is spare 
+      // TEST number is spare
       //
       // Concerns:
       //
@@ -4932,7 +4932,7 @@ int main(int argc, char *argv[])
         // As such, we would support only assigning from ManagedPtr lvalues,
         // but not from rvalues.
 
-//        outerSp = Local::makeManagedInt(42);   
+//        outerSp = Local::makeManagedInt(42);
 
         bslma::ManagedPtr<MyTestObject>   mpd1(new MyTestObject(&obj1));
         bsl::shared_ptr<MyTestBaseObject> spd1(mpd1);
@@ -7052,7 +7052,7 @@ int main(int argc, char *argv[])
                 defaultAllocator.numAllocations() == numDefaultAllocations);
         ASSERTV(defaultAllocator.numDeallocations(),  numDefaultDeallocations,
                defaultAllocator.numDeallocations() == numDefaultDeallocations);
-        
+
         if (verbose) printf(
                          "\nTesting 'createInplace' with default allocator"
                          "\n----------------------------------------------\n");
@@ -7596,7 +7596,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
-        
+
         if (verbose) printf(
                "\nTesting constructor (with deleter and derived allocator)"
                "\n--------------------------------------------------------\n");
