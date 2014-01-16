@@ -256,6 +256,12 @@ class Uplid(object):
 
         return uplid
 
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__) and self.uplid == other.uplid)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __str__(self):
          attrs = ['os_type', 'os_name', 'cpu_type', 'os_ver', 'comp_type', 'comp_ver']
          return '-'.join([self.uplid[a] for a in attrs])

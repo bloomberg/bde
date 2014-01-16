@@ -165,7 +165,7 @@ class BdeWafConfigure(object):
         self.ctx.msg('comp_type', uplid.uplid['comp_type'])
         self.ctx.msg('comp_ver', uplid.uplid['comp_ver'])
         self.ctx.msg('uplid', uplid)
-        self.ctx.msg('ufid', '_'.join(ufid.ufid))
+        self.ctx.msg('ufid', ufid)
         self.ctx.msg('prefix', self.ctx.options.prefix)
 
         self.load_metadata()

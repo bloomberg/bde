@@ -7,8 +7,7 @@ from bdewafconfigure import BdeWafConfigure
 from bdewafbuild import BdeWafBuild
 from bdeoptions import Uplid, Ufid
 
-from waflib import Context
-from waflib import Utils
+from waflib import Context, Utils, Logs
 
 def options(ctx):
     ctx.load('bdeunittest', tooldir = os.path.join('tools', 'waf', 'bde'))
@@ -68,8 +67,8 @@ def configure(ctx):
         if matching_comps[cxx_name] != cc_name:
             ctx.fatal('C compiler and C++ compiler must match. Expected c compiler: %s' % matching_comps[cxx_name])
         if cc_ver != cxx_ver:
-            ctx.fatal('C compiler and C++ compiler must be the same version. ' +
-                      "C compiler version: %s, C++ compiler version: %s" % (cc_ver, cxx_ver))
+            ctx.fatal('C compiler and C++ compiler must be the same version. '
+                      'C compiler version: %s, C++ compiler version: %s' % (cc_ver, cxx_ver))
 
     uplid = _make_uplid_from_context(ctx)
     bde_configure = BdeWafConfigure(ctx)
@@ -151,6 +150,16 @@ def _make_uplid_from_context(ctx):
                   os_ver,
                   cxx,
                   cxx_version)
+
+    env_uplid_str = os.getenv('BDE_WAF_UPLID')
+    if env_uplid_str:
+        env_uplid = Uplid.from_platform_str(env_uplid_str)
+
+        if uplid != env_uplid:
+            Logs.warn(("The identified uplid, '%s', is different from the environment variable BDE_WAF_UPLID. "
+                       "Override the uplid to match BDE_WAF_UPLID, '%s'.") % (uplid, env_uplid))
+            uplid = env_uplid
+
     return uplid
 
 

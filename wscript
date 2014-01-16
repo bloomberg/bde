@@ -11,9 +11,13 @@ out = 'build'
 
 def _get_tools_path(ctx):
 
+    # Uses the local BDE waf customziations if they exist
+    if os.path.isdir(os.path.join('tools', 'waf', 'bde')):
+        return os.path.join('tools', 'waf', 'bde');
+
     bde_path = os.getenv('BDE_PATH')
     if not bde_path:
-        return os.path.join('tools', 'waf', 'bde')
+        ctx.fatal('BDE waf customizations do not exist locally, and the BDE_PATH environment variable is not defined.')
 
     platform = Utils.unversioned_sys_platform()
     delimiter = ':'
@@ -26,7 +30,8 @@ def _get_tools_path(ctx):
                 os.path.isdir(os.path.join(path, 'tools', 'waf', 'bde')):
             return os.path.join(path, 'tools', 'waf', 'bde');
 
-    ctx.fatal('BDE_PATH is defined, but the location of BDE waf customizations, which should be in bsl, could not be found.')
+    ctx.fatal('The BDE_PATH environment variable is defined, but the location of BDE waf customizations, '
+              'which should be in bsl, could not be found.')
 
 def options(ctx):
     import sys
