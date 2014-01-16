@@ -289,8 +289,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #define INCLUDED_TYPEINFO
 #endif
 
-//#define BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -333,8 +331,10 @@ class SharedPtrRep {
   public:
     // CLASS METHODS
     static void managedPtrDeleter(void *, void *rep);
-        // Delete the shared object referred to by this representation if all
-        // the shared references to the shared object are released.  Note that
+        // Release the shared reference to an object held by the 'SharedPtrRep'
+        // object which is pointed to be by specified 'rep'.  The behavior is
+        // undefined unless 'rep' points to an object whose complete type
+        // publicly and unambiguously derives from 'SharedPtrRep'.  Note that
         // the first argument is ignored.  Also note that this function serves
         // as the managed ptr deleter when converting a 'bsl::shared_ptr' to a
         // 'bslma::ManagedPtr'.
@@ -350,13 +350,15 @@ class SharedPtrRep {
         // to by this representation.  The behavior is undefined unless
         // '0 < numReferences()'.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     void incrementRefs(int incrementAmount = 1);
         // Atomically increment the number of shared references to the shared
-        // object referred to by this representation by the specified
-        // 'incrementAmount'.  The behavior is undefined unless
+        // object referred to by this representation by the optionally
+        // specified 'incrementAmount'.  The behavior is undefined unless
         // '0 < incrementAmount' and '0 < numReferences()'.
         //
         // DEPRECATED: Use 'acquireRef' instead.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     void acquireWeakRef();
         // Atomically acquire a weak reference to the shared object referred to
@@ -483,6 +485,7 @@ void SharedPtrRep::acquireRef()
     d_adjustedSharedCount.addRelaxed(2);        // minimum consistency: relaxed
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 void SharedPtrRep::incrementRefs(int incrementAmount)
 {
@@ -492,6 +495,7 @@ void SharedPtrRep::incrementRefs(int incrementAmount)
     d_adjustedSharedCount.addRelaxed(incrementAmount * 2);
                                                 // minimum consistency: relaxed
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 void SharedPtrRep::releaseWeakRef()

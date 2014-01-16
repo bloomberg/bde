@@ -189,7 +189,7 @@ void MyTestImplementation::disposeObject()
     ++d_numObjectDisposed;
 }
 
-void *MyTestImplementation::getDeleter(const std::type_info& type)
+void *MyTestImplementation::getDeleter(const std::type_info& /*type*/)
 {
     return 0;
 }
