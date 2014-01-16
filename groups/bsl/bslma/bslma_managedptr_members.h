@@ -40,9 +40,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslma {
 
-                     // ==============================
+                     // ========================
                      // class ManagedPtr_Members
-                     // ==============================
+                     // ========================
 
 class ManagedPtr_Members {
     // Non-type-specific managed pointer member variables.  This type exists so
@@ -155,12 +155,12 @@ class ManagedPtr_Members {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                    // ------------------------------
+                    // ------------------------
                     // class ManagedPtr_Members
-                    // ------------------------------
+                    // ------------------------
 
 // CREATORS
 inline
