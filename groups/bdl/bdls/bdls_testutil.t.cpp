@@ -18,6 +18,7 @@
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 # include <windows.h>   // MAX_PATH
 # include <io.h>        // _dup2
+# define snprintf _snprintf
 #else
 # include <unistd.h>
 #endif
