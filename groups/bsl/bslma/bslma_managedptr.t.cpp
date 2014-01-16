@@ -1484,7 +1484,7 @@ void doConstructObject(int callLine, int testLine, int index,
 // We now require separate policies for Object and Factory types
 
 template<class POINTER_TYPE, class FactoryPolicy>
-void doConstructOnullFactory(int callLine, int testLine, int index,
+void doConstructOnullFactory(int callLine, int testLine, int /*index*/,
                              TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);

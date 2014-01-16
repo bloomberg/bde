@@ -1180,6 +1180,7 @@ class ManagedPtr {
         // an ambiguity for this specific this case.  It should be removed when
         // the deprecated overloads are removed.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <class MANAGED_TYPE, class COOKIE_TYPE>
     void load(MANAGED_TYPE *ptr, COOKIE_TYPE *cookie, DeleterFunc deleter);
 
@@ -1218,6 +1219,7 @@ class ManagedPtr {
         // be written as if it were available, as an appropriate (deprecated)
         // overload will be selected with the correct (non-deprecated)
         // behavior.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <class ALIASED_TYPE>
     void loadAlias(ManagedPtr<ALIASED_TYPE>& alias, TARGET_TYPE *ptr);
@@ -1348,7 +1350,8 @@ struct ManagedPtr_DefaultDeleter {
 
     // CLASS METHODS
     static void deleter(void *ptr, void *);
-        // Calls 'delete(ptr)' after casting 'ptr' to a 'MANAGED_TYPE *'.
+        // Calls 'delete(ptr)' after casting the specified 'ptr' to (template
+        // parameter) type 'MANAGED_TYPE *'.
 };
 
                         // =================================
@@ -1367,7 +1370,7 @@ struct ManagedPtr_ImpUtil {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                       // ----------------------------
@@ -1642,6 +1645,7 @@ void ManagedPtr<TARGET_TYPE>::loadImp(MANAGED_TYPE *ptr,
     d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class COOKIE_TYPE>
 inline
@@ -1654,6 +1658,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
 
     this->loadImp(ptr, static_cast<void *>(cookie), deleter);
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
@@ -1690,6 +1695,7 @@ void ManagedPtr<TARGET_TYPE>::load(bsl::nullptr_t, FACTORY_TYPE *)
     this->clear();
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class MANAGED_BASE>
 inline
@@ -1724,6 +1730,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                   static_cast<void *>(static_cast<COOKIE_BASE *>(cookie)),
                   reinterpret_cast<DeleterFunc>(deleter));
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class TARGET_TYPE>
 template <class ALIASED_TYPE>
@@ -1755,11 +1762,11 @@ template <typename TARGET_TYPE>
 ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
 ManagedPtr<TARGET_TYPE>::release()
 {
-    typedef ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
-                                                                   ResultType;
+    typedef ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> ResultType;
+
     TARGET_TYPE *p = ptr();
     if (!p) {
-        // undefined behavior to call d_members.deleter() if 'p' is null.
+        // It is undefined behavior to call d_members.deleter() if 'p' is null.
 
         return ResultType();                                          // RETURN
     }
