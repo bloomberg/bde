@@ -299,6 +299,21 @@ def _add_commandline_options(ctx):
 
     add_opts(configure_group, configure_opts)
 
+
+
+    # Modify the default value of the --jobs option to the number of processors with a maximum value of 24.
+    jobs = ctx.jobs()
+    if jobs > 24:
+        jobs = 24
+
+    ctx.parser.remove_option('-j')
+    ctx.parser.add_option('-j', '--jobs',
+                          dest='jobs',
+                          default=jobs,
+                          type='int',
+                          help='amount of parallel jobs (%r)' % jobs)
+
+
 # ----------------------------------------------------------------------------
 # Copyright (C) 2013-2014 Bloomberg Finance L.P.
 #
