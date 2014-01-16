@@ -730,6 +730,13 @@ BSLS_IDENT("$Id: $")
 #elif defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_OS_HPUX)
 #   include <bsls_atomicoperations_ia64_hp_acc.h>
 
+#elif defined(BSLS_PLATFORM_CPU_ARM)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#       include <bsls_atomicoperations_arm_all_gcc.h>
+#   else
+#       define BSLS_ATOMICOPERATIONS_ERROR
+#   endif
+
 #else
 #   define BSLS_ATOMICOPERATIONS_ERROR
 #endif
