@@ -468,6 +468,10 @@ unix-*-*-*-gcc-4.2   _  GCCEXTRAWFLAGS  =   \
 !! *-*-*-*-gcc          64  CC64FLAGS   = -m64
 !! *-*-x86_64-*-gcc     _   CC64FLAGS   = -m32 -march=pentium2 -mtune=opteron
 !! *-*-x86_64-*-gcc     64  CC64FLAGS   = -m64 -mtune=opteron
+!! *-*-armv6l-*-gcc     _   CC64FLAGS   = -march=armv6zk
+!! *-*-armv7l-*-gcc     _   CC64FLAGS   = -march=armv7-a
+!! *-*-armv7b-*-gcc     _   CC64FLAGS   = -march=armv7-a
+
 # DRQS 10505346 -- switch to -xtarget=ultra3 for Sun, -qarch=pwr4 -qtune=pwr5 for AIX
 #old flags
 unix-SunOS-*-*-CC64     _   CC64FLAGS   =  -m32 -xarch=sparcvis -xchip=generic -xcache=generic
