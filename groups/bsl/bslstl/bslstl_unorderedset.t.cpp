@@ -499,10 +499,11 @@ void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
+    typedef typename CONTAINER::size_type      size_type;
 
-    const size_t size = c.size();
+    const size_type size = c.size();
 
-    size_t counter = 0;
+    size_type counter = 0;
     for (iterator it = c.begin(); it != c.end(); ++it, ++counter) {}
     LOOP2_ASSERT(size, counter, size == counter);
 
@@ -548,7 +549,7 @@ void testBuckets(CONTAINER& mX)
 //    SizeType collisions = 0;
     SizeType itemCount  = 0;
 
-    for (unsigned i = 0; i != bucketCount; ++i ) {
+    for (SizeType i = 0; i != bucketCount; ++i ) {
         const SizeType count = x.bucket_size(i);
         if (0 == count) {
             // if (veryVeryVerbose) cout << i << "\t(EMPTY)" << endl;
@@ -826,7 +827,7 @@ size_t verifyContainer(const CONTAINER& container,
         return static_cast<size_t>(-2);                               // RETURN
     }
 
-    size_t missing = 0;
+    int missing = 0;
     for (size_t j = 0; j != expectedSize; ++j) {
         if (!foundValues[j]) {
             ++missing;
@@ -1904,12 +1905,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
             const float  LOAD  = X.load_factor();
 
             ASSERTV(LOAD,
-                    static_cast<float>(X.size())
-                                         / static_cast<float>(X.bucket_count()),
+                    static_cast<double>(X.size())
+                                       / static_cast<double>(X.bucket_count()),
                     nearlyEqual<double>(
                         LOAD,
                         static_cast<double>(X.size())
-                                      / static_cast<double>(X.bucket_count())));
+                                     / static_cast<double>(X.bucket_count())));
             ASSERTV(1.0f == X.max_load_factor());
 
             int numPasses = 0;
@@ -1926,12 +1927,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
 
             const float LOAD2 = X.load_factor();
             ASSERTV(LOAD2,
-                    static_cast<float>(X.size())
-                                         / static_cast<float>(X.bucket_count()),
+                    static_cast<double>(X.size())
+                                       / static_cast<double>(X.bucket_count()),
                     nearlyEqual<double>(
                         LOAD2,
                         static_cast<double>(X.size())
-                                      / static_cast<double>(X.bucket_count())));
+                                     / static_cast<double>(X.bucket_count())));
 
             ASSERTV(X == Y);
 
@@ -5271,7 +5272,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
     //   allocator_type get_allocator() const;
     // ------------------------------------------------------------------------
 
-    static const struct {
+    static const struct { 
         int         d_line;                     // source line number
         const char *d_spec;                     // specification string
         const char *d_results;                  // expected results
@@ -5547,7 +5548,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
 
             if (LENGTH != oldLen) {
                 if (verbose) printf("\tof length %d:\n", LENGTH);
-                 ASSERTV(LINE, oldLen <= LENGTH);  // non-decreasing
+                ASSERTV(LINE, oldLen <= LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
