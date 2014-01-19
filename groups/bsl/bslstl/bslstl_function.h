@@ -253,16 +253,53 @@ class Function_Rep {
     // Short aliases for type with maximum platform alignment
     typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
 
+    union PtrOrSize_t {
+        // This union stores either a pointer to const void or a size_t.  It
+        // is used as the input argument and return type for manager functions
+        // (below).
+    private:
+        std::size_t  d_asSize_t;
+        const void  *d_asPtr;
+
+    public:
+        PtrOrSize_t(std::size_t s) : d_asSize_t(s) { }
+        PtrOrSize_t(const void *p) : d_asPtr(p) { }
+        PtrOrSize_t() : d_asPtr(0) { }
+
+        std::size_t asSize_t() const { return d_asSize_t; }
+        const void *asPtr() const { return d_asPtr; }
+    };
+
     enum ManagerOpCode {
         // This enumeration provide values to identify operations to be
-        // performed by an object manager function (below).
+        // performed by an object manager function (below).  The object being
+        // managed is either the function object in the case of the function
+        // manager or the allocator object in the case of the allocator
+        // manager.
 
         e_MOVE_CONSTRUCT
+            // move-construct the object in 'rep' from the object pointed to
+            // by 'input'.  Return the number of bytes needed to hold the
+            // object.
+
       , e_COPY_CONSTRUCT
+            // copy-construct the object in 'rep' from the object pointed to
+            // by 'input'.  Return the number of bytes needed to hold the
+            // object.
+
       , e_DESTROY
+            // Call the destructor on the object in 'rep'.  Return the number
+            // of bytes needed to hold the destroyed object.  Some managers
+            // also deallocate memory.
+
       , e_GET_SIZE
+            // Return the size of the object.  ('rep' and 'input' are ignored.)
+
       , e_GET_TARGET
+            // Return a pointer to the object in 'rep'.
+
       , e_GET_TYPE_ID
+            // Return a pointer to the 'type_info' for the object in 'rep'.
     };
 
     enum AllocType {
@@ -274,14 +311,14 @@ class Function_Rep {
       , e_ERASED_STATELESS_ALLOC // C++03 STL-style stateless allocator
     };
 
-    typedef const void *(*Manager)(ManagerOpCode  opCode,
+    typedef PtrOrSize_t (*Manager)(ManagerOpCode  opCode,
                                    Function_Rep  *rep,
-                                   const void    *source);
+                                   PtrOrSize_t    input);
         // 'Manager' is an alias for a pointer to a function that manages a
         // specific object type (i.e., it copies, moves, or destroyes it).  It
         // implements a kind of hand-coded virtual-function dispatch.  The
         // specified 'opCode' is used to choose the "virtual function" to
-        // invoke, where the specified 'rep' and 'target' are arguments to
+        // invoke, where the specified 'rep' and 'input' are arguments to
         // that function.  Internally, a 'Manager' function uses a 'switch'
         // statement rather than performing a virtual-table lookup.  This
         // mechanism is chosen because it saves a significant amount of space
@@ -350,20 +387,20 @@ class Function_Rep {
                  integral_constant<AllocType, ATP> atp);
 
     template <class FUNC>
-    static const void *functionManager(ManagerOpCode  opCode,
+    static PtrOrSize_t functionManager(ManagerOpCode  opCode,
                                        Function_Rep  *rep,
-                                       const void    *source);
+                                       PtrOrSize_t    input);
 
-    static const void *unownedAllocManager(ManagerOpCode  opCode,
+    static PtrOrSize_t unownedAllocManager(ManagerOpCode  opCode,
                                            Function_Rep  *rep,
-                                           const void    *source);
+                                           PtrOrSize_t    input);
         // Note that this function is not a template.  It is defined in the
         // component .cpp file.
 
     template <class FUNC>
-    static const void *ownedAllocManager(ManagerOpCode  opCode,
+    static PtrOrSize_t ownedAllocManager(ManagerOpCode  opCode,
                                          Function_Rep  *rep,
-                                         const void    *source);
+                                         PtrOrSize_t    input);
 
   private:
     // DATA
@@ -4927,135 +4964,11 @@ inline void const *bsl::Function_PairBufDesc::second(void const *buffer) const
                         // class bsl::Function_Rep
                         // -----------------------
 
-#if 0
 template <class FUNC>
-inline
-bsl::Function_Rep::Manager
-bsl::Function_Rep::getFuncManager(const FUNC&, true_type /* inplace */)
-{
-    return &inplaceFuncManager<FUNC>;
-}
-
-template <class FUNC>
-inline
-bsl::Function_Rep::Manager
-bsl::Function_Rep::getFuncManager(const FUNC&, false_type /* inplace */)
-{
-    return &outofplaceFuncManager<FUNC>;
-}
-
-template <class FUNC>
-const void *bsl::Function_Rep::inplaceFuncManager(ManagerOpCode  opCode,
-                                                  Function_Rep  *rep,
-                                                  const void    *source)
-{
-    static const k_FUNC_SIZE = Function_ObjSize<FUNC>::VALUE;
-
-    switch (opCode) {
-      case e_MOVE_CONSTRUCT: {
-          // There is no point to optimizing this operation for bitwise
-          // moveable types.  If the type is trivially moveable, then the move
-          // operation below will do it trivially.
-          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-          ::new (&rep->d_objbuf) FUNC(std::move(srcFunc));
-#else
-          ::new (&rep->d_objbuf) FUNC(srcFunc);
-#endif
-      } break;
-
-      case e_COPY_CONSTRUCT: {
-          // There is no point to optimizing this operation for bitwise
-          // copyable types.  If the type is trivially moveable, then the copy
-          // operation below will do it trivially.
-          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
-          ::new (&rep->d_objbuf) FUNC(srcFunc);
-      } break;
-
-      case e_DESTROY: {
-          reinterpret_cast<FUNC&>(rep->d_objbuf).~FUNC();
-
-          // Return size of destroyed function object
-          return reinterpret_cast<const void*>(k_FUNC_SIZE);
-      } break;
-
-      case e_GET_SIZE: {
-          return reinterpret_cast<const void*>(k_FUNC_SIZE);
-      } break;
-
-      case e_GET_TARGET: {
-          return &rep->d_objbuf;
-      } break;
-
-      case e_GET_TYPE_ID: {
-          return &typeid(FUNC);
-      } break;
-
-    } // end switch
-
-    return NULL;
-}
-
-template <class FUNC>
-const void *bsl::Function_Rep::outofplaceFuncManager(ManagerOpCode  opCode,
-                                                     Function_Rep  *rep,
-                                                     const void    *source)
-{
-    static const k_FUNC_SIZE = Function_ObjSize<FUNC>::VALUE;
-
-    switch (opCode) {
-
-      case e_MOVE_CONSTRUCT: {
-          // There is no point to optimizing this operation for bitwise
-          // moveable types.  If the type is trivially moveable, then the move
-          // operation below will do it trivially.
-          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-          ::new (rep->d_objbuf.d_object_p) FUNC(std::move(srcFunc));
-#else
-          ::new (rep->d_objbuf.d_object_p) FUNC(srcFunc);
-#endif
-      } break;
-
-      case e_COPY_CONSTRUCT: {
-          // There is no point to optimizing this operation for bitwise
-          // copyable types.  If the type is trivially copyiable, then the copy
-          // operation below will do it trivially.
-          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
-          ::new (rep->d_objbuf.d_object_p) FUNC(srcFunc);
-      } break;
-
-      case e_DESTROY: {
-          reinterpret_cast<FUNC&>(rep->d_objbuf.d_object_p).~FUNC();
-
-          // Return size of destroyed function object
-          return reinterpret_cast<const void*>(k_FUNC_SIZE);
-      } break;
-
-      case e_GET_SIZE: {
-          return reinterpret_cast<const void*>(k_FUNC_SIZE);
-      } break;
-
-      case e_GET_TARGET: {
-          return rep->d_objbuf.d_object_p;
-      } break;
-
-      case e_GET_TYPE_ID: {
-          return &typeid(FUNC);
-      } break;
-
-    } // end switch
-
-    return NULL;
-}
-#endif // 0
-
-template <class FUNC>
-const void *bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
-                                               Function_Rep  *rep,
-                                               const void    *source)
+bsl::Function_Rep::PtrOrSize_t
+bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
+                                   Function_Rep  *rep,
+                                   PtrOrSize_t    input)
 {
     static const std::size_t k_FUNC_SIZE = Function_ObjSize<FUNC>::VALUE;
 
@@ -5072,12 +4985,13 @@ const void *bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           // There is no point to optimizing this operation for bitwise
           // moveable types.  If the type is trivially moveable, then the move
           // operation below will do it trivially.
-          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
+          FUNC &srcFunc =
+              *static_cast<FUNC*>(const_cast<void*>(input.asPtr()));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-          ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
+          return ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
 #else
-          ::new (wrappedFunc_p) FUNC(srcFunc);
+          return ::new (wrappedFunc_p) FUNC(srcFunc);
 #endif
       } break;
 
@@ -5085,53 +4999,46 @@ const void *bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           // There is no point to optimizing this operation for bitwise
           // copyable types.  If the type is trivially copyiable, then the copy
           // operation below will do it trivially.
-          FUNC &srcFunc = *static_cast<FUNC*>(const_cast<void*>(source));
-          ::new (wrappedFunc_p) FUNC(srcFunc);
+          const FUNC &srcFunc = *static_cast<const FUNC*>(input.asPtr());
+          return ::new (wrappedFunc_p) FUNC(srcFunc);
       } break;
 
       case e_DESTROY: {
           reinterpret_cast<FUNC&>(wrappedFunc_p).~FUNC();
 
           // Return size of destroyed function object
-          return reinterpret_cast<const void*>(k_FUNC_SIZE);
+          return k_FUNC_SIZE;
       } break;
 
-      case e_GET_SIZE: {
-          return reinterpret_cast<const void*>(k_FUNC_SIZE);
-      } break;
-
-      case e_GET_TARGET: {
-          return wrappedFunc_p;
-      } break;
-
-      case e_GET_TYPE_ID: {
-          return &typeid(FUNC);
-      } break;
+      case e_GET_SIZE:    return k_FUNC_SIZE;
+      case e_GET_TARGET:  return wrappedFunc_p;
+      case e_GET_TYPE_ID: return &typeid(FUNC);
 
     } // end switch
 
-    return NULL;
+    return PtrOrSize_t();
 }
 
 template <class ALLOC>
-const void *bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
-                                                 Function_Rep  *rep,
-                                                 const void    *source)
+bsl::Function_Rep::PtrOrSize_t
+bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
+                                     Function_Rep  *rep,
+                                     PtrOrSize_t    input)
 {
     typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
 
     switch (opCode) {
       case e_MOVE_CONSTRUCT: // Fall through: allocators are always copied
       case e_COPY_CONSTRUCT: {
-        Adaptor& other = *static_cast<const Adaptor*>(source);
-        ::new (rep->d_allocator_p) Adaptor(other);
+        const Adaptor& other = *static_cast<const Adaptor*>(input.asPtr());
+        return ::new (rep->d_allocator_p) Adaptor(other);
       } break;
 
       case e_DESTROY: {
         // Allocator cannot deallocate itself, so make a copy of the allocator
         // on the stack and use the copy for deallocation.
         Adaptor allocCopy(*static_cast<Adaptor*>(rep->d_allocator_p));
-        std::size_t funcSize = reinterpret_cast<std::size_t>(source);
+        std::size_t funcSize = input.asSize_t();
 
         rep->d_allocator_p->~Allocator();  // destroy allocator
 
@@ -5146,14 +5053,16 @@ const void *bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         }
         // else everything is inplace.  Nothing to deallocate.
 
-        return reinterpret_cast<const void*>(sizeof(Adaptor));
+        // Return size allocator adaptor.
+        return sizeof(Adaptor);
       }
-      case e_GET_SIZE:   return reinterpret_cast<const void*>(sizeof(Adaptor));
-      case e_GET_TARGET: return rep->d_allocator_p;
-      case e_GET_TYPE_ID:return &typeid(ALLOC);
+
+      case e_GET_SIZE:    return sizeof(Adaptor);
+      case e_GET_TARGET:  return rep->d_allocator_p;
+      case e_GET_TYPE_ID: return &typeid(ALLOC);
     } // end switch
 
-    return NULL;
+    return PtrOrSize_t();
 }
 
 inline
@@ -5261,8 +5170,8 @@ void bsl::Function_Rep::copyRep(const Function_Rep&               other,
     typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
 
     // Compute function size.
-    std::size_t funcSize = (std::size_t) other.d_funcManager_p(e_GET_SIZE,
-                                                               this, NULL);
+    std::size_t funcSize =
+        other.d_funcManager_p(e_GET_SIZE, this, NULL).asSize_t();
 
     void *function_p = initRep(funcSize, alloc, atp);
 
@@ -5506,14 +5415,14 @@ bsl::function<RET(ARGS...)>::~function()
     BSLS_ASSERT(d_allocManager_p);
 
     // Integral function size cast to pointer type.
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
         // Destroy returns the size of the object that was destroyed.
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 // MANIPULATORS
@@ -5598,9 +5507,10 @@ bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class... ARGS>
@@ -5611,8 +5521,8 @@ T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class... ARGS>
@@ -9947,13 +9857,13 @@ bsl::function<RET()>::~function()
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01>
@@ -9962,13 +9872,13 @@ bsl::function<RET(ARGS_01)>::~function()
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -9979,13 +9889,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -9998,13 +9908,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -10019,13 +9929,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -10042,13 +9952,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -10067,13 +9977,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -10094,13 +10004,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -10123,13 +10033,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -10154,13 +10064,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class ARGS_01,
@@ -10187,13 +10097,13 @@ bsl::function<RET(ARGS_01,
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 
@@ -11857,9 +11767,10 @@ bsl::function<RET()>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01>
@@ -11870,9 +11781,10 @@ bsl::function<RET(ARGS_01)>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -11885,9 +11797,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -11902,9 +11815,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -11921,9 +11835,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -11942,9 +11857,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -11965,9 +11881,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -11990,9 +11907,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -12017,9 +11935,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -12046,9 +11965,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class ARGS_01,
@@ -12077,9 +11997,10 @@ bsl::function<RET(ARGS_01,
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 
@@ -12091,8 +12012,8 @@ T* bsl::function<RET()>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01>
@@ -12103,8 +12024,8 @@ T* bsl::function<RET(ARGS_01)>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12117,8 +12038,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12133,8 +12054,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12151,8 +12072,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12171,8 +12092,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12193,8 +12114,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12217,8 +12138,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12243,8 +12164,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12271,8 +12192,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class ARGS_01,
@@ -12301,8 +12222,8 @@ T* bsl::function<RET(ARGS_01,
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 
@@ -13427,13 +13348,13 @@ bsl::function<RET(ARGS...)>::~function()
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
 
-    const void* funcSizeAsPtr = 0;
+    PtrOrSize_t funcSize;
 
     if (d_funcManager_p) {
-        funcSizeAsPtr = d_funcManager_p(e_DESTROY, this, NULL);
+        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSizeAsPtr);
+    d_allocManager_p(e_DESTROY, this, funcSize);
 }
 
 template <class RET, class... ARGS>
@@ -13508,9 +13429,10 @@ bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
         return typeid(void);
     }
 
-    const void *ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this), NULL);
-    return *static_cast<const std::type_info*>(ret);
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<function*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
 template <class RET, class... ARGS>
@@ -13521,8 +13443,8 @@ T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
         return NULL;
     }
 
-    const void *target_p = d_funcManager_p(e_GET_TARGET, this, NULL);
-    return static_cast<T*>(const_cast<void*>(target_p));
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
 }
 
 template <class RET, class... ARGS>
