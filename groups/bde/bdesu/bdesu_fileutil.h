@@ -30,7 +30,7 @@ BDES_IDENT("$Id: $")
 //:   process.  [Doc 1] [Doc 2]
 //:
 //: o On at least some flavors of Unix, you can't lock a file for writing using
-//:   file descriptor opened in read-only mode.
+//:   a file descriptor opened in read-only mode.
 //
 ///Platform-Specific Atomicity Caveats
 ///-----------------------------------
@@ -47,9 +47,9 @@ BDES_IDENT("$Id: $")
 // containing log files:
 //..
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//    bsl::string logPath = "temp\\logs";
+//    bsl::string logPath = "temp.1\\logs";
 //  #else
-//    bsl::string logPath = "tmp/logs";
+//    bsl::string logPath = "temp.1/logs";
 //  #endif
 //..
 // Suppose that we want to separate files into "old" and "new" subdirectories
@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 //..
 //  bdet_Datetime modTime;
 //  bsl::string   fileName;
-//  for (bsl::vector<bdesu_Path>::iterator it = logFiles.begin();
+//  for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
 //                                               it != logFiles.end(); ++it) {
 //    assert(0 == bdesu_FileUtil::getLastModificationTime(&modTime, *it));
 //    assert(0 == bdesu_PathUtil::getLeaf(&fileName, *it));

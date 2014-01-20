@@ -328,44 +328,59 @@ void NoOpAssertHandler(const char *, const char *, int)
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 // Ensures that the following functions in usage example 2 compiles and runs on
-// all platform.
+// all platforms.
 //-----------------------------------------------------------------------------
 
 namespace UsageExample2 {
 
-void getFilesWithinTimeframe(bsl::vector<bsl::string> *vector,
-                             const char               *item,
-                             const bdet_Datetime&      start,
-                             const bdet_Datetime&      end)
-{
-    bdet_Datetime datetime;
-    int ret = bdesu_FileUtil::getLastModificationTime(&datetime, item);
+///Example 2: Using 'bdesu_FileUtil::visitPaths'
+///- - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_FileUtil::visitPaths' enables clients to define a functor to operate
+// on file paths that match a specified pattern.  In this example, we create a
+// function that can be used to filter out files that have a last modified time
+// within a particular time frame.
+//
+// First we define our filtering function:
+//..
+    void getFilesWithinTimeframe(bsl::vector<bsl::string> *vector,
+                                 const char               *item,
+                                 const bdet_Datetime&      start,
+                                 const bdet_Datetime&      end)
+    {
+        bdet_Datetime datetime;
+        int ret = bdesu_FileUtil::getLastModificationTime(&datetime, item);
 
-    if (ret) {
-        return;                                                       // RETURN
+        if (ret) {
+            return;                                                   // RETURN
+        }
+
+        if (datetime < start || datetime > end) {
+            return;                                                   // RETURN
+        }
+
+        vector->push_back(item);
     }
-
-    if (datetime < start || datetime > end) {
-        return;                                                       // RETURN
+//..
+// Then, with the help of 'bdesu_FileUtil::visitPaths' and
+// 'bdef_BindUtil::bind', we create a function for finding all file paths that
+// match a specified pattern and have a last modified time within a specified
+// start and end time (both specified as a 'bdet_Datetime'):
+//..
+    void findMatchingFilesInTimeframe(bsl::vector<bsl::string> *result,
+                                      const char               *pattern,
+                                      const bdet_Datetime&      start,
+                                      const bdet_Datetime&      end)
+    {
+        result->clear();
+        bdesu_FileUtil::visitPaths(
+                                  pattern,
+                                  bdef_BindUtil::bind(&getFilesWithinTimeframe,
+                                                      result,
+                                                      bdef_PlaceHolders::_1,
+                                                      start,
+                                                      end));
     }
-
-    vector->push_back(item);
-}
-
-void findMatchingFilesInTimeframe(bsl::vector<bsl::string> *result,
-                                  const char               *pattern,
-                                  const bdet_Datetime&      start,
-                                  const bdet_Datetime&      end)
-{
-    result->clear();
-    bdesu_FileUtil::visitPaths(
-                              pattern,
-                              bdef_BindUtil::bind(&getFilesWithinTimeframe,
-                                                  result,
-                                                  bdef_PlaceHolders::_1,
-                                                  start,
-                                                  end));
-}
+//..
 
 }  // close namespace UsageExample2
 
@@ -487,37 +502,56 @@ int main(int argc, char *argv[])
         // make sure there isn't an unfortunately named file in the way
 
         bdesu_FileUtil::remove("temp.1");
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string logPath =  "temp.1\\logs";
-#else
-        bsl::string logPath =  "temp.1/logs";
-#endif
 
-        bsl::string oldPath(logPath), newPath(logPath);
-        bdesu_PathUtil::appendRaw(&oldPath, "old");
-        bdesu_PathUtil::appendRaw(&newPath, "new");
-        ASSERT(0 == bdesu_FileUtil::createDirectories(oldPath.c_str(), true));
-        ASSERT(0 == bdesu_FileUtil::createDirectories(newPath.c_str(), true));
-        bdesu_PathUtil::appendRaw(&logPath, "*.log");
-        vector<bsl::string> logFiles;
-        bdesu_FileUtil::findMatchingPaths(&logFiles, logPath.c_str());
-
-        bdet_Datetime modTime;
-        string        fileName;
-        for (vector<bsl::string>::iterator it = logFiles.begin();
-                                              it != logFiles.end(); ++it) {
-            ASSERT(0 ==
-                       bdesu_FileUtil::getLastModificationTime(&modTime, *it));
-            bdesu_PathUtil::getLeaf(&fileName, *it);
-            bsl::string* whichDirectory =
-               2 < (bdetu_SystemTime::nowAsDatetimeUtc() - modTime).totalDays()
-               ? &oldPath
-               : &newPath;
-            bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
-            ASSERT(0 == bdesu_FileUtil::move(it->c_str(),
-                                            whichDirectory->c_str()));
-            bdesu_PathUtil::popLeaf(whichDirectory);
-        }
+///Example 1: General Usage
+///- - - - - - - - - - - - -
+// In this example, we start with a (relative) native path to a directory
+// containing log files:
+//..
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
+      bsl::string logPath = "temp.1\\logs";
+    #else
+      bsl::string logPath = "temp.1/logs";
+    #endif
+//..
+// Suppose that we want to separate files into "old" and "new" subdirectories
+// on the basis of modification time.  We will provide paths representing these
+// locations, and create the directories if they do not exist:
+//..
+    bsl::string oldPath(logPath), newPath(logPath);
+    bdesu_PathUtil::appendRaw(&oldPath, "old");
+    bdesu_PathUtil::appendRaw(&newPath, "new");
+    int rc = bdesu_FileUtil::createDirectories(oldPath.c_str(), true);
+    ASSERT(0 == rc);
+    rc = bdesu_FileUtil::createDirectories(newPath.c_str(), true);
+    ASSERT(0 == rc);
+//..
+// We know that all of our log files match the pattern "*.log", so let's search
+// for all such files in the log directory:
+//..
+    bdesu_PathUtil::appendRaw(&logPath, "*.log");
+    bsl::vector<bsl::string> logFiles;
+    bdesu_FileUtil::findMatchingPaths(&logFiles, logPath.c_str());
+//..
+// Now for each of these files, we will get the modification time.  Files that
+// are older than 2 days will be moved to "old", and the rest will be moved to
+// "new":
+//..
+    bdet_Datetime modTime;
+    bsl::string   fileName;
+    for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
+                                                 it != logFiles.end(); ++it) {
+      ASSERT(0 == bdesu_FileUtil::getLastModificationTime(&modTime, *it));
+      ASSERT(0 == bdesu_PathUtil::getLeaf(&fileName, *it));
+      bsl::string *whichDirectory =
+                 2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
+                  ? &oldPath
+                  : &newPath;
+      bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
+      ASSERT(0 == bdesu_FileUtil::move(it->c_str(), whichDirectory->c_str()));
+      bdesu_PathUtil::popLeaf(whichDirectory);
+    }
+//..
 
 #if 0
         // file i/o

@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//  bdesu_FileUtilUtf8: struct which scopes file system utilities
+//  bdesu_FileUtilUtf8: namespace for file system acess functions
 //
 //@SEE_ALSO: bdesu_fileutil, bdesu_pathutil
 //
@@ -30,7 +30,7 @@ BDES_IDENT("$Id: $")
 //:   process.  [Doc 1] [Doc 2]
 //:
 //: o On at least some flavors of Unix, you can't lock a file for writing using
-//:   file descriptor opened in read-only mode.
+//:   a file descriptor opened in read-only mode.
 //
 ///Platform-Specific Atomicity Caveats
 ///-----------------------------------
@@ -44,19 +44,18 @@ BDES_IDENT("$Id: $")
 // File-name encodings have the following caveats for the following operating
 // systems:
 //
-//: o On Windows, methods of 'bdesu_FileUtilUtf8' that take a file or
-//:   directory name or pattern as a 'char*' or 'bsl::string' type assume that
-//:   the name is encoded in UTF-8.  The routines attempt to convert the name
-//:   to a UTF-16 'wchar_t' string via 'bdede_CharConvertUtf16::utf8ToUtf16',
-//:   and if the conversion succeeds, call the Windows wide-character 'W' APIs
-//:   with the UTF-16 name.  If the conversion fails, the methods call the
-//:   Windows narrow-character 'A' APIs using the unconverted name.  File
-//:   searches returning file names similarly call the Windows wide-character
-//:   'W' APIs and convert the resulting UTF-16 names to UTF-8.
+//: o On Windows, methods of 'bdesu_FileUtilUtf8' that take a file or directory
+//:   name or pattern as a 'char*' or 'bsl::string' type assume that the name
+//:   is encoded in UTF-8.  The routines attempt to convert the name to a
+//:   UTF-16 'wchar_t' string via 'bdede_CharConvertUtf16::utf8ToUtf16', and if
+//:   the conversion succeeds, call the Windows wide-character 'W' APIs with
+//:   the UTF-16 name.  If the conversion fails, the methods fail.  Similarly,
+//:   file searches returning file names call the Windows wide-character 'W'
+//:   APIs and convert the resulting UTF-16 names to UTF-8.
 //:
 //:   Narrow-character file names in other encodings, containing characters
 //:   with values in the range 128 - 255, will likely result in files being
-//:   created with names which appear garbled.
+//:   created with names that appear garbled.
 //:
 //:   Neither 'utf8ToUtf16' nor the Windows 'W' APIs do any normalization of
 //:   the UTF-16 strings resulting from UTF-8 conversion, and it is therefore
@@ -64,8 +63,14 @@ BDES_IDENT("$Id: $")
 //:   but are treated as different names by the file system.
 //:
 //: o On Posix, a file name or pattern supplied to methods of
-//:   'bdesu_FileUtilUtf8' as a 'char*' or 'bsl::string' type is passed
-//:   unchanged to the underlying system file APIs.
+//:   'bdesu_FileUtilUtf8' as a 'char*' or 'bsl::string' type are assumed to be
+//:   encoded in UTF-8, and are passed unchanged to the underlying system file
+//:   APIs, which are assumed to be interfacing with a filesystem encoded in
+//:   UTF-8.  Because the file names and patterns are passed unchanged,
+//:   'bdesu_FileUtilUtf8' methods will work correctly on Posix with other
+//:   encodings, providing that the strings supplied to the methods are in the
+//:   same encoding as the underlying file system.
+//
 ///Usage
 ///-----
 ///Example 1: General Usage
@@ -74,9 +79,9 @@ BDES_IDENT("$Id: $")
 // containing log files:
 //..
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//    bsl::string logPath = "temp\\logs";
+//    bsl::string logPath = "temp.1\\logs";
 //  #else
-//    bsl::string logPath = "tmp/logs";
+//    bsl::string logPath = "temp.1/logs";
 //  #endif
 //..
 // Suppose that we want to separate files into "old" and "new" subdirectories
@@ -104,17 +109,17 @@ BDES_IDENT("$Id: $")
 //..
 //  bdet_Datetime modTime;
 //  bsl::string   fileName;
-//  for (bsl::vector<bdesu_Path>::iterator it = logFiles.begin();
-//                                               it != logFiles.end(); ++it) {
+//  for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
+//                                                it != logFiles.end(); ++it) {
 //    assert(0 == bdesu_FileUtilUtf8::getLastModificationTime(&modTime, *it));
 //    assert(0 == bdesu_PathUtil::getLeaf(&fileName, *it));
 //    bsl::string *whichDirectory =
-//               2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
+//                2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
 //                ? &oldPath
 //                : &newPath;
 //    bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
 //    assert(0 == bdesu_FileUtilUtf8::move(it->c_str(),
-//                                          whichDirectory->c_str()));
+//                                         whichDirectory->c_str()));
 //    bdesu_PathUtil::popLeaf(whichDirectory);
 //  }
 //..
